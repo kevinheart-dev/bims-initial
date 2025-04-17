@@ -19,16 +19,13 @@ class LivelihoodFactory extends Factory
     public function definition(): array
     {
         return [
-            'resident_id' => Resident::inRandomOrder()->first()->id,
-
-            'livelihood_type_id' => LivelihoodType::factory(),
-
-            // Use `optional()` for the `other` field, so it's not always required
-            'other' => $this->faker->optional()->word(),
-
-            // Timestamps for creation and updates
-            'created_at' => now(),
-            'updated_at' => now(),
+            'resident_id' => Resident::inRandomOrder()->first()?->resident_id ?? Resident::factory(),
+            'livelihood_type_id' => LivelihoodType::inRandomOrder()->first()?->livelihood_type_id ?? LivelihoodType::factory(),
+            'monthly_income' => $this->faker->randomFloat(2, 1000, 50000),
+            'other' => $this->faker->optional()->jobTitle,
+            'is_main_livelihood' => $this->faker->boolean(60),
+            'started_at' => $this->faker->date(),
+            'ended_at' => $this->faker->optional(0.3)->date(),
         ];
     }
 }

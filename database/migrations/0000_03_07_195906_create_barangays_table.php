@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('barangays', function (Blueprint $table) {
-            $table->id('barangay_id');
+            $table->id();
             $table->string('barangay_name', 50);
             $table->string('city', 30);
             $table->string('province', 30);
@@ -24,6 +24,7 @@ return new class extends Migration
             $table->year('founded_year')->nullable();
             $table->string('barangay_code', 20)->nullable();
             $table->enum('barangay_type', ['rural', 'urban']);
+            $table->timestamps();
         });
     }
 

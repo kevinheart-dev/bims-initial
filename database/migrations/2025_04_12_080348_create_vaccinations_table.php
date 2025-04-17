@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('family_relations', function (Blueprint $table) {
+        Schema::create('vaccinations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->foreignId('related_to')->constrained('residents')->onDelete('cascade');  // This references another resident
-            $table->enum('relationship', ['child', 'parent', 'spouse', 'sibling']);
+            $table->string('vaccine_name', 100);
+            $table->integer('dose_number');
+            $table->date('vaccination_date');
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('family_relations');
+        Schema::dropIfExists('vaccinations');
     }
 };

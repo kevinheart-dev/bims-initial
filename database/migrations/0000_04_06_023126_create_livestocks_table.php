@@ -17,6 +17,7 @@ return new class extends Migration
             $table->enum('livestock_type', ['chicken', 'cow', 'carabao', 'goat', 'pig', 'duck', 'others']);
             $table->string('other', 55)->nullable();
             $table->integer('quantity');
+            $table->enum('purpose', ['personal consumption', 'commercial', 'both']);
             $table->timestamps();
         });
     }

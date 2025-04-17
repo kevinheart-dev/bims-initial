@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('livelihood_types', function (Blueprint $table) {
+        Schema::create('occupation_types', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 255);
+            $table->string('name', 155);
             $table->text('description')->nullable();
             $table->timestamps();
         });
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('livelihood_types');
+        Schema::dropIfExists('occupation_types');
     }
 };

@@ -18,13 +18,17 @@ class MedicalInformationFactory extends Factory
     public function definition(): array
     {
         return [
-            'resident_id' => Resident::inRandomOrder()->first()->id,
-            'medical_condition' => $this->faker->optional()->sentence,
-            'allergies' => $this->faker->optional()->words(2, true),
-            'blood_type' => $this->faker->optional()->randomElement(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
-            'is_pwd' => $this->faker->boolean(20),
-            'disability_type' => $this->faker->optional()->word,
-            'pwd_verification' => $this->faker->optional()->paragraph,
+            'resident_id' => Resident::inRandomOrder()->first()?->id,
+            'weight_kg' => $this->faker->randomFloat(2, 40, 150),
+            'height_cm' => $this->faker->randomFloat(2, 120, 200),
+            'emergency_contact_number' => $this->faker->phoneNumber,
+            'emergency_contact_name' => $this->faker->name,
+            'emergency_contact_relationship' => $this->faker->word,
+            'is_smoker' => $this->faker->boolean,
+            'is_alcohol_user' => $this->faker->boolean,
+            'blood_type' => $this->faker->randomElement(['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']),
+            'has_philhealth' => $this->faker->boolean,
+            'philhealth_id_number' => $this->faker->boolean ? $this->faker->numerify('##########') : null,
         ];
     }
 }

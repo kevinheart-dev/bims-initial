@@ -17,7 +17,8 @@ class PurokFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'barangay_id' => 1,
+            'purok_number' => $this->faker->numberBetween(1,  7),
         ];
     }
 }

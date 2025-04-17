@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Purok;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,8 @@ class StreetFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'purok_id' => Purok::inRandomOrder()->first()?->id,
+            'street_name' => $this->faker->streetName,
         ];
     }
 }

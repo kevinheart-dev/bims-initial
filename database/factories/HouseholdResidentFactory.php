@@ -18,16 +18,13 @@ class HouseholdResidentFactory extends Factory
      */
     public function definition(): array
     {
+        $relationship = $this->faker->randomElement(['self', 'spouse', 'child', 'sibling', 'parent', 'grandparent', 'other']);
         return [
-            'resident_id' => Resident::inRandomOrder()->first()?->resident_id ?? 1,
-            'household_id' => Household::inRandomOrder()->first()?->id ?? 1,
-            'is_household_head' => $this->faker->boolean(20),
-            'is_family_member' => true,
-            'relationship_to_head' => $this->faker->randomElement([
-                'Father', 'Mother', 'Son', 'Daughter', 'Grandparent', 'Uncle', 'Aunt', 'Sibling', 'Cousin', 'Niece', 'Nephew', 'Other'
-            ]),
-            'created_at' => now(),
-            'updated_at' => now(),
+            'resident_id' => Resident::inRandomOrder()->first()?->id,
+            'household_id' => Household::inRandomOrder()->first()?->id,
+            'relationship_to_head' => $relationship,
+            'household_position' => $this->faker->randomElement(['primary', 'extended', 'boarder']),
+            'other_relationship' => $relationship === 'other' ? $this->faker->word : null,
         ];
     }
 }

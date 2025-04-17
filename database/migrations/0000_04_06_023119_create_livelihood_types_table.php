@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('senior_citizens', function (Blueprint $table) {
+        Schema::create('livelihood_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->integer('id_number');
-            $table->string('pensioner', 55)->nullable();
+            $table->string('name', 155);
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('senior_citizens');
+        Schema::dropIfExists('livelihood_types');
     }
 };

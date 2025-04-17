@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('vehicles', function (Blueprint $table) {
+        Schema::create('family_relations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->enum('vehicle_type', ['motorcycle', 'tricycle', 'car', 'truck', 'bicycle', 'other']);
-            $table->enum('vehicle_class', ['private', 'public']);
-            $table->enum('usage_status', ['owned', 'work']);
-            $table->string('other', 55)->nullable();
-            $table->integer('quantity');
+            $table->unsignedBigInteger('related_to');
+            $table->enum('relationship', ['child', 'parent', 'spouse', 'sibling']);
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('vehicles');
+        Schema::dropIfExists('family_relations');
     }
 };

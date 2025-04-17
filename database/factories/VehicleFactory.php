@@ -18,29 +18,13 @@ class VehicleFactory extends Factory
     public function definition(): array
     {
         return [
-            // Random resident_id from the existing residents table
-            'resident_id' => Resident::inRandomOrder()->first()->id,
-
-            // Random vehicle type
-            'vehicle_type' => $this->faker->randomElement([
-                'motorcycle', 'tricycle', 'car', 'truck', 'bicycle', 'other'
-            ]),
-
-            // Random vehicle class (private or public)
+            'barangay_id' => 1,
+            'resident_id' => Resident::inRandomOrder()->first()->resident_id,
+            'vehicle_type' => $this->faker->randomElement(['motorcycle', 'tricycle', 'car', 'truck', 'bicycle', 'other']),
             'vehicle_class' => $this->faker->randomElement(['private', 'public']),
-
-            // Random usage status (owned or work)
             'usage_status' => $this->faker->randomElement(['owned', 'work']),
-
-            // Optional 'other' field for vehicle type
             'other' => $this->faker->optional()->word(),
-
-            // Random quantity of vehicles
-            'quantity' => $this->faker->numberBetween(1, 10),
-
-            // Created and updated timestamps
-            'created_at' => now(),
-            'updated_at' => now(),
+            'quantity' => $this->faker->numberBetween(1, 3),
         ];
     }
 }

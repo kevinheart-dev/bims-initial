@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('livelihoods', function (Blueprint $table) {
+        Schema::create('disaster_risks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->foreignId('livelihood_type_id')->constrained('livelihood_types')->onDelete('cascade');
-            $table->string('other', 155)->nullable();
+            $table->foreignId('purok_id')->constrained('puroks')->onDelete('cascade');
+            $table->enum('risk_type', ['flood', 'earthquake', 'landslide', 'fire', 'storm surge', 'typhoon', 'others']);
+            $table->enum('risk_level', ['low', 'moderate', 'high', 'very high']);
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('livelihoods');
+        Schema::dropIfExists('disaster_risks');
     }
 };

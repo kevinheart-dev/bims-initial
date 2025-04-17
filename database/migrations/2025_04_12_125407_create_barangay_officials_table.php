@@ -15,18 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
             $table->enum('position', [
-                'barangay captain',
-                'barangay secretary',
-                'barangay treasurer',
-                'councilor',
-                'sk chairman',
-                'sk member',
-                'health worker',
-                'tanod'
+                'barangay captain', 'barangay secretary', 'barangay treasurer',
+                'councilor', 'sk chairman', 'sk member', 'health worker', 'tanod'
             ]);
             $table->date('term_start');
-            $table->date('term_end')->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->date('term_end');
+            $table->enum('status', ['active', 'inactive']);
             $table->timestamps();
         });
     }

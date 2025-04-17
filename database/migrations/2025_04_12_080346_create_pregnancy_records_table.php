@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('streets', function (Blueprint $table) {
+        Schema::create('pregnancy_records', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('purok_id')->nullable()->constrained('puroks')->onDelete('cascade');
-            $table->string('street_name', 55);
+            $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
+            $table->boolean('is_pregnant');
+            $table->date('expected_due_date');
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('streets');
+        Schema::dropIfExists('pregnancy_records');
     }
 };

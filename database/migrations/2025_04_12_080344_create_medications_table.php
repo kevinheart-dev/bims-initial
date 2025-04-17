@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('blotter_respondents', function (Blueprint $table) {
+        Schema::create('medications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('blotter_id')->constrained('blotters')->onDelete('cascade');
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->string('respondent_name', 155);
-            $table->enum('involvement', ['primary', 'accomplice', 'witness']);
+            $table->string('medication_name', 100);
+            $table->string('dosage', 50);
+            $table->string('frequency', 50);
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('blotter_respondents');
+        Schema::dropIfExists('medications');
     }
 };

@@ -13,13 +13,17 @@ return new class extends Migration
     {
         Schema::create('medical_information', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->string('medical_condition', 255)->nullable();
-            $table->string('allergies', 255)->nullable();
-            $table->char('blood_type', 5)->nullable();
-            $table->boolean('is_pwd')->default(false);
-            $table->string('disability_type', 155)->nullable();
-            $table->text('pwd_verification')->nullable();
+            $table->foreignId('resident_id')->constrained()->onDelete('cascade');
+            $table->decimal('weight_kg', 5, 2);
+            $table->decimal('height_cm', 5, 2);
+            $table->string('emergency_contact_number', 20);
+            $table->string('emergency_contact_name', 55);
+            $table->string('emergency_contact_relationship', 55);
+            $table->boolean('is_smoker');
+            $table->boolean('is_alcohol_user');
+            $table->char('blood_type', 5);
+            $table->boolean('has_philhealth');
+            $table->string('philhealth_id_number', 30)->nullable();
             $table->timestamps();
         });
     }

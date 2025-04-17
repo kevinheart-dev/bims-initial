@@ -11,15 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('social_welfares', function (Blueprint $table) {
+        Schema::create('social_welfare_profiles', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
             $table->boolean('is_4ps_beneficiary')->default(false);
             $table->boolean('is_indigent')->default(false);
             $table->boolean('is_solo_parent')->default(false);
+            $table->string('solo_parent_id_number')->nullable();
             $table->boolean('orphan_status')->default(false);
-            $table->boolean('financial_assistance')->default(false);
-            $table->date('beneficiary_since')->nullable();
+            $table->string('dswd_case_number')->nullable();
+            $table->date('assessment_date')->nullable();
+            $table->string('assessed_by')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('social_welfares');
+        Schema::dropIfExists('social_welfare_profiles');
     }
 };

@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Purok;
+use App\Models\Street;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,12 +20,14 @@ class HouseholdFactory extends Factory
     {
         return [
             'barangay_id' => 1,
-            'purok' => $this->faker->numberBetween(1, 7),
+            'purok_id' => Purok::inRandomOrder()->first()?->id,
+            'street_id' => Street::inRandomOrder()->first()?->id,
             'internet_access' => $this->faker->boolean,
-            'household_number' => $this->faker->unique()->numberBetween(1000, 9999),
-            'house_ownership' => $this->faker->randomElement(['owned', 'rented', 'shared', 'others']),
-            'owned' => $this->faker->randomElement(['land', 'house', 'both', '']),
-            'shared_with' => $this->faker->randomElement(['owner', 'renter', '']),
+            'house_number' => $this->faker->numberBetween(1, 999),
+            'ownership_type' => $this->faker->randomElement(['owned', 'rented', 'shared', 'government-provided', 'inherited', 'others']),
+            'ownership_details' => $this->faker->optional()->sentence(3),
+            'housing_condition' => $this->faker->randomElement(['good', 'needs repair', 'dilapidated']),
+            'year_established' => $this->faker->optional()->year,
             'house_structure' => $this->faker->randomElement(['concrete', 'semi-concrete', 'wood', 'makeshift']),
             'toilet_type' => $this->faker->randomElement([
                 'water sealed',
@@ -32,7 +36,7 @@ class HouseholdFactory extends Factory
                 'no latrine',
                 'not mentioned above (specify)'
             ]),
-            'toilet_other' => $this->faker->optional()->word,
+            'toilet_other' => $this->faker->optional()->words(3, true),
             'electricity_source' => $this->faker->randomElement([
                 'distribution company (iselco-ii)',
                 'generator',
@@ -41,7 +45,7 @@ class HouseholdFactory extends Factory
                 'not mentioned above (specify)',
                 'none'
             ]),
-            'electricity_source_other' => $this->faker->optional()->word,
+            'electricity_source_other' => $this->faker->optional()->words(3, true),
             'water_source' => $this->faker->randomElement([
                 'level ii water system',
                 'level iii water system',
@@ -51,13 +55,13 @@ class HouseholdFactory extends Factory
                 'commercial water refill source',
                 'not mentioned above (specify)'
             ]),
-            'water_source_other' => $this->faker->optional()->word,
+            'water_source_other' => $this->faker->optional()->words(3, true),
             'bath_and_wash_area' => $this->faker->randomElement([
                 'with own sink and bath',
                 'shared or communal',
                 'not mentioned above (specify)'
             ]),
-            'bath_and_wash_area_other' => $this->faker->optional()->word,
+            'bath_and_wash_area_other' => $this->faker->optional()->words(3, true),
             'waste_management' => $this->faker->randomElement([
                 'open dump site',
                 'sanitary landfill',
@@ -66,7 +70,9 @@ class HouseholdFactory extends Factory
                 'garbage is collected',
                 'not mentioned above (specify)'
             ]),
-            'waste_management_other' => $this->faker->optional()->word,
+            'waste_management_other' => $this->faker->optional()->words(3, true),
+            'number_of_rooms' => $this->faker->numberBetween(1, 9),
+            'number_of_floors' => $this->faker->numberBetween(1, 3),
         ];
     }
 }

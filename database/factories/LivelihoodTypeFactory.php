@@ -17,7 +17,7 @@ class LivelihoodTypeFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->unique()->jobTitle,
+            'name' => $this->faker->unique()->jobTitle(),
             'description' => $this->faker->sentence(8),
         ];
     }

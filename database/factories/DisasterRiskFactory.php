@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Purok;
 use App\Models\Resident;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,8 +19,7 @@ class DisasterRiskFactory extends Factory
     public function definition(): array
     {
         return [
-            'barangay_id' => 1,
-            'purok_covered' => $this->faker->numberBetween(1, 10),
+            'purok_id' => Purok::inRandomOrder()->first()->id ?? 1,
             'risk_type' => $this->faker->randomElement(['flood', 'earthquake', 'landslide', 'fire', 'storm surge', 'typhoon', 'others']),
             'risk_level' => $this->faker->randomElement(['low', 'moderate', 'high', 'very high']),
         ];

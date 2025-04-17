@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\BlotterRespondent>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\OccupationType>
  */
-class BlotterRespondentFactory extends Factory
+class OccupationTypeFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,7 +17,8 @@ class BlotterRespondentFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => $this->faker->unique()->jobTitle,
+            'description' => $this->faker->sentence(8),
         ];
     }
 }

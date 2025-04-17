@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('household_residents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->foreignId('household_id')->constrained('households')->onDelete('cascade');
-            $table->boolean('is_household_head')->default(false);
-            $table->boolean('is_family_member')->default(true);
-            $table->string('relationship_to_head', 155)->nullable();
+            $table->foreignId('resident_id')->nullable()->constrained('residents')->onDelete('cascade');
+            $table->foreignId('household_id')->nullable()->constrained('households')->onDelete('cascade');
+            $table->enum('relationship_to_head', ['self', 'spouse', 'child', 'sibling', 'parent', 'grandparent', 'other']);
+            $table->enum('household_position', ['primary', 'extended', 'boarder']);
+            $table->string('other_relationship', 55)->nullable();
             $table->timestamps();
         });
     }

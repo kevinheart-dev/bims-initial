@@ -14,12 +14,14 @@ return new class extends Migration
         Schema::create('households', function (Blueprint $table) {
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->integer('purok')->nullable();
-            $table->boolean('internet_access')->default(false);
-            $table->integer('household_number');
-            $table->enum('house_ownership', ['owned', 'rented', 'shared', 'others']);
-            $table->enum('owned', ['land', 'house', 'both', '']);
-            $table->enum('shared_with', ['owner', 'renter', '']);
+            $table->foreignId('purok_id')->constrained('puroks')->onDelete('cascade');
+            $table->foreignId('street_id')->constrained('streets')->onDelete('cascade');
+            $table->boolean('internet_access');
+            $table->integer('house_number');
+            $table->enum('ownership_type', ['owned', 'rented', 'shared', 'government-provided', 'inherited', 'others']);
+            $table->string('ownership_details', 100)->nullable();
+            $table->enum('housing_condition', ['good', 'needs repair', 'dilapidated']);
+            $table->year('year_established')->nullable();
             $table->enum('house_structure', ['concrete', 'semi-concrete', 'wood', 'makeshift']);
             $table->enum('toilet_type', [
                 'water sealed',
@@ -63,6 +65,8 @@ return new class extends Migration
                 'not mentioned above (specify)'
             ]);
             $table->string('waste_management_other', 100)->nullable();
+            $table->tinyInteger('number_of_rooms');
+            $table->tinyInteger('number_of_floors');
             $table->timestamps();
         });
     }

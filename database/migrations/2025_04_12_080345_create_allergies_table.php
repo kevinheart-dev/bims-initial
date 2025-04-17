@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('streets', function (Blueprint $table) {
+        Schema::create('allergies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('purok_id')->nullable()->constrained('puroks')->onDelete('cascade');
-            $table->string('street_name', 55);
+            $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
+            $table->string('allergy_name', 100);
+            $table->text('reaction_description');
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('streets');
+        Schema::dropIfExists('allergies');
     }
 };

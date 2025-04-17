@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('disaster_risks', function (Blueprint $table) {
+        Schema::create('senior_citizens', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->integer('purok_covered');
-            $table->enum('risk_type', ['flood', 'earthquake', 'landslide', 'fire', 'storm surge', 'typhoon', 'others']);
-            $table->enum('risk_level', ['low', 'moderate', 'high', 'very high']);
+            $table->integer('osca_id_number');
+            $table->enum('pensioner', ['yes', 'no', 'pending']);
+            $table->enum('pension_type', ['SSS', 'GSIS', 'DSWD', 'private', 'none']);
+            $table->boolean('living_alone');
+            $table->boolean('birthday_gift_received');
             $table->timestamps();
         });
     }
@@ -26,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('disaster_risks');
+        Schema::dropIfExists('senior_citizens');
     }
 };
