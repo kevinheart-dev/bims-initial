@@ -18,7 +18,7 @@ class LivestockFactory extends Factory
     public function definition(): array
     {
         return [
-            'household_id' => Household::inRandomOrder()->first()->household_id,
+            'household_id' => Household::inRandomOrder()->first()->id,
             'livestock_type' => $this->faker->randomElement(['chicken', 'cow', 'carabao', 'goat', 'pig', 'duck', 'others']),
             'other' => $this->faker->optional()->word(),
             'quantity' => $this->faker->numberBetween(1, 20),

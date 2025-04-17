@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Allergy;
 use App\Models\Barangay;
+use App\Models\BarangayOfficial;
+use App\Models\Designation;
 use App\Models\Disability;
 use App\Models\DisasterRisk;
 use App\Models\EducationStatus;
@@ -21,7 +23,9 @@ use App\Models\PregnancyRecords;
 use App\Models\Purok;
 use App\Models\Resident;
 use App\Models\SeniorCitizen;
+use App\Models\SocialAssistance;
 use App\Models\SocialWelfare;
+use App\Models\SocialWelfareProfile;
 use App\Models\Street;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -68,6 +72,7 @@ class DatabaseSeeder extends Seeder
             ]);
             $user->assignRole($resRole);
         }
+
         OccupationType::factory(30)->create();
         LivelihoodType::factory(30)->create();
         Family::factory(7)->create();
@@ -81,5 +86,12 @@ class DatabaseSeeder extends Seeder
         PregnancyRecords::factory(15)->create();
         Occupation::factory(70)->create();
         Livelihood::factory(40)->create();
+        EducationStatus::factory(70)->create();
+        Livestock::factory(10)->create();
+        Vehicle::factory(40)->create();
+        SocialWelfareProfile::factory(70)->create();
+        SocialAssistance::factory(20)->create();
+        BarangayOfficial::factory(20)->create();
+        Designation::factory(7)->create();
     }
 }

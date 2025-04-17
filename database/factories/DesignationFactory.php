@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\BarangayOfficial;
+use App\Models\Purok;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +19,11 @@ class DesignationFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'barangay_kagawad_id' => BarangayOfficial::inRandomOrder()->first()->id ?? null,
+            'sk_kagawad_id' => BarangayOfficial::inRandomOrder()->first()->id ?? null,
+            'purok_id' => Purok::inRandomOrder()->first()->id,
+            'started_at' => $this->faker->date(),
+            'ended_at' => null,
         ];
     }
 }

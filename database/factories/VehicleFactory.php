@@ -19,7 +19,7 @@ class VehicleFactory extends Factory
     {
         return [
             'barangay_id' => 1,
-            'resident_id' => Resident::inRandomOrder()->first()->resident_id,
+            'resident_id' => Resident::inRandomOrder()->first()->id,
             'vehicle_type' => $this->faker->randomElement(['motorcycle', 'tricycle', 'car', 'truck', 'bicycle', 'other']),
             'vehicle_class' => $this->faker->randomElement(['private', 'public']),
             'usage_status' => $this->faker->randomElement(['owned', 'work']),
