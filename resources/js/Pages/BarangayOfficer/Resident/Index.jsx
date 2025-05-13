@@ -146,66 +146,80 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {residents.data.map((resident) => (
-                                    <TableRow key={resident.id}>
-                                        <TableCell>{resident.id}</TableCell>
-                                        <TableCell>{`${resident.firstname} ${
-                                            resident.middlename ?? ""
-                                        } ${
-                                            resident.lastname ?? ""
-                                        }`}</TableCell>
-                                        <TableCell>{resident.gender}</TableCell>
-                                        <TableCell>
-                                            {resident.civil_status}
-                                        </TableCell>
-                                        <TableCell>
-                                            {resident.employment_status}
-                                        </TableCell>
-                                        <TableCell>
-                                            {resident.residency_date}
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex justify-center items-center gap-2">
-                                                <Button
-                                                    className="bg-green-400 hover:bg-green-600 "
-                                                    size="sm"
-                                                >
-                                                    <SquarePen />
-                                                </Button>
-                                                <Button
-                                                    className="bg-red-500 hover:bg-red-600"
-                                                    size="sm"
-                                                >
-                                                    <Trash2 />
-                                                </Button>
-                                                <TooltipProvider>
-                                                    <Tooltip>
-                                                        <TooltipTrigger asChild>
-                                                            <Link
-                                                                href={route(
-                                                                    "barangay_officer.familytree",
-                                                                    resident.id
-                                                                )}
+                                {residents.length > 0 ? (
+                                    residents.data.map((resident) => (
+                                        <TableRow key={resident.id}>
+                                            <TableCell>{resident.id}</TableCell>
+                                            <TableCell>{`${
+                                                resident.firstname
+                                            } ${resident.middlename ?? ""} ${
+                                                resident.lastname ?? ""
+                                            }`}</TableCell>
+                                            <TableCell>
+                                                {resident.gender}
+                                            </TableCell>
+                                            <TableCell>
+                                                {resident.civil_status}
+                                            </TableCell>
+                                            <TableCell>
+                                                {resident.employment_status}
+                                            </TableCell>
+                                            <TableCell>
+                                                {resident.residency_date}
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex justify-center items-center gap-2">
+                                                    <Button
+                                                        className="bg-green-400 hover:bg-green-600 "
+                                                        size="sm"
+                                                    >
+                                                        <SquarePen />
+                                                    </Button>
+                                                    <Button
+                                                        className="bg-red-500 hover:bg-red-600"
+                                                        size="sm"
+                                                    >
+                                                        <Trash2 />
+                                                    </Button>
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger
+                                                                asChild
                                                             >
-                                                                <Button
-                                                                    className="bg-blue-400 hover:bg-blue-600"
-                                                                    size="sm"
+                                                                <Link
+                                                                    href={route(
+                                                                        "barangay_officer.familytree",
+                                                                        resident.id
+                                                                    )}
                                                                 >
-                                                                    <Network />
-                                                                </Button>
-                                                            </Link>
-                                                        </TooltipTrigger>
-                                                        <TooltipContent>
-                                                            <p>
-                                                                See Family Tree
-                                                            </p>
-                                                        </TooltipContent>
-                                                    </Tooltip>
-                                                </TooltipProvider>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                                                    <Button
+                                                                        className="bg-blue-400 hover:bg-blue-600"
+                                                                        size="sm"
+                                                                    >
+                                                                        <Network />
+                                                                    </Button>
+                                                                </Link>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>
+                                                                    See Family
+                                                                    Tree
+                                                                </p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableCell
+                                        colspan="7"
+                                        className="text-center font-semibold"
+                                    >
+                                        No records found.
+                                    </TableCell>
+                                )}
                             </TableBody>
                         </Table>
                     </div>

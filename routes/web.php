@@ -42,6 +42,6 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-})->name('/'); // Welcome page accessible to both admin and resident
+})->name('welcome'); // Welcome page accessible to both admin and resident
 
 require __DIR__.'/auth.php';

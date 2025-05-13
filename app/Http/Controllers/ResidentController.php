@@ -27,10 +27,8 @@ class ResidentController extends Controller
                 $q->where('firstname', 'like', '%' . request('name') . '%')
                     ->orWhere('lastname', 'like', '%' . request('name') . '%')
                     ->orWhere('middlename', 'like', '%' . request('name') . '%')
-                    ->orWhere('suffix', 'like', '%' . request('name') . '%')
                     ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
-                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
-                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ['%' . request('name') . '%']);
+                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ['%' . request('name') . '%']);
             });
         }
 
