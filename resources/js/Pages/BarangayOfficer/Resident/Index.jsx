@@ -146,7 +146,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {residents.length > 0 ? (
+                                {residents.data.length > 0 ? (
                                     residents.data.map((resident) => (
                                         <TableRow key={resident.id}>
                                             <TableCell>{resident.id}</TableCell>
@@ -170,7 +170,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                             <TableCell>
                                                 <div className="flex justify-center items-center gap-2">
                                                     <Button
-                                                        className="bg-green-400 hover:bg-green-600 "
+                                                        className="bg-green-400 hover:bg-green-600"
                                                         size="sm"
                                                     >
                                                         <SquarePen />
@@ -213,12 +213,14 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                         </TableRow>
                                     ))
                                 ) : (
-                                    <TableCell
-                                        colspan="7"
-                                        className="text-center font-semibold"
-                                    >
-                                        No records found.
-                                    </TableCell>
+                                    <TableRow>
+                                        <TableCell
+                                            colSpan="7"
+                                            className="text-center font-semibold"
+                                        >
+                                            No records found.
+                                        </TableCell>
+                                    </TableRow>
                                 )}
                             </TableBody>
                         </Table>
