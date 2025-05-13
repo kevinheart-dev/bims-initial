@@ -35,6 +35,7 @@ Route::middleware(['auth', 'verified', 'role:resident|barangay_officer'])->group
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
@@ -44,4 +45,4 @@ Route::get('/', function () {
     ]);
 })->name('welcome'); // Welcome page accessible to both admin and resident
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
