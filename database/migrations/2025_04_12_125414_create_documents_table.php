@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->string('name', 150);
-            $table->binary('template');
+            $table->text('template_path');
             $table->timestamps();
         });
     }

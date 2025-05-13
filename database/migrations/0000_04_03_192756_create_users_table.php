@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('barangay_id')->nullable()->constrained('barangays')->onDelete('set null');
             $table->foreignId('resident_id')->nullable()->constrained('residents')->onDelete('set null');
             $table->string('username', 50);
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password', 100);
-            $table->enum('role', ['resident', 'barangay_official', 'admin', 'super admin']);
+            $table->enum('role', ['resident', 'barangay_officer', 'admin', 'super_admin']);
             $table->enum('status', ['active', 'pending', 'banned', 'rejected']);
             $table->rememberToken();
             $table->timestamps();

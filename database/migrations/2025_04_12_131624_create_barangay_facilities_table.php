@@ -15,9 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->string('name', 100);
-            $table->string('facility_type');
-            $table->string('other', 55)->nullable();
-            $table->unsignedTinyInteger('quantity');
+            $table->string('facility_type', 55);
+            $table->tinyInteger('quantity')->default(1);
             $table->timestamps();
         });
     }

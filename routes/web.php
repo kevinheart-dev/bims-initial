@@ -9,15 +9,15 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // Admin-only routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')->group(function () {
     Route::get('dashboard', function () {
-        return inertia('Admin/Dashboard');
-    })->name('admin.dashboard');
+        return inertia('BarangayOfficer/Dashboard');
+    })->name('barangay_officer.dashboard');
 
     Route::resource('resident', ResidentController::class);
     Route::resource('document', DocumentController::class);
     Route::resource('household', HouseholdController::class);
-    Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('admin.familytree');
+    Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('barangay_officer.familytree');
 });
 
 // Resident-only routes
@@ -28,7 +28,7 @@ Route::middleware(['auth', 'role:resident'])->group(function () {
 });
 
 // Routes accessible to both resident and admin users (verified users)
-Route::middleware(['auth', 'verified', 'role:resident|admin'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:resident|barangay_officer'])->group(function () {
     // Profile management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

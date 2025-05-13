@@ -19,24 +19,40 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Search, UserRoundPlus } from "lucide-react";
+import {
+    Search,
+    UserRoundPlus,
+    SquarePen,
+    Trash2,
+    Network,
+} from "lucide-react";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useState } from "react";
 
-export default function Index({ residents, queryParams = null }) {
-    const puroks = [1, 2, 3, 4, 5, 6, 7];
+export default function Index({ residents, queryParams = null, puroks }) {
     queryParams = queryParams || {};
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
+
     const handleSubmit = (e) => {
         e.preventDefault(); // Prevent page reload
         searchFieldName("name", query);
     };
 
     const searchFieldName = (field, value) => {
-        if (field) {
+        if (value && value.trim() !== "") {
             queryParams[field] = value;
         } else {
             delete queryParams[field];
+        }
+
+        if (queryParams.page) {
+            delete queryParams.page;
         }
         router.get(route("resident.index", queryParams));
     };
@@ -75,7 +91,7 @@ export default function Index({ residents, queryParams = null }) {
                                         onChange={(e) =>
                                             setQuery(e.target.value)
                                         }
-                                        onKeyPress={(e) =>
+                                        onKeyDown={(e) =>
                                             onKeyPressed("name", e.target.value)
                                         }
                                     />
@@ -98,9 +114,9 @@ export default function Index({ residents, queryParams = null }) {
                                         {puroks.map((purok, index) => (
                                             <SelectItem
                                                 key={index}
-                                                value={purok.toString()}
+                                                value={purok.id.toString()}
                                             >
-                                                Purok {purok}
+                                                Purok {purok.purok_number}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -121,7 +137,8 @@ export default function Index({ residents, queryParams = null }) {
                                     </TableHead>
                                     <TableHead>Name</TableHead>
                                     <TableHead>Gender</TableHead>
-                                    <TableHead>Status</TableHead>
+                                    <TableHead>Civil Status</TableHead>
+                                    <TableHead>Employment Status</TableHead>
                                     <TableHead>Residency Date</TableHead>
                                     <TableHead className="text-center">
                                         Actions
@@ -132,9 +149,18 @@ export default function Index({ residents, queryParams = null }) {
                                 {residents.data.map((resident) => (
                                     <TableRow key={resident.id}>
                                         <TableCell>{resident.id}</TableCell>
-                                        <TableCell>{`${resident.firstname} ${resident.middlename} ${resident.lastname} ${resident.suffix}`}</TableCell>
+                                        <TableCell>{`${resident.firstname} ${
+                                            resident.middlename ?? ""
+                                        } ${
+                                            resident.lastname ?? ""
+                                        }`}</TableCell>
                                         <TableCell>{resident.gender}</TableCell>
-                                        <TableCell>{resident.status}</TableCell>
+                                        <TableCell>
+                                            {resident.civil_status}
+                                        </TableCell>
+                                        <TableCell>
+                                            {resident.employment_status}
+                                        </TableCell>
                                         <TableCell>
                                             {resident.residency_date}
                                         </TableCell>
@@ -144,27 +170,38 @@ export default function Index({ residents, queryParams = null }) {
                                                     className="bg-green-400 hover:bg-green-600 "
                                                     size="sm"
                                                 >
-                                                    Edit
+                                                    <SquarePen />
                                                 </Button>
                                                 <Button
                                                     className="bg-red-500 hover:bg-red-600"
                                                     size="sm"
                                                 >
-                                                    Delete
+                                                    <Trash2 />
                                                 </Button>
-                                                <Link
-                                                    href={route(
-                                                        "admin.familytree",
-                                                        resident.id
-                                                    )}
-                                                >
-                                                    <Button
-                                                        className="bg-blue-400 hover:bg-blue-600 "
-                                                        size="sm"
-                                                    >
-                                                        Family Tree
-                                                    </Button>
-                                                </Link>
+                                                <TooltipProvider>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Link
+                                                                href={route(
+                                                                    "barangay_officer.familytree",
+                                                                    resident.id
+                                                                )}
+                                                            >
+                                                                <Button
+                                                                    className="bg-blue-400 hover:bg-blue-600"
+                                                                    size="sm"
+                                                                >
+                                                                    <Network />
+                                                                </Button>
+                                                            </Link>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>
+                                                                See Family Tree
+                                                            </p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
                                             </div>
                                         </TableCell>
                                     </TableRow>

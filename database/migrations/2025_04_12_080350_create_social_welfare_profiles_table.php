@@ -18,11 +18,8 @@ return new class extends Migration
             $table->boolean('is_4ps_beneficiary')->default(false);
             $table->boolean('is_indigent')->default(false);
             $table->boolean('is_solo_parent')->default(false);
-            $table->string('solo_parent_id_number')->nullable();
+            $table->string('solo_parent_id_number', 100)->nullable();
             $table->boolean('orphan_status')->default(false);
-            $table->string('dswd_case_number')->nullable();
-            $table->date('assessment_date')->nullable();
-            $table->string('assessed_by')->nullable();
             $table->timestamps();
         });
     }

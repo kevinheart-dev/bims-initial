@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('incident_reports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->dateTime('date_of_incident');
-            $table->string('type_of_incident', 255);
+            $table->date('date_of_incident');
+            $table->string('type_of_incident', 155);
             $table->text('narrative_details');
             $table->text('actions_taken');
-            $table->text('recommendations')->nullable();
+            $table->text('recommendations');
             $table->foreignId('reported_by')->constrained('residents')->onDelete('cascade');
-            $table->foreignId('reviewed_by')->constrained('residents')->onDelete('cascade');
+            $table->foreignId('reviewed_by')->constrained('barangay_officials')->onDelete('cascade');
             $table->timestamps();
         });
     }

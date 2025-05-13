@@ -16,16 +16,16 @@ return new class extends Migration
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->foreignId('household_id')->constrained('households')->onDelete('cascade');
             $table->enum('income_bracket', [
-                'Below PHP 5,000 (Survival)',
-                'PHP 5,001 - PHP 10,000 (Poor)',
-                'PHP 10,001 - PHP 20,000 (Low Income)',
-                'PHP 20,001 - PHP 40,000 (Lower Middle Income)',
-                'PHP 40,001 - PHP 70,000 (Middle Income)',
-                'PHP 70,001 - PHP 120,000 (Upper Middle Income)',
-                'PHP 120,001 and above (High Income)'
+                'below_5000_survival',
+                '5001_10000_poor',
+                '10001_20000_low_income',
+                '20001_40000_lower_middle_income',
+                '40001_70000_middle_income',
+                '70001_120000_upper_middle_income',
+                '120001_above_high_income'
             ]);
             $table->string('family_name', 155);
-            $table->enum('family_type', ['nuclear', 'extended', 'single-parent', 'other']);
+            $table->string('family_type', 55);
             $table->timestamps();
         });
     }

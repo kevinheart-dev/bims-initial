@@ -12,6 +12,7 @@ use App\Models\EducationStatus;
 use App\Models\Family;
 use App\Models\Household;
 use App\Models\HouseholdResident;
+use App\Models\InternetAccessibility;
 use App\Models\Livelihood;
 use App\Models\LivelihoodType;
 use App\Models\Livestock;
@@ -47,7 +48,7 @@ class DatabaseSeeder extends Seeder
         Street::factory(30)->create();
         Household::factory(15)->create();
 
-        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $barangayOfficer = Role::firstOrCreate(['name' => 'barangay_officer']);
         $user = User::factory()->create([
             'resident_id' => Resident::factory(),
             'username' => 'Test User',
@@ -57,15 +58,15 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
             'status' => 'active'
         ]);
-        $user->assignRole($adminRole);
+        $user->assignRole($barangayOfficer);
 
         $resRole = Role::firstOrCreate(['name' => 'resident']);
         for($i = 0; $i <= 20; $i++){
             $user = User::factory()->create([
                 'resident_id' => Resident::factory(),
-                'username' => 'Test User',
-                'email' => 'test'. "$i" .'@example.com',
-                'password' => bcrypt('admin123'),
+                'username' => 'Sample Resident Account',
+                'email' => 'user'. "$i" .'@example.com',
+                'password' => bcrypt('user123'),
                 'email_verified_at' => now(),
                 'role' => 'resident',
                 'status' => 'active'
@@ -78,20 +79,7 @@ class DatabaseSeeder extends Seeder
         Family::factory(7)->create();
         Resident::factory(50)->create();
         HouseholdResident::factory(70)->create();
-        MedicalInformation::factory(70)->create();
-        Vaccination::factory(70)->create();
-        MedicalCondition::factory(30)->create();
-        Disability::factory(20)->create();
-        Allergy::factory(10)->create();
-        PregnancyRecords::factory(15)->create();
-        Occupation::factory(70)->create();
-        Livelihood::factory(40)->create();
-        EducationStatus::factory(70)->create();
-        Livestock::factory(10)->create();
-        Vehicle::factory(40)->create();
-        SocialWelfareProfile::factory(70)->create();
-        SocialAssistance::factory(20)->create();
-        BarangayOfficial::factory(20)->create();
-        Designation::factory(7)->create();
+        InternetAccessibility::factory(15)->create();
+
     }
 }

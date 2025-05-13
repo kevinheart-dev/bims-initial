@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('barangay_infrastructures', function (Blueprint $table) {
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->string('infrastructure_type');
-            $table->string('infrastructure_category');
+            $table->string('infrastructure_type', 100);
+            $table->string('infrastructure_category', 55);
             $table->unsignedTinyInteger('quantity');
             $table->timestamps();
         });

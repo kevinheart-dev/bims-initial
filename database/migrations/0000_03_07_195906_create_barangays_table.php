@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('barangay_name', 50);
             $table->string('city', 30);
             $table->string('province', 30);
-            $table->char('zip_code', 5);
+            $table->char('zip_code', 4);
             $table->string('contact_number', 15)->nullable();
             $table->decimal('area_sq_km', 5, 2)->nullable();
             $table->string('email', 50)->nullable();

@@ -14,16 +14,14 @@ return new class extends Migration
         Schema::create('blotter_reports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('incident_id')->nullable()->constrained('incident_reports')->onDelete('cascade');
-            $table->foreignId('compliant_id')->constrained('residents')->onDelete('cascade');
-            $table->string('compliant_name', 155);
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->enum('report_type', ['summon', 'complaint']);
-            $table->string('type_of_incident', 255);
             $table->text('narrative_details');
             $table->text('actions_taken');
             $table->enum('report_status', ['pending', 'under mediation', 'resolved', 'dismissed']);
-            $table->text('resolution')->nullable();
-            $table->foreignId('recorded_by')->constrained('barangay_officials');
+            $table->text('location');
+            $table->text('resolution');
+            $table->foreignId('recorded_by')->constrained('barangay_officials')->onDelete('cascade');
             $table->timestamps();
         });
     }

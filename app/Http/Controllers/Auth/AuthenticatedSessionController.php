@@ -34,9 +34,9 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
         $user = Auth::user();
 
-        if ($user->isAdmin()) {
+        if ($user->isBarangayOfficer()) {
 
-            return redirect()->intended(route('admin.dashboard', [], false));
+            return redirect()->intended(route('barangay_officer.dashboard', [], false));
         }
 
         // Check if the user is a resident

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('disaster_risks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('purok_id')->constrained('puroks')->onDelete('cascade');
-            $table->enum('risk_type', ['flood', 'earthquake', 'landslide', 'fire', 'storm surge', 'typhoon', 'others']);
+            $table->string('risk_type', 155);
             $table->enum('risk_level', ['low', 'moderate', 'high', 'very high']);
             $table->timestamps();
         });

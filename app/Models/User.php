@@ -51,8 +51,17 @@ class User extends Authenticatable
         return $this->hasRole('admin');
     }
 
+    public function isBarangayOfficer()
+    {
+        return $this->hasRole('barangay_officer');
+    }
+
     public function isResident()
     {
         return $this->hasRole('resident');
+    }
+
+    public function resident(){
+        return $this->belongsTo(Resident::class);
     }
 }

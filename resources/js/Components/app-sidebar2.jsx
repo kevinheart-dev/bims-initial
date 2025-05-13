@@ -30,7 +30,7 @@ import { NavUser } from "@/components/nav-user";
 const items = [
     {
         title: "Dashboard",
-        url: "/admin/dashboard", // URL for the Dashboard
+        url: "/barangay_officer/dashboard", // URL for the Dashboard
         icon: Home,
         submenu: [],
     },
@@ -39,8 +39,16 @@ const items = [
         url: "#",
         icon: Users,
         submenu: [
-            { title: "Residents Table", url: "/admin/resident", icon: Table },
-            { title: "Add Resident", url: "#", icon: UserPlus },
+            {
+                title: "Residents Table",
+                url: "/barangay_officer/resident",
+                icon: Table,
+            },
+            {
+                title: "Add Resident",
+                url: "/barangay_officer/resident/create",
+                icon: UserPlus,
+            },
             { title: "View Residents", url: "#", icon: FileText },
         ],
     },
@@ -51,7 +59,7 @@ const items = [
         submenu: [
             {
                 title: "Barangay Certificates",
-                url: "/admin/document",
+                url: "/barangay_officer/document",
                 icon: FileText,
             },
             { title: "Request Certificate", url: "#", icon: FileText },

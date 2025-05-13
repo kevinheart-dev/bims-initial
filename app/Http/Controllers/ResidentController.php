@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ResidentResource;
+use App\Models\Purok;
 use App\Models\Resident;
 use App\Http\Requests\StoreResidentRequest;
 use App\Http\Requests\UpdateResidentRequest;
@@ -16,6 +17,11 @@ class ResidentController extends Controller
     public function index()
     {
         $query = Resident::query();
+        $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
+        $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->get();
+
+        $query = $query->where('barangay_id', $brgy_id);
+
         if (request('name')) {
             $query->where(function ($q) {
                 $q->where('firstname', 'like', '%' . request('name') . '%')
@@ -29,14 +35,15 @@ class ResidentController extends Controller
         }
 
         if (request()->filled('purok') && request('purok') !== 'All') {
-            $query->where('purok', request('purok'));
+            $query->where('purok_id', request('purok'));
         }
 
         $residents = $query->paginate(15)->onEachSide(1);
 
-        return Inertia::render('Admin/Resident/Index', [
+        return Inertia::render('BarangayOfficer/Resident/Index', [
             'residents' => $residents,
             'queryParams' => request()->query() ?: null,
+            'puroks' => $puroks
         ]);
     }
 
@@ -45,7 +52,7 @@ class ResidentController extends Controller
      */
     public function create()
     {
-        return Inertia::render("Admin/Resident/Create");
+        return Inertia::render("BarangayOfficer/Resident/Create");
     }
 
     /**
@@ -90,7 +97,7 @@ class ResidentController extends Controller
 
     public function getFamilyTree(Resident $resident){
         $familyTree = $resident->familyTree();
-        return Inertia::render('Admin/Resident/FamilyTree', [
+        return Inertia::render('BarangayOfficer/Resident/FamilyTree', [
             'family_tree' => [
             'self' => new ResidentResource($familyTree['self']),
             'parents' => ResidentResource::collection($familyTree['parents']),

@@ -14,13 +14,23 @@ return new class extends Migration
         Schema::create('barangay_officials', function (Blueprint $table) {
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
+            $table->foreignId('term_id')->constrained('barangay_official_terms')->onDelete('cascade');
+
             $table->enum('position', [
-                'barangay captain', 'barangay secretary', 'barangay treasurer',
-                'councilor', 'sk chairman', 'sk member', 'health worker', 'tanod'
+                'barangay_captain',
+                'barangay_secretary',
+                'barangay_treasurer',
+                'councilor',
+                'sk_chairman',
+                'sk_member',
+                'health_worker',
+                'tanod'
             ]);
-            $table->date('term_start');
-            $table->date('term_end');
             $table->enum('status', ['active', 'inactive']);
+            $table->enum('appointment_type', ['elected', 'appointed', 'succession']);
+            $table->foreignId('appointted_by')->nullable()->constrained('residents')->onDelete('cascade'); // assumes reference to a user or resident
+            $table->text('appointment_reason')->nullable();
+            $table->text('remarks')->nullable();
             $table->timestamps();
         });
     }

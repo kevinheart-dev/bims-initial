@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('vaccinations', function (Blueprint $table) {
+        Schema::create('internet_accessibilities', function (Blueprint $table) {
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->string('vaccine_name', 100);
-            $table->integer('dose_number');
-            $table->date('vaccination_date');
+            $table->enum('type_of_internet', ['mobile_data', 'wireless_fidelity', 'other']);
+            $table->string('isp', 55);
+            $table->boolean('is_changed')->default(false);
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('vaccinations');
+        Schema::dropIfExists('internet_accessibilities');
     }
 };

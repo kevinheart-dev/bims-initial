@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('summons', function (Blueprint $table) {
+        Schema::create('supporting_documents', function (Blueprint $table) {
             $table->id();
             $table->foreignId('blotter_id')->constrained('blotter_reports')->onDelete('cascade');
-            $table->foreignId('respondent_id')->nullable()->constrained('residents')->onDelete('cascade');
-            $table->string('name', 155);
-            $table->enum('status', ['pending', 'attended', 'missed', 'rescheduled']);
-            $table->text('remarks')->nullable();
-            $table->foreignId('issued_by')->constrained('barangay_officials')->onDelete('cascade');
+            $table->foreignId('incident_id')->constrained('incident_reports')->onDelete('cascade');
+            $table->foreignId('summon_id')->constrained('summons')->onDelete('cascade');
+            $table->text('supporting_document');
             $table->timestamps();
         });
     }
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('summons');
+        Schema::dropIfExists('supporting_documents');
     }
 };

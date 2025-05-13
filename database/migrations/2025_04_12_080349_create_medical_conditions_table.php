@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('medical_conditions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
             $table->string('condition_name', 155);
-            $table->enum('status', ['active', 'resolved', 'chronic']);
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

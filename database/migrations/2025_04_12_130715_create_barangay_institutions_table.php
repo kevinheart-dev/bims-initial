@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('barangay_institutions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->foreignId('institution_head')->nullable()->constrained('residents')->onDelete('cascade');
-            $table->string('name');
+            $table->string('name', 255);
             $table->timestamps();
         });
     }

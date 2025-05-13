@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('institution_id')->constrained('barangay_institutions')->onDelete('cascade');
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
+            $table->boolean('is_head')->default(false);
             $table->date('member_since');
             $table->timestamps();
         });

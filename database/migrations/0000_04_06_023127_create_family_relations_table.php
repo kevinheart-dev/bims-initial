@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('family_relations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->unsignedBigInteger('related_to');
+            $table->foreignId('related_to')->constrained('residents')->onDelete('cascade');
             $table->enum('relationship', ['child', 'parent', 'spouse', 'sibling']);
             $table->timestamps();
         });

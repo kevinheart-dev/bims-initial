@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('livelihoods', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('resident_id')->nullable()->constrained('residents'
-            )->onDelete('cascade');
-            $table->foreignId('livelihood_type_id')->nullable()->constrained('livelihood_types')->onDelete('set null');
-            $table->decimal('monthly_income', 11, 2)->nullable();
+            $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
+            $table->foreignId('livelihood_type_id')->constrained('livelihood_types')->onDelete('cascade');
+            $table->decimal('monthly_income', 11, 2);
             $table->string('other', 155)->nullable();
-            $table->boolean('is_main_livelihood')->default(false);
-            $table->date('started_at')->nullable();
+            $table->boolean('is_main_livelihood')->default(true);
+            $table->date('started_at');
             $table->date('ended_at')->nullable();
             $table->timestamps();
         });

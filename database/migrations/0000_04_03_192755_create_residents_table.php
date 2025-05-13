@@ -15,39 +15,33 @@ return new class extends Migration
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->string('firstname', 55);
-            $table->string('middlename', 55)->nullable();
+            $table->string('middlename', 55);
             $table->string('lastname', 55);
-            $table->enum('suffix', ['sr', 'jr', 'II', 'III', 'IV', 'V'])->nullable();
             $table->string('maiden_name', 155)->nullable();
             $table->enum('gender', ['male', 'female', 'LGBTQ+']);
             $table->date('birthdate');
             $table->string('birthplace', 150);
             $table->enum('civil_status', ['single', 'married', 'widowed', 'separated', 'divorced', 'others']);
             $table->string('civil_status_other', 55)->nullable();
-            $table->boolean('registered_voter')->default(false);
-            $table->string('precint_number', 55)->nullable();
-            $table->enum('employment_status', ['employed', 'unemployed', 'student', 'retired', 'others']);
-            $table->enum('educational_attainment', [
-                'No Formal Education', 'Elementary Level', 'Elementary Graduate',
-                'High School Level', 'High School Graduate', 'College Level',
-                'College Graduate', 'Vocational', 'Post Graduate', 'ALS Graduate'
-            ]);
+            $table->boolean('registered_voter');
+            $table->string('precint_number', 55);
+            $table->enum('employment_status', ['employed', 'unemployed', 'student', 'retired']);
             $table->string('nationality', 55);
-            $table->string('religion', 55)->nullable();
-            $table->string('contact_number', 15)->nullable();
-            $table->string('email', 55)->nullable();
-            $table->foreignId('purok_id')->nullable()->constrained('puroks')->onDelete('set null');
-            $table->foreignId('street_id')->nullable()->constrained('streets')->onDelete('set null');
+            $table->string('religion', 55);
+            $table->string('contact_number', 15);
+            $table->string('email', 55);
+            $table->integer('purok_number');
+            $table->foreignId('street_id')->constrained('streets')->onDelete('cascade');
             $table->date('residency_date');
             $table->enum('residency_type', ['permanent', 'temporary', 'migrant']);
-            $table->text('resident_picture_path')->nullable();
-            $table->boolean('is_disabled')->default(false);
-            $table->string('ethnicity', 155)->nullable();
-            $table->enum('status', ['active', 'inactive', 'deceased']);
-            $table->foreignId('household_id')->nullable()->constrained('households')->onDelete('set null');
-            $table->boolean('is_household_head')->default(false);
-            $table->foreignId('family_id')->nullable()->constrained('families')->onDelete('set null');
-            $table->boolean('is_family_head')->default(false);
+            $table->text('resident_picture_path');
+            $table->boolean('is_pwd');
+            $table->string('ethnicity', 55)->nullable();
+            $table->date('date_of_death')->nullable();
+            $table->foreignId('household_id')->constrained('households')->onDelete('cascade');
+            $table->boolean('is_household_head');
+            $table->foreignId('family_id')->constrained('families')->onDelete('cascade');
+            $table->boolean('is_family_head');
             $table->timestamps();
         });
     }

@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('designations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('barangay_kagawad_id')->nullable()->constrained('barangay_officials')->onDelete('cascade');
-            $table->foreignId('sk_kagawad_id')->nullable()->constrained('barangay_officials')->onDelete('cascade');
+            $table->foreignId('barangay_kagawad_id')->nullable()->constrained('residents')->onDelete('set null');
+            $table->foreignId('sk_kagawad_id')->nullable()->constrained('residents')->onDelete('set null');
             $table->foreignId('purok_id')->constrained('puroks')->onDelete('cascade');
-            $table->date('started_at')->nullable();
+            $table->date('started_at');
             $table->date('ended_at')->nullable();
             $table->timestamps();
         });

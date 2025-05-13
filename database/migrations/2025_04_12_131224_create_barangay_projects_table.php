@@ -17,13 +17,13 @@ return new class extends Migration
             $table->string('title', 55);
             $table->text('description');
             $table->enum('status', ['planning', 'ongoing', 'completed', 'cancelled']);
-            $table->enum('category', ['infrastructure', 'healthcare', 'education', 'livelihood', 'training', 'disaster preparedness', 'environmental', 'peace and order', 'others']);
-            $table->foreignId('responsible_institution')->nullable()->constrained('barangay_institutions')->onDelete('cascade');
+            $table->string('category', 55);
+            $table->foreignId('responsible_institution_id')->nullable()->constrained('barangay_institutions')->onDelete('set null')->nullable();
             $table->string('other', 155)->nullable();
             $table->decimal('budget', 12, 2);
             $table->string('funding_source', 100);
             $table->date('start_date');
-            $table->date('end_date');
+            $table->date('end_date')->nullable();
             $table->timestamps();
         });
     }

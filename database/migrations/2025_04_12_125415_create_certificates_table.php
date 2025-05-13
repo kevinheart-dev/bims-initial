@@ -17,8 +17,9 @@ return new class extends Migration
             $table->foreignId('document_id')->constrained('documents')->onDelete('cascade');
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->enum('request_status', ['pending', 'approved', 'denied', 'issued']);
-            $table->text('purpose')->nullable();
-            $table->date('issued_at')->nullable();
+            $table->text('purpose');
+            $table->date('issued_at');
+            $table->foreignId('issued_by')->constrained('barangay_officials')->onDelete('cascade'); // Assuming `users` is the table for issued_by.
             $table->timestamps();
         });
     }

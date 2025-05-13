@@ -15,12 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->string('item_name', 100);
-            $table->enum('category', ['medicine', 'relief goods', 'equipment']);
+            $table->string('item_category', 55);
             $table->integer('quantity');
-            $table->enum('unit', ['pcs', 'kg', 'liters']);
-            $table->date('recieved_date');
-            $table->string('supplier', 55)->nullable();
-            $table->enum('status', ['available', 'low stock', 'out of stock'])->default('available');
+            $table->string('unit', 15);
+            $table->date('received_date');
+            $table->string('supplier', 55);
+            $table->enum('status', ['available', 'low stock', 'out of stock']);
             $table->timestamps();
         });
     }

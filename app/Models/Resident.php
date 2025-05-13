@@ -108,9 +108,15 @@ class Resident extends Model
     {
         return $this->belongsTo(Household::class, 'household_id');
     }
-    public function medicalInformation()
+
+    public function user()
     {
-        return $this->hasMany(MedicalInformation::class, 'resident_id', 'id');
+        return $this->belongsTo(User::class);
+    }
+
+    public function suffix()
+    {
+        return $this->belongsTo(ResidentSuffix::class);
     }
 
 }
