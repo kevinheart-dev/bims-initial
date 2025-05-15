@@ -20,12 +20,14 @@ class ResidentFactory extends Factory
      */
     public function definition(): array
     {
+        $suffixes = ['Jr.', 'Sr.', 'I', 'II', 'III', 'IV', 'V'];
         return [
             'barangay_id' => 1,
             'firstname' => $this->faker->firstName,
             'middlename' => $this->faker->firstName,
             'lastname' => $this->faker->lastName,
             'maiden_name' => $this->faker->optional()->lastName,
+            'suffix' => $this->faker->optional()->randomElement($suffixes),
             'gender' => $this->faker->randomElement(['male', 'female', 'LGBTQ+']),
             'birthdate' => $this->faker->date(),
             'birthplace' => $this->faker->city . ', ' . $this->faker->state,

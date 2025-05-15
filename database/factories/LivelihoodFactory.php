@@ -18,14 +18,17 @@ class LivelihoodFactory extends Factory
      */
     public function definition(): array
     {
+        $startDate = $this->faker->dateTimeBetween('-10 years', 'now');
+        $hasEnded = $this->faker->boolean(25); // 25% chance of ended livelihood
+
         return [
-            'resident_id' => Resident::inRandomOrder()->first()?->resident_id ?? Resident::factory(),
-            'livelihood_type_id' => LivelihoodType::inRandomOrder()->first()?->livelihood_type_id ?? LivelihoodType::factory(),
-            'monthly_income' => $this->faker->randomFloat(2, 1000, 50000),
-            'other' => $this->faker->optional()->jobTitle,
-            'is_main_livelihood' => $this->faker->boolean(60),
-            'started_at' => $this->faker->date(),
-            'ended_at' => $this->faker->optional(0.3)->date(),
+            'resident_id' => Resident::inRandomOrder()->value('id') ?? 1,
+            'livelihood_type_id' => LivelihoodType::inRandomOrder()->value('id') ?? 1,
+            'monthly_income' => $this->faker->randomFloat(2, 3000, 60000),
+            'other' => $this->faker->optional()->word(),
+            'is_main_livelihood' => $this->faker->boolean(80), // 80% chance it's the main livelihood
+            'started_at' => $startDate->format('Y-m-d'),
+            'ended_at' => $hasEnded ? $this->faker->dateTimeBetween($startDate, 'now')->format('Y-m-d') : null,
         ];
     }
 }
