@@ -19,7 +19,7 @@ class ResidentController extends Controller
         $query = Resident::query();
         $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
         // $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->get();
-        $puroks = [1, 2, 3, 4, 5, 6, 7];
+        $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
         $query = $query->where('barangay_id', $brgy_id);
 
         if (request('name')) {
@@ -34,15 +34,78 @@ class ResidentController extends Controller
             });
         }
 
+        // handles purok filtering
         if (request()->filled('purok') && request('purok') !== 'All') {
             $query->where('purok_number', request('purok'));
         }
 
+        // handles gender filtering
         if (request()->filled('sex') && request('sex') !== 'All') {
             $query->where('gender', request('sex'));
         }
 
+        // handles employment filtering
+        if (request()->filled('estatus') && request('estatus') !== 'All') {
+            $query->where('employment_status', request('estatus'));
+        }
+
+        // handles civil status filtering
+        if (request()->filled('cstatus') && request('cstatus') !== 'All') {
+            $query->where('civil_status', request('cstatus'));
+        }
+
+        // handles age filtering
+        if (request()->filled('age_group') && request('age_group') !== 'All') {
+            $today = \Carbon\Carbon::today();
+
+            switch (request('age_group')) {
+                case 'child':
+                    $max = $today->copy()->subYears(0);
+                    $min = $today->copy()->subYears(13);
+                    break;
+                case 'teen':
+                    $max = $today->copy()->subYears(13);
+                    $min = $today->copy()->subYears(18);
+                    break;
+                case 'young_adult':
+                    $max = $today->copy()->subYears(18);
+                    $min = $today->copy()->subYears(26);
+                    break;
+                case 'adult':
+                    $max = $today->copy()->subYears(26);
+                    $min = $today->copy()->subYears(60);
+                    break;
+                case 'senior':
+                    $max = $today->copy()->subYears(60);
+                    $min = null;
+                    break;
+            }
+
+            if (isset($min)) {
+                $query->whereBetween('birthdate', [$min, $max]);
+            } else {
+                $query->where('birthdate', '<=', $max);
+            }
+        }
+
+
         $residents = $query->paginate(15)->onEachSide(1);
+        $residents->getCollection()->transform(function ($resident) {
+        return [
+            'id' => $resident->id,
+            'firstname' => $resident->firstname,
+            'middlename' => $resident->middlename,
+            'lastname' => $resident->lastname,
+            'suffix' => $resident->suffix,
+            'gender' => $resident->gender,
+            'purok_number' => $resident->purok_number,
+            'birthdate' => $resident->birthdate,
+            'age' => $resident->age,
+            'civil_status' => $resident->civil_status,
+            'residency_date' => $resident->residency_date,
+            'employment_status' => $resident->employment_status,
+        ];
+    });
 
         return Inertia::render('BarangayOfficer/Resident/Index', [
             'residents' => $residents,

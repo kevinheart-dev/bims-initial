@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Traits\HasRoles;
@@ -113,10 +114,9 @@ class Resident extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    public function suffix()
+    public function getAgeAttribute()
     {
-        return $this->belongsTo(ResidentSuffix::class);
+        return Carbon::parse($this->birthdate)->age;
     }
 
 }

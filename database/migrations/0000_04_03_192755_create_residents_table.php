@@ -25,7 +25,7 @@ return new class extends Migration
             $table->enum('civil_status', ['single', 'married', 'widowed', 'separated', 'divorced', 'annulled']);
             $table->boolean('registered_voter');
             $table->string('precint_number', 55);
-            $table->enum('employment_status', ['employed', 'unemployed', 'student', 'retired']);
+            $table->enum('employment_status', ['employed', 'unemployed', 'self_employed', 'student', 'retired']);
             $table->string('nationality', 55);
             $table->string('religion', 55);
             $table->string('contact_number', 15);
