@@ -1,3 +1,4 @@
+import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head } from "@inertiajs/react";
 import { useState } from "react";
@@ -31,20 +32,36 @@ export default function Index() {
         console.log("Form Submitted", formData);
     };
 
+    const breadcrumbs = [
+        { label: "Residents Information", showOnMobile: false },
+        {
+            label: "Residents Table",
+            href: route("resident.index"),
+            showOnMobile: false,
+        },
+        { label: "Add Resident", showOnMobile: true },
+    ];
+
     return (
         <AdminLayout>
             <Head title="Resident Dashboard" />
+            <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
                 {/* personal information */}
                 <div className="overflow-hidden bg-white border border-gray-200 shadow-md rounded-xl p-6 mb-7">
-                    <h2 className="text-2xl font-semibold text-gray-800 mb-1">Personal Information</h2>
-                    <p className="text-sm text-gray-600 mb-6">Please complete your personal information.</p>
+                    <h2 className="text-2xl font-semibold text-gray-800 mb-1">
+                        Personal Information
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-6">
+                        Please complete your personal information.
+                    </p>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
-
                         <div className="grid md:grid-cols-4 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Last Name
+                                </label>
                                 <input
                                     type="text"
                                     name="lastname"
@@ -57,7 +74,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    First Name
+                                </label>
                                 <input
                                     type="text"
                                     name="firstname"
@@ -65,11 +84,14 @@ export default function Index() {
                                     onChange={handleChange}
                                     className="w-full border-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                     placeholder="Juan"
-                                    required />
+                                    required
+                                />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Middle Name</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Middle Name
+                                </label>
                                 <input
                                     type="text"
                                     name="middlename"
@@ -77,10 +99,13 @@ export default function Index() {
                                     onChange={handleChange}
                                     className="w-full border-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                     placeholder="Santos"
-                                    required />
+                                    required
+                                />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Suffix</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Suffix
+                                </label>
                                 <input
                                     list="suffix-options"
                                     type="text"
@@ -103,11 +128,11 @@ export default function Index() {
                             </div>
                         </div>
 
-
                         <div className="grid md:grid-cols-4 gap-4">
-
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Birth Date</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Birth Date
+                                </label>
                                 <input
                                     type="date"
                                     name="birthdate"
@@ -119,7 +144,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Birth Place</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Birth Place
+                                </label>
                                 <input
                                     type="text"
                                     name="birthplace"
@@ -131,9 +158,10 @@ export default function Index() {
                                 />
                             </div>
 
-
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Civil Status</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Civil Status
+                                </label>
                                 <select
                                     name="civil_status"
                                     value={formData.civil_status}
@@ -152,29 +180,45 @@ export default function Index() {
                             </div>
 
                             <fieldset>
-                                <legend className="text-sm font-medium text-gray-700 mb-1">Gender</legend>
+                                <legend className="text-sm font-medium text-gray-700 mb-1">
+                                    Gender
+                                </legend>
                                 <div className="flex gap-4 mt-2">
-                                    {["Male", "Female", "LGBTQA+"].map(option => (
-                                        <label key={option} className="flex items-center gap-1">
-                                            <input
-                                                type="radio"
-                                                name="gender"
-                                                value={option}
-                                                checked={formData.gender === option}
-                                                onChange={handleChange}
-                                                className="form-radio text-indigo-600"
-                                                required
-                                            />
-                                            <span className="text-sm text-gray-700">{option}</span>
-                                        </label>
-                                    ))}
+                                    {["Male", "Female", "LGBTQA+"].map(
+                                        (option) => (
+                                            <label
+                                                key={option}
+                                                className="flex items-center gap-1"
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="gender"
+                                                    value={option}
+                                                    checked={
+                                                        formData.gender ===
+                                                        option
+                                                    }
+                                                    onChange={handleChange}
+                                                    className="form-radio text-indigo-600"
+                                                    required
+                                                />
+                                                <span className="text-sm text-gray-700">
+                                                    {option}
+                                                </span>
+                                            </label>
+                                        )
+                                    )}
                                 </div>
                             </fieldset>
 
                             {formData.gender === "Female" &&
-                                ["Married", "Widowed", "Separated"].includes(formData.civil_status) && (
+                                ["Married", "Widowed", "Separated"].includes(
+                                    formData.civil_status
+                                ) && (
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Maiden Middle Name</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Maiden Middle Name
+                                        </label>
                                         <input
                                             type="text"
                                             name="maiden_middle_name"
@@ -189,7 +233,9 @@ export default function Index() {
 
                         <div className="grid md:grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Citizenship</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Citizenship
+                                </label>
                                 <input
                                     list="citizenship-options"
                                     type="text"
@@ -209,7 +255,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Religion</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Religion
+                                </label>
                                 <input
                                     list="religion-options"
                                     type="text"
@@ -230,7 +278,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Ethnicity</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Ethnicity
+                                </label>
                                 <input
                                     list="ethnicity-options"
                                     type="text"
@@ -250,10 +300,11 @@ export default function Index() {
                             </div>
                         </div>
 
-
                         <div className="grid md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Contact Number
+                                </label>
                                 <input
                                     type="text"
                                     name="contactNumber"
@@ -266,7 +317,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Email Address
+                                </label>
                                 <input
                                     type="email"
                                     name="email"
@@ -282,14 +335,19 @@ export default function Index() {
 
                 {/* ADDRESS */}
                 <div className="overflow-hidden bg-white border border-gray-200 shadow-md rounded-xl p-6 mb-6">
-                    <h2 className="text-2xl font-semibold text-gray-800 mb-1">Address</h2>
-                    <p className="text-sm text-gray-600 mb-6">Please complete your address.</p>
+                    <h2 className="text-2xl font-semibold text-gray-800 mb-1">
+                        Address
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-6">
+                        Please complete your address.
+                    </p>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
-
                         <div className="grid md:grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">House/Unit No./Lot/Blk No.</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    House/Unit No./Lot/Blk No.
+                                </label>
                                 <input
                                     type="text"
                                     name="housenumber"
@@ -301,7 +359,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Street Name</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Street Name
+                                </label>
                                 <input
                                     type="text"
                                     name="street"
@@ -313,7 +373,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Purok/Zone/Sitio/Cabisera</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Purok/Zone/Sitio/Cabisera
+                                </label>
                                 <input
                                     type="text"
                                     name="purok"
@@ -323,12 +385,13 @@ export default function Index() {
                                     placeholder="e.g., Purok 5, Sitio Lupa"
                                 />
                             </div>
-
                         </div>
 
                         <div className="grid md:grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Subdivision/Village/Compound</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Subdivision/Village/Compound
+                                </label>
                                 <input
                                     type="text"
                                     name="subdivision"
@@ -340,7 +403,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Barangay Name</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Barangay Name
+                                </label>
                                 <input
                                     type="text"
                                     name="barangay"
@@ -352,7 +417,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    City
+                                </label>
                                 <input
                                     type="text"
                                     name="city"
@@ -362,12 +429,13 @@ export default function Index() {
                                     placeholder="e.g., City of Ilagan"
                                 />
                             </div>
-
                         </div>
 
                         <div className="grid md:grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Province</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Province
+                                </label>
                                 <input
                                     type="text"
                                     name="province"
@@ -379,7 +447,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Region</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Region
+                                </label>
                                 <input
                                     type="text"
                                     name="region"
@@ -391,7 +461,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Zip Code</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Zip Code
+                                </label>
                                 <input
                                     type="text"
                                     name="zip_code"
@@ -401,21 +473,25 @@ export default function Index() {
                                     placeholder="e.g., 3300"
                                 />
                             </div>
-
                         </div>
                     </form>
                 </div>
 
                 {/* education and occuaption */}
                 <div className="overflow-hidden bg-white border border-gray-200 shadow-md rounded-xl p-6 mb-7">
-                    <h2 className="text-2xl font-semibold text-gray-800 mb-1">Education and Occupation</h2>
-                    <p className="text-sm text-gray-600 mb-6">Please complete your personal information.</p>
+                    <h2 className="text-2xl font-semibold text-gray-800 mb-1">
+                        Education and Occupation
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-6">
+                        Please complete your personal information.
+                    </p>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
-
                         <div className="grid md:grid-cols-4 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Last Name
+                                </label>
                                 <input
                                     type="text"
                                     name="lastname"
@@ -428,7 +504,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    First Name
+                                </label>
                                 <input
                                     type="text"
                                     name="firstname"
@@ -436,11 +514,14 @@ export default function Index() {
                                     onChange={handleChange}
                                     className="w-full border-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                     placeholder="Juan"
-                                    required />
+                                    required
+                                />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Middle Name</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Middle Name
+                                </label>
                                 <input
                                     type="text"
                                     name="middlename"
@@ -448,10 +529,13 @@ export default function Index() {
                                     onChange={handleChange}
                                     className="w-full border-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                     placeholder="Santos"
-                                    required />
+                                    required
+                                />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Suffix</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Suffix
+                                </label>
                                 <input
                                     list="suffix-options"
                                     type="text"
@@ -474,11 +558,11 @@ export default function Index() {
                             </div>
                         </div>
 
-
                         <div className="grid md:grid-cols-4 gap-4">
-
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Birth Date</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Birth Date
+                                </label>
                                 <input
                                     type="date"
                                     name="birthdate"
@@ -490,7 +574,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Birth Place</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Birth Place
+                                </label>
                                 <input
                                     type="text"
                                     name="birthplace"
@@ -502,9 +588,10 @@ export default function Index() {
                                 />
                             </div>
 
-
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Civil Status</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Civil Status
+                                </label>
                                 <select
                                     name="civil_status"
                                     value={formData.civil_status}
@@ -523,29 +610,45 @@ export default function Index() {
                             </div>
 
                             <fieldset>
-                                <legend className="text-sm font-medium text-gray-700 mb-1">Gender</legend>
+                                <legend className="text-sm font-medium text-gray-700 mb-1">
+                                    Gender
+                                </legend>
                                 <div className="flex gap-4 mt-2">
-                                    {["Male", "Female", "LGBTQA+"].map(option => (
-                                        <label key={option} className="flex items-center gap-1">
-                                            <input
-                                                type="radio"
-                                                name="gender"
-                                                value={option}
-                                                checked={formData.gender === option}
-                                                onChange={handleChange}
-                                                className="form-radio text-indigo-600"
-                                                required
-                                            />
-                                            <span className="text-sm text-gray-700">{option}</span>
-                                        </label>
-                                    ))}
+                                    {["Male", "Female", "LGBTQA+"].map(
+                                        (option) => (
+                                            <label
+                                                key={option}
+                                                className="flex items-center gap-1"
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name="gender"
+                                                    value={option}
+                                                    checked={
+                                                        formData.gender ===
+                                                        option
+                                                    }
+                                                    onChange={handleChange}
+                                                    className="form-radio text-indigo-600"
+                                                    required
+                                                />
+                                                <span className="text-sm text-gray-700">
+                                                    {option}
+                                                </span>
+                                            </label>
+                                        )
+                                    )}
                                 </div>
                             </fieldset>
 
                             {formData.gender === "Female" &&
-                                ["Married", "Widowed", "Separated"].includes(formData.civil_status) && (
+                                ["Married", "Widowed", "Separated"].includes(
+                                    formData.civil_status
+                                ) && (
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Maiden Middle Name</label>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Maiden Middle Name
+                                        </label>
                                         <input
                                             type="text"
                                             name="maiden_middle_name"
@@ -560,7 +663,9 @@ export default function Index() {
 
                         <div className="grid md:grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Citizenship</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Citizenship
+                                </label>
                                 <input
                                     list="citizenship-options"
                                     type="text"
@@ -580,7 +685,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Religion</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Religion
+                                </label>
                                 <input
                                     list="religion-options"
                                     type="text"
@@ -601,7 +708,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Ethnicity</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Ethnicity
+                                </label>
                                 <input
                                     list="ethnicity-options"
                                     type="text"
@@ -621,10 +730,11 @@ export default function Index() {
                             </div>
                         </div>
 
-
                         <div className="grid md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Contact Number
+                                </label>
                                 <input
                                     type="text"
                                     name="contactNumber"
@@ -637,7 +747,9 @@ export default function Index() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Email Address
+                                </label>
                                 <input
                                     type="email"
                                     name="email"
