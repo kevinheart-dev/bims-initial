@@ -7,12 +7,7 @@ export default function Sidebar({ children }) {
     return (
         <SidebarProvider>
             <AppSidebar auth={auth} />
-            <main className="w-full">
-                <div className="p-4 bg-gray-900">
-                    <SidebarTrigger className="text-white text-xl" />
-                </div>
-                {children}
-            </main>
+            <main className="w-full">{children}</main>
         </SidebarProvider>
     );
 }

@@ -18,22 +18,26 @@ class OccupationFactory extends Factory
      */
     public function definition(): array
     {
-        $startDate = $this->faker->dateTimeBetween('-10 years', '-1 year');
-        $endDate = $this->faker->optional()->dateTimeBetween($startDate, 'now');
+        $employmentTypes = ['full-time', 'part-time', 'seasonal', 'contractual', 'self-employed', 'others'];
+        $workArrangements = ['remote', 'on-site', 'hybrid'];
+        $occupationStatuses = ['active', 'inactive', 'ended', 'retired'];
+
+        $startDate = $this->faker->dateTimeBetween('-10 years', 'now');
+        $isEnded = $this->faker->boolean(30); // 30% chance occupation has ended
 
         return [
-            'resident_id' => Resident::inRandomOrder()->first()?->resident_id ?? Resident::factory(),
-            'occupation_type_id' => OccupationType::inRandomOrder()->first()?->occupation_type_id ?? OccupationType::factory(),
-            'employment_type' => $this->faker->randomElement(['full-time', 'part-time', 'seasonal', 'contractual', 'self-employed', 'others']),
-            'work_arrangement' => $this->faker->randomElement(['remote', 'on-site', 'hybrid']),
-            'occupation_other' => $this->faker->optional()->jobTitle,
-            'employer' => $this->faker->company,
-            'job_sector' => $this->faker->randomElement(['agriculture', 'services', 'manufacturing', 'government', 'other']),
-            'occupation_status' => $this->faker->randomElement(['active', 'inactive', 'ended', 'retired']),
-            'is_ofw' => $this->faker->boolean(10),
-            'started_at' => $startDate,
-            'ended_at' => $endDate,
-            'monthly_income' => $this->faker->numberBetween(5000, 50000),
+            'resident_id' => Resident::inRandomOrder()->value('id') ?? 1, // fallback to ID 1 if none exist
+            'occupation_type_id' => OccupationType::inRandomOrder()->value('id') ?? 1,
+            'employment_type' => $this->faker->randomElement($employmentTypes),
+            'work_arrangement' => $this->faker->randomElement($workArrangements),
+            'occupation_other' => $this->faker->optional()->jobTitle(),
+            'employer' => $this->faker->company(),
+            'job_sector' => $this->faker->word(),
+            'occupation_status' => $this->faker->randomElement($occupationStatuses),
+            'is_ofw' => $this->faker->boolean(),
+            'started_at' => $startDate->format('Y-m-d'),
+            'ended_at' => $isEnded ? $this->faker->dateTimeBetween($startDate, 'now')->format('Y-m-d') : null,
+            'monthly_income' => $this->faker->randomFloat(2, 5000, 100000),
         ];
     }
 }

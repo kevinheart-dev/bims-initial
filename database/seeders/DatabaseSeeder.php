@@ -8,6 +8,7 @@ use App\Models\BarangayOfficial;
 use App\Models\Designation;
 use App\Models\Disability;
 use App\Models\DisasterRisk;
+use App\Models\EducationalHistory;
 use App\Models\EducationStatus;
 use App\Models\Family;
 use App\Models\Household;
@@ -78,8 +79,12 @@ class DatabaseSeeder extends Seeder
         LivelihoodType::factory(30)->create();
         Family::factory(7)->create();
         Resident::factory(50)->create();
-        HouseholdResident::factory(70)->create();
+        HouseholdResident::factory(40)->create();
         InternetAccessibility::factory(15)->create();
-
+        Livelihood::factory(20)->create();
+        Occupation::factory(10)->create();
+        EducationalHistory::factory(30)->create();
+        Vehicle::factory(30)->create();
+        Livestock::factory(30)->create();
     }
 }

@@ -20,7 +20,7 @@ class HouseholdResidentFactory extends Factory
     {
         $relationship = $this->faker->randomElement(['self', 'spouse', 'child', 'sibling', 'parent', 'grandparent', 'other']);
         return [
-            'resident_id' => Resident::inRandomOrder()->first()?->id,
+            'resident_id' => Resident::factory()->create(),
             'household_id' => Household::inRandomOrder()->first()?->id,
             'relationship_to_head' => $relationship,
             'household_position' => $this->faker->randomElement(['primary', 'extended', 'boarder']),

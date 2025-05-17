@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Household;
+use App\Models\Resident;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,12 +18,17 @@ class LivestockFactory extends Factory
      */
     public function definition(): array
     {
+        $livestockTypes = ['chicken', 'cow', 'carabao', 'goat', 'pig', 'duck', 'others'];
+        $purposes = ['personal consumption', 'commercial', 'both'];
+
+        $selectedType = $this->faker->randomElement($livestockTypes);
+
         return [
-            'household_id' => Household::inRandomOrder()->first()->id,
-            'livestock_type' => $this->faker->randomElement(['chicken', 'cow', 'carabao', 'goat', 'pig', 'duck', 'others']),
-            'other' => $this->faker->optional()->word(),
-            'quantity' => $this->faker->numberBetween(1, 20),
-            'purpose' => $this->faker->randomElement(['personal consumption', 'commercial', 'both']),
+            'resident_id' => Resident::inRandomOrder()->value('id') ?? 1,
+            'livestock_type' => $selectedType,
+            'other_livestock' => $selectedType === 'others' ? $this->faker->word() : null,
+            'quantity' => $this->faker->numberBetween(1, 100),
+            'purpose' => $this->faker->randomElement($purposes),
         ];
     }
 }
