@@ -32,7 +32,6 @@ class ResidentFactory extends Factory
             'birthdate' => $this->faker->date(),
             'birthplace' => $this->faker->city . ', ' . $this->faker->state,
             'civil_status' => $this->faker->randomElement(['single', 'married', 'widowed', 'separated', 'divorced', 'single']),
-            'civil_status_other' => $this->faker->optional()->word(),
             'registered_voter' => $this->faker->boolean(),
             'precint_number' => $this->faker->bothify('####??##'),
             'employment_status' => $this->faker->randomElement(['employed', 'unemployed', 'student', 'retired', 'student']),
@@ -52,6 +51,7 @@ class ResidentFactory extends Factory
             'is_household_head' => $this->faker->boolean(),
             'family_id' => Family::inRandomOrder()->first()?->id ?? Family::factory(),
             'is_family_head' => $this->faker->boolean(),
+            'verified' => TRUE,
         ];
     }
 }

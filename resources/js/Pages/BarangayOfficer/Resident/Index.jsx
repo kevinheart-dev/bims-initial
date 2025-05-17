@@ -33,6 +33,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useState } from "react";
+import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 
 export default function Index({ residents, queryParams = null, puroks }) {
     queryParams = queryParams || {};
@@ -65,10 +66,16 @@ export default function Index({ residents, queryParams = null, puroks }) {
         }
     };
 
+    const breadcrumbs = [
+        { label: "Residents Information", showOnMobile: false },
+        { label: "Residents Table", showOnMobile: true },
+    ];
+
     return (
         <AdminLayout>
             <Head title="Resident Dashboard" />
             <div>
+                <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 my-8">
                         <div className="my-1 flex justify-between items-center">
@@ -114,11 +121,34 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                         {puroks.map((purok, index) => (
                                             <SelectItem
                                                 key={index}
-                                                value={purok.id.toString()}
+                                                value={purok.toString()}
                                             >
-                                                Purok {purok.purok_number}
+                                                Purok {purok}
                                             </SelectItem>
                                         ))}
+                                    </SelectContent>
+                                </Select>
+
+                                <Select
+                                    onValueChange={(value) =>
+                                        searchFieldName("sex", value)
+                                    }
+                                    value={queryParams.sex} // Default to "All" if no value exists
+                                >
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Sex" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="All">All</SelectItem>
+                                        <SelectItem value="male">
+                                            Male
+                                        </SelectItem>
+                                        <SelectItem value="female">
+                                            Female
+                                        </SelectItem>
+                                        <SelectItem value="LGBTQ+">
+                                            LGBTQ+
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

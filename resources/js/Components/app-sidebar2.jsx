@@ -35,7 +35,7 @@ const items = [
         submenu: [],
     },
     {
-        title: "Residents",
+        title: "Residents Information",
         url: "#",
         icon: Users,
         submenu: [
@@ -45,8 +45,8 @@ const items = [
                 icon: Table,
             },
             {
-                title: "Add Resident",
-                url: "/barangay_officer/resident/create",
+                title: "Senior Citizen",
+                url: "#",
                 icon: UserPlus,
             },
             { title: "View Residents", url: "#", icon: FileText },

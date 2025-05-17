@@ -22,8 +22,7 @@ return new class extends Migration
             $table->enum('gender', ['male', 'female', 'LGBTQ+']);
             $table->date('birthdate');
             $table->string('birthplace', 150);
-            $table->enum('civil_status', ['single', 'married', 'widowed', 'separated', 'divorced', 'others']);
-            $table->string('civil_status_other', 55)->nullable();
+            $table->enum('civil_status', ['single', 'married', 'widowed', 'separated', 'divorced', 'annulled']);
             $table->boolean('registered_voter');
             $table->string('precint_number', 55);
             $table->enum('employment_status', ['employed', 'unemployed', 'student', 'retired']);
@@ -43,6 +42,7 @@ return new class extends Migration
             $table->boolean('is_household_head');
             $table->foreignId('family_id')->constrained('families')->onDelete('cascade');
             $table->boolean('is_family_head');
+            $table->boolean('verified');
             $table->timestamps();
         });
     }

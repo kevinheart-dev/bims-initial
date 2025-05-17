@@ -18,8 +18,8 @@ class ResidentController extends Controller
     {
         $query = Resident::query();
         $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
-        $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->get();
-
+        // $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->get();
+        $puroks = [1, 2, 3, 4, 5, 6, 7];
         $query = $query->where('barangay_id', $brgy_id);
 
         if (request('name')) {
@@ -35,7 +35,11 @@ class ResidentController extends Controller
         }
 
         if (request()->filled('purok') && request('purok') !== 'All') {
-            $query->where('purok_id', request('purok'));
+            $query->where('purok_number', request('purok'));
+        }
+
+        if (request()->filled('sex') && request('sex') !== 'All') {
+            $query->where('gender', request('sex'));
         }
 
         $residents = $query->paginate(15)->onEachSide(1);
