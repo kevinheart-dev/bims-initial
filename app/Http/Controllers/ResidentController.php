@@ -16,7 +16,7 @@ class ResidentController extends Controller
      */
     public function index()
     {
-        $query = Resident::query();
+        $query = Resident::query()->with(['socialwelfareprofile', 'occupations.occupationType', 'livelihoods.livelihoodType']);
         $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
         // $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->get();
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
@@ -88,24 +88,41 @@ class ResidentController extends Controller
             }
         }
 
+        // handles voter status filtering
+        if (request()->filled('voter_status') && request('voter_status') !== 'All') {
+            $query->where('registered_voter', request('voter_status'));
+        }
 
         $residents = $query->paginate(15)->onEachSide(1);
         $residents->getCollection()->transform(function ($resident) {
-        return [
-            'id' => $resident->id,
-            'firstname' => $resident->firstname,
-            'middlename' => $resident->middlename,
-            'lastname' => $resident->lastname,
-            'suffix' => $resident->suffix,
-            'gender' => $resident->gender,
-            'purok_number' => $resident->purok_number,
-            'birthdate' => $resident->birthdate,
-            'age' => $resident->age,
-            'civil_status' => $resident->civil_status,
-            'residency_date' => $resident->residency_date,
-            'employment_status' => $resident->employment_status,
-        ];
-    });
+            return [
+                'id' => $resident->id,
+                'resident_picture' => $resident->resident_picture_path,
+                'firstname' => $resident->firstname,
+                'middlename' => $resident->middlename,
+                'lastname' => $resident->lastname,
+                'suffix' => $resident->suffix,
+                'gender' => $resident->gender,
+                'purok_number' => $resident->purok_number,
+                'birthdate' => $resident->birthdate,
+                'age' => $resident->age,
+                'civil_status' => $resident->civil_status,
+                'citizenship' => $resident->citizenship,
+                'religion' => $resident->religion,
+                'contact_number' => $resident->contact_number,
+                'email' => $resident->email,
+                'registered_voter' => $resident->registered_voter,
+                'employment_status' => $resident->employment_status,
+                'isIndigent' => optional($resident->socialwelfareprofile)->is_indigent,
+                'isSoloParent' => optional($resident->socialwelfareprofile)->is_solo_parent,
+                'is4ps' => optional($resident->socialwelfareprofile)->is_4ps_beneficiary,
+                'occupation' => optional(
+                                    $resident->occupations
+                                        ->sortByDesc('started_at') // or 'created_at' if more appropriate
+                                        ->first()?->occupationType
+                                )->name,
+            ];
+        });
 
         return Inertia::render('BarangayOfficer/Resident/Index', [
             'residents' => $residents,

@@ -19,14 +19,14 @@ return new class extends Migration
             $table->string('lastname', 55);
             $table->string('maiden_name', 155)->nullable();
             $table->enum('suffix', ['Jr.', 'Sr.', 'I', 'II', 'III', 'IV', 'V'])->nullable();
-            $table->enum('gender', ['male', 'female', 'LGBTQ+']);
+            $table->enum('gender', ['male', 'female', 'LGBTQ']);
             $table->date('birthdate');
             $table->string('birthplace', 150);
             $table->enum('civil_status', ['single', 'married', 'widowed', 'separated', 'divorced', 'annulled']);
             $table->boolean('registered_voter');
-            $table->string('precint_number', 55);
-            $table->enum('employment_status', ['employed', 'unemployed', 'self_employed', 'student', 'retired']);
-            $table->string('nationality', 55);
+            $table->string('voter_id_number', 55);
+            $table->enum('employment_status', ['employed', 'unemployed', 'self_employed', 'student']);
+            $table->string('citizenship', 55);
             $table->string('religion', 55);
             $table->string('contact_number', 15);
             $table->string('email', 55);

@@ -26,15 +26,18 @@ import {
     Trash2,
     Network,
 } from "lucide-react";
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import ActionMenu from "@/Components/ActionMenu";
+import {
+    RESIDENT_CIVIL_STATUS_TEXT,
+    RESIDENT_EMPLOYMENT_STATUS_TEXT,
+    RESIDENT_GENDER_COLOR_CLASS,
+    RESIDENT_GENDER_TEXT,
+    RESIDENT_REGISTER_VOTER_CLASS,
+    RESIDENT_REGISTER_VOTER_TEXT,
+} from "@/constants";
+import ClearFilterButton from "@/Components/ClearFiltersButton";
 
 export default function Index({ residents, queryParams = null, puroks }) {
     queryParams = queryParams || {};
@@ -42,7 +45,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
     const [query, setQuery] = useState(queryParams["name"] ?? "");
 
     const handleSubmit = (e) => {
-        e.preventDefault(); // Prevent page reload
+        e.preventDefault();
         searchFieldName("name", query);
     };
 
@@ -111,13 +114,13 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                 </form>
                             </div>
                         </div>
-                        <div className="flex w-full justify-end items-center space-x-2 my-2">
+                        <div className="flex w-full justify-end items-center space-x-2 my-4">
                             {/* Filter for Age group */}
                             <Select
                                 onValueChange={(value) =>
                                     searchFieldName("age_group", value)
                                 }
-                                value={queryParams.age_group || "All"}
+                                value={queryParams.age_group}
                             >
                                 <SelectTrigger className="w-[180px]">
                                     <SelectValue placeholder="Age Group" />
@@ -163,12 +166,6 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                     <SelectItem value="unemployed">
                                         Unemployed
                                     </SelectItem>
-                                    <SelectItem value="self_employed">
-                                        Self Employed
-                                    </SelectItem>
-                                    <SelectItem value="retired">
-                                        Retired
-                                    </SelectItem>
                                 </SelectContent>
                             </Select>
 
@@ -205,6 +202,27 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                 </SelectContent>
                             </Select>
 
+                            {/* Filter for Voter Status */}
+                            <Select
+                                onValueChange={(value) =>
+                                    searchFieldName("voter_status", value)
+                                }
+                                value={queryParams.voter_status} // Default to "All" if no value exists
+                            >
+                                <SelectTrigger className="w-[170px]">
+                                    <SelectValue placeholder="Voter Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="All">All</SelectItem>
+                                    <SelectItem value="1">
+                                        Registered Voter
+                                    </SelectItem>
+                                    <SelectItem value="0">
+                                        Unegistered Voter
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+
                             {/* Filter for Sex */}
                             <Select
                                 onValueChange={(value) =>
@@ -221,7 +239,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                     <SelectItem value="female">
                                         Female
                                     </SelectItem>
-                                    <SelectItem value="LGBTQ+">
+                                    <SelectItem value="LGBTQ">
                                         LGBTQ+
                                     </SelectItem>
                                 </SelectContent>
@@ -249,6 +267,8 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                     ))}
                                 </SelectContent>
                             </Select>
+
+                            <ClearFilterButton />
                         </div>
                         <Table>
                             <TableCaption>
@@ -262,13 +282,19 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                     <TableHead className="w-[100px]">
                                         Resident ID
                                     </TableHead>
+                                    <TableHead className="w-[130px]">
+                                        Resident Image
+                                    </TableHead>
                                     <TableHead>Name</TableHead>
                                     <TableHead>Gender</TableHead>
                                     <TableHead>Age</TableHead>
                                     <TableHead>Civil Status</TableHead>
-                                    <TableHead>Employment Status</TableHead>
+                                    <TableHead>Employment</TableHead>
+                                    <TableHead>Occupation</TableHead>
+                                    <TableHead>Citizenship</TableHead>
+                                    <TableHead>Registered Voter</TableHead>
+                                    <TableHead>Contact Number</TableHead>
                                     <TableHead>Purok</TableHead>
-                                    <TableHead>Residency Date</TableHead>
                                     <TableHead className="text-center">
                                         Actions
                                     </TableHead>
@@ -279,6 +305,21 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                     residents.data.map((resident) => (
                                         <TableRow key={resident.id}>
                                             <TableCell>{resident.id}</TableCell>
+                                            <TableCell>
+                                                <img
+                                                    src={
+                                                        resident.resident_picture ||
+                                                        "/images/default-avatar.jpg"
+                                                    }
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src =
+                                                            "/images/default-avatar.jpg";
+                                                    }}
+                                                    alt="Resident Picture"
+                                                    className="w-20 h-20 object-cover rounded"
+                                                />
+                                            </TableCell>
                                             <TableCell>{`${
                                                 resident.firstname
                                             } ${resident.middlename ?? ""} ${
@@ -287,22 +328,67 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                                 resident.suffix ?? ""
                                             }`}</TableCell>
                                             <TableCell>
-                                                {resident.gender}
+                                                <span
+                                                // className={
+                                                //     `p-2 rounded-xl ` +
+                                                //     RESIDENT_GENDER_COLOR_CLASS[
+                                                //         resident.gender
+                                                //     ]
+                                                // }
+                                                >
+                                                    {
+                                                        RESIDENT_GENDER_TEXT[
+                                                            resident.gender
+                                                        ]
+                                                    }
+                                                </span>
                                             </TableCell>
                                             <TableCell>
                                                 {resident.age}
                                             </TableCell>
                                             <TableCell>
-                                                {resident.civil_status}
+                                                {
+                                                    RESIDENT_CIVIL_STATUS_TEXT[
+                                                        resident.civil_status
+                                                    ]
+                                                }
                                             </TableCell>
                                             <TableCell>
-                                                {resident.employment_status}
+                                                {
+                                                    RESIDENT_EMPLOYMENT_STATUS_TEXT[
+                                                        resident
+                                                            .employment_status
+                                                    ]
+                                                }
                                             </TableCell>
                                             <TableCell>
-                                                {resident.purok_number}
+                                                {resident.occupation}
                                             </TableCell>
                                             <TableCell>
-                                                {resident.residency_date}
+                                                {resident.citizenship}
+                                            </TableCell>
+                                            <TableCell>
+                                                <span
+                                                    className={
+                                                        RESIDENT_REGISTER_VOTER_CLASS[
+                                                            resident
+                                                                .registered_voter
+                                                        ]
+                                                    }
+                                                >
+                                                    {
+                                                        RESIDENT_REGISTER_VOTER_TEXT[
+                                                            resident
+                                                                .registered_voter
+                                                        ]
+                                                    }
+                                                </span>
+                                            </TableCell>
+                                            <TableCell>
+                                                {resident.contact_number}
+                                            </TableCell>
+                                            <TableCell>
+                                                Purok {resident.purok_number}
                                             </TableCell>
                                             <TableCell className="text-center">
                                                 {/* <div className="flex justify-center items-center gap-2">
@@ -389,7 +475,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                 ) : (
                                     <TableRow>
                                         <TableCell
-                                            colSpan="9"
+                                            colSpan="13"
                                             className="text-center font-semibold"
                                         >
                                             No records found.

@@ -20,10 +20,10 @@ class ResidentVoterInformationFactory extends Factory
     {
         return [
             'resident_id' => Resident::inRandomOrder()->value('id'), // or 'resident_id' if that's the PK
-            'registered_barangay_id' => Barangay::inRandomOrder()->value('id'), // or 'barangay_id'
+            'registered_barangay_id' => 1, // or 'barangay_id'
             'voter_id_number' => $this->faker->optional()->regexify('[A-Z]{2}[0-9]{6}'),
             'voting_status' => $this->faker->randomElement([
-                'active', 'inactive', 'disqualified', 'medical', 'overseas', 'detained', 'deceased'
+                'active', 'inactive'
             ]),
         ];
     }

@@ -114,6 +114,24 @@ class Resident extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function socialwelfareprofile()
+    {
+        return $this->hasOne(SocialWelfareProfile::class);
+    }
+
+    public function barangay()
+    {
+        return $this->belongsTo(Barangay::class);
+    }
+    public function occupations()
+    {
+        return $this->hasMany(Occupation::class);
+    }
+    public function livelihoods()
+    {
+        return $this->hasMany(Livelihood::class);
+    }
     public function getAgeAttribute()
     {
         return Carbon::parse($this->birthdate)->age;

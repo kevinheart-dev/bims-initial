@@ -19,8 +19,11 @@ const ActionMenu = ({ actions = [] }) => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <MoreHorizontal className="h-4 w-4" />
+                <Button
+                    size="icon"
+                    className="bg-gray-400 h-9 w-9 hover:bg-gray-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-offset-gray-800"
+                >
+                    <MoreHorizontal className="h-6 w-6" />
                 </Button>
             </DropdownMenuTrigger>
 
