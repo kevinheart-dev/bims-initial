@@ -11,6 +11,12 @@ import {
     ChevronDown,
     ChevronUp,
     Table,
+    UsersRound,
+    FileUser,
+    Scale,
+    FileStack,
+    Warehouse,
+    SquareUserRound,
 } from "lucide-react";
 
 import {
@@ -37,7 +43,7 @@ const items = [
     {
         title: "Residents Information",
         url: "#",
-        icon: Users,
+        icon: FileUser,
         submenu: [
             {
                 title: "Residents Table",
@@ -46,16 +52,16 @@ const items = [
             },
             {
                 title: "Senior Citizen",
-                url: "#",
-                icon: UserPlus,
+                url: "/barangay_officer/senior_citizen",
+                icon: UsersRound,
             },
-            { title: "View Residents", url: "#", icon: FileText },
+            { title: "View Residents", url: "#", icon: SquareUserRound },
         ],
     },
     {
         title: "Documents",
         url: "#",
-        icon: FileCog,
+        icon: FileStack,
         submenu: [
             {
                 title: "Barangay Certificates",
@@ -69,13 +75,13 @@ const items = [
     {
         title: "Blotter",
         url: "#",
-        icon: Search,
+        icon: Scale,
         submenu: [],
     },
     {
         title: "Inventory",
         url: "#",
-        icon: Settings,
+        icon: Warehouse,
         submenu: [],
     },
 ];

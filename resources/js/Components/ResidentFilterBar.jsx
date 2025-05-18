@@ -29,8 +29,9 @@ const ResidentFilterBar = ({ queryParams, searchFieldName, puroks }) => {
             document.removeEventListener("mousedown", handleClickOutside);
     }, []);
     return (
-        <div className="flex w-full justify-end items-center space-x-2 my-4">
-            <div className="flex w-full justify-start items-center space-x-2">
+        <div className="w-full my-4 flex flex-col-reverse md:flex-row md:justify-between md:items-start gap-4">
+            {/* Filters Container */}
+            <div className="flex flex-wrap gap-2 w-full">
                 {/* Age Group Filter */}
                 <Select
                     onValueChange={(value) =>
@@ -139,6 +140,7 @@ const ResidentFilterBar = ({ queryParams, searchFieldName, puroks }) => {
                     </SelectContent>
                 </Select>
 
+                {/* Social Welfare Filter Dropdown */}
                 <div className="relative inline-block text-left w-56" ref={ref}>
                     <button
                         onClick={() => setOpen(!open)}
@@ -179,7 +181,6 @@ const ResidentFilterBar = ({ queryParams, searchFieldName, puroks }) => {
                                     />
                                     <span>PWD</span>
                                 </label>
-
                                 <label className="flex items-center space-x-2 cursor-pointer">
                                     <Checkbox
                                         id="indigent-checkbox"
@@ -193,7 +194,6 @@ const ResidentFilterBar = ({ queryParams, searchFieldName, puroks }) => {
                                     />
                                     <span>Indigent</span>
                                 </label>
-
                                 <label className="flex items-center space-x-2 cursor-pointer">
                                     <Checkbox
                                         id="fourps-checkbox"
@@ -205,9 +205,8 @@ const ResidentFilterBar = ({ queryParams, searchFieldName, puroks }) => {
                                             )
                                         }
                                     />
-                                    <span>4ps beneficiary</span>
+                                    <span>4ps Beneficiary</span>
                                 </label>
-
                                 <label className="flex items-center space-x-2 cursor-pointer">
                                     <Checkbox
                                         id="solo-parent-checkbox"
@@ -221,7 +220,7 @@ const ResidentFilterBar = ({ queryParams, searchFieldName, puroks }) => {
                                             )
                                         }
                                     />
-                                    <span>Solo parent</span>
+                                    <span>Solo Parent</span>
                                 </label>
                             </div>
                         </div>
@@ -229,7 +228,10 @@ const ResidentFilterBar = ({ queryParams, searchFieldName, puroks }) => {
                 </div>
             </div>
 
-            <ClearFilterButton />
+            {/* Clear Filter Button */}
+            <div className="flex justify-end">
+                <ClearFilterButton />
+            </div>
         </div>
     );
 };

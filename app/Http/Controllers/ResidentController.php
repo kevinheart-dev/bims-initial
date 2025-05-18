@@ -16,7 +16,13 @@ class ResidentController extends Controller
      */
     public function index()
     {
-        $query = Resident::query()->with(['socialwelfareprofile', 'occupations.occupationType', 'livelihoods.livelihoodType']);
+        $query = Resident::query()
+            ->with([
+                'socialwelfareprofile',
+                'occupations.occupationType',
+                'livelihoods.livelihoodType',
+            ])
+            ->where('residents.barangay_id', 1);
         $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
         // $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->get();
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
@@ -93,18 +99,27 @@ class ResidentController extends Controller
             $query->where('registered_voter', request('voter_status'));
         }
 
-        if (request()->filled('pwd') && request('pwd') == '1') {
-            $query->where('is_pwd', 1);
-        }
-        if (request()->filled('indigent') && request('indigent') == '1') {
-            $query->where('isIndigent', 1);
-        }
-        if (request()->filled('fourps') && request('fourps') == '1') {
-            $query->where('is4ps', 1);
-        }
-        if (request()->filled('solo_parent') && request('solo_parent') == '1') {
-            $query->where('isSoloParent', 1);
-        }
+        if (
+                request('indigent') === '1' ||
+                request('fourps') === '1' ||
+                request('solo_parent') === '1' ||
+                request('pwd') === '1'
+            ) {
+                $query->whereHas('socialwelfareprofile', function ($q) {
+                    if (request('indigent') === '1') {
+                        $q->where('is_indigent', 1);
+                    }
+                    if (request('fourps') === '1') {
+                        $q->where('is_4ps_beneficiary', 1);
+                    }
+                    if (request('solo_parent') === '1') {
+                        $q->where('is_solo_parent', 1);
+                    }
+                    if (request('pwd') === '1') {
+                        $q->where('is_pwd', 1);
+                    }
+                });
+            }
 
 
         if (request('all') === 'true') {

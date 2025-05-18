@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useRef, useState } from "react";
-import ReactToPrint from "react-to-print";
+import { useReactToPrint } from "react-to-print";
 import {
     SquarePen,
     Trash2,
@@ -25,6 +25,7 @@ import {
     Columns3,
     Rows4,
     Rows3,
+    Printer,
 } from "lucide-react";
 import ActionMenu from "@/components/ActionMenu"; // your custom action component
 import Pagination from "@/components/Pagination"; // your custom pagination component
@@ -36,6 +37,7 @@ import {
     RESIDENT_REGISTER_VOTER_TEXT,
 } from "@/constants";
 import ResidentFilterBar from "@/Components/ResidentFilterBar";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 const ResidentTable = ({
     residents,
@@ -49,7 +51,7 @@ const ResidentTable = ({
     const printRef = useRef(null);
 
     const allColumns = [
-        { key: "resident_id", label: "Resident ID" },
+        { key: "resident_id", label: "ID" },
         { key: "resident_picture", label: "Resident Image" },
         { key: "name", label: "Name" },
         { key: "gender", label: "Gender" },
@@ -79,6 +81,9 @@ const ResidentTable = ({
     const residentData = Array.isArray(residents.data)
         ? residents.data
         : residents;
+
+    const contentRef = useRef();
+    const reactToPrintFn = useReactToPrint({ contentRef });
 
     return (
         <>
@@ -144,6 +149,10 @@ const ResidentTable = ({
                     {showAll ? <Rows3 /> : <Rows4 />}
                     {showAll ? "Show Paginated" : "Show Full List"}
                 </Button>
+                <Button onClick={() => reactToPrintFn()}>
+                    <Printer />
+                    Print
+                </Button>
             </div>
             {/* resident filter */}
             <ResidentFilterBar
@@ -153,8 +162,8 @@ const ResidentTable = ({
             />
 
             {/* Table */}
-            <div className="h-[600px] overflow-y-auto">
-                <Table>
+            <div className="max-h-[600px] overflow-auto w-full">
+                <Table ref={contentRef} className="min-w-full">
                     <TableCaption>
                         {Array.isArray(residents.links) &&
                             residents.links.length > 0 && (
@@ -164,12 +173,15 @@ const ResidentTable = ({
                                 />
                             )}
                     </TableCaption>
-                    <TableHeader>
+                    <TableHeader className="shadow-md">
                         <TableRow>
                             {allColumns.map(
                                 (col) =>
                                     visibleColumns.includes(col.key) && (
-                                        <TableHead key={col.key}>
+                                        <TableHead
+                                            key={col.key}
+                                            className=" bg-blue-600 text-white p-4 text-nowrap"
+                                        >
                                             {col.label}
                                         </TableHead>
                                     )
@@ -305,6 +317,14 @@ const ResidentTable = ({
                         )}
                     </TableBody>
                 </Table>
+                <div className="flex justify-end items-center p-4  rounded shadow-sm">
+                    <h2 className="text-2xl font-semibold text-gray-700">
+                        Total Records:{" "}
+                        <span className="text-blue-600">
+                            {residentData.length}
+                        </span>
+                    </h2>
+                </div>
             </div>
         </>
     );

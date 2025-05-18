@@ -4,6 +4,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResidentController;
+use App\Http\Controllers\SeniorCitizenController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -17,6 +18,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('resident', ResidentController::class);
     Route::resource('document', DocumentController::class);
     Route::resource('household', HouseholdController::class);
+    Route::resource('senior_citizen', SeniorCitizenController::class);
     Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('barangay_officer.familytree');
 });
 
