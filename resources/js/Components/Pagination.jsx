@@ -1,7 +1,8 @@
 import { Link } from "@inertiajs/react";
 
-export default function Pagination({ links, queryParams }) {
-    // Function to generate a full URL with query parameters
+export default function Pagination({ links, queryParams = {} }) {
+    if (!Array.isArray(links)) return null; // Guard against undefined or non-array
+
     const getLinkWithQueryParams = (link) => {
         if (!link.url) return null;
 
@@ -26,12 +27,12 @@ export default function Pagination({ links, queryParams }) {
     return (
         <nav className="text-center mt-4">
             {links.map((link) => {
-                const urlWithParams = getLinkWithQueryParams(link); // Get the full URL with query params
+                const urlWithParams = getLinkWithQueryParams(link);
 
                 return (
                     <Link
                         key={link.label}
-                        href={urlWithParams || "#"} // Use the computed URL or fallback to #
+                        href={urlWithParams || "#"}
                         className={
                             "inline-block py-2 px-3 rounded-lg text-gray-700 text-xs " +
                             (link.active ? "bg-blue-400 " : " ") +

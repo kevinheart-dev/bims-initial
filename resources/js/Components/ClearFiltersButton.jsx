@@ -1,6 +1,6 @@
 import { router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
-import { XCircle } from "lucide-react";
+import { ListFilter } from "lucide-react";
 
 export default function ClearFilterButton() {
     const handleClear = () => {
@@ -14,10 +14,11 @@ export default function ClearFilterButton() {
 
     return (
         <Button
-            className="bg-gray-500 text-sm text-gray-900 hover:text-red-600"
+            variant="outline"
+            className="border border-red-500 text-sm text-red-500 hover:bg-red-500 hover:text-white"
             onClick={handleClear}
         >
-            <XCircle className="w-4 h-4 mr-1" />
+            <ListFilter className="w-4 h-4 mr-1" />
             Clear Filters
         </Button>
     );

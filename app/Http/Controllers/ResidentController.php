@@ -93,8 +93,27 @@ class ResidentController extends Controller
             $query->where('registered_voter', request('voter_status'));
         }
 
-        $residents = $query->paginate(15)->onEachSide(1);
-        $residents->getCollection()->transform(function ($resident) {
+        if (request()->filled('pwd') && request('pwd') == '1') {
+            $query->where('is_pwd', 1);
+        }
+        if (request()->filled('indigent') && request('indigent') == '1') {
+            $query->where('isIndigent', 1);
+        }
+        if (request()->filled('fourps') && request('fourps') == '1') {
+            $query->where('is4ps', 1);
+        }
+        if (request()->filled('solo_parent') && request('solo_parent') == '1') {
+            $query->where('isSoloParent', 1);
+        }
+
+
+        if (request('all') === 'true') {
+            $residents = $query->get(); // full list
+        } else {
+            $residents = $query->paginate(15)->onEachSide(1);
+        }
+
+        $transform = function ($resident) {
             return [
                 'id' => $resident->id,
                 'resident_picture' => $resident->resident_picture_path,
@@ -110,6 +129,7 @@ class ResidentController extends Controller
                 'citizenship' => $resident->citizenship,
                 'religion' => $resident->religion,
                 'contact_number' => $resident->contact_number,
+                'is_pwd' => $resident->is_pwd,
                 'email' => $resident->email,
                 'registered_voter' => $resident->registered_voter,
                 'employment_status' => $resident->employment_status,
@@ -117,12 +137,16 @@ class ResidentController extends Controller
                 'isSoloParent' => optional($resident->socialwelfareprofile)->is_solo_parent,
                 'is4ps' => optional($resident->socialwelfareprofile)->is_4ps_beneficiary,
                 'occupation' => optional(
-                                    $resident->occupations
-                                        ->sortByDesc('started_at') // or 'created_at' if more appropriate
-                                        ->first()?->occupationType
-                                )->name,
+                    $resident->occupations->sortByDesc('started_at')->first()?->occupationType
+                )->name,
             ];
-        });
+        };
+
+        if (request('all') === 'true') {
+            $residents = $residents->map($transform);
+        } else {
+            $residents->getCollection()->transform($transform);
+        }
 
         return Inertia::render('BarangayOfficer/Resident/Index', [
             'residents' => $residents,
