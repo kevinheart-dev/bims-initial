@@ -132,6 +132,11 @@ class Resident extends Model
     {
         return $this->hasMany(Livelihood::class);
     }
+
+    public function seniorcitizen()
+    {
+        return $this->hasOne(SeniorCitizen::class);
+    }
     public function getAgeAttribute()
     {
         return Carbon::parse($this->birthdate)->age;

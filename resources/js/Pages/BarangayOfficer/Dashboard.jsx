@@ -3,24 +3,32 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 
-import { Users, DollarSign, Briefcase, Calendar } from "lucide-react";
+import { Users, House } from "lucide-react";
 
 const iconMap = {
     users: <Users className="w-8 h-8 text-blue-500" />,
-    revenue: <DollarSign className="w-8 h-8 text-green-500" />,
-    jobs: <Briefcase className="w-8 h-8 text-orange-500" />,
-    schedule: <Calendar className="w-8 h-8 text-purple-500" />,
+    senior: <Users className="w-8 h-8 text-green-500" />,
+    house: <House className="w-8 h-8 text-orange-500" />,
+    family: <Users className="w-8 h-8 text-purple-500" />,
 };
 
-const data = [
-    { title: "Total Residents", value: 1200, icon: "users" },
-    { title: "Monthly Revenue", value: "₱75,000", icon: "revenue" },
-    { title: "Job Seekers", value: 350, icon: "jobs" },
-    { title: "Scheduled Events", value: 12, icon: "schedule" },
-];
-
-export default function Dashboard() {
+export default function Dashboard({
+    residentCount,
+    seniorCitizenCount,
+    totalHouseholds,
+    totalFamilies,
+}) {
     const breadcrumbs = [{ label: "Dashboard", showOnMobile: true }];
+    const data = [
+        { title: "Total Residents", value: residentCount, icon: "users" },
+        {
+            title: "Senior Citizens",
+            value: seniorCitizenCount,
+            icon: "senior",
+        },
+        { title: "Households", value: totalHouseholds, icon: "house" },
+        { title: "Families", value: totalFamilies, icon: "family" },
+    ];
     return (
         <AdminLayout>
             <Head title="Admin Dashboard" />
@@ -32,7 +40,7 @@ export default function Dashboard() {
                         {data.map((item, index) => (
                             <Card
                                 key={index}
-                                className="flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow duration-200 border border-muted rounded-2xl"
+                                className="flex flex-col justify-between shadow-md hover:shadow-lg transition-shadow duration-200 border border-muted rounded-2xl bg-gray-100"
                             >
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                     <CardTitle className="text-sm font-medium">

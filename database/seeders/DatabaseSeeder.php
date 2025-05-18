@@ -58,6 +58,7 @@ class DatabaseSeeder extends Seeder
         $barangayOfficer = Role::firstOrCreate(['name' => 'barangay_officer']);
         $user = User::factory()->create([
             'resident_id' => Resident::factory(),
+            'barangay_id' => 1,
             'username' => 'Test User',
             'email' => 'test@example.com',
             'password' => bcrypt('admin123'),
@@ -94,5 +95,6 @@ class DatabaseSeeder extends Seeder
         Livestock::factory(30)->create();
         ResidentVoterInformation::factory(60)->create();
         SocialWelfareProfile::factory(60)->create();
+        SeniorCitizen::factory(30)->create();
     }
 }

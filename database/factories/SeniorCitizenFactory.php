@@ -19,9 +19,10 @@ class SeniorCitizenFactory extends Factory
     {
         return [
             'resident_id' => Resident::inRandomOrder()->first()->id,
-            'barangay_id' => 1,
-            'id_number' => $this->faker->unique()->numberBetween(1000, 9999),
-            'pensioner' => $this->faker->randomElement(['Yes', 'No', null]),
+            'osca_id_number' => $this->faker->unique()->numberBetween(100000, 999999),
+            'is_pensioner' => $this->faker->randomElement(['yes', 'no', 'pending']),
+            'pension_type' => $this->faker->randomElement(['SSS', 'GSIS', 'DSWD', 'private', 'none']),
+            'living_alone' => $this->faker->boolean(),
         ];
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\ProfileController;
@@ -11,9 +13,7 @@ use Inertia\Inertia;
 
 // Admin-only routes
 Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')->group(function () {
-    Route::get('dashboard', function () {
-        return inertia('BarangayOfficer/Dashboard');
-    })->name('barangay_officer.dashboard');
+    Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('barangay_officer.dashboard');
 
     Route::resource('resident', ResidentController::class);
     Route::resource('document', DocumentController::class);
