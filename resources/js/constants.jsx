@@ -59,3 +59,13 @@ export const RESIDENT_REGISTER_VOTER_CLASS = {
     0: "p-1 bg-red-500 text-white rounded-lg",
     1: "p-1 bg-green-500 text-white rounded-lg",
 };
+
+export const HOUSEHOLD_WATER_SOURCE_TEXT = {
+    level_ii_water_system: "Level II Water System",
+    level_iii_water_system: "Level III Water System",
+    deep_well_level_i: "Deep Well Level I",
+    artesian_well_level_i: "Artesian Well Level I",
+    shallow_well_level_i: "Shallow Well Level I",
+    commercial_water_refill_source: "Commercial Water Refill Source",
+    none: "None",
+};

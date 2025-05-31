@@ -14,15 +14,7 @@ return new class extends Migration
         Schema::create('household_waste_management', function (Blueprint $table) {
             $table->id();
             $table->foreignId('household_id')->constrained('households')->onDelete('cascade');
-            $table->enum('waste_management_type', [
-                'open_dump_site',
-                'sanitary_landfill',
-                'compost_pits',
-                'material_recovery_facility',
-                'garbage_is_collected',
-                'not_mentioned_specify'
-            ]);
-            $table->string('other_management', 55)->nullable();
+            $table->string('waste_management_type', 55)->nullable();
             $table->timestamps();
         });
     }

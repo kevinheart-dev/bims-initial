@@ -14,15 +14,7 @@ return new class extends Migration
         Schema::create('household_toilets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('household_id')->constrained('households')->onDelete('cascade');
-            $table->enum('toilet_type', [
-                'flush_toilet',
-                'water_sealed',
-                'compost_pit_toilet',
-                'shared_communal_public_toilet',
-                'no_latrine',
-                'not_mentioned_specify'
-            ]);
-            $table->string('other_type', 55)->nullable();
+            $table->string('toilet_type', 55)->nullable();
             $table->timestamps();
 
         });

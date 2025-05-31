@@ -22,12 +22,7 @@ return new class extends Migration
             $table->enum('housing_condition', ['good', 'needs repair', 'dilapidated']);
             $table->year('year_established')->nullable();
             $table->enum('house_structure', ['concrete', 'semi-concrete', 'wood', 'makeshift']);
-            $table->enum('bath_and_wash_area', [
-                'with own sink and bath',
-                'shared or communal',
-                'not mentioned above (specify)'
-            ]);
-            $table->string('bath_and_wash_area_other', 100)->nullable();
+            $table->string('bath_and_wash_area', 100)->nullable();
             $table->tinyInteger('number_of_rooms');
             $table->tinyInteger('number_of_floors');
             $table->decimal("latitude", 8, 6);

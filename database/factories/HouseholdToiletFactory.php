@@ -31,7 +31,6 @@ class HouseholdToiletFactory extends Factory
         return [
             'household_id' => Household::inRandomOrder()->first()?->id,
             'toilet_type' => $toiletType,
-            'other_type' => $toiletType === 'not_mentioned_specify' ? $this->faker->words(2, true) : null,
         ];
     }
 }
