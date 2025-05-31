@@ -44,7 +44,7 @@ class ResidentFactory extends Factory
             'residency_date' => $this->faker->date(),
             'residency_type' => $this->faker->randomElement(['permanent', 'temporary', 'migrant']),
             'resident_picture_path' => $this->faker->optional()->imageUrl(300, 300, 'people')
-                ?? 'https://ui-avatars.com/api/?name=' . urlencode($this->faker->name()) . '&size=300',
+                ?? 'https://ui-avatarss.com/api/?name=' . urlencode($this->faker->name()) . '&size=300',
             'is_pwd' => $this->faker->boolean(10), // 10% chance
             'ethnicity' => $this->faker->optional()->word(),
             'date_of_death' => $this->faker->optional()->date(),

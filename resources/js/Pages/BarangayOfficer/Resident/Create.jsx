@@ -1,6 +1,5 @@
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import AdminLayout from "@/Layouts/AdminLayout";
-import YearDropdown from "@/Components/YearDropdown";
 import { Head } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 import Stepper from "@/Components/Stepper";
@@ -9,6 +8,8 @@ import Address from "@/Components/FormSteps/Address";
 import HouseholdPersonalInfo from "@/Components/FormSteps/HouseholdPersonalInfo";
 import { StepperContext } from "@/context/StepperContext";
 import Summary from "@/Components/FormSteps/Summary";
+import EducationandOccupation from "@/Components/FormSteps/EducationandOccupation";
+import HouseInformation from "@/Components/FormSteps/HouseInformation";
 export default function Index() {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
@@ -21,13 +22,16 @@ export default function Index() {
     ];
 
     const [currentStep, setCurrentStep] = useState(1);
-    const [userData, setUserData] = useState('');
+    const [userData, setUserData] = useState({});
+    // const [userData, setUserData] = useState('');
     const [finalData, setFinalData] = useState([]);
 
 
     const steps = [
         "Address Information",
         "Household Information",
+        "Education & Occupation",
+        "House Information",
         "Summary"
     ]
 
@@ -38,6 +42,10 @@ export default function Index() {
             case 2:
                 return <HouseholdPersonalInfo />
             case 3:
+                return <EducationandOccupation />
+            case 4:
+                return <HouseInformation />
+            case 5:
                 return <Summary />
             default:
         }

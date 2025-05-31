@@ -14,7 +14,7 @@ const YearDropdown = ({
 
     return (
         <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-700 mb-3 mt-4">
                 {label}
             </label>
             <select
