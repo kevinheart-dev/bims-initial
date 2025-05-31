@@ -62,12 +62,14 @@ const Stepper = ({ steps, currentStep }) => {
                         {step.completed ? <IoMdCheckmark className="text-white text-xl" /> : index + 1}
                     </div>
                     <div
-                        className={`absolute text-center mt-14 w-32 text-xs uppercase
+                        className={`absolute text-center mt-14 w-32 uppercase
                             ${step.selected || step.completed ? 'font-bold text-blue-500' : 'text-blue-400'}
+                            text-xs
                         `}
                     >
                         {step.description}
                     </div>
+
                 </div>
                 {index !== newStep.length - 1 && (
                     <div
@@ -81,7 +83,7 @@ const Stepper = ({ steps, currentStep }) => {
         );
     });
 
-    return <div className="flex w-full justify-between px-10 py-4">{displaySteps}</div>;
+    return <div className="flex justify-between px-10 py-4">{displaySteps}</div>;
 };
 
 export default Stepper;
