@@ -21,14 +21,14 @@ function HouseInformation() {
             </p>
 
             <div className="grid md:grid-cols-4 gap-4">
-                <InputField
+                {/* <InputField
                     type="number"
                     label="House Number"
                     name="house_number"
                     value={userData.house_number || ''}
                     onChange={handleChange}
                     placeholder="Enter house number"
-                />
+                /> */}
 
                 <DropdownInputField
                     label="Ownership Type"
