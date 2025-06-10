@@ -2,7 +2,9 @@ import { useState, useEffect, useContext } from 'react';
 import { StepperContext } from '@/context/StepperContext';
 import InputField from '@/Components/InputField';
 import DropdownInputField from '../DropdownInputField';
+import RadioGroup from '../RadioGroup';
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import YearDropdown from '../YearDropdown';
 
 const defaultMember = {
     lastname: '',
@@ -19,11 +21,22 @@ const defaultMember = {
     ethnicity: '',
     contactNumber: '',
     email: '',
+    age: '',
+    is_pensioner: '',
+    osca_id_number: '',
+    pension_type: '',
+    living_alone: '',
+    residency_type: '',
+    residency_date: '',
+    registered_voter: '',
+    voter_id_number: '',
+    voting_status: '',
 };
 
 const HouseholdPersonalInfo = () => {
     const { userData, setUserData } = useContext(StepperContext);
     const [members, setMembers] = useState([]);
+
 
     const [sharedFields, setSharedFields] = useState({
         lastname: '',
@@ -91,6 +104,13 @@ const HouseholdPersonalInfo = () => {
 
             updated[index] = { ...updated[index], [name]: value };
 
+            if (name === 'birthdate') {
+                const age = calculateAge(value);
+                updated[index] = { ...updated[index], [name]: value, age };
+            } else {
+                updated[index] = { ...updated[index], [name]: value };
+            }
+
             // If first member updates a shared field, update sharedFields and reflect changes
             if (index === 0 && ['lastname', 'religion', 'ethnicity', 'citizenship'].includes(name)) {
                 const updatedShared = { ...sharedFields, [name]: value };
@@ -107,12 +127,25 @@ const HouseholdPersonalInfo = () => {
         });
     };
 
+    const calculateAge = (birthdate) => {
+        if (!birthdate) return '';
+        const birth = new Date(birthdate);
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
+
     return (
         <div>
-            <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-5">
+            <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-1">
                 Household Members Information
             </h2>
-            <p className="text-sm text-gray-600 mb-6">
+            <p className="text-sm text-gray-600 mb-3">
                 Kindly provide the personal information of all household members.
             </p>
 
@@ -125,11 +158,22 @@ const HouseholdPersonalInfo = () => {
                     onChange={(e) => setUserData({ ...userData, householdCount: e.target.value })}
                     placeholder="Enter number of members"
                 />
+
+                <DropdownInputField
+                    label="Family Type"
+                    name="family_type"
+                    value={userData.family_type || ''}
+                    items={['Nuclear', 'Single-parent', 'Extended', 'Stepfamilies', 'Grandparent', 'Childess', 'Cohabiting Partners', 'One-person Household', 'Roomates']}
+                    placeholder="Enter family type"
+                    onChange={(e) => setUserData({ ...userData, family_type: e.target.value })}
+                />
             </div>
 
             {members.map((member, index) => {
                 const isFirst = index === 0;
                 const isOpen = openIndex === index;
+                const showMaidenMiddleName = (['female', 'LGBTQIA+'].includes(member.gender) &&
+                    ['Married', 'Widowed', 'Separated'].includes(member.civil_status));
                 const sharedLastname = isFirst
                     ? sharedFields.lastname
                     : member.lastname === members[0]?.lastname
@@ -141,7 +185,7 @@ const HouseholdPersonalInfo = () => {
                         <button
                             type="button"
                             className={`w-full text-left p-4 font-semibold flex justify-between items-center
-                            ${openIndex === index ? 'border-t-2 border-blue-600 text-gray-900' : 'text-gray-700 hover:bg-gray-100'}
+                            ${openIndex === index ? 'border-t-2 border-blue-600 text-gray-900' : 'text-gray-700 hover:bg-sky-100'}
                             transition duration-300 ease-in-out`}
                             onClick={() => setOpenIndex(openIndex === index ? null : index)}
                             aria-expanded={openIndex === index}
@@ -165,7 +209,9 @@ const HouseholdPersonalInfo = () => {
                                 aria-labelledby={`member-header-${index}`}
                                 className="p-4 space-y-4"
                             >
-                                <div className="grid md:grid-cols-4 gap-4 mb-4">
+                                <div
+                                    className={`grid gap-4 ${showMaidenMiddleName ? 'grid-cols-5' : 'grid-cols-4'} md:${showMaidenMiddleName ? 'grid-cols-5' : 'grid-cols-4'}`}
+                                >
                                     <InputField
                                         label="Last Name"
                                         name="lastname"
@@ -196,16 +242,31 @@ const HouseholdPersonalInfo = () => {
                                         items={['Jr.', 'Sr.', 'III', 'IV']}
                                         placeholder="Enter or select suffix"
                                     />
+                                    {showMaidenMiddleName && (
+                                        <InputField
+                                            label="Maiden Middle Name"
+                                            name="maiden_middle_name"
+                                            value={member.maiden_middle_name}
+                                            onChange={(e) => handleMemberChange(index, e)}
+                                            placeholder="Enter maiden middle name"
+                                        />
+                                    )}
+
+
                                 </div>
 
                                 <div className="grid md:grid-cols-4 gap-4">
-                                    <InputField
-                                        type="date"
-                                        label="Birth Date"
-                                        name="birthdate"
-                                        value={member.birthdate}
-                                        onChange={(e) => handleMemberChange(index, e)}
-                                    />
+
+                                    <div className="col-span-1">
+                                        <InputField
+                                            type="date"
+                                            label="Birth Date"
+                                            name="birthdate"
+                                            value={member.birthdate}
+                                            onChange={(e) => handleMemberChange(index, e)}
+                                        />
+                                    </div>
+
                                     <InputField
                                         label="Birth Place"
                                         name="birthplace"
@@ -222,44 +283,22 @@ const HouseholdPersonalInfo = () => {
                                         placeholder="Select civil status"
                                     />
 
-                                    <div className="flex flex-col">
-                                        <label className="block text-sm font-semibold text-gray-700 mb-3 mt-4">
-                                            Gender
-                                        </label>
-                                        <div className="flex gap-4">
-                                            {['Male', 'Female', 'LGBTQIA+'].map((option) => (
-                                                <label
-                                                    key={option}
-                                                    className="flex items-center gap-1 text-sm text-gray-700"
-                                                >
-                                                    <input
-                                                        type="radio"
-                                                        name={`gender-${index}`}
-                                                        value={option}
-                                                        checked={member.gender === option}
-                                                        onChange={(e) => handleMemberChange(index, e)}
-                                                        className="form-radio text-indigo-600"
-                                                        required
-                                                    />
-                                                    {option}
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
+                                    <RadioGroup
+                                        label="Gender"
+                                        name="gender"
+                                        options={[
+                                            { label: 'Male', value: 'male' },
+                                            { label: 'Female', value: 'female' },
+                                            { label: 'LGBTQIA+', value: 'LGBTQIA+' },
+                                        ]}
+                                        selectedValue={member.gender || ''}
+                                        onChange={(e) => handleMemberChange(index, e)}
+                                    />
+
+
                                 </div>
 
                                 <div className="grid md:grid-cols-4 gap-4">
-                                    {['Female', 'LGBTQIA+'].includes(member.gender) &&
-                                        ['Married', 'Widowed', 'Separated'].includes(member.civil_status) && (
-                                            <InputField
-                                                label="Maiden Middle Name"
-                                                name="maiden_middle_name"
-                                                value={member.maiden_middle_name}
-                                                onChange={(e) => handleMemberChange(index, e)}
-                                                placeholder="Enter maiden middle name"
-                                            />
-                                        )}
-
                                     <DropdownInputField
                                         label="Religion"
                                         name="religion"
@@ -286,9 +325,7 @@ const HouseholdPersonalInfo = () => {
                                         items={['Filipino', 'Chinese', 'American ']}
                                         placeholder="Enter or select citizenship"
                                     />
-                                </div>
 
-                                <div className="grid md:grid-cols-3 gap-4">
                                     <InputField
                                         label="Contact Number"
                                         name="contactNumber"
@@ -296,6 +333,9 @@ const HouseholdPersonalInfo = () => {
                                         onChange={(e) => handleMemberChange(index, e)}
                                         placeholder="Enter contact number"
                                     />
+                                </div>
+
+                                <div className="grid md:grid-cols-4 gap-4">
                                     <InputField
                                         label="Email"
                                         name="email"
@@ -303,7 +343,109 @@ const HouseholdPersonalInfo = () => {
                                         onChange={(e) => handleMemberChange(index, e)}
                                         placeholder="Enter email"
                                     />
+
+                                    <DropdownInputField
+                                        label="Residency type"
+                                        name="residency_type"
+                                        value={member.residency_type}
+                                        onChange={(e) => handleMemberChange(index, e)}
+                                        placeholder="Select residency type"
+                                        items={['permanent', 'temporary', 'migrant']}
+
+                                    />
+
+                                    <YearDropdown
+                                        label="Residency date"
+                                        name="residency_date"
+                                        value={member.residency_date}
+                                        onChange={(e) => handleMemberChange(index, e)}
+                                        placeholder="Select residency date"
+                                    />
+
+                                    <RadioGroup
+                                        label="Registered Voter"
+                                        name="registered_voter"
+                                        options={[
+                                            { label: 'Yes', value: 1 },
+                                            { label: 'No', value: 0 },
+                                        ]}
+                                        selectedValue={member.registered_voter}
+                                        onChange={(e) => handleMemberChange(index, e)}
+
+                                    />
                                 </div>
+
+
+                                <div className="grid md:grid-cols-4 gap-4">
+                                    {member.age >= 60 && (
+
+                                        <RadioGroup
+                                            label="Pensioner"
+                                            name="is_pensioner"
+                                            options={[
+                                                { label: 'Yes', value: 'yes' },
+                                                { label: 'No', value: 'no' },
+                                                { label: 'Pending', value: 'pending' },
+                                            ]}
+                                            selectedValue={member.is_pensioner || ''}
+                                            onChange={(e) => handleMemberChange(index, e)}
+                                        />
+                                    )}
+
+                                    {member.is_pensioner === 'yes' && (
+                                        <>
+                                            <InputField
+                                                label="OSCA id number"
+                                                name="osca_id_number"
+                                                type="number"
+                                                value={member.osca_id_number}
+                                                onChange={(e) => handleMemberChange(index, e)}
+                                                placeholder="Enter OSCA ID number"
+                                            />
+
+                                            <DropdownInputField
+                                                label="Pension Type"
+                                                name="pension_type"
+                                                value={member.pension_type}
+                                                onChange={(e) => handleMemberChange(index, e)}
+                                                items={['SSS', 'DSWD', 'GSIS', 'private', 'none']}
+                                                placeholder="Select or enter pension type"
+                                            />
+
+                                            <RadioGroup
+                                                label="Living alone"
+                                                name="living_alone"
+                                                options={[
+                                                    { label: 'Yes', value: 'yes' },
+                                                    { label: 'No', value: 'no' },
+                                                ]}
+                                                selectedValue={member.living_alone}
+                                                onChange={(e) => handleMemberChange(index, e)}
+                                            />
+                                        </>
+                                    )}
+                                </div>
+
+                                {member.registered_voter == 1 && (
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <InputField
+                                            label="Voter ID number"
+                                            name="voter_id_number"
+                                            value={member.voter_id_number}
+                                            onChange={(e) => handleMemberChange(index, e)}
+                                            placeholder="Enter your Voter Id"
+                                        />
+
+                                        <DropdownInputField
+                                            label="Voting Status"
+                                            name="voting_status"
+                                            value={member.voting_status}
+                                            onChange={(e) => handleMemberChange(index, e)}
+                                            placeholder="Select voting status"
+                                            items={['active', 'inactive', 'disqualified', 'medical', 'overseas', 'detained', 'deceased']}
+                                        />
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

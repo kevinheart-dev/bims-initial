@@ -11,8 +11,8 @@ const Address = () => {
     };
     return (
         <div>
-            <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-5">Household Address Information</h2>
-            <p className="text-sm text-gray-600 mb-6">Please provide your complete address information to continue.</p>
+            <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-1">Household Address Information</h2>
+            <p className="text-sm text-gray-600 mb-3">Please provide your complete address information to continue.</p>
 
             <div className="grid md:grid-cols-2 gap-4">
                 <InputField

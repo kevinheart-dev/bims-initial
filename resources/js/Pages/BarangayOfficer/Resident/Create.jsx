@@ -10,6 +10,7 @@ import { StepperContext } from "@/context/StepperContext";
 import Summary from "@/Components/FormSteps/Summary";
 import EducationandOccupation from "@/Components/FormSteps/EducationandOccupation";
 import HouseInformation from "@/Components/FormSteps/HouseInformation";
+import MedicalInfo from "@/Components/FormSteps/MedicalInfo";
 export default function Index() {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
@@ -31,6 +32,7 @@ export default function Index() {
         "Address Information",
         "Household Information",
         "Education & Occupation",
+        "Medical Information",
         "House Information",
         "Summary"
     ]
@@ -44,8 +46,10 @@ export default function Index() {
             case 3:
                 return <EducationandOccupation />
             case 4:
-                return <HouseInformation />
+                return <MedicalInfo />
             case 5:
+                return <HouseInformation />
+            case 6:
                 return <Summary />
             default:
         }
@@ -66,28 +70,35 @@ export default function Index() {
         <AdminLayout>
             <Head title="Resident Dashboard" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-                <div className="overflow-hidden bg-white border border-gray-200 shadow-md rounded-xl p-2 mb-5">
+            <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 mt-6">
+                <div className="bg-blue-100 rounded-t-xl px-2 sm:px-6 lg:px-8 py-2 border-gray-200 shadow-lg">
                     <Stepper steps={steps} currentStep={currentStep} />
+                </div>
 
-                    <div className=" my-7 p-5">
-                        <StepperContext.Provider value={{
-                            userData,
-                            setUserData,
-                            finalData,
-                            setFinalData
-                        }}>
+                <div className="overflow-hidden bg-white border border-gray-200 rounded-b-xl p-2 drop-shadow-[0_4px_6px_rgba(0,0,0,0.1)]">
+                    <div className="my-2 pb-5 pr-5 pl-5 pt-0">
+                        <StepperContext.Provider
+                            value={{
+                                userData,
+                                setUserData,
+                                finalData,
+                                setFinalData,
+                            }}
+                        >
                             {displayStep(currentStep)}
                         </StepperContext.Provider>
                     </div>
                 </div>
 
-                <StepperController
-                    handleClick={handleClick}
-                    currentStep={currentStep}
-                    steps={steps}
-                />
+                <div className="mt-5">
+                    <StepperController
+                        handleClick={handleClick}
+                        currentStep={currentStep}
+                        steps={steps}
+                    />
+                </div>
             </div>
+
         </AdminLayout>
     );
 }
