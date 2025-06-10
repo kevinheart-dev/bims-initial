@@ -17,6 +17,7 @@ import {
     FileStack,
     Warehouse,
     SquareUserRound,
+    House,
 } from "lucide-react";
 
 import {
@@ -56,6 +57,23 @@ const items = [
                 icon: UsersRound,
             },
             { title: "View Residents", url: "#", icon: SquareUserRound },
+        ],
+    },
+    {
+        title: "Household Information",
+        url: "#",
+        icon: House,
+        submenu: [
+            {
+                title: "Households Table",
+                url: "/barangay_officer/household",
+                icon: Table,
+            },
+            {
+                title: "View Residents",
+                url: "#",
+                icon: SquareUserRound,
+            },
         ],
     },
     {

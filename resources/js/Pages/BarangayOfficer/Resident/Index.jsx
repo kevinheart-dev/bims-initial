@@ -2,7 +2,7 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, UserRoundPlus } from "lucide-react";
+import { Search, UserRoundPlus, HousePlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 
@@ -86,6 +86,11 @@ export default function Index({ residents, queryParams = null, puroks }) {
                         <div className="my-1 mb-3 flex justify-between items-center">
                             <div className="flex w-full max-w-sm items-center space-x-1">
                                 <Link href={route("resident.create")}>
+                                    <Button className="bg-green-700 hover:bg-green-400 ">
+                                        <HousePlus /> Add a Household
+                                    </Button>
+                                </Link>
+                                <Link href={route("resident.createresident")}>
                                     <Button className="bg-green-700 hover:bg-green-400 ">
                                         <UserRoundPlus /> Add a Resident
                                     </Button>

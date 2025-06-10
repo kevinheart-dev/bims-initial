@@ -177,6 +177,9 @@ class ResidentController extends Controller
     {
         return Inertia::render("BarangayOfficer/Resident/Create");
     }
+    public function createResident(){
+        return Inertia::render("BarangayOfficer/Resident/CreateResident");
+    }
 
     /**
      * Store a newly created resource in storage.
