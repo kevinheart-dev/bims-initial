@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 
-const DropdownInputField = ({ label, name, value, onChange, placeholder, items = [] }) => {
+const DropdownInputField = ({ label, name, value, onChange, placeholder, items = [], disabled }) => {
     const [inputValue, setInputValue] = useState(value || '');
     const [showDropdown, setShowDropdown] = useState(false);
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
@@ -12,6 +12,7 @@ const DropdownInputField = ({ label, name, value, onChange, placeholder, items =
     const getValue = (item) => (typeof item === 'string' ? item : item.value);
 
     const handleInputChange = (e) => {
+        if (disabled) return;
         const newValue = e.target.value;
         setInputValue(newValue);
         onChange({ target: { name, value: newValue } });
@@ -26,6 +27,7 @@ const DropdownInputField = ({ label, name, value, onChange, placeholder, items =
     };
 
     const handleFocus = () => {
+        if (disabled) return;
         if (inputRef.current) {
             const rect = inputRef.current.getBoundingClientRect();
             setDropdownPosition({
@@ -48,13 +50,16 @@ const DropdownInputField = ({ label, name, value, onChange, placeholder, items =
     };
 
     useEffect(() => {
+        if (disabled) {
+            setShowDropdown(false);
+        }
         if (showDropdown) {
             document.addEventListener('mousedown', handleClickOutside);
         } else {
             document.removeEventListener('mousedown', handleClickOutside);
         }
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [showDropdown]);
+    }, [showDropdown, disabled]);
 
     const filteredItems = items.filter((item) =>
         getLabel(item).toLowerCase().includes(inputValue.toLowerCase())
@@ -62,7 +67,8 @@ const DropdownInputField = ({ label, name, value, onChange, placeholder, items =
 
     return (
         <div className="relative">
-            <label className="block text-sm font-semibold text-gray-700 mb-3 mt-4">{label}</label>
+            <label className={`block text-sm font-semibold mb-3 mt-4 ${disabled ? 'text-gray-400' : ' text-gray-700'}`}
+            >{label}</label>
             <input
                 ref={inputRef}
                 type="text"
@@ -71,11 +77,13 @@ const DropdownInputField = ({ label, name, value, onChange, placeholder, items =
                 onChange={handleInputChange}
                 onFocus={handleFocus}
                 placeholder={placeholder}
-                className="w-full border-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                className={`w-full border-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400
+                ${disabled ? 'bg-gray-200 cursor-not-allowed' : ''}`}
                 autoComplete="off"
+                disabled={disabled}
             />
 
-            {showDropdown && filteredItems.length > 0 &&
+            {!disabled && showDropdown && filteredItems.length > 0 &&
                 ReactDOM.createPortal(
                     <ul
                         ref={dropdownRef}
@@ -100,7 +108,9 @@ const DropdownInputField = ({ label, name, value, onChange, placeholder, items =
                         ))}
                     </ul>,
                     document.body
-                )}
+                )
+            }
+
         </div>
     );
 };
