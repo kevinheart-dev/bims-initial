@@ -1,13 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 
 const DropdownInputField = ({ label, name, value, onChange, placeholder, items = [] }) => {
     const [inputValue, setInputValue] = useState(value || '');
     const [showDropdown, setShowDropdown] = useState(false);
+    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+    const inputRef = useRef(null);
     const dropdownRef = useRef(null);
 
-    // Helper to get the label text to display
     const getLabel = (item) => (typeof item === 'string' ? item : item.label);
-    // Helper to get the actual value to store
     const getValue = (item) => (typeof item === 'string' ? item : item.value);
 
     const handleInputChange = (e) => {
@@ -24,22 +25,46 @@ const DropdownInputField = ({ label, name, value, onChange, placeholder, items =
         setShowDropdown(false);
     };
 
-    const handleFocus = () => setShowDropdown(true);
+    const handleFocus = () => {
+        if (inputRef.current) {
+            const rect = inputRef.current.getBoundingClientRect();
+            setDropdownPosition({
+                top: rect.bottom + window.scrollY,
+                left: rect.left + window.scrollX,
+                width: rect.width,
+            });
+        }
+        setShowDropdown(true);
+    };
 
-    const handleBlur = (e) => {
-        if (!dropdownRef.current?.contains(e.relatedTarget)) {
-            setTimeout(() => setShowDropdown(false), 100);
+    const handleClickOutside = (e) => {
+        if (
+            dropdownRef.current &&
+            !dropdownRef.current.contains(e.target) &&
+            !inputRef.current.contains(e.target)
+        ) {
+            setShowDropdown(false);
         }
     };
+
+    useEffect(() => {
+        if (showDropdown) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showDropdown]);
 
     const filteredItems = items.filter((item) =>
         getLabel(item).toLowerCase().includes(inputValue.toLowerCase())
     );
 
     return (
-        <div className="relative" onBlur={handleBlur}>
+        <div className="relative">
             <label className="block text-sm font-semibold text-gray-700 mb-3 mt-4">{label}</label>
             <input
+                ref={inputRef}
                 type="text"
                 name={name}
                 value={inputValue}
@@ -50,23 +75,32 @@ const DropdownInputField = ({ label, name, value, onChange, placeholder, items =
                 autoComplete="off"
             />
 
-            {showDropdown && filteredItems.length > 0 && (
-                <ul
-                    ref={dropdownRef}
-                    className="absolute z-10 w-full mt-1 max-h-48 overflow-auto rounded-md border border-gray-300 bg-white shadow-md"
-                >
-                    {filteredItems.map((item, index) => (
-                        <li
-                            key={index}
-                            tabIndex={0}
-                            onClick={() => handleItemSelect(item)}
-                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                        >
-                            {getLabel(item)}
-                        </li>
-                    ))}
-                </ul>
-            )}
+            {showDropdown && filteredItems.length > 0 &&
+                ReactDOM.createPortal(
+                    <ul
+                        ref={dropdownRef}
+                        style={{
+                            position: 'absolute',
+                            top: dropdownPosition.top,
+                            left: dropdownPosition.left,
+                            width: dropdownPosition.width,
+                            zIndex: 9999,
+                        }}
+                        className="max-h-48 overflow-auto rounded-md border border-gray-300 bg-white shadow-md"
+                    >
+                        {filteredItems.map((item, index) => (
+                            <li
+                                key={index}
+                                tabIndex={0}
+                                onClick={() => handleItemSelect(item)}
+                                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                            >
+                                {getLabel(item)}
+                            </li>
+                        ))}
+                    </ul>,
+                    document.body
+                )}
         </div>
     );
 };

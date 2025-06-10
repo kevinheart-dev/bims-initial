@@ -15,8 +15,8 @@ function HouseInformation() {
 
     return (
         <div>
-            <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-5">House Information</h2>
-            <p className="text-sm text-gray-600 mb-6">
+            <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-1">House Information</h2>
+            <p className="text-sm text-gray-600 mb-3">
                 Please provide the necessary house information to continue.
             </p>
 
@@ -97,7 +97,7 @@ function HouseInformation() {
                         { label: 'with own sink only', value: 'with_own_sink_only' },
                         { label: 'with own bath only', value: 'with_own_bath_only' },
                         { label: 'shared or communal', value: 'shared_or_communal' },
-                        { label: 'none available', value: 'none_available' }
+                        { label: 'none', value: 'none' }
                     ]}
                 />
             </div>
