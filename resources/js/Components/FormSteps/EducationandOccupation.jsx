@@ -145,7 +145,7 @@ function EducationandOccupation() {
                                             name="current_level"
                                             value={member.current_level || ''}
                                             onChange={(e) => handleEducationChange(index, e)}
-                                            items={["Elementary", "High School", "College", "Vocational", "Post Grad"]}
+                                            items={["Elementary", "High School", "College", "Vocational", "Post Grad",]}
                                             placeholder="Select school level"
                                         />
                                     </div>
@@ -177,21 +177,25 @@ function EducationandOccupation() {
                                             </div>
 
                                             <div className="grid md:grid-cols-2 gap-4">
-                                                <RadioGroup
-                                                    label="Out of School Children (6-14 years old)"
-                                                    name="osc"
-                                                    options={[{ label: 'Yes', value: 'true' }, { label: 'No', value: 'false' }]}
-                                                    selectedValue={member.osc || ''}
-                                                    onChange={(e) => handleEducationChange(index, e)}
-                                                />
+                                                {member.age >= 6 && member.age <= 14 && (
+                                                    <RadioGroup
+                                                        label="Out of School Children (6-14 years old)"
+                                                        name="osc"
+                                                        options={[{ label: 'Yes', value: 'true' }, { label: 'No', value: 'false' }]}
+                                                        selectedValue={member.osc || ''}
+                                                        onChange={(e) => handleEducationChange(index, e)}
+                                                    />
 
-                                                <RadioGroup
-                                                    label="Out of School Youth (15-24 years old)"
-                                                    name="osy"
-                                                    options={[{ label: 'Yes', value: 'true' }, { label: 'No', value: 'false' }]}
-                                                    selectedValue={member.osy || ''}
-                                                    onChange={(e) => handleEducationChange(index, e)}
-                                                />
+                                                )}
+                                                {member.age >= 15 && member.age <= 24 && (
+                                                    <RadioGroup
+                                                        label="Out of School Youth (15-24 years old)"
+                                                        name="osy"
+                                                        options={[{ label: 'Yes', value: 'true' }, { label: 'No', value: 'false' }]}
+                                                        selectedValue={member.osy || ''}
+                                                        onChange={(e) => handleEducationChange(index, e)}
+                                                    />
+                                                )}
                                             </div>
                                         </div>
                                         <div className="grid md:grid-cols-4 gap-4 mt-4">
@@ -231,6 +235,20 @@ function EducationandOccupation() {
                                                 onChange={(e) => handleEducationChange(index, e)}
                                                 disabled={member.education === 'No Formal Education'}
                                             />
+                                        </div>
+
+                                        <div className="grid md:grid-cols-4 gap-4 mt-4">
+                                            {member.education === 'College' && (
+                                                <InputField
+                                                    label="Finised Course"
+                                                    name="program"
+                                                    type="text"
+                                                    value={member.program || ''}
+                                                    onChange={(e) => handleEducationChange(index, e)}
+                                                    placeholder="Enter your course"
+                                                    disabled={member.education === 'No Formal Education'}
+                                                />
+                                            )}
 
                                             {member.education_status === "Graduate" && (
                                                 <YearDropdown
@@ -238,23 +256,9 @@ function EducationandOccupation() {
                                                     name="year_graduated"
                                                     value={member.year_graduated || ''}
                                                     onChange={(e) => handleEducationChange(index, e)}
-                                                    disabled={member.education === 'No Formal Education'}
+                                                    disabled
                                                 />
                                             )}
-                                        </div>
-
-
-
-                                        <div className="grid md:grid-cols-4 gap-4 mt-4">
-                                            <InputField
-                                                label="Finised Course/Strand"
-                                                name="program"
-                                                type="text"
-                                                value={member.program || ''}
-                                                onChange={(e) => handleEducationChange(index, e)}
-                                                placeholder="Enter your course"
-                                                disabled={member.education === 'No Formal Education'}
-                                            />
                                         </div>
                                     </>
                                 )}
@@ -264,15 +268,62 @@ function EducationandOccupation() {
                                 {(member.occupations || []).map((occupation, occIndex) => (
                                     <div key={occIndex} className="border p-4 mb-4 rounded-md relative bg-gray-50">
                                         <div className="grid md:grid-cols-3 gap-4">
-                                            <DropdownInputField label="Occupation" name="occupation" value={occupation.occupation || ''} onChange={(e) => handleOccupationChange(index, occIndex, e)} placeholder="Select or Enter Occupation" items={['Farmer', 'Nurse', 'Teacher', 'Vendor']} />
-                                            <DropdownInputField label="Employment Status" name="employment_status" value={occupation.employment_status || ''} onChange={(e) => handleOccupationChange(index, occIndex, e)} placeholder="Select employment status" items={['Employed', 'Unemployed', 'Student']} />
-                                            <DropdownInputField label="Employment Type" name="employment_type" value={occupation.employment_type || ''} onChange={(e) => handleOccupationChange(index, occIndex, e)} placeholder="Select employment type" items={['Full-time', 'Part-time', 'Seasonal', 'Contractual', 'Self-employed']} />
-                                            <DropdownInputField label="Status" name="occupation_status" value={occupation.occupation_status || ''} onChange={(e) => handleOccupationChange(index, occIndex, e)} placeholder="Select employment status" items={['active', 'inactive', 'ended', 'retired']} />
-                                            <RadioGroup label="Work Arrangement" name="work_arrangement" options={[{ label: 'remote', value: 'remote' }, { label: 'onsite', value: 'onsite' }, { label: 'hybrid', value: 'hybrid' }]} selectedValue={occupation.work_arrangement || ''} onChange={(e) => handleOccupationChange(index, occIndex, e)} />
-                                            <InputField label="Employer name" name="employer" type="text" value={occupation.employer || ''} onChange={(e) => handleOccupationChange(index, occIndex, e)} placeholder="Enter employer name" />
-                                            <YearDropdown label="Year Started" name="started_at" value={occupation.started_at || ''} onChange={(e) => handleOccupationChange(index, occIndex, e)} />
-                                            <YearDropdown label="Year Ended" name="ended_at" value={occupation.ended_at || ''} onChange={(e) => handleOccupationChange(index, occIndex, e)} />
-                                            <InputField type="number" label="Monthly Income" name="monthly_income" value={occupation.monthly_income || ''} onChange={(e) => handleOccupationChange(index, occIndex, e)} placeholder="Enter monthly income" />
+                                            <DropdownInputField
+                                                label="Employment Status"
+                                                name="employment_status"
+                                                value={occupation.employment_status || ''}
+                                                onChange={(e) => handleOccupationChange(index, occIndex, e)}
+                                                placeholder="Select employment status"
+                                                items={['Employed', 'Unemployed', 'Student']} />
+                                            <DropdownInputField
+                                                label="Occupation"
+                                                name="occupation"
+                                                value={occupation.occupation || ''}
+                                                onChange={(e) => handleOccupationChange(index, occIndex, e)}
+                                                placeholder="Select or Enter Occupation"
+                                                items={['Farmer', 'Nurse', 'Teacher', 'Vendor']}
+                                                disabled={member.employment_status === 'Unemployed'} />
+                                            <DropdownInputField
+                                                label="Employment Type"
+                                                name="employment_type"
+                                                value={occupation.employment_type || ''}
+                                                onChange={(e) => handleOccupationChange(index, occIndex, e)}
+                                                placeholder="Select employment type"
+                                                items={['Full-time', 'Part-time', 'Seasonal', 'Contractual', 'Self-employed']} />
+                                            <DropdownInputField
+                                                label="Status" name="occupation_status"
+                                                value={occupation.occupation_status || ''}
+                                                onChange={(e) => handleOccupationChange(index, occIndex, e)}
+                                                placeholder="Select employment status"
+                                                items={['active', 'inactive', 'ended', 'retired']} />
+                                            <RadioGroup
+                                                label="Work Arrangement"
+                                                name="work_arrangement"
+                                                options={[{ label: 'remote', value: 'remote' }, { label: 'onsite', value: 'onsite' }, { label: 'hybrid', value: 'hybrid' }]}
+                                                selectedValue={occupation.work_arrangement || ''}
+                                                onChange={(e) => handleOccupationChange(index, occIndex, e)} />
+                                            <InputField
+                                                label="Employer name"
+                                                name="employer" type="text"
+                                                value={occupation.employer || ''}
+                                                onChange={(e) => handleOccupationChange(index, occIndex, e)}
+                                                placeholder="Enter employer name" />
+                                            <YearDropdown
+                                                label="Year Started"
+                                                name="started_at"
+                                                value={occupation.started_at || ''}
+                                                onChange={(e) => handleOccupationChange(index, occIndex, e)} />
+                                            <YearDropdown
+                                                label="Year Ended"
+                                                name="ended_at"
+                                                value={occupation.ended_at || ''}
+                                                onChange={(e) => handleOccupationChange(index, occIndex, e)} />
+                                            <InputField
+                                                type="number"
+                                                label="Monthly Income"
+                                                name="monthly_income" value={occupation.monthly_income || ''}
+                                                onChange={(e) => handleOccupationChange(index, occIndex, e)}
+                                                placeholder="Enter monthly income" />
                                         </div>
 
                                         <button
