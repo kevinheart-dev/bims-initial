@@ -33,9 +33,15 @@ export const RESIDENT_GENDER_TEXT = {
     LGBTQ: (
         <>
             <VenusAndMars className="inline-block mr-1 w-4 h-4" />
-            LGBTQ
+            LGBTQA+
         </>
     ),
+};
+
+export const RESIDENT_GENDER_TEXT2 = {
+    male: "Male",
+    female: "Female",
+    LGBTQ: "LGBTQA+",
 };
 
 export const RESIDENT_GENDER_COLOR_CLASS = {
@@ -82,7 +88,7 @@ export const HOUSEHOLD_ELECTRICITY_TYPE = {
     solar_renewable_energy_source: "Solar / Renewable Energy Source",
     battery: "Battery",
     none: "None",
-}
+};
 
 export const HOUSEHOLD_WATER_SOURCE_TEXT = {
     level_ii_water_system: "Level II Water System",

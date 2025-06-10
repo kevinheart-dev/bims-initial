@@ -3,113 +3,35 @@ import { StepperContext } from "@/context/StepperContext";
 import InputField from "@/Components/InputField";
 import DropdownInputField from "../DropdownInputField";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
-
-const defaultMember = {
-    lastname: "",
-    firstname: "",
-    middlename: "",
-    suffix: "",
-    birthdate: "",
-    birthplace: "",
-    civil_status: "",
-    gender: "",
-    maiden_middle_name: "",
-    citizenship: "",
-    religion: "",
-    ethnicity: "",
-    contactNumber: "",
-    email: "",
-};
+import { useForm } from "@inertiajs/react";
+import InputError from "../InputError";
+import { Button } from "../ui/button";
+import TextInput from "../TextInput";
+import InputLabel from "../InputLabel";
+import RadioGroup from "../RadioGroup";
 
 const PersonalInformation = () => {
-    const { userData, setUserData } = useContext(StepperContext);
-    const [members, setMembers] = useState([]);
-
-    const [sharedFields, setSharedFields] = useState({
+    const { data, setData, post, errors } = useForm({
+        resident_image: null,
         lastname: "",
+        firstname: "",
+        middlename: "",
+        suffix: "",
+        birthdate: "",
+        birthplace: "",
+        civil_status: "",
+        gender: "",
+        maiden_middle_name: "",
+        citizenship: "",
         religion: "",
         ethnicity: "",
-        citizenship: "",
+        contactNumber: "",
+        email: "",
     });
-    const [openIndex, setOpenIndex] = useState(null);
 
-    // Sync members when householdCount changes
-    useEffect(() => {
-        const count = parseInt(userData.householdCount || 0);
-
-        const existingMembers = userData.members || [];
-        const newMembers = Array.from({ length: count }, (_, i) => {
-            return existingMembers[i] || { ...defaultMember };
-        });
-
-        if (newMembers[0]) {
-            setSharedFields({
-                lastname: newMembers[0].lastname,
-                religion: newMembers[0].religion,
-                ethnicity: newMembers[0].ethnicity,
-                citizenship: newMembers[0].citizenship,
-            });
-        }
-
-        setMembers(newMembers);
-    }, [userData.householdCount]);
-
-    // Sync userData.members whenever members state changes
-    useEffect(() => {
-        if (members.length) {
-            setUserData((prev) => ({ ...prev, members }));
-        }
-    }, [members, setUserData]);
-
-    const handleSharedChange = (e) => {
-        const { name, value } = e.target;
-        setSharedFields((prev) => ({ ...prev, [name]: value }));
-
-        // Update members state with new shared field value
-        setMembers((prevMembers) => {
-            const oldLastname = prevMembers[0]?.lastname || "";
-
-            const updatedMembers = prevMembers.map((member, index) => {
-                // Update first member and all members sharing the first member's old last name
-                if (index === 0 || member.lastname === oldLastname) {
-                    return { ...member, [name]: value };
-                }
-                return member;
-            });
-
-            return updatedMembers;
-        });
-    };
-
-    const handleMemberChange = (index, e) => {
-        let { name, value } = e.target;
-        if (name.startsWith("gender")) name = "gender";
-
-        setMembers((prev) => {
-            const updated = [...prev];
-            const oldLastname = prev[0]?.lastname || "";
-
-            updated[index] = { ...updated[index], [name]: value };
-
-            // If first member updates a shared field, update sharedFields and reflect changes
-            if (
-                index === 0 &&
-                ["lastname", "religion", "ethnicity", "citizenship"].includes(
-                    name
-                )
-            ) {
-                const updatedShared = { ...sharedFields, [name]: value };
-                setSharedFields(updatedShared);
-
-                updated.forEach((member, i) => {
-                    if (i !== 0 && member.lastname === oldLastname) {
-                        updated[i][name] = value;
-                    }
-                });
-            }
-
-            return updated;
-        });
+    const onSubmit = (e) => {
+        e.preventDefault();
+        post(route("resident.store"));
     };
 
     return (
@@ -120,317 +42,287 @@ const PersonalInformation = () => {
             <p className="text-sm text-gray-600 mb-6">
                 Kindly provide the personal information of the resident.
             </p>
+            <form onSubmit={onSubmit}>
+                <div className="flex justify-between items-center gap-4 mb-4">
+                    <div className="flex flex-col items-center">
+                        <InputLabel
+                            htmlFor="resident-image-path"
+                            value="Resident Image"
+                        />
 
-            <div className="grid md:grid-cols-5 gap-4 mb-6">
-                <InputField
-                    type="number"
-                    label="Number of Household Members"
-                    name="householdCount"
-                    value={userData.householdCount || ""}
-                    onChange={(e) =>
-                        setUserData({
-                            ...userData,
-                            householdCount: e.target.value,
-                        })
-                    }
-                    placeholder="Enter number of members"
-                />
-            </div>
-
-            {members.map((member, index) => {
-                const isFirst = index === 0;
-                const isOpen = openIndex === index;
-                const sharedLastname = isFirst
-                    ? sharedFields.lastname
-                    : member.lastname === members[0]?.lastname
-                    ? sharedFields.lastname
-                    : member.lastname;
-
-                return (
-                    <div
-                        key={index}
-                        className="mb-4 border rounded shadow-sm bg-white"
-                    >
-                        <button
-                            type="button"
-                            className={`w-full text-left p-4 font-semibold flex justify-between items-center
-                            ${
-                                openIndex === index
-                                    ? "border-t-2 border-blue-600 text-gray-900"
-                                    : "text-gray-700 hover:bg-gray-100"
+                        <img
+                            src={
+                                data.resident_image instanceof File
+                                    ? URL.createObjectURL(data.resident_image)
+                                    : data.resident_image ||
+                                      "/images/default-avatar.jpg"
                             }
-                            transition duration-300 ease-in-out`}
-                            onClick={() =>
-                                setOpenIndex(openIndex === index ? null : index)
-                            }
-                            aria-expanded={openIndex === index}
-                            aria-controls={`member-panel-${index}`}
-                            id={`member-header-${index}`}
-                        >
-                            <span>Household Member {index + 1}</span>
-                            {openIndex === index ? (
-                                <IoIosArrowUp className="text-xl text-blue-600" />
-                            ) : (
-                                <IoIosArrowDown className="text-xl text-blue-600" />
-                            )}
-                        </button>
+                            alt="Resident"
+                            className="w-40 h-40 object-cover rounded-full mb-4"
+                        />
 
-                        {isOpen && (
-                            <div
-                                id={`member-panel-${index}`}
-                                role="region"
-                                aria-labelledby={`member-header-${index}`}
-                                className="p-4 space-y-4"
-                            >
-                                <div className="grid md:grid-cols-4 gap-4 mb-4">
-                                    <InputField
-                                        label="Last Name"
-                                        name="lastname"
-                                        value={sharedLastname}
-                                        onChange={
-                                            isFirst
-                                                ? handleSharedChange
-                                                : (e) =>
-                                                      handleMemberChange(
-                                                          index,
-                                                          e
-                                                      )
-                                        }
-                                        disabled={
-                                            !isFirst &&
-                                            member.lastname !==
-                                                members[0]?.lastname
-                                        }
-                                        placeholder="Enter last name"
-                                    />
-                                    <InputField
-                                        label="First Name"
-                                        name="firstname"
-                                        value={member.firstname}
-                                        onChange={(e) =>
-                                            handleMemberChange(index, e)
-                                        }
-                                        placeholder="Enter first name"
-                                    />
-                                    <InputField
-                                        label="Middle Name"
-                                        name="middlename"
-                                        value={member.middlename}
-                                        onChange={(e) =>
-                                            handleMemberChange(index, e)
-                                        }
-                                        placeholder="Enter middle name"
-                                    />
-                                    <DropdownInputField
-                                        label="Suffix"
-                                        name="suffix"
-                                        value={member.suffix}
-                                        onChange={(e) =>
-                                            handleMemberChange(index, e)
-                                        }
-                                        items={["Jr.", "Sr.", "III", "IV"]}
-                                        placeholder="Enter or select suffix"
-                                    />
-                                </div>
+                        <TextInput
+                            id="resident-image-path"
+                            type="file"
+                            name="resident_image"
+                            className="mt-1"
+                            accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                    setData("resident_image", file);
+                                }
+                            }}
+                        />
 
-                                <div className="grid md:grid-cols-4 gap-4">
-                                    <InputField
-                                        type="date"
-                                        label="Birth Date"
-                                        name="birthdate"
-                                        value={member.birthdate}
-                                        onChange={(e) =>
-                                            handleMemberChange(index, e)
-                                        }
-                                    />
-                                    <InputField
-                                        label="Birth Place"
-                                        name="birthplace"
-                                        value={member.birthplace}
-                                        onChange={(e) =>
-                                            handleMemberChange(index, e)
-                                        }
-                                        placeholder="Enter birth place"
-                                    />
-                                    <DropdownInputField
-                                        label="Civil Status"
-                                        name="civil_status"
-                                        value={member.civil_status}
-                                        onChange={(e) =>
-                                            handleMemberChange(index, e)
-                                        }
-                                        items={[
-                                            "Single",
-                                            "Married",
-                                            "Widowed",
-                                            "Divorced",
-                                            "Separated",
-                                            "Annulled",
-                                        ]}
-                                        placeholder="Select civil status"
-                                    />
-
-                                    <div className="flex flex-col">
-                                        <label className="block text-sm font-semibold text-gray-700 mb-3 mt-4">
-                                            Gender
-                                        </label>
-                                        <div className="flex gap-4">
-                                            {["Male", "Female", "LGBTQIA+"].map(
-                                                (option) => (
-                                                    <label
-                                                        key={option}
-                                                        className="flex items-center gap-1 text-sm text-gray-700"
-                                                    >
-                                                        <input
-                                                            type="radio"
-                                                            name={`gender-${index}`}
-                                                            value={option}
-                                                            checked={
-                                                                member.gender ===
-                                                                option
-                                                            }
-                                                            onChange={(e) =>
-                                                                handleMemberChange(
-                                                                    index,
-                                                                    e
-                                                                )
-                                                            }
-                                                            className="form-radio text-indigo-600"
-                                                            required
-                                                        />
-                                                        {option}
-                                                    </label>
-                                                )
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="grid md:grid-cols-4 gap-4">
-                                    {["Female", "LGBTQIA+"].includes(
-                                        member.gender
-                                    ) &&
-                                        [
-                                            "Married",
-                                            "Widowed",
-                                            "Separated",
-                                        ].includes(member.civil_status) && (
-                                            <InputField
-                                                label="Maiden Middle Name"
-                                                name="maiden_middle_name"
-                                                value={
-                                                    member.maiden_middle_name
-                                                }
-                                                onChange={(e) =>
-                                                    handleMemberChange(index, e)
-                                                }
-                                                placeholder="Enter maiden middle name"
-                                            />
-                                        )}
-
-                                    <DropdownInputField
-                                        label="Religion"
-                                        name="religion"
-                                        value={
-                                            isFirst
-                                                ? sharedFields.religion
-                                                : member.religion
-                                        }
-                                        onChange={
-                                            isFirst
-                                                ? handleSharedChange
-                                                : (e) =>
-                                                      handleMemberChange(
-                                                          index,
-                                                          e
-                                                      )
-                                        }
-                                        items={[
-                                            "Roman Catholic",
-                                            "Iglesia ni Cristo",
-                                            "Born Again",
-                                            "Baptists",
-                                        ]}
-                                        placeholder="Enter or select religion"
-                                    />
-
-                                    <DropdownInputField
-                                        label="Ethnicity"
-                                        name="ethnicity"
-                                        value={
-                                            isFirst
-                                                ? sharedFields.ethnicity
-                                                : member.ethnicity
-                                        }
-                                        onChange={
-                                            isFirst
-                                                ? handleSharedChange
-                                                : (e) =>
-                                                      handleMemberChange(
-                                                          index,
-                                                          e
-                                                      )
-                                        }
-                                        items={[
-                                            "Ilocano",
-                                            "Ibanag",
-                                            "Tagalog",
-                                            "Indigenous People",
-                                        ]}
-                                        placeholder="Enter or select ethnicity"
-                                    />
-
-                                    <DropdownInputField
-                                        label="Citizenship"
-                                        name="citizenship"
-                                        value={
-                                            isFirst
-                                                ? sharedFields.citizenship
-                                                : member.citizenship
-                                        }
-                                        onChange={
-                                            isFirst
-                                                ? handleSharedChange
-                                                : (e) =>
-                                                      handleMemberChange(
-                                                          index,
-                                                          e
-                                                      )
-                                        }
-                                        items={[
-                                            "Filipino",
-                                            "Chinese",
-                                            "American ",
-                                        ]}
-                                        placeholder="Enter or select citizenship"
-                                    />
-                                </div>
-
-                                <div className="grid md:grid-cols-3 gap-4">
-                                    <InputField
-                                        label="Contact Number"
-                                        name="contactNumber"
-                                        value={member.contactNumber}
-                                        onChange={(e) =>
-                                            handleMemberChange(index, e)
-                                        }
-                                        placeholder="Enter contact number"
-                                    />
-                                    <InputField
-                                        label="Email"
-                                        name="email"
-                                        value={member.email}
-                                        onChange={(e) =>
-                                            handleMemberChange(index, e)
-                                        }
-                                        placeholder="Enter email"
-                                    />
-                                </div>
-                            </div>
-                        )}
+                        <InputError
+                            message={errors.resident_image}
+                            className="mt-2"
+                        />
                     </div>
-                );
-            })}
+                    <div className="flex flex-col w-full items-stretch">
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <InputField
+                                    label="Last Name"
+                                    name="lastname"
+                                    value={data.lastname || ""}
+                                    placeholder="Enter last name"
+                                    onChange={(e) => {
+                                        setData("lastname", e.target.value);
+                                    }}
+                                />
+                                <InputError
+                                    message={errors.lastname}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <InputField
+                                    label="First Name"
+                                    name="firstname"
+                                    value={data.firstname}
+                                    placeholder="Enter first name"
+                                    onChange={(e) => {
+                                        setData("firstname", e.target.value);
+                                    }}
+                                />
+                                <InputError
+                                    message={errors.firstname}
+                                    className="mt-2"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <InputField
+                                    label="Middle Name"
+                                    name="middlename"
+                                    value={data.middlename}
+                                    placeholder="Enter middle name"
+                                    onChange={(e) => {
+                                        setData("middlename", e.target.value);
+                                    }}
+                                />
+                                <InputError
+                                    message={errors.middlename}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <DropdownInputField
+                                    label="Suffix"
+                                    name="suffix"
+                                    value={data.suffix}
+                                    items={["Jr.", "Sr.", "III", "IV"]}
+                                    placeholder="Enter or select suffix"
+                                    onChange={(e) => {
+                                        setData("suffix", e.target.value);
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid md:grid-cols-4 gap-4">
+                    <div>
+                        <InputField
+                            type="date"
+                            label="Birth Date"
+                            name="birthdate"
+                            value={data.birthdate}
+                            onChange={(e) => {
+                                setData("birthdate", e.target.value);
+                            }}
+                        />
+                        <InputError
+                            message={errors.birthdate}
+                            className="mt-2"
+                        />
+                    </div>
+                    <div>
+                        <InputField
+                            label="Birth Place"
+                            name="birthplace"
+                            value={data.birthplace}
+                            placeholder="Enter birth place"
+                            onChange={(e) => {
+                                setData("birthplace", e.target.value);
+                            }}
+                        />
+                        <InputError
+                            message={errors.birthplace}
+                            className="mt-2"
+                        />
+                    </div>
+
+                    <div>
+                        <DropdownInputField
+                            label="Civil Status"
+                            name="civil_status"
+                            value={data.civil_status}
+                            items={[
+                                "Single",
+                                "Married",
+                                "Widowed",
+                                "Divorced",
+                                "Separated",
+                                "Annulled",
+                            ]}
+                            placeholder="Select civil status"
+                            onChange={(e) => {
+                                setData(
+                                    "civil_status",
+                                    e.target.value.toLowerCase()
+                                );
+                            }}
+                        />
+                        <InputError
+                            message={errors.civil_status}
+                            className="mt-2"
+                        />
+                    </div>
+                    <div>
+                        <RadioGroup
+                            label="Gender"
+                            name="gender"
+                            options={[
+                                { label: "Male", value: "male" },
+                                { label: "Female", value: "female" },
+                                { label: "LGBTQIA+", value: "LGBTQ" },
+                            ]}
+                            selectedValue={data.gender || ""}
+                            onChange={(e) => setData("gender", e.target.value)}
+                        />
+
+                        <InputError message={errors.gender} className="mt-2" />
+                    </div>
+                </div>
+
+                <div className="grid md:grid-cols-4 gap-4">
+                    {["female", "LGBTQ"].includes(data.gender) &&
+                        ["married", "widowed", "separated"].includes(
+                            data.civil_status
+                        ) && (
+                            <InputField
+                                label="Maiden Middle Name"
+                                name="maiden_middle_name"
+                                value={data.maiden_middle_name}
+                                placeholder="Enter maiden middle name"
+                                onChange={(e) => {
+                                    setData(
+                                        "maiden_middle_name",
+                                        e.target.value
+                                    );
+                                }}
+                            />
+                        )}
+
+                    <DropdownInputField
+                        label="Religion"
+                        name="religion"
+                        value={data.religion}
+                        items={[
+                            "Roman Catholic",
+                            "Iglesia ni Cristo",
+                            "Born Again",
+                            "Baptists",
+                        ]}
+                        placeholder="Enter or select religion"
+                        onChange={(e) => {
+                            setData("religion", e.target.value);
+                        }}
+                    />
+
+                    <DropdownInputField
+                        label="Ethnicity"
+                        name="ethnicity"
+                        value={data.ethnicity}
+                        items={[
+                            "Ilocano",
+                            "Ibanag",
+                            "Tagalog",
+                            "Indigenous People",
+                        ]}
+                        placeholder="Enter or select ethnicity"
+                        onChange={(e) => {
+                            setData("ethnicity", e.target.value);
+                        }}
+                    />
+                    <div>
+                        <DropdownInputField
+                            label="Citizenship"
+                            name="citizenship"
+                            value={data.citizenship}
+                            items={["Filipino", "Chinese", "American "]}
+                            placeholder="Enter or select citizenship"
+                            onChange={(e) => {
+                                setData("citizenship", e.target.value);
+                            }}
+                        />
+                        <InputError
+                            message={errors.citizenship}
+                            className="mt-2"
+                        />
+                    </div>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-4">
+                    <div>
+                        <InputField
+                            label="Contact Number"
+                            name="contactNumber"
+                            value={data.contactNumber}
+                            placeholder="Enter contact number"
+                            onChange={(e) => {
+                                setData("contactNumber", e.target.value);
+                            }}
+                        />
+                        <InputError
+                            message={errors.contactNumber}
+                            className="mt-2"
+                        />
+                    </div>
+                    <div>
+                        <InputField
+                            label="Email"
+                            name="email"
+                            value={data.email}
+                            placeholder="Enter email"
+                            onChange={(e) => {
+                                setData("email", e.target.value);
+                            }}
+                        />
+                        <InputError message={errors.email} className="mt-2" />
+                    </div>
+                </div>
+                <div className="flex w-full justify-center items-center mt-7">
+                    <Button className="w-40" type="submit">
+                        Submit
+                    </Button>
+                </div>
+            </form>
         </div>
     );
 };

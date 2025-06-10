@@ -7,6 +7,7 @@ use App\Models\Purok;
 use App\Models\Resident;
 use App\Http\Requests\StoreResidentRequest;
 use App\Http\Requests\UpdateResidentRequest;
+use Str;
 use Inertia\Inertia;
 
 class ResidentController extends Controller
@@ -186,7 +187,14 @@ class ResidentController extends Controller
      */
     public function store(StoreResidentRequest $request)
     {
-        //
+        dd($request->validated());
+        /**
+         * @var $image \Illuminate\Http\UploadedFile
+         */
+        $image = $data['image'] ?? null;
+        if($image){
+            $data['image_path'] = $image->store('project'.Str::random(), 'public');
+        }
     }
 
     /**
