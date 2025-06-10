@@ -16,6 +16,8 @@ function EducationandOccupation() {
         const { name, value } = e.target;
         const updatedMembers = [...members];
 
+        const newValue = name === "is_student" ? Number(value) : value;
+
         updatedMembers[index] = {
             ...updatedMembers[index],
             [name]: value,
@@ -72,8 +74,8 @@ function EducationandOccupation() {
 
     return (
         <div>
-            <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-5">Education and Occupation</h2>
-            <p className="text-sm text-gray-600 mb-6">
+            <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-1">Education and Occupation</h2>
+            <p className="text-sm text-gray-600 mb-3">
                 Please provide education background and current occupation for each household member.
             </p>
 
@@ -86,7 +88,7 @@ function EducationandOccupation() {
                         <button
                             type="button"
                             className={`w-full text-left p-4 font-semibold flex justify-between items-center
-                            ${isOpen ? 'border-t-2 border-blue-600 text-gray-900' : 'text-gray-700 hover:bg-gray-100'}
+                            ${isOpen ? 'border-t-2 border-blue-600 text-gray-900' : 'text-gray-700 hover:bg-sky-100'}
                             transition duration-300 ease-in-out`}
                             onClick={() => setOpenIndex(isOpen ? null : index)}
                             aria-expanded={isOpen}
@@ -102,62 +104,160 @@ function EducationandOccupation() {
                         {isOpen && (
                             <div className="p-4 space-y-4">
                                 <p className="font-bold">Educational Background</p>
-                                <div className="grid md:grid-cols-2 gap-10">
-                                    <div className="grid md:grid-cols-2 gap-2">
-                                        <DropdownInputField
-                                            label="Highest Educational Attainment"
-                                            name="education"
-                                            value={member.education || ''}
+                                <div className="grid md:grid-cols-4 gap-4">
+                                    <RadioGroup
+                                        label="Currently studying"
+                                        name="is_student"
+                                        options={[
+                                            { label: 'Yes', value: 1 },
+                                            { label: 'No', value: 0 },
+                                        ]}
+                                        selectedValue={member.is_student || ''}
+                                        onChange={(e) => handleEducationChange(index, e)}
+                                    />
+                                </div>
+
+                                {member.is_student == 1 && (
+                                    <div className="grid md:grid-cols-4 gap-4 mt-4">
+                                        <InputField
+                                            label="School Name"
+                                            name="school_name"
+                                            type="text"
+                                            value={member.school_name || ''}
                                             onChange={(e) => handleEducationChange(index, e)}
-                                            items={["No Formal Education", "Elementary", "High School", "College", "Post Grad", "Vocational"]}
-                                            placeholder="Select your Educational Attainment"
+                                            placeholder="Enter school name"
+
                                         />
 
                                         <RadioGroup
-                                            label="Educational Status"
-                                            name="education_status"
+                                            label="School Type"
+                                            name="school_type"
                                             options={[
-                                                { label: 'Graduate', value: 'Graduate' },
-                                                { label: 'Undergraduate', value: 'Undergraduate' },
+                                                { label: 'Public', value: 'public' },
+                                                { label: 'Private', value: 'private' },
                                             ]}
-                                            selectedValue={member.education_status || ''}
+                                            selectedValue={member.school_type || ''}
                                             onChange={(e) => handleEducationChange(index, e)}
+                                        />
+
+                                        <DropdownInputField
+                                            label="Current Level"
+                                            name="current_level"
+                                            value={member.current_level || ''}
+                                            onChange={(e) => handleEducationChange(index, e)}
+                                            items={["Elementary", "High School", "College", "Vocational", "Post Grad"]}
+                                            placeholder="Select school level"
                                         />
                                     </div>
+                                )}
+                                {member.is_student == 0 && (
+                                    <>
+                                        <div className="grid md:grid-cols-2 gap-10 mt-4">
+                                            <div className="grid md:grid-cols-2 gap-2">
+                                                <DropdownInputField
+                                                    label="Highest Educational Attainment"
+                                                    name="education"
+                                                    value={member.education || ''}
+                                                    onChange={(e) => handleEducationChange(index, e)}
+                                                    items={["No Formal Education", "Elementary", "High School", "College", "Post Grad", "Vocational"]}
+                                                    placeholder="Select your Educational Attainment"
+                                                />
 
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        <RadioGroup
-                                            label="Out of School Children (6-14 years old)"
-                                            name="osc"
-                                            options={[{ label: 'Yes', value: 'true' }, { label: 'No', value: 'false' }]}
-                                            selectedValue={member.osc || ''}
-                                            onChange={(e) => handleEducationChange(index, e)}
-                                        />
+                                                <RadioGroup
+                                                    label="Educational Status"
+                                                    name="education_status"
+                                                    options={[
+                                                        { label: 'Graduate', value: 'Graduate' },
+                                                        { label: 'Undergraduate', value: 'Undergraduate' },
+                                                    ]}
+                                                    selectedValue={member.education_status || ''}
+                                                    onChange={(e) => handleEducationChange(index, e)}
+                                                    disabled={member.education === 'No Formal Education'}
+                                                />
+                                            </div>
 
-                                        <RadioGroup
-                                            label="Out of School Youth (15-24 years old)"
-                                            name="osy"
-                                            options={[{ label: 'Yes', value: 'true' }, { label: 'No', value: 'false' }]}
-                                            selectedValue={member.osy || ''}
-                                            onChange={(e) => handleEducationChange(index, e)}
-                                        />
-                                    </div>
-                                </div>
+                                            <div className="grid md:grid-cols-2 gap-4">
+                                                <RadioGroup
+                                                    label="Out of School Children (6-14 years old)"
+                                                    name="osc"
+                                                    options={[{ label: 'Yes', value: 'true' }, { label: 'No', value: 'false' }]}
+                                                    selectedValue={member.osc || ''}
+                                                    onChange={(e) => handleEducationChange(index, e)}
+                                                />
 
-                                <div className="grid md:grid-cols-4 gap-4">
-                                    <YearDropdown label="Year started" name="year_started" value={member.year_started || ''} onChange={(e) => handleEducationChange(index, e)} />
-                                    <YearDropdown label="Year ended" name="year_ended" value={member.year_ended || ''} onChange={(e) => handleEducationChange(index, e)} />
-                                    {member.education_status === "Graduate" && (
-                                        <YearDropdown label="Year graduated" name="year_graduated" value={member.year_graduated || ''} onChange={(e) => handleEducationChange(index, e)} disabled />
-                                    )}
-                                </div>
+                                                <RadioGroup
+                                                    label="Out of School Youth (15-24 years old)"
+                                                    name="osy"
+                                                    options={[{ label: 'Yes', value: 'true' }, { label: 'No', value: 'false' }]}
+                                                    selectedValue={member.osy || ''}
+                                                    onChange={(e) => handleEducationChange(index, e)}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="grid md:grid-cols-4 gap-4 mt-4">
+                                            <InputField
+                                                label="School Name"
+                                                name="school_name"
+                                                type="text"
+                                                value={member.school_name || ''}
+                                                onChange={(e) => handleEducationChange(index, e)}
+                                                placeholder="Enter school name"
+                                                disabled={member.education === 'No Formal Education'}
+                                            />
+                                            <RadioGroup
+                                                label="School Type"
+                                                name="school_type"
+                                                options={[
+                                                    { label: 'Public', value: 'public' },
+                                                    { label: 'Private', value: 'private' },
+                                                ]}
+                                                selectedValue={member.school_type || ''}
+                                                onChange={(e) => handleEducationChange(index, e)}
+                                                disabled={member.education === 'No Formal Education'}
+                                            />
+                                            <YearDropdown
+                                                label="Year Started"
+                                                name="year_started"
+                                                value={member.year_started || ''}
+                                                onChange={(e) => handleEducationChange(index, e)}
+                                                disabled={member.education === 'No Formal Education'}
 
-                                <div className="grid md:grid-cols-4 gap-4">
-                                    <InputField label="School Name" name="school_name" type="text" value={member.school_name || ''} onChange={(e) => handleEducationChange(index, e)} placeholder="Enter school name" />
-                                    <RadioGroup label="School Type" name="school_type" options={[{ label: 'public', value: 'public' }, { label: 'private', value: 'private' }]} selectedValue={member.school_type || ''} onChange={(e) => handleEducationChange(index, e)} />
-                                    <InputField label="Course/strand" name="program" type="text" value={member.program || ''} onChange={(e) => handleEducationChange(index, e)} placeholder="Enter your course" />
-                                </div>
+                                            />
 
+                                            <YearDropdown
+                                                label="Year Ended"
+                                                name="year_ended"
+                                                value={member.year_ended || ''}
+                                                onChange={(e) => handleEducationChange(index, e)}
+                                                disabled={member.education === 'No Formal Education'}
+                                            />
+
+                                            {member.education_status === "Graduate" && (
+                                                <YearDropdown
+                                                    label="Year Graduated"
+                                                    name="year_graduated"
+                                                    value={member.year_graduated || ''}
+                                                    onChange={(e) => handleEducationChange(index, e)}
+                                                    disabled={member.education === 'No Formal Education'}
+                                                />
+                                            )}
+                                        </div>
+
+
+
+                                        <div className="grid md:grid-cols-4 gap-4 mt-4">
+                                            <InputField
+                                                label="Finised Course/Strand"
+                                                name="program"
+                                                type="text"
+                                                value={member.program || ''}
+                                                onChange={(e) => handleEducationChange(index, e)}
+                                                placeholder="Enter your course"
+                                                disabled={member.education === 'No Formal Education'}
+                                            />
+                                        </div>
+                                    </>
+                                )}
                                 <hr className="h-px bg-sky-500 border-0 transform scale-y-100 origin-center" />
                                 <p className="font-bold">Occupation Background</p>
 
