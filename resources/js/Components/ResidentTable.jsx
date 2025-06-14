@@ -294,7 +294,7 @@ const ResidentTable = ({
                                                                     <Network className="w-4 h-4 text-blue-500" />
                                                                 ),
                                                                 href: route(
-                                                                    "barangay_officer.familytree",
+                                                                    "resident.familytree",
                                                                     resident.id
                                                                 ),
                                                                 tooltip:

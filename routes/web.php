@@ -15,11 +15,12 @@ use Inertia\Inertia;
 Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('barangay_officer.dashboard');
 
+    Route::get('resident/createresident', [ResidentController::class, 'createResident'])->name('resident.createresident');
     Route::resource('resident', ResidentController::class);
     Route::resource('document', DocumentController::class);
     Route::resource('household', HouseholdController::class);
     Route::resource('senior_citizen', SeniorCitizenController::class);
-    Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('barangay_officer.familytree');
+    Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('resident.familytree');
 });
 
 // Resident-only routes

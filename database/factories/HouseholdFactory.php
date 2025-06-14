@@ -31,9 +31,8 @@ class HouseholdFactory extends Factory
             'bath_and_wash_area' => $this->faker->randomElement([
                 'with own sink and bath',
                 'shared or communal',
-                'not mentioned above (specify)'
+                'none available'
             ]),
-            'bath_and_wash_area_other' => $this->faker->optional()->sentence(2),
             'number_of_rooms' => $this->faker->numberBetween(1, 10),
             'number_of_floors' => $this->faker->numberBetween(1, 3),
             'latitude' => $this->faker->latitude(5, 15),

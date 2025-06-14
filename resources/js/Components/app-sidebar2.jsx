@@ -17,6 +17,7 @@ import {
     FileStack,
     Warehouse,
     SquareUserRound,
+    House,
 } from "lucide-react";
 
 import {
@@ -56,6 +57,23 @@ const items = [
                 icon: UsersRound,
             },
             { title: "View Residents", url: "#", icon: SquareUserRound },
+        ],
+    },
+    {
+        title: "Household Information",
+        url: "#",
+        icon: House,
+        submenu: [
+            {
+                title: "Households Table",
+                url: "/barangay_officer/household",
+                icon: Table,
+            },
+            {
+                title: "View Residents",
+                url: "#",
+                icon: SquareUserRound,
+            },
         ],
     },
     {
@@ -126,12 +144,11 @@ export function AppSidebar({ auth }) {
                                         >
                                             <a
                                                 href={item.url}
-                                                className={`flex items-center justify-between w-full my-1 ${
-                                                    location.pathname ===
-                                                    item.url
+                                                className={`flex items-center justify-between w-full my-1 ${location.pathname ===
+                                                        item.url
                                                         ? "bg-gray-200 text-primary" // Active item styles
                                                         : "text-white"
-                                                }`}
+                                                    }`}
                                             >
                                                 <div className="flex items-center">
                                                     <item.icon className="mr-2" />
@@ -152,11 +169,10 @@ export function AppSidebar({ auth }) {
 
                                     {item.submenu.length > 0 && (
                                         <SidebarGroupContent
-                                            className={`overflow-hidden transition-all duration-300 ease-in-out transform ${
-                                                collapsed[index]
+                                            className={`overflow-hidden transition-all duration-300 ease-in-out transform ${collapsed[index]
                                                     ? "max-h-0 opacity-0 translate-x-[-10px]"
                                                     : "max-h-[1000px] opacity-100 translate-x-0"
-                                            }`}
+                                                }`}
                                             style={{
                                                 transitionProperty:
                                                     "max-height, opacity, transform",
@@ -171,12 +187,11 @@ export function AppSidebar({ auth }) {
                                                             href={
                                                                 submenuItem.url
                                                             }
-                                                            className={`flex items-center pl-6 my-1 ${
-                                                                location.pathname ===
-                                                                submenuItem.url
+                                                            className={`flex items-center pl-6 my-1 ${location.pathname ===
+                                                                    submenuItem.url
                                                                     ? "bg-gray-200 text-primary"
                                                                     : "text-gray-200"
-                                                            }`}
+                                                                }`}
                                                             style={{
                                                                 maxWidth:
                                                                     "calc(100% - 2rem)", // Adjust width

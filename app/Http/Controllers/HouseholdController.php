@@ -16,10 +16,7 @@ class HouseholdController extends Controller
      */
     public function index()
     {
-        $data = HouseholdResident::with('resident.medicalInformation')->get();
-        return Inertia::render('Admin/Household/Index', [
-            'data' => $data
-        ]);
+        dd('hello');
     }
 
     /**
