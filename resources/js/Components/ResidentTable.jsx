@@ -239,7 +239,7 @@ const ResidentTable = ({
                                                             .employment_status
                                                     ]}
                                                 {col.key === "occupation" &&
-                                                    resident.occupation}
+                                                   (resident.occupation ?? "N/A")}
                                                 {col.key === "citizenship" &&
                                                     resident.citizenship}
                                                 {col.key ===
