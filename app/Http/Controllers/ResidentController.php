@@ -17,14 +17,14 @@ class ResidentController extends Controller
      */
     public function index()
     {
+        $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
         $query = Resident::query()
             ->with([
                 'socialwelfareprofile',
                 'occupations.occupationType',
                 'livelihoods.livelihoodType',
             ])
-            ->where('residents.barangay_id', 1);
-        $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
+            ->where('residents.barangay_id', $brgy_id);
         // $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->get();
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
         $query = $query->where('barangay_id', $brgy_id);
@@ -167,7 +167,8 @@ class ResidentController extends Controller
         return Inertia::render('BarangayOfficer/Resident/Index', [
             'residents' => $residents,
             'queryParams' => request()->query() ?: null,
-            'puroks' => $puroks
+            'puroks' => $puroks,
+            'success' => session('success') ?? null,
         ]);
     }
 
@@ -178,23 +179,86 @@ class ResidentController extends Controller
     {
         return Inertia::render("BarangayOfficer/Resident/Create");
     }
-    public function createResident(){
-        return Inertia::render("BarangayOfficer/Resident/CreateResident");
-    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreResidentRequest $request)
     {
-        dd($request->validated());
+        $barangayId = Auth()->user()->barangay_id; // get brgy id through the admin
+        $data = $request->validated();
         /**
          * @var $image \Illuminate\Http\UploadedFile
          */
-        $image = $data['image'] ?? null;
-        if($image){
-            $data['image_path'] = $image->store('project'.Str::random(), 'public');
+        $image = $data['resident_image'] ?? null;
+        if ($image) {
+            $folder = 'resident/' . $data['lastname'] . $data['firstname'] . Str::random(10);
+            $data['resident_image'] = $image->store($folder, 'public');
         }
+
+        $residentInformation = [
+            'resident_picture_path' => $data['resident_image'] ?? null,
+            'barangay_id' => $barangayId,
+            'firstname' => $data['firstname'],
+            'middlename' => $data['middlename'],
+            'lastname' => $data['lastname'],
+            'maiden_name' => $data['maiden_name'] ?? null,
+            'suffix' => $data['suffix'] ?? null,
+            'gender' => $data['gender'],
+            'birthdate' => $data['birthdate'],
+            'birthplace' => $data['birthplace'],
+            'civil_status' => $data['civil_status'],
+            'citizenship' => $data['citizenship'],
+            'religion' => $data['religion'],
+            'contact_number' => $data['contactNumber'] ?? null,
+            'registered_voter' => $data['registered_voter'],
+            'ethnicity' => $data['ethnicity'] ?? null,
+            'email' => $data['email'] ?? null,
+            'residency_date' => $data['residency_date'] ?? now(),
+            'residency_type' => $data['residency_type'] ?? 'permanent',
+            'purok_number' => $data['purok_number'],
+            'street_id' => $data['street_id'] ?? null,
+        ];
+
+        $residentEducation = [];
+        if($data['is_student']) {
+            $residentEducation = [
+                'school_name' => $data['school_name'] ?? null,
+                'school_type' => $data['school_type'] ?? null,
+                'current_level' => $data['current_level'] ?? null,
+                'education_status' =>  null,
+                'osc' =>  null,
+                'osy' => null,
+                'year_started' => null,
+                'year_ended' =>  null,
+                'year_graduated' =>  null,
+                'program' => null,
+            ];
+        } else {
+            $residentEducation = [
+                'school_name' => $data['school_name'] ?? null,
+                'school_type' => $data['school_type'] ?? null,
+                'current_level' => $data['current_level'] ?? null,
+                'education_status' => $data['education_status'] ?? null,
+                'osc' => $data['osc'] ?? null,
+                'osy' => $data['osy'] ?? null,
+                'year_started' => $data['year_started'] ?? null,
+                'year_ended' => $data['year_ended'] ?? null,
+                'year_graduated' => $data['year_graduated'] ?? null,
+                'program' => $data['program'] ?? null,
+            ];
+        }
+
+        try {
+            $resident = Resident::create($residentInformation);
+            $residentEducation['resident_id'] = $resident->id;
+            $resident->educationalHistories()->create($residentEducation);
+            return redirect()->route('resident.index')->with('success', 'Resident '. ucwords($resident->getFullNameAttribute()) .' created successfully!');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            return back()->withErrors(['error' => 'Resident could not be created: ' . $e->getMessage()]);
+        }
+
     }
 
     /**
@@ -241,6 +305,15 @@ class ResidentController extends Controller
             'children' => ResidentResource::collection($familyTree['children']),
             'spouse' => ResidentResource::collection($familyTree['spouse']),
         ],
+        ]);
+    }
+
+    public function createResident(){
+        $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
+        // $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->get();
+        $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
+        return Inertia::render("BarangayOfficer/Resident/CreateResident", [
+            'puroks' => $puroks,
         ]);
     }
 }

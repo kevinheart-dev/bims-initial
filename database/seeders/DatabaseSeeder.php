@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
-        Barangay::factory(1)->create();
+        Barangay::factory(2)->create();
         for($i = 1; $i <= 7; $i++){
             Purok::factory()->create([
                 'barangay_id' => 1,
@@ -61,6 +61,19 @@ class DatabaseSeeder extends Seeder
             'barangay_id' => 1,
             'username' => 'Test User',
             'email' => 'test@example.com',
+            'password' => bcrypt('admin123'),
+            'email_verified_at' => now(),
+            'role' => 'admin',
+            'status' => 'active'
+        ]);
+        $user->assignRole($barangayOfficer);
+
+        $barangayOfficer = Role::firstOrCreate(['name' => 'barangay_officer']);
+        $user = User::factory()->create([
+            'resident_id' => Resident::factory(),
+            'barangay_id' => 2,
+            'username' => 'Test User 2',
+            'email' => 'testtest@example.com',
             'password' => bcrypt('admin123'),
             'email_verified_at' => now(),
             'role' => 'admin',

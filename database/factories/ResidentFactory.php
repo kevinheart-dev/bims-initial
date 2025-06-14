@@ -41,7 +41,7 @@ class ResidentFactory extends Factory
             'email' => $this->faker->unique()->safeEmail(),
             'purok_number' => $this->faker->numberBetween(1, 7),
             'street_id' => Street::inRandomOrder()->first()?->id ?? Street::factory(),
-            'residency_date' => $this->faker->date(),
+            'residency_date' => $this->faker->year(),
             'residency_type' => $this->faker->randomElement(['permanent', 'temporary', 'migrant']),
             'resident_picture_path' => $this->faker->optional()->imageUrl(300, 300, 'people')
                 ?? 'https://ui-avatarss.com/api/?name=' . urlencode($this->faker->name()) . '&size=300',

@@ -12,6 +12,40 @@ class Resident extends Model
     /** @use HasFactory<\Database\Factories\ResidentFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        'barangay_id',
+        'firstname',
+        'middlename',
+        'lastname',
+        'maiden_name',
+        'suffix',
+        'birthdate',
+        'birthplace',
+        'gender',
+        'civil_status',
+        'registered_voter',
+        'employment_status',
+        'citizenship',
+        'religion',
+        'contact_number',
+        'email',
+        'purok_number',
+        'street_id',
+        'residency_date',
+        'residency_type',
+        'resident_picture_path',
+        'is_pwd',
+        'ethnicity',
+        'date_of_death',
+        'household_id',
+        'is_household_head',
+        'family_id',
+        'is_family_head',
+        'verified',
+        'created_at',
+        'updated_at',
+    ];
+
     public function parents()
     {
         return $this->belongsToMany(Resident::class, 'family_relations', 'related_to', 'resident_id')
@@ -137,9 +171,21 @@ class Resident extends Model
     {
         return $this->hasOne(SeniorCitizen::class);
     }
+    public function educationalHistories()
+    {
+        return $this->hasMany(EducationalHistory::class);
+    }
     public function getAgeAttribute()
     {
         return Carbon::parse($this->birthdate)->age;
+    }
+    public function getFullNameAttribute()
+    {
+        $name = trim("{$this->firstname} {$this->middlename} {$this->lastname}");
+        if ($this->suffix) {
+            $name .= " {$this->suffix}";
+        }
+        return $name;
     }
 
 }

@@ -5,11 +5,26 @@ import { Input } from "@/components/ui/input";
 import { Search, UserRoundPlus, HousePlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
-
+import { Toaster, toast } from "sonner";
 import ResidentTable from "@/Components/ResidentTable";
 
-export default function Index({ residents, queryParams = null, puroks }) {
+export default function Index({
+    residents,
+    queryParams = null,
+    puroks,
+    success = null,
+}) {
     queryParams = queryParams || {};
+
+    useEffect(() => {
+        if (success) {
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                className: "bg-green-100 text-green-800",
+            });
+        }
+    }, [success]);
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
 
@@ -80,6 +95,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
         <AdminLayout>
             <Head title="Resident Dashboard" />
             <div>
+                <Toaster />
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 my-8">

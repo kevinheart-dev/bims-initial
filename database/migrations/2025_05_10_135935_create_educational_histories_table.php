@@ -14,25 +14,24 @@ return new class extends Migration
         Schema::create('educational_histories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->string('school_name', 155);
-            $table->boolean('enrolled_now')->default(true);
-            $table->enum('school_type', ['private', 'public']);
+            $table->string('school_name', 155)->nullable();
+            $table->boolean('enrolled_now')->default(false);
+            $table->enum('school_type', ['private', 'public'])->nullable();
             $table->enum('educational_attainment', [
                 'no_formal_education',
-                'elementary_level',
-                'elementary_graduate',
-                'high_school_level',
-                'high_school_graduate',
-                'college_level',
-                'college_graduate',
+                'elementary',
+                'high_school',
+                'college',
                 'vocational',
                 'post_graduate',
-                'als_graduate'
-            ]);
+            ])->nullable();
+            $table->enum('education_status', ['graduate', 'undergraduate'])->nullable();
             $table->text('dropout_reason')->nullable();
             $table->boolean('als_participant')->default(false);
-            $table->year('start_year');
-            $table->year('end_year');
+            $table->year('start_year')->nullable();
+            $table->year('end_year')->nullable();
+            $table->year('year_graduated')->nullable();
+            $table->string('program', 55)->nullable();
             $table->timestamps();
         });
     }

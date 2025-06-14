@@ -201,8 +201,9 @@ const ResidentTable = ({
                                                     "resident_picture" && (
                                                     <img
                                                         src={
-                                                            resident.resident_picture ||
-                                                            "/images/default-avatar.jpg"
+                                                            resident.resident_picture
+                                                                ? `/storage/${resident.resident_picture}`
+                                                                : "/images/default-avatar.jpg"
                                                         }
                                                         onError={(e) => {
                                                             e.target.onerror =
@@ -310,7 +311,10 @@ const ResidentTable = ({
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={visibleColumns.length}>
+                                <TableCell
+                                    colSpan={visibleColumns.length}
+                                    className="text-center py-4 text-gray-500"
+                                >
                                     No records found.
                                 </TableCell>
                             </TableRow>
