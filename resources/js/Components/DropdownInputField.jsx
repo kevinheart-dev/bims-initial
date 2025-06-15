@@ -61,14 +61,16 @@ const DropdownInputField = ({ label, name, value, onChange, placeholder, items =
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [showDropdown, disabled]);
 
+    // ✅ Show all items even if input is empty
     const filteredItems = items.filter((item) =>
         getLabel(item).toLowerCase().includes(inputValue.toLowerCase())
     );
 
     return (
         <div className="relative">
-            <label className={`block text-sm font-semibold mb-3 mt-4 ${disabled ? 'text-gray-400' : ' text-gray-700'}`}
-            >{label}</label>
+            <label className={`block text-sm font-semibold mb-3 mt-4 ${disabled ? 'text-gray-400' : 'text-gray-700'}`}>
+                {label}
+            </label>
             <input
                 ref={inputRef}
                 type="text"
@@ -77,8 +79,11 @@ const DropdownInputField = ({ label, name, value, onChange, placeholder, items =
                 onChange={handleInputChange}
                 onFocus={handleFocus}
                 placeholder={placeholder}
-                className={`w-full border-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400
-                ${disabled ? 'bg-gray-200 cursor-not-allowed' : ''}`}
+                className={`w-full border rounded-md px-3 py-2 focus:outline-none
+                        ${disabled
+                        ? 'bg-gray-100 text-gray-800 border-gray-300 cursor-not-allowed'
+                        : 'border-gray-400 focus:ring-2 focus:ring-indigo-500  text-gray-800'}
+                    `}
                 autoComplete="off"
                 disabled={disabled}
             />
@@ -110,7 +115,6 @@ const DropdownInputField = ({ label, name, value, onChange, placeholder, items =
                     document.body
                 )
             }
-
         </div>
     );
 };
