@@ -3,7 +3,7 @@ import PersonalInformation from "@/Components/ResidentInput/PersonalInformation"
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router, usePage } from "@inertiajs/react";
 
-export default function Index({ auth, puroks }) {
+export default function Index({ auth, puroks, occupationTypes }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         {
@@ -28,7 +28,10 @@ export default function Index({ auth, puroks }) {
                                     {error}
                                 </div>
                             )}
-                            <PersonalInformation puroks={puroks} />
+                            <PersonalInformation
+                                puroks={puroks}
+                                occupationTypes={occupationTypes}
+                            />
                         </div>
                     </div>
                 </div>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ResidentResource;
+use App\Models\OccupationType;
 use App\Models\Purok;
 use App\Models\Resident;
 use App\Http\Requests\StoreResidentRequest;
@@ -185,16 +186,24 @@ class ResidentController extends Controller
      */
     public function store(StoreResidentRequest $request)
     {
+
         $barangayId = Auth()->user()->barangay_id; // get brgy id through the admin
         $data = $request->validated();
         /**
          * @var $image \Illuminate\Http\UploadedFile
          */
+        // dd($data['occupations']);
         $image = $data['resident_image'] ?? null;
         if ($image) {
             $folder = 'resident/' . $data['lastname'] . $data['firstname'] . Str::random(10);
             $data['resident_image'] = $image->store($folder, 'public');
         }
+
+        $latestOccupation = collect($data['occupations'] ?? [])
+            ->sortByDesc('started_at')
+            ->first();
+
+        $latestEmploymentStatus = $latestOccupation['employment_status'] ?? null;
 
         $residentInformation = [
             'resident_picture_path' => $data['resident_image'] ?? null,
@@ -209,6 +218,7 @@ class ResidentController extends Controller
             'birthplace' => $data['birthplace'],
             'civil_status' => $data['civil_status'],
             'citizenship' => $data['citizenship'],
+            'employment_status' => $latestEmploymentStatus ?? 'unemployed',
             'religion' => $data['religion'],
             'contact_number' => $data['contactNumber'] ?? null,
             'registered_voter' => $data['registered_voter'],
@@ -223,6 +233,7 @@ class ResidentController extends Controller
         $residentEducation = [];
         if($data['is_student']) {
             $residentEducation = [
+                'enrolled_now' => $data['is_student'] ?? false,
                 'school_name' => $data['school_name'] ?? null,
                 'school_type' => $data['school_type'] ?? null,
                 'current_level' => $data['current_level'] ?? null,
@@ -236,6 +247,7 @@ class ResidentController extends Controller
             ];
         } else {
             $residentEducation = [
+                'enrolled_now' => $data['is_student'] ?? false,
                 'school_name' => $data['school_name'] ?? null,
                 'school_type' => $data['school_type'] ?? null,
                 'current_level' => $data['current_level'] ?? null,
@@ -249,10 +261,42 @@ class ResidentController extends Controller
             ];
         }
 
+
         try {
             $resident = Resident::create($residentInformation);
             $residentEducation['resident_id'] = $resident->id;
+
+            // add educational history
             $resident->educationalHistories()->create($residentEducation);
+
+            //add occupations
+            if (!empty($data['occupations']) && is_array($data['occupations'])) {
+                foreach ($data['occupations'] ?? [] as $occupationData) {
+
+                    if($occupationData['income_frequency'] === 'monthly') {
+                        $occupationData['income'] = $occupationData['income'] ?? 0;
+                    } elseif ($occupationData['income_frequency'] === 'weekly') {
+                        $occupationData['income'] = ($occupationData['income'] ?? 0) * 4;
+                    } elseif ($occupationData['income_frequency'] === 'annually') {
+                        $occupationData['income'] = ($occupationData['income'] ?? 0) / 12;
+                    } else {
+                        $occupationData['income'] = $occupationData['income'] ?? null;
+                    }
+
+                    $resident->occupations()->create([
+                        'occupation' => $occupationData['occupation'] ?? null,
+                        'employment_type' => $occupationData['employment_type'] ?? null,
+                        'occupation_status' => $occupationData['occupation_status'] ?? null,
+                        'work_arrangement' => $occupationData['work_arrangement'] ?? null,
+                        'employer' => $occupationData['employer'] ?? null,
+                        'job_sector' => $occupationData['job_sector'] ?? null,
+                        'is_ofw' => $occupationData['is_ofw'] ?? false,
+                        'started_at' => $occupationData['started_at'],
+                        'ended_at' => $occupationData['ended_at'] ?? null,
+                        'monthly_income' => $occupationData['income'] ?? null,
+                    ]);
+                }
+            }
             return redirect()->route('resident.index')->with('success', 'Resident '. ucwords($resident->getFullNameAttribute()) .' created successfully!');
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -314,6 +358,7 @@ class ResidentController extends Controller
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
         return Inertia::render("BarangayOfficer/Resident/CreateResident", [
             'puroks' => $puroks,
+            'occupationTypes' => OccupationType::all()->pluck('name'),
         ]);
     }
 }

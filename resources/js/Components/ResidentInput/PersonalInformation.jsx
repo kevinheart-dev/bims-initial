@@ -16,7 +16,7 @@ import InputLabel from "../InputLabel";
 import RadioGroup from "../RadioGroup";
 import YearDropdown from "../YearDropdown";
 
-const PersonalInformation = ({ puroks }) => {
+const PersonalInformation = ({ puroks, occupationTypes = null }) => {
     const { data, setData, post, errors } = useForm({
         resident_image: null,
         lastname: "",
@@ -44,22 +44,13 @@ const PersonalInformation = ({ puroks }) => {
         current_level: "",
         education: "",
         education_status: "",
-        osc: "",
-        osy: "",
+        osc: 0,
+        osy: 0,
         year_started: "",
         year_ended: "",
         program: "",
         year_graduated: "",
         occupations: [],
-        employment_status: "",
-        occupation: "",
-        employment_type: "",
-        occupation_status: "",
-        work_arrangement: "",
-        employer: "",
-        started_at: "",
-        ended_at: "",
-        monthly_income: "",
     });
 
     const onSubmit = (e) => {
@@ -483,6 +474,7 @@ const PersonalInformation = ({ puroks }) => {
                         onChange={(e) => setData("is_student", e.target.value)}
                     />
                 </div>
+
                 {data.is_student == 1 && (
                     <div className="grid md:grid-cols-4 gap-4 my-4">
                         <div>
@@ -552,57 +544,19 @@ const PersonalInformation = ({ puroks }) => {
                         </div>
                     </div>
                 )}
-
-                {/* di pa tapos itutuloy pa */}
                 {data.is_student == 0 && (
                     <>
                         <div className="grid md:grid-cols-2 gap-10 mt-4">
                             <div className="grid md:grid-cols-2 gap-2">
                                 <div>
                                     <DropdownInputField
-                                        label="Current Level"
-                                        name="current_level"
-                                        value={data.current_level || ""}
+                                        label="Highest Educational Attainment"
+                                        name="education"
+                                        value={data.education || ""}
                                         onChange={(e) =>
-                                            setData(
-                                                "current_level",
-                                                e.target.value
-                                            )
+                                            setData("education", e.target.value)
                                         }
                                         items={[
-                                            {
-                                                label: "Elementary",
-                                                value: "elementary",
-                                            },
-                                            {
-                                                label: "High School",
-                                                value: "high_school",
-                                            },
-                                            {
-                                                label: "College",
-                                                value: "college",
-                                            },
-                                            {
-                                                label: "Vocational",
-                                                value: "vocational",
-                                            },
-                                            {
-                                                label: "Post Grad",
-                                                value: "post_grad",
-                                            },
-                                        ]}
-                                        placeholder="Select school level"
-                                    />
-                                    <InputError
-                                        message={errors.current_level}
-                                        className="mt-2"
-                                    />
-                                </div>
-                                <div>
-                                    <RadioGroup
-                                        label="Education"
-                                        name="education"
-                                        options={[
                                             {
                                                 label: "No Formal Education",
                                                 value: "no_formal_education",
@@ -620,139 +574,219 @@ const PersonalInformation = ({ puroks }) => {
                                                 value: "college",
                                             },
                                             {
-                                                label: "Vocational",
-                                                value: "vocational",
-                                            },
-                                            {
                                                 label: "Post Grad",
                                                 value: "post_grad",
                                             },
+                                            {
+                                                label: "Vocational",
+                                                value: "vocational",
+                                            },
                                         ]}
-                                        selectedValue={data.education || ""}
-                                        onChange={(e) =>
-                                            setData("education", e.target.value)
-                                        }
+                                        placeholder="Select your Educational Attainment"
                                     />
                                     <InputError
                                         message={errors.education}
                                         className="mt-2"
                                     />
                                 </div>
+                                <div>
+                                    <RadioGroup
+                                        label="Educational Status"
+                                        name="education_status"
+                                        options={[
+                                            {
+                                                label: "Graduate",
+                                                value: "graduate",
+                                            },
+                                            {
+                                                label: "Undergraduate",
+                                                value: "undergraduate",
+                                            },
+                                        ]}
+                                        selectedValue={
+                                            data.education_status || ""
+                                        }
+                                        onChange={(e) =>
+                                            setData(
+                                                "education_status",
+                                                e.target.value
+                                            )
+                                        }
+                                        disabled={
+                                            data.education ===
+                                            "no_formal_education"
+                                        }
+                                    />
+                                    <InputError
+                                        message={errors.education_status}
+                                        className="mt-2"
+                                    />
+                                </div>
                             </div>
+
                             <div className="grid md:grid-cols-2 gap-4">
                                 {data.age >= 6 && data.age <= 14 && (
-                                    <RadioGroup
-                                        label="Out of School Children (6-14 years old)"
-                                        name="osc"
-                                        options={[
-                                            { label: "Yes", value: "true" },
-                                            { label: "No", value: "false" },
-                                        ]}
-                                        selectedValue={data.osc || ""}
-                                        onChange={(e) =>
-                                            setData("osc", e.target.value)
-                                        }
-                                    />
+                                    <div>
+                                        <RadioGroup
+                                            label="Out of School Children (6-14 years old)"
+                                            name="osc"
+                                            options={[
+                                                { label: "Yes", value: 1 },
+                                                { label: "No", value: 0 },
+                                            ]}
+                                            selectedValue={data.osc || ""}
+                                            onChange={(e) =>
+                                                setData("osc", e.target.value)
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.osc}
+                                            className="mt-2"
+                                        />
+                                    </div>
                                 )}
                                 {data.age >= 15 && data.age <= 24 && (
-                                    <RadioGroup
-                                        label="Out of School Youth (15-24 years old)"
-                                        name="osy"
-                                        options={[
-                                            { label: "Yes", value: "true" },
-                                            { label: "No", value: "false" },
-                                        ]}
-                                        selectedValue={data.osy || ""}
-                                        onChange={(e) =>
-                                            setData("osy", e.target.value)
-                                        }
-                                    />
+                                    <div>
+                                        <RadioGroup
+                                            label="Out of School Youth (15-24 years old)"
+                                            name="osy"
+                                            options={[
+                                                { label: "Yes", value: 1 },
+                                                { label: "No", value: 0 },
+                                            ]}
+                                            selectedValue={data.osy || ""}
+                                            onChange={(e) =>
+                                                setData("osy", e.target.value)
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.osy}
+                                            className="mt-2"
+                                        />
+                                    </div>
                                 )}
                             </div>
                         </div>
                         <div className="grid md:grid-cols-4 gap-4 mt-4">
-                            <InputField
-                                label="School Name"
-                                name="school_name"
-                                type="text"
-                                value={data.school_name || ""}
-                                onChange={(e) =>
-                                    setData("school_name", e.target.value)
-                                }
-                                placeholder="Enter school name"
-                                disabled={
-                                    data.education === "No Formal Education"
-                                }
-                            />
-                            <RadioGroup
-                                label="School Type"
-                                name="school_type"
-                                options={[
-                                    { label: "Public", value: "public" },
-                                    { label: "Private", value: "private" },
-                                ]}
-                                selectedValue={data.school_type || ""}
-                                onChange={(e) =>
-                                    setData("school_type", e.target.value)
-                                }
-                                disabled={
-                                    data.education === "No Formal Education"
-                                }
-                            />
-                            <YearDropdown
-                                label="Year Started"
-                                name="year_started"
-                                value={data.year_started || ""}
-                                onChange={(e) =>
-                                    setData("year_started", e.target.value)
-                                }
-                                disabled={
-                                    data.education === "No Formal Education"
-                                }
-                            />
-
-                            <YearDropdown
-                                label="Year Ended"
-                                name="year_ended"
-                                value={data.year_ended || ""}
-                                onChange={(e) =>
-                                    setData("year_ended", e.target.value)
-                                }
-                                disabled={
-                                    data.education === "No Formal Education"
-                                }
-                            />
-                        </div>
-                        <div className="grid md:grid-cols-4 gap-4 my-4">
-                            {data.education === "college" && (
+                            <div>
                                 <InputField
-                                    label="Finised Course"
-                                    name="program"
+                                    label="School Name"
+                                    name="school_name"
                                     type="text"
-                                    value={data.program || ""}
+                                    value={data.school_name || ""}
                                     onChange={(e) =>
-                                        setData("program", e.target.value)
+                                        setData("school_name", e.target.value)
                                     }
-                                    placeholder="Enter your course"
+                                    placeholder="Enter school name"
                                     disabled={
-                                        data.education === "No Formal Education"
+                                        data.education === "no_formal_education"
                                     }
                                 />
-                            )}
-
-                            {data.education_status === "Graduate" && (
+                                <InputError
+                                    message={errors.school_name}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <RadioGroup
+                                    label="School Type"
+                                    name="school_type"
+                                    options={[
+                                        { label: "Public", value: "public" },
+                                        { label: "Private", value: "private" },
+                                    ]}
+                                    selectedValue={data.school_type || ""}
+                                    onChange={(e) =>
+                                        setData("school_type", e.target.value)
+                                    }
+                                    disabled={
+                                        data.education === "no_formal_education"
+                                    }
+                                />
+                                <InputError
+                                    message={errors.school_type}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
                                 <YearDropdown
-                                    label="Year Graduated"
-                                    name="year_graduated"
+                                    label="Year Started"
+                                    name="year_started"
+                                    value={data.year_started || ""}
+                                    onChange={(e) =>
+                                        setData("year_started", e.target.value)
+                                    }
+                                    disabled={
+                                        data.education === "no_formal_education"
+                                    }
+                                />
+                                <InputError
+                                    message={errors.year_started}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <YearDropdown
+                                    label="Year Ended"
+                                    name="year_ended"
                                     value={data.year_ended || ""}
                                     onChange={(e) =>
-                                        setData(
-                                            "year_graduated",
-                                            e.target.value
-                                        )
+                                        setData("year_ended", e.target.value)
                                     }
-                                    disabled
+                                    disabled={
+                                        data.education === "no_formal_education"
+                                    }
                                 />
+                                <InputError
+                                    message={errors.year_ended}
+                                    className="mt-2"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-4 gap-4 my-4">
+                            {data.education === "college" && (
+                                <div>
+                                    <InputField
+                                        label="Finised Course"
+                                        name="program"
+                                        type="text"
+                                        value={data.program || ""}
+                                        onChange={(e) =>
+                                            setData("program", e.target.value)
+                                        }
+                                        placeholder="Enter your course"
+                                        disabled={
+                                            data.education ===
+                                            "no_formal_education"
+                                        }
+                                    />
+                                    <InputError
+                                        message={errors.program}
+                                        className="mt-2"
+                                    />
+                                </div>
+                            )}
+
+                            {data.education_status === "graduate" && (
+                                <div>
+                                    <YearDropdown
+                                        label="Year Graduated"
+                                        name="year_graduated"
+                                        value={data.year_ended || ""}
+                                        onChange={(e) =>
+                                            setData(
+                                                "year_graduated",
+                                                e.target.value
+                                            )
+                                        }
+                                        disabled
+                                    />
+                                    <InputError
+                                        message={errors.year_graduated}
+                                        className="mt-2"
+                                    />
+                                </div>
                             )}
                         </div>
                     </>
@@ -762,129 +796,375 @@ const PersonalInformation = ({ puroks }) => {
                 <p className="font-bold my-2 text-lg">Occupation Background</p>
 
                 {/* occupations */}
-                {(data.occupations || []).map((occupation, occIndex) => (
-                    <div
-                        key={occIndex}
-                        className="border p-4 mb-4 rounded-md relative bg-gray-50"
-                    >
-                        <div className="grid md:grid-cols-3 gap-4">
-                            <DropdownInputField
-                                label="Employment Status"
-                                name="employment_status"
-                                value={occupation.employment_status || ""}
-                                onChange={(e) =>
-                                    setData("employment_status", e.target.value)
-                                }
-                                placeholder="Select employment status"
-                                items={["Employed", "Unemployed", "Student"]}
-                            />
-                            <DropdownInputField
-                                label="Occupation"
-                                name="occupation"
-                                value={occupation.occupation || ""}
-                                onChange={(e) =>
-                                    setData("occupation", e.target.value)
-                                }
-                                placeholder="Select or Enter Occupation"
-                                items={["Farmer", "Nurse", "Teacher", "Vendor"]}
-                                disabled={
-                                    occupation.employment_status ===
-                                    "Unemployed"
-                                }
-                            />
-                            <DropdownInputField
-                                label="Employment Type"
-                                name="employment_type"
-                                value={occupation.employment_type || ""}
-                                onChange={(e) =>
-                                    setData("employment_type", e.target.value)
-                                }
-                                placeholder="Select employment type"
-                                items={[
-                                    "Full-time",
-                                    "Part-time",
-                                    "Seasonal",
-                                    "Contractual",
-                                    "Self-employed",
-                                ]}
-                            />
-                            <DropdownInputField
-                                label="Status"
-                                name="occupation_status"
-                                value={occupation.occupation_status || ""}
-                                onChange={(e) =>
-                                    setData("occupation_status", e.target.value)
-                                }
-                                placeholder="Select occupation status"
-                                items={[
-                                    "active",
-                                    "inactive",
-                                    "ended",
-                                    "retired",
-                                ]}
-                            />
-                            <RadioGroup
-                                label="Work Arrangement"
-                                name="work_arrangement"
-                                options={[
-                                    { label: "remote", value: "remote" },
-                                    { label: "onsite", value: "onsite" },
-                                    { label: "hybrid", value: "hybrid" },
-                                ]}
-                                selectedValue={
-                                    occupation.work_arrangement || ""
-                                }
-                                onChange={(e) =>
-                                    setData("work_arrangement", e.target.value)
-                                }
-                            />
-                            <InputField
-                                label="Employer name"
-                                name="employer"
-                                type="text"
-                                value={occupation.employer || ""}
-                                onChange={(e) =>
-                                    setData("employer", e.target.value)
-                                }
-                                placeholder="Enter employer name"
-                            />
-                            <YearDropdown
-                                label="Year Started"
-                                name="started_at"
-                                value={occupation.started_at || ""}
-                                onChange={(e) =>
-                                    setData("started_at", e.target.value)
-                                }
-                            />
-                            <YearDropdown
-                                label="Year Ended"
-                                name="ended_at"
-                                value={occupation.ended_at || ""}
-                                onChange={(e) =>
-                                    setData("ended_at", e.target.value)
-                                }
-                            />
-                            <InputField
-                                type="number"
-                                label="Monthly Income"
-                                name="monthly_income"
-                                value={occupation.monthly_income || ""}
-                                onChange={(e) =>
-                                    setData("monthly_income", e.target.value)
-                                }
-                                placeholder="Enter monthly income"
-                            />
-                        </div>
-
-                        <button
-                            type="button"
-                            onClick={() => removeOccupation(occIndex)}
-                            className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
+                {Array.isArray(data.occupations) &&
+                    data.occupations.map((occupation, occIndex) => (
+                        <div
+                            key={occIndex}
+                            className="border p-4 mb-4 rounded-md relative bg-gray-50"
                         >
-                            <IoIosCloseCircleOutline className="text-2xl" />
-                        </button>
-                    </div>
-                ))}
+                            <div className="grid md:grid-cols-3 gap-4">
+                                <div>
+                                    <DropdownInputField
+                                        label="Employment Status"
+                                        name="employment_status"
+                                        value={
+                                            occupation.employment_status || ""
+                                        }
+                                        onChange={(e) => {
+                                            const updated = [
+                                                ...(data.occupations || []),
+                                            ];
+                                            updated[occIndex] = {
+                                                ...updated[occIndex],
+                                                employment_status:
+                                                    e.target.value,
+                                            };
+                                            setData("occupations", updated);
+                                        }}
+                                        placeholder="Select employment status"
+                                        items={[
+                                            {
+                                                label: "Employed",
+                                                value: "employed",
+                                            },
+                                            {
+                                                label: "Unemployed",
+                                                value: "unemployed",
+                                            },
+                                            {
+                                                label: "Student",
+                                                value: "student",
+                                            },
+                                        ]}
+                                    />
+                                    <InputError
+                                        message={
+                                            errors[
+                                                `occupations.${occIndex}.employment_status`
+                                            ]
+                                        }
+                                        className="mt-2"
+                                    />
+                                </div>
+                                <div>
+                                    <DropdownInputField
+                                        label="Occupation"
+                                        name="occupation"
+                                        value={occupation.occupation || ""}
+                                        onChange={(e) => {
+                                            const updated = [
+                                                ...(data.occupations || []),
+                                            ];
+                                            updated[occIndex] = {
+                                                ...updated[occIndex],
+                                                occupation: e.target.value,
+                                            };
+                                            setData("occupations", updated);
+                                        }}
+                                        placeholder="Select or Enter Occupation"
+                                        items={occupationTypes}
+                                        disabled={
+                                            occupation.employment_status ===
+                                            "unemployed"
+                                        }
+                                    />
+                                    <InputError
+                                        message={
+                                            errors[
+                                                `occupations.${occIndex}.occupation`
+                                            ]
+                                        }
+                                        className="mt-2"
+                                    />
+                                </div>
+                                <div>
+                                    <DropdownInputField
+                                        label="Employment Type"
+                                        name="employment_type"
+                                        value={occupation.employment_type || ""}
+                                        onChange={(e) => {
+                                            const updated = [
+                                                ...(data.occupations || []),
+                                            ];
+                                            updated[occIndex] = {
+                                                ...updated[occIndex],
+                                                employment_type: e.target.value,
+                                            };
+                                            setData("occupations", updated);
+                                        }}
+                                        placeholder="Select employment type"
+                                        items={[
+                                            {
+                                                label: "Full-time",
+                                                value: "full_time",
+                                            },
+                                            {
+                                                label: "Part-time",
+                                                value: "part_time",
+                                            },
+                                            {
+                                                label: "Seasonal",
+                                                value: "seasonal",
+                                            },
+                                            {
+                                                label: "Contractual",
+                                                value: "contractual",
+                                            },
+                                            {
+                                                label: "Self-employed",
+                                                value: "self_employed",
+                                            },
+                                        ]}
+                                    />
+                                    <InputError
+                                        message={
+                                            errors[
+                                                `occupations.${occIndex}.employment_type`
+                                            ]
+                                        }
+                                        className="mt-2"
+                                    />
+                                </div>
+                                <div>
+                                    <DropdownInputField
+                                        label="Status"
+                                        name="occupation_status"
+                                        value={
+                                            occupation.occupation_status || ""
+                                        }
+                                        onChange={(e) => {
+                                            const updated = [
+                                                ...(data.occupations || []),
+                                            ];
+                                            updated[occIndex] = {
+                                                ...updated[occIndex],
+                                                occupation_status:
+                                                    e.target.value,
+                                            };
+                                            setData("occupations", updated);
+                                        }}
+                                        placeholder="Select occupation status"
+                                        items={[
+                                            "active",
+                                            "inactive",
+                                            "ended",
+                                            "retired",
+                                        ]}
+                                    />
+                                    <InputError
+                                        message={
+                                            errors[
+                                                `occupations.${occIndex}.occupation_status`
+                                            ]
+                                        }
+                                        className="mt-2"
+                                    />
+                                </div>
+                                <div>
+                                    <RadioGroup
+                                        label="Work Arrangement"
+                                        name="work_arrangement"
+                                        options={[
+                                            {
+                                                label: "Remote",
+                                                value: "remote",
+                                            },
+                                            {
+                                                label: "On-site",
+                                                value: "on_site",
+                                            },
+                                            {
+                                                label: "Hybrid",
+                                                value: "hybrid",
+                                            },
+                                        ]}
+                                        selectedValue={
+                                            occupation.work_arrangement || ""
+                                        }
+                                        onChange={(e) => {
+                                            const updated = [
+                                                ...(data.occupations || []),
+                                            ];
+                                            updated[occIndex] = {
+                                                ...updated[occIndex],
+                                                work_arrangement:
+                                                    e.target.value,
+                                            };
+                                            setData("occupations", updated);
+                                        }}
+                                    />
+                                    <InputError
+                                        message={
+                                            errors[
+                                                `occupations.${occIndex}.work_arrangement`
+                                            ]
+                                        }
+                                        className="mt-2"
+                                    />
+                                </div>
+                                <div>
+                                    <InputField
+                                        label="Employer name"
+                                        name="employer"
+                                        type="text"
+                                        value={occupation.employer || ""}
+                                        onChange={(e) => {
+                                            const updated = [
+                                                ...(data.occupations || []),
+                                            ];
+                                            updated[occIndex] = {
+                                                ...updated[occIndex],
+                                                employer: e.target.value,
+                                            };
+                                            setData("occupations", updated);
+                                        }}
+                                        placeholder="Enter employer name"
+                                    />
+                                    <InputError
+                                        message={
+                                            errors[
+                                                `occupations.${occIndex}.employer`
+                                            ]
+                                        }
+                                        className="mt-2"
+                                    />
+                                </div>
+                                <div className="grid md:grid-cols-2 gap-4">
+                                    <div>
+                                        <YearDropdown
+                                            label="Year Started"
+                                            name="started_at"
+                                            value={occupation.started_at || ""}
+                                            onChange={(e) => {
+                                                const updated = [
+                                                    ...(data.occupations || []),
+                                                ];
+                                                updated[occIndex] = {
+                                                    ...updated[occIndex],
+                                                    started_at: e.target.value,
+                                                };
+                                                setData("occupations", updated);
+                                            }}
+                                        />
+                                        <InputError
+                                            message={
+                                                errors[
+                                                    `occupations.${occIndex}.started_at`
+                                                ]
+                                            }
+                                            className="mt-2"
+                                        />
+                                    </div>
+                                    <div>
+                                        <YearDropdown
+                                            label="Year Ended"
+                                            name="ended_at"
+                                            value={occupation.ended_at || ""}
+                                            onChange={(e) => {
+                                                const updated = [
+                                                    ...(data.occupations || []),
+                                                ];
+                                                updated[occIndex] = {
+                                                    ...updated[occIndex],
+                                                    ended_at: e.target.value,
+                                                };
+                                                setData("occupations", updated);
+                                            }}
+                                            disabled={
+                                                occupation.occupation_status ===
+                                                "active"
+                                            }
+                                        />
+                                        <InputError
+                                            message={
+                                                errors[
+                                                    `occupations.${occIndex}.ended_at`
+                                                ]
+                                            }
+                                            className="mt-2"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <InputField
+                                        type="number"
+                                        label="Income"
+                                        name="income"
+                                        value={occupation.income || ""}
+                                        onChange={(e) => {
+                                            const updated = [
+                                                ...(data.occupations || []),
+                                            ];
+                                            updated[occIndex] = {
+                                                ...updated[occIndex],
+                                                income: e.target.value,
+                                            };
+                                            setData("occupations", updated);
+                                        }}
+                                        placeholder="Enter Income"
+                                    />
+                                    <InputError
+                                        message={
+                                            errors[
+                                                `occupations.${occIndex}.income`
+                                            ]
+                                        }
+                                        className="mt-2"
+                                    />
+                                </div>
+                                <div>
+                                    <RadioGroup
+                                        label="Income Frequency"
+                                        name="income_frequency"
+                                        options={[
+                                            {
+                                                label: "Weekly",
+                                                value: "weekly",
+                                            },
+                                            {
+                                                label: "Monthly",
+                                                value: "monthly",
+                                            },
+                                            {
+                                                label: "Annually",
+                                                value: "annually",
+                                            },
+                                        ]}
+                                        selectedValue={
+                                            occupation.income_frequency || ""
+                                        }
+                                        onChange={(e) => {
+                                            const updated = [
+                                                ...(data.occupations || []),
+                                            ];
+                                            updated[occIndex] = {
+                                                ...updated[occIndex],
+                                                income_frequency:
+                                                    e.target.value,
+                                            };
+                                            setData("occupations", updated);
+                                        }}
+                                    />
+                                    <InputError
+                                        message={
+                                            errors[
+                                                `occupations.${occIndex}.income_frequency`
+                                            ]
+                                        }
+                                        className="mt-2"
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => removeOccupation(occIndex)}
+                                className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
+                            >
+                                <IoIosCloseCircleOutline className="text-2xl" />
+                            </button>
+                        </div>
+                    ))}
 
                 <button
                     type="button"

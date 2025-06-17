@@ -9,6 +9,20 @@ class Occupation extends Model
 {
     /** @use HasFactory<\Database\Factories\OccupationFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'resident_id',
+        'occupation',
+        'employment_type',
+        'work_arrangement',
+        'employer',
+        'job_sector',
+        'occupation_status',
+        'is_ofw',
+        'started_at',
+        'ended_at',
+        'monthly_income'
+    ];
     public function resident()
     {
         return $this->belongsTo(Resident::class);

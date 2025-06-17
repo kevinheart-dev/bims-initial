@@ -13,7 +13,7 @@ class DocumentController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Admin/Document/Index');
+        return Inertia::render('BarangayOfficer/Document/Index');
     }
 
     /**

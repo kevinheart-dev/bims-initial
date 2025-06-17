@@ -27,33 +27,32 @@ export default function Index() {
     // const [userData, setUserData] = useState('');
     const [finalData, setFinalData] = useState([]);
 
-
     const steps = [
         "Address Information",
         "Household Information",
         "Education & Occupation",
         "Medical Information",
         "House Information",
-        "Summary"
-    ]
+        "Summary",
+    ];
 
     const displayStep = (step) => {
         switch (step) {
             case 1:
-                return <Address />
+                return <Address />;
             case 2:
-                return <HouseholdPersonalInfo />
+                return <HouseholdPersonalInfo />;
             case 3:
-                return <EducationandOccupation />
+                return <EducationandOccupation />;
             case 4:
-                return <MedicalInfo />
+                return <MedicalInfo />;
             case 5:
-                return <HouseInformation />
+                return <HouseInformation />;
             case 6:
-                return <Summary />
+                return <Summary />;
             default:
         }
-    }
+    };
 
     const handleClick = (direction) => {
         let newStep = currentStep;
@@ -64,7 +63,6 @@ export default function Index() {
             setCurrentStep(newStep);
         }
     };
-
 
     return (
         <AdminLayout>
@@ -98,7 +96,6 @@ export default function Index() {
                     />
                 </div>
             </div>
-
         </AdminLayout>
     );
 }

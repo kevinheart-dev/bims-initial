@@ -14,23 +14,22 @@ return new class extends Migration
         Schema::create('occupations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->foreignId('occupation_type_id')->constrained('occupation_types')->onDelete('cascade');
+            $table->string('occupation', 155)->nullable();
             $table->enum('employment_type', [
-                'full-time',
-                'part-time',
+                'full_time',
+                'part_time',
                 'seasonal',
                 'contractual',
-                'self-employed',
+                'self_employed',
                 'others'
             ]);
-            $table->enum('work_arrangement', ['remote', 'on-site', 'hybrid']);
-            $table->string('occupation_other', 155)->nullable();
-            $table->string('employer', 155);
-            $table->string('job_sector', 55);
+            $table->enum('work_arrangement', ['remote', 'on_site', 'hybrid']);
+            $table->string('employer', 155)->nullable();
+            $table->string('job_sector', 55)->nullable();
             $table->enum('occupation_status', ['active', 'inactive', 'ended', 'retired']);
             $table->boolean('is_ofw')->default(false);
-            $table->date('started_at');
-            $table->date('ended_at')->nullable();
+            $table->year('started_at');
+            $table->year('ended_at')->nullable();
             $table->decimal('monthly_income', 11, 2);
             $table->timestamps();
         });

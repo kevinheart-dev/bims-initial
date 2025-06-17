@@ -58,8 +58,53 @@ class StoreResidentRequest extends FormRequest
         'year_started'       => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
         'year_ended'         => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
         'year_graduated'     => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
-        'program'            => ['nullable', 'string', 'max:55'],
+        'program'            => ['nullable', 'string', 'max:100'],
+
+        'occupations' => ['nullable', 'array'],
+        'occupations.*.employment_status' => [
+            'required_with:occupations.*.occupation',
+            Rule::in(['employed', 'unemployed', 'student']),
+        ],
+        'occupations.*.occupation' => ['nullable', 'string', 'max:100'],
+        'occupations.*.employment_type' => [
+            'nullable',
+            Rule::in(['full_time', 'part_time', 'seasonal', 'contractual', 'self_employed']),
+        ],
+        'occupations.*.occupation_status' => [
+            'nullable',
+            Rule::in(['active', 'inactive', 'ended', 'retired']),
+        ],
+        'occupations.*.work_arrangement' => [
+            'nullable',
+            Rule::in(['remote', 'on_site', 'hybrid']),
+        ],
+        'occupations.*.employer' => ['nullable', 'string', 'max:255'],
+        'occupations.*.started_at' => ['nullable', 'integer', 'min:1900', 'max:' . now()->year],
+        'occupations.*.ended_at' => ['nullable', 'integer', 'min:1900', 'max:' . now()->year],
+        'occupations.*.income' => ['nullable', 'numeric', 'min:0'],
+        'occupations.*.income_frequency' => ['nullable',  Rule::in(['weekly', 'monthly', 'annually']),
+        ],
     ];
 }
+    public function attributes()
+    {
+        $attributes = [];
+
+        foreach ($this->input('occupations', []) as $index => $occupation) {
+            $attributes["occupations.$index.employment_status"] = "Employment Status #".($index + 1);
+            $attributes["occupations.$index.occupation"] = "Occupation #".($index + 1);
+            $attributes["occupations.$index.employer"] = "Employer Name #".($index + 1);
+            $attributes["occupations.$index.employment_type"] = "Employment Type #".($index + 1);
+            $attributes["occupations.$index.occupation_status"] = "Occupation Status #".($index + 1);
+            $attributes["occupations.$index.work_arrangement"] = "Work Arrangement #".($index + 1);
+            $attributes["occupations.$index.started_at"] = "Started At #".($index + 1);
+            $attributes["occupations.$index.ended_at"] = "Ended At #".($index + 1);
+            $attributes["occupations.$index.income"] = "Income #".($index + 1);
+            $attributes["occupations.$index.income_frequency"] = "Income Frequency #".($index + 1);
+            // Add others as needed
+        }
+
+        return $attributes;
+    }
 
 }
