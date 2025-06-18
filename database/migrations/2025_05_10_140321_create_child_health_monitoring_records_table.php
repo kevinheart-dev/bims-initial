@@ -16,8 +16,6 @@ return new class extends Migration
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
             $table->date('record_date');
             $table->decimal('age_in_months', 5, 2);
-            $table->decimal('weight_kg', 5, 2);
-            $table->decimal('height_cm', 5, 2);
             $table->decimal('head_circumference', 5, 2);
             $table->enum('nutrition_status', [
                 'normal',
@@ -29,7 +27,6 @@ return new class extends Migration
             ])->default('normal');
             $table->text('developmental_milestones');
             $table->boolean('immunizations_updated')->default(true);
-            $table->string('vitamin_supplement_given', 155);
             $table->timestamps();
         });
     }

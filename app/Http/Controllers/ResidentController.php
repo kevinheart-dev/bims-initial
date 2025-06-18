@@ -192,7 +192,6 @@ class ResidentController extends Controller
         /**
          * @var $image \Illuminate\Http\UploadedFile
          */
-        // dd($data['occupations']);
         $image = $data['resident_image'] ?? null;
         if ($image) {
             $folder = 'resident/' . $data['lastname'] . $data['firstname'] . Str::random(10);
