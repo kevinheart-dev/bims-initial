@@ -15,6 +15,7 @@ import TextInput from "../TextInput";
 import InputLabel from "../InputLabel";
 import RadioGroup from "../RadioGroup";
 import YearDropdown from "../YearDropdown";
+import SelectField from "../SelectField";
 
 const PersonalInformation = ({ puroks, occupationTypes = null }) => {
     const { data, setData, post, errors } = useForm({
@@ -44,13 +45,17 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
         current_level: "",
         education: "",
         education_status: "",
-        osc: 0,
-        osy: 0,
+        osc: null,
+        osy: null,
         year_started: "",
         year_ended: "",
         program: "",
         year_graduated: "",
         occupations: [],
+        is_pensioner: "",
+        osca_id_number: "",
+        pension_type: "",
+        living_alone: null,
     });
 
     const onSubmit = (e) => {
@@ -384,15 +389,18 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                         <InputError message={errors.email} className="mt-2" />
                     </div>
                     <div>
-                        <DropdownInputField
+                        <SelectField
                             label="Residency type"
                             name="residency_type"
                             value={data.residency_type}
                             onChange={(e) =>
                                 setData("residency_type", e.target.value)
                             }
-                            placeholder="Select residency type"
-                            items={["permanent", "temporary", "migrant"]}
+                            items={[
+                                { label: "Permanent", value: "permanent" },
+                                { label: "Temporary", value: "temporary" },
+                                { label: "Migrant", value: "migrant" },
+                            ]}
                         />
                         <InputError
                             message={errors.residency_type}
@@ -415,14 +423,13 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                         />
                     </div>
                     <div>
-                        <DropdownInputField
+                        <SelectField
                             label="Purok Number"
                             name="purok_number"
                             value={data.purok_number || ""}
                             onChange={(e) =>
                                 setData("purok_number", e.target.value)
                             }
-                            placeholder="Select Purok Number"
                             items={purok_numbers}
                         />
                         <InputError
@@ -448,6 +455,134 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                             className="mt-2"
                         />
                     </div>
+                </div>
+
+                {/* <div className="grid md:grid-cols-4 gap-4">
+                    <div>
+                        <InputField
+                            type="text"
+                            label="House/Unit No./Lot/Blk No."
+                            name="housenumber"
+                            value={data.housenumber || ""}
+                            onChange={(e) =>
+                                setData("housenumber", e.target.value)
+                            }
+                            placeholder="e.g., Lot 12 Blk 7 or Unit 3A"
+                        />
+                        <InputError
+                            message={errors.housenumber}
+                            className="mt-2"
+                        />
+                    </div>
+
+                    <div>
+                        <InputField
+                            type="text"
+                            label="Street Name"
+                            name="street"
+                            value={data.street || ""}
+                            onChange={(e) => setData("street", e.target.value)}
+                            placeholder="e.g., Rizal St., Mabini Avenue"
+                        />
+                        <InputError message={errors.street} className="mt-2" />
+                    </div>
+
+                    <div>
+                        <InputField
+                            type="text"
+                            label="Subdivision/Village/Compound"
+                            name="subdivision"
+                            value={data.subdivision || ""}
+                            onChange={(e) =>
+                                setData("subdivision", e.target.value)
+                            }
+                            placeholder="e.g., Villa Gloria Subdivision"
+                        />
+                        <InputError
+                            message={errors.subdivision}
+                            className="mt-2"
+                        />
+                    </div>
+
+                    <div>
+                        <RadioGroup
+                            label="Registered Voter"
+                            name="registered_voter"
+                            options={[
+                                { label: "Yes", value: 1 },
+                                { label: "No", value: 0 },
+                            ]}
+                            selectedValue={data.registered_voter || ""}
+                            onChange={(e) =>
+                                setData("registered_voter", e.target.value)
+                            }
+                        />
+                        <InputError
+                            message={errors.registered_voter}
+                            className="mt-2"
+                        />
+                    </div>
+                </div> */}
+
+                <div className="grid md:grid-cols-4 gap-4">
+                    {data.age >= 60 && (
+                        <RadioGroup
+                            label="Pensioner"
+                            name="is_pensioner"
+                            options={[
+                                { label: "Yes", value: "yes" },
+                                { label: "No", value: "no" },
+                                { label: "Pending", value: "pending" },
+                            ]}
+                            selectedValue={data.is_pensioner || ""}
+                            onChange={(e) =>
+                                setData("is_pensioner", e.target.value)
+                            }
+                        />
+                    )}
+
+                    {data.is_pensioner === "yes" && (
+                        <>
+                            <InputField
+                                label="OSCA ID Number"
+                                name="osca_id_number"
+                                type="number"
+                                value={data.osca_id_number}
+                                onChange={(e) => setData(index, e)}
+                                placeholder="Enter OSCA ID number"
+                            />
+
+                            <DropdownInputField
+                                label="Pension Type"
+                                name="pension_type"
+                                value={data.pension_type}
+                                onChange={(e) =>
+                                    setData("pension_type", e.target.value)
+                                }
+                                items={[
+                                    "SSS",
+                                    "DSWD",
+                                    "GSIS",
+                                    "private",
+                                    "none",
+                                ]}
+                                placeholder="Select or enter pension type"
+                            />
+
+                            <RadioGroup
+                                label="Living alone"
+                                name="living_alone"
+                                options={[
+                                    { label: "Yes", value: 1 },
+                                    { label: "No", value: 0 },
+                                ]}
+                                selectedValue={data.living_alone || null}
+                                onChange={(e) =>
+                                    setData("living_alone", e.target.value)
+                                }
+                            />
+                        </>
+                    )}
                 </div>
 
                 {/* Section 2 */}
@@ -804,7 +939,7 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                         >
                             <div className="grid md:grid-cols-3 gap-4">
                                 <div>
-                                    <DropdownInputField
+                                    <SelectField
                                         label="Employment Status"
                                         name="employment_status"
                                         value={
@@ -821,7 +956,6 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                                             };
                                             setData("occupations", updated);
                                         }}
-                                        placeholder="Select employment status"
                                         items={[
                                             {
                                                 label: "Employed",
@@ -830,6 +964,10 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                                             {
                                                 label: "Unemployed",
                                                 value: "unemployed",
+                                            },
+                                            {
+                                                label: "Uderemployed",
+                                                value: "underemployed",
                                             },
                                             {
                                                 label: "Student",
@@ -878,7 +1016,7 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                                     />
                                 </div>
                                 <div>
-                                    <DropdownInputField
+                                    <SelectField
                                         label="Employment Type"
                                         name="employment_type"
                                         value={occupation.employment_type || ""}
@@ -892,7 +1030,6 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                                             };
                                             setData("occupations", updated);
                                         }}
-                                        placeholder="Select employment type"
                                         items={[
                                             {
                                                 label: "Full-time",
@@ -926,7 +1063,7 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                                     />
                                 </div>
                                 <div>
-                                    <DropdownInputField
+                                    <SelectField
                                         label="Status"
                                         name="occupation_status"
                                         value={
@@ -943,12 +1080,23 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                                             };
                                             setData("occupations", updated);
                                         }}
-                                        placeholder="Select occupation status"
                                         items={[
-                                            "active",
-                                            "inactive",
-                                            "ended",
-                                            "retired",
+                                            {
+                                                label: "Active",
+                                                value: "active",
+                                            },
+                                            {
+                                                label: "Inactive",
+                                                value: "inactive",
+                                            },
+                                            {
+                                                label: "Ended",
+                                                value: "ended",
+                                            },
+                                            {
+                                                label: "Retired",
+                                                value: "retired",
+                                            },
                                         ]}
                                     />
                                     <InputError
@@ -1113,24 +1261,10 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                                     />
                                 </div>
                                 <div>
-                                    <RadioGroup
+                                    <SelectField
                                         label="Income Frequency"
                                         name="income_frequency"
-                                        options={[
-                                            {
-                                                label: "Weekly",
-                                                value: "weekly",
-                                            },
-                                            {
-                                                label: "Monthly",
-                                                value: "monthly",
-                                            },
-                                            {
-                                                label: "Annually",
-                                                value: "annually",
-                                            },
-                                        ]}
-                                        selectedValue={
+                                        value={
                                             occupation.income_frequency || ""
                                         }
                                         onChange={(e) => {
@@ -1144,6 +1278,25 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                                             };
                                             setData("occupations", updated);
                                         }}
+                                        items={[
+                                            { label: "Daily", value: "daily" },
+                                            {
+                                                label: "Bi-weekly",
+                                                value: "bi_weekly",
+                                            },
+                                            {
+                                                label: "Weekly",
+                                                value: "weekly",
+                                            },
+                                            {
+                                                label: "Monthly",
+                                                value: "monthly",
+                                            },
+                                            {
+                                                label: "Annually",
+                                                value: "annually",
+                                            },
+                                        ]}
                                     />
                                     <InputError
                                         message={

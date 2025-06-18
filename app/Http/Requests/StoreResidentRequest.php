@@ -43,6 +43,12 @@ class StoreResidentRequest extends FormRequest
         'residency_date' => ['required', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
         'purok_number' => ['required', 'string', 'max:2'],
         'registered_voter' => ['required', 'boolean'],
+        'is_pensioner' => ['nullable', Rule::in(['yes', 'no', 'pending'])],
+        'pension_type' => ['nullable', Rule::in(['SSS', 'GSIS', 'DSWD', 'private', 'none'])],
+        'osca_id_number' => ['nullable', 'string', 'max:55'],
+        'living_alone' => ['nullable', 'boolean'],
+
+
 
 
         // SECTION 2: Educational Information
@@ -60,6 +66,7 @@ class StoreResidentRequest extends FormRequest
         'year_graduated'     => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
         'program'            => ['nullable', 'string', 'max:100'],
 
+        // SECTION 3: Occupational Information
         'occupations' => ['nullable', 'array'],
         'occupations.*.employment_status' => [
             'required_with:occupations.*.occupation',
@@ -82,8 +89,8 @@ class StoreResidentRequest extends FormRequest
         'occupations.*.started_at' => ['nullable', 'integer', 'min:1900', 'max:' . now()->year],
         'occupations.*.ended_at' => ['nullable', 'integer', 'min:1900', 'max:' . now()->year],
         'occupations.*.income' => ['nullable', 'numeric', 'min:0'],
-        'occupations.*.income_frequency' => ['nullable',  Rule::in(['weekly', 'monthly', 'annually']),
-        ],
+        'occupations.*.income_frequency' => ['nullable',  Rule::in(['weekly', 'monthly', 'annually', 'daily', 'bi_weekly'])],
+
     ];
 }
     public function attributes()
