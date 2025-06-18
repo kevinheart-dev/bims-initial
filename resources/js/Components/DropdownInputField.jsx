@@ -81,7 +81,7 @@ const DropdownInputField = ({ label, name, value, onChange, placeholder, items =
                 placeholder={placeholder}
                 className={`w-full border rounded-md px-3 py-2 focus:outline-none
                         ${disabled
-                        ? 'bg-gray-100 text-gray-800 border-gray-300 cursor-not-allowed'
+                        ? 'bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed'
                         : 'border-gray-400 focus:ring-2 focus:ring-indigo-500  text-gray-800'}
                     `}
                 autoComplete="off"

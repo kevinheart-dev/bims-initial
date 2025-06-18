@@ -40,16 +40,29 @@ function EducationandOccupation() {
         const { name, value } = e.target;
         const updatedMembers = [...members];
         const updatedOccupations = [...(updatedMembers[memberIndex].occupations || [])];
+        const occupation = { ...updatedOccupations[occupationIndex], [name]: value };
 
-        updatedOccupations[occupationIndex] = {
-            ...updatedOccupations[occupationIndex],
-            [name]: value,
+        const conversionFactors = {
+            'daily': 22,       // Approx. 22 working days per month
+            'weekly': 4.33,    // 52 weeks / 12 months ≈ 4.33 weeks per month
+            'bi-weekly': 2.17, // 26 bi-weekly periods / 12 months ≈ 2.17
+            'monthly': 1       // Already monthly, no conversion needed
         };
+        const income = name === 'income' ? parseFloat(value) : parseFloat(occupation.income);
+        const frequency = name === 'frequency' ? value : occupation.frequency;
 
+        if (!isNaN(income) && conversionFactors[frequency]) {
+            occupation.monthly_income = (income * conversionFactors[frequency]).toFixed(2);
+        } else {
+            occupation.monthly_income = '';
+        }
+
+        updatedOccupations[occupationIndex] = occupation;
         updatedMembers[memberIndex].occupations = updatedOccupations;
 
         setUserData(prev => ({ ...prev, members: updatedMembers }));
     };
+
 
     const addOccupation = (index) => {
         const updatedMembers = [...members];
@@ -331,7 +344,7 @@ function EducationandOccupation() {
                                                 name="frequency"
                                                 value={occupation.frequency || ''}
                                                 onChange={(e) => handleOccupationChange(index, occIndex, e)}
-                                                items={['per-day', 'weekly', 'monthly']}
+                                                items={['daily', 'weekly', 'bi-weekly', 'monthly']}
                                                 placeholder="Select Frequency"
                                                 disabled={occupation.employment_status === 'Unemployed'}
                                             />
@@ -339,10 +352,20 @@ function EducationandOccupation() {
                                                 type="number"
                                                 label="Income"
                                                 name="income"
-                                                value={occupation.monthly_income || ''}
+                                                value={occupation.income || ''}
                                                 onChange={(e) => handleOccupationChange(index, occIndex, e)}
                                                 placeholder="Enter income"
                                                 disabled={occupation.employment_status === 'Unemployed'} />
+                                            <InputField
+                                                type="number"
+                                                label="Monthly Income"
+                                                name="monthly_income"
+                                                value={occupation.monthly_income || ''}
+                                                onChange={(e) => handleOccupationChange(index, occIndex, e)}
+                                                disabled={occupation.employment_status === 'Unemployed'}
+                                                readOnly
+                                            />
+
                                         </div>
 
                                         <button
