@@ -1,17 +1,63 @@
-import { useState, useEffect, useContext } from 'react';
+import { useContext } from 'react';
 import { StepperContext } from '@/context/StepperContext';
 import DropdownInputField from '../DropdownInputField';
 import RadioGroup from '../RadioGroup';
 import YearDropdown from '../YearDropdown';
 import InputField from '../InputField';
+import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 
 function HouseInformation() {
     const { userData, setUserData } = useContext(StepperContext);
+    const livestocks = userData.livestocks || [];
+    const pets = userData.pets || [];
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setUserData((prev) => ({ ...prev, [name]: value }));
     };
+
+    const handleLivestockChange = (livestocksIndex, e) => {
+        const { name, value } = e.target;
+        const updatedLivestocks = [...livestocks];
+        updatedLivestocks[livestocksIndex] = {
+            ...updatedLivestocks[livestocksIndex],
+            [name]: value
+        };
+        setUserData(prev => ({ ...prev, livestocks: updatedLivestocks }));
+    };
+
+    const addLivestocks = () => {
+        const updatedLivestocks = [...livestocks, {}];
+        setUserData(prev => ({ ...prev, livestocks: updatedLivestocks }));
+    };
+
+    const removeLivestocks = (livestockIndex) => {
+        const updatedLivestocks = [...(userData.livestocks || [])];
+        updatedLivestocks.splice(livestockIndex, 1);
+        setUserData(prev => ({
+            ...prev,
+            livestocks: updatedLivestocks
+        }));
+    };
+
+    const handlePetsChange = (petsIndex, e) => {
+        const { name, value } = e.target;
+        const updatedPets = [...pets];
+        updatedPets[petsIndex] = { ...updatedPets[petsIndex], [name]: value };
+        setUserData(prev => ({ ...prev, pets: updatedPets }));
+    };
+
+    const addPets = () => {
+        const updatedPets = [...pets, {}];
+        setUserData(prev => ({ ...prev, pets: updatedPets }));
+    };
+
+    const removePets = (petsIndex) => {
+        const updatedPets = [...(userData.pets || [])];
+        updatedPets.splice(petsIndex, 1);
+        setUserData(prev => ({ ...prev, pets: updatedPets }));
+    };
+
 
     return (
         <div>
@@ -21,15 +67,6 @@ function HouseInformation() {
             </p>
 
             <div className="grid md:grid-cols-4 gap-4">
-                {/* <InputField
-                    type="number"
-                    label="House Number"
-                    name="house_number"
-                    value={userData.house_number || ''}
-                    onChange={handleChange}
-                    placeholder="Enter house number"
-                /> */}
-
                 <DropdownInputField
                     label="Ownership Type"
                     name="ownership_type"
@@ -38,7 +75,6 @@ function HouseInformation() {
                     placeholder="Select or enter ownership type"
                     items={['owned', 'rented', 'shared', 'goverment-provided', 'inherited']}
                 />
-
                 <DropdownInputField
                     label="Housing Condition"
                     name="housing_condition"
@@ -47,8 +83,6 @@ function HouseInformation() {
                     placeholder="Select house condition"
                     items={['good', 'needs repair', 'dilapidated']}
                 />
-
-
                 <DropdownInputField
                     label="House Structure"
                     name="house_structure"
@@ -57,9 +91,6 @@ function HouseInformation() {
                     placeholder="Select or Enter house structure"
                     items={['concrete', 'semi-concrete', 'wood', 'makeshift']}
                 />
-            </div>
-
-            <div className="grid md:grid-cols-4 gap-4">
                 <YearDropdown
                     label="Year Establish"
                     name="year_establish"
@@ -67,7 +98,6 @@ function HouseInformation() {
                     onChange={handleChange}
                     placeholder="Select year"
                 />
-
                 <InputField
                     type="number"
                     label="Number of Rooms"
@@ -76,7 +106,6 @@ function HouseInformation() {
                     onChange={handleChange}
                     placeholder="Enter number of rooms"
                 />
-
                 <InputField
                     type="number"
                     label="Number of Floors"
@@ -85,7 +114,6 @@ function HouseInformation() {
                     onChange={handleChange}
                     placeholder="Enter number of floors"
                 />
-
                 <DropdownInputField
                     label="Bath and Wash Area"
                     name="bath_and_wash_area"
@@ -100,9 +128,6 @@ function HouseInformation() {
                         { label: 'none', value: 'none' }
                     ]}
                 />
-            </div>
-
-            <div className="grid md:grid-cols-4 gap-4">
                 <DropdownInputField
                     label="Type of Toilet"
                     name="toilet_type"
@@ -117,7 +142,6 @@ function HouseInformation() {
                         { label: 'no latrine', value: 'no_latrine' }
                     ]}
                 />
-
                 <DropdownInputField
                     label="Source of Electricity"
                     name="electricity_type"
@@ -132,7 +156,6 @@ function HouseInformation() {
                         { label: 'None', value: 'none' }
                     ]}
                 />
-
                 <DropdownInputField
                     label="Water Source Type"
                     name="water_source_type"
@@ -164,10 +187,6 @@ function HouseInformation() {
                         { label: 'None', value: 'none' }
                     ]}
                 />
-
-            </div>
-
-            <div className="grid md:grid-cols-4 gap-4">
                 <DropdownInputField
                     label="Internet Connection Type"
                     name="type_of_internet"
@@ -180,13 +199,159 @@ function HouseInformation() {
                         { label: 'None', value: 'none' }
                     ]}
                 />
-
             </div>
 
+            <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                    <div>
+                        <hr className="h-[2px] bg-sky-500 border-0 mt-7" />
+                        <p className="font-bold text-lg mt-3 text-gray-800">Livestock Ownership Details</p>
+                    </div>
+                    <div className="grid md:grid-cols-1 gap-4">
+                        <div>
+                            <RadioGroup
+                                label="Do you have a livestock?"
+                                name="has_livestock"
+                                options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]}
+                                selectedValue={userData.has_livestock || ''}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div>
+                            {userData.has_livestock == 1 ? (
+                                <>
+                                    {livestocks.length === 0 && (
+                                        <p className="text-sm text-gray-500 italic mt-2">No livestock added yet.</p>
+                                    )}
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        {livestocks.map((livestock, livIndex) => (
+                                            <div
+                                                key={livIndex}
+                                                className="relative mb-4 p-4 bg-sky-100 border rounded-md"
+                                            >
+                                                <DropdownInputField
+                                                    label="Livestock animal"
+                                                    name="livestock_type"
+                                                    value={livestock.livestock_type || ''}
+                                                    onChange={(e) => handleLivestockChange(livIndex, e)}
+                                                    placeholder="Select or enter type of animal"
+                                                    items={['cattle', 'carabao', 'goat', 'pig', 'chicken', 'duck', 'sheep', 'horse']}
+                                                />
+                                                <InputField
+                                                    label="Quantity"
+                                                    name="quantity"
+                                                    value={livestock.quantity || ''}
+                                                    onChange={(e) => handleLivestockChange(livIndex, e)}
+                                                    placeholder="Enter quantity"
+                                                    type="number"
+                                                />
+                                                <DropdownInputField
+                                                    label="Purpose"
+                                                    name="purpose"
+                                                    value={livestock.purpose || ''}
+                                                    onChange={(e) => handleLivestockChange(livIndex, e)}
+                                                    placeholder="Select purpose"
+                                                    items={['personal consumption', 'consumption', 'both']}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeLivestocks(livIndex)}
+                                                    className="absolute top-2 right-2 text-red-400 hover:text-red-700 text-xl"
+                                                    title="Remove livestock"
+                                                >
+                                                    <IoIosCloseCircleOutline className="text-2xl" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={addLivestocks}
+                                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800 text-base mt-2 font-medium"
+                                        title="Add livestock"
+                                    >
+                                        <IoIosAddCircleOutline className="text-2xl" />
+                                        Add Livestock
+                                    </button>
+                                </>
+                            ) : userData.has_livestock == 0 ? (
+                                <p className="text-sm text-gray-500 italic mt-2">No livestock declared.</p>
+                            ) : null}
+
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div>
+                        <hr className="h-[2px] bg-sky-500 border-0 mt-7" />
+                        <p className="font-bold text-md mt-3 text-gray-800">Pet Ownership Details</p>
+                    </div>
+                    <div className="grid md:grid-cols-1 gap-4">
+                        <div>
+                            <RadioGroup
+                                label="Do you have a Pets?"
+                                name="has_pets"
+                                options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]}
+                                selectedValue={userData.has_pets || ''}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div>
+                            {userData.has_pets == 1 ? (
+                                <>
+                                    {pets.length === 0 && (
+                                        <p className="text-sm text-gray-500 italic mt-2">No pet added yet.</p>
+                                    )}
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        {pets.map((pet, petIndex) => (
+                                            <div key={petIndex} className="relative mb-4 p-4 bg-sky-100 border rounded-md"  >
+                                                <DropdownInputField
+                                                    label="Type of Pet"
+                                                    name="pet_type"
+                                                    value={pet.pet_type || ''}
+                                                    onChange={(e) => handlePetsChange(petIndex, e)}
+                                                    placeholder="Select or enter type of pet"
+                                                    items={['dog', 'cat', 'rabbit']}
+                                                />
+                                                <RadioGroup
+                                                    label="Is the pet vaccinated for rabies?"
+                                                    name="is_vaccinated"
+                                                    options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]}
+                                                    selectedValue={pet.is_vaccinated || ''}
+                                                    onChange={(e) => handlePetsChange(petIndex, e)}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removePets(petIndex)}
+                                                    className="absolute top-2 right-2 text-red-400 hover:text-red-700 text-xl"
+                                                    title="Remove pet"
+                                                >
+                                                    <IoIosCloseCircleOutline className="text-2xl" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <button
+                                            type="button"
+                                            onClick={addPets}
+                                            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 text-base mt-2 font-medium"
+                                            title="Add pet"
+                                        >
+                                            <IoIosAddCircleOutline className="text-2xl" />
+                                            Add Pet
+                                        </button>
+                                    </div>
+                                </>
+                            ) : userData.has_pets == 0 ? (
+                                <p className="text-sm text-gray-500 italic mt-2">No pet declared.</p>
+                            ) : null}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
-
-    )
+    );
 }
 
-export default HouseInformation
+export default HouseInformation;
