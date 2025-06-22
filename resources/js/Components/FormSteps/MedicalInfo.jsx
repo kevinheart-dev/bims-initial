@@ -58,39 +58,7 @@ function MedicalInfo() {
         setUserData(prev => ({ ...prev, members: updatedMembers }));
     };
     // alerergy
-    const handleAlergyChange = (memberIndex, e) => {
-        const { name, value } = e.target;
-        const updateMembers = [...members];
-        updateMembers[memberIndex][name] = value;
-        setUserData(prev => ({ ...prev, members: updateMembers }));
-    };
 
-    const addAlergies = (index) => {
-        const updatedMembers = [...members];
-        const alergies = updatedMembers[index].alergies || [];
-        alergies.push({});
-        updatedMembers[index].alergies = alergies;
-        setUserData(prev => ({ ...prev, members: updatedMembers }));
-    };
-
-    const handleAlergiesChange = (memberIndex, alergiesIndex, e) => {
-        const { name, value } = e.target;
-        const updateMembers = [...members];
-        const alergies = [...(updateMembers[memberIndex].alergies || [])];
-        alergies[alergiesIndex] = { ...alergies[alergiesIndex], [name]: value, }
-        updateMembers[memberIndex].alergies = alergies;
-        setUserData(prev => ({ ...prev, members: updateMembers }));
-    };
-
-    const removeAlergies = (memberIndex, alergiesIndex) => {
-        const updatedMembers = [...members];
-        const alergies = [...(updatedMembers[memberIndex].alergies || [])];
-
-        alergies.splice(alergiesIndex, 1);
-
-        updatedMembers[memberIndex].alergies = alergies;
-        setUserData(prev => ({ ...prev, members: updatedMembers }));
-    };
 
     //resident condition
     return (
@@ -125,7 +93,7 @@ function MedicalInfo() {
                                 <p className="font-bold">Child Health Monitoring</p>
                                 <div className="grid md:grid-cols-4 gap-4">
                                     <InputField
-                                        label="Weight"
+                                        label="Weight in Kilogram (kg)"
                                         name="weight_kg"
                                         value={member.weight_kg || ''}
                                         onChange={(e) => handleMedicalChange(index, e)}
@@ -134,7 +102,7 @@ function MedicalInfo() {
                                         step="0.01"
                                     />
                                     <InputField
-                                        label="Height"
+                                        label="Height in centimeter (cm)"
                                         name="height_cm"
                                         value={member.height_cm || ''}
                                         onChange={(e) => handleMedicalChange(index, e)}
@@ -256,14 +224,6 @@ function MedicalInfo() {
                                         selectedValue={member.is_pwd || ''}
                                         onChange={(e) => handlePWDChange(index, e)}
                                     />
-
-                                    <RadioGroup
-                                        label="Do you have allergies?"
-                                        name="has_alergy"
-                                        options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]}
-                                        selectedValue={member.has_alergy || ''}
-                                        onChange={(e) => handleAlergyChange(index, e)}
-                                    />
                                 </div>
 
                                 <div className="flex flex-wrap gap-x-6 items-start">
@@ -324,44 +284,7 @@ function MedicalInfo() {
                                         </div>
                                     )}
 
-                                    {member.has_alergy == 1 && (
-                                        <div className="grid md:grid-cols-2 gap-4">
-                                            {(member.alergies || []).map((alergy, alerIndex) => (
-                                                <div key={alerIndex} className="border p-4 rounded-md relative bg-gray-50">
-                                                    <InputField
-                                                        label="Allergy name"
-                                                        name="alergy_name"
-                                                        value={alergy.alergy_name || ''}
-                                                        onChange={(e) => handleAlergiesChange(index, alerIndex, e)}
-                                                        placeholder="Enter allergy name"
-                                                    />
-                                                    <InputField
-                                                        label="Allergy description"
-                                                        name="alergy_description"
-                                                        value={alergy.alergy_description || ''}
-                                                        onChange={(e) => handleAlergiesChange(index, alerIndex, e)}
-                                                        placeholder="Describe allergy reaction"
-                                                        isTextarea={true}
-                                                        rows={3}
-                                                    />
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeAlergies(index, alerIndex)}
-                                                        className="absolute top-2 right-2 text-red-500 text-2xl"
-                                                    >
-                                                        <IoIosCloseCircleOutline />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                            <button
-                                                type="button"
-                                                onClick={() => addAlergies(index)}
-                                                className="text-blue-600 text-2xl hover:underline"
-                                            >
-                                                <IoIosAddCircleOutline />
-                                            </button>
-                                        </div>
-                                    )}
+
 
                                 </div>
 

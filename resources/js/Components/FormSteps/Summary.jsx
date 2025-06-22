@@ -62,6 +62,18 @@ const Summary = ({ onBack, onSubmit }) => {
                                     <div>
                                         <h5 className="text-normal md:text-lg font-semibold text-gray-700 mb-3">Personal Information</h5> {/* Smaller sub-heading */}
                                         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
+                                            {renderDetail("Resident Image",
+                                                member.resident_image
+                                                    ? <img
+                                                        src={member.resident_image instanceof File
+                                                            ? URL.createObjectURL(member.resident_image)
+                                                            : member.resident_image}
+                                                        alt="Resident"
+                                                        className="w-24 h-24 object-cover rounded-md border"
+                                                    />
+                                                    : "No image provided"
+                                            )}
+
                                             {renderDetail("Full Name", `${member.firstname || ''} ${member.middlename || ''} ${member.lastname || ''} ${member.suffix || ''}`.trim())}
                                             {renderDetail("Birth Date", member.birthdate)}
                                             {renderDetail("Birth Place", member.birthplace)}

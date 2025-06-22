@@ -5,6 +5,7 @@ import DropdownInputField from '../DropdownInputField';
 import RadioGroup from '../RadioGroup';
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import YearDropdown from '../YearDropdown';
+import InputLabel from '../InputLabel';
 
 const defaultMember = {
     lastname: '',
@@ -31,6 +32,8 @@ const defaultMember = {
     registered_voter: '',
     voter_id_number: '',
     voting_status: '',
+    resident_image: '',
+    is_household_head: '',
 };
 
 const HouseholdPersonalInfo = () => {
@@ -96,36 +99,50 @@ const HouseholdPersonalInfo = () => {
 
     const handleMemberChange = (index, e) => {
         let { name, value } = e.target;
+
         if (name.startsWith('gender')) name = 'gender';
+
+        if (name === 'is_household_head') {
+            value = parseInt(value);
+        }
 
         setMembers((prev) => {
             const updated = [...prev];
             const oldLastname = prev[0]?.lastname || '';
+            const member = { ...updated[index] };
 
-            updated[index] = { ...updated[index], [name]: value };
+            member[name] = value;
 
             if (name === 'birthdate') {
-                const age = calculateAge(value);
-                updated[index] = { ...updated[index], [name]: value, age };
-            } else {
-                updated[index] = { ...updated[index], [name]: value };
+                member.age = calculateAge(value);
             }
 
-            // If first member updates a shared field, update sharedFields and reflect changes
-            if (index === 0 && ['lastname', 'religion', 'ethnicity', 'citizenship'].includes(name)) {
+            if (name === 'is_household_head' && value === 1) {
+                return updated.map((m, i) => ({
+                    ...m,
+                    is_household_head: i === index ? 1 : 0,
+                }));
+            }
+
+            if (
+                index === 0 &&
+                ['lastname', 'religion', 'ethnicity', 'citizenship'].includes(name)
+            ) {
                 const updatedShared = { ...sharedFields, [name]: value };
                 setSharedFields(updatedShared);
 
-                updated.forEach((member, i) => {
-                    if (i !== 0 && member.lastname === oldLastname) {
+                for (let i = 1; i < updated.length; i++) {
+                    if (updated[i].lastname === oldLastname) {
                         updated[i][name] = value;
                     }
-                });
+                }
             }
 
+            updated[index] = member;
             return updated;
         });
     };
+
 
     const calculateAge = (birthdate) => {
         if (!birthdate) return '';
@@ -149,7 +166,7 @@ const HouseholdPersonalInfo = () => {
                 Kindly provide the personal information of all household members.
             </p>
 
-            <div className="grid md:grid-cols-5 gap-4 mb-6">
+            <div className="grid md:grid-cols-5 gap-4 mb-6 sm:grid-cols-2 ">
                 <InputField
                     type="number"
                     label="Number of Household Members"
@@ -209,54 +226,121 @@ const HouseholdPersonalInfo = () => {
                                 aria-labelledby={`member-header-${index}`}
                                 className="p-4 space-y-4"
                             >
-                                <div
-                                    className={`grid gap-4 ${showMaidenMiddleName ? 'grid-cols-5' : 'grid-cols-4'} md:${showMaidenMiddleName ? 'grid-cols-5' : 'grid-cols-4'}`}
-                                >
-                                    <InputField
-                                        label="Last Name"
-                                        name="lastname"
-                                        value={sharedLastname}
-                                        onChange={isFirst ? handleSharedChange : (e) => handleMemberChange(index, e)}
-                                        disabled={!isFirst && member.lastname !== members[0]?.lastname}
-                                        placeholder="Enter last name"
-                                    />
-                                    <InputField
-                                        label="First Name"
-                                        name="firstname"
-                                        value={member.firstname}
-                                        onChange={(e) => handleMemberChange(index, e)}
-                                        placeholder="Enter first name"
-                                    />
-                                    <InputField
-                                        label="Middle Name"
-                                        name="middlename"
-                                        value={member.middlename}
-                                        onChange={(e) => handleMemberChange(index, e)}
-                                        placeholder="Enter middle name"
-                                    />
-                                    <DropdownInputField
-                                        label="Suffix"
-                                        name="suffix"
-                                        value={member.suffix}
-                                        onChange={(e) => handleMemberChange(index, e)}
-                                        items={['Jr.', 'Sr.', 'III', 'IV']}
-                                        placeholder="Enter or select suffix"
-                                    />
-                                    {showMaidenMiddleName && (
-                                        <InputField
-                                            label="Maiden Middle Name"
-                                            name="maiden_middle_name"
-                                            value={member.maiden_middle_name}
-                                            onChange={(e) => handleMemberChange(index, e)}
-                                            placeholder="Enter maiden middle name"
-                                        />
-                                    )}
+                                <div className="grid grid-cols-1 md:grid-cols-6 gap-y-4 md:gap-x-8">
+                                    {/* Resident Image on the left */}
+                                    <div className="md:row-span-2 flex flex-col items-center">
+                                        <InputLabel htmlFor={`resident-image-${index}`} value="Resident Image" />
 
+                                        <img
+                                            src={
+                                                member.resident_image instanceof File
+                                                    ? URL.createObjectURL(member.resident_image)
+                                                    : member.resident_image || "/images/default-avatar.jpg"
+                                            }
+                                            alt={`Resident ${index + 1}`}
+                                            className="w-40 h-40 object-cover rounded-full mb-4"
+                                        />
+
+                                        <input
+                                            id={`resident-image-${index}`}
+                                            type="file"
+                                            name="resident_image"
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                    setMembers((prev) => {
+                                                        const updated = [...prev];
+                                                        updated[index] = {
+                                                            ...updated[index],
+                                                            resident_image: file,
+                                                        };
+                                                        return updated;
+                                                    });
+                                                }
+                                            }}
+                                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+                                            file:rounded-full file:border-0
+                                            file:text-sm file:font-semibold
+                                            file:bg-blue-50 file:text-blue-700
+                                            hover:file:bg-blue-100"
+                                        />
+                                    </div>
+
+                                    {/* First row of input fields */}
+                                    <div className={`md:col-span-5 grid gap-4 grid-cols-1 sm:grid-cols-2 md:${showMaidenMiddleName ? 'grid-cols-4' : 'grid-cols-3'}`}>
+                                        <InputField
+                                            label="Last Name"
+                                            name="lastname"
+                                            value={sharedLastname}
+                                            onChange={isFirst ? handleSharedChange : (e) => handleMemberChange(index, e)}
+                                            disabled={!isFirst && member.lastname !== members[0]?.lastname}
+                                            placeholder="Enter last name"
+                                        />
+                                        <InputField
+                                            label="First Name"
+                                            name="firstname"
+                                            value={member.firstname}
+                                            onChange={(e) => handleMemberChange(index, e)}
+                                            placeholder="Enter first name"
+                                        />
+                                        <InputField
+                                            label="Middle Name"
+                                            name="middlename"
+                                            value={member.middlename}
+                                            onChange={(e) => handleMemberChange(index, e)}
+                                            placeholder="Enter middle name"
+                                        />
+                                        {showMaidenMiddleName && (
+                                            <InputField
+                                                label="Maiden Middle Name"
+                                                name="maiden_middle_name"
+                                                value={member.maiden_middle_name}
+                                                onChange={(e) => handleMemberChange(index, e)}
+                                                placeholder="Enter maiden middle name"
+                                            />
+                                        )}
+                                    </div>
+
+                                    {/* Second row of suffix input */}
+                                    <div className="md:col-start-2 md:col-span-5">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                            <DropdownInputField
+                                                label="Suffix"
+                                                name="suffix"
+                                                value={member.suffix}
+                                                onChange={(e) => handleMemberChange(index, e)}
+                                                items={['Jr.', 'Sr.', 'III', 'IV']}
+                                                placeholder="Enter or select suffix"
+                                            />
+
+                                            <DropdownInputField
+                                                label="Civil Status"
+                                                name="civil_status"
+                                                value={member.civil_status}
+                                                onChange={(e) => handleMemberChange(index, e)}
+                                                items={['Single', 'Married', 'Widowed', 'Divorced', 'Separated', 'Annulled']}
+                                                placeholder="Select civil status"
+                                            />
+
+                                            <RadioGroup
+                                                label="Gender"
+                                                name="gender"
+                                                options={[
+                                                    { label: 'Male', value: 'male' },
+                                                    { label: 'Female', value: 'female' },
+                                                    { label: 'LGBTQIA+', value: 'LGBTQIA+' },
+                                                ]}
+                                                selectedValue={member.gender || ''}
+                                                onChange={(e) => handleMemberChange(index, e)}
+                                            />
+
+                                        </div>
+                                    </div>
 
                                 </div>
 
-                                <div className="grid md:grid-cols-4 gap-4">
-
+                                <div className="grid md:grid-cols-4 gap-4 sm:grid-cols-2 ">
                                     <div className="col-span-1">
                                         <InputField
                                             type="date"
@@ -274,31 +358,7 @@ const HouseholdPersonalInfo = () => {
                                         onChange={(e) => handleMemberChange(index, e)}
                                         placeholder="Enter birth place"
                                     />
-                                    <DropdownInputField
-                                        label="Civil Status"
-                                        name="civil_status"
-                                        value={member.civil_status}
-                                        onChange={(e) => handleMemberChange(index, e)}
-                                        items={['Single', 'Married', 'Widowed', 'Divorced', 'Separated', 'Annulled']}
-                                        placeholder="Select civil status"
-                                    />
 
-                                    <RadioGroup
-                                        label="Gender"
-                                        name="gender"
-                                        options={[
-                                            { label: 'Male', value: 'male' },
-                                            { label: 'Female', value: 'female' },
-                                            { label: 'LGBTQIA+', value: 'LGBTQIA+' },
-                                        ]}
-                                        selectedValue={member.gender || ''}
-                                        onChange={(e) => handleMemberChange(index, e)}
-                                    />
-
-
-                                </div>
-
-                                <div className="grid md:grid-cols-4 gap-4">
                                     <DropdownInputField
                                         label="Religion"
                                         name="religion"
@@ -306,6 +366,27 @@ const HouseholdPersonalInfo = () => {
                                         onChange={isFirst ? handleSharedChange : (e) => handleMemberChange(index, e)}
                                         items={['Roman Catholic', 'Iglesia ni Cristo', 'Born Again', 'Baptists']}
                                         placeholder="Enter or select religion"
+                                    />
+
+                                    <RadioGroup
+                                        label="Are you the household head?"
+                                        name="is_household_head"
+                                        options={[
+                                            { label: 'Yes', value: 1 },
+                                            { label: 'No', value: 0 },
+                                        ]}
+                                        selectedValue={parseInt(member.is_household_head)}
+                                        onChange={(e) =>
+                                            handleMemberChange(index, {
+                                                target: {
+                                                    name: 'is_household_head',
+                                                    value: parseInt(e.target.value),
+                                                },
+                                            })
+                                        }
+                                        disabled={
+                                            members.some((m, i) => m.is_household_head === 1 && i !== index)
+                                        }
                                     />
 
                                     <DropdownInputField
@@ -316,7 +397,6 @@ const HouseholdPersonalInfo = () => {
                                         items={['Ilocano', 'Ibanag', 'Tagalog', 'Indigenous People']}
                                         placeholder="Enter or select ethnicity"
                                     />
-
                                     <DropdownInputField
                                         label="Citizenship"
                                         name="citizenship"
@@ -333,9 +413,6 @@ const HouseholdPersonalInfo = () => {
                                         onChange={(e) => handleMemberChange(index, e)}
                                         placeholder="Enter contact number"
                                     />
-                                </div>
-
-                                <div className="grid md:grid-cols-4 gap-4">
                                     <InputField
                                         label="Email"
                                         name="email"
@@ -373,10 +450,27 @@ const HouseholdPersonalInfo = () => {
                                         onChange={(e) => handleMemberChange(index, e)}
 
                                     />
-                                </div>
 
+                                    {member.registered_voter == 1 && (
+                                        <>
+                                            <InputField
+                                                label="Voter ID number"
+                                                name="voter_id_number"
+                                                value={member.voter_id_number}
+                                                onChange={(e) => handleMemberChange(index, e)}
+                                                placeholder="Enter your Voter Id"
+                                            />
 
-                                <div className="grid md:grid-cols-4 gap-4">
+                                            <DropdownInputField
+                                                label="Voting Status"
+                                                name="voting_status"
+                                                value={member.voting_status}
+                                                onChange={(e) => handleMemberChange(index, e)}
+                                                placeholder="Select voting status"
+                                                items={['active', 'inactive', 'disqualified', 'medical', 'overseas', 'detained', 'deceased']}
+                                            />
+                                        </>
+                                    )}
                                     {member.age >= 60 && (
 
                                         <RadioGroup
@@ -425,27 +519,6 @@ const HouseholdPersonalInfo = () => {
                                         </>
                                     )}
                                 </div>
-
-                                {member.registered_voter == 1 && (
-                                    <div className="grid md:grid-cols-2 gap-4">
-                                        <InputField
-                                            label="Voter ID number"
-                                            name="voter_id_number"
-                                            value={member.voter_id_number}
-                                            onChange={(e) => handleMemberChange(index, e)}
-                                            placeholder="Enter your Voter Id"
-                                        />
-
-                                        <DropdownInputField
-                                            label="Voting Status"
-                                            name="voting_status"
-                                            value={member.voting_status}
-                                            onChange={(e) => handleMemberChange(index, e)}
-                                            placeholder="Select voting status"
-                                            items={['active', 'inactive', 'disqualified', 'medical', 'overseas', 'detained', 'deceased']}
-                                        />
-                                    </div>
-                                )}
                             </div>
                         )}
                     </div>
