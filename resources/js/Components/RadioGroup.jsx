@@ -9,7 +9,7 @@ function RadioGroup({ label, name, options = [], selectedValue, onChange, disabl
                     {label}
                 </label>
             )}
-            <div className="flex space-x-2">
+            <div className="flex space-x-0.5">
                 {options.map((option) => {
                     const isSelected = String(selectedValue) === String(option.value); // Normalize both
                     return (

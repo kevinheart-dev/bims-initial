@@ -362,6 +362,7 @@ function EducationandOccupation() {
                                                 name="monthly_income"
                                                 value={occupation.monthly_income || ''}
                                                 onChange={(e) => handleOccupationChange(index, occIndex, e)}
+                                                placeholder="Monthly Income"
                                                 disabled={occupation.employment_status === 'Unemployed'}
                                                 readOnly
                                             />
