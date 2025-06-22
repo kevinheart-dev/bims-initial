@@ -21,7 +21,9 @@ class Occupation extends Model
         'is_ofw',
         'started_at',
         'ended_at',
-        'monthly_income'
+        'monthly_income',
+        'updated_at',
+        'created_at',
     ];
     public function resident()
     {

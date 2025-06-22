@@ -91,6 +91,33 @@ class StoreResidentRequest extends FormRequest
         'occupations.*.income' => ['nullable', 'numeric', 'min:0'],
         'occupations.*.income_frequency' => ['nullable',  Rule::in(['weekly', 'monthly', 'annually', 'daily', 'bi_weekly'])],
 
+        // SECTION 4: Health Information
+        'weight_kg' => ['required', 'numeric', 'min:0', 'max:300'],
+        'height_cm' => ['required', 'numeric', 'min:0', 'max:500'],
+        'bmi' => ['required', 'numeric'],
+        'nutrition_status' => ['required', Rule::in([
+            'normal', 'underweight', 'severly_underweight', 'overweight', 'obese'
+        ])],
+
+        'emergency_contact_number' => ['required', 'digits_between:7,15'],
+        'emergency_contact_name' => ['required', 'string', 'max:255'],
+        'emergency_contact_relationship' => ['required', 'string', 'max:100'],
+        'blood_type' => ['required', Rule::in([
+            'A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−'
+        ])],
+
+        'has_philhealth' => ['required', Rule::in([0, 1])],
+        'philhealth_id_number' => ['nullable', 'string', 'max:50'],
+
+        'is_alcohol_user' => ['required', Rule::in([0, 1])],
+        'is_smoker' => ['required', Rule::in([0, 1])],
+
+        'is_pwd' => ['required', Rule::in([0, 1])],
+        'pwd_id_number' => ['required_if:is_pwd,1', 'nullable', 'string', 'max:10'],
+
+        'disabilities' => ['required_if:is_pwd,1', 'array'],
+        'disabilities.*.disability_type' => ['required_with:disabilities', 'string', 'max:100'],
+
     ];
 }
     public function attributes()
@@ -110,7 +137,11 @@ class StoreResidentRequest extends FormRequest
             $attributes["occupations.$index.income_frequency"] = "Income Frequency #".($index + 1);
             // Add others as needed
         }
-
+        // Disabilities
+        foreach ((array) $this->input('disabilities', []) as $index => $disability) {
+            $num = $index + 1;
+            $attributes["disabilities.$index.disability_type"] = "Disability Type #$num";
+        }
         return $attributes;
     }
 

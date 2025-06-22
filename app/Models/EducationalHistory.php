@@ -23,6 +23,8 @@ class EducationalHistory extends Model
         'end_year',
         'year_graduated',
         'program',
+        'updated_at',
+        'created_at',
     ];
     public function resident()
     {

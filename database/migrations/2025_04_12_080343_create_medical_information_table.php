@@ -16,14 +16,17 @@ return new class extends Migration
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
             $table->decimal('weight_kg', 5, 2);
             $table->decimal('height_cm', 5, 2);
-            $table->string('emergency_contact_number', 20);
-            $table->string('emergency_contact_name', 55);
-            $table->string('emergency_contact_relationship', 55);
+            $table->decimal('bmi', 5, 2);
+            $table->string('nutrition_status', 55)->nullable();
+            $table->string('emergency_contact_number', 20)->nullable();
+            $table->string('emergency_contact_name', 55)->nullable();
+            $table->string('emergency_contact_relationship', 55)->nullable();
             $table->boolean('is_smoker')->default(false);
             $table->boolean('is_alcohol_user')->default(true);
-            $table->char('blood_type', 5);
+            $table->char('blood_type', 5)->nullable();
             $table->boolean('has_philhealth')->default(true);
-            $table->string('philhealth_id_number', 30);
+            $table->string('philhealth_id_number', 12)->nullable();
+            $table->string('pwd_id_number', 10)->nullable();
             $table->timestamps();
         });
     }

@@ -192,6 +192,7 @@ class ResidentController extends Controller
         /**
          * @var $image \Illuminate\Http\UploadedFile
          */
+        //dd($data);
         $image = $data['resident_image'] ?? null;
         if ($image) {
             $folder = 'resident/' . $data['lastname'] . $data['firstname'] . Str::random(10);
@@ -227,6 +228,9 @@ class ResidentController extends Controller
             'residency_type' => $data['residency_type'] ?? 'permanent',
             'purok_number' => $data['purok_number'],
             'street_id' => $data['street_id'] ?? null,
+            'is_pwd' => $data['is_pwd'] ?? null,
+            'created_at' => now(),
+            'updated_at' => now()
         ];
 
         $residentEducation = [];
@@ -257,6 +261,7 @@ class ResidentController extends Controller
                 'year_ended' => $data['year_ended'] ?? null,
                 'year_graduated' => $data['year_graduated'] ?? null,
                 'program' => $data['program'] ?? null,
+
             ];
         }
 
@@ -266,7 +271,8 @@ class ResidentController extends Controller
             $residentEducation['resident_id'] = $resident->id;
 
             // add educational history
-            $resident->educationalHistories()->create($residentEducation);
+            $resident->educationalHistories()->create($residentEducation + ['created_at' => now(),
+            'updated_at' => now()]);
 
             //add occupations
             if (!empty($data['occupations']) && is_array($data['occupations'])) {
@@ -293,9 +299,41 @@ class ResidentController extends Controller
                         'started_at' => $occupationData['started_at'],
                         'ended_at' => $occupationData['ended_at'] ?? null,
                         'monthly_income' => $occupationData['income'] ?? null,
+                        'created_at' => now(),
+                        'updated_at' => now()
                     ]);
                 }
             }
+            $residentMedicalInformation = [
+                'weight_kg' => $data['weight_kg'] ?? 0,
+                'height_cm' => $data['height_cm'] ?? 0,
+                'bmi' => $data['bmi'] ?? 0,
+                'nutrition_status' => $data['nutrition_status'] ?? null,
+                'emergency_contact_number' => $data['emergency_contact_number'] ?? null,
+                'emergency_contact_name' => $data['emergency_contact_name'] ?? null,
+                'emergency_contact_relationship' => $data['emergency_contact_relationship'] ?? null,
+                'is_smoker' => $data['is_smoker'] ?? 0,
+                'is_alcohol_user' => $data['is_alcohol_user'] ?? 0,
+                'blood_type' => $data['blood_type'] ?? null,
+                'has_philhealth' => $data['has_philhealth'] ?? 0,
+                'philhealth_id_number' => $data['philhealth_id_number'] ?? null,
+                'pwd_id_number'  => $data['pwd_id_number'] ?? null,
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+
+            // add medica informations
+            $resident->medicalInformation()->create($residentMedicalInformation);
+            if($data["is_pwd"] == '1'){
+                foreach ($data['disabilities'] ?? [] as $disability) {
+                    $resident->disabilities()->create(attributes: [
+                        'disability_type' => $disability['disability_type'] ?? null,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
+            }
+
             return redirect()->route('resident.index')->with('success', 'Resident '. ucwords($resident->getFullNameAttribute()) .' created successfully!');
         } catch (\Exception $e) {
             dd($e->getMessage());

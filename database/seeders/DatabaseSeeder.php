@@ -100,6 +100,7 @@ class DatabaseSeeder extends Seeder
         Family::factory(7)->create();
         Resident::factory(50)->create();
         HouseholdResident::factory(10)->create();
+        MedicalInformation::factory(70)->create();
         InternetAccessibility::factory(15)->create();
         Livelihood::factory(60)->create();
         Occupation::factory(40)->create();

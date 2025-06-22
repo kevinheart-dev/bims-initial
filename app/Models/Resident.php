@@ -162,6 +162,10 @@ class Resident extends Model
     {
         return $this->hasMany(Occupation::class);
     }
+    public function disabilities()
+    {
+        return $this->hasMany(Disability::class);
+    }
     public function livelihoods()
     {
         return $this->hasMany(Livelihood::class);
@@ -174,6 +178,10 @@ class Resident extends Model
     public function educationalHistories()
     {
         return $this->hasMany(EducationalHistory::class);
+    }
+
+    public function medicalInformation(){
+        return $this->hasOne(MedicalInformation::class);
     }
     public function getAgeAttribute()
     {
