@@ -398,4 +398,5 @@ class ResidentController extends Controller
             'occupationTypes' => OccupationType::all()->pluck('name'),
         ]);
     }
+
 }
