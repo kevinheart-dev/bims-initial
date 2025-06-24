@@ -6,6 +6,7 @@ import RadioGroup from '../RadioGroup';
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import YearDropdown from '../YearDropdown';
 import InputLabel from '../InputLabel';
+import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 
 const defaultMember = {
     lastname: '',
@@ -34,6 +35,10 @@ const defaultMember = {
     voting_status: '',
     resident_image: '',
     is_household_head: '',
+    is_4ps_benificiary: '',
+    is_solo_parent: '',
+    solo_parent_id_number: '',
+    has_vehicle: '',
 };
 
 const HouseholdPersonalInfo = () => {
@@ -156,6 +161,32 @@ const HouseholdPersonalInfo = () => {
         return age;
     };
 
+    const handleVehicleChange = (memberIndex, vehicleIndex, e) => {
+        const { name, value } = e.target;
+        const updatedMembers = [...members];
+        const vehicles = [...(updatedMembers[memberIndex].vehicles || [])];
+        vehicles[vehicleIndex] = { ...vehicles[vehicleIndex], [name]: value };
+        updatedMembers[memberIndex].vehicles = vehicles;
+        setUserData(prev => ({ ...prev, members: updatedMembers }));
+    };
+
+    const addVehicle = (index) => {
+        const updatedMembers = [...members];
+        const vehicles = updatedMembers[index].vehicles || [];
+        vehicles.push({}); // Add empty vehicle object
+        updatedMembers[index].vehicles = vehicles;
+        setUserData(prev => ({ ...prev, members: updatedMembers }));
+    };
+
+    const removeVehicle = (memberIndex, vehicleIndex) => {
+        const updatedMembers = [...members];
+        const vehicles = [...(updatedMembers[memberIndex].vehicles || [])];
+        vehicles.splice(vehicleIndex, 1);
+        updatedMembers[memberIndex].vehicles = vehicles;
+        setUserData(prev => ({ ...prev, members: updatedMembers }));
+    };
+
+
 
     return (
         <div>
@@ -217,308 +248,215 @@ const HouseholdPersonalInfo = () => {
                             )}
                         </button>
 
-
-
                         {isOpen && (
-                            <div
-                                id={`member-panel-${index}`}
-                                role="region"
-                                aria-labelledby={`member-header-${index}`}
-                                className="p-4 space-y-4"
-                            >
-                                <div className="grid grid-cols-1 md:grid-cols-6 gap-y-4 md:gap-x-8">
-                                    {/* Resident Image on the left */}
-                                    <div className="md:row-span-2 flex flex-col items-center">
-                                        <InputLabel htmlFor={`resident-image-${index}`} value="Resident Image" />
-
-                                        <img
-                                            src={
-                                                member.resident_image instanceof File
-                                                    ? URL.createObjectURL(member.resident_image)
-                                                    : member.resident_image || "/images/default-avatar.jpg"
-                                            }
-                                            alt={`Resident ${index + 1}`}
-                                            className="w-40 h-40 object-cover rounded-full mb-4"
-                                        />
-
-                                        <input
-                                            id={`resident-image-${index}`}
-                                            type="file"
-                                            name="resident_image"
-                                            accept="image/*"
-                                            onChange={(e) => {
-                                                const file = e.target.files[0];
-                                                if (file) {
-                                                    setMembers((prev) => {
-                                                        const updated = [...prev];
-                                                        updated[index] = {
-                                                            ...updated[index],
-                                                            resident_image: file,
-                                                        };
-                                                        return updated;
-                                                    });
-                                                }
-                                            }}
-                                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
-                                            file:rounded-full file:border-0
-                                            file:text-sm file:font-semibold
-                                            file:bg-blue-50 file:text-blue-700
-                                            hover:file:bg-blue-100"
-                                        />
+                            <div id={`member-panel-${index}`} role="region" aria-labelledby={`member-header-${index}`} className="p-4 space-y-4">
+                                {/* PERSONAL INFORMATION */}
+                                <div className="grid grid-cols-1 md:grid-cols-6 gap-y-2 md:gap-x-4">
+                                    <div className="md:row-span-2 flex flex-col items-center space-y-2">
+                                        <InputLabel htmlFor={`resident-image-${index}`} value="Profile Photo" />
+                                        <img src={member.resident_image instanceof File ? URL.createObjectURL(member.resident_image) : member.resident_image || "/images/default-avatar.jpg"}
+                                            alt={`Resident ${index + 1}`} className="w-32 h-32 object-cover rounded-full border border-gray-200" />
+                                        <input id={`resident-image-${index}`} type="file" name="resident_image" accept="image/*" onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file) setMembers(prev => prev.map((m, i) => i === index ? { ...m, resident_image: file } : m));
+                                        }} className="block w-full text-sm text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
                                     </div>
 
-                                    {/* First row of input fields */}
-                                    <div className={`md:col-span-5 grid gap-4 grid-cols-1 sm:grid-cols-2 md:${showMaidenMiddleName ? 'grid-cols-4' : 'grid-cols-3'}`}>
-                                        <InputField
-                                            label="Last Name"
-                                            name="lastname"
-                                            value={sharedLastname}
-                                            onChange={isFirst ? handleSharedChange : (e) => handleMemberChange(index, e)}
-                                            disabled={!isFirst && member.lastname !== members[0]?.lastname}
-                                            placeholder="Enter last name"
-                                        />
-                                        <InputField
-                                            label="First Name"
-                                            name="firstname"
-                                            value={member.firstname}
-                                            onChange={(e) => handleMemberChange(index, e)}
-                                            placeholder="Enter first name"
-                                        />
-                                        <InputField
-                                            label="Middle Name"
-                                            name="middlename"
-                                            value={member.middlename}
-                                            onChange={(e) => handleMemberChange(index, e)}
-                                            placeholder="Enter middle name"
-                                        />
-                                        {showMaidenMiddleName && (
-                                            <InputField
-                                                label="Maiden Middle Name"
-                                                name="maiden_middle_name"
-                                                value={member.maiden_middle_name}
-                                                onChange={(e) => handleMemberChange(index, e)}
-                                                placeholder="Enter maiden middle name"
-                                            />
-                                        )}
-                                    </div>
+                                    <div className="md:col-span-5 space-y-2">
+                                        <div className={`grid gap-2 grid-cols-1 sm:grid-cols-2 md:${showMaidenMiddleName ? 'grid-cols-4' : 'grid-cols-3'}`}>
+                                            <InputField label="Last Name" name="lastname" value={sharedLastname}
+                                                onChange={isFirst ? handleSharedChange : (e) => handleMemberChange(index, e)}
+                                                disabled={!isFirst && member.lastname !== members[0]?.lastname} placeholder="Family name" />
+                                            <InputField label="First Name" name="firstname" value={member.firstname}
+                                                onChange={(e) => handleMemberChange(index, e)} placeholder="Given name" />
+                                            <InputField label="Middle Name" name="middlename" value={member.middlename}
+                                                onChange={(e) => handleMemberChange(index, e)} placeholder="Middle name" />
+                                            {showMaidenMiddleName && <InputField label="Maiden Name" name="maiden_middle_name" value={member.maiden_middle_name}
+                                                onChange={(e) => handleMemberChange(index, e)} placeholder="Mother's name" />}
+                                        </div>
 
-                                    {/* Second row of suffix input */}
-                                    <div className="md:col-start-2 md:col-span-5">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                            <DropdownInputField
-                                                label="Suffix"
-                                                name="suffix"
-                                                value={member.suffix}
-                                                onChange={(e) => handleMemberChange(index, e)}
-                                                items={['Jr.', 'Sr.', 'III', 'IV']}
-                                                placeholder="Enter or select suffix"
-                                            />
-
-                                            <DropdownInputField
-                                                label="Civil Status"
-                                                name="civil_status"
-                                                value={member.civil_status}
-                                                onChange={(e) => handleMemberChange(index, e)}
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                            <DropdownInputField label="Suffix" name="suffix" value={member.suffix} items={['Jr.', 'Sr.', 'III', 'IV']}
+                                                onChange={(e) => handleMemberChange(index, e)} placeholder="Select suffix" />
+                                            <DropdownInputField label="Civil Status" name="civil_status" value={member.civil_status}
                                                 items={['Single', 'Married', 'Widowed', 'Divorced', 'Separated', 'Annulled']}
-                                                placeholder="Select civil status"
-                                            />
+                                                onChange={(e) => handleMemberChange(index, e)} placeholder="Select status" />
+                                            <RadioGroup label="Gender" name="gender" selectedValue={member.gender || ''}
+                                                options={[{ label: 'Male', value: 'male' }, { label: 'Female', value: 'female' }, { label: 'LGBTQIA+', value: 'LGBTQIA+' }]}
+                                                onChange={(e) => handleMemberChange(index, e)} />
+                                        </div>
+                                    </div>
+                                </div>
 
-                                            <RadioGroup
-                                                label="Gender"
-                                                name="gender"
-                                                options={[
-                                                    { label: 'Male', value: 'male' },
-                                                    { label: 'Female', value: 'female' },
-                                                    { label: 'LGBTQIA+', value: 'LGBTQIA+' },
-                                                ]}
-                                                selectedValue={member.gender || ''}
-                                                onChange={(e) => handleMemberChange(index, e)}
-                                            />
+                                {/* BIRTH & CITIZENSHIP */}
+                                <div className="bg-gray-50 p-3 rounded space-y-2">
+                                    <h3 className="text-md font-medium text-gray-700">Birth & Citizenship</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
+                                        <InputField type="date" label="Birth Date" name="birthdate" value={member.birthdate} onChange={(e) => handleMemberChange(index, e)} />
+                                        <InputField label="Birth Place" name="birthplace" value={member.birthplace} onChange={(e) => handleMemberChange(index, e)} placeholder="City/Municipality" />
+                                        <DropdownInputField label="Religion" name="religion" value={isFirst ? sharedFields.religion : member.religion}
+                                            items={['Roman Catholic', 'Iglesia ni Cristo', 'Born Again', 'Baptists']}
+                                            onChange={isFirst ? handleSharedChange : (e) => handleMemberChange(index, e)} placeholder="Select religion" />
+                                        <DropdownInputField label="Ethnicity" name="ethnicity" value={isFirst ? sharedFields.ethnicity : member.ethnicity}
+                                            items={['Ilocano', 'Ibanag', 'Tagalog', 'Indigenous People']}
+                                            onChange={isFirst ? handleSharedChange : (e) => handleMemberChange(index, e)} placeholder="Select ethnicity" />
+                                        <DropdownInputField label="Citizenship" name="citizenship" value={isFirst ? sharedFields.citizenship : member.citizenship}
+                                            items={['Filipino', 'Chinese', 'American']}
+                                            onChange={isFirst ? handleSharedChange : (e) => handleMemberChange(index, e)} placeholder="Select citizenship" />
+                                    </div>
+                                </div>
 
+                                {/* CONTACT & RESIDENCY */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div className="bg-gray-50 p-3 rounded space-y-2">
+                                        <h3 className="text-md font-medium text-gray-700">Contact Info</h3>
+                                        <div className="space-y-2">
+                                            <InputField label="Contact Number" name="contactNumber" value={member.contactNumber}
+                                                onChange={(e) => handleMemberChange(index, e)} placeholder="+63 XXX XXX XXXX" />
+                                            <InputField label="Email" name="email" value={member.email}
+                                                onChange={(e) => handleMemberChange(index, e)} placeholder="your@email.com" />
                                         </div>
                                     </div>
 
-                                </div>
-
-                                <div className="grid md:grid-cols-4 gap-4 sm:grid-cols-2 ">
-                                    <div className="col-span-1">
-                                        <InputField
-                                            type="date"
-                                            label="Birth Date"
-                                            name="birthdate"
-                                            value={member.birthdate}
-                                            onChange={(e) => handleMemberChange(index, e)}
-                                        />
+                                    <div className="bg-gray-50 p-3 rounded space-y-2">
+                                        <h3 className="text-md font-medium text-gray-700">Residency Info</h3>
+                                        <div className="space-y-2">
+                                            <DropdownInputField label="Residency Type" name="residency_type" value={member.residency_type}
+                                                items={['permanent', 'temporary', 'migrant']} onChange={(e) => handleMemberChange(index, e)} placeholder="Select type" />
+                                            <YearDropdown label="Residency Date" name="residency_date" value={member.residency_date}
+                                                onChange={(e) => handleMemberChange(index, e)} placeholder="Select year" />
+                                            <RadioGroup label="Household Head?" name="is_household_head" selectedValue={parseInt(member.is_household_head)}
+                                                options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]}
+                                                onChange={(e) => handleMemberChange(index, { target: { name: 'is_household_head', value: parseInt(e.target.value) } })}
+                                                disabled={members.some((m, i) => m.is_household_head === 1 && i !== index)} />
+                                        </div>
                                     </div>
+                                </div>
 
-                                    <InputField
-                                        label="Birth Place"
-                                        name="birthplace"
-                                        value={member.birthplace}
-                                        onChange={(e) => handleMemberChange(index, e)}
-                                        placeholder="Enter birth place"
-                                    />
-
-                                    <DropdownInputField
-                                        label="Religion"
-                                        name="religion"
-                                        value={isFirst ? sharedFields.religion : member.religion}
-                                        onChange={isFirst ? handleSharedChange : (e) => handleMemberChange(index, e)}
-                                        items={['Roman Catholic', 'Iglesia ni Cristo', 'Born Again', 'Baptists']}
-                                        placeholder="Enter or select religion"
-                                    />
-
-                                    <RadioGroup
-                                        label="Are you the household head?"
-                                        name="is_household_head"
-                                        options={[
-                                            { label: 'Yes', value: 1 },
-                                            { label: 'No', value: 0 },
-                                        ]}
-                                        selectedValue={parseInt(member.is_household_head)}
-                                        onChange={(e) =>
-                                            handleMemberChange(index, {
-                                                target: {
-                                                    name: 'is_household_head',
-                                                    value: parseInt(e.target.value),
-                                                },
-                                            })
-                                        }
-                                        disabled={
-                                            members.some((m, i) => m.is_household_head === 1 && i !== index)
-                                        }
-                                    />
-
-                                    <DropdownInputField
-                                        label="Ethnicity"
-                                        name="ethnicity"
-                                        value={isFirst ? sharedFields.ethnicity : member.ethnicity}
-                                        onChange={isFirst ? handleSharedChange : (e) => handleMemberChange(index, e)}
-                                        items={['Ilocano', 'Ibanag', 'Tagalog', 'Indigenous People']}
-                                        placeholder="Enter or select ethnicity"
-                                    />
-                                    <DropdownInputField
-                                        label="Citizenship"
-                                        name="citizenship"
-                                        value={isFirst ? sharedFields.citizenship : member.citizenship}
-                                        onChange={isFirst ? handleSharedChange : (e) => handleMemberChange(index, e)}
-                                        items={['Filipino', 'Chinese', 'American ']}
-                                        placeholder="Enter or select citizenship"
-                                    />
-
-                                    <InputField
-                                        label="Contact Number"
-                                        name="contactNumber"
-                                        value={member.contactNumber}
-                                        onChange={(e) => handleMemberChange(index, e)}
-                                        placeholder="Enter contact number"
-                                    />
-                                    <InputField
-                                        label="Email"
-                                        name="email"
-                                        value={member.email}
-                                        onChange={(e) => handleMemberChange(index, e)}
-                                        placeholder="Enter email"
-                                    />
-
-                                    <DropdownInputField
-                                        label="Residency type"
-                                        name="residency_type"
-                                        value={member.residency_type}
-                                        onChange={(e) => handleMemberChange(index, e)}
-                                        placeholder="Select residency type"
-                                        items={['permanent', 'temporary', 'migrant']}
-
-                                    />
-
-                                    <YearDropdown
-                                        label="Residency date"
-                                        name="residency_date"
-                                        value={member.residency_date}
-                                        onChange={(e) => handleMemberChange(index, e)}
-                                        placeholder="Select residency date"
-                                    />
-
-                                    <RadioGroup
-                                        label="Registered Voter"
-                                        name="registered_voter"
-                                        options={[
-                                            { label: 'Yes', value: 1 },
-                                            { label: 'No', value: 0 },
-                                        ]}
-                                        selectedValue={member.registered_voter}
-                                        onChange={(e) => handleMemberChange(index, e)}
-
-                                    />
-
-                                    {member.registered_voter == 1 && (
-                                        <>
-                                            <InputField
-                                                label="Voter ID number"
-                                                name="voter_id_number"
-                                                value={member.voter_id_number}
-                                                onChange={(e) => handleMemberChange(index, e)}
-                                                placeholder="Enter your Voter Id"
-                                            />
-
-                                            <DropdownInputField
-                                                label="Voting Status"
-                                                name="voting_status"
-                                                value={member.voting_status}
-                                                onChange={(e) => handleMemberChange(index, e)}
-                                                placeholder="Select voting status"
+                                {/* GOVERNMENT PROGRAMS */}
+                                <div className="bg-gray-50 p-3 rounded space-y-2">
+                                    <h3 className="text-md font-medium text-gray-700">Government Programs</h3>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+                                        <RadioGroup label="4Ps Beneficiary?" name="is_4ps_benificiary" selectedValue={member.is_4ps_benificiary || ''}
+                                            options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]} onChange={(e) => handleMemberChange(index, e)} />
+                                        <RadioGroup label="Solo Parent?" name="is_solo_parent" selectedValue={member.is_solo_parent || ''}
+                                            options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]} onChange={(e) => handleMemberChange(index, e)} />
+                                        {member.is_solo_parent == 1 && <InputField label="Solo Parent ID" name="solo_parent_id_number" value={member.solo_parent_id_number || ''}
+                                            onChange={(e) => handleMemberChange(index, e)} placeholder="ID number" />}
+                                        <RadioGroup label="Registered Voter?" name="registered_voter" selectedValue={member.registered_voter}
+                                            options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]} onChange={(e) => handleMemberChange(index, e)} />
+                                        {member.registered_voter == 1 && <>
+                                            <InputField label="Voter ID" name="voter_id_number" value={member.voter_id_number}
+                                                onChange={(e) => handleMemberChange(index, e)} placeholder="Voter ID number" />
+                                            <DropdownInputField label="Voting Status" name="voting_status" value={member.voting_status}
                                                 items={['active', 'inactive', 'disqualified', 'medical', 'overseas', 'detained', 'deceased']}
-                                            />
-                                        </>
-                                    )}
-                                    {member.age >= 60 && (
+                                                onChange={(e) => handleMemberChange(index, e)} placeholder="Select status" />
+                                        </>}
+                                    </div>
+                                </div>
 
+                                {/* SENIOR CITIZEN (CONDITIONAL) */}
+                                {member.age >= 60 && (
+                                    <div className="bg-gray-50 p-3 rounded space-y-2">
+                                        <h3 className="text-md font-medium text-gray-700">Senior Citizen Info</h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+                                            <RadioGroup label="Pensioner?" name="is_pensioner" selectedValue={member.is_pensioner || ''}
+                                                options={[{ label: 'Yes', value: 'yes' }, { label: 'No', value: 'no' }, { label: 'Pending', value: 'pending' }]}
+                                                onChange={(e) => handleMemberChange(index, e)} />
+                                            {member.is_pensioner === 'yes' && <>
+                                                <InputField label="OSCA ID" name="osca_id_number" type="number" value={member.osca_id_number}
+                                                    onChange={(e) => handleMemberChange(index, e)} placeholder="OSCA ID number" />
+                                                <DropdownInputField label="Pension Type" name="pension_type" value={member.pension_type}
+                                                    items={['SSS', 'DSWD', 'GSIS', 'private', 'none']}
+                                                    onChange={(e) => handleMemberChange(index, e)} placeholder="Select type" />
+                                                <RadioGroup label="Living Alone?" name="living_alone" selectedValue={member.living_alone}
+                                                    options={[{ label: 'Yes', value: 'yes' }, { label: 'No', value: 'no' }]}
+                                                    onChange={(e) => handleMemberChange(index, e)} />
+                                            </>}
+                                        </div>
+                                    </div>)}
+
+                                <div className="bg-gray-50 p-3 rounded">
+                                    <h3 className="text-md font-medium text-gray-700">Vehicle Info</h3>
+                                    <div>
                                         <RadioGroup
-                                            label="Pensioner"
-                                            name="is_pensioner"
-                                            options={[
-                                                { label: 'Yes', value: 'yes' },
-                                                { label: 'No', value: 'no' },
-                                                { label: 'Pending', value: 'pending' },
-                                            ]}
-                                            selectedValue={member.is_pensioner || ''}
+                                            label="Owns Vehicle(s)?"
+                                            name="has_vehicle"
+                                            selectedValue={member.has_vehicle}
+                                            options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]}
                                             onChange={(e) => handleMemberChange(index, e)}
                                         />
-                                    )}
+                                        {member.has_vehicle == 1 && (
+                                            <div className="space-y-4 mt-4">
+                                                {(member.vehicles || []).map((vehicle, vecIndex) => (
+                                                    <div
+                                                        key={vecIndex}
+                                                        className="border p-4 mb-4 rounded-md relative bg-gray-50"
+                                                    >
+                                                        {/* Left: input fields */}
+                                                        <div className="grid md:grid-cols-4 gap-4">
+                                                            <DropdownInputField
+                                                                label="Vehicle Type"
+                                                                name="vehicle_type"
+                                                                value={vehicle.vehicle_type || ''}
+                                                                items={['Motorcycle', 'Tricycle', 'Car', 'Jeep', 'Truck', 'Bicycle']}
+                                                                onChange={(e) => handleVehicleChange(index, vecIndex, e)}
+                                                                placeholder="Select type"
+                                                            />
+                                                            <DropdownInputField
+                                                                label="Classification"
+                                                                name="vehicle_class"
+                                                                value={vehicle.vehicle_class || ''}
+                                                                items={['Private', 'Public']}
+                                                                onChange={(e) => handleVehicleChange(index, vecIndex, e)}
+                                                                placeholder="Select class"
+                                                            />
+                                                            <DropdownInputField
+                                                                label="Usage Purpose"
+                                                                name="usage_status"
+                                                                value={vehicle.usage_status || ''}
+                                                                items={['Personal', 'Public Transport', 'Business Use']}
+                                                                onChange={(e) => handleVehicleChange(index, vecIndex, e)}
+                                                                placeholder="Select usage"
+                                                            />
+                                                            <InputField
+                                                                label="Quantity"
+                                                                name="quantity"
+                                                                type="number"
+                                                                value={vehicle.quantity || ''}
+                                                                onChange={(e) => handleVehicleChange(index, vecIndex, e)}
+                                                                placeholder="Number"
+                                                            />
+                                                        </div>
 
-                                    {member.is_pensioner === 'yes' && (
-                                        <>
-                                            <InputField
-                                                label="OSCA id number"
-                                                name="osca_id_number"
-                                                type="number"
-                                                value={member.osca_id_number}
-                                                onChange={(e) => handleMemberChange(index, e)}
-                                                placeholder="Enter OSCA ID number"
-                                            />
+                                                        {/* Right: remove button */}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeVehicle(index, vecIndex)}
+                                                            className="absolute top-1 right-2 flex items-center gap-1 text-2xl text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
+                                                            title="Remove"
+                                                        >
+                                                            <IoIosCloseCircleOutline />
+                                                        </button>
+                                                    </div>
+                                                ))}
 
-                                            <DropdownInputField
-                                                label="Pension Type"
-                                                name="pension_type"
-                                                value={member.pension_type}
-                                                onChange={(e) => handleMemberChange(index, e)}
-                                                items={['SSS', 'DSWD', 'GSIS', 'private', 'none']}
-                                                placeholder="Select or enter pension type"
-                                            />
-
-                                            <RadioGroup
-                                                label="Living alone"
-                                                name="living_alone"
-                                                options={[
-                                                    { label: 'Yes', value: 'yes' },
-                                                    { label: 'No', value: 'no' },
-                                                ]}
-                                                selectedValue={member.living_alone}
-                                                onChange={(e) => handleMemberChange(index, e)}
-                                            />
-                                        </>
-                                    )}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => addVehicle(index)}
+                                                    className="flex items-center text-blue-600 hover:text-blue-800 text-sm mt-2"
+                                                    title="Add vehicle"
+                                                >
+                                                    <IoIosAddCircleOutline className="text-4xl" />
+                                                    <span className="ml-1">Add Vehicle</span>
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
+
+
+
                             </div>
                         )}
                     </div>

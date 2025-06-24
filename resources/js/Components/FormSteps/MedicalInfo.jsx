@@ -1,16 +1,61 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { StepperContext } from '@/context/StepperContext';
 import DropdownInputField from '../DropdownInputField';
 import RadioGroup from '../RadioGroup';
 import YearDropdown from '../YearDropdown';
 import InputField from '../InputField';
-import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
-import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
+import { IoIosArrowDown, IoIosArrowUp, IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 
 function MedicalInfo() {
     const { userData, setUserData } = useContext(StepperContext);
     const members = userData.members || [];
     const [openIndex, setOpenIndex] = useState(null);
+
+    const calculateBMIAndStatus = (weightKg, heightCm, age, gender) => {
+        if (!weightKg || !heightCm || !age) return { bmi: null, status: '' };
+
+        const heightM = heightCm / 100;
+        const bmi = weightKg / (heightM * heightM);
+        let status = '';
+
+        if (age >= 20) {
+            if (bmi < 18.5) status = 'Underweight';
+            else if (bmi >= 18.5 && bmi <= 24.9) status = 'Normal weight';
+            else if (bmi >= 25 && bmi <= 29.9) status = 'Overweight';
+            else status = 'Obese';
+        } else {
+            if (bmi < 14) status = 'Underweight';
+            else if (bmi < 18) status = 'Normal weight';
+            else if (bmi < 20) status = 'Overweight';
+            else status = 'Obese';
+        }
+
+        return { bmi: parseFloat(bmi.toFixed(2)), status };
+    };
+
+    useEffect(() => {
+        const updatedMembers = members.map((member) => {
+            const { weight_kg, height_cm, age, gender } = member;
+
+            if (weight_kg && height_cm && age && gender) {
+                const { status } = calculateBMIAndStatus(weight_kg, height_cm, age, gender);
+                return { ...member, nutrition_status: status };
+            }
+
+            return member;
+        });
+
+        const hasChanges = updatedMembers.some((m, i) =>
+            m.nutrition_status !== members[i]?.nutrition_status
+        );
+
+        if (hasChanges) {
+            setUserData((prev) => ({
+                ...prev,
+                members: updatedMembers,
+            }));
+        }
+    }, [members]);
 
     const handleMedicalChange = (index, e) => {
         const { name, value, type } = e.target;
@@ -18,22 +63,29 @@ function MedicalInfo() {
 
         updatedMembers[index] = {
             ...updatedMembers[index],
-            [name]: type === 'number' ? parseFloat(value) || '' : value
+            [name]: type === 'number' ? parseFloat(value) || '' : value,
         };
 
-        setUserData((prev) => ({
-            ...prev,
-            members: updatedMembers,
-        }));
+        const weight = name === 'weight_kg' ? parseFloat(value) : updatedMembers[index].weight_kg;
+        const height = name === 'height_cm' ? parseFloat(value) : updatedMembers[index].height_cm;
+        const age = updatedMembers[index].age;
+        const gender = updatedMembers[index].gender;
+
+        if (weight && height && age && gender) {
+            const { status } = calculateBMIAndStatus(weight, height, age, gender);
+            updatedMembers[index].nutrition_status = status;
+        }
+
+        setUserData(prev => ({ ...prev, members: updatedMembers }));
     };
 
     const handlePWDChange = (memberIndex, e) => {
         const { name, value } = e.target;
-        const updateMembers = [...members];
-        updateMembers[memberIndex][name] = value;
-        setUserData(prev => ({ ...prev, members: updateMembers }));
+        const updatedMembers = [...members];
+        updatedMembers[memberIndex][name] = value;
+        setUserData(prev => ({ ...prev, members: updatedMembers }));
     };
-    // disability
+
     const addDisability = (index) => {
         const updatedMembers = [...members];
         const disabilities = updatedMembers[index].disabilities || [];
@@ -57,10 +109,7 @@ function MedicalInfo() {
         updatedMembers[memberIndex].disabilities = disabilities;
         setUserData(prev => ({ ...prev, members: updatedMembers }));
     };
-    // alerergy
 
-
-    //resident condition
     return (
         <div>
             <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-1">Medical Information</h2>
@@ -102,7 +151,7 @@ function MedicalInfo() {
                                         step="0.01"
                                     />
                                     <InputField
-                                        label="Height in centimeter (cm)"
+                                        label="Height in Centimeter (cm)"
                                         name="height_cm"
                                         value={member.height_cm || ''}
                                         onChange={(e) => handleMedicalChange(index, e)}
@@ -111,15 +160,26 @@ function MedicalInfo() {
                                         step="0.01"
                                     />
                                     <InputField
+                                        label="BMI"
+                                        name="bmi"
+                                        value={
+                                            member.weight_kg && member.height_cm
+                                                ? (
+                                                    member.weight_kg /
+                                                    ((member.height_cm / 100) ** 2)
+                                                ).toFixed(2)
+                                                : ''
+                                        }
+                                        placeholder="Auto-calculated BMI"
+                                        disabled
+                                    />
+                                    <InputField
                                         label="Nutrition Status"
                                         name="nutrition_status"
                                         value={member.nutrition_status || ''}
-                                        onChange={(e) => handleMedicalChange(index, e)}
-                                        items={['normal', 'underweight', 'severly underweight', 'overweight', 'stunted', 'wasted']}
-                                        placeholder="Select status"
+                                        placeholder="Automatically determined"
+                                        disabled
                                     />
-
-
                                     {/* medical info */}
                                     <InputField
                                         label="Emergency contact number"

@@ -118,8 +118,9 @@ const Summary = ({ onBack, onSubmit }) => {
                                         </div>
                                     </div>
 
+                                    {/* Medical Info */}
                                     <div>
-                                        <div className="text-normal md:text-lg font-semibold text-gray-500 mb-3 pt-4 border-t border-gray-200">Medical Background</div>
+                                        <div className="text-normal md:text-lg font-semibold text-gray-700 mb-3 pt-4 border-t border-gray-200">Medical Background</div>
 
                                     </div>
 
