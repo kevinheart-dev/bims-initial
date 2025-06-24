@@ -43,7 +43,7 @@ function EducationandOccupation() {
         const occupation = { ...updatedOccupations[occupationIndex], [name]: value };
 
         const conversionFactors = {
-            'daily': 22,       // Approx. 22 working days per month
+            'daily': 30,
             'weekly': 4.33,    // 52 weeks / 12 months ≈ 4.33 weeks per month
             'bi-weekly': 2.17, // 26 bi-weekly periods / 12 months ≈ 2.17
             'monthly': 1       // Already monthly, no conversion needed
@@ -131,7 +131,7 @@ function EducationandOccupation() {
                                 </div>
 
                                 {member.is_student == 1 && (
-                                    <div className="grid md:grid-cols-4 gap-4 mt-4">
+                                    <div className="grid md:grid-cols-3 gap-4 mt-4">
                                         <InputField
                                             label="School Name"
                                             name="school_name"
@@ -140,6 +140,15 @@ function EducationandOccupation() {
                                             onChange={(e) => handleEducationChange(index, e)}
                                             placeholder="Enter school name"
 
+                                        />
+
+                                        <DropdownInputField
+                                            label="Current Level"
+                                            name="current_level"
+                                            value={member.current_level || ''}
+                                            onChange={(e) => handleEducationChange(index, e)}
+                                            items={["Elementary", "High School", "College", "Vocational", "Post Grad",]}
+                                            placeholder="Select school level"
                                         />
 
                                         <RadioGroup
@@ -151,15 +160,6 @@ function EducationandOccupation() {
                                             ]}
                                             selectedValue={member.school_type || ''}
                                             onChange={(e) => handleEducationChange(index, e)}
-                                        />
-
-                                        <DropdownInputField
-                                            label="Current Level"
-                                            name="current_level"
-                                            value={member.current_level || ''}
-                                            onChange={(e) => handleEducationChange(index, e)}
-                                            items={["Elementary", "High School", "College", "Vocational", "Post Grad",]}
-                                            placeholder="Select school level"
                                         />
                                     </div>
                                 )}
@@ -280,7 +280,7 @@ function EducationandOccupation() {
 
                                 {(member.occupations || []).map((occupation, occIndex) => (
                                     <div key={occIndex} className="border p-4 mb-4 rounded-md relative bg-gray-50">
-                                        <div className="grid md:grid-cols-3 gap-4">
+                                        <div className="grid md:grid-cols-4 gap-4">
                                             <DropdownInputField
                                                 label="Employment Status"
                                                 name="employment_status"
@@ -325,8 +325,6 @@ function EducationandOccupation() {
                                                 onChange={(e) => handleOccupationChange(index, occIndex, e)}
                                                 placeholder="Enter employer name"
                                                 disabled={occupation.employment_status === 'Unemployed'} />
-                                        </div>
-                                        <div className="grid md:grid-cols-4 gap-4">
                                             <YearDropdown
                                                 label="Year Started"
                                                 name="started_at"
@@ -364,7 +362,7 @@ function EducationandOccupation() {
                                                 onChange={(e) => handleOccupationChange(index, occIndex, e)}
                                                 placeholder="Monthly Income"
                                                 disabled={occupation.employment_status === 'Unemployed'}
-                                                readOnly
+                                                hidden
                                             />
 
                                         </div>
@@ -384,7 +382,7 @@ function EducationandOccupation() {
                                     onClick={() => addOccupation(index)}
                                     className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
                                 >
-                                    <IoIosAddCircleOutline className="text-2xl" />
+                                    <IoIosAddCircleOutline className="text-4xl" />
                                     <span>Add Occupation</span>
                                 </button>
 
