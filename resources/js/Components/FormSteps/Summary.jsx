@@ -23,23 +23,37 @@ const Summary = ({ onBack, onSubmit }) => {
             </div>
 
             {/* Household Address Section */}
-            <section className="space-y-4 border border-gray-200 p-4 rounded-md">
-                <h6 className="text-lg font-semibold text-blue-700 border-l-4 border-blue-500 pl-3 mb-2">
+            <section className="border border-gray-200 p-4 rounded-md mb-6">
+                <h6 className="text-lg font-semibold text-blue-700 border-l-4 border-blue-500 pl-3 mb-4">
                     Household Address & Information
                 </h6>
 
-                <div className="flex flex-wrap gap-6">
-                    {renderDetail("House/Lot/Unit No.", userData.housenumber)}
-                    {renderDetail("Street Name", userData.street)}
-                    {renderDetail("Subdivision/Village", userData.subdivision)}
-                    {renderDetail("Purok/Zone/Sitio", userData.purok)}
-                    {renderDetail("Family Type", CONSTANTS.FAMILY_TYPE_TEXT[userData.family_type])}
-                    {renderDetail("Number of Household Members", userData.householdCount)}
-                    {renderDetail("Family Name", userData.family_name)}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Left Column: Address Info */}
+                    <div className="space-y-4">
+                        <h6 className="text-md font-semibold text-gray-700">Address</h6>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {renderDetail("House/Lot/Unit No.", userData.housenumber)}
+                            {renderDetail("Street Name", userData.street)}
+                            {renderDetail("Subdivision/Village", userData.subdivision)}
+                            {renderDetail("Purok/Zone/Sitio", userData.purok)}
+                        </div>
+                    </div>
+
+                    {/* Right Column: Household & Financial Info */}
+                    <div className="space-y-4">
+                        <h6 className="text-md font-semibold text-gray-700">Household & Financial Info</h6>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {renderDetail("Family Type", CONSTANTS.FAMILY_TYPE_TEXT[userData.family_type])}
+                            {renderDetail("Number of Household Members", userData.householdCount)}
+                            {renderDetail("Family Name", userData.family_name)}
+                            {renderDetail("Family Monthly Income", `₱${userData.family_monthly_income?.toLocaleString() || "0"}`)}
+                            {renderDetail("Income Bracket", CONSTANTS.INCOME_BRACKET_TEXT[userData.income_bracket])}
+                            {renderDetail("Income Category", CONSTANTS.INCOME_CATEGORY_TEXT[userData.income_category])}
+                        </div>
+                    </div>
                 </div>
             </section>
-
-
 
             {/* Household Members */}
             <section className="space-y-6">
@@ -232,6 +246,8 @@ const Summary = ({ onBack, onSubmit }) => {
                                                         {renderDetail("Year Started", occupation.started_at)}
                                                         {renderDetail("Year Ended", occupation.ended_at)}
                                                         {renderDetail("Monthly Income", occupation.monthly_income)}
+                                                        {renderDetail("Income Frequency", occupation.frequency)}
+                                                        {renderDetail("Income", occupation.income)}
                                                     </div>
                                                 </div>
                                             ))}

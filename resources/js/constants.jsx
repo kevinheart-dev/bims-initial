@@ -283,3 +283,25 @@ export const WORK_ARRANGEMENT_TEXT = {
     onsite: "Onsite",
     hybrid: "Hybrid",
 };
+
+export const INCOME_CATEGORY_TEXT = {
+    survival: "Survival",
+    poor: "Poor",
+    low_income: "Low Income",
+    lower_middle_income: "Lower Middle Income",
+    middle_income: "Middle Income",
+    upper_middle_income: "Upper Middle Income",
+    high_income: "High Income",
+};
+
+export const INCOME_BRACKET_TEXT = {
+    below_5000: "Below ₱5,000",
+    "5001_10000": "₱5,001 - ₱10,000",
+    "10001_20000": "₱10,001 - ₱20,000",
+    "20001_40000": "₱20,001 - ₱40,000",
+    "40001_70000": "₱40,001 - ₱70,000",
+    "70001_120000": "₱70,001 - ₱120,000",
+    above_120001: "₱120,001 and above",
+};
+
+
