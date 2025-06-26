@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { StepperContext } from '@/context/StepperContext';
 import DropdownInputField from '../DropdownInputField';
 import RadioGroup from '../RadioGroup';
@@ -83,6 +83,34 @@ function EducationandOccupation() {
 
         setUserData(prev => ({ ...prev, members: updatedMembers }));
     };
+
+    useEffect(() => {
+        const totalIncome = (userData.members || []).reduce((sum, member) => {
+            const memberIncome = (member.occupations || []).reduce((mSum, occ) => {
+                return mSum + (parseFloat(occ.monthly_income) || 0);
+            }, 0);
+            return sum + memberIncome;
+        }, 0);
+
+        const brackets = [
+            { min: 0, max: 5000, key: "below_5000", category: "survival" },
+            { min: 5001, max: 10000, key: "5001_10000", category: "poor" },
+            { min: 10001, max: 20000, key: "10001_20000", category: "low_income" },
+            { min: 20001, max: 40000, key: "20001_40000", category: "lower_middle_income" },
+            { min: 40001, max: 70000, key: "40001_70000", category: "middle_income" },
+            { min: 70001, max: 120000, key: "70001_120000", category: "upper_middle_income" },
+            { min: 120001, max: Infinity, key: "above_120001", category: "high_income" },
+        ];
+
+        const bracketData = brackets.find(b => totalIncome >= b.min && totalIncome <= b.max) || {};
+
+        setUserData(prev => ({
+            ...prev,
+            family_monthly_income: totalIncome,
+            income_bracket: bracketData.key || "",
+            income_category: bracketData.category || "",
+        }));
+    }, [userData.members]);
 
 
     return (
@@ -400,7 +428,7 @@ function EducationandOccupation() {
                                                 name="monthly_income"
                                                 value={occupation.monthly_income || ''}
                                                 onChange={(e) => handleOccupationChange(index, occIndex, e)}
-                                                placeholder="Monthly Income"
+                                                placeholder="Automatically computed"
                                                 disabled={occupation.employment_status === 'Unemployed'}
                                                 hidden
                                             />
@@ -416,6 +444,30 @@ function EducationandOccupation() {
                                         </button>
                                     </div>
                                 ))}
+
+                                {/* HIDDEN FAMILY MONTHLY INCOME + BRACKET + CATEGORY */}
+                                <div className="hidden">
+                                    <InputField
+                                        label="Family Monthly Income"
+                                        name="family_monthly_income"
+                                        value={userData.family_monthly_income || ''}
+                                        readOnly
+                                    />
+                                    <DropdownInputField
+                                        label="Income Bracket"
+                                        name="income_bracket"
+                                        value={userData.income_bracket || ''}
+                                        items={[userData.income_bracket || '']}
+                                        readOnly
+                                    />
+                                    <DropdownInputField
+                                        label="Income Category"
+                                        name="income_category"
+                                        value={userData.income_category || ''}
+                                        items={[userData.income_category || '']}
+                                        readOnly
+                                    />
+                                </div>
 
                                 <button
                                     type="button"
