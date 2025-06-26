@@ -39,7 +39,7 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
         residency_date: "",
         purok_number: "",
         registered_voter: 0,
-        is_student: 0,
+        is_student: null,
         school_name: "",
         school_type: "",
         current_level: "",
@@ -71,6 +71,18 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
         is_alcohol_user: null,
         is_smoker: null,
         disabilities: [],
+        ownership_type: "",
+        housing_condition: "",
+        house_structure: "",
+        year_established: "",
+        number_of_rooms: "",
+        number_of_floors: "",
+        bath_and_wash_area: "",
+        toilet_type: "",
+        electricity_type: "",
+        water_source_type: "",
+        waste_management_type: "",
+        type_of_internet: "",
     });
 
     const onSubmit = (e) => {
@@ -933,28 +945,32 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                         </div>
 
                         <div className="grid md:grid-cols-4 gap-4 my-4">
-                            {data.education === "college" && (
-                                <div>
-                                    <InputField
-                                        label="Finised Course"
-                                        name="program"
-                                        type="text"
-                                        value={data.program || ""}
-                                        onChange={(e) =>
-                                            setData("program", e.target.value)
-                                        }
-                                        placeholder="Enter your course"
-                                        disabled={
-                                            data.education ===
-                                            "no_formal_education"
-                                        }
-                                    />
-                                    <InputError
-                                        message={errors.program}
-                                        className="mt-2"
-                                    />
-                                </div>
-                            )}
+                            {data.education === "college" &&
+                                data.education_status === "graduate" && (
+                                    <div>
+                                        <InputField
+                                            label="Finised Course"
+                                            name="program"
+                                            type="text"
+                                            value={data.program || ""}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "program",
+                                                    e.target.value
+                                                )
+                                            }
+                                            placeholder="Enter your course"
+                                            disabled={
+                                                data.education ===
+                                                "no_formal_education"
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.program}
+                                            className="mt-2"
+                                        />
+                                    </div>
+                                )}
 
                             {data.education_status === "graduate" && (
                                 <div>
@@ -1429,6 +1445,19 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                     </div>
                     <div>
                         <InputField
+                            label="BMI"
+                            name="bmi"
+                            placeholder="BMI is Calculated Automatically"
+                            value={data.bmi || ""}
+                            disabled={true}
+                        />
+                        <InputError
+                            message={errors.nutrition_status}
+                            className="mt-2"
+                        />
+                    </div>
+                    <div>
+                        <InputField
                             label="Nutrition Status"
                             name="nutrition_status"
                             value={data.nutrition_status || ""}
@@ -1635,9 +1664,9 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                     )}
                 </div>
 
-                <div className="flex flex-col gap-4 mt-2 ">
+                <div className="flex flex-col gap-4">
                     {data.is_pwd == 1 && (
-                        <div className="flex flex-wrap gap-6 items-start">
+                        <div className="flex flex-wrap gap-4 items-start">
                             {/* PWD ID input */}
                             <div>
                                 <InputField
@@ -1657,8 +1686,8 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                             </div>
 
                             {/* Disability Types */}
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                            <div className="mt-3">
+                                <label className="block text-sm font-semibold text-gray-700">
                                     Disability type(s)
                                 </label>
 
@@ -1745,6 +1774,7 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                     Please provide the necessary house information.
                 </p>
 
+                {/* house */}
                 <div className="grid md:grid-cols-4 gap-4">
                     <DropdownInputField
                         label="Ownership Type"
@@ -1973,6 +2003,7 @@ const PersonalInformation = ({ puroks, occupationTypes = null }) => {
                     />
                 </div>
 
+                {/* livestock */}
                 {/* <div className="grid md:grid-cols-2 gap-4">
                     <div>
                         <div>
