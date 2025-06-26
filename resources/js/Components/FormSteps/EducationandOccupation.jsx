@@ -26,9 +26,9 @@ function EducationandOccupation() {
         const educationStatus = updatedMembers[index].education_status;
 
         if (name === "year_ended" || name === "education_status") {
-            if (educationStatus === "Graduate") {
+            if (educationStatus === "graduate") {
                 updatedMembers[index].year_graduated = updatedMembers[index].year_ended || '';
-            } else if (educationStatus === "Undergraduate") {
+            } else if (educationStatus === "undergraduate") {
                 updatedMembers[index].year_graduated = '';
             }
         }
@@ -147,7 +147,14 @@ function EducationandOccupation() {
                                             name="current_level"
                                             value={member.current_level || ''}
                                             onChange={(e) => handleEducationChange(index, e)}
-                                            items={["Elementary", "High School", "College", "Vocational", "Post Grad",]}
+                                            items={[
+                                                { label: "Elementary", value: "elementary" },
+                                                { label: "High School", value: "high_school" },
+                                                { label: "College", value: "college" },
+                                                { label: "Vocational", value: "vocational" },
+                                                { label: "Post Grad", value: "post_grad" },
+                                            ]}
+
                                             placeholder="Select school level"
                                         />
 
@@ -172,7 +179,15 @@ function EducationandOccupation() {
                                                     name="education"
                                                     value={member.education || ''}
                                                     onChange={(e) => handleEducationChange(index, e)}
-                                                    items={["No Formal Education", "Elementary", "High School", "College", "Post Grad", "Vocational"]}
+                                                    items={[
+                                                        { label: "No Formal Education", value: "no_formal_education" },
+                                                        { label: "Elementary", value: "elementary" },
+                                                        { label: "High School", value: "high_school" },
+                                                        { label: "College", value: "college" },
+                                                        { label: "Post Grad", value: "post_grad" },
+                                                        { label: "Vocational", value: "vocational" },
+                                                    ]}
+
                                                     placeholder="Select your Educational Attainment"
                                                 />
 
@@ -180,8 +195,8 @@ function EducationandOccupation() {
                                                     label="Educational Status"
                                                     name="education_status"
                                                     options={[
-                                                        { label: 'Graduate', value: 'Graduate' },
-                                                        { label: 'Undergraduate', value: 'Undergraduate' },
+                                                        { label: 'Graduate', value: 'graduate' },
+                                                        { label: 'Undergraduate', value: 'undergraduate' },
                                                     ]}
                                                     selectedValue={member.education_status || ''}
                                                     onChange={(e) => handleEducationChange(index, e)}
@@ -194,7 +209,7 @@ function EducationandOccupation() {
                                                     <RadioGroup
                                                         label="Out of School Children (6-14 years old)"
                                                         name="osc"
-                                                        options={[{ label: 'Yes', value: 'true' }, { label: 'No', value: 'false' }]}
+                                                        options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]}
                                                         selectedValue={member.osc || ''}
                                                         onChange={(e) => handleEducationChange(index, e)}
                                                     />
@@ -204,7 +219,7 @@ function EducationandOccupation() {
                                                     <RadioGroup
                                                         label="Out of School Youth (15-24 years old)"
                                                         name="osy"
-                                                        options={[{ label: 'Yes', value: 'true' }, { label: 'No', value: 'false' }]}
+                                                        options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]}
                                                         selectedValue={member.osy || ''}
                                                         onChange={(e) => handleEducationChange(index, e)}
                                                     />
@@ -251,7 +266,7 @@ function EducationandOccupation() {
                                         </div>
 
                                         <div className="grid md:grid-cols-4 gap-4 mt-4">
-                                            {member.education === 'College' && (
+                                            {(member.education === 'college' && member.education_status === 'graduate') && (
                                                 <InputField
                                                     label="Finised Course"
                                                     name="program"
@@ -263,7 +278,7 @@ function EducationandOccupation() {
                                                 />
                                             )}
 
-                                            {member.education_status === "Graduate" && (
+                                            {member.education_status === "graduate" && (
                                                 <YearDropdown
                                                     label="Year Graduated"
                                                     name="year_graduated"
@@ -287,7 +302,14 @@ function EducationandOccupation() {
                                                 value={occupation.employment_status || ''}
                                                 onChange={(e) => handleOccupationChange(index, occIndex, e)}
                                                 placeholder="Select employment status"
-                                                items={['Employed', 'Unemployed', 'Student']} />
+                                                items={[
+                                                    { label: 'Employed', value: 'employed' },
+                                                    { label: 'Unemployed', value: 'unemployed' },
+                                                    { label: 'Student', value: 'student' },
+                                                    { label: 'Self Employed', value: 'self_employed' },
+                                                    { label: 'Retired', value: 'retired' },
+                                                ]}
+                                            />
                                             <DropdownInputField
                                                 label="Occupation"
                                                 name="occupation"
@@ -302,19 +324,37 @@ function EducationandOccupation() {
                                                 value={occupation.employment_type || ''}
                                                 onChange={(e) => handleOccupationChange(index, occIndex, e)}
                                                 placeholder="Select employment type"
-                                                items={['Full-time', 'Part-time', 'Seasonal', 'Contractual', 'Self-employed']}
+                                                items={[
+                                                    { label: 'Full-time', value: 'full_time' },
+                                                    { label: 'Part-time', value: 'part_time' },
+                                                    { label: 'Seasonal', value: 'seasonal' },
+                                                    { label: 'Contractual', value: 'contractual' },
+                                                    { label: 'Self-employed', value: 'self_employed' },
+                                                ]}
+
                                                 disabled={occupation.employment_status === 'Unemployed'} />
                                             <DropdownInputField
                                                 label="Status" name="occupation_status"
                                                 value={occupation.occupation_status || ''}
                                                 onChange={(e) => handleOccupationChange(index, occIndex, e)}
                                                 placeholder="Select employment status"
-                                                items={['active', 'inactive', 'ended', 'retired']}
+                                                items={[
+                                                    { label: 'Active', value: 'active' },
+                                                    { label: 'Inactive', value: 'inactive', },
+                                                    { label: 'Ended', value: 'ended' },
+                                                    { label: 'Retired', value: 'retired' },
+                                                ]}
+
                                                 disabled={occupation.employment_status === 'Unemployed'} />
                                             <RadioGroup
                                                 label="Work Arrangement"
                                                 name="work_arrangement"
-                                                options={[{ label: 'remote', value: 'remote' }, { label: 'onsite', value: 'onsite' }, { label: 'hybrid', value: 'hybrid' }]}
+                                                options={[
+                                                    { label: 'Remote', value: 'remote' },
+                                                    { label: 'Onsite', value: 'onsite' },
+                                                    { label: 'Hybrid', value: 'hybrid' },
+                                                ]}
+
                                                 selectedValue={occupation.work_arrangement || ''}
                                                 onChange={(e) => handleOccupationChange(index, occIndex, e)}
                                                 disabled={occupation.employment_status === 'Unemployed'} />
@@ -338,7 +378,7 @@ function EducationandOccupation() {
                                                 onChange={(e) => handleOccupationChange(index, occIndex, e)}
                                                 disabled={occupation.employment_status === 'Unemployed'} />
                                             <DropdownInputField
-                                                label="Frequency"
+                                                label="Income Frequency"
                                                 name="frequency"
                                                 value={occupation.frequency || ''}
                                                 onChange={(e) => handleOccupationChange(index, occIndex, e)}

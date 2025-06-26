@@ -66,20 +66,73 @@ export const RESIDENT_REGISTER_VOTER_CLASS = {
     1: "p-1 bg-green-500 text-white rounded-lg",
 };
 
+export const RESIDENT_4PS_TEXT = {
+    0: "No",
+    1: "Yes",
+};
+
+export const RESIDENT_SOLO_PARENT_TEXT = {
+    0: "No",
+    1: "Yes",
+};
+
+export const RESIDENT_REGISTER_VOTER_TEXT2 = {
+    0: "No",
+    1: "Yes",
+};
+
+export const RESIDENT_VOTING_STATUS_TEXT = {
+    active: "Active",
+    inactive: "Inactive",
+    disqualified: "Disqualified",
+    medical: "Medical",
+    overseas: "Overseas",
+    detained: "Detained",
+    deceased: "Deceased"
+};
+
+export const SENIOR_LIVING_ALONE_TEXT = {
+    0: "No",
+    1: "Yes",
+};
+
+export const SENIOR_PESIONER_TEXT = {
+    yes: "Yes",
+    no: "No",
+    pendeing: "Pending",
+};
+
+export const VEHICLE_OWNERSHIP_TEXT = {
+    1: "Yes",
+    0: "No",
+};
+
+
+export const VEHICLE_CLASS_TEXT = {
+    private: "Private",
+    public: "Public",
+};
+
+export const VEHICLE_USAGE_TEXT = {
+    personal: "Personal",
+    public_transport: "Public Transport",
+    business_use: "Business Use",
+};
+
 export const HOUSEHOLD_BATH_WASH_TEXT = {
-    with_own_sink_and_bath: "with own sink and bath",
-    with_own_sink_only: "with own sink only",
-    with_own_bath_only: "with own bath only",
-    shared_or_communal: "shared or communa",
+    with_own_sink_and_bath: "With own sink and bath",
+    with_own_sink_only: "With own sink only",
+    with_own_bath_only: "With own bath only",
+    shared_or_communal: "Shared or communa",
     none: "None",
 };
 
 export const HOUSEHOLD_TOILET_TYPE_TEXT = {
-    water_sealed: "water sealed",
-    compost_pit_toilet: "compost pit toilet",
-    shared_communal_public_toilet: "shared communal public toilet",
-    shared_or_communal: "shared or communal",
-    no_latrine: "no latrine",
+    water_sealed: "Water Sealed",
+    compost_pit_toilet: "Compost pit toilet",
+    shared_communal_public_toilet: "Shared communal public toilet",
+    shared_or_communal: "Shared or communal",
+    no_latrine: "No latrine",
 };
 
 export const HOUSEHOLD_ELECTRICITY_TYPE = {
@@ -113,4 +166,120 @@ export const HOUSEHOLD_INTERNET_TYPE_TEXT = {
     mobile_data: "Mobile Data",
     wireless_fidelity: "Wi-Fi",
     none: "None",
+};
+
+export const FAMILY_TYPE_TEXT = {
+    nuclear: "Nuclear",
+    single_parent: "Single-parent",
+    extended: "Extended",
+    stepfamilies: "Stepfamilies",
+    grandparent: "Grandparent",
+    childless: "Childless",
+    cohabiting_partners: "Cohabiting Partners",
+    one_person_household: "One-person Household",
+    roommates: "Roommates",
+};
+
+
+export const HOUSEHOLD_OWNERSHIP_TEXT = {
+    owned: "Owned",
+    rented: "Rented",
+    shared: "Shared",
+    goverment_provided: "Goverment-Provided",
+    inherited: "Inherited"
+};
+
+export const HOUSEHOLD_STRUCTURE_TEXT = {
+    concrete: "Concrete",
+    semi_concrete: "Semi-concrete",
+    wood: "Wood",
+    makeshift: "makeshift",
+};
+
+export const HOUSEHOLD_CONDITION_TEXT = {
+    good: "Good",
+    needs_repair: "Needs Repair",
+    dilapidated: "Delapitated",
+};
+
+export const PETS_PURPOSE_TEXT = {
+    personal_consumption: "Personal Consumption",
+    commercial: "Commercial",
+    both: "Both",
+};
+
+export const PETS_VACCINE_TEXT = {
+    0: "No",
+    1: "Yes",
+};
+
+export const MEDICAL_SMOKE_TEXT = {
+    0: "No",
+    1: "Yes",
+};
+
+export const MEDICAL_ALCOHOL_TEXT = {
+    0: "No",
+    1: "Yes",
+};
+
+export const MEDICAL_PWD_TEXT = {
+    0: "No",
+    1: "Yes",
+};
+
+export const MEDICAL_PHILHEALTH_TEXT = {
+    0: "No",
+    1: "Yes",
+};
+
+
+export const EDUCATION_SCHOOL_TYPE = {
+    public: "Public",
+    label: "Private",
+};
+
+export const EDUCATION_LEVEL_TEXT = {
+    no_formal_education: "No Formal Education",
+    elementary: "Elementary",
+    high_school: "High School",
+    college: "College",
+    post_grad: "Post Grad",
+    vocational: "Vocational",
+};
+
+export const EDUCATION_STATUS_TEXT = {
+    graduate: "Graduate",
+    undergraduate: "undergraduate",
+};
+
+export const EDUCATION_OSY_TEXT = {
+    0: "No",
+    1: "Yes",
+};
+
+export const EDUCATION_OSC_TEXT = {
+    0: "No",
+    1: "Yes",
+};
+
+export const EMPLOYMENT_TYPE_TEXT = {
+    full_time: "Full-time",
+    part_time: "Part-time",
+    seasonal: "Seasonal",
+    contractual: "Contractual",
+    self_employed: "Self-employed",
+};
+
+export const OCCUPATION_STATUS_TEXT = {
+    active: "Active",
+    inactive: "Inactive",
+    ended: "Ended",
+    retired: "Retired",
+};
+
+export const WORK_ARRANGEMENT_TEXT = {
+    remote: "Remote",
+    onsite: "Onsite",
+    hybrid: "Hybrid",
 };

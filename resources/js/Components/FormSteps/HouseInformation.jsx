@@ -73,7 +73,14 @@ function HouseInformation() {
                     value={userData.ownership_type || ''}
                     onChange={handleChange}
                     placeholder="Select or enter ownership type"
-                    items={['owned', 'rented', 'shared', 'goverment-provided', 'inherited']}
+                    items={[
+                        { label: 'Owned', value: 'owned' },
+                        { label: 'Rented', value: 'rented' },
+                        { label: 'Shared', value: 'shared' },
+                        { label: 'Government-provided', value: 'government_provided' },
+                        { label: 'Inherited', value: 'inherited' },
+                    ]}
+
                 />
                 <DropdownInputField
                     label="Housing Condition"
@@ -81,7 +88,12 @@ function HouseInformation() {
                     value={userData.housing_condition || ''}
                     onChange={handleChange}
                     placeholder="Select house condition"
-                    items={['good', 'needs repair', 'dilapidated']}
+                    items={[
+                        { label: 'Good', value: 'good' },
+                        { label: 'Needs Repair', value: 'needs_repair' },
+                        { label: 'Dilapidated', value: 'dilapidated' },
+                    ]}
+
                 />
                 <DropdownInputField
                     label="House Structure"
@@ -89,7 +101,13 @@ function HouseInformation() {
                     value={userData.house_structure}
                     onChange={handleChange}
                     placeholder="Select or Enter house structure"
-                    items={['concrete', 'semi-concrete', 'wood', 'makeshift']}
+                    items={[
+                        { label: 'Concrete', value: 'concrete' },
+                        { label: 'Semi-concrete', value: 'semi_concrete' },
+                        { label: 'Wood', value: 'wood' },
+                        { label: 'Makeshift', value: 'makeshift' },
+                    ]}
+
                 />
                 <YearDropdown
                     label="Year Establish"
@@ -121,11 +139,11 @@ function HouseInformation() {
                     onChange={handleChange}
                     placeholder="Select or Enter"
                     items={[
-                        { label: 'with own sink and bath', value: 'with_own_sink_and_bath' },
-                        { label: 'with own sink only', value: 'with_own_sink_only' },
-                        { label: 'with own bath only', value: 'with_own_bath_only' },
-                        { label: 'shared or communal', value: 'shared_or_communal' },
-                        { label: 'none', value: 'none' }
+                        { label: 'With own sink and bath', value: 'with_own_sink_and_bath' },
+                        { label: 'With own sink only', value: 'with_own_sink_only' },
+                        { label: 'With own bath only', value: 'with_own_bath_only' },
+                        { label: 'Shared or communal', value: 'shared_or_communal' },
+                        { label: 'None', value: 'none' }
                     ]}
                 />
                 <DropdownInputField
@@ -135,11 +153,11 @@ function HouseInformation() {
                     onChange={handleChange}
                     placeholder="Select or enter toilet type"
                     items={[
-                        { label: 'water sealed', value: 'water_sealed' },
-                        { label: 'compost pit toilet', value: 'compost_pit_toilet' },
-                        { label: 'shared communal public toilet', value: 'shared_communal_public_toilet' },
-                        { label: 'shared or communal', value: 'shared_or_communal' },
-                        { label: 'no latrine', value: 'no_latrine' }
+                        { label: 'Water sealed', value: 'water_sealed' },
+                        { label: 'Compost pit toilet', value: 'compost_pit_toilet' },
+                        { label: 'Shared communal public toilet', value: 'shared_communal_public_toilet' },
+                        { label: 'Shared or communal', value: 'shared_or_communal' },
+                        { label: 'No latrine', value: 'no_latrine' }
                     ]}
                 />
                 <DropdownInputField
@@ -251,7 +269,9 @@ function HouseInformation() {
                                                     value={livestock.purpose || ''}
                                                     onChange={(e) => handleLivestockChange(livIndex, e)}
                                                     placeholder="Select purpose"
-                                                    items={['personal consumption', 'consumption', 'both']}
+                                                    items={[{ label: 'Personal Consumption', value: 'personal_consumption' },
+                                                    { label: 'Commercial', value: 'commercial' },
+                                                    { label: 'Both', value: "both" }]}
                                                 />
                                                 <button
                                                     type="button"

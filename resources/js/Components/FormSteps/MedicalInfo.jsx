@@ -95,7 +95,7 @@ function MedicalInfo() {
     const addDisability = (index) => {
         const updatedMembers = [...members];
         const disabilities = updatedMembers[index].disabilities || [];
-        disabilities.push("");
+        disabilities.push({ disability_type: "" });
         updatedMembers[index].disabilities = disabilities;
         setUserData((prev) => ({ ...prev, members: updatedMembers }));
     };
@@ -111,11 +111,15 @@ function MedicalInfo() {
     };
 
     const handleDisabilityChange = (memberIndex, disabilityIndex, e) => {
+        const { name, value } = e.target;
         const updatedMembers = [...members];
-        const disabilities = [
-            ...(updatedMembers[memberIndex].disabilities || []),
-        ];
-        disabilities[disabilityIndex] = e.target.value;
+        const disabilities = [...(updatedMembers[memberIndex].disabilities || [])];
+
+        disabilities[disabilityIndex] = {
+            ...disabilities[disabilityIndex],
+            [name]: value,
+        };
+
         updatedMembers[memberIndex].disabilities = disabilities;
         setUserData((prev) => ({ ...prev, members: updatedMembers }));
     };
@@ -132,9 +136,8 @@ function MedicalInfo() {
 
             {members.map((member, index) => {
                 const isOpen = openIndex === index;
-                const displayName = `${member.firstname || ""} ${
-                    member.lastname || ""
-                }`;
+                const displayName = `${member.firstname || ""} ${member.lastname || ""
+                    }`;
 
                 return (
                     <div
@@ -144,10 +147,9 @@ function MedicalInfo() {
                         <button
                             type="button"
                             className={`w-full text-left p-4 font-semibold flex justify-between items-center
-                                ${
-                                    isOpen
-                                        ? "border-t-2 border-blue-600 text-gray-900"
-                                        : "text-gray-700 hover:bg-sky-100"
+                                ${isOpen
+                                    ? "border-t-2 border-blue-600 text-gray-900"
+                                    : "text-gray-700 hover:bg-sky-100"
                                 }
                                 transition duration-300 ease-in-out`}
                             onClick={() => setOpenIndex(isOpen ? null : index)}
@@ -164,9 +166,6 @@ function MedicalInfo() {
 
                         {isOpen && (
                             <div className="p-4 space-y-4">
-                                <p className="font-bold">
-                                    Child Health Monitoring
-                                </p>
                                 <div className="grid md:grid-cols-4 gap-4">
                                     <InputField
                                         label="Weight in Kilogram (kg)"
@@ -244,8 +243,7 @@ function MedicalInfo() {
                                         label="Emergency Contact Relationship"
                                         name="emergency_contact_relationship"
                                         value={
-                                            member.emergency_contact_relationship ||
-                                            ""
+                                            member.emergency_contact_relationship || ""
                                         }
                                         onChange={(e) =>
                                             handleMedicalChange(index, e)
@@ -302,8 +300,7 @@ function MedicalInfo() {
                                             label="PhilHealth ID number"
                                             name="philhealth_id_number"
                                             value={
-                                                member.philhealth_id_number ||
-                                                ""
+                                                member.philhealth_id_number || ""
                                             }
                                             onChange={(e) =>
                                                 handleMedicalChange(index, e)
@@ -392,8 +389,7 @@ function MedicalInfo() {
                                                                     type="text"
                                                                     name="disability_type"
                                                                     value={
-                                                                        disability.disability_type ||
-                                                                        ""
+                                                                        disability.disability_type || ""
                                                                     }
                                                                     onChange={(
                                                                         e

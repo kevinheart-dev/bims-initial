@@ -207,11 +207,30 @@ const HouseholdPersonalInfo = () => {
                     placeholder="Enter number of members"
                 />
 
+                <InputField
+                    label="Family Name"
+                    name="family_name"
+                    value={userData.family_name || ''}
+                    onChange={(e) => setUserData({ ...userData, family_name: e.target.value })}
+                    placeholder="Enter family name"
+                />
+
                 <DropdownInputField
                     label="Family Type"
                     name="family_type"
                     value={userData.family_type || ''}
-                    items={['Nuclear', 'Single-parent', 'Extended', 'Stepfamilies', 'Grandparent', 'Childess', 'Cohabiting Partners', 'One-person Household', 'Roomates']}
+                    items={[
+                        { label: "Nuclear", value: "nuclear" },
+                        { label: "Single-parent", value: "single_parent" },
+                        { label: "Extended", value: "extended" },
+                        { label: "Stepfamilies", value: "stepfamilies" },
+                        { label: "Grandparent", value: "grandparent" },
+                        { label: "Childless", value: "childless" },
+                        { label: "Cohabiting Partners", value: "cohabiting_partners" },
+                        { label: "One-person Household", value: "one_person_household" },
+                        { label: "Roommates", value: "roommates" },
+                    ]}
+
                     placeholder="Enter family type"
                     onChange={(e) => setUserData({ ...userData, family_type: e.target.value })}
                 />
@@ -220,7 +239,7 @@ const HouseholdPersonalInfo = () => {
             {members.map((member, index) => {
                 const isFirst = index === 0;
                 const isOpen = openIndex === index;
-                const showMaidenMiddleName = (['female', 'LGBTQIA+'].includes(member.gender) &&
+                const showMaidenMiddleName = (['female', 'LGBTQ'].includes(member.gender) &&
                     ['Married', 'Widowed', 'Separated'].includes(member.civil_status));
                 const sharedLastname = isFirst
                     ? sharedFields.lastname
@@ -279,10 +298,18 @@ const HouseholdPersonalInfo = () => {
                                             <DropdownInputField label="Suffix" name="suffix" value={member.suffix} items={['Jr.', 'Sr.', 'III', 'IV']}
                                                 onChange={(e) => handleMemberChange(index, e)} placeholder="Select suffix" />
                                             <DropdownInputField label="Civil Status" name="civil_status" value={member.civil_status}
-                                                items={['Single', 'Married', 'Widowed', 'Divorced', 'Separated', 'Annulled']}
+                                                items={[
+                                                    { label: 'Single', value: 'single' },
+                                                    { label: 'Married', value: 'married' },
+                                                    { label: 'Widowed', value: 'widowed' },
+                                                    { label: 'Divorced', value: 'divorced' },
+                                                    { label: 'Separated', value: 'separated' },
+                                                    { label: 'Annulled', value: 'annulled' },
+                                                ]}
+
                                                 onChange={(e) => handleMemberChange(index, e)} placeholder="Select status" />
                                             <RadioGroup label="Gender" name="gender" selectedValue={member.gender || ''}
-                                                options={[{ label: 'Male', value: 'male' }, { label: 'Female', value: 'female' }, { label: 'LGBTQIA+', value: 'LGBTQIA+' }]}
+                                                options={[{ label: 'Male', value: 'male' }, { label: 'Female', value: 'female' }, { label: 'LGBTQIA+', value: 'LGBTQ' }]}
                                                 onChange={(e) => handleMemberChange(index, e)} />
                                         </div>
                                     </div>
@@ -312,7 +339,7 @@ const HouseholdPersonalInfo = () => {
                                         <h3 className="text-md font-medium text-gray-700">Contact Info</h3>
                                         <div className="space-y-2">
                                             <InputField label="Contact Number" name="contactNumber" value={member.contactNumber}
-                                                onChange={(e) => handleMemberChange(index, e)} placeholder="+63 XXX XXX XXXX" />
+                                                onChange={(e) => handleMemberChange(index, e)} placeholder="09XX XXXX XXX" />
                                             <InputField label="Email" name="email" value={member.email}
                                                 onChange={(e) => handleMemberChange(index, e)} placeholder="your@email.com" />
                                         </div>
@@ -337,19 +364,53 @@ const HouseholdPersonalInfo = () => {
                                 <div className="bg-gray-50 p-3 rounded space-y-2">
                                     <h3 className="text-md font-medium text-gray-700">Government Programs</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
-                                        <RadioGroup label="4Ps Beneficiary?" name="is_4ps_benificiary" selectedValue={member.is_4ps_benificiary || ''}
-                                            options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]} onChange={(e) => handleMemberChange(index, e)} />
-                                        <RadioGroup label="Solo Parent?" name="is_solo_parent" selectedValue={member.is_solo_parent || ''}
-                                            options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]} onChange={(e) => handleMemberChange(index, e)} />
-                                        {member.is_solo_parent == 1 && <InputField label="Solo Parent ID" name="solo_parent_id_number" value={member.solo_parent_id_number || ''}
-                                            onChange={(e) => handleMemberChange(index, e)} placeholder="ID number" />}
-                                        <RadioGroup label="Registered Voter?" name="registered_voter" selectedValue={member.registered_voter}
-                                            options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]} onChange={(e) => handleMemberChange(index, e)} />
+                                        <RadioGroup
+                                            label="4Ps Beneficiary?"
+                                            name="is_4ps_benificiary"
+                                            selectedValue={member.is_4ps_benificiary || ''}
+                                            options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]}
+                                            onChange={(e) => handleMemberChange(index, e)} />
+                                        <RadioGroup
+                                            label="Solo Parent?"
+                                            name="is_solo_parent"
+                                            selectedValue={member.is_solo_parent || ''}
+                                            options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]}
+                                            onChange={(e) => handleMemberChange(index, e)} />
+                                        {member.is_solo_parent == 1 &&
+                                            <InputField
+                                                label="Solo Parent ID"
+                                                name="solo_parent_id_number"
+                                                value={member.solo_parent_id_number || ''}
+                                                onChange={(e) => handleMemberChange(index, e)}
+                                                placeholder="ID number"
+                                            />}
+                                        <RadioGroup
+                                            label="Registered Voter?"
+                                            name="registered_voter"
+                                            selectedValue={member.registered_voter}
+                                            options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]}
+                                            onChange={(e) => handleMemberChange(index, e)} />
                                         {member.registered_voter == 1 && <>
-                                            <InputField label="Voter ID" name="voter_id_number" value={member.voter_id_number}
-                                                onChange={(e) => handleMemberChange(index, e)} placeholder="Voter ID number" />
-                                            <DropdownInputField label="Voting Status" name="voting_status" value={member.voting_status}
-                                                items={['active', 'inactive', 'disqualified', 'medical', 'overseas', 'detained', 'deceased']}
+                                            <InputField
+                                                label="Voter ID"
+                                                name="voter_id_number"
+                                                value={member.voter_id_number}
+                                                onChange={(e) => handleMemberChange(index, e)}
+                                                placeholder="Voter ID number" />
+                                            <DropdownInputField
+                                                label="Voting Status"
+                                                name="voting_status"
+                                                value={member.voting_status}
+                                                items={[
+                                                    { label: 'Active', value: 'active' },
+                                                    { label: 'Inactive', value: 'inactive' },
+                                                    { label: 'Disqualified', value: 'disqualified' },
+                                                    { label: 'Medical', value: 'medical' },
+                                                    { label: 'Overseas', value: 'overseas' },
+                                                    { label: 'Detained', value: 'detained' },
+                                                    { label: 'Deceased', value: 'deceased' },
+                                                ]}
+
                                                 onChange={(e) => handleMemberChange(index, e)} placeholder="Select status" />
                                         </>}
                                     </div>
@@ -370,7 +431,7 @@ const HouseholdPersonalInfo = () => {
                                                     items={['SSS', 'DSWD', 'GSIS', 'private', 'none']}
                                                     onChange={(e) => handleMemberChange(index, e)} placeholder="Select type" />
                                                 <RadioGroup label="Living Alone?" name="living_alone" selectedValue={member.living_alone}
-                                                    options={[{ label: 'Yes', value: 'yes' }, { label: 'No', value: 'no' }]}
+                                                    options={[{ label: 'Yes', value: 1 }, { label: 'No', value: 0 }]}
                                                     onChange={(e) => handleMemberChange(index, e)} />
                                             </>}
                                         </div>
@@ -407,18 +468,27 @@ const HouseholdPersonalInfo = () => {
                                                                 label="Classification"
                                                                 name="vehicle_class"
                                                                 value={vehicle.vehicle_class || ''}
-                                                                items={['Private', 'Public']}
+                                                                items={[
+                                                                    { label: 'Private', value: 'private' },
+                                                                    { label: 'Public', value: 'public' },
+                                                                ]}
                                                                 onChange={(e) => handleVehicleChange(index, vecIndex, e)}
                                                                 placeholder="Select class"
                                                             />
+
                                                             <DropdownInputField
                                                                 label="Usage Purpose"
                                                                 name="usage_status"
                                                                 value={vehicle.usage_status || ''}
-                                                                items={['Personal', 'Public Transport', 'Business Use']}
+                                                                items={[
+                                                                    { label: 'Personal', value: 'personal' },
+                                                                    { label: 'Public Transport', value: 'public_transport' },
+                                                                    { label: 'Business Use', value: 'business_use' },
+                                                                ]}
                                                                 onChange={(e) => handleVehicleChange(index, vecIndex, e)}
                                                                 placeholder="Select usage"
                                                             />
+
                                                             <InputField
                                                                 label="Quantity"
                                                                 name="quantity"
@@ -454,9 +524,6 @@ const HouseholdPersonalInfo = () => {
                                         )}
                                     </div>
                                 </div>
-
-
-
                             </div>
                         )}
                     </div>
