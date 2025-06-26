@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ResidentResource;
+use App\Models\Household;
 use App\Models\OccupationType;
 use App\Models\Purok;
 use App\Models\Resident;
 use App\Http\Requests\StoreResidentRequest;
 use App\Http\Requests\UpdateResidentRequest;
+use App\Models\Street;
 use Str;
 use Inertia\Inertia;
 
@@ -393,9 +395,36 @@ class ResidentController extends Controller
         $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
         // $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->get();
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
+        $streets = Street::whereIn('purok_id', $puroks)
+            ->orderBy('street_name', 'asc')
+            ->get(['id', 'street_name']);
+
+        $residentHousehold = Resident::where('barangay_id', $brgy_id)
+            ->whereNotNull('household_id')
+            ->where('is_household_head', true)
+            ->with([
+                'household' => function ($query) {
+                    $query->select('id', 'purok_id', 'street_id', 'house_number');
+                },
+                'household.street' => function ($query) {
+                    $query->select('id', 'street_name');
+                },
+                'household.purok' => function ($query) {
+                    $query->select('id', 'purok_number');
+                },
+            ])
+            ->get([
+                'id',
+                'household_id',
+                'lastname',
+            ]);
+
+
         return Inertia::render("BarangayOfficer/Resident/CreateResident", [
             'puroks' => $puroks,
             'occupationTypes' => OccupationType::all()->pluck('name'),
+            'streets' => $streets,
+            'households' => $residentHousehold->toArray(),
         ]);
     }
 

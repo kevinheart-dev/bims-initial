@@ -141,7 +141,7 @@ class Resident extends Model
 
     public function household()
     {
-        return $this->belongsTo(Household::class, 'household_id');
+        return $this->belongsTo(Household::class);
     }
 
     public function user()

@@ -13,4 +13,15 @@ class Household extends Model
     {
         return $this->hasMany(Resident::class);
     }
+    public function street()
+    {
+        return $this->belongsTo(Street::class);
+    }
+
+    public function purok()
+    {
+        return $this->belongsTo(Purok::class);
+    }
+
+
 }
