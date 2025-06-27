@@ -41,14 +41,26 @@ class StoreResidentRequest extends FormRequest
         'email' => ['nullable', 'email', 'max:55'],
         'residency_type' => ['required', Rule::in(['permanent', 'temporary', 'migrant'])],
         'residency_date' => ['required', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
+        'is_household_head' => ['required', 'boolean'],
+        'is_4ps_beneficiary' => ['required', 'boolean'],
+        'is_solo_parent' => ['nullable', 'boolean'],
+        'solo_parent_id_number' => ['nullable', 'string', 'max:55'],
         'purok_number' => ['required', 'string', 'max:2'],
+        'purok_id' => ['required', 'exists:puroks,id'],
         'registered_voter' => ['required', 'boolean'],
+        'voter_status' => ['nullable', Rule::in(['active', 'inactive', 'disqualified', 'medical', 'overseas', 'detained', 'deceased'])],
+        'voter_id_number' => ['nullable', 'string', 'max:55'],
         'is_pensioner' => ['nullable', Rule::in(['yes', 'no', 'pending'])],
         'pension_type' => ['nullable', Rule::in(['SSS', 'GSIS', 'DSWD', 'private', 'none'])],
         'osca_id_number' => ['nullable', 'string', 'max:55'],
         'living_alone' => ['nullable', 'boolean'],
 
-
+        // SECTION 1.1: Vehicle Information
+        'vehicles' => ['nullable', 'array'],
+        'vehicles.*.vehicle_type' => ['required_with:vehicles', 'string', 'max:100'],
+        'vehicles.*.vehicle_class' => ['required_with:vehicles', 'string', 'max:100'],
+        'vehicles.*.usage_type' => ['required_with:vehicles', Rule::in(['personal', 'public_transport', 'business_use'])],
+        'vehicles.*.quantity' => ['required_with:vehicles', 'integer', 'min:1', 'max:99'],
 
 
         // SECTION 2: Educational Information
@@ -118,6 +130,34 @@ class StoreResidentRequest extends FormRequest
         'disabilities' => ['required_if:is_pwd,1', 'array'],
         'disabilities.*.disability_type' => ['required_with:disabilities', 'string', 'max:100'],
 
+        // SECTION 5: Housing Information
+        'housenumber' => ['required', 'integer', 'min:1', 'max:9999'],
+        'street_id' => ['required', 'exists:streets,id'],
+        'subdivision' => ['nullable', 'string', 'max:100'],
+
+        'ownership_type' => ['required_if:is_household_head,1', 'string', 'max:55'],
+        'housing_condition' => ['required_if:is_household_head,1', Rule::in(['good', 'needs repair', 'dilapidated'])],
+        'house_structure' => ['required_if:is_household_head,1', Rule::in(['concrete', 'semi_concrete', 'wood', 'makeshift'])],
+        'year_established' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
+        'number_of_rooms' => ['required_if:is_household_head,1', 'integer', 'min:1', 'max:100'],
+        'number_of_floors' => ['required_if:is_household_head,1', 'integer', 'min:1', 'max:10'],
+        'bath_and_wash_area' => ['nullable', 'string', 'max:100'],
+        'toilet_type' => ['nullable', 'string', 'max:100'],
+        'electricity_type' => ['nullable', 'string', 'max:100'],
+        'water_source_type' => ['nullable', 'string', 'max:100'],
+        'waste_management_type' => ['nullable', 'string', 'max:100'],
+        'type_of_internet' => ['nullable', 'string', 'max:100'],
+
+        // SECTION 5.1: Livestock information
+        'livestock' => ['nullable', 'array'],
+        'livestock.*.livestock_type' => ['required_with:livestock', 'string', 'max:100'],
+        'livestock.*.quantity' => ['required_with:livestock', 'integer', 'min:1', 'max:100'],
+
+        // SECTION 5.2: Pets information
+        'pets' => ['nullable', 'array'],
+        'pets.*.pet_type' => ['required_with:pets', 'string', 'max:100'],
+        'pets.*.is_vaccinated' => ['required_with:pets', 'boolean'],
+        'pets.*.quantity' => ['required_with:pets', 'integer', 'min:1', 'max:100'],
     ];
 }
     public function attributes()
@@ -141,6 +181,16 @@ class StoreResidentRequest extends FormRequest
         foreach ((array) $this->input('disabilities', []) as $index => $disability) {
             $num = $index + 1;
             $attributes["disabilities.$index.disability_type"] = "Disability Type #$num";
+        }
+
+        // Livestock and Pets
+        foreach ((array) $this->input('livestocks', []) as $index => $disability) {
+            $num = $index + 1;
+            $attributes["livestocks.$index.livestock_type"] = "Livestock Type #$num";
+        }
+        foreach ((array) $this->input('pets', []) as $index => $disability) {
+            $num = $index + 1;
+            $attributes["pets.$index.pet_type"] = "Pet Type #$num";
         }
         return $attributes;
     }

@@ -1,17 +1,10 @@
 import { useState, useEffect, useContext } from "react";
-import { StepperContext } from "@/context/StepperContext";
 import InputField from "@/Components/InputField";
 import DropdownInputField from "../DropdownInputField";
-import {
-    IoIosAddCircleOutline,
-    IoIosArrowDown,
-    IoIosArrowUp,
-    IoIosCloseCircleOutline,
-} from "react-icons/io";
+import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import { useForm } from "@inertiajs/react";
 import InputError from "../InputError";
 import { Button } from "../ui/button";
-import TextInput from "../TextInput";
 import InputLabel from "../InputLabel";
 import RadioGroup from "../RadioGroup";
 import YearDropdown from "../YearDropdown";
@@ -2743,7 +2736,7 @@ const PersonalInformation = ({
                     </div>
                 </div>
 
-                {/* Section 4 */}
+                {/* Section 5 */}
                 {/* House Information */}
                 <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-5">
                     House Information
@@ -2776,7 +2769,7 @@ const PersonalInformation = ({
                         <div>
                             {data.is_household_head == 1 ? (
                                 <div>
-                                    <SelectField
+                                    <DropdownInputField
                                         label="Street Name"
                                         name="street_id"
                                         value={data.street_id || ""}
@@ -2876,236 +2869,350 @@ const PersonalInformation = ({
                                     className="mt-2"
                                 />
                             </div>
-
-                            <DropdownInputField
-                                label="Housing Condition"
-                                name="housing_condition"
-                                value={data.housing_condition || ""}
-                                onChange={(e) =>
-                                    setData("housing_condition", e.target.value)
-                                }
-                                placeholder="Select house condition"
-                                items={["good", "needs repair", "dilapidated"]}
-                            />
-                            <DropdownInputField
-                                label="House Structure"
-                                name="house_structure"
-                                value={data.house_structure}
-                                onChange={(e) =>
-                                    setData("house_structure", e.target.value)
-                                }
-                                placeholder="Select or Enter house structure"
-                                items={[
-                                    "concrete",
-                                    "semi-concrete",
-                                    "wood",
-                                    "makeshift",
-                                ]}
-                            />
-                            <YearDropdown
-                                label="Year Establish"
-                                name="year_establish"
-                                value={data.year_establish}
-                                onChange={(e) =>
-                                    setData("year_establish", e.target.value)
-                                }
-                                placeholder="Select year"
-                            />
-                            <InputField
-                                type="number"
-                                label="Number of Rooms"
-                                name="number_of_rooms"
-                                value={data.number_of_rooms || ""}
-                                onChange={(e) =>
-                                    setData("number_of_rooms", e.target.value)
-                                }
-                                placeholder="Enter number of rooms"
-                            />
-                            <InputField
-                                type="number"
-                                label="Number of Floors"
-                                name="number_of_floors"
-                                value={data.number_of_floors || ""}
-                                onChange={(e) =>
-                                    setData("number_of_floors", e.target.value)
-                                }
-                                placeholder="Enter number of floors"
-                            />
-                            <DropdownInputField
-                                label="Bath and Wash Area"
-                                name="bath_and_wash_area"
-                                value={data.bath_and_wash_area || ""}
-                                onChange={(e) =>
-                                    setData(
-                                        "bath_and_wash_area",
-                                        e.target.value
-                                    )
-                                }
-                                placeholder="Select or Enter"
-                                items={[
-                                    {
-                                        label: "with own sink and bath",
-                                        value: "with_own_sink_and_bath",
-                                    },
-                                    {
-                                        label: "with own sink only",
-                                        value: "with_own_sink_only",
-                                    },
-                                    {
-                                        label: "with own bath only",
-                                        value: "with_own_bath_only",
-                                    },
-                                    {
-                                        label: "shared or communal",
-                                        value: "shared_or_communal",
-                                    },
-                                    { label: "none", value: "none" },
-                                ]}
-                            />
-                            <DropdownInputField
-                                label="Type of Toilet"
-                                name="toilet_type"
-                                value={data.toilet_type || ""}
-                                onChange={(e) =>
-                                    setData("toilet_type", e.target.value)
-                                }
-                                placeholder="Select or enter toilet type"
-                                items={[
-                                    {
-                                        label: "water sealed",
-                                        value: "water_sealed",
-                                    },
-                                    {
-                                        label: "compost pit toilet",
-                                        value: "compost_pit_toilet",
-                                    },
-                                    {
-                                        label: "shared communal public toilet",
-                                        value: "shared_communal_public_toilet",
-                                    },
-                                    {
-                                        label: "shared or communal",
-                                        value: "shared_or_communal",
-                                    },
-                                    {
-                                        label: "no latrine",
-                                        value: "no_latrine",
-                                    },
-                                ]}
-                            />
-                            <DropdownInputField
-                                label="Source of Electricity"
-                                name="electricity_type"
-                                value={data.electricity_type || ""}
-                                onChange={(e) =>
-                                    setData("electricity_type", e.target.value)
-                                }
-                                placeholder="Select or enter electricity source"
-                                items={[
-                                    {
-                                        label: "ISELCO II (Distribution Company)",
-                                        value: "distribution_company_iselco_ii",
-                                    },
-                                    { label: "Generator", value: "generator" },
-                                    {
-                                        label: "Solar / Renewable Energy Source",
-                                        value: "solar_renewable_energy_source",
-                                    },
-                                    { label: "Battery", value: "battery" },
-                                    { label: "None", value: "none" },
-                                ]}
-                            />
-                            <DropdownInputField
-                                label="Water Source Type"
-                                name="water_source_type"
-                                value={data.water_source_type || ""}
-                                onChange={(e) =>
-                                    setData("water_source_type", e.target.value)
-                                }
-                                placeholder="Select water source type"
-                                items={[
-                                    {
-                                        label: "Level II Water System",
-                                        value: "level_ii_water_system",
-                                    },
-                                    {
-                                        label: "Level III Water System",
-                                        value: "level_iii_water_system",
-                                    },
-                                    {
-                                        label: "Deep Well Level I",
-                                        value: "deep_well_level_i",
-                                    },
-                                    {
-                                        label: "Artesian Well Level I",
-                                        value: "artesian_well_level_i",
-                                    },
-                                    {
-                                        label: "Shallow Well Level I",
-                                        value: "shallow_well_level_i",
-                                    },
-                                    {
-                                        label: "Commercial Water Refill Source",
-                                        value: "commercial_water_refill_source",
-                                    },
-                                    { label: "None", value: "none" },
-                                ]}
-                            />
-                            <DropdownInputField
-                                label="Waste Disposal Method"
-                                name="waste_management_type"
-                                value={data.waste_management_type || ""}
-                                onChange={(e) =>
-                                    setData(
-                                        "waste_management_type",
-                                        e.target.value
-                                    )
-                                }
-                                placeholder="Select waste disposal method"
-                                items={[
-                                    {
-                                        label: "Open Dump Site",
-                                        value: "open_dump_site",
-                                    },
-                                    {
-                                        label: "Sanitary Landfill",
-                                        value: "sanitary_landfill",
-                                    },
-                                    {
-                                        label: "Compost Pits",
-                                        value: "compost_pits",
-                                    },
-                                    {
-                                        label: "Material Recovery Facility",
-                                        value: "material_recovery_facility",
-                                    },
-                                    {
-                                        label: "Garbage is Collected",
-                                        value: "garbage_is_collected",
-                                    },
-                                    { label: "None", value: "none" },
-                                ]}
-                            />
-                            <DropdownInputField
-                                label="Internet Connection Type"
-                                name="type_of_internet"
-                                value={data.type_of_internet || ""}
-                                onChange={(e) =>
-                                    setData("type_of_internet", e.target.value)
-                                }
-                                placeholder="Select internet connection type"
-                                items={[
-                                    {
-                                        label: "Mobile Data",
-                                        value: "mobile_data",
-                                    },
-                                    {
-                                        label: "Wireless Fidelity (Wi-Fi)",
-                                        value: "wireless_fidelity",
-                                    },
-                                    { label: "None", value: "none" },
-                                ]}
-                            />
+                            <div>
+                                <SelectField
+                                    label="Housing Condition"
+                                    name="housing_condition"
+                                    value={data.housing_condition || ""}
+                                    onChange={(e) =>
+                                        setData(
+                                            "housing_condition",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Select house condition"
+                                    items={[
+                                        { label: "Good", value: "good" },
+                                        {
+                                            label: "Needs Repair",
+                                            value: "needs_repair",
+                                        },
+                                        {
+                                            label: "Dilapidated",
+                                            value: "dilapidated",
+                                        },
+                                    ]}
+                                />
+                                <InputError
+                                    message={errors.housing_condition}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <SelectField
+                                    label="House Structure"
+                                    name="house_structure"
+                                    value={data.house_structure}
+                                    onChange={(e) =>
+                                        setData(
+                                            "house_structure",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Select or Enter house structure"
+                                    items={[
+                                        {
+                                            label: "Concrete",
+                                            value: "concrete",
+                                        },
+                                        {
+                                            label: "Semi-Concrete",
+                                            value: "semi_concrete",
+                                        },
+                                        {
+                                            label: "Wood",
+                                            value: "wood",
+                                        },
+                                        {
+                                            label: "Makeshift",
+                                            value: "makeshift",
+                                        },
+                                    ]}
+                                />
+                                <InputError
+                                    message={errors.house_structure}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <YearDropdown
+                                    label="Year Establish"
+                                    name="year_establish"
+                                    value={data.year_establish}
+                                    onChange={(e) =>
+                                        setData(
+                                            "year_establish",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Select year"
+                                />
+                                <InputError
+                                    message={errors.year_establish}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <InputField
+                                    type="number"
+                                    label="Number of Rooms"
+                                    name="number_of_rooms"
+                                    value={data.number_of_rooms || ""}
+                                    onChange={(e) =>
+                                        setData(
+                                            "number_of_rooms",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Enter number of rooms"
+                                />
+                                <InputError
+                                    message={errors.number_of_rooms}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <InputField
+                                    type="number"
+                                    label="Number of Floors"
+                                    name="number_of_floors"
+                                    value={data.number_of_floors || ""}
+                                    onChange={(e) =>
+                                        setData(
+                                            "number_of_floors",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Enter number of floors"
+                                />
+                                <InputError
+                                    message={errors.number_of_floors}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <DropdownInputField
+                                    label="Bath and Wash Area"
+                                    name="bath_and_wash_area"
+                                    value={data.bath_and_wash_area || ""}
+                                    onChange={(e) =>
+                                        setData(
+                                            "bath_and_wash_area",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Select or Enter"
+                                    items={[
+                                        {
+                                            label: "with own sink and bath",
+                                            value: "with_own_sink_and_bath",
+                                        },
+                                        {
+                                            label: "with own sink only",
+                                            value: "with_own_sink_only",
+                                        },
+                                        {
+                                            label: "with own bath only",
+                                            value: "with_own_bath_only",
+                                        },
+                                        {
+                                            label: "shared or communal",
+                                            value: "shared_or_communal",
+                                        },
+                                        { label: "none", value: "none" },
+                                    ]}
+                                />
+                                <InputError
+                                    message={errors.bath_and_wash_area}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <DropdownInputField
+                                    label="Type of Toilet"
+                                    name="toilet_type"
+                                    value={data.toilet_type || ""}
+                                    onChange={(e) =>
+                                        setData("toilet_type", e.target.value)
+                                    }
+                                    placeholder="Select or enter toilet type"
+                                    items={[
+                                        {
+                                            label: "water sealed",
+                                            value: "water_sealed",
+                                        },
+                                        {
+                                            label: "compost pit toilet",
+                                            value: "compost_pit_toilet",
+                                        },
+                                        {
+                                            label: "shared communal public toilet",
+                                            value: "shared_communal_public_toilet",
+                                        },
+                                        {
+                                            label: "shared or communal",
+                                            value: "shared_or_communal",
+                                        },
+                                        {
+                                            label: "no latrine",
+                                            value: "no_latrine",
+                                        },
+                                    ]}
+                                />
+                                <InputError
+                                    message={errors.toilet_type}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <DropdownInputField
+                                    label="Source of Electricity"
+                                    name="electricity_type"
+                                    value={data.electricity_type || ""}
+                                    onChange={(e) =>
+                                        setData(
+                                            "electricity_type",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Select or enter electricity source"
+                                    items={[
+                                        {
+                                            label: "ISELCO II (Distribution Company)",
+                                            value: "distribution_company_iselco_ii",
+                                        },
+                                        {
+                                            label: "Generator",
+                                            value: "generator",
+                                        },
+                                        {
+                                            label: "Solar / Renewable Energy Source",
+                                            value: "solar_renewable_energy_source",
+                                        },
+                                        { label: "Battery", value: "battery" },
+                                        { label: "None", value: "none" },
+                                    ]}
+                                />
+                                <InputError
+                                    message={errors.electricity_type}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <DropdownInputField
+                                    label="Water Source Type"
+                                    name="water_source_type"
+                                    value={data.water_source_type || ""}
+                                    onChange={(e) =>
+                                        setData(
+                                            "water_source_type",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Select water source type"
+                                    items={[
+                                        {
+                                            label: "Level II Water System",
+                                            value: "level_ii_water_system",
+                                        },
+                                        {
+                                            label: "Level III Water System",
+                                            value: "level_iii_water_system",
+                                        },
+                                        {
+                                            label: "Deep Well Level I",
+                                            value: "deep_well_level_i",
+                                        },
+                                        {
+                                            label: "Artesian Well Level I",
+                                            value: "artesian_well_level_i",
+                                        },
+                                        {
+                                            label: "Shallow Well Level I",
+                                            value: "shallow_well_level_i",
+                                        },
+                                        {
+                                            label: "Commercial Water Refill Source",
+                                            value: "commercial_water_refill_source",
+                                        },
+                                        { label: "None", value: "none" },
+                                    ]}
+                                />
+                                <InputError
+                                    message={errors.water_source_type}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <DropdownInputField
+                                    label="Waste Disposal Method"
+                                    name="waste_management_type"
+                                    value={data.waste_management_type || ""}
+                                    onChange={(e) =>
+                                        setData(
+                                            "waste_management_type",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Select waste disposal method"
+                                    items={[
+                                        {
+                                            label: "Open Dump Site",
+                                            value: "open_dump_site",
+                                        },
+                                        {
+                                            label: "Sanitary Landfill",
+                                            value: "sanitary_landfill",
+                                        },
+                                        {
+                                            label: "Compost Pits",
+                                            value: "compost_pits",
+                                        },
+                                        {
+                                            label: "Material Recovery Facility",
+                                            value: "material_recovery_facility",
+                                        },
+                                        {
+                                            label: "Garbage is Collected",
+                                            value: "garbage_is_collected",
+                                        },
+                                        { label: "None", value: "none" },
+                                    ]}
+                                />
+                                <InputError
+                                    message={errors.waste_management_type}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <DropdownInputField
+                                    label="Internet Connection Type"
+                                    name="type_of_internet"
+                                    value={data.type_of_internet || ""}
+                                    onChange={(e) =>
+                                        setData(
+                                            "type_of_internet",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Select internet connection type"
+                                    items={[
+                                        {
+                                            label: "Mobile Data",
+                                            value: "mobile_data",
+                                        },
+                                        {
+                                            label: "Wireless Fidelity (Wi-Fi)",
+                                            value: "wireless_fidelity",
+                                        },
+                                        { label: "None", value: "none" },
+                                    ]}
+                                />
+                                <InputError
+                                    message={errors.type_of_internet}
+                                    className="mt-2"
+                                />
+                            </div>
                         </div>
 
                         {/* livestock */}
@@ -3156,79 +3263,119 @@ const PersonalInformation = ({
                                                                 key={livIndex}
                                                                 className="relative mb-4 p-4 bg-sky-100 border rounded-md"
                                                             >
-                                                                <DropdownInputField
-                                                                    label="Livestock animal"
-                                                                    name="livestock_type"
-                                                                    value={
-                                                                        livestock.livestock_type ||
-                                                                        ""
-                                                                    }
-                                                                    onChange={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleArrayValues(
-                                                                            e,
-                                                                            livIndex,
-                                                                            "livestock_type",
-                                                                            "livestocks"
-                                                                        )
-                                                                    }
-                                                                    placeholder="Select or enter type of animal"
-                                                                    items={[
-                                                                        "cattle",
-                                                                        "carabao",
-                                                                        "goat",
-                                                                        "pig",
-                                                                        "chicken",
-                                                                        "duck",
-                                                                        "sheep",
-                                                                        "horse",
-                                                                    ]}
-                                                                />
-                                                                <InputField
-                                                                    label="Quantity"
-                                                                    name="quantity"
-                                                                    value={
-                                                                        livestock.quantity ||
-                                                                        ""
-                                                                    }
-                                                                    onChange={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleArrayValues(
-                                                                            e,
-                                                                            livIndex,
-                                                                            "quantity",
-                                                                            "livestocks"
-                                                                        )
-                                                                    }
-                                                                    placeholder="Enter quantity"
-                                                                    type="number"
-                                                                />
-                                                                <DropdownInputField
-                                                                    label="Purpose"
-                                                                    name="purpose"
-                                                                    value={
-                                                                        livestock.purpose ||
-                                                                        ""
-                                                                    }
-                                                                    onChange={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleArrayValues(
-                                                                            e,
-                                                                            livIndex,
-                                                                            "purpose",
-                                                                            "livestocks"
-                                                                        )
-                                                                    }
-                                                                    placeholder="Select purpose"
-                                                                    items={[
-                                                                        "personal consumption",
-                                                                        "consumption",
-                                                                        "both",
-                                                                    ]}
-                                                                />
+                                                                <div>
+                                                                    <DropdownInputField
+                                                                        label="Livestock animal"
+                                                                        name="livestock_type"
+                                                                        value={
+                                                                            livestock.livestock_type ||
+                                                                            ""
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleArrayValues(
+                                                                                e,
+                                                                                livIndex,
+                                                                                "livestock_type",
+                                                                                "livestocks"
+                                                                            )
+                                                                        }
+                                                                        placeholder="Select or enter type of animal"
+                                                                        items={[
+                                                                            "cattle",
+                                                                            "carabao",
+                                                                            "goat",
+                                                                            "pig",
+                                                                            "chicken",
+                                                                            "duck",
+                                                                            "sheep",
+                                                                            "horse",
+                                                                        ]}
+                                                                    />
+                                                                    <InputError
+                                                                        message={
+                                                                            errors[
+                                                                                `livestocks.${livIndex}.livestock_type`
+                                                                            ]
+                                                                        }
+                                                                        className="mt-2"
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <InputField
+                                                                        label="Quantity"
+                                                                        name="quantity"
+                                                                        value={
+                                                                            livestock.quantity ||
+                                                                            ""
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleArrayValues(
+                                                                                e,
+                                                                                livIndex,
+                                                                                "quantity",
+                                                                                "livestocks"
+                                                                            )
+                                                                        }
+                                                                        placeholder="Enter quantity"
+                                                                        type="number"
+                                                                    />
+                                                                    <InputError
+                                                                        message={
+                                                                            errors[
+                                                                                `livestocks.${livIndex}.quantity`
+                                                                            ]
+                                                                        }
+                                                                        className="mt-2"
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <SelectField
+                                                                        label="Purpose"
+                                                                        name="purpose"
+                                                                        value={
+                                                                            livestock.purpose ||
+                                                                            ""
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleArrayValues(
+                                                                                e,
+                                                                                livIndex,
+                                                                                "purpose",
+                                                                                "livestocks"
+                                                                            )
+                                                                        }
+                                                                        placeholder="Select purpose"
+                                                                        items={[
+                                                                            {
+                                                                                label: "Personal",
+                                                                                value: "personal",
+                                                                            },
+                                                                            {
+                                                                                label: "Consumption",
+                                                                                value: "consumption",
+                                                                            },
+                                                                            {
+                                                                                label: "Both",
+                                                                                value: "both",
+                                                                            },
+                                                                        ]}
+                                                                    />
+                                                                    <InputError
+                                                                        message={
+                                                                            errors[
+                                                                                `livestocks.${livIndex}.purpose`
+                                                                            ]
+                                                                        }
+                                                                        className="mt-2"
+                                                                    />
+                                                                </div>
+
                                                                 <button
                                                                     type="button"
                                                                     onClick={() =>
@@ -3304,58 +3451,79 @@ const PersonalInformation = ({
                                                                 key={petIndex}
                                                                 className="relative mb-4 p-4 bg-sky-100 border rounded-md"
                                                             >
-                                                                <DropdownInputField
-                                                                    label="Type of Pet"
-                                                                    name="pet_type"
-                                                                    value={
-                                                                        pet.pet_type ||
-                                                                        ""
-                                                                    }
-                                                                    onChange={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleArrayValues(
-                                                                            e,
-                                                                            petIndex,
-                                                                            "pet_type",
-                                                                            "pets"
-                                                                        )
-                                                                    }
-                                                                    placeholder="Select or enter type of pet"
-                                                                    items={[
-                                                                        "dog",
-                                                                        "cat",
-                                                                        "rabbit",
-                                                                    ]}
-                                                                />
-                                                                <RadioGroup
-                                                                    label="Is the pet vaccinated for rabies?"
-                                                                    name="is_vaccinated"
-                                                                    options={[
-                                                                        {
-                                                                            label: "Yes",
-                                                                            value: 1,
-                                                                        },
-                                                                        {
-                                                                            label: "No",
-                                                                            value: 0,
-                                                                        },
-                                                                    ]}
-                                                                    selectedValue={
-                                                                        pet.is_vaccinated ||
-                                                                        ""
-                                                                    }
-                                                                    onChange={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleArrayValues(
-                                                                            e,
-                                                                            petIndex,
-                                                                            "is_vaccinated",
-                                                                            "pets"
-                                                                        )
-                                                                    }
-                                                                />
+                                                                <div>
+                                                                    <DropdownInputField
+                                                                        label="Type of Pet"
+                                                                        name="pet_type"
+                                                                        value={
+                                                                            pet.pet_type ||
+                                                                            ""
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleArrayValues(
+                                                                                e,
+                                                                                petIndex,
+                                                                                "pet_type",
+                                                                                "pets"
+                                                                            )
+                                                                        }
+                                                                        placeholder="Select or enter type of pet"
+                                                                        items={[
+                                                                            "dog",
+                                                                            "cat",
+                                                                            "rabbit",
+                                                                        ]}
+                                                                    />
+                                                                    <InputError
+                                                                        message={
+                                                                            errors[
+                                                                                `pets.${petIndex}.pet_type`
+                                                                            ]
+                                                                        }
+                                                                        className="mt-2"
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <RadioGroup
+                                                                        label="Is the pet vaccinated for rabies?"
+                                                                        name="is_vaccinated"
+                                                                        options={[
+                                                                            {
+                                                                                label: "Yes",
+                                                                                value: 1,
+                                                                            },
+                                                                            {
+                                                                                label: "No",
+                                                                                value: 0,
+                                                                            },
+                                                                        ]}
+                                                                        selectedValue={
+                                                                            pet.is_vaccinated ||
+                                                                            ""
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleArrayValues(
+                                                                                e,
+                                                                                petIndex,
+                                                                                "is_vaccinated",
+                                                                                "pets"
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                    <InputError
+                                                                        message={
+                                                                            errors[
+                                                                                `pets.${petIndex}.is_vaccinated`
+                                                                            ]
+                                                                        }
+                                                                        className="mt-2"
+                                                                    />
+                                                                </div>
+
                                                                 <button
                                                                     type="button"
                                                                     onClick={() =>
