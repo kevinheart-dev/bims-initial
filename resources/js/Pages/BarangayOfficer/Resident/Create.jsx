@@ -11,6 +11,8 @@ import Summary from "@/Components/FormSteps/Summary";
 import EducationandOccupation from "@/Components/FormSteps/EducationandOccupation";
 import HouseInformation from "@/Components/FormSteps/HouseInformation";
 import MedicalInfo from "@/Components/FormSteps/MedicalInfo";
+import { router } from "@inertiajs/react";
+import { toast } from 'react-hot-toast';
 export default function Index() {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
@@ -57,12 +59,38 @@ export default function Index() {
     const handleClick = (direction) => {
         let newStep = currentStep;
 
-        direction === "next" ? newStep++ : newStep--;
+        if (direction === "next") {
+            if (currentStep === steps.length) {
+
+                console.log("DATA BEING SENT:", userData);
+
+                router.post(route("household.store"), userData, {
+                    onSuccess: () => {
+                        toast.success("Household data submitted successfully!");
+                    },
+                    onError: (errors) => {
+                        console.error(errors);
+                        toast.error("Failed to submit household data. Please check the form.");
+                    },
+                    onFinish: () => {
+                        console.log("Submission attempt finished.");
+                    }
+                });
+
+                return;
+            }
+
+            newStep++;
+        } else {
+            newStep--;
+        }
 
         if (newStep > 0 && newStep <= steps.length) {
             setCurrentStep(newStep);
         }
     };
+
+
 
     return (
         <AdminLayout>
@@ -93,6 +121,7 @@ export default function Index() {
                         handleClick={handleClick}
                         currentStep={currentStep}
                         steps={steps}
+                        userData={userData}
                     />
                 </div>
             </div>

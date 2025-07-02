@@ -1,8 +1,9 @@
 import React, { useContext } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import * as CONSTANTS from "@/constants";
+import Checkbox from "../Checkbox";
 const Summary = ({ onBack, onSubmit }) => {
-    const { userData } = useContext(StepperContext);
+    const { userData, setUserData } = useContext(StepperContext);
     const members = userData.members || [];
 
     const renderDetail = (label, value) => (
@@ -101,16 +102,18 @@ const Summary = ({ onBack, onSubmit }) => {
                                             {renderDetail("Full Name", `${member.firstname || ''} ${member.middlename || ''} ${member.lastname || ''} ${member.suffix || ''}`.trim())}
                                             {renderDetail("Birth Date", member.birthdate)}
                                             {renderDetail("Birth Place", member.birthplace)}
-                                            {renderDetail("Civil Status", member.civil_status)}
+                                            {renderDetail("Civil Status", CONSTANTS.RESIDENT_CIVIL_STATUS_TEXT[member.civil_status])}
                                             {renderDetail("Gender", CONSTANTS.RESIDENT_GENDER_TEXT2[member.gender])}
-                                            {["female", "LGBTQIA+"].includes(CONSTANTS.RESIDENT_GENDER_TEXT2[member.gender]) &&
-                                                ["Married", "Widowed", "Separated"].includes(CONSTANTS.RESIDENT_CIVIL_STATUS_TEXT[member.civil_status]) &&
+                                            {["female", "LGBTQ"].includes(CONSTANTS.RESIDENT_GENDER_TEXT2[member.gender]) &&
+                                                ["married", "widowed", "separated"].includes(member.civil_status) &&
                                                 renderDetail("Maiden Middle Name", member.maiden_middle_name)}
                                             {renderDetail("Religion", member.religion)}
                                             {renderDetail("Ethnicity", member.ethnicity)}
                                             {renderDetail("Citizenship", member.citizenship)}
                                             {renderDetail("Contact Number", member.contactNumber)}
                                             {renderDetail("Email", member.email)}
+                                            {renderDetail("Residency", CONSTANTS.RESIDENT_RECIDENCY_TYPE_TEXT[member.residency_type])}
+                                            {renderDetail("Residency date", member.residency_date)}
                                             {renderDetail("4Ps Beneficiary", CONSTANTS.RESIDENT_4PS_TEXT[member.is_4ps_benificiary])}
                                             {renderDetail("Solo Parent", CONSTANTS.RESIDENT_SOLO_PARENT_TEXT[member.is_solo_parent])}
                                             {member.is_solo_parent == 1 && renderDetail("Solo Parent ID", member.solo_parent_id_number)}
@@ -329,6 +332,29 @@ const Summary = ({ onBack, onSubmit }) => {
                     </div>
                 </div>
             </section>
+            <section className="space-y-4 border border-gray-200 p-4 rounded-md">
+                <label className="flex items-start space-x-2">
+                    <Checkbox
+                        name="verified"
+                        checked={userData.verified === 1}
+                        value={userData.verified}
+                        onChange={(e) =>
+                            setUserData((prev) => ({
+                                ...prev,
+                                verified: e.target.checked ? 1 : 0,
+                            }))
+                        }
+                    />
+                    <span className="text-sm text-gray-700">
+                        I hereby certify that the above information is true and correct to the best of my knowledge. I understand that for the Barangay to carry out its mandate
+                        pursuant to Section 394(d)(6) of the Local Government Code of 1991, it must necessarily process my personal information for easy identification
+                        of inhabitants, as a tool in planning, and as an updated reference for the number of inhabitants in the Barangay.
+                        Therefore, I grant my consent and recognize the authority of the Barangay to process my personal information, subject to the provisions of the Philippine Data
+                        Privacy Act of 2012.
+                    </span>
+                </label>
+            </section>
+
         </section>
     );
 };

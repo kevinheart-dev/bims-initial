@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from './ui/button';
 import { MdArrowBackIosNew, MdArrowForwardIos } from "react-icons/md";
 
-const StepperController = ({ handleClick, currentStep, steps }) => {
+const StepperController = ({ handleClick, currentStep, steps, userData }) => {
     return (
         <div>
             <div className="flex justify-between gap-4">
@@ -20,11 +20,22 @@ const StepperController = ({ handleClick, currentStep, steps }) => {
                 <Button
                     onClick={() => handleClick("next")}
                     size="default"
-                    className="border-2 bg-blue-600 border-blue-300 hover:bg-blue-700 active:bg-blue-900 text-white px-5 py-2 shadow-md"
+                    disabled={currentStep === steps.length && userData.verified !== 1}
+                    className={`border-2 bg-blue-600 border-blue-300 hover:bg-blue-700 active:bg-blue-900 text-white px-5 py-2 shadow-md
+        ${currentStep === steps.length && userData.verified !== 1 ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
-                    {currentStep === steps.length ? ("Confirm") : (<span className="inline-flex items-center gap-1"> Next <MdArrowForwardIos /> </span>)}
-
+                    {currentStep === steps.length ? (
+                        <span className="inline-flex items-center gap-1">
+                            Submit <MdArrowForwardIos />
+                        </span>
+                    ) : (
+                        <span className="inline-flex items-center gap-1">
+                            Next <MdArrowForwardIos />
+                        </span>
+                    )}
                 </Button>
+
+
             </div>
         </div>
     );
