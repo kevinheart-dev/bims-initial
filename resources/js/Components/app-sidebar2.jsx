@@ -56,7 +56,11 @@ const items = [
                 url: "/barangay_officer/senior_citizen",
                 icon: UsersRound,
             },
-            { title: "View Residents", url: "#", icon: SquareUserRound },
+            {
+                title: "Families",
+                url: "/barangay_officer/family_relation",
+                icon: SquareUserRound,
+            },
         ],
     },
     {

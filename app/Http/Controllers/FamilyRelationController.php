@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Family;
 use App\Models\FamilyRelation;
 use App\Http\Requests\StoreFamilyRelationRequest;
 use App\Http\Requests\UpdateFamilyRelationRequest;
+use App\Models\Resident;
 use Inertia\Inertia;
 
 class FamilyRelationController extends Controller
@@ -14,7 +16,20 @@ class FamilyRelationController extends Controller
      */
     public function index()
     {
-        //
+        $brgyId = Auth()->user()->resident->barangay_id; // get brgy id through the admin
+        $families = Resident::where('barangay_id', $brgyId)
+            ->where('is_family_head', true)
+            ->select(['id', 'firstname', 'lastname', 'middlename', 'family_id', 'is_family_head', 'is_household_head', 'household_id']) // resident fields
+            ->with([
+                'family:id,family_name,income_bracket,family_type', // only needed columns
+                'household:id,house_number,purok_id', // household fields
+                'household.purok:id,purok_number' // nested purok relationship
+            ])
+            ->get();
+
+        return Inertia::render("BarangayOfficer/Family/Index", [
+            'families' => $families,
+        ]);
     }
 
     /**
@@ -23,7 +38,7 @@ class FamilyRelationController extends Controller
     public function create()
     {
         $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
-        return Inertia::render("BarangayOfficer/FamilyTree/AddFamily");
+        return Inertia::render("BarangayOfficer/Family/AddFamily");
     }
 
     /**
