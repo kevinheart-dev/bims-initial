@@ -23,11 +23,11 @@ class HouseholdFactory extends Factory
             'purok_id' => Purok::inRandomOrder()->first()?->id ?? Purok::factory(),
             'street_id' => Street::inRandomOrder()->first()?->id ?? Street::factory(),
             'house_number' => $this->faker->numberBetween(1, 9999),
-            'ownership_type' => $this->faker->randomElement(['owned', 'rented', 'shared', 'government-provided', 'inherited', 'others']),
+            'ownership_type' => $this->faker->randomElement(['owned', 'rented', 'shared', 'government_provided', 'inherited', 'others']),
             'ownership_details' => $this->faker->optional()->sentence(3),
             'housing_condition' => $this->faker->randomElement(['good', 'needs repair', 'dilapidated']),
             'year_established' => $this->faker->optional()->year(),
-            'house_structure' => $this->faker->randomElement(['concrete', 'semi-concrete', 'wood', 'makeshift']),
+            'house_structure' => $this->faker->randomElement(['concrete', 'semi_concrete', 'wood', 'makeshift']),
             'bath_and_wash_area' => $this->faker->randomElement([
                 'with own sink and bath',
                 'shared or communal',

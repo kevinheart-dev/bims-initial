@@ -24,7 +24,6 @@ class HouseholdResidentFactory extends Factory
             'household_id' => Household::inRandomOrder()->first()?->id,
             'relationship_to_head' => $relationship,
             'household_position' => $this->faker->randomElement(['primary', 'extended', 'boarder']),
-            'other_relationship' => $relationship === 'other' ? $this->faker->word : null,
         ];
     }
 }

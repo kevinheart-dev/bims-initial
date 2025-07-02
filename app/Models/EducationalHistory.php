@@ -9,6 +9,7 @@ class EducationalHistory extends Model
 {
     /** @use HasFactory<\Database\Factories\EducationalHistoryFactory> */
     use HasFactory;
+    public $timestamps = true;
 
     protected $fillable = [
         'resident_id',

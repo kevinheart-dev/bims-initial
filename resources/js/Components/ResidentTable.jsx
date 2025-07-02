@@ -37,7 +37,6 @@ import {
     RESIDENT_REGISTER_VOTER_TEXT,
 } from "@/constants";
 import ResidentFilterBar from "@/Components/ResidentFilterBar";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 const ResidentTable = ({
     residents,
@@ -239,7 +238,8 @@ const ResidentTable = ({
                                                             .employment_status
                                                     ]}
                                                 {col.key === "occupation" &&
-                                                   (resident.occupation ?? "N/A")}
+                                                    (resident.occupation ??
+                                                        "N/A")}
                                                 {col.key === "citizenship" &&
                                                     resident.citizenship}
                                                 {col.key ===

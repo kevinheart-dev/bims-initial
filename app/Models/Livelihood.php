@@ -13,9 +13,4 @@ class Livelihood extends Model
     {
         return $this->belongsTo(Resident::class);
     }
-
-    public function livelihoodType()
-    {
-        return $this->belongsTo(LivelihoodType::class);
-    }
 }

@@ -12,6 +12,7 @@ class Resident extends Model
     /** @use HasFactory<\Database\Factories\ResidentFactory> */
     use HasFactory;
 
+    public $timestamps = true;
     protected $fillable = [
         'barangay_id',
         'firstname',
@@ -141,7 +142,11 @@ class Resident extends Model
 
     public function household()
     {
-        return $this->belongsTo(Household::class, 'household_id');
+        return $this->belongsTo(Household::class);
+    }
+    public function householdResidents()
+    {
+        return $this->hasMany(HouseholdResident::class);
     }
 
     public function user()
@@ -154,9 +159,21 @@ class Resident extends Model
         return $this->hasOne(SocialWelfareProfile::class);
     }
 
+    public function votingInformation()
+    {
+        return $this->hasOne(ResidentVoterInformation::class);
+    }
     public function barangay()
     {
         return $this->belongsTo(Barangay::class);
+    }
+    public function purokResidencies()
+    {
+        return $this->hasMany(PurokResidency::class);
+    }
+    public function family()
+    {
+        return $this->belongsTo(Family::class);
     }
     public function occupations()
     {
@@ -179,7 +196,6 @@ class Resident extends Model
     {
         return $this->hasMany(EducationalHistory::class);
     }
-
     public function medicalInformation(){
         return $this->hasOne(MedicalInformation::class);
     }

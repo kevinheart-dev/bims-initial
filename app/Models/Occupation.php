@@ -29,10 +29,4 @@ class Occupation extends Model
     {
         return $this->belongsTo(Resident::class);
     }
-
-    public function occupationType()
-    {
-        return $this->belongsTo(OccupationType::class);
-    }
-
 }

@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->boolean('is_4ps_beneficiary')->default(false);
-            $table->boolean('is_indigent')->default(false);
-            $table->boolean('is_solo_parent')->default(false);
+            $table->boolean('is_4ps_beneficiary')->nullable()->default(false);
+            $table->boolean('is_indigent')->nullable()->default(false);
+            $table->boolean('is_solo_parent')->nullable()->default(false);
             $table->string('solo_parent_id_number', 100)->nullable();
-            $table->boolean('orphan_status')->default(false);
+            $table->boolean('orphan_status')->nullable()->default(false);
             $table->timestamps();
         });
     }
