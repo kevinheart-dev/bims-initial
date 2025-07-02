@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ResidentResource;
+use App\Models\Barangay;
+use App\Models\Family;
 use App\Models\Household;
 use App\Models\OccupationType;
 use App\Models\Purok;
+use App\Models\Request;
 use App\Models\Resident;
 use App\Http\Requests\StoreResidentRequest;
 use App\Http\Requests\UpdateResidentRequest;
@@ -24,8 +27,8 @@ class ResidentController extends Controller
         $query = Resident::query()
             ->with([
                 'socialwelfareprofile',
-                'occupations.occupationType',
-                'livelihoods.livelihoodType',
+                'occupations',
+                'livelihoods',
             ])
             ->where('residents.barangay_id', $brgy_id);
         // $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->get();
@@ -156,8 +159,8 @@ class ResidentController extends Controller
                 'isSoloParent' => optional($resident->socialwelfareprofile)->is_solo_parent,
                 'is4ps' => optional($resident->socialwelfareprofile)->is_4ps_beneficiary,
                 'occupation' => optional(
-                    $resident->occupations->sortByDesc('started_at')->first()?->occupationType
-                )->name,
+                    $resident->occupations->sortByDesc('started_at')->first()
+                )?->occupation,
             ];
         };
 
@@ -166,7 +169,7 @@ class ResidentController extends Controller
         } else {
             $residents->getCollection()->transform($transform);
         }
-
+        //dd($residents->toArray());
         return Inertia::render('BarangayOfficer/Resident/Index', [
             'residents' => $residents,
             'queryParams' => request()->query() ?: null,
@@ -204,8 +207,16 @@ class ResidentController extends Controller
         $latestOccupation = collect($data['occupations'] ?? [])
             ->sortByDesc('started_at')
             ->first();
+        $latestStatus = $latestOccupation['employment_status'] ?? 'unemployed';
+        $isStudent = (int) ($data['is_student'] ?? 0);
+        $hasOccupation = !empty($data['occupations']);
 
-        $latestEmploymentStatus = $latestOccupation['employment_status'] ?? null;
+        $householdId = $data['household_id'] ?? null;
+        $familyId = $householdId
+            ? Family::where('household_id', $householdId)
+                ->where('barangay_id', $barangayId)
+                ->value('id')
+            : null;
 
         $residentInformation = [
             'resident_picture_path' => $data['resident_image'] ?? null,
@@ -220,10 +231,17 @@ class ResidentController extends Controller
             'birthplace' => $data['birthplace'],
             'civil_status' => $data['civil_status'],
             'citizenship' => $data['citizenship'],
-            'employment_status' => $latestEmploymentStatus ?? 'unemployed',
+            'employment_status' =>
+                $isStudent && $latestStatus === 'unemployed'
+                    ? 'student'
+                    : (!$isStudent || ($isStudent && $hasOccupation)
+                        ? $latestStatus
+                        : 'student'),
             'religion' => $data['religion'],
             'contact_number' => $data['contactNumber'] ?? null,
             'registered_voter' => $data['registered_voter'],
+            'is_household_head' => $data['is_household_head'] ?? false,
+            'household_id' => $householdId,
             'ethnicity' => $data['ethnicity'] ?? null,
             'email' => $data['email'] ?? null,
             'residency_date' => $data['residency_date'] ?? now(),
@@ -231,50 +249,57 @@ class ResidentController extends Controller
             'purok_number' => $data['purok_number'],
             'street_id' => $data['street_id'] ?? null,
             'is_pwd' => $data['is_pwd'] ?? null,
-            'created_at' => now(),
-            'updated_at' => now()
+            'family_id' => $familyId,
+            'is_family_head' => $data['is_family_head'] ?? false,
         ];
 
-        $residentEducation = [];
-        if($data['is_student']) {
-            $residentEducation = [
-                'enrolled_now' => $data['is_student'] ?? false,
-                'school_name' => $data['school_name'] ?? null,
-                'school_type' => $data['school_type'] ?? null,
-                'current_level' => $data['current_level'] ?? null,
-                'education_status' =>  null,
-                'osc' =>  null,
-                'osy' => null,
-                'year_started' => null,
-                'year_ended' =>  null,
-                'year_graduated' =>  null,
-                'program' => null,
-            ];
-        } else {
-            $residentEducation = [
-                'enrolled_now' => $data['is_student'] ?? false,
-                'school_name' => $data['school_name'] ?? null,
-                'school_type' => $data['school_type'] ?? null,
-                'current_level' => $data['current_level'] ?? null,
-                'education_status' => $data['education_status'] ?? null,
-                'osc' => $data['osc'] ?? null,
-                'osy' => $data['osy'] ?? null,
-                'year_started' => $data['year_started'] ?? null,
-                'year_ended' => $data['year_ended'] ?? null,
-                'year_graduated' => $data['year_graduated'] ?? null,
-                'program' => $data['program'] ?? null,
+        $residentVotingInformation = [
+            'registered_barangay_id' => $data['registered_barangay'] ?? null,
+            'voting_status' => $data['voting_status'] ?? null,
+            'voter_id_number' => $data['voter_id_number'] ?? null,
+        ];
 
-            ];
-        }
+        $residentSocialWelfareProfile = [
+            'barangay_id' => $barangayId,
+            'is_indigent' => $data['is_indigent'] ?? null,
+            'is_4ps_beneficiary' => $data['is_4ps_beneficiary'] ?? false,
+            'is_solo_parent' => $data['is_solo_parent'] ?? false,
+            'solo_parent_id_number' => $data['solo_parent_id_number'] ?? null,
+            'orphan_status' => $data['orphan_status'] ?? false,
+        ];
 
+        $householdResident = [
+            'household_id' => $householdId,
+            'relationship_to_head' => $data['relationship_to_head'] ?? null,
+            'household_position' => $data['household_position'] ?? null,
+        ];
 
         try {
             $resident = Resident::create($residentInformation);
-            $residentEducation['resident_id'] = $resident->id;
 
-            // add educational history
-            $resident->educationalHistories()->create($residentEducation + ['created_at' => now(),
-            'updated_at' => now()]);
+            // add voting information
+            $resident->votingInformation()->create([
+                ...$residentVotingInformation,
+            ]);
+
+            //add educational histories
+            if (!empty($data['educational_histories']) && is_array($data['educational_histories'])) {
+                foreach ($data['educational_histories'] ?? [] as $educationalData) {
+                    if($educationalData['education_status'] === 'graduate'){
+                        $yearGraduated = $educationalData['year_ended'];
+                    }
+                    $resident->educationalHistories()->create([
+                        'educational_attainment' => $educationalData['education'] ?? null,
+                        'school_name' => $educationalData['school_name'] ?? null,
+                        'school_type' => $educationalData['school_type'] ?? null,
+                        'year_started' => $educationalData['year_started'] ?? null,
+                        'year_ended' => $educationalData['year_ended'] ?? null,
+                        'program' => $educationalData['program'] ?? null,
+                        'year_graduated' => $yearGraduated ?? null,
+                        'education_status' => $educationalData['education_status'] ?? null,
+                    ]);
+                }
+            }
 
             //add occupations
             if (!empty($data['occupations']) && is_array($data['occupations'])) {
@@ -306,6 +331,7 @@ class ResidentController extends Controller
                     ]);
                 }
             }
+
             $residentMedicalInformation = [
                 'weight_kg' => $data['weight_kg'] ?? 0,
                 'height_cm' => $data['height_cm'] ?? 0,
@@ -324,7 +350,7 @@ class ResidentController extends Controller
                 'updated_at' => now()
             ];
 
-            // add medica informations
+            // add medical informations
             $resident->medicalInformation()->create($residentMedicalInformation);
             if($data["is_pwd"] == '1'){
                 foreach ($data['disabilities'] ?? [] as $disability) {
@@ -334,6 +360,14 @@ class ResidentController extends Controller
                         'updated_at' => now()
                     ]);
                 }
+            }
+
+            // add social welfare profile
+            $resident->socialwelfareprofile()->create($residentSocialWelfareProfile);
+
+            // add household resident
+            if ($householdId) {
+                $resident->householdResidents()->create($householdResident);
             }
 
             return redirect()->route('resident.index')->with('success', 'Resident '. ucwords($resident->getFullNameAttribute()) .' created successfully!');
@@ -418,14 +452,14 @@ class ResidentController extends Controller
                 'household_id',
                 'lastname',
             ]);
-
+            $barangays = Barangay::all()->pluck('barangay_name', 'id')->toArray();
 
         return Inertia::render("BarangayOfficer/Resident/CreateResident", [
             'puroks' => $puroks,
             'occupationTypes' => OccupationType::all()->pluck('name'),
             'streets' => $streets,
             'households' => $residentHousehold->toArray(),
+            'barangays' => $barangays,
         ]);
     }
-
 }

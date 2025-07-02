@@ -13,7 +13,21 @@ const Section1 = ({
     handleArrayValues,
     errors,
     showMaidenMiddleName,
+    barangays = [],
 }) => {
+    const addVehicle = () => {
+        setData("vehicles", [...(data.vehicles || []), {}]);
+    };
+
+    const removeVehicle = (vehicleIndex) => {
+        const updated = [...(data.vehicles || [])];
+        updated.splice(vehicleIndex, 1);
+        setData("vehicles", updated);
+    };
+    const barangayList = Object.entries(barangays).map(([id, name]) => ({
+        label: name,
+        value: id,
+    }));
     return (
         <div className="space-y-6">
             <div className="flex flex-col">
@@ -29,7 +43,7 @@ const Section1 = ({
             <div className="grid grid-cols-1 md:grid-cols-6 gap-y-2 md:gap-x-4">
                 <div className="md:row-span-2 flex flex-col items-center space-y-2">
                     <InputLabel
-                        htmlFor={`resident-image`}
+                        htmlFor={`resident_image`}
                         value="Profile Photo"
                     />
                     <img
@@ -43,7 +57,7 @@ const Section1 = ({
                         className="w-32 h-32 object-cover rounded-full border border-gray-200"
                     />
                     <input
-                        id="resident-image-path"
+                        id="resident_image"
                         type="file"
                         name="resident_image"
                         accept="image/*"
@@ -114,18 +128,24 @@ const Section1 = ({
                         </div>
                         <div>
                             {showMaidenMiddleName && (
-                                <InputField
-                                    label="Maiden Middle Name"
-                                    name="maiden_middle_name"
-                                    value={data.maiden_middle_name}
-                                    placeholder="Enter maiden middle name"
-                                    onChange={(e) => {
-                                        setData(
-                                            "maiden_middle_name",
-                                            e.target.value
-                                        );
-                                    }}
-                                />
+                                <div>
+                                    <InputField
+                                        label="Maiden Middle Name"
+                                        name="maiden_middle_name"
+                                        value={data.maiden_middle_name}
+                                        placeholder="Enter maiden middle name"
+                                        onChange={(e) => {
+                                            setData(
+                                                "maiden_middle_name",
+                                                e.target.value
+                                            );
+                                        }}
+                                    />
+                                    <InputError
+                                        message={errors.maiden_middle_name}
+                                        className="mt-2"
+                                    />
+                                </div>
                             )}
                         </div>
                     </div>
@@ -248,37 +268,49 @@ const Section1 = ({
                             className="mt-2"
                         />
                     </div>
-                    <DropdownInputField
-                        label="Religion"
-                        name="religion"
-                        value={data.religion}
-                        items={[
-                            "Roman Catholic",
-                            "Iglesia ni Cristo",
-                            "Born Again",
-                            "Baptists",
-                        ]}
-                        placeholder="Enter or select religion"
-                        onChange={(e) => {
-                            setData("religion", e.target.value);
-                        }}
-                    />
+                    <div>
+                        <DropdownInputField
+                            label="Religion"
+                            name="religion"
+                            value={data.religion || ""}
+                            items={[
+                                "Roman Catholic",
+                                "Iglesia ni Cristo",
+                                "Born Again",
+                                "Baptists",
+                            ]}
+                            placeholder="Enter or select religion"
+                            onChange={(e) => {
+                                setData("religion", e.target.value);
+                            }}
+                        />
+                        <InputError
+                            message={errors.religion}
+                            className="mt-2"
+                        />
+                    </div>
+                    <div>
+                        <DropdownInputField
+                            label="Ethnicity"
+                            name="ethnicity"
+                            value={data.ethnicity}
+                            items={[
+                                "Ilocano",
+                                "Ibanag",
+                                "Tagalog",
+                                "Indigenous People",
+                            ]}
+                            placeholder="Enter or select ethnicity"
+                            onChange={(e) => {
+                                setData("ethnicity", e.target.value);
+                            }}
+                        />
+                        <InputError
+                            message={errors.ethnicity}
+                            className="mt-2"
+                        />
+                    </div>
 
-                    <DropdownInputField
-                        label="Ethnicity"
-                        name="ethnicity"
-                        value={data.ethnicity}
-                        items={[
-                            "Ilocano",
-                            "Ibanag",
-                            "Tagalog",
-                            "Indigenous People",
-                        ]}
-                        placeholder="Enter or select ethnicity"
-                        onChange={(e) => {
-                            setData("ethnicity", e.target.value);
-                        }}
-                    />
                     <div>
                         <DropdownInputField
                             label="Citizenship"
@@ -386,18 +418,54 @@ const Section1 = ({
                                 className="mt-2"
                             />
                         </div>
-                        <RadioGroup
-                            label="Household Head?"
-                            name="is_household_head"
-                            selectedValue={parseInt(data.is_household_head)}
-                            options={[
-                                { label: "Yes", value: 1 },
-                                { label: "No", value: 0 },
-                            ]}
-                            onChange={(e) =>
-                                setData("is_household_head", e.target.value)
-                            }
-                        />
+                        {/* <div className="flex items-center justify-start space-x-6">
+                            <div>
+                                <RadioGroup
+                                    label="Household Head?"
+                                    name="is_household_head"
+                                    selectedValue={parseInt(
+                                        data.is_household_head
+                                    )}
+                                    options={[
+                                        { label: "Yes", value: 1 },
+                                        { label: "No", value: 0 },
+                                    ]}
+                                    onChange={(e) =>
+                                        setData(
+                                            "is_household_head",
+                                            e.target.value
+                                        )
+                                    }
+                                />
+                                <InputError
+                                    message={errors.is_household_head}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <RadioGroup
+                                    label="Family Head?"
+                                    name="is_family_head"
+                                    selectedValue={parseInt(
+                                        data.is_family_head
+                                    )}
+                                    options={[
+                                        { label: "Yes", value: 1 },
+                                        { label: "No", value: 0 },
+                                    ]}
+                                    onChange={(e) =>
+                                        setData(
+                                            "is_family_head",
+                                            e.target.value
+                                        )
+                                    }
+                                />
+                                <InputError
+                                    message={errors.is_family_head}
+                                    className="mt-2"
+                                />
+                            </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
@@ -408,30 +476,42 @@ const Section1 = ({
                     Government Programs
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
-                    <RadioGroup
-                        label="4Ps Beneficiary?"
-                        name="is_4ps_benificiary"
-                        selectedValue={data.is_4ps_benificiary || ""}
-                        options={[
-                            { label: "Yes", value: 1 },
-                            { label: "No", value: 0 },
-                        ]}
-                        onChange={(e) =>
-                            setData("is_4ps_benificiary", e.target.value)
-                        }
-                    />
-                    <RadioGroup
-                        label="Solo Parent?"
-                        name="is_solo_parent"
-                        selectedValue={data.is_solo_parent || ""}
-                        options={[
-                            { label: "Yes", value: 1 },
-                            { label: "No", value: 0 },
-                        ]}
-                        onChange={(e) =>
-                            setData("is_solo_parent", e.target.value)
-                        }
-                    />
+                    <div>
+                        <RadioGroup
+                            label="4Ps Beneficiary?"
+                            name="is_4ps_benificiary"
+                            selectedValue={data.is_4ps_benificiary || ""}
+                            options={[
+                                { label: "Yes", value: 1 },
+                                { label: "No", value: 0 },
+                            ]}
+                            onChange={(e) =>
+                                setData("is_4ps_benificiary", e.target.value)
+                            }
+                        />
+                        <InputError
+                            message={errors.is_4ps_benificiary}
+                            className="mt-2"
+                        />
+                    </div>
+                    <div>
+                        <RadioGroup
+                            label="Solo Parent?"
+                            name="is_solo_parent"
+                            selectedValue={data.is_solo_parent || ""}
+                            options={[
+                                { label: "Yes", value: 1 },
+                                { label: "No", value: 0 },
+                            ]}
+                            onChange={(e) =>
+                                setData("is_solo_parent", e.target.value)
+                            }
+                        />
+                        <InputError
+                            message={errors.is_solo_parent}
+                            className="mt-2"
+                        />
+                    </div>
                     {data.is_solo_parent == 1 && (
                         <div>
                             <InputField
@@ -476,7 +556,7 @@ const Section1 = ({
                                 <DropdownInputField
                                     label="Voting Status"
                                     name="voting_status"
-                                    value={data.voting_status}
+                                    value={data.voting_status || ""}
                                     items={[
                                         {
                                             label: "Active",
@@ -532,6 +612,25 @@ const Section1 = ({
                                 />
                                 <InputError
                                     message={errors.voter_id_number}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <DropdownInputField
+                                    label="Votes In? "
+                                    name="registered_barangay"
+                                    value={data.voting_status || ""}
+                                    onChange={(e) =>
+                                        setData(
+                                            "registered_barangay",
+                                            e.target.value
+                                        )
+                                    }
+                                    items={barangayList}
+                                    placeholder="Select registered barangay"
+                                />
+                                <InputError
+                                    message={errors.registered_barangay}
                                     className="mt-2"
                                 />
                             </div>
@@ -630,97 +729,141 @@ const Section1 = ({
                                 >
                                     {/* Left: input fields */}
                                     <div className="grid md:grid-cols-4 gap-4">
-                                        <DropdownInputField
-                                            label="Vehicle Type"
-                                            name="vehicle_type"
-                                            value={vehicle.vehicle_type || ""}
-                                            items={[
-                                                "Motorcycle",
-                                                "Tricycle",
-                                                "Car",
-                                                "Jeep",
-                                                "Truck",
-                                                "Bicycle",
-                                            ]}
-                                            onChange={(e) =>
-                                                handleArrayValues(
-                                                    e,
-                                                    livIndex,
-                                                    "vehicle_type",
-                                                    "vehicles"
-                                                )
-                                            }
-                                            placeholder="Select type"
-                                        />
-                                        <DropdownInputField
-                                            label="Classification"
-                                            name="vehicle_class"
-                                            value={vehicle.vehicle_class || ""}
-                                            items={[
-                                                {
-                                                    label: "Private",
-                                                    value: "private",
-                                                },
-                                                {
-                                                    label: "Public",
-                                                    value: "public",
-                                                },
-                                            ]}
-                                            onChange={(e) =>
-                                                handleArrayValues(
-                                                    e,
-                                                    livIndex,
-                                                    "vehicle_class",
-                                                    "vehicles"
-                                                )
-                                            }
-                                            placeholder="Select class"
-                                        />
-
-                                        <DropdownInputField
-                                            label="Usage Purpose"
-                                            name="usage_status"
-                                            value={vehicle.usage_status || ""}
-                                            items={[
-                                                {
-                                                    label: "Personal",
-                                                    value: "personal",
-                                                },
-                                                {
-                                                    label: "Public Transport",
-                                                    value: "public_transport",
-                                                },
-                                                {
-                                                    label: "Business Use",
-                                                    value: "business_use",
-                                                },
-                                            ]}
-                                            onChange={(e) =>
-                                                handleArrayValues(
-                                                    e,
-                                                    livIndex,
-                                                    "usage_status",
-                                                    "vehicles"
-                                                )
-                                            }
-                                            placeholder="Select usage"
-                                        />
-
-                                        <InputField
-                                            label="Quantity"
-                                            name="quantity"
-                                            type="number"
-                                            value={vehicle.quantity || ""}
-                                            onChange={(e) =>
-                                                handleArrayValues(
-                                                    e,
-                                                    livIndex,
-                                                    "usage_status",
-                                                    "quantity"
-                                                )
-                                            }
-                                            placeholder="Number"
-                                        />
+                                        <div>
+                                            <DropdownInputField
+                                                label="Vehicle Type"
+                                                name="vehicle_type"
+                                                value={
+                                                    vehicle.vehicle_type || ""
+                                                }
+                                                items={[
+                                                    "Motorcycle",
+                                                    "Tricycle",
+                                                    "Car",
+                                                    "Jeep",
+                                                    "Truck",
+                                                    "Bicycle",
+                                                ]}
+                                                onChange={(e) =>
+                                                    handleArrayValues(
+                                                        e,
+                                                        vecIndex,
+                                                        "vehicle_type",
+                                                        "vehicles"
+                                                    )
+                                                }
+                                                placeholder="Select type"
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `vehicles.${vecIndex}.vehicle_type`
+                                                    ]
+                                                }
+                                                className="mt-2"
+                                            />
+                                        </div>
+                                        <div>
+                                            <DropdownInputField
+                                                label="Classification"
+                                                name="vehicle_class"
+                                                value={
+                                                    vehicle.vehicle_class || ""
+                                                }
+                                                items={[
+                                                    {
+                                                        label: "Private",
+                                                        value: "private",
+                                                    },
+                                                    {
+                                                        label: "Public",
+                                                        value: "public",
+                                                    },
+                                                ]}
+                                                onChange={(e) =>
+                                                    handleArrayValues(
+                                                        e,
+                                                        vecIndex,
+                                                        "vehicle_class",
+                                                        "vehicles"
+                                                    )
+                                                }
+                                                placeholder="Select class"
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `vehicles.${vecIndex}.vehicle_class`
+                                                    ]
+                                                }
+                                                className="mt-2"
+                                            />
+                                        </div>
+                                        <div>
+                                            <DropdownInputField
+                                                label="Usage Purpose"
+                                                name="usage_status"
+                                                value={
+                                                    vehicle.usage_status || ""
+                                                }
+                                                items={[
+                                                    {
+                                                        label: "Personal",
+                                                        value: "personal",
+                                                    },
+                                                    {
+                                                        label: "Public Transport",
+                                                        value: "public_transport",
+                                                    },
+                                                    {
+                                                        label: "Business Use",
+                                                        value: "business_use",
+                                                    },
+                                                ]}
+                                                onChange={(e) =>
+                                                    handleArrayValues(
+                                                        e,
+                                                        vecIndex,
+                                                        "usage_status",
+                                                        "vehicles"
+                                                    )
+                                                }
+                                                placeholder="Select usage"
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `vehicles.${vecIndex}.usage_status`
+                                                    ]
+                                                }
+                                                className="mt-2"
+                                            />
+                                        </div>
+                                        <div>
+                                            <InputField
+                                                label="Quantity"
+                                                name="quantity"
+                                                type="number"
+                                                value={vehicle.quantity || ""}
+                                                onChange={(e) =>
+                                                    handleArrayValues(
+                                                        e,
+                                                        vecIndex,
+                                                        "quantity",
+                                                        "vehicles"
+                                                    )
+                                                }
+                                                placeholder="Number"
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `vehicles.${vecIndex}.quantity`
+                                                    ]
+                                                }
+                                                className="mt-2"
+                                            />
+                                        </div>
                                     </div>
 
                                     {/* Right: remove button */}

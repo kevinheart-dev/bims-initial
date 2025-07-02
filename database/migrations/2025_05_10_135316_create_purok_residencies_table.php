@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
             $table->foreignId('purok_id')->constrained('puroks')->onDelete('cascade');
-            $table->date('date_of_residency');
+            $table->year('date_of_residency');
             $table->timestamps();
         });
     }

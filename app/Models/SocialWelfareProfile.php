@@ -9,6 +9,18 @@ class SocialWelfareProfile extends Model
 {
     /** @use HasFactory<\Database\Factories\SocialWelfareProfileFactory> */
     use HasFactory;
+    public $timestamps = true;
+    protected $fillable = [
+        'resident_id',
+        'barangay_id',
+        'is_4ps_beneficiary',
+        'is_indigent',
+        'is_solo_parent',
+        'solo_parent_id_number',
+        'orphan_status',
+        'created_at',
+        'updated_at',
+    ];
 
     public function resident()
     {

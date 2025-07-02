@@ -15,9 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('resident_id')->nullable()->constrained('residents')->onDelete('cascade');
             $table->foreignId('household_id')->nullable()->constrained('households')->onDelete('cascade');
-            $table->enum('relationship_to_head', ['self', 'spouse', 'child', 'sibling', 'parent', 'grandparent', 'other']);
-            $table->enum('household_position', ['primary', 'extended', 'boarder']);
-            $table->string('other_relationship', 55)->nullable();
+            $table->string('relationship_to_head', 55);
+            $table->string('household_position', 55)->nullable();
             $table->timestamps();
         });
     }

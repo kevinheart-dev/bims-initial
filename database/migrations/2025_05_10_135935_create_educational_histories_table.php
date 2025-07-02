@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
             $table->string('school_name', 155)->nullable();
-            $table->boolean('enrolled_now')->default(false);
             $table->enum('school_type', ['private', 'public'])->nullable();
             $table->enum('educational_attainment', [
                 'no_formal_education',
@@ -25,9 +24,7 @@ return new class extends Migration
                 'vocational',
                 'post_graduate',
             ])->nullable();
-            $table->enum('education_status', ['graduate', 'undergraduate'])->nullable();
-            $table->text('dropout_reason')->nullable();
-            $table->boolean('als_participant')->default(false);
+            $table->enum('education_status', ['graduate', 'undergraduate', 'enrolled', 'stopped'])->nullable();
             $table->year('start_year')->nullable();
             $table->year('end_year')->nullable();
             $table->year('year_graduated')->nullable();

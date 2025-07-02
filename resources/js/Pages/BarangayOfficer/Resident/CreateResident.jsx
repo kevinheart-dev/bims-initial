@@ -9,6 +9,7 @@ export default function Index({
     occupationTypes,
     streets,
     households,
+    barangays,
 }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
@@ -39,6 +40,7 @@ export default function Index({
                                 occupationTypes={occupationTypes}
                                 streets={streets}
                                 households={households}
+                                barangays={barangays}
                             />
                         </div>
                     </div>

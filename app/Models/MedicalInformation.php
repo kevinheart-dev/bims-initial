@@ -9,7 +9,7 @@ class MedicalInformation extends Model
 {
     /** @use HasFactory<\Database\Factories\MedicalInformationFactory> */
     use HasFactory;
-
+    public $timestamps = true;
     protected $fillable = [
         'resident_id',
         'weight_kg',
