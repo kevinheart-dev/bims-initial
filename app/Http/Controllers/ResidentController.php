@@ -8,6 +8,7 @@ use App\Models\Purok;
 use App\Models\Resident;
 use App\Http\Requests\StoreResidentRequest;
 use App\Http\Requests\UpdateResidentRequest;
+use App\Models\Request;
 use Str;
 use Inertia\Inertia;
 
@@ -102,26 +103,26 @@ class ResidentController extends Controller
         }
 
         if (
-                request('indigent') === '1' ||
-                request('fourps') === '1' ||
-                request('solo_parent') === '1' ||
-                request('pwd') === '1'
-            ) {
-                $query->whereHas('socialwelfareprofile', function ($q) {
-                    if (request('indigent') === '1') {
-                        $q->where('is_indigent', 1);
-                    }
-                    if (request('fourps') === '1') {
-                        $q->where('is_4ps_beneficiary', 1);
-                    }
-                    if (request('solo_parent') === '1') {
-                        $q->where('is_solo_parent', 1);
-                    }
-                    if (request('pwd') === '1') {
-                        $q->where('is_pwd', 1);
-                    }
-                });
-            }
+            request('indigent') === '1' ||
+            request('fourps') === '1' ||
+            request('solo_parent') === '1' ||
+            request('pwd') === '1'
+        ) {
+            $query->whereHas('socialwelfareprofile', function ($q) {
+                if (request('indigent') === '1') {
+                    $q->where('is_indigent', 1);
+                }
+                if (request('fourps') === '1') {
+                    $q->where('is_4ps_beneficiary', 1);
+                }
+                if (request('solo_parent') === '1') {
+                    $q->where('is_solo_parent', 1);
+                }
+                if (request('pwd') === '1') {
+                    $q->where('is_pwd', 1);
+                }
+            });
+        }
 
 
         if (request('all') === 'true') {
@@ -234,7 +235,7 @@ class ResidentController extends Controller
         ];
 
         $residentEducation = [];
-        if($data['is_student']) {
+        if ($data['is_student']) {
             $residentEducation = [
                 'enrolled_now' => $data['is_student'] ?? false,
                 'school_name' => $data['school_name'] ?? null,
@@ -271,14 +272,16 @@ class ResidentController extends Controller
             $residentEducation['resident_id'] = $resident->id;
 
             // add educational history
-            $resident->educationalHistories()->create($residentEducation + ['created_at' => now(),
-            'updated_at' => now()]);
+            $resident->educationalHistories()->create($residentEducation + [
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
 
             //add occupations
             if (!empty($data['occupations']) && is_array($data['occupations'])) {
                 foreach ($data['occupations'] ?? [] as $occupationData) {
 
-                    if($occupationData['income_frequency'] === 'monthly') {
+                    if ($occupationData['income_frequency'] === 'monthly') {
                         $occupationData['income'] = $occupationData['income'] ?? 0;
                     } elseif ($occupationData['income_frequency'] === 'weekly') {
                         $occupationData['income'] = ($occupationData['income'] ?? 0) * 4;
@@ -324,7 +327,7 @@ class ResidentController extends Controller
 
             // add medica informations
             $resident->medicalInformation()->create($residentMedicalInformation);
-            if($data["is_pwd"] == '1'){
+            if ($data["is_pwd"] == '1') {
                 foreach ($data['disabilities'] ?? [] as $disability) {
                     $resident->disabilities()->create(attributes: [
                         'disability_type' => $disability['disability_type'] ?? null,
@@ -334,13 +337,18 @@ class ResidentController extends Controller
                 }
             }
 
-            return redirect()->route('resident.index')->with('success', 'Resident '. ucwords($resident->getFullNameAttribute()) .' created successfully!');
+            return redirect()->route('resident.index')->with('success', 'Resident ' . ucwords($resident->getFullNameAttribute()) . ' created successfully!');
         } catch (\Exception $e) {
             dd($e->getMessage());
             return back()->withErrors(['error' => 'Resident could not be created: ' . $e->getMessage()]);
         }
-
     }
+
+    public function storeHousehold(Request $request)
+    {
+        return response()->json($request->all());
+    }
+
 
     /**
      * Display the specified resource.
@@ -374,22 +382,24 @@ class ResidentController extends Controller
         //
     }
 
-    public function getFamilyTree(Resident $resident){
+    public function getFamilyTree(Resident $resident)
+    {
         $familyTree = $resident->familyTree();
         return Inertia::render('BarangayOfficer/Resident/FamilyTree', [
             'family_tree' => [
-            'self' => new ResidentResource($familyTree['self']),
-            'parents' => ResidentResource::collection($familyTree['parents']),
-            'grandparents' => ResidentResource::collection($familyTree['grandparents']),
-            'uncles_aunts' => ResidentResource::collection($familyTree['uncles_aunts']),
-            'siblings' => ResidentResource::collection($familyTree['siblings']),
-            'children' => ResidentResource::collection($familyTree['children']),
-            'spouse' => ResidentResource::collection($familyTree['spouse']),
-        ],
+                'self' => new ResidentResource($familyTree['self']),
+                'parents' => ResidentResource::collection($familyTree['parents']),
+                'grandparents' => ResidentResource::collection($familyTree['grandparents']),
+                'uncles_aunts' => ResidentResource::collection($familyTree['uncles_aunts']),
+                'siblings' => ResidentResource::collection($familyTree['siblings']),
+                'children' => ResidentResource::collection($familyTree['children']),
+                'spouse' => ResidentResource::collection($familyTree['spouse']),
+            ],
         ]);
     }
 
-    public function createResident(){
+    public function createResident()
+    {
         $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
         // $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->get();
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
@@ -398,5 +408,4 @@ class ResidentController extends Controller
             'occupationTypes' => OccupationType::all()->pluck('name'),
         ]);
     }
-
 }

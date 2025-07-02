@@ -9,6 +9,8 @@ use App\Models\Resident;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
+
+
 class HouseholdController extends Controller
 {
     /**

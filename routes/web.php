@@ -18,13 +18,13 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
 
     Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('resident.familytree');
     Route::get('resident/createresident', [ResidentController::class, 'createResident'])->name('resident.createresident');
+    Route::post('/household/store', [ResidentController::class, 'storeHousehold'])->name('household.store');
 
     Route::resource('resident', ResidentController::class);
     Route::resource('document', DocumentController::class);
     Route::resource('household', HouseholdController::class);
     Route::resource('senior_citizen', SeniorCitizenController::class);
     Route::resource('family_relation', FamilyRelationController::class);
-
 });
 
 // Resident-only routes

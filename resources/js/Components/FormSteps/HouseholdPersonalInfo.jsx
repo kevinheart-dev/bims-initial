@@ -54,26 +54,40 @@ const HouseholdPersonalInfo = () => {
     });
     const [openIndex, setOpenIndex] = useState(null);
 
-    // Sync members when householdCount changes
     useEffect(() => {
         const count = parseInt(userData.householdCount || 0);
-
         const existingMembers = userData.members || [];
-        const newMembers = Array.from({ length: count }, (_, i) => {
-            return existingMembers[i] || { ...defaultMember };
+
+        const updatedMembers = Array.from({ length: count }, (_, i) => {
+            const member = existingMembers[i] || { ...defaultMember };
+
+            // If new member (not in existing) and not first index, apply shared fields
+            if (!existingMembers[i] && i !== 0) {
+                return {
+                    ...member,
+                    lastname: sharedFields.lastname,
+                    religion: sharedFields.religion,
+                    ethnicity: sharedFields.ethnicity,
+                    citizenship: sharedFields.citizenship,
+                };
+            }
+
+            return member;
         });
 
-        if (newMembers[0]) {
+        // If there’s at least one member, sync shared fields from first member
+        if (updatedMembers[0]) {
             setSharedFields({
-                lastname: newMembers[0].lastname,
-                religion: newMembers[0].religion,
-                ethnicity: newMembers[0].ethnicity,
-                citizenship: newMembers[0].citizenship,
+                lastname: updatedMembers[0].lastname,
+                religion: updatedMembers[0].religion,
+                ethnicity: updatedMembers[0].ethnicity,
+                citizenship: updatedMembers[0].citizenship,
             });
         }
 
-        setMembers(newMembers);
+        setMembers(updatedMembers);
     }, [userData.householdCount]);
+
 
     // Sync userData.members whenever members state changes
     useEffect(() => {
@@ -348,8 +362,16 @@ const HouseholdPersonalInfo = () => {
                                     <div className="bg-gray-50 p-3 rounded space-y-2">
                                         <h3 className="text-md font-medium text-gray-700">Residency Info</h3>
                                         <div className="space-y-2">
-                                            <DropdownInputField label="Residency Type" name="residency_type" value={member.residency_type}
-                                                items={['permanent', 'temporary', 'migrant']} onChange={(e) => handleMemberChange(index, e)} placeholder="Select type" />
+                                            <DropdownInputField
+                                                label="Residency Type"
+                                                name="residency_type"
+                                                value={member.residency_type}
+                                                items={[
+                                                    { label: 'Permanent', value: 'permanent' },
+                                                    { label: 'Temporary', value: 'temporary' },
+                                                    { label: 'Migrant', value: 'migrant' },]}
+                                                onChange={(e) => handleMemberChange(index, e)}
+                                                placeholder="Select type" />
                                             <YearDropdown label="Residency Date" name="residency_date" value={member.residency_date}
                                                 onChange={(e) => handleMemberChange(index, e)} placeholder="Select year" />
                                             <RadioGroup label="Household Head?" name="is_household_head" selectedValue={parseInt(member.is_household_head)}

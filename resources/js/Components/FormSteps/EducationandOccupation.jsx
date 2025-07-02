@@ -404,7 +404,8 @@ function EducationandOccupation() {
                                                 name="ended_at"
                                                 value={occupation.ended_at || ''}
                                                 onChange={(e) => handleOccupationChange(index, occIndex, e)}
-                                                disabled={occupation.employment_status === 'Unemployed'} />
+                                                disabled={occupation.occupation_status === 'active' || occupation.occupation_status === 'inactive'}
+                                            />
                                             <DropdownInputField
                                                 label="Income Frequency"
                                                 name="frequency"
@@ -451,21 +452,21 @@ function EducationandOccupation() {
                                         label="Family Monthly Income"
                                         name="family_monthly_income"
                                         value={userData.family_monthly_income || ''}
-                                        readOnly
+                                        readOnly={true}
                                     />
                                     <DropdownInputField
                                         label="Income Bracket"
                                         name="income_bracket"
                                         value={userData.income_bracket || ''}
                                         items={[userData.income_bracket || '']}
-                                        readOnly
+                                        readOnly={true}
                                     />
                                     <DropdownInputField
                                         label="Income Category"
                                         name="income_category"
                                         value={userData.income_category || ''}
                                         items={[userData.income_category || '']}
-                                        readOnly
+                                        readOnly={true}
                                     />
                                 </div>
 

@@ -66,6 +66,11 @@ export const RESIDENT_REGISTER_VOTER_CLASS = {
     1: "p-1 bg-green-500 text-white rounded-lg",
 };
 
+export const RESIDENT_RECIDENCY_TYPE_TEXT = {
+    permanent: 'Permanent',
+    temporary: 'Temporary',
+    imigrant: 'Imigrant',
+};
 export const RESIDENT_4PS_TEXT = {
     0: "No",
     1: "Yes",
