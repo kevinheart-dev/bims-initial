@@ -134,7 +134,7 @@ class ResidentController extends Controller
         if (request('all') === 'true') {
             $residents = $query->get(); // full list
         } else {
-            $residents = $query->paginate(15)->onEachSide(1);
+            $residents = $query->paginate(10)->onEachSide(1);
         }
 
         $transform = function ($resident) {

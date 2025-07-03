@@ -35,125 +35,122 @@ const FamiliesTable = ({ passedData, allColumns, columnRenderers }) => {
         allColumns.map((col) => col.key)
     );
 
-    const handleEdit = (id) => {
-        // Your edit logic here
-    };
-
-    const handleDelete = (id) => {
-        // Your delete logic here
-    };
-
     return (
         <>
             {/* Column Toggle + Print */}
-            <div className="mb-4 flex items-center gap-4">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline">
-                            <Columns3 />
-                            Select Columns
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-48">
-                        <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuCheckboxItem
-                            checked={
-                                visibleColumns.length === allColumns.length
-                            }
-                            onCheckedChange={(checked) => {
-                                if (checked) {
-                                    setVisibleColumns(
-                                        allColumns.map((col) => col.key)
-                                    );
-                                }
-                            }}
-                        >
-                            Select All
-                        </DropdownMenuCheckboxItem>
-                        <DropdownMenuCheckboxItem
-                            checked={visibleColumns.length === 0}
-                            onCheckedChange={(checked) => {
-                                if (checked) {
-                                    setVisibleColumns([]);
-                                }
-                            }}
-                        >
-                            Deselect All
-                        </DropdownMenuCheckboxItem>
-                        <DropdownMenuSeparator />
-                        {allColumns.map((col) => (
+            <div className="mb-4 flex justify-between">
+                <div className="flex items-center gap-4">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline">
+                                <Columns3 />
+                                Select Columns
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-48">
+                            <DropdownMenuLabel>
+                                Toggle Columns
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator />
                             <DropdownMenuCheckboxItem
-                                key={col.key}
-                                checked={visibleColumns.includes(col.key)}
-                                onCheckedChange={() => {
-                                    setVisibleColumns((prev) =>
-                                        prev.includes(col.key)
-                                            ? prev.filter((k) => k !== col.key)
-                                            : [...prev, col.key]
-                                    );
+                                checked={
+                                    visibleColumns.length === allColumns.length
+                                }
+                                onCheckedChange={(checked) => {
+                                    if (checked) {
+                                        setVisibleColumns(
+                                            allColumns.map((col) => col.key)
+                                        );
+                                    }
                                 }}
                             >
-                                {col.label}
+                                Select All
                             </DropdownMenuCheckboxItem>
-                        ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                            <DropdownMenuCheckboxItem
+                                checked={visibleColumns.length === 0}
+                                onCheckedChange={(checked) => {
+                                    if (checked) {
+                                        setVisibleColumns([]);
+                                    }
+                                }}
+                            >
+                                Deselect All
+                            </DropdownMenuCheckboxItem>
+                            <DropdownMenuSeparator />
+                            {allColumns.map((col) => (
+                                <DropdownMenuCheckboxItem
+                                    key={col.key}
+                                    checked={visibleColumns.includes(col.key)}
+                                    onCheckedChange={() => {
+                                        setVisibleColumns((prev) =>
+                                            prev.includes(col.key)
+                                                ? prev.filter(
+                                                      (k) => k !== col.key
+                                                  )
+                                                : [...prev, col.key]
+                                        );
+                                    }}
+                                >
+                                    {col.label}
+                                </DropdownMenuCheckboxItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+                <h2 className="text-2xl font-semibold text-gray-700">
+                    Total Records:{" "}
+                    <span className="text-blue-600">{passedData.length}</span>
+                </h2>
             </div>
 
             {/* Table */}
             <div className="max-h-[600px] overflow-auto">
-                <Table className="min-w-full">
-                    <TableHeader className="sticky top-0 z-10 bg-white shadow-md">
-                        <TableRow>
+                <table className="min-w-full">
+                    <thead className="sticky top-0 z-10 bg-white shadow-md">
+                        <tr>
                             {allColumns.map(
                                 (col) =>
                                     visibleColumns.includes(col.key) && (
-                                        <TableHead
+                                        <th
                                             key={col.key}
-                                            className="bg-blue-600 text-white p-4 whitespace-nowrap"
+                                            className="bg-blue-600 text-white p-4 whitespace-nowrap text-start text-sm font-semibold"
                                         >
                                             {col.label}
-                                        </TableHead>
+                                        </th>
                                     )
                             )}
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
+                        </tr>
+                    </thead>
+                    <tbody>
                         {passedData.length > 0 ? (
                             passedData.map((data) => (
-                                <TableRow key={data.id}>
+                                <tr key={data.id}>
                                     {allColumns.map((col) =>
                                         visibleColumns.includes(col.key) ? (
-                                            <TableCell key={col.key}>
+                                            <td
+                                                key={col.key}
+                                                className="py-2 px-4"
+                                            >
                                                 {columnRenderers[col.key]?.(
                                                     data
                                                 ) ?? ""}
-                                            </TableCell>
+                                            </td>
                                         ) : null
                                     )}
-                                </TableRow>
+                                </tr>
                             ))
                         ) : (
-                            <TableRow>
-                                <TableCell
+                            <tr>
+                                <td
                                     colSpan={visibleColumns.length}
                                     className="text-center py-4 text-gray-500"
                                 >
                                     No records found.
-                                </TableCell>
-                            </TableRow>
+                                </td>
+                            </tr>
                         )}
-                    </TableBody>
-                </Table>
-                <div className="flex justify-end items-center p-4 rounded shadow-sm">
-                    <h2 className="text-2xl font-semibold text-gray-700">
-                        Total Records:{" "}
-                        <span className="text-blue-600">
-                            {passedData.length}
-                        </span>
-                    </h2>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </>
     );

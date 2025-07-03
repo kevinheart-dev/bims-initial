@@ -28,4 +28,8 @@ class Family extends Model
     {
         return $this->belongsTo(Household::class);
     }
+    public function members()
+    {
+        return $this->hasMany(Resident::class);
+    }
 }
