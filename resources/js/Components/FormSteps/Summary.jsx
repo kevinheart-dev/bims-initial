@@ -160,18 +160,22 @@ const Summary = ({ onBack, onSubmit }) => {
 
                                         <div className="space-y-2 border border-gray-200 p-4 rounded-md">
                                             <h6 className="text-sm font-semibold text-blue-700">Educational Background</h6>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                {renderDetail("Highest Education", CONSTANTS.EDUCATION_LEVEL_TEXT[member.education])}
-                                                {renderDetail("Education Status", CONSTANTS.EDUCATION_STATUS_TEXT[member.education_status])}
-                                                {renderDetail("Out of School Children", CONSTANTS.EDUCATION_OSC_TEXT[member.osc])}
-                                                {renderDetail("Out of School Youth", CONSTANTS.EDUCATION_OSY_TEXT[member.osy])}
-                                                {renderDetail("Year Started", member.year_started)}
-                                                {renderDetail("Year Ended", member.year_ended)}
-                                                {renderDetail("Year Graduated", member.year_graduated)}
-                                                {renderDetail("School Name", member.school_name)}
-                                                {renderDetail("School Type", CONSTANTS.EDUCATION_SCHOOL_TYPE[member.school_type])}
-                                                {renderDetail("Course/Strand", member.program)}
-                                            </div>
+                                            {member.educations && member.educations.length > 0 ? (
+                                                member.educations.map((education, eduIndex) => (
+                                                    <div key={eduIndex} className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-blue-50 p-4 rounded border border-blue-100">
+                                                        {renderDetail("Highest Education", CONSTANTS.EDUCATION_LEVEL_TEXT[education.education])}
+                                                        {renderDetail("Education Status", CONSTANTS.EDUCATION_STATUS_TEXT[education.educational_status])}
+                                                        {renderDetail("School Type", CONSTANTS.EDUCATION_SCHOOL_TYPE[education.school_type])}
+                                                        {renderDetail("Year Started", education.year_started)}
+                                                        {education.educational_status !== 'enrolled' && renderDetail("Year Ended", education.year_ended)}
+                                                        {renderDetail("School Name", education.school_name)}
+                                                        {(education.education === 'college' && education.educational_status === 'graduate')
+                                                            && renderDetail("Course/Strand", education.program)}
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p className="text-sm text-gray-500">No educational background provided.</p>
+                                            )}
                                         </div>
 
                                         {/* Right Column: Medical */}
@@ -185,7 +189,7 @@ const Summary = ({ onBack, onSubmit }) => {
                                                 {renderDetail("Nutrition Status", member.nutrition_status)}
                                                 {renderDetail("Blood Type", member.blood_type)}
                                                 {renderDetail("PhilHealth", CONSTANTS.MEDICAL_PHILHEALTH_TEXT[member.has_philhealth])}
-                                                {renderDetail("PhilHealth ID", member.philhealth_id_number)}
+                                                {member.has_philhealth == 1 && renderDetail("PhilHealth ID", member.philhealth_id_number)}
                                                 {renderDetail("Consumes Alcohol", CONSTANTS.MEDICAL_ALCOHOL_TEXT[member.is_alcohol_user])}
                                                 {renderDetail("Smoking", CONSTANTS.MEDICAL_SMOKE_TEXT[member.is_smoker])}
                                                 {renderDetail("PWD", CONSTANTS.MEDICAL_PWD_TEXT[member.is_pwd])}

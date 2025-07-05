@@ -6,35 +6,36 @@ import YearDropdown from '../YearDropdown';
 import InputField from '../InputField';
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
-
+import { toast } from 'react-hot-toast';
 function EducationandOccupation() {
     const { userData, setUserData } = useContext(StepperContext);
     const members = userData.members || [];
     const [openIndex, setOpenIndex] = useState(null);
 
-    const handleEducationChange = (index, e) => {
+    const handleEducationChange = (memberIndex, educationIndex, e) => {
         const { name, value } = e.target;
         const updatedMembers = [...members];
 
-        const newValue = name === "is_student" ? Number(value) : value;
+        const updatedEducations = [...(updatedMembers[memberIndex].educations || [])];
 
-        updatedMembers[index] = {
-            ...updatedMembers[index],
-            [name]: value,
-        };
+        const updatedEducation = { ...updatedEducations[educationIndex], [name]: value };
 
-        const educationStatus = updatedMembers[index].education_status;
+        // // If year_ended or educational_status changes, handle year_graduated logic
+        // if (name === "year_ended" || name === "educational_status") {
+        //     if (updatedEducation.educational_status === "graduate") {
+        //         updatedEducation.year_graduated = updatedEducation.year_ended || '';
+        //     } else {
+        //         updatedEducation.year_graduated = '';
+        //     }
+        // }
 
-        if (name === "year_ended" || name === "education_status") {
-            if (educationStatus === "graduate") {
-                updatedMembers[index].year_graduated = updatedMembers[index].year_ended || '';
-            } else if (educationStatus === "undergraduate") {
-                updatedMembers[index].year_graduated = '';
-            }
-        }
+        updatedEducations[educationIndex] = updatedEducation;
+
+        updatedMembers[memberIndex].educations = updatedEducations;
 
         setUserData(prev => ({ ...prev, members: updatedMembers }));
     };
+
 
     const handleOccupationChange = (memberIndex, occupationIndex, e) => {
         const { name, value } = e.target;
@@ -63,6 +64,26 @@ function EducationandOccupation() {
         setUserData(prev => ({ ...prev, members: updatedMembers }));
     };
 
+    const addEducation = (index) => {
+        const updatedMembers = [...members];
+        const educations = updatedMembers[index].educations || [];
+        educations.push({});
+        updatedMembers[index].educations = educations;
+        setUserData(prev => ({ ...prev, members: updatedMembers }));
+    };
+
+    const removeEducation = (memberIndex, educationIndex) => {
+        const updatedMembers = [...members];
+        const updatedEducations = [...(updatedMembers[memberIndex].educations || [])];
+
+        updatedEducations.splice(educationIndex, 1);
+        updatedMembers[memberIndex].educations = updatedEducations;
+
+        setUserData(prev => ({ ...prev, members: updatedMembers }));
+        toast.success('Education removed.', {
+            duration: 2000,
+        });
+    };
 
     const addOccupation = (index) => {
         const updatedMembers = [...members];
@@ -82,6 +103,7 @@ function EducationandOccupation() {
         updatedMembers[memberIndex].occupations = updatedOccupations;
 
         setUserData(prev => ({ ...prev, members: updatedMembers }));
+        toast.success('Occupation removed.', { duration: 2000 });
     };
 
     useEffect(() => {
@@ -144,8 +166,8 @@ function EducationandOccupation() {
 
                         {isOpen && (
                             <div className="p-4 space-y-4">
-                                <p className="font-bold">Educational Background</p>
-                                <div className="grid md:grid-cols-4 gap-4">
+                                <p className="font-bold">Educational History</p>
+                                {/* <div className="grid md:grid-cols-4 gap-4">
                                     <RadioGroup
                                         label="Currently studying"
                                         name="is_student"
@@ -317,7 +339,125 @@ function EducationandOccupation() {
                                             )}
                                         </div>
                                     </>
-                                )}
+                                )} */}
+
+                                {(member.educations || []).map((education, eduIndex) => {
+                                    const showProgram = education.education === 'college' && education.educational_status === 'graduate';
+                                    const secondRowCols = showProgram ? 'md:grid-cols-4' : 'md:grid-cols-3';
+
+                                    return (
+                                        <div key={eduIndex} className="border p-4 mb-4 rounded-md relative bg-gray-50">
+                                            {/* Row 1 – Always 3 Inputs */}
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <DropdownInputField
+                                                    label="Educational Attainment"
+                                                    name="education"
+                                                    value={education.education || ''}
+                                                    onChange={(e) => handleEducationChange(index, eduIndex, e)}
+                                                    placeholder="Select attainment"
+                                                    items={[
+                                                        { label: "No Formal Education", value: "no_formal_education" },
+                                                        { label: "Elementary", value: "elementary" },
+                                                        { label: "High School", value: "high_school" },
+                                                        { label: "College", value: "college" },
+                                                        { label: "Post Grad", value: "post_grad" },
+                                                        { label: "Vocational", value: "vocational" },
+                                                    ]}
+                                                />
+
+                                                <DropdownInputField
+                                                    label="Educational Status"
+                                                    name="educational_status"
+                                                    value={education.educational_status || ''}
+                                                    onChange={(e) => handleEducationChange(index, eduIndex, e)}
+                                                    placeholder="Select status"
+                                                    items={[
+                                                        { label: "Graduate", value: "graduate" },
+                                                        { label: "Undergraduate", value: "undergraduate" },
+                                                        { label: "Currently Enrolled", value: "enrolled" },
+                                                        { label: "Stopped", value: "stopped" },
+                                                    ]}
+                                                    disabled={education.education === 'no_formal_education'}
+                                                />
+
+                                                <InputField
+                                                    label="School Name"
+                                                    name="school_name"
+                                                    type="text"
+                                                    value={education.school_name || ''}
+                                                    onChange={(e) => handleEducationChange(index, eduIndex, e)}
+                                                    placeholder="Enter school name"
+                                                    disabled={education.education === 'no_formal_education'}
+                                                />
+                                            </div>
+
+                                            {/* Row 2 – 3 or 4 Inputs depending on showProgram */}
+                                            <div className={`grid grid-cols-1 ${secondRowCols} gap-4 mt-4`}>
+                                                <RadioGroup
+                                                    label="School Type"
+                                                    name="school_type"
+                                                    options={[
+                                                        { label: 'Public', value: 'public' },
+                                                        { label: 'Private', value: 'private' },
+                                                    ]}
+                                                    selectedValue={education.school_type || ''}
+                                                    onChange={(e) => handleEducationChange(index, eduIndex, e)}
+                                                    disabled={education.education === 'no_formal_education'}
+                                                />
+
+                                                <YearDropdown
+                                                    label="Year Started"
+                                                    name="year_started"
+                                                    value={education.year_started || ''}
+                                                    onChange={(e) => handleEducationChange(index, eduIndex, e)}
+                                                    disabled={education.education === 'no_formal_education'}
+                                                />
+
+                                                <YearDropdown
+                                                    label="Year Ended"
+                                                    name="year_ended"
+                                                    value={education.year_ended || ''}
+                                                    onChange={(e) => handleEducationChange(index, eduIndex, e)}
+                                                    disabled={
+                                                        education.education === 'no_formal_education' ||
+                                                        education.educational_status === 'enrolled'
+                                                    }
+                                                />
+
+                                                {showProgram && (
+                                                    <InputField
+                                                        label="Finished Course"
+                                                        name="program"
+                                                        type="text"
+                                                        value={education.program || ''}
+                                                        onChange={(e) => handleEducationChange(index, eduIndex, e)}
+                                                        placeholder="Enter your course"
+                                                        disabled={education.education === 'no_formal_education'}
+                                                    />
+                                                )}
+                                            </div>
+
+                                            {/* Remove Button */}
+                                            <button
+                                                type="button"
+                                                onClick={() => removeEducation(index, eduIndex)}
+                                                className="absolute top-2 right-2 text-red-500 hover:text-red-700 transition-colors duration-200"
+                                            >
+                                                <IoIosCloseCircleOutline className="text-2xl" />
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+
+                                <button
+                                    type="button"
+                                    onClick={() => addEducation(index)}
+                                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
+                                >
+                                    <IoIosAddCircleOutline className="text-4xl" />
+                                    <span>Add Education History</span>
+                                </button>
+
                                 <hr className="h-px bg-sky-500 border-0 transform scale-y-100 origin-center" />
                                 <p className="font-bold">Occupation Background</p>
 
