@@ -30,7 +30,15 @@ class FamilyFactory extends Factory
                 '120001_above_high_income',
             ]),
             'family_name' => $this->faker->lastName . ' Family',
-            'family_type' => $this->faker->randomElement(['nuclear', 'extended', 'single-parent', 'other']),
-        ];
+            'family_type' => $this->faker->randomElement(["nuclear",
+            "single_parent",
+            "extended",
+            "stepfamilies",
+            "grandparent",
+            "childless",
+            "cohabiting_partners",
+            "one_person_household",
+            "roommates",]),
+                ];
     }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyRelationController;
 use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\ProfileController;
@@ -18,13 +19,15 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
 
     Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('resident.familytree');
     Route::get('resident/createresident', [ResidentController::class, 'createResident'])->name('resident.createresident');
-    Route::post('/household/store', [ResidentController::class, 'storeHousehold'])->name('household.store');
+    Route::post('resident/storehousehold', [ResidentController::class, 'storeHousehold'])->name('resident.storehousehold');
+    Route::get('family/showfamily/{family}', [FamilyController::class, 'showFamily'])->name('family.showfamily');
 
     Route::resource('resident', ResidentController::class);
     Route::resource('document', DocumentController::class);
     Route::resource('household', HouseholdController::class);
     Route::resource('senior_citizen', SeniorCitizenController::class);
     Route::resource('family_relation', FamilyRelationController::class);
+    Route::resource('family', FamilyController::class);
 });
 
 // Resident-only routes

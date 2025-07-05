@@ -2,11 +2,30 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, UserRoundPlus, HousePlus } from "lucide-react";
+import {
+    Search,
+    UserRoundPlus,
+    HousePlus,
+    SquarePen,
+    Trash2,
+    Network,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import { Toaster, toast } from "sonner";
 import ResidentTable from "@/Components/ResidentTable";
+import DynamicTable from "@/Components/DynamicTable";
+import ActionMenu from "@/Components/ActionMenu";
+import ResidentFilterBar from "@/Components/ResidentFilterBar";
+import {
+    RESIDENT_CIVIL_STATUS_TEXT,
+    RESIDENT_EMPLOYMENT_STATUS_TEXT,
+    RESIDENT_GENDER_COLOR_CLASS,
+    RESIDENT_GENDER_TEXT,
+    RESIDENT_GENDER_TEXT2,
+    RESIDENT_REGISTER_VOTER_CLASS,
+    RESIDENT_REGISTER_VOTER_TEXT,
+} from "@/constants";
 
 export default function Index({
     residents,
@@ -54,10 +73,150 @@ export default function Index({
         }
     };
 
+    const calculateAge = (birthdate) => {
+        if (!birthdate) return "Unknown";
+        const birth = new Date(birthdate);
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         { label: "Residents Table", showOnMobile: true },
     ];
+
+    const allColumns = [
+        { key: "resident_id", label: "ID" },
+        { key: "resident_picture", label: "Resident Image" },
+        { key: "name", label: "Name" },
+        { key: "gender", label: "Gender" },
+        { key: "age", label: "Age" },
+        { key: "civil_status", label: "Civil Status" },
+        { key: "employment_status", label: "Employment" },
+        { key: "occupation", label: "Occupation" },
+        { key: "citizenship", label: "Citizenship" },
+        { key: "registered_voter", label: "Registered Voter" },
+        { key: "contact_number", label: "Contact Number" },
+        { key: "email", label: "Email" },
+        { key: "purok_number", label: "Purok" },
+        { key: "actions", label: "Actions" },
+    ];
+
+    const columnRenderers = {
+        resident_id: (resident) => resident.id,
+
+        resident_picture: (resident) => (
+            <img
+                src={
+                    resident.resident_picture
+                        ? `/storage/${resident.resident_picture}`
+                        : "/images/default-avatar.jpg"
+                }
+                onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/images/default-avatar.jpg";
+                }}
+                alt="Resident"
+                className="w-10 h-10 object-cover rounded"
+            />
+        ),
+
+        name: (resident) => (
+            <div className="text-sm break-words whitespace-normal leading-snug">
+                {`${resident.firstname} ${resident.middlename ?? ""} ${
+                    resident.lastname ?? ""
+                } ${resident.suffix ?? ""}`}
+            </div>
+        ),
+
+        gender: (resident) => {
+            const genderKey = resident.gender;
+            const label = RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
+            const className =
+                RESIDENT_GENDER_COLOR_CLASS[genderKey] ?? "bg-gray-300";
+
+            return (
+                <span
+                    className={`py-1 px-2 rounded-xl text-sm font-medium ${className}`}
+                >
+                    {label}
+                </span>
+            );
+        },
+
+        age: (resident) => {
+            const age = calculateAge(resident.birthdate);
+
+            if (typeof age !== "number") return "Unknown";
+
+            return (
+                <div className="flex flex-col text-sm">
+                    <span className="font-medium text-gray-800">
+                        {age} years old
+                    </span>
+                    {age > 60 && (
+                        <span className="text-xs text-rose-600 font-semibold">
+                            Senior Citizen
+                        </span>
+                    )}
+                </div>
+            );
+        },
+
+        civil_status: (resident) =>
+            RESIDENT_CIVIL_STATUS_TEXT[resident.civil_status],
+
+        employment_status: (resident) =>
+            RESIDENT_EMPLOYMENT_STATUS_TEXT[resident.employment_status],
+
+        occupation: (resident) => resident.occupation ?? "N/A",
+
+        citizenship: (resident) => resident.citizenship,
+
+        registered_voter: (resident) => (
+            <span
+                className={
+                    RESIDENT_REGISTER_VOTER_CLASS[resident.registered_voter]
+                }
+            >
+                {RESIDENT_REGISTER_VOTER_TEXT[resident.registered_voter]}
+            </span>
+        ),
+
+        contact_number: (resident) => resident.contact_number,
+
+        purok_number: (resident) => `Purok ${resident.purok_number}`,
+
+        email: (resident) => resident.email,
+
+        actions: (resident) => (
+            <ActionMenu
+                actions={[
+                    {
+                        label: "Edit",
+                        icon: <SquarePen className="w-4 h-4 text-green-500" />,
+                        onClick: () => handleEdit(resident.id),
+                    },
+                    {
+                        label: "Delete",
+                        icon: <Trash2 className="w-4 h-4 text-red-600" />,
+                        onClick: () => handleDelete(resident.id),
+                    },
+                    {
+                        label: "Family Tree",
+                        icon: <Network className="w-4 h-4 text-blue-500" />,
+                        href: route("resident.familytree", resident.id),
+                        tooltip: "See Family Tree",
+                    },
+                ]}
+            />
+        ),
+    };
 
     // Determine if showing all or paginated by checking queryParams.all
     const [showAll, setShowAll] = useState(queryParams.all === "true");
@@ -97,17 +256,17 @@ export default function Index({
             <div>
                 <Toaster />
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-                <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                    <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 my-8">
+                <div className="p-2 md:p-4">
+                    <div className="overflow-x bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-2 my-4">
                         <div className="my-1 mb-3 flex justify-between items-center">
                             <div className="flex w-full max-w-sm items-center space-x-1">
                                 <Link href={route("resident.create")}>
-                                    <Button className="bg-green-700 hover:bg-green-400 ">
+                                    <Button className="bg-blue-700 hover:bg-blue-400 ">
                                         <HousePlus /> Add a Household
                                     </Button>
                                 </Link>
                                 <Link href={route("resident.createresident")}>
-                                    <Button className="bg-green-700 hover:bg-green-400 ">
+                                    <Button className="bg-blue-700 hover:bg-blue-400 ">
                                         <UserRoundPlus /> Add a Resident
                                     </Button>
                                 </Link>
@@ -136,15 +295,22 @@ export default function Index({
                                 </form>
                             </div>
                         </div>
-                        <ResidentTable
-                            residents={residents}
+
+                        <DynamicTable
+                            passedData={residents}
+                            allColumns={allColumns}
+                            columnRenderers={columnRenderers}
+                            is_paginated={true}
                             queryParams={queryParams}
-                            route={route}
-                            searchFieldName={searchFieldName}
-                            puroks={puroks}
-                            toggleShowAll={toggleShowAll}
                             showAll={showAll}
-                        />
+                            toggleShowAll={toggleShowAll}
+                        >
+                            <ResidentFilterBar
+                                queryParams={queryParams}
+                                searchFieldName={searchFieldName}
+                                puroks={puroks}
+                            />
+                        </DynamicTable>
                     </div>
                 </div>
             </div>

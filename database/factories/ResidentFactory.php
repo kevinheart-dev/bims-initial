@@ -7,6 +7,8 @@ use App\Models\Household;
 use App\Models\Purok;
 use App\Models\Street;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Resident>
@@ -21,11 +23,13 @@ class ResidentFactory extends Factory
     public function definition(): array
     {
         $suffixes = ['Jr.', 'Sr.', 'I', 'II', 'III', 'IV', 'V'];
+        $randomFam = Family::inRandomOrder()->first();
+        $lname =  preg_replace('/family/i', '', $randomFam?->family_name ?? '');
         return [
             'barangay_id' => 1,
             'firstname' => $this->faker->firstName,
             'middlename' => $this->faker->firstName,
-            'lastname' => $this->faker->lastName,
+            'lastname' => $lname,
             'maiden_name' => $this->faker->optional()->lastName,
             'suffix' => $this->faker->optional()->randomElement($suffixes),
             'gender' => $this->faker->randomElement(['male', 'female', 'LGBTQ']),
@@ -49,9 +53,9 @@ class ResidentFactory extends Factory
             'ethnicity' => $this->faker->optional()->word(),
             'date_of_death' => $this->faker->optional()->date(),
             'household_id' => Household::inRandomOrder()->first()?->id ?? Household::factory(),
-            'is_household_head' => $this->faker->boolean(),
-            'family_id' => Family::inRandomOrder()->first()?->id ?? Family::factory(),
-            'is_family_head' => $this->faker->boolean(),
+            'is_household_head' => $this->faker->boolean(20),
+            'family_id' => $randomFam?->id ?? Family::factory(),
+            'is_family_head' => $this->faker->boolean(30),
             'verified' => TRUE,
         ];
     }

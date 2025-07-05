@@ -14,6 +14,7 @@ export const RESIDENT_EMPLOYMENT_STATUS_TEXT = {
     employed: "Employed",
     unemployed: "Unemployed",
     self_employed: "Self Employed",
+    under_employed: "Under Employed",
     retired: "Retired",
 };
 
@@ -67,9 +68,9 @@ export const RESIDENT_REGISTER_VOTER_CLASS = {
 };
 
 export const RESIDENT_RECIDENCY_TYPE_TEXT = {
-    permanent: 'Permanent',
-    temporary: 'Temporary',
-    imigrant: 'Imigrant',
+    permanent: "Permanent",
+    temporary: "Temporary",
+    imigrant: "Imigrant",
 };
 export const RESIDENT_4PS_TEXT = {
     0: "No",
@@ -93,7 +94,7 @@ export const RESIDENT_VOTING_STATUS_TEXT = {
     medical: "Medical",
     overseas: "Overseas",
     detained: "Detained",
-    deceased: "Deceased"
+    deceased: "Deceased",
 };
 
 export const SENIOR_LIVING_ALONE_TEXT = {
@@ -111,7 +112,6 @@ export const VEHICLE_OWNERSHIP_TEXT = {
     1: "Yes",
     0: "No",
 };
-
 
 export const VEHICLE_CLASS_TEXT = {
     private: "Private",
@@ -183,15 +183,15 @@ export const FAMILY_TYPE_TEXT = {
     cohabiting_partners: "Cohabiting Partners",
     one_person_household: "One-person Household",
     roommates: "Roommates",
+    other: "Other",
 };
-
 
 export const HOUSEHOLD_OWNERSHIP_TEXT = {
     owned: "Owned",
     rented: "Rented",
     shared: "Shared",
     goverment_provided: "Goverment-Provided",
-    inherited: "Inherited"
+    inherited: "Inherited",
 };
 
 export const HOUSEHOLD_STRUCTURE_TEXT = {
@@ -237,7 +237,6 @@ export const MEDICAL_PHILHEALTH_TEXT = {
     0: "No",
     1: "Yes",
 };
-
 
 export const EDUCATION_SCHOOL_TYPE = {
     public: "Public",
@@ -309,4 +308,33 @@ export const INCOME_BRACKET_TEXT = {
     above_120001: "₱120,001 and above",
 };
 
-
+export const INCOME_BRACKETS = {
+    below_5000_survival: {
+        label: "Below ₱5,000 (Survival)",
+        className: "bg-red-100 text-red-700",
+    },
+    "5001_10000_poor": {
+        label: "₱5,001 – ₱10,000 (Poor)",
+        className: "bg-orange-100 text-orange-700",
+    },
+    "10001_20000_low_income": {
+        label: "₱10,001 – ₱20,000 (Low Income)",
+        className: "bg-yellow-100 text-yellow-700",
+    },
+    "20001_40000_lower_middle_income": {
+        label: "₱20,001 – ₱40,000 (Lower Middle Income)",
+        className: "bg-lime-100 text-lime-700",
+    },
+    "40001_70000_middle_income": {
+        label: "₱40,001 – ₱70,000 (Middle Income)",
+        className: "bg-green-100 text-green-700",
+    },
+    "70001_120000_upper_middle_income": {
+        label: "₱70,001 – ₱120,000 (Upper Middle Income)",
+        className: "bg-emerald-100 text-emerald-700",
+    },
+    "120001_above_high_income": {
+        label: "₱120,001 and above (High Income)",
+        className: "bg-blue-100 text-blue-700",
+    },
+};

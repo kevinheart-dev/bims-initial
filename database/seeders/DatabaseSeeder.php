@@ -54,7 +54,7 @@ class DatabaseSeeder extends Seeder
         }
         Street::factory(30)->create();
         Household::factory(15)->create();
-
+        Family::factory(13)->create();
         $barangayOfficer = Role::firstOrCreate(['name' => 'barangay_officer']);
         $user = User::factory()->create([
             'resident_id' => Resident::factory(),
@@ -97,7 +97,6 @@ class DatabaseSeeder extends Seeder
 
         OccupationType::factory(30)->create();
         LivelihoodType::factory(30)->create();
-        Family::factory(7)->create();
         Resident::factory(50)->create();
         HouseholdResident::factory(10)->create();
         MedicalInformation::factory(70)->create();

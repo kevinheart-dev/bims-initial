@@ -330,15 +330,22 @@ const ResidentTable = ({
                         )}
                     </tbody>
                 </table>
-                <div>
-                    {Array.isArray(residents.links) &&
-                        residents.links.length > 0 && (
-                            <Pagination
-                                links={residents.links}
-                                queryParams={queryParams}
-                            />
-                        )}
-                </div>
+
+                {visibleColumns.length === 0 ? (
+                    <div className="p-2 text-sm text-red-600 font-medium w-full text-center rounded-lg border border-gray-200">
+                        All columns are hidden.
+                    </div>
+                ) : (
+                    <div>
+                        {Array.isArray(residents.links) &&
+                            residents.links.length > 0 && (
+                                <Pagination
+                                    links={residents.links}
+                                    queryParams={queryParams}
+                                />
+                            )}
+                    </div>
+                )}
             </div>
         </>
     );

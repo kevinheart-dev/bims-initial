@@ -58,7 +58,7 @@ const items = [
             },
             {
                 title: "Families",
-                url: "/barangay_officer/family_relation",
+                url: "/barangay_officer/family",
                 icon: SquareUserRound,
             },
         ],

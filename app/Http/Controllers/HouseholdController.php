@@ -3,13 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Household;
-use App\Models\HouseholdResident;
-use App\Models\MedicalInformation;
-use App\Models\Resident;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-
-
+use App\Http\Requests\StoreHouseholdRequest;
+use App\Http\Requests\UpdateHouseholdRequest;
 
 class HouseholdController extends Controller
 {
@@ -18,7 +13,7 @@ class HouseholdController extends Controller
      */
     public function index()
     {
-        dd('hello');
+        //
     }
 
     /**
@@ -32,7 +27,7 @@ class HouseholdController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreHouseholdRequest $request)
     {
         //
     }
@@ -40,15 +35,15 @@ class HouseholdController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Household $household)
     {
-        //
+        dd($household);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Household $household)
     {
         //
     }
@@ -56,7 +51,7 @@ class HouseholdController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateHouseholdRequest $request, Household $household)
     {
         //
     }
@@ -64,7 +59,7 @@ class HouseholdController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Household $household)
     {
         //
     }
