@@ -255,7 +255,9 @@ export const EDUCATION_LEVEL_TEXT = {
 
 export const EDUCATION_STATUS_TEXT = {
     graduate: "Graduate",
-    undergraduate: "undergraduate",
+    undergraduate: "Undergraduate",
+    enrolled: "Currently Enrolled",
+    stopped: "Stopped"
 };
 
 export const EDUCATION_OSY_TEXT = {
