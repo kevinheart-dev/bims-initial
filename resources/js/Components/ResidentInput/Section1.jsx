@@ -619,7 +619,7 @@ const Section1 = ({
                                 <DropdownInputField
                                     label="Votes In? "
                                     name="registered_barangay"
-                                    value={data.voting_status || ""}
+                                    value={data.registered_barangay || ""}
                                     onChange={(e) =>
                                         setData(
                                             "registered_barangay",

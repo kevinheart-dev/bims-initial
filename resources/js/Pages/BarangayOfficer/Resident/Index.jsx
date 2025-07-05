@@ -122,7 +122,7 @@ export default function Index({
                     e.target.src = "/images/default-avatar.jpg";
                 }}
                 alt="Resident"
-                className="w-10 h-10 object-cover rounded"
+                className="w-20 h-20 min-w-20 min-h-20 object-cover rounded-full border"
             />
         ),
 
