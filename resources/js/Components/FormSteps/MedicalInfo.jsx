@@ -85,7 +85,6 @@ function MedicalInfo() {
 
     const handlePWDChange = (memberIndex, e) => {
         const { name, value } = e.target;
-
         const updatedMembers = [...members];
         updatedMembers[memberIndex][name] = value;
         setUserData(prev => ({ ...prev, members: updatedMembers }));
@@ -373,57 +372,31 @@ function MedicalInfo() {
                                                 </label>
 
                                                 <div className="flex flex-wrap items-center gap-4">
-                                                    {(
-                                                        member.disabilities ||
-                                                        []
-                                                    ).map(
-                                                        (
-                                                            disability,
-                                                            disIndex
-                                                        ) => (
-                                                            <div
-                                                                key={disIndex}
-                                                                className="flex items-center gap-2 bg-gray-50 p-2 rounded-md shadow-sm"
+                                                    {(member.disabilities || []).map((disability, disIndex) => (
+                                                        <div
+                                                            key={disIndex}
+                                                            className="flex items-center gap-2 bg-gray-50 p-2 rounded-md shadow-sm"
+                                                        >
+                                                            <InputField
+                                                                type="text"
+                                                                name="disability_type"
+                                                                value={disability.disability_type || ""}
+                                                                onChange={(e) => handleDisabilityChange(index, disIndex, e)}
+                                                                placeholder="Enter disability type"
+                                                            />
+                                                            <button
+                                                                type="button" onClick={() => removeDisability(index, disIndex)}
+                                                                className="text-red-500 hover:text-red-700 text-xl"
+                                                                title="Remove"
                                                             >
-                                                                <InputField
-                                                                    type="text"
-                                                                    name="disability_type"
-                                                                    value={
-                                                                        disability.disability_type || ""
-                                                                    }
-                                                                    onChange={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleDisabilityChange(
-                                                                            index,
-                                                                            disIndex,
-                                                                            e
-                                                                        )
-                                                                    }
-                                                                    placeholder="Enter disability type"
-                                                                />
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() =>
-                                                                        removeDisability(
-                                                                            index,
-                                                                            disIndex
-                                                                        )
-                                                                    }
-                                                                    className="text-red-500 hover:text-red-700 text-xl"
-                                                                    title="Remove"
-                                                                >
-                                                                    <IoIosCloseCircleOutline />
-                                                                </button>
-                                                            </div>
-                                                        )
+                                                                <IoIosCloseCircleOutline />
+                                                            </button>
+                                                        </div>
+                                                    )
                                                     )}
 
                                                     <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            addDisability(index)
-                                                        }
+                                                        type="button" onClick={() => addDisability(index)}
                                                         className="text-blue-600 hover:text-blue-800 text-2xl"
                                                         title="Add disability"
                                                     >

@@ -285,11 +285,47 @@ const Summary = ({ onBack, onSubmit }) => {
                     {renderDetail("No. of Rooms", userData.number_of_rooms)}
                     {renderDetail("No. of Floors", userData.number_of_floors)}
                     {renderDetail("Bath/Wash Area", CONSTANTS.HOUSEHOLD_BATH_WASH_TEXT[userData.bath_and_wash_area])}
-                    {renderDetail("Toilet Type", CONSTANTS.HOUSEHOLD_TOILET_TYPE_TEXT[userData.toilet_type])}
-                    {renderDetail("Electricity", CONSTANTS.HOUSEHOLD_ELECTRICITY_TYPE[userData.electricity_type])}
-                    {renderDetail("Water Source", CONSTANTS.HOUSEHOLD_WATER_SOURCE_TEXT[userData.water_source_type])}
-                    {renderDetail("Waste Disposal", CONSTANTS.HOUSEHOLD_WASTE_DISPOSAL_TEXT[userData.waste_management_type])}
                     {renderDetail("Internet", CONSTANTS.HOUSEHOLD_INTERNET_TYPE_TEXT[userData.type_of_internet])}
+                    {(userData.toilets || []).length > 0 &&
+                        renderDetail(
+                            "Toilet Type(s)",
+                            (userData.toilets || [])
+                                .map((toilet) => CONSTANTS.HOUSEHOLD_TOILET_TYPE_TEXT[toilet.toilet_type])
+                                .filter(Boolean) // skip undefined values
+                                .join(", ")
+                        )
+                    }
+
+                    {(userData.electricity_types || []).length > 0 &&
+                        renderDetail(
+                            "Electricity Source(s)",
+                            (userData.electricity_types || [])
+                                .map((e) => CONSTANTS.HOUSEHOLD_ELECTRICITY_TYPE[e.electricity_type])
+                                .filter(Boolean)
+                                .join(", ")
+                        )
+                    }
+
+                    {(userData.water_source_types || []).length > 0 &&
+                        renderDetail(
+                            "Water Source(s)",
+                            (userData.water_source_types || [])
+                                .map((w) => CONSTANTS.HOUSEHOLD_WATER_SOURCE_TEXT[w.water_source_type])
+                                .filter(Boolean)
+                                .join(", ")
+                        )
+                    }
+
+                    {(userData.waste_management_types || []).length > 0 &&
+                        renderDetail(
+                            "Waste Disposal Method(s)",
+                            (userData.waste_management_types || [])
+                                .map((w) => CONSTANTS.HOUSEHOLD_WASTE_DISPOSAL_TEXT[w.waste_management_type])
+                                .filter(Boolean)
+                                .join(", ")
+                        )
+                    }
+
                 </div>
 
                 {/* Livestock and Pets */}

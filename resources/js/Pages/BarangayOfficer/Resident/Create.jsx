@@ -25,8 +25,12 @@ export default function Index() {
     ];
 
     const [currentStep, setCurrentStep] = useState(1);
-    const [userData, setUserData] = useState({});
-    // const [userData, setUserData] = useState('');
+    const [userData, setUserData] = useState({
+        toilets: [{ toilet_type: "" }],
+        electricity_types: [{ electricity_type: "" }],
+        water_source_types: [{ water_source_type: "" }],
+        waste_management_types: [{ waste_management_type: "" }]
+    });
     const [finalData, setFinalData] = useState([]);
 
     const steps = [
