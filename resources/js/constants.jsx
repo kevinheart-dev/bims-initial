@@ -124,6 +124,12 @@ export const VEHICLE_USAGE_TEXT = {
     business_use: "Business Use",
 };
 
+export const HOUSEHOLD_POSITION_TEXT = {
+    primary: "Primary",
+    extended: "Extended",
+    boarder: "Boarder",
+};
+
 export const HOUSEHOLD_BATH_WASH_TEXT = {
     with_own_sink_and_bath: "With own sink and bath",
     with_own_sink_only: "With own sink only",
@@ -183,6 +189,16 @@ export const FAMILY_TYPE_TEXT = {
     cohabiting_partners: "Cohabiting Partners",
     one_person_household: "One-person Household",
     roommates: "Roommates",
+    other: "Other",
+};
+
+export const RELATIONSHIP_TO_HEAD_TEXT = {
+    self: "Self",
+    spouse: "Spouse",
+    child: "Child",
+    sibling: "Sibling",
+    parent: "Parent",
+    grandparent: "Grandparent",
     other: "Other",
 };
 
@@ -256,7 +272,7 @@ export const EDUCATION_STATUS_TEXT = {
     graduate: "Graduate",
     undergraduate: "Undergraduate",
     enrolled: "Currently Enrolled",
-    stopped: "Stopped"
+    stopped: "Stopped",
 };
 
 export const EDUCATION_OSY_TEXT = {

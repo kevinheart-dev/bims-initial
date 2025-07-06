@@ -4,8 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\HouseholdResident;
 use App\Models\Resident;
-use DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class FixHouseholdResidentSeeder extends Seeder

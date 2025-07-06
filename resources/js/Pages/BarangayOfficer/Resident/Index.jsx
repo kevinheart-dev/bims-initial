@@ -190,7 +190,7 @@ export default function Index({
 
         contact_number: (resident) => resident.contact_number,
 
-        purok_number: (resident) => `Purok ${resident.purok_number}`,
+        purok_number: (resident) => resident.purok_number,
 
         email: (resident) => resident.email,
 

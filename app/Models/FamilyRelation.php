@@ -9,6 +9,11 @@ class FamilyRelation extends Model
 {
     /** @use HasFactory<\Database\Factories\FamilyRelationFactory> */
     use HasFactory;
+    protected $fillable = [
+        'resident_id',
+        'related_to',
+        'relationship',
+    ];
 
     public function residentInvo()
     {

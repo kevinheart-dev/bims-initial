@@ -11,6 +11,7 @@ use App\Models\DisasterRisk;
 use App\Models\EducationalHistory;
 use App\Models\EducationStatus;
 use App\Models\Family;
+use App\Models\FamilyRelation;
 use App\Models\Household;
 use App\Models\HouseholdResident;
 use App\Models\InternetAccessibility;
@@ -36,6 +37,7 @@ use App\Models\Vaccination;
 use App\Models\Vehicle;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
+use Faker\Factory as Faker;
 
 class DatabaseSeeder extends Seeder
 {
@@ -44,6 +46,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $faker = Faker::create();
         // User::factory(10)->create();
         Barangay::factory(2)->create();
         for($i = 1; $i <= 7; $i++){
@@ -53,8 +56,8 @@ class DatabaseSeeder extends Seeder
             ]);
         }
         Street::factory(30)->create();
-        Household::factory(15)->create();
-        Family::factory(13)->create();
+        Household::factory(25)->create();
+        Family::factory(20)->create();
         $barangayOfficer = Role::firstOrCreate(['name' => 'barangay_officer']);
         $user = User::factory()->create([
             'resident_id' => Resident::factory(),
@@ -115,5 +118,7 @@ class DatabaseSeeder extends Seeder
             $group->first()->update(['is_household_head' => true]);
         });
         $this->call(FixHouseholdResidentSeeder::class);
+        $this->call(FamilyRelationSeeder::class);
+
     }
 }

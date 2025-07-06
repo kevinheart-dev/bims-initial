@@ -25,8 +25,10 @@ import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import {
     FAMILY_TYPE_TEXT,
+    HOUSEHOLD_POSITION_TEXT,
     INCOME_BRACKETS,
     MEDICAL_PWD_TEXT,
+    RELATIONSHIP_TO_HEAD_TEXT,
     RESIDENT_EMPLOYMENT_STATUS_TEXT,
     RESIDENT_GENDER_COLOR_CLASS,
     RESIDENT_GENDER_TEXT2,
@@ -89,6 +91,8 @@ export default function Index({
         { key: "name", label: "Resident Name" },
         { key: "gender", label: "Gender" },
         { key: "age", label: "Age" },
+        { key: "relationship_to_head", label: "Relationship to Head" },
+        { key: "household_position", label: "Household Position" },
         { key: "employment_status", label: "Employment Status" },
         { key: "registered_voter", label: "Register Voter" },
         { key: "is_pwd", label: "Is PWD" },
@@ -153,6 +157,14 @@ export default function Index({
                 </div>
             );
         },
+        relationship_to_head: (member) =>
+            RELATIONSHIP_TO_HEAD_TEXT[
+                member.household_residents?.[0]?.relationship_to_head
+            ] || "",
+        household_position: (member) =>
+            HOUSEHOLD_POSITION_TEXT[
+                member.household_residents?.[0]?.household_position
+            ] || "",
         employment_status: (member) =>
             RESIDENT_EMPLOYMENT_STATUS_TEXT[member?.employment_status],
         registered_voter: (member) => {
@@ -189,7 +201,7 @@ export default function Index({
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                    <pre>{JSON.stringify(members, undefined, 3)}</pre>
+                    {/* <pre>{JSON.stringify(members, undefined, 3)}</pre> */}
                     <div className="flex flex-row overflow-hidden bg-gray-50 shadow-md rounded-xl sm:rounded-lg m-3">
                         <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
                         <div className="flex flex-col justify-start items-start p-4 w-full">
