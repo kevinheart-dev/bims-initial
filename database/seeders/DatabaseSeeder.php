@@ -97,8 +97,9 @@ class DatabaseSeeder extends Seeder
 
         OccupationType::factory(30)->create();
         LivelihoodType::factory(30)->create();
-        Resident::factory(50)->create();
-        HouseholdResident::factory(10)->create();
+
+        $residents = Resident::factory()->count(50)->create();
+
         MedicalInformation::factory(70)->create();
         InternetAccessibility::factory(15)->create();
         Livelihood::factory(60)->create();
@@ -109,5 +110,10 @@ class DatabaseSeeder extends Seeder
         ResidentVoterInformation::factory(60)->create();
         SocialWelfareProfile::factory(60)->create();
         SeniorCitizen::factory(30)->create();
+
+        $residents->groupBy('household_id')->each(function ($group) {
+            $group->first()->update(['is_household_head' => true]);
+        });
+        $this->call(FixHouseholdResidentSeeder::class);
     }
 }

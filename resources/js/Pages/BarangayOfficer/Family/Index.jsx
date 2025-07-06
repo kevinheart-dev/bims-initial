@@ -330,9 +330,7 @@ export default function Index({ families, queryParams = null, puroks }) {
                                     </Select>
                                 </div>
                                 <div className="flex justify-end">
-                                    <ClearFilterButton
-                                        link={"family_relation.index"}
-                                    />
+                                    <ClearFilterButton link={"family.index"} />
                                 </div>
                             </div>
                         </DynamicTable>

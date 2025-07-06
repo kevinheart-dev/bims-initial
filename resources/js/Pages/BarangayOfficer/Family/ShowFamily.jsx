@@ -189,7 +189,7 @@ export default function Index({
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                    {/* <pre>{JSON.stringify(members, undefined, 3)}</pre> */}
+                    <pre>{JSON.stringify(members, undefined, 3)}</pre>
                     <div className="flex flex-row overflow-hidden bg-gray-50 shadow-md rounded-xl sm:rounded-lg m-3">
                         <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
                         <div className="flex flex-col justify-start items-start p-4 w-full">

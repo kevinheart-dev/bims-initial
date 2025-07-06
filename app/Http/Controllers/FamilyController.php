@@ -108,11 +108,29 @@ class FamilyController extends Controller
 
     public function showFamily(Family $family)
     {
-        $members = $family->members()->select('id', 'firstname','middlename','lastname',
-                                            'suffix', 'birthdate', 'gender', 'employment_status',
-                                            'is_family_head', 'is_household_head', 'is_pwd',
-                                            'registered_voter', 'family_id', 'household_id')
-                                            ->get();
+        $members = $family->members()
+        ->select([
+            'id',
+            'firstname',
+            'middlename',
+            'lastname',
+            'suffix',
+            'birthdate',
+            'gender',
+            'employment_status',
+            'is_family_head',
+            'is_household_head',
+            'is_pwd',
+            'registered_voter',
+            'family_id',
+            'household_id',
+        ])
+        ->with([
+            'householdResidents' => function ($query) {
+                $query->select('id', 'resident_id', 'household_id', 'relationship_to_head', 'household_position');
+            }
+        ])
+        ->get();
         $family_details = $family;
         $household_details = $family->household;
         return Inertia::render("BarangayOfficer/Family/ShowFamily", [
