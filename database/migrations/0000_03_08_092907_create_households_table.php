@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('house_number');
             $table->string('ownership_type', 55);
             $table->string('ownership_details', 100)->nullable();
-            $table->enum('housing_condition', ['good', 'needs repair', 'dilapidated']);
+            $table->enum('housing_condition', ['good', 'needs_repair', 'dilapidated']);
             $table->year('year_established')->nullable();
             $table->enum('house_structure', ['concrete', 'semi_concrete', 'wood', 'makeshift']);
             $table->string('bath_and_wash_area', 100)->nullable();

@@ -156,9 +156,7 @@ export default function Index({
 
             return (
                 <div className="flex flex-col text-sm">
-                    <span className="font-medium text-gray-800">
-                        {age} years old
-                    </span>
+                    <span className="font-medium text-gray-800">{age}</span>
                     {age > 60 && (
                         <span className="text-xs text-rose-600 font-semibold">
                             Senior Citizen

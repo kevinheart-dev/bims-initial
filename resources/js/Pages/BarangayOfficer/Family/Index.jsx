@@ -106,7 +106,14 @@ export default function Index({ families, queryParams = null, puroks }) {
                     No
                 </span>
             ),
-        family_name: (family) => family.family?.family_name,
+        family_name: (family) => (
+            <Link
+                href={route("family.showfamily", family.family_id)}
+                className="hover:text-blue-500 hover:underline"
+            >
+                {family.family?.family_name}
+            </Link>
+        ),
         family_member_count: (family) => (
             <span className="flex items-center">
                 {family.family_member_count} <User className="ml-2 h-5 w-5" />

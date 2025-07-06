@@ -223,6 +223,12 @@ export const HOUSEHOLD_CONDITION_TEXT = {
     dilapidated: "Delapitated",
 };
 
+export const HOUSING_CONDITION_COLOR = {
+    good: "bg-green-100 text-green-800",
+    poor: "bg-red-100 text-red-800",
+    fair: "bg-yellow-100 text-yellow-800", // fallback or neutral option
+};
+
 export const PETS_PURPOSE_TEXT = {
     personal_consumption: "Personal Consumption",
     commercial: "Commercial",
