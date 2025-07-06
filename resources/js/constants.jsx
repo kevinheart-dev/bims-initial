@@ -161,7 +161,7 @@ export const HOUSEHOLD_WATER_SOURCE_TEXT = {
 export const HOUSEHOLD_WASTE_DISPOSAL_TEXT = {
     open_dump_site: "Open Dump Site",
     sanitary_landfill: "Sanitary Landfill",
-    compost_pits: "Compost_pits",
+    compost_pits: "Compost Pits",
     material_recovery_facility: "Material Recovery Facility",
     garbage_is_collected: "Garbage is Collected",
     none: "None",

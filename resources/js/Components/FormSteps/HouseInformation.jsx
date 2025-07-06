@@ -58,6 +58,34 @@ function HouseInformation() {
         setUserData(prev => ({ ...prev, pets: updatedPets }));
     };
 
+    // Add to dynamic field
+    const addDynamicField = (field, defaultValue = {}) => {
+        const currentArray = userData[field] || [];
+        const updatedArray = [...currentArray, defaultValue];
+        setUserData((prev) => ({ ...prev, [field]: updatedArray }));
+    };
+
+    // Remove from dynamic field
+    const removeDynamicField = (field, index) => {
+        const currentArray = [...(userData[field] || [])];
+        currentArray.splice(index, 1);
+        setUserData((prev) => ({ ...prev, [field]: currentArray }));
+    };
+
+    // Handle change in dynamic field
+    const handleDynamicFieldChange = (field, index, e) => {
+        const { name, value } = e.target;
+        const currentArray = [...(userData[field] || [])];
+        currentArray[index] = {
+            ...currentArray[index],
+            [name]: value,
+        };
+        setUserData((prev) => ({ ...prev, [field]: currentArray }));
+    };
+
+
+
+
 
     return (
         <div>
@@ -132,6 +160,8 @@ function HouseInformation() {
                     onChange={handleChange}
                     placeholder="Enter number of floors"
                 />
+
+
                 <DropdownInputField
                     label="Bath and Wash Area"
                     name="bath_and_wash_area"
@@ -146,65 +176,8 @@ function HouseInformation() {
                         { label: 'None', value: 'none' }
                     ]}
                 />
-                <DropdownInputField
-                    label="Type of Toilet"
-                    name="toilet_type"
-                    value={userData.toilet_type || ''}
-                    onChange={handleChange}
-                    placeholder="Select or enter toilet type"
-                    items={[
-                        { label: 'Water sealed', value: 'water_sealed' },
-                        { label: 'Compost pit toilet', value: 'compost_pit_toilet' },
-                        { label: 'Shared communal public toilet', value: 'shared_communal_public_toilet' },
-                        { label: 'Shared or communal', value: 'shared_or_communal' },
-                        { label: 'No latrine', value: 'no_latrine' }
-                    ]}
-                />
-                <DropdownInputField
-                    label="Source of Electricity"
-                    name="electricity_type"
-                    value={userData.electricity_type || ''}
-                    onChange={handleChange}
-                    placeholder="Select or enter electricity source"
-                    items={[
-                        { label: 'ISELCO II (Distribution Company)', value: 'distribution_company_iselco_ii' },
-                        { label: 'Generator', value: 'generator' },
-                        { label: 'Solar / Renewable Energy Source', value: 'solar_renewable_energy_source' },
-                        { label: 'Battery', value: 'battery' },
-                        { label: 'None', value: 'none' }
-                    ]}
-                />
-                <DropdownInputField
-                    label="Water Source Type"
-                    name="water_source_type"
-                    value={userData.water_source_type || ''}
-                    onChange={handleChange}
-                    placeholder="Select water source type"
-                    items={[
-                        { label: 'Level II Water System', value: 'level_ii_water_system' },
-                        { label: 'Level III Water System', value: 'level_iii_water_system' },
-                        { label: 'Deep Well Level I', value: 'deep_well_level_i' },
-                        { label: 'Artesian Well Level I', value: 'artesian_well_level_i' },
-                        { label: 'Shallow Well Level I', value: 'shallow_well_level_i' },
-                        { label: 'Commercial Water Refill Source', value: 'commercial_water_refill_source' },
-                        { label: 'None', value: 'none' }
-                    ]}
-                />
-                <DropdownInputField
-                    label="Waste Disposal Method"
-                    name="waste_management_type"
-                    value={userData.waste_management_type || ''}
-                    onChange={handleChange}
-                    placeholder="Select waste disposal method"
-                    items={[
-                        { label: 'Open Dump Site', value: 'open_dump_site' },
-                        { label: 'Sanitary Landfill', value: 'sanitary_landfill' },
-                        { label: 'Compost Pits', value: 'compost_pits' },
-                        { label: 'Material Recovery Facility', value: 'material_recovery_facility' },
-                        { label: 'Garbage is Collected', value: 'garbage_is_collected' },
-                        { label: 'None', value: 'none' }
-                    ]}
-                />
+
+
                 <DropdownInputField
                     label="Internet Connection Type"
                     name="type_of_internet"
@@ -217,9 +190,192 @@ function HouseInformation() {
                         { label: 'None', value: 'none' }
                     ]}
                 />
+                {/* Toilets */}
+                <div className="w-full">
+                    <label className="block text-sm font-semibold text-gray-700 mb-0 mt-4">
+                        Type of Toilet(s)
+                    </label>
+                    <div className="flex flex-col gap-2">
+                        {(userData.toilets || []).map((toilet, idx) => (
+                            <div key={idx} className="flex items-center gap-2 w-full">
+                                <DropdownInputField
+                                    name="toilet_type"
+                                    value={toilet.toilet_type || ""}
+                                    onChange={(e) => handleDynamicFieldChange("toilets", idx, e)}
+                                    placeholder="Select or enter toilet type"
+                                    items={[
+                                        { label: "Water sealed", value: "water_sealed" },
+                                        { label: "Compost pit toilet", value: "compost_pit_toilet" },
+                                        { label: "Shared communal public toilet", value: "shared_communal_public_toilet" },
+                                        { label: "Shared or communal", value: "shared_or_communal" },
+                                        { label: "No latrine", value: "no_latrine" },
+                                    ]}
+                                />
+                                {userData.toilets.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeDynamicField("toilets", idx)}
+                                        className="text-red-500 hover:text-red-700 text-xl"
+                                    >
+                                        <IoIosCloseCircleOutline />
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                        <div className="flex items-center gap-2 mt-3">
+                            <button
+                                type="button"
+                                onClick={() => addDynamicField("toilets", { toilet_type: "" })}
+                                className="text-blue-600 hover:text-blue-800 text-3xl"
+                            >
+                                <IoIosAddCircleOutline />
+                            </button>
+                            <span className="text-sm text-gray-600">Add another type of toilet</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Electricity */}
+                <div className="w-full">
+                    <label className="block text-sm font-semibold text-gray-700 mb-0 mt-4">
+                        Electricity Source(s)
+                    </label>
+                    <div className="flex flex-col gap-2">
+                        {(userData.electricity_types || []).map((entry, idx) => (
+                            <div key={idx} className="flex items-center gap-2 w-full">
+                                <DropdownInputField
+                                    name="electricity_type"
+                                    value={entry.electricity_type || ""}
+                                    onChange={(e) => handleDynamicFieldChange("electricity_types", idx, e)}
+                                    placeholder="Select electricity source"
+                                    items={[
+                                        { label: "ISELCO II", value: "distribution_company_iselco_ii" },
+                                        { label: "Generator", value: "generator" },
+                                        { label: "Solar / Renewable", value: "solar_renewable_energy_source" },
+                                        { label: "Battery", value: "battery" },
+                                        { label: "None", value: "none" },
+                                    ]}
+                                />
+                                {userData.electricity_types.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeDynamicField("electricity_types", idx)}
+                                        className="text-red-500 hover:text-red-700 text-xl"
+                                    >
+                                        <IoIosCloseCircleOutline />
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                        <div className="flex items-center gap-2 mt-3">
+                            <button
+                                type="button"
+                                onClick={() => addDynamicField("electricity_types", { electricity_type: "" })}
+                                className="text-blue-600 hover:text-blue-800 text-3xl"
+                            >
+                                <IoIosAddCircleOutline />
+                            </button>
+                            <span className="text-sm text-gray-600">Add electricity source</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Water Source */}
+                <div className="w-full">
+                    <label className="block text-sm font-semibold text-gray-700 mb-0 mt-4">
+                        Water Source(s)
+                    </label>
+                    <div className="flex flex-col gap-2">
+                        {(userData.water_source_types || []).map((entry, idx) => (
+                            <div key={idx} className="flex items-center gap-2 w-full">
+                                <DropdownInputField
+                                    name="water_source_type"
+                                    value={entry.water_source_type || ""}
+                                    onChange={(e) => handleDynamicFieldChange("water_source_types", idx, e)}
+                                    placeholder="Select water source"
+                                    items={[
+                                        { label: "Level II", value: "level_ii_water_system" },
+                                        { label: "Level III", value: "level_iii_water_system" },
+                                        { label: "Deep Well", value: "deep_well_level_i" },
+                                        { label: "Artesian Well", value: "artesian_well_level_i" },
+                                        { label: "Shallow Well", value: "shallow_well_level_i" },
+                                        { label: "Refill Source", value: "commercial_water_refill_source" },
+                                        { label: "None", value: "none" },
+                                    ]}
+                                />
+                                {userData.water_source_types.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeDynamicField("water_source_types", idx)}
+                                        className="text-red-500 hover:text-red-700 text-xl"
+                                    >
+                                        <IoIosCloseCircleOutline />
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                        <div className="flex items-center gap-2 mt-3">
+                            <button
+                                type="button"
+                                onClick={() => addDynamicField("water_source_types", { water_source_type: "" })}
+                                className="text-blue-600 hover:text-blue-800 text-3xl"
+                            >
+                                <IoIosAddCircleOutline />
+                            </button>
+                            <span className="text-sm text-gray-600">Add water source</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Waste Management */}
+                <div className="w-full">
+                    <label className="block text-sm font-semibold text-gray-700 mb-0 mt-4">
+                        Waste Disposal Method(s)
+                    </label>
+                    <div className="flex flex-col gap-2">
+                        {(userData.waste_management_types || []).map((entry, idx) => (
+                            <div key={idx} className="flex items-center gap-2 w-full">
+                                <DropdownInputField
+                                    name="waste_management_type"
+                                    value={entry.waste_management_type || ""}
+                                    onChange={(e) => handleDynamicFieldChange("waste_management_types", idx, e)}
+                                    placeholder="Select waste disposal method"
+                                    items={[
+                                        { label: "Open Dump", value: "open_dump_site" },
+                                        { label: "Sanitary Landfill", value: "sanitary_landfill" },
+                                        { label: "Compost Pits", value: "compost_pits" },
+                                        { label: "Material Recovery", value: "material_recovery_facility" },
+                                        { label: "Garbage Collected", value: "garbage_is_collected" },
+                                        { label: "None", value: "none" },
+                                    ]}
+                                />
+                                {userData.waste_management_types.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeDynamicField("waste_management_types", idx)}
+                                        className="text-red-500 hover:text-red-700 text-xl"
+                                    >
+                                        <IoIosCloseCircleOutline />
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                        <div className="flex items-center gap-2 mt-3">
+                            <button
+                                type="button"
+                                onClick={() => addDynamicField("waste_management_types", { waste_management_type: "" })}
+                                className="text-blue-600 hover:text-blue-800 text-3xl"
+                            >
+                                <IoIosAddCircleOutline />
+                            </button>
+                            <span className="text-sm text-gray-600">Add waste disposal method</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
+                {/* livestock info */}
                 <div>
                     <div>
                         <hr className="h-[2px] bg-sky-500 border-0 mt-7" />
@@ -301,7 +457,7 @@ function HouseInformation() {
                         </div>
                     </div>
                 </div>
-
+                {/* pets info */}
                 <div>
                     <div>
                         <hr className="h-[2px] bg-sky-500 border-0 mt-7" />
