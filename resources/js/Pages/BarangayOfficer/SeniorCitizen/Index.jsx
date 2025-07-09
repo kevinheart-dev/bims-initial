@@ -1,21 +1,315 @@
+import ActionMenu from "@/Components/ActionMenu";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
+import DynamicTable from "@/Components/DynamicTable";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
+import { HousePlus, Search, SquarePen, Trash2, UserPlus } from "lucide-react";
+import { useState } from "react";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+import ClearFilterButton from "@/Components/ClearFiltersButton";
 
-export default function Index() {
+export default function Index({ seniorCitizens, puroks, queryParams = null }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         { label: "Senior Citizen", showOnMobile: true },
     ];
+    queryParams = queryParams || {};
+
+    const [query, setQuery] = useState(queryParams["name"] ?? "");
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        searchFieldName("name", query);
+    };
+
+    const searchFieldName = (field, value) => {
+        if (value && value.trim() !== "") {
+            queryParams[field] = value;
+        } else {
+            delete queryParams[field];
+        }
+
+        if (queryParams.page) {
+            delete queryParams.page;
+        }
+        router.get(route("senior_citizen.index", queryParams));
+    };
+
+    const onKeyPressed = (field, e) => {
+        if (e.key === "Enter") {
+            searchFieldName(field, e.target.value);
+        } else {
+            return;
+        }
+    };
+
+    const calculateAge = (birthdate) => {
+        if (!birthdate) return "Unknown";
+        const birth = new Date(birthdate);
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
+    const allColumns = [
+        { key: "id", label: "ID" },
+        { key: "name", label: "Senior Name" },
+        { key: "birthdate", label: "Birthdate" },
+        { key: "age", label: "Age" },
+        { key: "osca_id_number", label: "OSCA Number" },
+        { key: "is_pensioner", label: "Is Pensioner?" },
+        { key: "pension_type", label: "Pension Type" },
+        { key: "living_alone", label: "Living Alone" },
+        { key: "purok_number", label: "Purok" },
+        { key: "actions", label: "Actions" },
+    ];
+
+    const columnRenderers = {
+        id: (senior) => senior.id,
+
+        name: (senior) => {
+            const res = senior.resident;
+            return res ? (
+                <Link
+                    href={route("resident.show", res.id)}
+                    className="hover:text-blue-500 hover:underline"
+                >
+                    {res.firstname} {res.middlename ?? ""} {res.lastname ?? ""}
+                    {res.suffix ? `, ${res.suffix}` : ""}
+                </Link>
+            ) : (
+                <span className="text-gray-400 italic">No linked resident</span>
+            );
+        },
+
+        birthdate: (senior) => {
+            const date = senior.resident?.birthdate;
+            if (!date) return <span className="text-gray-400 italic">N/A</span>;
+
+            const birthdate = new Date(date);
+            return birthdate.toLocaleDateString("en-PH", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+            });
+        },
+
+        age: (senior) => {
+            const birthdate = senior.resident?.birthdate;
+            return calculateAge(birthdate);
+        },
+
+        osca_id_number: (senior) =>
+            senior.osca_id_number ? (
+                <span className="text-gray-800">{senior.osca_id_number}</span>
+            ) : (
+                <span className="text-gray-400 italic">Not Assigned</span>
+            ),
+
+        is_pensioner: (senior) =>
+            senior.is_pensioner?.toLowerCase() === "yes" ? (
+                <span className="text-green-600 font-medium">Yes</span>
+            ) : (
+                <span className="text-gray-500">No</span>
+            ),
+
+        pension_type: (senior) =>
+            senior.pension_type ? (
+                <span className="text-gray-800">{senior.pension_type}</span>
+            ) : (
+                <span className="text-gray-400 italic">None</span>
+            ),
+
+        living_alone: (senior) =>
+            senior.living_alone ? (
+                <span className="text-red-600 font-medium">Yes</span>
+            ) : (
+                <span className="text-gray-500">No</span>
+            ),
+
+        purok_number: (senior) => (
+            <span className="text-gray-800">
+                {senior.resident.purok_number}
+            </span>
+        ),
+
+        actions: (senior) => (
+            <ActionMenu
+                actions={[
+                    {
+                        label: "Edit",
+                        icon: <SquarePen className="w-4 h-4 text-green-500" />,
+                        onClick: () => handleEdit(senior.id),
+                    },
+                    {
+                        label: "Delete",
+                        icon: <Trash2 className="w-4 h-4 text-red-600" />,
+                        onClick: () => handleDelete(senior.id),
+                    },
+                ]}
+            />
+        ),
+    };
+
+    const pensionTypes = [
+        { label: "SSS", value: "SSS" },
+        { label: "GSIS", value: "GSIS" },
+        { label: "DSWD", value: "DSWD" },
+        { label: "Private", value: "private" },
+        { label: "None", value: "none" },
+    ];
+
     return (
         <AdminLayout>
             <Head title="Senior Citizen" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-            <div className="pt-4">
-                <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                    <div className="overflow-hidden bg-white border border-gray-400 shadow-sm rounded-xl sm:rounded-lg p-4">
-                        <p>Admin Index</p>
+            <div className="p-2 md:p-4">
+                {/* <pre>{JSON.stringify(seniorCitizens, undefined, 3)}</pre> */}
+                <div className="overflow-x bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-2 my-4">
+                    <div className="my-1 mb-3 flex justify-between items-center">
+                        <div className="flex w-full max-w-sm items-center space-x-1">
+                            <Link href={route("senior_citizen.create")}>
+                                <Button className="bg-blue-700 hover:bg-blue-400 ">
+                                    <UserPlus /> Add a Senior
+                                </Button>
+                            </Link>
+                        </div>
+                        <div className="flex w-full justify-end items-end space-x-1">
+                            {/* Search Bar */}
+                            <form
+                                onSubmit={handleSubmit}
+                                className="flex w-full max-w-sm items-center space-x-1"
+                            >
+                                <Input
+                                    type="text"
+                                    placeholder="Search a Name"
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    onKeyDown={(e) =>
+                                        onKeyPressed("name", e.target.value)
+                                    }
+                                    className="ml-4"
+                                />
+                                <Button type="submit">
+                                    <Search />
+                                </Button>
+                            </form>
+                        </div>
                     </div>
+                    <DynamicTable
+                        passedData={seniorCitizens}
+                        allColumns={allColumns}
+                        columnRenderers={columnRenderers}
+                    >
+                        <div className="flex justify-between items-center w-full">
+                            <div className="flex gap-2 w-full">
+                                {/* puroks */}
+                                <Select
+                                    onValueChange={(value) =>
+                                        searchFieldName("purok", value)
+                                    }
+                                    value={queryParams.purok}
+                                >
+                                    <SelectTrigger className="w-[95px]">
+                                        <SelectValue placeholder="Purok" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="All">All</SelectItem>
+                                        {puroks.map((purok, index) => (
+                                            <SelectItem
+                                                key={index}
+                                                value={purok.toString()}
+                                            >
+                                                Purok {purok}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+
+                                {/* is pensioner */}
+                                <Select
+                                    onValueChange={(value) =>
+                                        searchFieldName("is_pensioner", value)
+                                    }
+                                    value={queryParams.is_pensioner}
+                                >
+                                    <SelectTrigger className="w-[125px]">
+                                        <SelectValue placeholder="Is Pensioner" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="All">All</SelectItem>
+
+                                        <SelectItem value="yes">Yes</SelectItem>
+                                        <SelectItem value="no">No</SelectItem>
+                                        <SelectItem value="pending">
+                                            Pending
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+
+                                {/* pension type */}
+                                <Select
+                                    onValueChange={(value) =>
+                                        searchFieldName("pension_type", value)
+                                    }
+                                    value={queryParams.pension_type}
+                                >
+                                    <SelectTrigger className="w-[125px]">
+                                        <SelectValue placeholder="Pension Type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="All">All</SelectItem>
+
+                                        {pensionTypes.map((pentype, index) => (
+                                            <SelectItem
+                                                key={index}
+                                                value={pentype.value}
+                                            >
+                                                {pentype.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+
+                                {/* is living alone */}
+                                <Select
+                                    onValueChange={(value) =>
+                                        searchFieldName("living_alone", value)
+                                    }
+                                    value={queryParams.living_alone}
+                                >
+                                    <SelectTrigger className="w-[140px]">
+                                        <SelectValue placeholder="Type of Living" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="All">All</SelectItem>
+
+                                        <SelectItem value="1">Alone</SelectItem>
+                                        <SelectItem value="0">
+                                            Not Alone
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="flex justify-end">
+                                <ClearFilterButton
+                                    link={"senior_citizen.index"}
+                                />
+                            </div>
+                        </div>
+                    </DynamicTable>
                 </div>
             </div>
         </AdminLayout>

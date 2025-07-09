@@ -18,6 +18,9 @@ import {
     Warehouse,
     SquareUserRound,
     House,
+    CarFront,
+    PiggyBank,
+    Flag,
 } from "lucide-react";
 
 import {
@@ -74,9 +77,14 @@ const items = [
                 icon: Table,
             },
             {
-                title: "View Residents",
+                title: "Vehicles",
                 url: "#",
-                icon: SquareUserRound,
+                icon: CarFront,
+            },
+            {
+                title: "Livestocks",
+                url: "#",
+                icon: PiggyBank,
             },
         ],
     },
@@ -101,9 +109,9 @@ const items = [
         submenu: [],
     },
     {
-        title: "Inventory",
+        title: "Reports",
         url: "#",
-        icon: Warehouse,
+        icon: Flag,
         submenu: [],
     },
 ];

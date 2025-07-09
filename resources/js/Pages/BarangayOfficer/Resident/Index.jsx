@@ -172,7 +172,18 @@ export default function Index({
         employment_status: (resident) =>
             RESIDENT_EMPLOYMENT_STATUS_TEXT[resident.employment_status],
 
-        occupation: (resident) => resident.occupation ?? "N/A",
+        occupation: (resident) => {
+            const occ = resident.occupation;
+            return occ ? (
+                <span className="text-sm text-gray-700">
+                    {resident.occupation}
+                </span>
+            ) : (
+                <span className="text-gray-400 italic">
+                    No occupation available
+                </span>
+            );
+        },
 
         citizenship: (resident) => resident.citizenship,
 

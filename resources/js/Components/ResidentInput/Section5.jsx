@@ -168,7 +168,6 @@ const Section5 = ({
                             }
                             placeholder="Select or enter house number"
                             items={[
-                                { label: "Self", value: "self" },
                                 { label: "Spouse", value: "spouse" },
                                 { label: "Child", value: "child" },
                                 { label: "Sibling", value: "sibling" },

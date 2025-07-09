@@ -25,6 +25,7 @@ class FamilyController extends Controller
             'firstname',
             'lastname',
             'middlename',
+            'suffix',
             'family_id',
             'is_family_head',
             'is_household_head',

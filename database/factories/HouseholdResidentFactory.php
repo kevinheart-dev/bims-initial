@@ -47,14 +47,14 @@ class HouseholdResidentFactory extends Factory
                 ->toArray();
 
             // Choose a unique relationship not already used
-            $options = collect(['spouse', 'child', 'sibling', 'parent', 'grandparent', 'other'])
+            $options = collect(['spouse', 'child', 'sibling', 'parent', 'grandparent'])
                 ->diff($usedRelationships)
                 ->values();
 
             // Fallback if all are used
             $relationship = $options->isNotEmpty()
                 ? $options->random()
-                : 'other';
+                : 'child';
         }
 
         return [

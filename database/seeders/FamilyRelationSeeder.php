@@ -14,82 +14,61 @@ class FamilyRelationSeeder extends Seeder
      */
     public function run(): void
     {
-        $families = Resident::with('family')
-            ->whereNotNull('family_id')
+        // Relationship map for inverse generation
+        $inverseMap = [
+            'parent' => 'child',
+            'child' => 'parent',
+            'sibling' => 'sibling',
+            'spouse' => 'spouse',
+        ];
+
+        // Get all households with at least 2 residents
+        $householdGroups = Resident::whereNotNull('household_id')
             ->get()
-            ->groupBy('family_id')
-            ->filter(fn ($residents) => $residents->count() >= 2);
+            ->groupBy('household_id')
+            ->filter(fn ($group) => $group->count() >= 2);
 
-        foreach ($families as $residents) {
-            $residents = $residents->shuffle()->values();
-            $count = $residents->count();
+        foreach ($householdGroups as $householdId => $residents) {
+            // Shuffle residents and get random pairs
+            $residentIds = $residents->pluck('id')->shuffle()->values();
 
-            foreach ($residents as $resident) {
-                $spouseAssigned = FamilyRelation::where('resident_id', $resident->id)
-                    ->where('relationship', 'spouse')
+            // Make up to 5 random unique pairs per household
+            for ($i = 0; $i < min(5, $residentIds->count() - 1); $i++) {
+                $residentA = $residentIds[$i];
+                $residentB = $residentIds[$i + 1];
+
+                // Prevent self-association
+                if ($residentA === $residentB) {
+                    continue;
+                }
+
+                $relationship = fake()->randomElement(['parent', 'child', 'spouse', 'sibling']);
+                $inverse = $inverseMap[$relationship];
+
+                // Prevent duplicates
+                $exists = FamilyRelation::where('resident_id', $residentA)
+                    ->where('related_to', $residentB)
+                    ->where('relationship', $relationship)
                     ->exists();
 
-                $parentCount = FamilyRelation::where('resident_id', $resident->id)
-                    ->where('relationship', 'parent')
-                    ->count();
+                if ($exists) continue;
 
-                $childCount = FamilyRelation::where('resident_id', $resident->id)
-                    ->where('relationship', 'child')
-                    ->count();
+                // Insert both directions
+                FamilyRelation::create([
+                    'resident_id' => $residentA,
+                    'related_to' => $residentB,
+                    'relationship' => $relationship,
+                ]);
 
-                foreach ($residents->where('id', '!=', $resident->id) as $other) {
-                    if (FamilyRelation::where('resident_id', $resident->id)
-                        ->where('related_to', $other->id)->exists()) {
-                        continue;
-                    }
-
-                    $relationship = null;
-
-                    // Assign only 1 spouse
-                    if (!$spouseAssigned && fake()->boolean(20)) {
-                        $relationship = 'spouse';
-                        $spouseAssigned = true;
-                    }
-                    // Assign up to 2 parents
-                    elseif ($parentCount < 2 && fake()->boolean(30)) {
-                        $relationship = 'parent';
-                        $parentCount++;
-                    }
-                    // Assign multiple children
-                    elseif (fake()->boolean(40)) {
-                        $relationship = 'child';
-                        $childCount++;
-                    }
-                    // Else maybe assign sibling
-                    elseif (fake()->boolean(25)) {
-                        $relationship = 'sibling';
-                    }
-
-                    if (!$relationship) {
-                        continue;
-                    }
-
-                    $inverse = match ($relationship) {
-                        'child' => 'parent',
-                        'parent' => 'child',
-                        'spouse' => 'spouse',
-                        'sibling' => 'sibling',
-                    };
-
-                    FamilyRelation::create([
-                        'resident_id' => $resident->id,
-                        'related_to' => $other->id,
-                        'relationship' => $relationship,
-                    ]);
-
-                    FamilyRelation::create([
-                        'resident_id' => $other->id,
-                        'related_to' => $resident->id,
-                        'relationship' => $inverse,
-                    ]);
-                }
+                FamilyRelation::create([
+                    'resident_id' => $residentB,
+                    'related_to' => $residentA,
+                    'relationship' => $inverse,
+                ]);
             }
         }
+
+        echo "Family relationships seeded.\n";
     }
 
 }

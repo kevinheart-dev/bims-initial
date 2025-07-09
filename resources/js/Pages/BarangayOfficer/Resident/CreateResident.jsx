@@ -20,8 +20,7 @@ export default function Index({
         },
         { label: "Create a New Resident", showOnMobile: true },
     ];
-    const { props } = usePage();
-    const error = props.error;
+    const { errors } = usePage().props;
     return (
         <AdminLayout>
             <Head title="Resident Dashboard" />
@@ -30,9 +29,9 @@ export default function Index({
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
                     <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 my-8">
                         <div className=" my-2 p-5">
-                            {error && error.length > 0 && (
-                                <div className="bg-red-100 text-red-800 p-4 mb-4 rounded">
-                                    {error}
+                            {errors.error && (
+                                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                    {errors.error}
                                 </div>
                             )}
                             <PersonalInformation

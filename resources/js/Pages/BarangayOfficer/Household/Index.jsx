@@ -17,9 +17,22 @@ import ResidentTable from "@/Components/ResidentTable";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
 import ResidentFilterBar from "@/Components/ResidentFilterBar";
-import { HOUSEHOLD_CONDITION_TEXT, HOUSING_CONDITION_COLOR } from "@/constants";
+import {
+    HOUSEHOLD_CONDITION_TEXT,
+    HOUSEHOLD_OWNERSHIP_TEXT,
+    HOUSEHOLD_STRUCTURE_TEXT,
+    HOUSING_CONDITION_COLOR,
+} from "@/constants";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+import ClearFilterButton from "@/Components/ClearFiltersButton";
 
-export default function Index({ households, puroks, queryParams }) {
+export default function Index({ households, puroks, streets, queryParams }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         { label: "Households Table", showOnMobile: true },
@@ -43,7 +56,7 @@ export default function Index({ households, puroks, queryParams }) {
         if (queryParams.page) {
             delete queryParams.page;
         }
-        router.get(route("resident.index", queryParams));
+        router.get(route("household.index", queryParams));
     };
 
     const onKeyPressed = (field, e) => {
@@ -80,23 +93,30 @@ export default function Index({ households, puroks, queryParams }) {
                     className="hover:text-blue-500 hover:underline"
                 >
                     {head.firstname} {head.middlename ?? ""}{" "}
-                    {head.lastname ?? ""}
+                    {head.lastname ?? ""} {head.suffix ?? ""}
                 </Link>
             ) : (
-                <span className="text-gray-500 italic">No household head</span>
+                <span className="text-gray-400 italic">No household head</span>
             );
         },
         house_number: (house) => house.house_number ?? "N/A",
-        purok_number: (house) => `Purok ${house.purok.purok_number}`,
-        street_name: (house) => `Street ${house.street.street_name}`,
+        purok_number: (house) => house.purok.purok_number,
+        street_name: (house) => house.street.street_name,
         ownership_type: (house) => (
-            <span className="capitalize">{house.ownership_type}</span>
+            <span>{HOUSEHOLD_OWNERSHIP_TEXT[house.ownership_type]}</span>
         ),
-        ownership_details: (house) => (
-            <span className="text-sm text-gray-700">
-                {house.ownership_details}
-            </span>
-        ),
+        ownership_details: (house) => {
+            const ownDetails = house.ownership_details;
+            return ownDetails ? (
+                <span className="text-sm text-gray-700">
+                    {house.ownership_details}
+                </span>
+            ) : (
+                <span className="text-gray-400 italic">
+                    No details specified
+                </span>
+            );
+        },
         housing_condition: (house) => (
             <span
                 className={`px-2 py-1 text-sm rounded-lg ${
@@ -109,7 +129,7 @@ export default function Index({ households, puroks, queryParams }) {
         ),
         year_established: (house) => house.year_established ?? "Unknown",
         house_structure: (house) => (
-            <span className="capitalize">{house.house_structure}</span>
+            <span>{HOUSEHOLD_STRUCTURE_TEXT[house.house_structure]}</span>
         ),
         number_of_rooms: (house) => house.number_of_rooms ?? "N/A",
         number_of_floors: (house) => house.number_of_floors ?? "N/A",
@@ -130,6 +150,26 @@ export default function Index({ households, puroks, queryParams }) {
             />
         ),
     };
+
+    const ownershipOptions = [
+        { label: "Owned", value: "owned" },
+        { label: "Rented", value: "rented" },
+        { label: "Shared", value: "shared" },
+        { label: "Government Provided", value: "government_provided" },
+        { label: "Inherited", value: "inherited" },
+        { label: "Others", value: "others" },
+    ];
+    const houseingConditions = [
+        { label: "Good", value: "good" },
+        { label: "Needs Repair", value: "needs_repair" },
+        { label: "Delapitated", value: "delapitated" },
+    ];
+    const structureOptions = [
+        { label: "Concrete", value: "concrete" },
+        { label: "Semi Concrete", value: "semi_concrete" },
+        { label: "Wood", value: "wood" },
+        { label: "Makeshift", value: "makeshift" },
+    ];
 
     // // Determine if showing all or paginated by checking queryParams.all
     // const [showAll, setShowAll] = useState(queryParams.all === "true");
@@ -208,7 +248,145 @@ export default function Index({ households, puroks, queryParams }) {
                             allColumns={allColumns}
                             columnRenderers={columnRenderers}
                         >
-                            {/* add filters here */}
+                            <div className="flex justify-between items-center w-full">
+                                <div className="flex gap-2 w-full">
+                                    {/* puroks */}
+                                    <Select
+                                        onValueChange={(value) =>
+                                            searchFieldName("purok", value)
+                                        }
+                                        value={queryParams.purok}
+                                    >
+                                        <SelectTrigger className="w-[95px]">
+                                            <SelectValue placeholder="Purok" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="All">
+                                                All
+                                            </SelectItem>
+                                            {puroks.map((purok, index) => (
+                                                <SelectItem
+                                                    key={index}
+                                                    value={purok.toString()}
+                                                >
+                                                    Purok {purok}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+
+                                    {/* streets */}
+                                    <Select
+                                        onValueChange={(value) =>
+                                            searchFieldName("street", value)
+                                        }
+                                        value={queryParams.street}
+                                    >
+                                        <SelectTrigger className="w-[180px]">
+                                            <SelectValue placeholder="Street" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="All">
+                                                All
+                                            </SelectItem>
+                                            {streets.map((street, index) => (
+                                                <SelectItem
+                                                    key={index}
+                                                    value={street.toString()}
+                                                >
+                                                    {street}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+
+                                    {/* ownership type */}
+                                    <Select
+                                        onValueChange={(value) =>
+                                            searchFieldName("own_type", value)
+                                        }
+                                        value={queryParams.own_type}
+                                    >
+                                        <SelectTrigger className="w-[180px]">
+                                            <SelectValue placeholder="Ownership Type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="All">
+                                                All
+                                            </SelectItem>
+                                            {ownershipOptions.map(
+                                                (option, index) => (
+                                                    <SelectItem
+                                                        key={index}
+                                                        value={option.value.toString()}
+                                                    >
+                                                        {option.label}
+                                                    </SelectItem>
+                                                )
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+
+                                    {/* housing condition */}
+                                    <Select
+                                        onValueChange={(value) =>
+                                            searchFieldName("condition", value)
+                                        }
+                                        value={queryParams.condition}
+                                    >
+                                        <SelectTrigger className="w-[130px]">
+                                            <SelectValue placeholder="Condition" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="All">
+                                                All
+                                            </SelectItem>
+                                            {houseingConditions.map(
+                                                (option, index) => (
+                                                    <SelectItem
+                                                        key={index}
+                                                        value={option.value.toString()}
+                                                    >
+                                                        {option.label}
+                                                    </SelectItem>
+                                                )
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+
+                                    {/* housing structure */}
+                                    <Select
+                                        onValueChange={(value) =>
+                                            searchFieldName("structure", value)
+                                        }
+                                        value={queryParams.structure}
+                                    >
+                                        <SelectTrigger className="w-[150px]">
+                                            <SelectValue placeholder="Structure" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="All">
+                                                All
+                                            </SelectItem>
+                                            {structureOptions.map(
+                                                (option, index) => (
+                                                    <SelectItem
+                                                        key={index}
+                                                        value={option.value.toString()}
+                                                    >
+                                                        {option.label}
+                                                    </SelectItem>
+                                                )
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="flex justify-end">
+                                    <ClearFilterButton
+                                        link={"household.index"}
+                                    />
+                                </div>
+                            </div>
                         </DynamicTable>
                     </div>
                 </div>

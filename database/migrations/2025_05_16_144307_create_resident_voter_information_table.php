@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('resident_voter_information', function (Blueprint $table) {
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->foreignId('registered_barangay_id')->constrained('barangays')->onDelete('cascade');
+            $table->foreignId('registered_barangay_id')->nullable()->constrained('barangays')->onDelete('cascade');
             $table->string('voter_id_number', 50)->nullable();
             $table->enum('voting_status', [
                 'active',
@@ -24,7 +24,7 @@ return new class extends Migration
                 'overseas',
                 'detained',
                 'deceased'
-            ])->default('active');
+            ])->nullable();
             $table->timestamps();
         });
     }

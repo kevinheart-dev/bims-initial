@@ -95,7 +95,7 @@ export default function Index({ families, queryParams = null, puroks }) {
         name: (family) =>
             `${family.firstname} ${family.middlename ?? ""} ${
                 family.lastname ?? ""
-            }`,
+            } ${family.suffix ?? ""}`,
         is_household_head: (family) =>
             family.is_household_head ? (
                 <span className="py-1 px-2 rounded-xl bg-green-600 text-white">
