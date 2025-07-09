@@ -18,16 +18,21 @@ export default function Index({ family_tree }) {
         <AdminLayout>
             <Head title="Resident Dashboard" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-            <div>
+            <>
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 my-8">
-                        <h1 className="text-2xl font-bold mb-6">
+                        <h2 className="text-xl font-bold mb-3">
                             Dynamic Family Tree
-                        </h1>
-                        <FamilyTree familyData={family_tree} />
+                        </h2>
+
+                        <div className="h-[600px] w-full">
+                            <FamilyTree familyData={family_tree} />
+                        </div>
+
                     </div>
                 </div>
-            </div>
+            </>
         </AdminLayout>
     );
+
 }

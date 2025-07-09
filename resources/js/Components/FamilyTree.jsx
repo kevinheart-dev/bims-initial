@@ -14,18 +14,18 @@ const FamilyTree = ({ familyData }) => {
         const treeData = transformToTreeFormat(familyData);
         const root = d3.hierarchy(treeData);
 
-        // Change orientation: left to right
-        const treeLayout = d3.tree().nodeSize([300, 200]); // [x, y]
+        // Orientation: left to right
+        const treeLayout = d3.tree().nodeSize([350, 180]);
         treeLayout(root);
 
-        // Centering offset
+        // Centering
         const nodesRaw = root.descendants();
         const minY = Math.min(...nodesRaw.map((d) => d.y));
         const maxY = Math.max(...nodesRaw.map((d) => d.y));
         const totalHeight = maxY - minY;
         const svgHeight = 500;
 
-        const verticalOffset = 700;
+        const verticalOffset = 1200;
         const horizontalCenterOffset = (svgHeight - totalHeight) / 2;
 
         const positioned = [];
@@ -38,6 +38,9 @@ const FamilyTree = ({ familyData }) => {
                 const baseY = d.y + horizontalCenterOffset;
                 const gap = 140;
 
+                // Save selfX to adjust siblings later
+                self._x = baseX + gap;
+
                 positioned.push({
                     ...spouse,
                     x: baseX - gap,
@@ -48,49 +51,87 @@ const FamilyTree = ({ familyData }) => {
 
                 positioned.push({
                     ...self,
-                    x: baseX + gap,
+                    x: self._x,
                     y: baseY,
                     relation: "Self",
                     id: self.id,
-                    spouseX: baseX + gap,
-                    spouseY: baseY,
                 });
 
             } else if (d.data.id !== "virtual-root") {
+                let extraGap = 80;
+
+                if (d.parent && d.parent.children) {
+                    const hasSelfWithSpouse = d.parent.children.some(
+                        (child) => child.data.relation === "Self" && child.data._x
+                    );
+
+                    if (hasSelfWithSpouse) {
+                        const selfNode = d.parent.children.find(
+                            (child) => child.data.relation === "Self"
+                        );
+
+                        if (selfNode && selfNode.data._x) {
+                            const selfX = selfNode.data._x;
+                            if (d.x + verticalOffset < selfX + 120) {
+                                extraGap = 120; // Adjust this value to control spacing
+                            }
+                        }
+                    }
+                }
+
                 positioned.push({
                     ...d.data,
-                    x: d.x + verticalOffset,
+                    x: d.x + verticalOffset + extraGap,
                     y: d.y + horizontalCenterOffset,
                     relation: d.data.relation || "Relative",
                     id: d.data.id,
                 });
             }
+
+
         });
 
         setNodes(positioned);
+
+        // Enable zoom + pan
+        const svg = d3.select(svgRef.current);
+        const g = svg.select("g");
+
+        svg.call(
+            d3.zoom()
+                .scaleExtent([0.3, 2])
+                .on("zoom", (event) => {
+                    g.attr("transform", event.transform);
+                })
+        );
+
     }, [familyData]);
 
-
-
     return (
-        <svg
-            ref={svgRef}
-            width="100%"
-            height="1200"
-            viewBox="0 0 1600 1200"
-            className="bg-gray-50"
-        >
-
-            {nodes.map((node, idx) => (
-                <FamilyCard
-                    key={idx}
-                    x={node.x}
-                    y={node.y}
-                    person={node}
-                    relation={node.relation}
-                />
-            ))}
-        </svg>
+        <div className="w-full border rounded-lg bg-dot-grid">
+            <div className="overflow-auto max-h-[600px] max-w-full rounded-lg">
+                <svg
+                    ref={svgRef}
+                    width={1100}
+                    height={1000}
+                    viewBox="0 0 2000 2000"
+                    className="block"
+                >
+                    {/* All zoomable content goes inside this group */}
+                    <g>
+                        {nodes.map((node, idx) => (
+                            <FamilyCard
+                                key={idx}
+                                x={node.x}
+                                y={node.y}
+                                person={node}
+                                relation={node.relation}
+                            />
+                        ))}
+                    </g>
+                </svg>
+            </div>
+        </div>
     );
 };
 

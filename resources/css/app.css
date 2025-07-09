@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+.bg-dot-grid {
+    background-image: radial-gradient(#4a596d 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+
 @layer base {
     :root {
         --background: 0 0% 100%;
@@ -38,6 +44,7 @@
         --sidebar-border: 220 13% 91%;
         --sidebar-ring: 217.2 91.2% 59.8%;
     }
+
     .dark {
         --background: 20 14.3% 4.1%;
         --foreground: 60 9.1% 97.8%;
@@ -78,6 +85,7 @@
     * {
         @apply border-border;
     }
+
     body {
         @apply bg-background text-foreground;
     }
