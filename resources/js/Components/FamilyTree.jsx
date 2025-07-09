@@ -1,79 +1,96 @@
-import React from "react";
-import { Card, CardHeader, CardContent } from "@/components/ui/card"; // Assuming you have this import path
+import { useEffect, useRef, useState } from "react";
+import * as d3 from "d3";
+import FamilyCard from "./FamilyCard";
+import { transformToTreeFormat } from "@/utils/transformtoTreeFormat";
+
+const CARD_WIDTH = 240;
+const CARD_HEIGHT = 160;
 
 const FamilyTree = ({ familyData }) => {
-    if (!familyData) {
-        return <div>Loading...</div>;
-    }
+    const svgRef = useRef();
+    const [nodes, setNodes] = useState([]);
 
-    const {
-        self,
-        parents,
-        grandparents,
-        uncles_aunts,
-        siblings,
-        children,
-        spouse,
-    } = familyData;
+    useEffect(() => {
+        const treeData = transformToTreeFormat(familyData);
+        const root = d3.hierarchy(treeData);
 
-    const renderPersonCard = (person, relation) => (
-        <Card key={person.id || relation} className="space-y-2">
-            <CardHeader>
-                <h2 className="text-xl font-medium">{relation}</h2>
-            </CardHeader>
-            <CardContent>
-                <p>
-                    <strong>First Name:</strong> {person?.firstname || "N/A"}
-                </p>
-                <p>
-                    <strong>Gender:</strong> {person?.gender || "N/A"}
-                </p>
-                <p>
-                    <strong>Birthdate:</strong> {person?.birthdate || "N/A"}
-                </p>
-                <p>
-                    <strong>Nationality:</strong> {person?.nationality || "N/A"}
-                </p>
-                <p>
-                    <strong>Status:</strong> {person?.status || "N/A"}
-                </p>
-            </CardContent>
-        </Card>
-    );
+        // Change orientation: left to right
+        const treeLayout = d3.tree().nodeSize([300, 200]); // [x, y]
+        treeLayout(root);
+
+        // Centering offset
+        const nodesRaw = root.descendants();
+        const minY = Math.min(...nodesRaw.map((d) => d.y));
+        const maxY = Math.max(...nodesRaw.map((d) => d.y));
+        const totalHeight = maxY - minY;
+        const svgHeight = 500;
+
+        const verticalOffset = 700;
+        const horizontalCenterOffset = (svgHeight - totalHeight) / 2;
+
+        const positioned = [];
+
+        root.descendants().forEach((d) => {
+            if (d.data.isCouple && d.data.members?.length === 2) {
+                const [self, spouse] = d.data.members;
+
+                const baseX = d.x + verticalOffset;
+                const baseY = d.y + horizontalCenterOffset;
+                const gap = 140;
+
+                positioned.push({
+                    ...spouse,
+                    x: baseX - gap,
+                    y: baseY,
+                    relation: "Spouse",
+                    id: spouse.id,
+                });
+
+                positioned.push({
+                    ...self,
+                    x: baseX + gap,
+                    y: baseY,
+                    relation: "Self",
+                    id: self.id,
+                    spouseX: baseX + gap,
+                    spouseY: baseY,
+                });
+
+            } else if (d.data.id !== "virtual-root") {
+                positioned.push({
+                    ...d.data,
+                    x: d.x + verticalOffset,
+                    y: d.y + horizontalCenterOffset,
+                    relation: d.data.relation || "Relative",
+                    id: d.data.id,
+                });
+            }
+        });
+
+        setNodes(positioned);
+    }, [familyData]);
+
+
 
     return (
-        <div className="family-tree space-y-6">
-            <h1 className="text-3xl font-semibold mb-4">Family Tree</h1>
+        <svg
+            ref={svgRef}
+            width="100%"
+            height="1200"
+            viewBox="0 0 1600 1200"
+            className="bg-gray-50"
+        >
 
-            {/* Self Section */}
-            {self && renderPersonCard(self.data, "Self")}
-
-            {/* Parents Section */}
-            {parents?.data?.map((parent) => renderPersonCard(parent, "Parent"))}
-
-            {/* Grandparents Section */}
-            {grandparents?.data?.map((grandparent) =>
-                renderPersonCard(grandparent, "Grandparent")
-            )}
-
-            {/* Uncles and Aunts Section */}
-            {uncles_aunts?.data?.map((uncle_aunt) =>
-                renderPersonCard(uncle_aunt, "Uncle/Aunt")
-            )}
-
-            {/* Siblings Section */}
-            {siblings?.data?.map((sibling) =>
-                renderPersonCard(sibling, "Sibling")
-            )}
-
-            {/* Children Section */}
-            {children?.data?.map((child) => renderPersonCard(child, "Child"))}
-
-            {/* Spouse Section */}
-            {spouse?.data?.map((spouseMember) =>
-                renderPersonCard(spouseMember, "Spouse")
-            )}
-        </div>
+            {nodes.map((node, idx) => (
+                <FamilyCard
+                    key={idx}
+                    x={node.x}
+                    y={node.y}
+                    person={node}
+                    relation={node.relation}
+                />
+            ))}
+        </svg>
     );
 };
 

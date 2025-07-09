@@ -291,7 +291,7 @@ const Summary = ({ onBack, onSubmit }) => {
                             "Toilet Type(s)",
                             (userData.toilets || [])
                                 .map((toilet) => CONSTANTS.HOUSEHOLD_TOILET_TYPE_TEXT[toilet.toilet_type])
-                                .filter(Boolean) // skip undefined values
+                                .filter(Boolean)
                                 .join(", ")
                         )
                     }

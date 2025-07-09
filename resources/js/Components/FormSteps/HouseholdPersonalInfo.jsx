@@ -145,7 +145,7 @@ const HouseholdPersonalInfo = () => {
 
             if (
                 index === 0 &&
-                ['lastname', 'religion', 'ethnicity', 'citizenship'].includes(name)
+                ['lastname', 'religion', 'ethnicity', 'citizenship',].includes(name)
             ) {
                 const updatedShared = { ...sharedFields, [name]: value };
                 setSharedFields(updatedShared);
@@ -254,7 +254,7 @@ const HouseholdPersonalInfo = () => {
                 const isFirst = index === 0;
                 const isOpen = openIndex === index;
                 const showMaidenMiddleName = (['female', 'LGBTQ'].includes(member.gender) &&
-                    ['Married', 'Widowed', 'Separated'].includes(member.civil_status));
+                    ['married', 'widowed', 'separated'].includes(member.civil_status));
                 const sharedLastname = isFirst
                     ? sharedFields.lastname
                     : member.lastname === members[0]?.lastname

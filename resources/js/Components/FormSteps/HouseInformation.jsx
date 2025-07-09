@@ -83,10 +83,6 @@ function HouseInformation() {
         setUserData((prev) => ({ ...prev, [field]: currentArray }));
     };
 
-
-
-
-
     return (
         <div>
             <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-1">House Information</h2>
