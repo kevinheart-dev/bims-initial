@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreResidentHouseholdRequest;
 use App\Http\Resources\ResidentResource;
 use App\Models\Barangay;
 use App\Models\Family;
@@ -504,8 +505,9 @@ class ResidentController extends Controller
         }
     }
 
-    public function storeHousehold(Request $request)
+    public function storeHousehold(StoreResidentHouseholdRequest $request)
     {
+        dd($request->all());
         return response()->json($request->all());
     }
 

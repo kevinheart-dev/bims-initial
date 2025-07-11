@@ -29,9 +29,10 @@ export default function Index() {
         toilets: [{ toilet_type: "" }],
         electricity_types: [{ electricity_type: "" }],
         water_source_types: [{ water_source_type: "" }],
-        waste_management_types: [{ waste_management_type: "" }]
+        waste_management_types: [{ waste_management_type: "" }],
     });
     const [finalData, setFinalData] = useState([]);
+    const [errors, setErrors] = useState({});
 
     const steps = [
         "Address Information",
@@ -73,6 +74,7 @@ export default function Index() {
                     },
                     onError: (errors) => {
                         console.error(errors);
+                        setErrors(errors);
                         toast.error(
                             "Failed to submit household data. Please check the form."
                         );
@@ -112,6 +114,8 @@ export default function Index() {
                                 setUserData,
                                 finalData,
                                 setFinalData,
+                                errors,
+                                setErrors,
                             }}
                         >
                             {displayStep(currentStep)}

@@ -59,9 +59,9 @@ class StoreResidentRequest extends FormRequest
 
             // SECTION 1.1: Vehicle Information
             'vehicles' => ['nullable', 'array'],
-            'vehicles.*.vehicle_type' => ['required', 'string', 'max:100'],
-            'vehicles.*.vehicle_class' => ['required', 'string', 'max:100'],
-            'vehicles.*.usage_status' => ['required', 'string', 'max:100'],
+            'vehicles.*.vehicle_type' => ['required', 'string', 'max:55'],
+            'vehicles.*.vehicle_class' => ['required', 'string', 'max:55'],
+            'vehicles.*.usage_status' => ['required', 'string', 'max:55'],
             'vehicles.*.quantity' => ['required', 'integer', 'min:1', 'max:99'],
 
 
