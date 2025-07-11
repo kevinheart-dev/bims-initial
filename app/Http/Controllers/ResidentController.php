@@ -585,6 +585,10 @@ class ResidentController extends Controller
                 'id',
                 'household_id',
                 'lastname',
+                'firstname',
+                'middlename',
+                'suffix',
+                'is_household_head'
             ]);
             $barangays = Barangay::all()->pluck('barangay_name', 'id')->toArray();
 

@@ -95,6 +95,7 @@ const PersonalInformation = ({
         type_of_internet: null,
         relationship_to_head: "",
         household_position: "",
+        name_of_head: "",
         has_livestock: null,
         livestocks: [],
         has_pets: null,

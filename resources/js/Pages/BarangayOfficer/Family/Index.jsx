@@ -209,6 +209,7 @@ export default function Index({ families, queryParams = null, puroks }) {
                             allColumns={allColumns}
                             columnRenderers={columnRenderers}
                             queryParams={queryParams}
+                            showTotal={true}
                         >
                             <div className="flex justify-between items-center w-full">
                                 <div className="flex gap-2 w-full">

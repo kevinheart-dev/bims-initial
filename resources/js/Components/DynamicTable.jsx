@@ -83,85 +83,90 @@ const DynamicTable = ({
     return (
         <>
             {/* Column Toggle + Print */}
-
-            <div className="flex items-center gap-4 mb-4">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline">
-                            <Columns3 />
-                            Select Columns
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-48">
-                        <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuCheckboxItem
-                            checked={
-                                visibleColumns.length === allColumns.length
-                            }
-                            onCheckedChange={(checked) => {
-                                if (checked) {
-                                    setVisibleColumns(
-                                        allColumns.map((col) => col.key)
-                                    );
-                                }
-                            }}
-                        >
-                            Select All
-                        </DropdownMenuCheckboxItem>
-                        <DropdownMenuCheckboxItem
-                            checked={visibleColumns.length === 0}
-                            onCheckedChange={(checked) => {
-                                if (checked) {
-                                    setVisibleColumns([]);
-                                }
-                            }}
-                        >
-                            Deselect All
-                        </DropdownMenuCheckboxItem>
-                        <DropdownMenuSeparator />
-                        {allColumns.map((col) => (
+            <div className="flex justify-between items-center">
+                <div className="flex items-center gap-4 mb-4">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline">
+                                <Columns3 />
+                                Select Columns
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-48">
+                            <DropdownMenuLabel>
+                                Toggle Columns
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator />
                             <DropdownMenuCheckboxItem
-                                key={col.key}
-                                checked={visibleColumns.includes(col.key)}
-                                onCheckedChange={() => {
-                                    setVisibleColumns((prev) =>
-                                        prev.includes(col.key)
-                                            ? prev.filter((k) => k !== col.key)
-                                            : [...prev, col.key]
-                                    );
+                                checked={
+                                    visibleColumns.length === allColumns.length
+                                }
+                                onCheckedChange={(checked) => {
+                                    if (checked) {
+                                        setVisibleColumns(
+                                            allColumns.map((col) => col.key)
+                                        );
+                                    }
                                 }}
                             >
-                                {col.label}
+                                Select All
                             </DropdownMenuCheckboxItem>
-                        ))}
-                    </DropdownMenuContent>
-                </DropdownMenu>
-                {is_paginated && (
-                    <Button
-                        onClick={toggleShowAll}
-                        variant="outline"
-                        className="flex items-center gap-2"
-                    >
-                        {showAll ? <Rows3 /> : <Rows4 />}
-                        {showAll ? "Show Paginated" : "Show Full List"}
+                            <DropdownMenuCheckboxItem
+                                checked={visibleColumns.length === 0}
+                                onCheckedChange={(checked) => {
+                                    if (checked) {
+                                        setVisibleColumns([]);
+                                    }
+                                }}
+                            >
+                                Deselect All
+                            </DropdownMenuCheckboxItem>
+                            <DropdownMenuSeparator />
+                            {allColumns.map((col) => (
+                                <DropdownMenuCheckboxItem
+                                    key={col.key}
+                                    checked={visibleColumns.includes(col.key)}
+                                    onCheckedChange={() => {
+                                        setVisibleColumns((prev) =>
+                                            prev.includes(col.key)
+                                                ? prev.filter(
+                                                      (k) => k !== col.key
+                                                  )
+                                                : [...prev, col.key]
+                                        );
+                                    }}
+                                >
+                                    {col.label}
+                                </DropdownMenuCheckboxItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    {is_paginated && (
+                        <Button
+                            onClick={toggleShowAll}
+                            variant="outline"
+                            className="flex items-center gap-2"
+                        >
+                            {showAll ? <Rows3 /> : <Rows4 />}
+                            {showAll ? "Show Paginated" : "Show Full List"}
+                        </Button>
+                    )}
+                    <Button onClick={() => reactToPrintFn()}>
+                        <Printer />
+                        Print
                     </Button>
+                </div>
+                {showTotal && (
+                    <h2 className="text-xl font-bold text-gray-800 my-2 p-2 border bg-gray-50 rounded-lg flex items-center gap-2">
+                        <span>Total Records:</span>
+                        <span className="text-white bg-blue-600 px-3 py-1 rounded-full shadow-md">
+                            {cleanData.length}
+                        </span>
+                    </h2>
                 )}
-                <Button onClick={() => reactToPrintFn()}>
-                    <Printer />
-                    Print
-                </Button>
             </div>
 
             <div className="mb-2">{children}</div>
-
-            {/* Table */}
-            {showAll && (
-                <h2 className="text-2xl font-semibold text-gray-700 my-2">
-                    Total Records:{" "}
-                    <span className="text-blue-600">{cleanData.length}</span>
-                </h2>
-            )}
 
             <div className="w-full overflow-x-auto border rounded-lg">
                 <div className="max-h-[800px] overflow-y-auto">

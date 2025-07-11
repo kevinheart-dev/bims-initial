@@ -55,6 +55,26 @@ const Section5 = ({
         updated.splice(petIndex, 1);
         setData("pets", updated);
     };
+
+    const handleHouseholdChange = (e) => {
+        const householdId = e.target.value;
+
+        // Find the household head from the list of residents or a pre-fetched list
+        const head = households.find(
+            (r) =>
+                r.household_id === parseInt(householdId) &&
+                r.is_household_head === 1
+        );
+
+        const fullName = head
+            ? `${head.firstname} ${head.middlename ?? ""} ${head.lastname}${
+                  head.suffix ? " " + head.suffix : ""
+              }`
+            : "";
+
+        setData("housenumber", householdId); // set the selected household
+        setData("name_of_head", fullName.trim()); // set the head's name
+    };
     return (
         <>
             <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-5">
@@ -66,6 +86,7 @@ const Section5 = ({
 
             {/* HOUSE ADDRESS */}
             <div className="bg-gray-50 p-3 rounded space-y-2">
+                {/* <pre>{JSON.stringify(households, undefined, 3)}</pre> */}
                 <div className="grid md:grid-cols-4 gap-4">
                     <div>
                         <DropdownInputField
@@ -73,9 +94,7 @@ const Section5 = ({
                             label="House/Unit No./Lot/Blk No."
                             name="housenumber"
                             value={data.housenumber || ""}
-                            onChange={(e) =>
-                                setData("housenumber", e.target.value)
-                            }
+                            onChange={handleHouseholdChange}
                             placeholder="Select or enter house number"
                             items={householdList}
                         />
@@ -154,6 +173,24 @@ const Section5 = ({
                         />
                         <InputError
                             message={errors.purok_number}
+                            className="mt-2"
+                        />
+                    </div>
+
+                    <div>
+                        <InputField
+                            type="text"
+                            label="Head of Household"
+                            name="name_of_head"
+                            value={data.name_of_head || ""}
+                            onChange={(e) =>
+                                setData("name_of_head", e.target.value)
+                            }
+                            placeholder="Select or enter house number"
+                            disabled
+                        />
+                        <InputError
+                            message={errors.name_of_head}
                             className="mt-2"
                         />
                     </div>

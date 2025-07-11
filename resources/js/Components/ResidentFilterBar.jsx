@@ -29,7 +29,7 @@ const ResidentFilterBar = ({ queryParams, searchFieldName, puroks }) => {
             document.removeEventListener("mousedown", handleClickOutside);
     }, []);
     return (
-        <div className="w-full my-4 flex flex-col-reverse md:flex-row md:justify-between md:items-start gap-4">
+        <div className="w-full flex flex-col-reverse md:flex-row md:justify-between md:items-start gap-4">
             {/* Filters Container */}
             <div className="flex flex-wrap gap-2 w-full">
                 {/* Age Group Filter */}
