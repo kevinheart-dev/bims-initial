@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .bg-dot-grid {
-    background-image: radial-gradient(#4a596d 1px, transparent 1px);
+    background-image: radial-gradient(#69819f 1px, transparent 1px);
     background-size: 20px 20px;
 }
 
