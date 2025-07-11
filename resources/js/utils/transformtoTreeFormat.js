@@ -1,6 +1,6 @@
 export function transformToTreeFormat(data) {
     const self = data.self?.data;
-    const spouse = data.spouse?.data?.[0];
+    const spouses = data.spouse?.data || []; // Support multiple spouses
     const siblings = data.siblings?.data || [];
     const children = data.children?.data || [];
     const parents = data.parents?.data || [];
@@ -25,40 +25,39 @@ export function transformToTreeFormat(data) {
         children: [],
     }));
 
+    // Convert all children to tree nodes
+    const childrenNodes = children.map((child) => ({
+        ...child,
+        id: `child-${child.id}`,
+        relation: "Child",
+        children: [],
+    }));
+
     let mainNode;
-    if (spouse) {
+
+    if (spouses.length > 0) {
+        const spouseNodes = spouses.map((spouse) => ({
+            ...spouse,
+            id: `spouse-${spouse.id}`,
+            relation: "Spouse",
+            children: [],
+        }));
+
         mainNode = {
-            id: `couple-${self.id}-${spouse.id}`,
+            id: `couple-${self.id}`,
             isCouple: true,
             relation: "Couple",
-            children: children.map((child) => ({
-                ...child,
-                id: `child-${child.id}`,
-                relation: "Child",
-                children: [],
-            })),
-            members: [
-                selfNode,
-                {
-                    ...spouse,
-                    id: `spouse-${spouse.id}`,
-                    relation: "Spouse",
-                    children: [],
-                },
-            ],
+            children: childrenNodes,
+            members: [selfNode, ...spouseNodes],
         };
     } else {
         mainNode = {
             ...selfNode,
-            children: children.map((child) => ({
-                ...child,
-                id: `child-${child.id}`,
-                relation: "Child",
-                children: [],
-            })),
+            children: childrenNodes,
         };
     }
 
+    // Handle parent-child structure
     if (parents.length > 0) {
         const parentNodes = parents.map((parent) => ({
             ...parent,

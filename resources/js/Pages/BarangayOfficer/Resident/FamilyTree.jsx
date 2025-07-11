@@ -24,7 +24,7 @@ export default function Index({ family_tree }) {
                         <h2 className="text-xl font-bold mb-3">
                             Dynamic Family Tree
                         </h2>
-
+                        {/* <pre>{JSON.stringify(family_tree, undefined, 3)}</pre> */}
                         <div className="h-[600px] w-full">
                             <FamilyTree familyData={family_tree} />
                         </div>
