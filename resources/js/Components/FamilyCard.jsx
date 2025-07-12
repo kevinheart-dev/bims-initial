@@ -17,7 +17,7 @@ const FamilyCard = ({ x, y, person, relation }) => {
     const fontSizeClass = isOverflowing ? "text-xs" : "text-sm";
 
     return (
-        <foreignObject x={x} y={y} width={260} height={90}>
+        <foreignObject x={x} y={y} width={260} height={150}>
             <div
                 className={`bg-white rounded-xl shadow-md border p-3 w-[240px] text-sm transition-all duration-200 hover:shadow-lg hover:border-2
                 ${relation === "Self" ? "border-blue-400" : "border-gray-300"}`}

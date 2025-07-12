@@ -14,33 +14,31 @@ const FamilyTree = ({ familyData }) => {
     useEffect(() => {
         const treeData = transformToTreeFormat(familyData);
         const root = d3.hierarchy(treeData);
-
         const treeLayout = d3.tree().nodeSize([350, 180]);
         treeLayout(root);
 
         const nodesRaw = root.descendants();
         const minY = Math.min(...nodesRaw.map((d) => d.y));
         const maxY = Math.max(...nodesRaw.map((d) => d.y));
-        const totalHeight = maxY - minY;
-        const svgHeight = 500;
+        const svgHeight = 600; // y poition for all cards
 
-        const verticalOffset = 1200;
-        const horizontalCenterOffset = (svgHeight - totalHeight) / 2;
+
+        const verticalOffset = 1200; // x poition for all cards
+        const horizontalCenterOffset = (svgHeight - (maxY - minY)) / 2;
 
         const positioned = [];
-        const lines = [];
 
+        // === 1. Position All Nodes ===
         root.descendants().forEach((d) => {
+            const baseX = d.x + verticalOffset;
+            const baseY = d.y + horizontalCenterOffset;
+
             if (d.data.isCouple && d.data.members?.length >= 2) {
                 const members = d.data.members;
                 const self = members.find((m) => m.relation === "Self");
                 const spouses = members.filter((m) => m.relation === "Spouse");
+                const spacing = CARD_WIDTH + 130; // x or width for card between spouce and self
 
-                const baseX = d.x + verticalOffset;
-                const baseY = d.y + horizontalCenterOffset;
-                const spacing = CARD_WIDTH + 130;
-
-                // Place Self at the center
                 self._x = baseX;
                 positioned.push({
                     ...self,
@@ -50,7 +48,6 @@ const FamilyTree = ({ familyData }) => {
                     id: self.id,
                 });
 
-                // Distribute spouses left and right of Self
                 spouses.forEach((spouse, idx) => {
                     const direction = idx % 2 === 0 ? -1 : 1;
                     const multiplier = Math.ceil((idx + 1) / 2);
@@ -63,40 +60,12 @@ const FamilyTree = ({ familyData }) => {
                         relation: "Spouse",
                         id: spouse.id,
                     });
-
-                    // Add connection line
-                    lines.push({
-                        from: { x: baseX + CARD_WIDTH / 2, y: baseY + CARD_HEIGHT / 2 },
-                        to: { x: spouseX + CARD_WIDTH / 2, y: baseY + CARD_HEIGHT / 2 },
-                    });
                 });
-
             } else if (d.data.id !== "virtual-root") {
-                let extraGap = 80;
-
-                if (d.parent && d.parent.children) {
-                    const hasSelfWithSpouse = d.parent.children.some(
-                        (child) => child.data.relation === "Self" && child.data._x
-                    );
-
-                    if (hasSelfWithSpouse) {
-                        const selfNode = d.parent.children.find(
-                            (child) => child.data.relation === "Self"
-                        );
-
-                        if (selfNode && selfNode.data._x) {
-                            const selfX = selfNode.data._x;
-                            if (d.x + verticalOffset < selfX + 120) {
-                                extraGap = 120;
-                            }
-                        }
-                    }
-                }
-
                 positioned.push({
                     ...d.data,
-                    x: d.x + verticalOffset + extraGap - 250,
-                    y: d.y + horizontalCenterOffset,
+                    x: baseX - 185, // x position for all child card
+                    y: baseY,
                     relation: d.data.relation || "Relative",
                     id: d.data.id,
                 });
@@ -104,6 +73,68 @@ const FamilyTree = ({ familyData }) => {
         });
 
         setNodes(positioned);
+
+        // === 2. After positioning, draw lines ===
+        const lines = [];
+
+        root.descendants().forEach((d) => {
+            if (d.data.isCouple && d.data.members?.length >= 2) {
+                const baseY = d.y + horizontalCenterOffset;
+                const members = d.data.members;
+                const self = members.find((m) => m.relation === "Self");
+                const spouses = members.filter((m) => m.relation === "Spouse");
+
+                const selfNode = positioned.find((p) => p.id === self.id);
+                const spouseNodes = spouses.map((s) => positioned.find((p) => p.id === s.id)).filter(Boolean);
+
+                spouseNodes.forEach((spouseNode) => {
+                    lines.push({
+                        from: {
+                            x: selfNode.x + CARD_WIDTH / 2,
+                            y: selfNode.y + CARD_HEIGHT / 2,
+                        },
+                        to: {
+                            x: spouseNode.x + CARD_WIDTH / 2,
+                            y: spouseNode.y + CARD_HEIGHT / 2,
+                        },
+                    });
+                });
+
+                // If couple has children, draw T-line connection
+                if (d.children?.length > 0) {
+                    const partnerXs = [selfNode.x, ...spouseNodes.map(s => s.x)];
+                    const minX = Math.min(...partnerXs);
+                    const maxX = Math.max(...partnerXs);
+                    const coupleCenterX = (minX + maxX + CARD_WIDTH) / 2;
+                    const coupleLineY = baseY + CARD_HEIGHT / 2;
+                    const junctionY = coupleLineY + 90;
+
+                    lines.push({
+                        from: { x: coupleCenterX, y: coupleLineY },
+                        to: { x: coupleCenterX, y: junctionY },
+                    });
+
+                    // Gather children
+                    const children = d.children.map(child => positioned.find(p => p.id === child.data.id)).filter(Boolean);
+                    const childXs = children.map(child => child.x + CARD_WIDTH / 2);
+
+                    // Horizontal line connecting all children
+                    lines.push({
+                        from: { x: Math.min(...childXs), y: junctionY },
+                        to: { x: Math.max(...childXs), y: junctionY },
+                    });
+
+                    // Vertical lines from junction to each child
+                    children.forEach(child => {
+                        lines.push({
+                            from: { x: child.x + CARD_WIDTH / 2, y: junctionY },
+                            to: { x: child.x + CARD_WIDTH / 2, y: child.y },
+                        });
+                    });
+                }
+            }
+        });
+
         setConnections(lines);
 
         const svg = d3.select(svgRef.current);
@@ -129,7 +160,6 @@ const FamilyTree = ({ familyData }) => {
                     className="block"
                 >
                     <g>
-                        {/* Draw lines between self and each spouse */}
                         {connections.map((line, idx) => (
                             <line
                                 key={`line-${idx}`}
@@ -142,7 +172,6 @@ const FamilyTree = ({ familyData }) => {
                             />
                         ))}
 
-                        {/* Draw each person’s card */}
                         {nodes.map((node, idx) => (
                             <FamilyCard
                                 key={idx}
