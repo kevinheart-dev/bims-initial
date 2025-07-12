@@ -13,7 +13,7 @@ import HouseInformation from "@/Components/FormSteps/HouseInformation";
 import MedicalInfo from "@/Components/FormSteps/MedicalInfo";
 import { router } from "@inertiajs/react";
 import { toast } from "react-hot-toast";
-export default function Index() {
+export default function Index({ puroks, streets }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         {
@@ -46,7 +46,7 @@ export default function Index() {
     const displayStep = (step) => {
         switch (step) {
             case 1:
-                return <Address />;
+                return <Address puroks={puroks} streets={streets} />;
             case 2:
                 return <HouseholdPersonalInfo />;
             case 3:

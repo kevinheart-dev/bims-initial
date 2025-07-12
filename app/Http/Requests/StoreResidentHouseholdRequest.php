@@ -100,6 +100,8 @@ class StoreResidentHouseholdRequest extends FormRequest
             'members.*.living_alone' => ['nullable', Rule::in([0, 1])],
             'members.*.residency_type' => ['required', Rule::in(['permanent', 'temporary', 'migrant'])],
             'members.*.residency_date' => ['required', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
+            'members.*.is_family_head' => ['required', Rule::in([0, 1])],
+            'members.*.relation_to_household_head' => ['required', Rule::in(['self', 'spouse', 'child', 'sibling', 'parent', 'grandparent'])],
             'members.*.registered_voter' => ['required', Rule::in([0, 1])],
             'members.*.voter_id_number' => ['nullable', 'string', 'max:55'],
             'members.*.voting_status' => ['nullable', Rule::in(['active', 'inactive', 'disqualified', 'medical', 'overseas', 'detained', 'deceased'])],
@@ -178,6 +180,8 @@ class StoreResidentHouseholdRequest extends FormRequest
             $attributes["members.$index.email"] = "Email of household member #$n";
             $attributes["members.$index.residency_type"] = "Residency type of household member #$n";
             $attributes["members.$index.residency_date"] = "Residency year of household member #$n";
+            $attributes["members.$index.is_family_head"] = "Family status of household member #$n";
+            $attributes["members.$index.relation_to_household_head"] = "Relation to the Head of household member #$n";
             $attributes["members.$index.registered_voter"] = "Voter registration of household member #$n";
             $attributes["members.$index.voter_id_number"] = "Voter ID number of household member #$n";
             $attributes["members.$index.voting_status"] = "Voting status of household member #$n";

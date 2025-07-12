@@ -187,7 +187,15 @@ class ResidentController extends Controller
      */
     public function create()
     {
-        return Inertia::render("BarangayOfficer/Resident/Create");
+        $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
+        $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
+        $streets = Street::whereIn('purok_id', $puroks)
+            ->orderBy('street_name', 'asc')
+            ->get(['id', 'street_name']);
+        return Inertia::render("BarangayOfficer/Resident/Create", [
+            'puroks' => $puroks,
+            'streets' => $streets
+        ]);
     }
 
     /**

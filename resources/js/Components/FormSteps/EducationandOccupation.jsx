@@ -7,6 +7,7 @@ import InputField from "../InputField";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-hot-toast";
+import SelectField from "../SelectField";
 function EducationandOccupation() {
     const { userData, setUserData, errors } = useContext(StepperContext);
     const members = userData.members || [];
@@ -57,6 +58,7 @@ function EducationandOccupation() {
             weekly: 4.33, // 52 weeks / 12 months ≈ 4.33 weeks per month
             "bi-weekly": 2.17, // 26 bi-weekly periods / 12 months ≈ 2.17
             monthly: 1, // Already monthly, no conversion needed
+            annually: 1 / 12,
         };
         const income =
             name === "income"
@@ -948,10 +950,10 @@ function EducationandOccupation() {
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <RadioGroup
+                                                    <SelectField
                                                         label="Work Arrangement"
                                                         name="work_arrangement"
-                                                        options={[
+                                                        items={[
                                                             {
                                                                 label: "Remote",
                                                                 value: "remote",
@@ -1094,7 +1096,7 @@ function EducationandOccupation() {
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <DropdownInputField
+                                                    <SelectField
                                                         label="Income Frequency"
                                                         name="frequency"
                                                         value={
@@ -1109,10 +1111,26 @@ function EducationandOccupation() {
                                                             )
                                                         }
                                                         items={[
-                                                            "daily",
-                                                            "weekly",
-                                                            "bi-weekly",
-                                                            "monthly",
+                                                            {
+                                                                label: "Daily",
+                                                                value: "daily",
+                                                            },
+                                                            {
+                                                                label: "Weekly",
+                                                                value: "weekly",
+                                                            },
+                                                            {
+                                                                label: "Bi-Weekly",
+                                                                value: "bi-weekly",
+                                                            },
+                                                            {
+                                                                label: "Monthly",
+                                                                value: "monthly",
+                                                            },
+                                                            {
+                                                                label: "Annually",
+                                                                value: "annually",
+                                                            },
                                                         ]}
                                                         placeholder="Select Frequency"
                                                         disabled={

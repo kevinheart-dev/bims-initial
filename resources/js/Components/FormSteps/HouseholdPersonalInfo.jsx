@@ -7,6 +7,7 @@ import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import YearDropdown from "../YearDropdown";
 import InputLabel from "../InputLabel";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
+import SelectField from "../SelectField";
 
 const defaultMember = {
     lastname: "",
@@ -549,7 +550,7 @@ const HouseholdPersonalInfo = () => {
                                                 )}
                                             </div>
                                             <div>
-                                                <DropdownInputField
+                                                <SelectField
                                                     label="Civil Status"
                                                     name="civil_status"
                                                     value={member.civil_status}
@@ -942,54 +943,162 @@ const HouseholdPersonalInfo = () => {
                                                     </p>
                                                 )}
                                             </div>
-                                            <div>
-                                                <RadioGroup
-                                                    label="Household Head?"
-                                                    name="is_household_head"
-                                                    selectedValue={parseInt(
-                                                        member.is_household_head
-                                                    )}
-                                                    options={[
-                                                        {
-                                                            label: "Yes",
-                                                            value: 1,
-                                                        },
-                                                        {
-                                                            label: "No",
-                                                            value: 0,
-                                                        },
-                                                    ]}
-                                                    onChange={(e) =>
-                                                        handleMemberChange(
-                                                            index,
+                                            <div className="flex justify-between items-center">
+                                                <div>
+                                                    <RadioGroup
+                                                        label="Household Head?"
+                                                        name="is_household_head"
+                                                        selectedValue={parseInt(
+                                                            member.is_household_head
+                                                        )}
+                                                        options={[
                                                             {
-                                                                target: {
-                                                                    name: "is_household_head",
-                                                                    value: parseInt(
-                                                                        e.target
-                                                                            .value
-                                                                    ),
-                                                                },
-                                                            }
-                                                        )
-                                                    }
-                                                    disabled={members.some(
-                                                        (m, i) =>
-                                                            m.is_household_head ===
-                                                                1 && i !== index
-                                                    )}
-                                                />
-                                                {errors?.[
-                                                    `members.${index}.is_household_head`
-                                                ] && (
-                                                    <p className="text-red-500 text-sm">
-                                                        {
-                                                            errors[
-                                                                `members.${index}.is_household_head`
-                                                            ]
+                                                                label: "Yes",
+                                                                value: 1,
+                                                            },
+                                                            {
+                                                                label: "No",
+                                                                value: 0,
+                                                            },
+                                                        ]}
+                                                        onChange={(e) =>
+                                                            handleMemberChange(
+                                                                index,
+                                                                {
+                                                                    target: {
+                                                                        name: "is_household_head",
+                                                                        value: parseInt(
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        ),
+                                                                    },
+                                                                }
+                                                            )
                                                         }
-                                                    </p>
-                                                )}
+                                                        disabled={members.some(
+                                                            (m, i) =>
+                                                                m.is_household_head ===
+                                                                    1 &&
+                                                                i !== index
+                                                        )}
+                                                    />
+                                                    {errors?.[
+                                                        `members.${index}.is_household_head`
+                                                    ] && (
+                                                        <p className="text-red-500 text-xs">
+                                                            {
+                                                                errors[
+                                                                    `members.${index}.is_household_head`
+                                                                ]
+                                                            }
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <RadioGroup
+                                                        label="Family Head?"
+                                                        name="is_family_head"
+                                                        selectedValue={parseInt(
+                                                            member.is_family_head
+                                                        )}
+                                                        options={[
+                                                            {
+                                                                label: "Yes",
+                                                                value: 1,
+                                                            },
+                                                            {
+                                                                label: "No",
+                                                                value: 0,
+                                                            },
+                                                        ]}
+                                                        onChange={(e) =>
+                                                            handleMemberChange(
+                                                                index,
+                                                                {
+                                                                    target: {
+                                                                        name: "is_family_head",
+                                                                        value: parseInt(
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        ),
+                                                                    },
+                                                                }
+                                                            )
+                                                        }
+                                                        disabled={members.some(
+                                                            (m, i) =>
+                                                                m.is_family_head ===
+                                                                    1 &&
+                                                                i !== index
+                                                        )}
+                                                    />
+                                                    {errors?.[
+                                                        `members.${index}.is_family_head`
+                                                    ] && (
+                                                        <p className="text-red-500 text-xs">
+                                                            {
+                                                                errors[
+                                                                    `members.${index}.is_family_head`
+                                                                ]
+                                                            }
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <SelectField
+                                                        label="Relation to Household Head"
+                                                        name="relation_to_household_head"
+                                                        value={
+                                                            member.relation_to_household_head
+                                                        }
+                                                        items={[
+                                                            {
+                                                                label: "Self",
+                                                                value: "self",
+                                                            },
+                                                            {
+                                                                label: "Spouse",
+                                                                value: "spouse",
+                                                            },
+                                                            {
+                                                                label: "Child",
+                                                                value: "child",
+                                                            },
+                                                            {
+                                                                label: "Sibling",
+                                                                value: "sibling",
+                                                            },
+                                                            {
+                                                                label: "Parent",
+                                                                value: "parent",
+                                                            },
+                                                            {
+                                                                label: "Grandparent",
+                                                                value: "grandparent",
+                                                            },
+                                                        ]}
+                                                        onChange={(e) =>
+                                                            handleMemberChange(
+                                                                index,
+                                                                e
+                                                            )
+                                                        }
+                                                        placeholder="Select type"
+                                                    />
+                                                    {errors?.[
+                                                        `members.${index}.relation_to_household_head`
+                                                    ] && (
+                                                        <p className="text-red-500 text-xs">
+                                                            {
+                                                                errors[
+                                                                    `members.${index}.relation_to_household_head`
+                                                                ]
+                                                            }
+                                                        </p>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

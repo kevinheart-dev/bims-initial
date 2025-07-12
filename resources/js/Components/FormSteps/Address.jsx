@@ -1,14 +1,26 @@
 import { useContext } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import InputField from "@/Components/InputField";
+import DropdownInputField from "../DropdownInputField";
+import SelectField from "../SelectField";
 
-const Address = () => {
+const Address = ({ puroks, streets }) => {
     const { userData, setUserData, errors } = useContext(StepperContext);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setUserData((prev) => ({ ...prev, [name]: value }));
     };
+
+    const purok_numbers = puroks.map((purok) => ({
+        label: "Purok " + purok,
+        value: purok.toString(),
+    }));
+
+    const streetList = streets.map((street) => ({
+        label: street.street_name,
+        value: street.id.toString(),
+    }));
     return (
         <div>
             <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-1">
@@ -35,13 +47,14 @@ const Address = () => {
                     )}
                 </div>
                 <div>
-                    <InputField
+                    <DropdownInputField
                         type="text"
                         label="Street Name"
                         name="street"
                         value={userData.street || ""}
                         onChange={handleChange}
                         placeholder="e.g., Rizal St., Mabini Avenue"
+                        items={streetList}
                     />
                     {errors.street && (
                         <p className="text-red-500 text-sm">{errors.street}</p>
@@ -67,13 +80,14 @@ const Address = () => {
                 </div>
 
                 <div>
-                    <InputField
+                    <SelectField
                         type="text"
                         label="Purok/Zone/Sitio/Cabisera"
                         name="purok"
                         value={userData.purok || ""}
                         onChange={handleChange}
                         placeholder="e.g., Purok 5, Sitio Lupa"
+                        items={purok_numbers}
                     />
                     {errors.purok && (
                         <p className="text-red-500 text-sm">{errors.purok}</p>
