@@ -31,7 +31,6 @@ class OccupationFactory extends Factory
             'employment_type' => $this->faker->randomElement($employmentTypes),
             'work_arrangement' => $this->faker->randomElement($workArrangements),
             'employer' => $this->faker->company(),
-            'job_sector' => $this->faker->word(),
             'occupation_status' => $this->faker->randomElement($occupationStatuses),
             'is_ofw' => $this->faker->boolean(),
             'started_at' => $startYear,

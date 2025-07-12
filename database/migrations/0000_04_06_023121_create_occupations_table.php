@@ -25,7 +25,6 @@ return new class extends Migration
             ]);
             $table->enum('work_arrangement', ['remote', 'on_site', 'hybrid']);
             $table->string('employer', 155)->nullable();
-            $table->string('job_sector', 55)->nullable();
             $table->enum('occupation_status', ['active', 'inactive', 'ended', 'retired']);
             $table->boolean('is_ofw')->default(false);
             $table->year('started_at');

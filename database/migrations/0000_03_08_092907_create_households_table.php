@@ -18,15 +18,14 @@ return new class extends Migration
             $table->foreignId('street_id')->constrained('streets')->onDelete('cascade');
             $table->integer('house_number');
             $table->string('ownership_type', 55);
-            $table->string('ownership_details', 100)->nullable();
             $table->enum('housing_condition', ['good', 'needs_repair', 'dilapidated']);
             $table->year('year_established')->nullable();
             $table->enum('house_structure', ['concrete', 'semi_concrete', 'wood', 'makeshift']);
             $table->string('bath_and_wash_area', 100)->nullable();
             $table->tinyInteger('number_of_rooms');
             $table->tinyInteger('number_of_floors');
-            $table->decimal("latitude", 8, 6);
-            $table->decimal("longitude", 9, 6);
+            $table->decimal("latitude", 8, 6)->nullable();
+            $table->decimal("longitude", 9, 6)->nullable();
             $table->timestamps();
         });
     }

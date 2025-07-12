@@ -13,11 +13,10 @@ return new class extends Migration
     {
         Schema::create('livestocks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->enum('livestock_type', ['chicken', 'cow', 'carabao', 'goat', 'pig', 'duck', 'others']);
-            $table->string('other_livestock', 55)->nullable();
+            $table->foreignId('household_id')->constrained('households')->onDelete('cascade');
+            $table->string('livestock_type', 55)->nullable();
             $table->integer('quantity');
-            $table->enum('purpose', ['personal consumption', 'commercial', 'both']);
+            $table->enum('purpose', ['personal_consumption', 'commercial', 'both']);
             $table->timestamps();
         });
     }

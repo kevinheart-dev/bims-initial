@@ -960,7 +960,7 @@ function EducationandOccupation() {
                                                             },
                                                             {
                                                                 label: "Onsite",
-                                                                value: "onsite",
+                                                                value: "on_site",
                                                             },
                                                             {
                                                                 label: "Hybrid",
@@ -1029,7 +1029,8 @@ function EducationandOccupation() {
                                                         </p>
                                                     )}
                                                 </div>
-                                                <div>
+
+                                                <div className="w-full">
                                                     <YearDropdown
                                                         label="Year Started"
                                                         name="started_at"
@@ -1061,7 +1062,7 @@ function EducationandOccupation() {
                                                         </p>
                                                     )}
                                                 </div>
-                                                <div>
+                                                <div className="w-full">
                                                     <YearDropdown
                                                         label="Year Ended"
                                                         name="ended_at"
@@ -1095,6 +1096,7 @@ function EducationandOccupation() {
                                                         </p>
                                                     )}
                                                 </div>
+
                                                 <div>
                                                     <SelectField
                                                         label="Income Frequency"
@@ -1214,6 +1216,44 @@ function EducationandOccupation() {
                                                             {
                                                                 errors[
                                                                     `members.${index}.occupations.${occIndex}.monthly_income`
+                                                                ]
+                                                            }
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <RadioGroup
+                                                        label="Overseas Filipino Worker"
+                                                        name="is_ofw"
+                                                        selectedValue={
+                                                            occupation.is_ofw ||
+                                                            ""
+                                                        }
+                                                        options={[
+                                                            {
+                                                                label: "Yes",
+                                                                value: 1,
+                                                            },
+                                                            {
+                                                                label: "No",
+                                                                value: 0,
+                                                            },
+                                                        ]}
+                                                        onChange={(e) =>
+                                                            handleOccupationChange(
+                                                                index,
+                                                                occIndex,
+                                                                e
+                                                            )
+                                                        }
+                                                    />
+                                                    {errors?.[
+                                                        `members.${index}.occupations.${occIndex}.is_ofw`
+                                                    ] && (
+                                                        <p className="text-red-500 text-xs">
+                                                            {
+                                                                errors[
+                                                                    `members.${index}.occupations.${occIndex}.is_ofw`
                                                                 ]
                                                             }
                                                         </p>

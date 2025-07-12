@@ -21,10 +21,8 @@ class SocialWelfareProfileFactory extends Factory
             'barangay_id' => 1,
             'resident_id' => Resident::inRandomOrder()->first()->id,
             'is_4ps_beneficiary' => $this->faker->boolean,
-            'is_indigent' => $this->faker->boolean,
             'is_solo_parent' => $this->faker->boolean,
             'solo_parent_id_number' => $this->faker->optional()->word,
-            'orphan_status' => $this->faker->boolean
         ];
     }
 }

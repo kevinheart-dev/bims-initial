@@ -41,7 +41,7 @@ class StoreResidentHouseholdRequest extends FormRequest
             'ownership_type' => ['required', 'string', 'max:100'],
             'housing_condition' => ['required', Rule::in(['good', 'needs_repair', 'dilapidated'])],
             'house_structure' => ['required', Rule::in(['concrete', 'semi_concrete', 'wood', 'makeshift'])],
-            'year_established' => ['required', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
+            'year_established' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
             'number_of_rooms' => ['required', 'integer', 'min:1', 'max:100'],
             'number_of_floors' => ['required', 'integer', 'min:1', 'max:10'],
             'bath_and_wash_area' => ['required', 'string', 'max:100'],
@@ -103,9 +103,11 @@ class StoreResidentHouseholdRequest extends FormRequest
             'members.*.is_family_head' => ['required', Rule::in([0, 1])],
             'members.*.relation_to_household_head' => ['required', Rule::in(['self', 'spouse', 'child', 'sibling', 'parent', 'grandparent'])],
             'members.*.registered_voter' => ['required', Rule::in([0, 1])],
+             'members.*.registered_barangay' => ['required'],
             'members.*.voter_id_number' => ['nullable', 'string', 'max:55'],
             'members.*.voting_status' => ['nullable', Rule::in(['active', 'inactive', 'disqualified', 'medical', 'overseas', 'detained', 'deceased'])],
             'members.*.is_household_head' => ['required', Rule::in([0, 1])],
+            'members.*.household_position' => ['required', 'string', 'max:55'],
             'members.*.is_4ps_benificiary' => ['required', Rule::in([0, 1])],
             'members.*.is_solo_parent' => ['required', Rule::in([0, 1])],
             'members.*.solo_parent_id_number' => ['nullable', 'string', 'max:55'],
@@ -131,29 +133,30 @@ class StoreResidentHouseholdRequest extends FormRequest
             'members.*.occupations.*.occupation' => ['nullable', 'string', 'max:100'],
             'members.*.occupations.*.employment_type' => ['nullable', Rule::in(['full_time', 'part_time', 'seasonal', 'contractual', 'self_employed'])],
             'members.*.occupations.*.occupation_status' => ['nullable', Rule::in(['active', 'inactive', 'ended', 'retired'])],
-            'members.*.occupations.*.work_arrangement' => ['nullable', Rule::in(['remote', 'onsite', 'hybrid'])],
+            'members.*.occupations.*.work_arrangement' => ['nullable', Rule::in(['remote', 'on_site', 'hybrid'])],
             'members.*.occupations.*.employer' => ['nullable', 'string', 'max:100'],
             'members.*.occupations.*.started_at' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
             'members.*.occupations.*.ended_at' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
             'members.*.occupations.*.frequency' => ['nullable', Rule::in(['daily', 'weekly', 'bi-weekly', 'monthly'])],
             'members.*.occupations.*.income' => ['nullable', 'numeric', 'min:0'],
             'members.*.occupations.*.monthly_income' => ['nullable', 'numeric', 'min:0'],
+            'members.*.occupations.*.is_ofw' => ['required', Rule::in([0, 1])],
             'members.*.weight_kg' => ['required', 'numeric', 'min:0', 'max:300'],
             'members.*.height_cm' => ['required', 'numeric', 'min:0', 'max:300'],
-            'members.*.bmi' => ['required'],
-            // 'members.*.nutrition_status' => ['required', 'string', 'max:100'],
-            // 'members.*.emergency_contact_number' => ['required', 'digits_between:7,15'],
-            // 'members.*.emergency_contact_name' => ['required', 'string', 'max:255'],
-            // 'members.*.emergency_contact_relationship' => ['required', 'string', 'max:100'],
-            // 'members.*.blood_type' => ['required', Rule::in(['A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−'])],
-            // 'members.*.has_philhealth' => ['required', Rule::in([0, 1])],
-            // 'members.*.philhealth_id_number' => ['nullable', 'string', 'max:50'],
-            // 'members.*.is_alcohol_user' => ['required', Rule::in([0, 1])],
-            // 'members.*.is_smoker' => ['required', Rule::in([0, 1])],
-            // 'members.*.is_pwd' => ['required', Rule::in([0, 1])],
-            // 'members.*.pwd_id_number' => ['required_if:is_pwd,1', 'nullable', 'string', 'max:10'],
-            // 'members.*.disabilities' => ['required_if:is_pwd,1', 'array'],
-            // 'members.*.disabilities.*.disability_type' => ['required_with:disabilities', 'string', 'max:100'],
+            'members.*.bmi' => ['required', 'numeric', 'min:0', 'max:300'],
+            'members.*.nutrition_status' => ['required', 'string', 'max:100'],
+            'members.*.emergency_contact_number' => ['required', 'digits_between:7,15'],
+            'members.*.emergency_contact_name' => ['required', 'string', 'max:255'],
+            'members.*.emergency_contact_relationship' => ['required', 'string', 'max:100'],
+            'members.*.blood_type' => ['required', Rule::in(['A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−'])],
+            'members.*.has_philhealth' => ['required', Rule::in([0, 1])],
+            'members.*.philhealth_id_number' => ['nullable', 'string', 'max:50'],
+            'members.*.is_alcohol_user' => ['required', Rule::in([0, 1])],
+            'members.*.is_smoker' => ['required', Rule::in([0, 1])],
+            'members.*.is_pwd' => ['required', Rule::in([0, 1])],
+            'members.*.pwd_id_number' => ['required_if:is_pwd,1', 'nullable', 'string', 'max:10'],
+            'members.*.disabilities' => ['required_if:is_pwd,1', 'array'],
+            'members.*.disabilities.*.disability_type' => ['required_with:disabilities', 'string', 'max:100'],
         ];
     }
 
@@ -183,9 +186,11 @@ class StoreResidentHouseholdRequest extends FormRequest
             $attributes["members.$index.is_family_head"] = "Family status of household member #$n";
             $attributes["members.$index.relation_to_household_head"] = "Relation to the Head of household member #$n";
             $attributes["members.$index.registered_voter"] = "Voter registration of household member #$n";
+            $attributes["members.$index.registered_barangay"] = "Voter Status of household member #$n";
             $attributes["members.$index.voter_id_number"] = "Voter ID number of household member #$n";
             $attributes["members.$index.voting_status"] = "Voting status of household member #$n";
             $attributes["members.$index.is_household_head"] = "Is household head for household member #$n";
+            $attributes["members.$index.household_position"] = "Household position for household member #$n";
             $attributes["members.$index.is_4ps_benificiary"] = "4Ps beneficiary of household member #$n";
             $attributes["members.$index.is_solo_parent"] = "Solo parent status of household member #$n";
             $attributes["members.$index.solo_parent_id_number"] = "Solo parent ID of household member #$n";
@@ -195,9 +200,9 @@ class StoreResidentHouseholdRequest extends FormRequest
             $attributes["members.$index.height_cm"] = "Height of household member #$n";
             $attributes["members.$index.bmi"] = "BMI of household member #$n";
             $attributes["members.$index.nutrition_status"] = "Nutrition status of household member #$n";
-            $attributes["members.$index.emergency_contact_number"] = "Emergency contact number of household member #$n";
-            $attributes["members.$index.emergency_contact_name"] = "Emergency contact name of household member #$n";
-            $attributes["members.$index.emergency_contact_relationship"] = "Emergency contact relationship of household member #$n";
+            $attributes["members.$index.emergency_contact_number"] = "Emergency number of household member #$n";
+            $attributes["members.$index.emergency_contact_name"] = "Contact name of household member #$n";
+            $attributes["members.$index.emergency_contact_relationship"] = "Contact relationship of household member #$n";
             $attributes["members.$index.blood_type"] = "Blood type of household member #$n";
             $attributes["members.$index.has_philhealth"] = "PhilHealth status of household member #$n";
             $attributes["members.$index.philhealth_id_number"] = "PhilHealth ID Number of household member #$n";
@@ -238,6 +243,7 @@ class StoreResidentHouseholdRequest extends FormRequest
                 $attributes["members.$index.occupations.$oIndex.frequency"] = "Income frequency of member #$n (occupation #" . ($oIndex + 1) . ")";
                 $attributes["members.$index.occupations.$oIndex.income"] = "Income of member #$n (occupation #" . ($oIndex + 1) . ")";
                 $attributes["members.$index.occupations.$oIndex.monthly_income"] = "Monthly income of member #$n (occupation #" . ($oIndex + 1) . ")";
+                $attributes["members.$index.occupations.$oIndex.is_ofw"] = "OFW status of member #$n (occupation #" . ($oIndex + 1) . ")";
             }
 
             foreach ((array) ($member['disabilities'] ?? []) as $dIndex => $disability) {

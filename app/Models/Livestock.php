@@ -9,4 +9,18 @@ class Livestock extends Model
 {
     /** @use HasFactory<\Database\Factories\LivestockFactory> */
     use HasFactory;
+
+    public $timestamps = true;
+    protected $fillable = [
+        'household_id',
+        'livestock_type',
+        'quantity',
+        'purpose',
+        'created_at',
+        'updated_at',
+    ];
+
+    public function household(){
+        return $this->belongsTo(Household::class);
+    }
 }

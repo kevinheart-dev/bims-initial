@@ -13,10 +13,8 @@ return new class extends Migration
     {
         Schema::create('internet_accessibilities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
+            $table->foreignId('household_id')->constrained('households')->onDelete('cascade');
             $table->enum('type_of_internet', ['mobile_data', 'wireless_fidelity', 'other']);
-            $table->string('isp', 55);
-            $table->boolean('is_changed')->default(false);
             $table->timestamps();
         });
     }

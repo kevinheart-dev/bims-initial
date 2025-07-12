@@ -78,7 +78,6 @@ class ResidentFactory extends Factory
                 'single', 'married', 'widowed', 'separated', 'divorced', 'annulled'
             ]),
             'registered_voter' => $this->faker->boolean(75),
-            'voter_id_number' => $this->faker->optional(0.6)->numerify('##########'),
             'employment_status' => $this->faker->randomElement([
                 'employed', 'unemployed', 'self_employed', 'student', 'under_employed'
             ]),

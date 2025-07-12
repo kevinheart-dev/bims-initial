@@ -24,7 +24,6 @@ class HouseholdFactory extends Factory
             'street_id' => Street::inRandomOrder()->first()?->id ?? Street::factory(),
             'house_number' => $this->faker->numberBetween(1, 9999),
             'ownership_type' => $this->faker->randomElement(['owned', 'rented', 'shared', 'government_provided', 'inherited', 'others']),
-            'ownership_details' => $this->faker->optional()->sentence(3),
             'housing_condition' => $this->faker->randomElement(['good', 'needs_repair', 'dilapidated']),
             'year_established' => $this->faker->optional()->year(),
             'house_structure' => $this->faker->randomElement(['concrete', 'semi_concrete', 'wood', 'makeshift']),

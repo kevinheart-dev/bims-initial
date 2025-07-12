@@ -27,7 +27,7 @@ class ResidentController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
+        $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
         $query = Resident::query()
             ->with([
                 'socialwelfareprofile',
@@ -187,14 +187,17 @@ class ResidentController extends Controller
      */
     public function create()
     {
-        $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
+        $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
         $streets = Street::whereIn('purok_id', $puroks)
             ->orderBy('street_name', 'asc')
             ->get(['id', 'street_name']);
+
+        $barangays = Barangay::all()->pluck('barangay_name', 'id')->toArray();
         return Inertia::render("BarangayOfficer/Resident/Create", [
             'puroks' => $puroks,
-            'streets' => $streets
+            'streets' => $streets,
+            'barangays' => $barangays,
         ]);
     }
 
@@ -204,7 +207,7 @@ class ResidentController extends Controller
     public function store(StoreResidentRequest $request)
     {
 
-        $barangayId = Auth()->user()->barangay_id; // get brgy id through the admin
+        $barangayId = Auth()->user()->resident->barangay_id; // get brgy id through the admin
         $data = $request->validated();
         /**
          * @var $image \Illuminate\Http\UploadedFile
@@ -515,8 +518,371 @@ class ResidentController extends Controller
 
     public function storeHousehold(StoreResidentHouseholdRequest $request)
     {
-        dd($request->all());
-        return response()->json($request->all());
+        $barangayId = Auth()->user()->resident->barangay_id;
+        $data = $request->validated();
+        /**
+         * @var $image \Illuminate\Http\UploadedFile
+         */
+        //dd($data);
+        $image = $data['resident_image'] ?? null;
+        if ($image) {
+            $folder = 'resident/' . $data['lastname'] . $data['firstname'] . Str::random(10);
+            $data['resident_image'] = $image->store($folder, 'public');
+        }
+        $purokId = Purok::where('purok_number', $data['purok'])
+            ->where('barangay_id', $barangayId)
+            ->first();
+
+        $householdData = [
+            'barangay_id' =>  $barangayId ?? null,
+            'purok_id' => $purokId->id ?? null,
+            'street_id' => $data['street'] ?? null,
+            'house_number' => $data['housenumber'] ?? null,
+            'ownership_type' => $data['ownership_type'] ?? null,
+            'housing_condition' => $data['housing_condition'] ?? null,
+            'year_established' => $data['year_established'] ?? null,
+            'house_structure' => $data['house_structure'] ?? null,
+            'bath_and_wash_area' => $data['bath_and_wash_area'] ?? null,
+            'number_of_rooms' => $data['number_of_rooms'] ?? null,
+            'number_of_floors' => $data['number_of_floors'] ?? null,
+            'latitude' => $data['latitude'] ?? 0,
+            'longitude' => $data['longitude'] ?? 0,
+        ];
+
+
+        try {
+            $household = Household::create($householdData);
+
+            if($household){
+                // toilets
+                foreach ($data['toilets'] ?? [] as $toilet){
+                    $household->toilets()->create([
+                        'toilet_type' => $toilet["toilet_type"] ?? null,
+                    ]);
+                }
+
+                // electricity
+                foreach ($data['electricity_types'] ?? [] as $electric){
+                    $household->electricityTypes()->create([
+                        'electricity_type' => $electric["electricity_type"] ?? null,
+                    ]);
+                }
+
+                // water sources
+                foreach ($data['water_source_types'] ?? [] as $water){
+                    $household->waterSourceTypes()->create([
+                        'water_source_type' => $water["water_source_type"] ?? null,
+                    ]);
+                }
+
+                // wastes
+                foreach ($data['waste_management_types'] ?? [] as $waste){
+                    $household->wasteManagementTypes()->create([
+                        'waste_management_type' => $waste["waste_management_type"] ?? null,
+                    ]);
+                }
+
+                // pets
+                if($data['has_pets']){
+                    foreach ($data['pets'] ?? [] as $pet){
+                        $household->pets()->create([
+                            'pet_type' => $pet["pet_type"] ?? null,
+                            'is_vaccinated' => $pet["is_vaccinated"] ?? null,
+                        ]);
+                    }
+                }
+
+                // livestocks
+                if($data['has_livestock']){
+                    foreach ($data['livestocks'] ?? [] as $livestock){
+                        $household->livestocks()->create([
+                            'livestock_type' => $livestock["livestock_type"] ?? null,
+                            'quantity' => $livestock["quantity"] ?? null,
+                            'purpose' => $livestock["purpose"] ?? null,
+                        ]);
+                    }
+                }
+
+                // internet
+                if($data['type_of_internet']){
+                    $household->internetAccessibility()->create([
+                        'type_of_internet' => $data["type_of_internet"] ?? null,
+                    ]);
+                }
+
+                $family = Family::create([
+                    'barangay_id' => $barangayId,
+                    'household_id' => $household->id,
+                    'income_bracket' =>  $data['income_bracket'] ?? null,
+                    'income_category' =>  $data['income_category'] ?? null,
+                    'family_name' =>  $data['family_name'] ?? null,
+                    'family_type' =>  $data['family_type'] ?? null,
+                ]);
+
+                // resident information
+                foreach ($data['members'] ?? [] as $member){
+                    $empStatus = null;
+                    $latestStatus = null;
+
+                    foreach ($member['educations'] as $education){
+                        $empStatus = $education['educational_status'] == "enrolled" ? "student" : null;
+                        if(empty($empStatus)){
+                            $latestOccupation = collect($data['occupations'] ?? [])
+                            ->sortByDesc('started_at')
+                            ->first();
+                            $latestStatus = $latestOccupation['employment_status'] ?? 'unemployed';
+                        }
+                    }
+
+                    $residentInformation = [
+                        'resident_picture_path' => $member['resident_image'] ?? null,
+                        'barangay_id' => $barangayId,
+                        'firstname' => $member['firstname'],
+                        'middlename' => $member['middlename'],
+                        'lastname' => $member['lastname'],
+                        'maiden_name' => $member['maiden_name'] ?? null,
+                        'suffix' => $member['suffix'] ?? null,
+                        'gender' => $member['gender'],
+                        'birthdate' => $member['birthdate'],
+                        'birthplace' => $member['birthplace'],
+                        'civil_status' => $member['civil_status'],
+                        'citizenship' => $member['citizenship'],
+                        'employment_status' => $empStatus ?? $latestStatus,
+                        'religion' => $member['religion'],
+                        'contact_number' => $member['contactNumber'] ?? null,
+                        'registered_voter' => $member['registered_voter'],
+                        'ethnicity' => $member['ethnicity'] ?? null,
+                        'email' => $member['email'] ?? null,
+                        'residency_date' => $member['residency_date'] ?? now(),
+                        'residency_type' => $member['residency_type'] ?? 'permanent',
+                        'purok_number' => $data['purok'],
+                        'street_id' => $data['street'] ?? null,
+                        'is_pwd' => $member['is_pwd'] ?? null,
+                        'household_id' => $household->id,
+                        'is_household_head' => $member['is_household_head'] ?? false,
+                        'family_id' => $family->id,
+                        'is_family_head' => $member['is_family_head'] ?? false,
+                        'verified' => $data['verified'],
+                    ];
+
+                    $residentVotingInformation = [
+                        'registered_barangay_id' => $member['registered_barangay'],
+                        'voting_status' => $member['voting_status'] ?? null,
+                        'voter_id_number' => $member['voter_id_number'] ?? null,
+                    ];
+
+                    $residentSocialWelfareProfile = [
+                        'barangay_id' => $barangayId,
+                        'is_4ps_beneficiary' => $member['is_4ps_beneficiary'] ?? false,
+                        'is_solo_parent' => $member['is_solo_parent'] ?? false,
+                        'solo_parent_id_number' => $member['solo_parent_id_number'] ?? null,
+                    ];
+
+                    $householdResident = [
+                        'household_id' => $household->id,
+                        'relationship_to_head' => $member['relation_to_household_head'] ?? null,
+                        'household_position' => $member['household_position'] ?? null,
+                    ];
+
+                    $resident = Resident::create($residentInformation);
+
+                    // add voting information
+                    $resident->votingInformation()->create([
+                        ...$residentVotingInformation,
+                    ]);
+
+                    //add educational histories
+                    if (!empty($member['educations']) && is_array($member['educations'])) {
+                        foreach ($member['educations'] ?? [] as $educationalData) {
+                            if($educationalData['educational_status'] === 'graduate'){
+                                $yearGraduated = $educationalData['year_ended'];
+                            }
+                            $resident->educationalHistories()->create([
+                                'educational_attainment' => $educationalData['education'] ?? null,
+                                'school_name' => $educationalData['school_name'] ?? null,
+                                'school_type' => $educationalData['school_type'] ?? null,
+                                'year_started' => $educationalData['year_started'] ?? null,
+                                'year_ended' => $educationalData['year_ended'] ?? null,
+                                'program' => $educationalData['program'] ?? null,
+                                'year_graduated' => $yearGraduated ?? null,
+                                'education_status' => $educationalData['educational_status'] ?? null,
+                            ]);
+                        }
+                    }
+
+                    //add occupations
+                    if (!empty($member['occupations']) && is_array($member['occupations'])) {
+                        foreach ($member['occupations'] ?? [] as $occupationData) {
+                            $resident->occupations()->create([
+                                'occupation' => $occupationData['occupation'] ?? null,
+                                'employment_type' => $occupationData['employment_type'] ?? null,
+                                'occupation_status' => $occupationData['occupation_status'] ?? null,
+                                'work_arrangement' => $occupationData['work_arrangement'] ?? null,
+                                'employer' => $occupationData['employer'] ?? null,
+                                'is_ofw' => $occupationData['is_ofw'] ?? false,
+                                'started_at' => $occupationData['started_at'] ?? null,
+                                'ended_at' => $occupationData['ended_at'] ?? null,
+                                'monthly_income' => $occupationData['monthly_income'] ?? null,
+                            ]);
+                        }
+                    }
+
+                    $residentMedicalInformation = [
+                        'weight_kg' => $member['weight_kg'] ?? 0,
+                        'height_cm' => $member['height_cm'] ?? 0,
+                        'bmi' => $member['bmi'] ?? 0,
+                        'nutrition_status' => $member['nutrition_status'] ?? null,
+                        'emergency_contact_number' => $member['emergency_contact_number'] ?? null,
+                        'emergency_contact_name' => $member['emergency_contact_name'] ?? null,
+                        'emergency_contact_relationship' => $member['emergency_contact_relationship'] ?? null,
+                        'is_smoker' => $member['is_smoker'] ?? 0,
+                        'is_alcohol_user' => $member['is_alcohol_user'] ?? 0,
+                        'blood_type' => $member['blood_type'] ?? null,
+                        'has_philhealth' => $member['has_philhealth'] ?? 0,
+                        'philhealth_id_number' => $member['philhealth_id_number'] ?? null,
+                        'pwd_id_number'  => $member['pwd_id_number'] ?? null,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+
+                    $resident->medicalInformation()->create($residentMedicalInformation);
+                    if ($member["is_pwd"] == '1') {
+                        foreach ($member['disabilities'] ?? [] as $disability) {
+                            $resident->disabilities()->create(attributes: [
+                                'disability_type' => $disability['disability_type'] ?? null,
+                            ]);
+                        }
+                    }
+                    $resident->socialwelfareprofile()->create($residentSocialWelfareProfile);
+
+                    $resident->householdResidents()->create($householdResident);
+
+                    if (!empty($member['relation_to_household_head'])) {
+                        $head = Resident::where('household_id', $household->id)
+                        ->where('is_household_head', true)
+                        ->first();
+
+                        if ($head) {
+                            $relationship = $member['relation_to_household_head'];
+
+                            // 🔸 Grandparent case (only if household position is not nuclear)
+                            if ($relationship === 'grandparent') {
+                                $position = strtolower($member['relation_to_household_head'] ?? '');
+                                if ($position === 'nuclear') {
+                                    return back()->withErrors(['error' => 'Grandparents cannot be added to a nuclear household.']);
+                                }
+
+                                $headParents = $head->parents()->get();
+                                $matches = $headParents->filter(function ($parent) use ($resident) {
+                                    return (
+                                        strtolower($parent->firstname) === strtolower($resident->firstname) &&
+                                        strtolower($parent->middlename) === strtolower($resident->middlename) &&
+                                        strtolower($parent->lastname) === strtolower($resident->lastname)
+                                    );
+                                });
+
+                                if ($matches->isNotEmpty()) {
+                                    foreach ($matches as $matchedParent) {
+                                        FamilyRelation::firstOrCreate([
+                                            'resident_id' => $resident->id,
+                                            'related_to' => $matchedParent->id,
+                                            'relationship' => 'parent',
+                                        ]);
+
+                                        FamilyRelation::firstOrCreate([
+                                            'resident_id' => $matchedParent->id,
+                                            'related_to' => $resident->id,
+                                            'relationship' => 'child',
+                                        ]);
+                                    }
+                                } else {
+                                    return back()->withErrors(['error' => 'No parent of the household head matches the grandparent\'s name.']);
+                                }
+                            }
+
+                            // 🔸 Sibling of the head (link to head's parents)
+                            elseif ($relationship === 'sibling') {
+                                $headParents = $head->parents()->get();
+
+                                if ($headParents->isEmpty()) {
+                                    return back()->withErrors(['error' => 'Cannot add sibling: household head has no registered parents.']);
+                                }
+
+                                foreach ($headParents as $parent) {
+                                    FamilyRelation::firstOrCreate([
+                                        'resident_id' => $parent->id,
+                                        'related_to' => $resident->id,
+                                        'relationship' => 'parent',
+                                    ]);
+
+                                    FamilyRelation::firstOrCreate([
+                                        'resident_id' => $resident->id,
+                                        'related_to' => $parent->id,
+                                        'relationship' => 'child',
+                                    ]);
+                                }
+                            }
+
+                            // 🔸 Child → attach to head and all spouses
+                            elseif ($relationship === 'child') {
+                                $spouses = $head->spouses()->get();
+                                $relatedAdults = collect([$head])->merge($spouses);
+
+                                foreach ($relatedAdults as $adult) {
+                                    FamilyRelation::firstOrCreate([
+                                        'resident_id' => $adult->id,
+                                        'related_to' => $resident->id,
+                                        'relationship' => 'parent',
+                                    ]);
+
+                                    FamilyRelation::firstOrCreate([
+                                        'resident_id' => $resident->id,
+                                        'related_to' => $adult->id,
+                                        'relationship' => 'child',
+                                    ]);
+                                }
+                            }
+
+                            // 🔸 Parent → attach this resident as parent of the head
+                            elseif ($relationship === 'parent') {
+                                FamilyRelation::firstOrCreate([
+                                    'resident_id' => $resident->id,
+                                    'related_to' => $head->id,
+                                    'relationship' => 'parent',
+                                ]);
+
+                                FamilyRelation::firstOrCreate([
+                                    'resident_id' => $head->id,
+                                    'related_to' => $resident->id,
+                                    'relationship' => 'child',
+                                ]);
+                            }
+
+                            // 🔸 Spouse
+                            elseif ($relationship === 'spouse') {
+                                FamilyRelation::firstOrCreate([
+                                    'resident_id' => $resident->id,
+                                    'related_to' => $head->id,
+                                    'relationship' => 'spouse',
+                                ]);
+
+                                FamilyRelation::firstOrCreate([
+                                    'resident_id' => $head->id,
+                                    'related_to' => $resident->id,
+                                    'relationship' => 'spouse',
+                                ]);
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            return redirect()->route('resident.index')->with('success', 'Household created successfully!');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            return back()->withErrors(['error' => 'Resident could not be created: ' . $e->getMessage()]);
+        }
     }
 
 

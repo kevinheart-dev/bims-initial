@@ -16,7 +16,6 @@ class Household extends Model
         'purok_id',
         'house_number',
         'ownership_type',
-        'ownership_details',
         'housing_condition',
         'year_established',
         'house_structure',
@@ -53,5 +52,31 @@ class Household extends Model
         return $this->hasMany(HouseholdResident::class);
     }
 
+    public function toilets(){
+        return $this->hasMany(HouseholdToilet::class);
+    }
 
+    public function electricityTypes(){
+        return $this->hasMany(HouseholdElectricitySource::class);
+    }
+
+    public function waterSourceTypes(){
+        return $this->hasMany(HouseholdWaterSource::class);
+    }
+
+    public function wasteManagementTypes(){
+        return $this->hasMany(HouseholdWasteManagement::class);
+    }
+
+    public function livestocks(){
+        return $this->hasMany(Livestock::class);
+    }
+
+    public function pets(){
+        return $this->hasMany(Pet::class);
+    }
+
+    public function internetAccessibility(){
+        return $this->belongsTo(InternetAccessibility::class);
+    }
 }

@@ -23,7 +23,11 @@ import {
 } from "@/Components/ui/select";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
-import { FAMILY_TYPE_TEXT, INCOME_BRACKETS } from "@/constants";
+import {
+    FAMILY_TYPE_TEXT,
+    INCOME_BRACKET_TEXT,
+    INCOME_BRACKETS,
+} from "@/constants";
 import ClearFilterButton from "@/Components/ClearFiltersButton";
 
 export default function Index({ families, queryParams = null, puroks }) {
@@ -71,6 +75,7 @@ export default function Index({ families, queryParams = null, puroks }) {
         { key: "is_household_head", label: "Household Head" },
         { key: "family_name", label: "Family Name" },
         { key: "income_bracket", label: "Income Bracket" },
+        { key: "income_category", label: "Income Category" },
         { key: "family_type", label: "Family Type" },
         { key: "family_member_count", label: "Members" },
         { key: "house_number", label: "House Number" },
@@ -120,6 +125,19 @@ export default function Index({ families, queryParams = null, puroks }) {
             </span>
         ),
         income_bracket: (family) => {
+            const bracket = INCOME_BRACKET_TEXT[family.family?.income_bracket];
+            const bracket2 = INCOME_BRACKETS[family.family?.income_bracket];
+            return bracket ? (
+                <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${bracket2.className}`}
+                >
+                    {bracket}
+                </span>
+            ) : (
+                <span className="text-gray-500 italic">Unknown</span>
+            );
+        },
+        income_category: (family) => {
             const bracket = INCOME_BRACKETS[family.family?.income_bracket];
 
             return bracket ? (

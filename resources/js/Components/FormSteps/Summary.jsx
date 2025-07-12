@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import * as CONSTANTS from "@/constants";
 import Checkbox from "../Checkbox";
-const Summary = ({ onBack, onSubmit }) => {
+const Summary = ({ onBack, onSubmit, streets }) => {
     const { userData, setUserData } = useContext(StepperContext);
     const members = userData.members || [];
 
@@ -18,6 +18,11 @@ const Summary = ({ onBack, onSubmit }) => {
             </span>
         </div>
     );
+
+    const getStreetName = (streetId) => {
+        const street = streets.find((s) => s.id === streetId);
+        return street ? street.street_name : "N/A";
+    };
 
     return (
         <section className="space-y-8 p-4 bg-white rounded-md shadow-sm">
@@ -47,7 +52,10 @@ const Summary = ({ onBack, onSubmit }) => {
                                 "House/Lot/Unit No.",
                                 userData.housenumber
                             )}
-                            {renderDetail("Street Name", userData.street)}
+                            {renderDetail(
+                                "Street Name",
+                                getStreetName(parseInt(userData.street))
+                            )}
                             {renderDetail(
                                 "Subdivision/Village",
                                 userData.subdivision

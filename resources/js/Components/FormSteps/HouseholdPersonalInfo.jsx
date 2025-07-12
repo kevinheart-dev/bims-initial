@@ -42,7 +42,7 @@ const defaultMember = {
     has_vehicle: "",
 };
 
-const HouseholdPersonalInfo = () => {
+const HouseholdPersonalInfo = ({ barangays }) => {
     const { userData, setUserData, errors } = useContext(StepperContext);
     const [members, setMembers] = useState([]);
 
@@ -143,6 +143,17 @@ const HouseholdPersonalInfo = () => {
             }
 
             if (
+                name === "is_family_head" &&
+                value === 1 &&
+                userData.family_type === "nuclear"
+            ) {
+                return updated.map((m, i) => ({
+                    ...m,
+                    is_family_head: i === index ? 1 : 0,
+                }));
+            }
+
+            if (
                 index === 0 &&
                 ["lastname", "religion", "ethnicity", "citizenship"].includes(
                     name
@@ -162,6 +173,11 @@ const HouseholdPersonalInfo = () => {
             return updated;
         });
     };
+
+    const barangayList = Object.entries(barangays).map(([id, name]) => ({
+        label: name,
+        value: id,
+    }));
 
     const calculateAge = (birthdate) => {
         if (!birthdate) return "";
@@ -875,76 +891,119 @@ const HouseholdPersonalInfo = () => {
                                             Residency Info
                                         </h3>
                                         <div className="space-y-2">
-                                            <div>
-                                                <DropdownInputField
-                                                    label="Residency Type"
-                                                    name="residency_type"
-                                                    value={
-                                                        member.residency_type
-                                                    }
-                                                    items={[
-                                                        {
-                                                            label: "Permanent",
-                                                            value: "permanent",
-                                                        },
-                                                        {
-                                                            label: "Temporary",
-                                                            value: "temporary",
-                                                        },
-                                                        {
-                                                            label: "Migrant",
-                                                            value: "migrant",
-                                                        },
-                                                    ]}
-                                                    onChange={(e) =>
-                                                        handleMemberChange(
-                                                            index,
-                                                            e
-                                                        )
-                                                    }
-                                                    placeholder="Select type"
-                                                />
-                                                {errors?.[
-                                                    `members.${index}.residency_type`
-                                                ] && (
-                                                    <p className="text-red-500 text-sm">
-                                                        {
-                                                            errors[
-                                                                `members.${index}.residency_type`
-                                                            ]
+                                            <div className="flex flex-col md:flex-row justify-center gap-4 items-center">
+                                                <div className="w-full">
+                                                    <DropdownInputField
+                                                        label="Residency Type"
+                                                        name="residency_type"
+                                                        value={
+                                                            member.residency_type
                                                         }
-                                                    </p>
-                                                )}
-                                            </div>
-                                            <div>
-                                                <YearDropdown
-                                                    label="Residency Date"
-                                                    name="residency_date"
-                                                    value={
-                                                        member.residency_date
-                                                    }
-                                                    onChange={(e) =>
-                                                        handleMemberChange(
-                                                            index,
-                                                            e
-                                                        )
-                                                    }
-                                                    placeholder="Select year"
-                                                />
-                                                {errors?.[
-                                                    `members.${index}.residency_date`
-                                                ] && (
-                                                    <p className="text-red-500 text-sm">
-                                                        {
-                                                            errors[
-                                                                `members.${index}.residency_date`
-                                                            ]
+                                                        items={[
+                                                            {
+                                                                label: "Permanent",
+                                                                value: "permanent",
+                                                            },
+                                                            {
+                                                                label: "Temporary",
+                                                                value: "temporary",
+                                                            },
+                                                            {
+                                                                label: "Migrant",
+                                                                value: "migrant",
+                                                            },
+                                                        ]}
+                                                        onChange={(e) =>
+                                                            handleMemberChange(
+                                                                index,
+                                                                e
+                                                            )
                                                         }
-                                                    </p>
-                                                )}
+                                                        placeholder="Select type"
+                                                    />
+                                                    {errors?.[
+                                                        `members.${index}.residency_type`
+                                                    ] && (
+                                                        <p className="text-red-500 text-sm">
+                                                            {
+                                                                errors[
+                                                                    `members.${index}.residency_type`
+                                                                ]
+                                                            }
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div className="w-full">
+                                                    <YearDropdown
+                                                        label="Residency Date"
+                                                        name="residency_date"
+                                                        value={
+                                                            member.residency_date
+                                                        }
+                                                        onChange={(e) =>
+                                                            handleMemberChange(
+                                                                index,
+                                                                e
+                                                            )
+                                                        }
+                                                        placeholder="Select year"
+                                                    />
+                                                    {errors?.[
+                                                        `members.${index}.residency_date`
+                                                    ] && (
+                                                        <p className="text-red-500 text-sm">
+                                                            {
+                                                                errors[
+                                                                    `members.${index}.residency_date`
+                                                                ]
+                                                            }
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div className="w-full">
+                                                    <DropdownInputField
+                                                        label="Household Position"
+                                                        name="household_position"
+                                                        value={
+                                                            member.household_position
+                                                        }
+                                                        items={[
+                                                            {
+                                                                label: "Primary/Nuclear",
+                                                                value: "primary",
+                                                            },
+                                                            {
+                                                                label: "Extended",
+                                                                value: "extended",
+                                                            },
+                                                            {
+                                                                label: "boarder",
+                                                                value: "boarder",
+                                                            },
+                                                        ]}
+                                                        onChange={(e) =>
+                                                            handleMemberChange(
+                                                                index,
+                                                                e
+                                                            )
+                                                        }
+                                                        placeholder="Select type"
+                                                    />
+                                                    {errors?.[
+                                                        `members.${index}.household_position`
+                                                    ] && (
+                                                        <p className="text-red-500 text-sm">
+                                                            {
+                                                                errors[
+                                                                    `members.${index}.household_position`
+                                                                ]
+                                                            }
+                                                        </p>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className="flex justify-between items-center">
-                                                <div>
+                                            <div className="flex flex-col md:flex-row justify-between items-center">
+                                                <div className="w-full">
                                                     <RadioGroup
                                                         label="Household Head?"
                                                         name="is_household_head"
@@ -995,13 +1054,15 @@ const HouseholdPersonalInfo = () => {
                                                         </p>
                                                     )}
                                                 </div>
-                                                <div>
+                                                <div className="w-full">
                                                     <RadioGroup
                                                         label="Family Head?"
                                                         name="is_family_head"
-                                                        selectedValue={parseInt(
-                                                            member.is_family_head
-                                                        )}
+                                                        selectedValue={
+                                                            parseInt(
+                                                                member.is_family_head
+                                                            ) ?? 0
+                                                        }
                                                         options={[
                                                             {
                                                                 label: "Yes",
@@ -1031,7 +1092,9 @@ const HouseholdPersonalInfo = () => {
                                                             (m, i) =>
                                                                 m.is_family_head ===
                                                                     1 &&
-                                                                i !== index
+                                                                i !== index &&
+                                                                userData.family_type ===
+                                                                    "nuclear"
                                                         )}
                                                     />
                                                     {errors?.[
@@ -1046,9 +1109,9 @@ const HouseholdPersonalInfo = () => {
                                                         </p>
                                                     )}
                                                 </div>
-                                                <div>
+                                                <div className="w-full">
                                                     <SelectField
-                                                        label="Relation to Household Head"
+                                                        label="Relation to Head"
                                                         name="relation_to_household_head"
                                                         value={
                                                             member.relation_to_household_head
@@ -1304,6 +1367,35 @@ const HouseholdPersonalInfo = () => {
                                                             {
                                                                 errors[
                                                                     `members.${index}.voting_status`
+                                                                ]
+                                                            }
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <DropdownInputField
+                                                        label="Votes In? "
+                                                        name="registered_barangay"
+                                                        value={
+                                                            member.registered_barangay ||
+                                                            ""
+                                                        }
+                                                        onChange={(e) =>
+                                                            handleMemberChange(
+                                                                index,
+                                                                e
+                                                            )
+                                                        }
+                                                        items={barangayList}
+                                                        placeholder="Select registered barangay"
+                                                    />
+                                                    {errors?.[
+                                                        `members.${index}.registered_barangay`
+                                                    ] && (
+                                                        <p className="text-red-500 text-xs">
+                                                            {
+                                                                errors[
+                                                                    `members.${index}.registered_barangay`
                                                                 ]
                                                             }
                                                         </p>
