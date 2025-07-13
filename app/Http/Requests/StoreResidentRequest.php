@@ -68,7 +68,7 @@ class StoreResidentRequest extends FormRequest
             // SECTION 2: Educational Information
             'educational_histories' => ['nullable', 'array'],
             'educational_histories.*.school_name'        => ['nullable', 'string', 'max:155'],
-            'educational_histories.*school_type'        => ['nullable', Rule::in(['public', 'private'])],
+            'educational_histories.*.school_type'        => ['nullable', Rule::in(['public', 'private'])],
             'educational_histories.*.education'      => ['nullable', Rule::in([
                 'elementary', 'high_school', 'college', 'vocational', 'post_grad', 'no_formal_education'
             ])],

@@ -209,6 +209,10 @@ const Section5 = ({
                                 { label: "Child", value: "child" },
                                 { label: "Sibling", value: "sibling" },
                                 { label: "Parent", value: "parent" },
+                                {
+                                    label: "Parent-in-law",
+                                    value: "parent_in_law",
+                                },
                                 { label: "Grandparent", value: "grandparent" },
                             ]}
                         />

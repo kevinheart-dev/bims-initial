@@ -18,14 +18,29 @@ use App\Http\Requests\UpdateResidentRequest;
 
 use App\Models\Street;
 
+use Carbon\Carbon;
 use Str;
 use Inertia\Inertia;
+
+function calculateAge($birthdate)
+{
+    if (!$birthdate) {
+        return null;
+    }
+
+    try {
+        return Carbon::createFromFormat('Y-m-d', $birthdate)->age;
+    } catch (\Exception $e) {
+        return null;
+    }
+}
 
 class ResidentController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+
     public function index()
     {
         $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
@@ -213,7 +228,7 @@ class ResidentController extends Controller
         /**
          * @var $image \Illuminate\Http\UploadedFile
          */
-        dd($data);
+        //dd($data);
         $image = $data['resident_image'] ?? null;
         if ($image) {
             $folder = 'resident/' . $data['lastname'] . $data['firstname'] . Str::random(10);
@@ -232,7 +247,6 @@ class ResidentController extends Controller
             ->filter(fn ($edu) => ($edu['education_status'] ?? '') === 'enrolled' && isset($edu['year_started']))
             ->sortByDesc('year_started') // or 'year_ended' if you want latest completed
             ->first();
-
         $householdId = $data['housenumber'] ?? null;
         $familyId = $householdId
             ? Family::where('household_id', $householdId)
@@ -270,7 +284,6 @@ class ResidentController extends Controller
             'is_family_head' => $data['is_family_head'] ?? 0,
         ];
 
-
         $residentVotingInformation = [
             'registered_barangay_id' => $data['registered_barangay'] ?? null,
             'voting_status' => $data['voting_status'] ?? null,
@@ -293,8 +306,6 @@ class ResidentController extends Controller
 
         try {
             $resident = Resident::create($residentInformation);
-
-
             // add voting information
             $resident->votingInformation()->create([
                 ...$residentVotingInformation,
@@ -303,9 +314,12 @@ class ResidentController extends Controller
             //add educational histories
             if (!empty($data['educational_histories']) && is_array($data['educational_histories'])) {
                 foreach ($data['educational_histories'] ?? [] as $educationalData) {
-                    if($educationalData['education_status'] === 'graduate'){
-                        $yearGraduated = $educationalData['year_ended'];
+                    if(!empty($educationalData['education_status'])){
+                        if($educationalData['education_status'] === 'graduate'){
+                            $yearGraduated = $educationalData['year_ended'];
+                        }
                     }
+
                     $resident->educationalHistories()->create([
                         'educational_attainment' => $educationalData['education'] ?? null,
                         'school_name' => $educationalData['school_name'] ?? null,
@@ -390,126 +404,173 @@ class ResidentController extends Controller
                 // Only process if not household head and has a declared relationship
 
                 if (!empty($data['relationship_to_head'])) {
-                    $head = Resident::where('household_id', $householdId)
-                    ->where('is_household_head', true)
-                    ->first();
+                    // Load all household members with relationship info
+                    $members = HouseholdResident::where('household_id', $householdId)
+                        ->with('resident')
+                        ->get();
 
-                if ($head) {
-                    $relationship = $data['relationship_to_head'];
+                    // Get the resident ID of the head
+                    $head = $members->firstWhere('relationship_to_head', 'self');
+                    if (!$head) {
+                        return back()->withErrors(['error' => 'Household head is not defined (no member marked as self).']);
+                    }
+                    $headId = $head->resident_id;
 
-                    // 🔸 Grandparent case (only if household position is not nuclear)
-                    if ($relationship === 'grandparent') {
-                        $position = strtolower($data['household_position'] ?? '');
-                        if ($position === 'nuclear') {
-                            return back()->withErrors(['error' => 'Grandparents cannot be added to a nuclear household.']);
-                        }
+                    // Get spouse
+                    $spouse = $members->firstWhere('relationship_to_head', 'spouse');
 
-                        $headParents = $head->parents()->get();
-                        $matches = $headParents->filter(function ($parent) use ($resident) {
-                            return (
-                                strtolower($parent->firstname) === strtolower($resident->firstname) &&
-                                strtolower($parent->middlename) === strtolower($resident->middlename) &&
-                                strtolower($parent->lastname) === strtolower($resident->lastname)
-                            );
-                        });
+                    // Create spouse ↔ head relation
+                    if ($spouse) {
+                        FamilyRelation::firstOrCreate([
+                            'resident_id' => $headId,
+                            'related_to' => $spouse->resident_id,
+                            'relationship' => 'spouse',
+                        ]);
+                        FamilyRelation::firstOrCreate([
+                            'resident_id' => $spouse->resident_id,
+                            'related_to' => $headId,
+                            'relationship' => 'spouse',
+                        ]);
+                    }
 
-                        if ($matches->isNotEmpty()) {
-                            foreach ($matches as $matchedParent) {
+                    // Loop over all members
+                    foreach ($members as $member) {
+                        $residentId = $member->resident_id;
+                        $relationship = strtolower(trim($member->relationship_to_head));
+
+                        switch ($relationship) {
+                            case 'child':
+                                // Link child → head
                                 FamilyRelation::firstOrCreate([
-                                    'resident_id' => $resident->id,
-                                    'related_to' => $matchedParent->id,
+                                    'resident_id' => $residentId,
+                                    'related_to' => $headId,
+                                    'relationship' => 'child',
+                                ]);
+                                FamilyRelation::firstOrCreate([
+                                    'resident_id' => $headId,
+                                    'related_to' => $residentId,
                                     'relationship' => 'parent',
                                 ]);
 
+                                // Link child ↔ spouse
+                                if ($spouse) {
+                                    FamilyRelation::firstOrCreate([
+                                        'resident_id' => $residentId,
+                                        'related_to' => $spouse->resident_id,
+                                        'relationship' => 'child',
+                                    ]);
+                                    FamilyRelation::firstOrCreate([
+                                        'resident_id' => $spouse->resident_id,
+                                        'related_to' => $residentId,
+                                        'relationship' => 'parent',
+                                    ]);
+                                }
+                                break;
+
+                            case 'parent':
                                 FamilyRelation::firstOrCreate([
-                                    'resident_id' => $matchedParent->id,
-                                    'related_to' => $resident->id,
+                                    'resident_id' => $residentId,
+                                    'related_to' => $headId,
+                                    'relationship' => 'parent',
+                                ]);
+                                FamilyRelation::firstOrCreate([
+                                    'resident_id' => $headId,
+                                    'related_to' => $residentId,
                                     'relationship' => 'child',
                                 ]);
+                                break;
+
+                            case 'grandparent':
+                                $parents = Resident::find($headId)?->parents ?? collect();
+
+                                foreach ($parents as $parent) {
+                                    FamilyRelation::firstOrCreate([
+                                        'resident_id' => $residentId,
+                                        'related_to' => $parent->id,
+                                        'relationship' => 'parent',
+                                    ]);
+                                    FamilyRelation::firstOrCreate([
+                                        'resident_id' => $parent->id,
+                                        'related_to' => $residentId,
+                                        'relationship' => 'child',
+                                    ]);
+                                }
+                                break;
+
+                            case 'sibling':
+                                $sharedParents = Resident::find($headId)?->parents ?? collect();
+
+                                foreach ($sharedParents as $parent) {
+                                    FamilyRelation::firstOrCreate([
+                                        'resident_id' => $parent->id,
+                                        'related_to' => $residentId,
+                                        'relationship' => 'parent',
+                                    ]);
+                                    FamilyRelation::firstOrCreate([
+                                        'resident_id' => $residentId,
+                                        'related_to' => $parent->id,
+                                        'relationship' => 'child',
+                                    ]);
+                                }
+                                break;
+
+                            case 'parent_in_law':
+                                if ($spouse) {
+                                    FamilyRelation::firstOrCreate([
+                                        'resident_id' => $residentId, // parent_in_law
+                                        'related_to' => $spouse->resident_id,
+                                        'relationship' => 'parent',
+                                    ]);
+                                    FamilyRelation::firstOrCreate([
+                                        'resident_id' => $spouse->resident_id,
+                                        'related_to' => $residentId,
+                                        'relationship' => 'child',
+                                    ]);
+                                }
+                                break;
+
+                            case 'spouse':
+                            case 'self':
+                                // already handled earlier
+                                break;
+
+                            default:
+                                // skip or log unknown relationships
+                                break;
+                        }
+                    }
+
+                    // After looping through members
+                    $children = $members->filter(function ($member) {
+                        return strtolower($member->relationship_to_head) === 'child';
+                    });
+
+                    foreach ($children as $i => $childA) {
+                        foreach ($children as $j => $childB) {
+                            if ($i !== $j) {
+                                FamilyRelation::firstOrCreate([
+                                    'resident_id' => $childA->resident_id,
+                                    'related_to' => $childB->resident_id,
+                                    'relationship' => 'sibling',
+                                ]);
                             }
-                        } else {
-                            return back()->withErrors(['error' => 'No parent of the household head matches the grandparent\'s name.']);
                         }
                     }
-
-                    // 🔸 Sibling of the head (link to head's parents)
-                    elseif ($relationship === 'sibling') {
-                        $headParents = $head->parents()->get();
-
-                        if ($headParents->isEmpty()) {
-                            return back()->withErrors(['error' => 'Cannot add sibling: household head has no registered parents.']);
-                        }
-
-                        foreach ($headParents as $parent) {
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $parent->id,
-                                'related_to' => $resident->id,
-                                'relationship' => 'parent',
-                            ]);
-
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $resident->id,
-                                'related_to' => $parent->id,
-                                'relationship' => 'child',
-                            ]);
-                        }
-                    }
-
-                    // 🔸 Child → attach to head and all spouses
-                    elseif ($relationship === 'child') {
-                        $spouses = $head->spouses()->get();
-                        $relatedAdults = collect([$head])->merge($spouses);
-
-                        foreach ($relatedAdults as $adult) {
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $adult->id,
-                                'related_to' => $resident->id,
-                                'relationship' => 'parent',
-                            ]);
-
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $resident->id,
-                                'related_to' => $adult->id,
-                                'relationship' => 'child',
-                            ]);
-                        }
-                    }
-
-                    // 🔸 Parent → attach this resident as parent of the head
-                    elseif ($relationship === 'parent') {
-                        FamilyRelation::firstOrCreate([
-                            'resident_id' => $resident->id,
-                            'related_to' => $head->id,
-                            'relationship' => 'parent',
-                        ]);
-
-                        FamilyRelation::firstOrCreate([
-                            'resident_id' => $head->id,
-                            'related_to' => $resident->id,
-                            'relationship' => 'child',
-                        ]);
-                    }
-
-                    // 🔸 Spouse
-                    elseif ($relationship === 'spouse') {
-                        FamilyRelation::firstOrCreate([
-                            'resident_id' => $resident->id,
-                            'related_to' => $head->id,
-                            'relationship' => 'spouse',
-                        ]);
-
-                        FamilyRelation::firstOrCreate([
-                            'resident_id' => $head->id,
-                            'related_to' => $resident->id,
-                            'relationship' => 'spouse',
-                        ]);
-                    }
-                }
                 }
             }
 
-            return redirect()->route('resident.index')->with('success', 'Resident '. ucwords($resident->getFullNameAttribute()) .' created successfully!');
+            if(calculateAge($resident->birthdate) >= 60){
+                $resident->seniorcitizen()->create([
+                    'is_pensioner' => $data['is_pensioner'] ?? null,
+                    'osca_id_number' => $data['osca_id_number'] ?? null,
+                    'pension_type' => $data['pension_type'] ?? null,
+                    'living_alone' => $data['living_alone'] ?? null,
+                ]);
+            }
 
+            dd("checkpiont");
+
+            return redirect()->route('resident.index')->with('success', 'Resident '. ucwords($resident->getFullNameAttribute()) .' created successfully!');
         } catch (\Exception $e) {
             dd($e->getMessage());
             return back()->withErrors(['error' => 'Resident could not be created: ' . $e->getMessage()]);
@@ -704,9 +765,12 @@ class ResidentController extends Controller
                     $familyMembersId += [$resident->id];
 
                     // add voting information
-                    $resident->votingInformation()->create([
-                        ...$residentVotingInformation,
-                    ]);
+                    if($resident->registered_voter){
+                        $resident->votingInformation()->create([
+                            ...$residentVotingInformation,
+                        ]);
+                    }
+
 
                     //add educational histories
                     if (!empty($member['educations']) && is_array($member['educations'])) {
@@ -777,6 +841,16 @@ class ResidentController extends Controller
                     $resident->socialwelfareprofile()->create($residentSocialWelfareProfile);
 
                     $resident->householdResidents()->create($householdResident);
+
+                    if(calculateAge($resident->birthdate) >= 60){
+                        $resident->seniorcitizen()->create([
+                            'is_pensioner' => $member['is_pensioner'] ?? null,
+                            'osca_id_number' => $member['osca_id_number'] ?? null,
+                            'pension_type' => $member['pension_type'] ?? null,
+                            'living_alone' => $member['living_alone'] ?? null,
+                        ]);
+                    }
+
                 }
 
                 $householdId = $household->id;
@@ -891,6 +965,21 @@ class ResidentController extends Controller
                             }
                             break;
 
+                        case 'parent_in_law':
+                            if ($spouse) {
+                                FamilyRelation::firstOrCreate([
+                                    'resident_id' => $residentId, // parent_in_law
+                                    'related_to' => $spouse->resident_id,
+                                    'relationship' => 'parent',
+                                ]);
+                                FamilyRelation::firstOrCreate([
+                                    'resident_id' => $spouse->resident_id,
+                                    'related_to' => $residentId,
+                                    'relationship' => 'child',
+                                ]);
+                            }
+                            break;
+
                         case 'spouse':
                         case 'self':
                             // already handled earlier
@@ -901,8 +990,25 @@ class ResidentController extends Controller
                             break;
                     }
                 }
+
+                // After looping through members
+                $children = $members->filter(function ($member) {
+                    return strtolower($member->relationship_to_head) === 'child';
+                });
+
+                foreach ($children as $i => $childA) {
+                    foreach ($children as $j => $childB) {
+                        if ($i !== $j) {
+                            FamilyRelation::firstOrCreate([
+                                'resident_id' => $childA->resident_id,
+                                'related_to' => $childB->resident_id,
+                                'relationship' => 'sibling',
+                            ]);
+                        }
+                    }
+                }
             }
-            dd('eckd');
+
             return redirect()->route('resident.index')->with('success', 'Household created successfully!');
         } catch (\Exception $e) {
             dd($e->getMessage());

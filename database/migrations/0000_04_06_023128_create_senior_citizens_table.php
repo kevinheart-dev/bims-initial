@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('senior_citizens', function (Blueprint $table) {
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->integer('osca_id_number');
-            $table->enum('is_pensioner', ['yes', 'no', 'pending'])->default('yes');
-            $table->enum('pension_type', ['SSS', 'GSIS', 'DSWD', 'private', 'none'])->default('SSS');
-            $table->boolean('living_alone')->default(false);
+            $table->integer('osca_id_number')->nullable();
+            $table->enum('is_pensioner', ['yes', 'no', 'pending'])->nullable();
+            $table->enum('pension_type', ['SSS', 'GSIS', 'DSWD', 'private', 'none'])->nullable();
+            $table->boolean('living_alone')->nullable();
             $table->timestamps();
         });
     }

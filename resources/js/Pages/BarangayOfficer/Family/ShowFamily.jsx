@@ -4,8 +4,10 @@ import { Head, Link, router } from "@inertiajs/react";
 import ActionMenu from "@/components/ActionMenu"; // your custom action component
 import {
     HousePlus,
+    Network,
     Search,
     SquarePen,
+    SquarePlus,
     Trash2,
     User,
     UserRoundPlus,
@@ -310,6 +312,19 @@ export default function Index({
                         </div>
                     </div>
                     <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-3">
+                        <div className="flex w-full max-w-sm items-center space-x-1 mb-3">
+                            <Link href={route("family.create")}>
+                                <Button className="bg-blue-700 hover:bg-blue-500 ">
+                                    <SquarePlus /> Add a Relationship
+                                </Button>
+                            </Link>
+                            <Link href={route("family.create")}>
+                                <Button className="bg-blue-700 hover:bg-blue-500 ">
+                                    <Network /> Show Family Tree
+                                </Button>
+                            </Link>
+                        </div>
+
                         <DynamicTable
                             passedData={members}
                             columnRenderers={columnRenderers}

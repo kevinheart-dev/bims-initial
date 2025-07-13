@@ -101,7 +101,7 @@ class StoreResidentHouseholdRequest extends FormRequest
             'members.*.residency_type' => ['required', Rule::in(['permanent', 'temporary', 'migrant'])],
             'members.*.residency_date' => ['required', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
             'members.*.is_family_head' => ['required', Rule::in([0, 1])],
-            'members.*.relation_to_household_head' => ['required', Rule::in(['self', 'spouse', 'child', 'sibling', 'parent', 'grandparent'])],
+            'members.*.relation_to_household_head' => ['required', Rule::in(['self', 'spouse', 'child', 'sibling', 'parent', 'parent_in_law','grandparent'])],
             'members.*.registered_voter' => ['required', Rule::in([0, 1])],
             'members.*.registered_barangay' => ['required_if:members.*.registered_voter,1'],
             'members.*.voter_id_number' => ['nullable', 'string', 'max:55'],

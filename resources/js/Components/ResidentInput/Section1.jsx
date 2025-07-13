@@ -666,7 +666,12 @@ const Section1 = ({
                                     name="osca_id_number"
                                     type="number"
                                     value={data.osca_id_number}
-                                    onChange={(e) => setData(index, e)}
+                                    onChange={(e) =>
+                                        setData(
+                                            "osca_id_number",
+                                            e.target.value
+                                        )
+                                    }
                                     placeholder="Enter OSCA ID number"
                                 />
 

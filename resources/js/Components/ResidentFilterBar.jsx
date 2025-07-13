@@ -166,7 +166,7 @@ const ResidentFilterBar = ({ queryParams, searchFieldName, puroks }) => {
                     </button>
 
                     {open && (
-                        <div className="absolute mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg z-10 max-h-60 overflow-auto">
+                        <div className="absolute mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg z-50 max-h-60 overflow-auto">
                             <div className="py-2 px-4 space-y-2">
                                 <label className="flex items-center space-x-2 cursor-pointer">
                                     <Checkbox
@@ -181,7 +181,7 @@ const ResidentFilterBar = ({ queryParams, searchFieldName, puroks }) => {
                                     />
                                     <span>PWD</span>
                                 </label>
-                                <label className="flex items-center space-x-2 cursor-pointer">
+                                {/* <label className="flex items-center space-x-2 cursor-pointer">
                                     <Checkbox
                                         id="indigent-checkbox"
                                         checked={queryParams.indigent === "1"}
@@ -193,7 +193,7 @@ const ResidentFilterBar = ({ queryParams, searchFieldName, puroks }) => {
                                         }
                                     />
                                     <span>Indigent</span>
-                                </label>
+                                </label> */}
                                 <label className="flex items-center space-x-2 cursor-pointer">
                                     <Checkbox
                                         id="fourps-checkbox"

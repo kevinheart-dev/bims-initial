@@ -1138,6 +1138,10 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 value: "parent",
                                                             },
                                                             {
+                                                                label: "Parent-in-law",
+                                                                value: "parent_in_law",
+                                                            },
+                                                            {
                                                                 label: "Grandparent",
                                                                 value: "grandparent",
                                                             },

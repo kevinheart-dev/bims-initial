@@ -392,14 +392,10 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                         )
                                     }
                                     items={[
-                                        ...(data.is_student == 0
-                                            ? [
-                                                  {
-                                                      label: "No Formal Education",
-                                                      value: "no_formal_education",
-                                                  },
-                                              ]
-                                            : []),
+                                        {
+                                            label: "No Formal Education",
+                                            value: "no_formal_education",
+                                        },
                                         {
                                             label: "Elementary",
                                             value: "elementary",
