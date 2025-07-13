@@ -50,14 +50,14 @@ class Resident extends Model
     public function parents()
     {
         return $this->belongsToMany(Resident::class, 'family_relations', 'related_to', 'resident_id')
-            ->wherePivot('relationship', 'parent');
+            ->wherePivot('relationship', 'parent')->select('residents.*');;
     }
 
     // Child Relationships (Who are this resident's children?)
     public function children()
     {
         return $this->belongsToMany(Resident::class, 'family_relations', 'resident_id', 'related_to')
-            ->wherePivot('relationship', 'parent');
+            ->wherePivot('relationship', 'parent')->select('residents.*');;
     }
 
     // Siblings (Find other residents who share the same parents)
@@ -74,7 +74,9 @@ class Resident extends Model
     public function spouses()
     {
         return $this->belongsToMany(Resident::class, 'family_relations', 'resident_id', 'related_to')
-            ->wherePivot('relationship', 'spouse');
+            ->wherePivot('relationship', 'spouse')
+            ->withPivot('relationship')
+            ->select('residents.*'); // 🔧 Fix ambiguity by specifying table
     }
     public function familyTree()
     {

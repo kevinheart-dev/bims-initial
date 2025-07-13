@@ -25,7 +25,6 @@ class HouseholdController extends Controller
                 'street_id',
                 'house_number',
                 'ownership_type',
-                'ownership_details',
                 'housing_condition',
                 'year_established',
                 'house_structure',

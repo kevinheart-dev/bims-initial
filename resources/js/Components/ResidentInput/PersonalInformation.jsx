@@ -59,7 +59,6 @@ const PersonalInformation = ({
         registered_barangay: null,
         has_vehicle: null,
         vehicles: [],
-        is_student: null,
         educational_histories: [],
         occupations: [],
         is_pensioner: "",

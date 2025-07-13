@@ -239,6 +239,32 @@ const Section5 = ({
                             className="mt-2"
                         />
                     </div>
+                    {data.household_position == "extended" && (
+                        <div>
+                            <RadioGroup
+                                label="Is Family Head"
+                                name="is_family_head"
+                                selectedValue={data.is_family_head || ""}
+                                options={[
+                                    {
+                                        label: "Yes",
+                                        value: 1,
+                                    },
+                                    {
+                                        label: "No",
+                                        value: 0,
+                                    },
+                                ]}
+                                onChange={(e) =>
+                                    setData("is_family_head", e.target.value)
+                                }
+                            />
+                            <InputError
+                                message={errors.is_family_head}
+                                className="mt-2"
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
 

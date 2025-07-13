@@ -24,6 +24,17 @@ const Section3 = ({
         updated.splice(occIndex, 1);
         setData("occupations", updated);
     };
+
+    const handleOccupationFieldChange = (e, occIndex, fieldName) => {
+        const updated = [...(data.occupations || [])];
+
+        updated[occIndex] = {
+            ...updated[occIndex],
+            [fieldName]: e.target.value,
+        };
+
+        setData("occupations", updated);
+    };
     return (
         <div>
             <hr className="h-px bg-sky-500 border-0 transform scale-y-100 origin-center" />
@@ -35,22 +46,19 @@ const Section3 = ({
                         key={occIndex}
                         className="border p-4 mb-4 rounded-md relative bg-gray-50"
                     >
-                        <div className="grid md:grid-cols-3 gap-4">
+                        <div className="grid md:grid-cols-4 gap-4">
                             <div>
                                 <SelectField
                                     label="Employment Status"
                                     name="employment_status"
                                     value={occupation.employment_status || ""}
-                                    onChange={(e) => {
-                                        const updated = [
-                                            ...(data.occupations || []),
-                                        ];
-                                        updated[occIndex] = {
-                                            ...updated[occIndex],
-                                            employment_status: e.target.value,
-                                        };
-                                        setData("occupations", updated);
-                                    }}
+                                    onChange={(e) =>
+                                        handleOccupationFieldChange(
+                                            e,
+                                            occIndex,
+                                            "employment_status"
+                                        )
+                                    }
                                     items={[
                                         {
                                             label: "Employed",
@@ -84,16 +92,13 @@ const Section3 = ({
                                     label="Occupation"
                                     name="occupation"
                                     value={occupation.occupation || ""}
-                                    onChange={(e) => {
-                                        const updated = [
-                                            ...(data.occupations || []),
-                                        ];
-                                        updated[occIndex] = {
-                                            ...updated[occIndex],
-                                            occupation: e.target.value,
-                                        };
-                                        setData("occupations", updated);
-                                    }}
+                                    onChange={(e) =>
+                                        handleOccupationFieldChange(
+                                            e,
+                                            occIndex,
+                                            "occupation"
+                                        )
+                                    }
                                     placeholder="Select or Enter Occupation"
                                     items={occupationTypes}
                                     disabled={
@@ -115,16 +120,13 @@ const Section3 = ({
                                     label="Employment Type"
                                     name="employment_type"
                                     value={occupation.employment_type || ""}
-                                    onChange={(e) => {
-                                        const updated = [
-                                            ...(data.occupations || []),
-                                        ];
-                                        updated[occIndex] = {
-                                            ...updated[occIndex],
-                                            employment_type: e.target.value,
-                                        };
-                                        setData("occupations", updated);
-                                    }}
+                                    onChange={(e) =>
+                                        handleOccupationFieldChange(
+                                            e,
+                                            occIndex,
+                                            "employment_type"
+                                        )
+                                    }
                                     items={[
                                         {
                                             label: "Full-time",
@@ -159,19 +161,16 @@ const Section3 = ({
                             </div>
                             <div>
                                 <SelectField
-                                    label="Status"
+                                    label="Occupation Status"
                                     name="occupation_status"
                                     value={occupation.occupation_status || ""}
-                                    onChange={(e) => {
-                                        const updated = [
-                                            ...(data.occupations || []),
-                                        ];
-                                        updated[occIndex] = {
-                                            ...updated[occIndex],
-                                            occupation_status: e.target.value,
-                                        };
-                                        setData("occupations", updated);
-                                    }}
+                                    onChange={(e) =>
+                                        handleOccupationFieldChange(
+                                            e,
+                                            occIndex,
+                                            "occupation_status"
+                                        )
+                                    }
                                     items={[
                                         {
                                             label: "Active",
@@ -201,10 +200,10 @@ const Section3 = ({
                                 />
                             </div>
                             <div>
-                                <RadioGroup
+                                <SelectField
                                     label="Work Arrangement"
                                     name="work_arrangement"
-                                    options={[
+                                    items={[
                                         {
                                             label: "Remote",
                                             value: "remote",
@@ -221,16 +220,13 @@ const Section3 = ({
                                     selectedValue={
                                         occupation.work_arrangement || ""
                                     }
-                                    onChange={(e) => {
-                                        const updated = [
-                                            ...(data.occupations || []),
-                                        ];
-                                        updated[occIndex] = {
-                                            ...updated[occIndex],
-                                            work_arrangement: e.target.value,
-                                        };
-                                        setData("occupations", updated);
-                                    }}
+                                    onChange={(e) =>
+                                        handleOccupationFieldChange(
+                                            e,
+                                            occIndex,
+                                            "work_arrangement"
+                                        )
+                                    }
                                 />
                                 <InputError
                                     message={
@@ -247,16 +243,13 @@ const Section3 = ({
                                     name="employer"
                                     type="text"
                                     value={occupation.employer || ""}
-                                    onChange={(e) => {
-                                        const updated = [
-                                            ...(data.occupations || []),
-                                        ];
-                                        updated[occIndex] = {
-                                            ...updated[occIndex],
-                                            employer: e.target.value,
-                                        };
-                                        setData("occupations", updated);
-                                    }}
+                                    onChange={(e) =>
+                                        handleOccupationFieldChange(
+                                            e,
+                                            occIndex,
+                                            "employer"
+                                        )
+                                    }
                                     placeholder="Enter employer name"
                                 />
                                 <InputError
@@ -268,78 +261,69 @@ const Section3 = ({
                                     className="mt-2"
                                 />
                             </div>
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <div>
-                                    <YearDropdown
-                                        label="Year Started"
-                                        name="started_at"
-                                        value={occupation.started_at || ""}
-                                        onChange={(e) => {
-                                            const updated = [
-                                                ...(data.occupations || []),
-                                            ];
-                                            updated[occIndex] = {
-                                                ...updated[occIndex],
-                                                started_at: e.target.value,
-                                            };
-                                            setData("occupations", updated);
-                                        }}
-                                    />
-                                    <InputError
-                                        message={
-                                            errors[
-                                                `occupations.${occIndex}.started_at`
-                                            ]
-                                        }
-                                        className="mt-2"
-                                    />
-                                </div>
-                                <div>
-                                    <YearDropdown
-                                        label="Year Ended"
-                                        name="ended_at"
-                                        value={occupation.ended_at || ""}
-                                        onChange={(e) => {
-                                            const updated = [
-                                                ...(data.occupations || []),
-                                            ];
-                                            updated[occIndex] = {
-                                                ...updated[occIndex],
-                                                ended_at: e.target.value,
-                                            };
-                                            setData("occupations", updated);
-                                        }}
-                                        disabled={
-                                            occupation.occupation_status ===
-                                            "active"
-                                        }
-                                    />
-                                    <InputError
-                                        message={
-                                            errors[
-                                                `occupations.${occIndex}.ended_at`
-                                            ]
-                                        }
-                                        className="mt-2"
-                                    />
-                                </div>
+
+                            <div>
+                                <YearDropdown
+                                    label="Year Started"
+                                    name="started_at"
+                                    value={occupation.started_at || ""}
+                                    onChange={(e) =>
+                                        handleOccupationFieldChange(
+                                            e,
+                                            occIndex,
+                                            "started_at"
+                                        )
+                                    }
+                                />
+                                <InputError
+                                    message={
+                                        errors[
+                                            `occupations.${occIndex}.started_at`
+                                        ]
+                                    }
+                                    className="mt-2"
+                                />
                             </div>
+                            <div>
+                                <YearDropdown
+                                    label="Year Ended"
+                                    name="ended_at"
+                                    value={occupation.ended_at || ""}
+                                    onChange={(e) =>
+                                        handleOccupationFieldChange(
+                                            e,
+                                            occIndex,
+                                            "ended_at"
+                                        )
+                                    }
+                                    disabled={
+                                        occupation.occupation_status ===
+                                        "active"
+                                    }
+                                />
+                                <InputError
+                                    message={
+                                        errors[
+                                            `occupations.${occIndex}.ended_at`
+                                        ]
+                                    }
+                                    className="mt-2"
+                                />
+                            </div>
+
                             <div>
                                 <InputField
                                     type="number"
                                     label="Income"
                                     name="income"
                                     value={occupation.income || ""}
-                                    onChange={(e) => {
-                                        const updated = [
-                                            ...(data.occupations || []),
-                                        ];
-                                        updated[occIndex] = {
-                                            ...updated[occIndex],
-                                            income: e.target.value,
-                                        };
-                                        setData("occupations", updated);
-                                    }}
+                                    onChange={(e) =>
+                                        handleOccupationFieldChange(
+                                            e,
+                                            occIndex,
+                                            "income"
+                                        )
+                                    }
                                     placeholder="Enter Income"
                                 />
                                 <InputError
@@ -354,16 +338,13 @@ const Section3 = ({
                                     label="Income Frequency"
                                     name="income_frequency"
                                     value={occupation.income_frequency || ""}
-                                    onChange={(e) => {
-                                        const updated = [
-                                            ...(data.occupations || []),
-                                        ];
-                                        updated[occIndex] = {
-                                            ...updated[occIndex],
-                                            income_frequency: e.target.value,
-                                        };
-                                        setData("occupations", updated);
-                                    }}
+                                    onChange={(e) =>
+                                        handleOccupationFieldChange(
+                                            e,
+                                            occIndex,
+                                            "income_frequency"
+                                        )
+                                    }
                                     items={[
                                         {
                                             label: "Daily",
@@ -392,6 +373,36 @@ const Section3 = ({
                                         errors[
                                             `occupations.${occIndex}.income_frequency`
                                         ]
+                                    }
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div>
+                                <RadioGroup
+                                    label="Overseas Filipino Worker"
+                                    name="is_ofw"
+                                    selectedValue={occupation.is_ofw || ""}
+                                    options={[
+                                        {
+                                            label: "Yes",
+                                            value: 1,
+                                        },
+                                        {
+                                            label: "No",
+                                            value: 0,
+                                        },
+                                    ]}
+                                    onChange={(e) =>
+                                        handleOccupationFieldChange(
+                                            e,
+                                            occIndex,
+                                            "is_ofw"
+                                        )
+                                    }
+                                />
+                                <InputError
+                                    message={
+                                        errors[`occupations.${occIndex}.is_ofw`]
                                     }
                                     className="mt-2"
                                 />

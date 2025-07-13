@@ -900,7 +900,7 @@ function EducationandOccupation() {
                                                 </div>
                                                 <div>
                                                     <DropdownInputField
-                                                        label="Status"
+                                                        label="Occupation Status"
                                                         name="occupation_status"
                                                         value={
                                                             occupation.occupation_status ||
@@ -913,7 +913,7 @@ function EducationandOccupation() {
                                                                 e
                                                             )
                                                         }
-                                                        placeholder="Select employment status"
+                                                        placeholder="Select occupation status"
                                                         items={[
                                                             {
                                                                 label: "Active",
@@ -1186,7 +1186,7 @@ function EducationandOccupation() {
                                                         </p>
                                                     )}
                                                 </div>
-                                                <div>
+                                                <div className="hidden">
                                                     <InputField
                                                         type="number"
                                                         label="Monthly Income"

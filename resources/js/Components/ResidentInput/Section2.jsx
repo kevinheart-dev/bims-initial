@@ -34,7 +34,7 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
             </div>
 
             {/* ask student if studying or not */}
-            <div className="grid md:grid-cols-4 gap-4 mb-4">
+            {/* <div className="grid md:grid-cols-4 gap-4 mb-4">
                 <RadioGroup
                     label="Currently studying"
                     name="is_student"
@@ -45,7 +45,7 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                     selectedValue={data.is_student || ""}
                     onChange={(e) => setData("is_student", e.target.value)}
                 />
-            </div>
+            </div> */}
 
             {/* {data.is_student == 1 && (
                 <div className="grid md:grid-cols-4 gap-4 my-4">
@@ -377,116 +377,112 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                         key={edIndex}
                         className="border p-4 mb-4 rounded-md relative bg-gray-50"
                     >
-                        <div className="grid md:grid-cols-2 gap-10 mt-4">
-                            <div className="grid md:grid-cols-2 gap-2">
-                                <div>
-                                    <DropdownInputField
-                                        label="Educational Attainment"
-                                        name="education"
-                                        value={edu_history.education || ""}
-                                        onChange={(e) =>
-                                            handleArrayValues(
-                                                e,
-                                                edIndex,
-                                                "education",
-                                                "educational_histories"
-                                            )
-                                        }
-                                        items={[
-                                            ...(data.is_student == 0
-                                                ? [
-                                                      {
-                                                          label: "No Formal Education",
-                                                          value: "no_formal_education",
-                                                      },
-                                                  ]
-                                                : []),
-                                            {
-                                                label: "Elementary",
-                                                value: "elementary",
-                                            },
-                                            {
-                                                label: "High School",
-                                                value: "high_school",
-                                            },
-                                            {
-                                                label: "College",
-                                                value: "college",
-                                            },
-                                            {
-                                                label: "Post Grad",
-                                                value: "post_grad",
-                                            },
-                                            {
-                                                label: "Vocational",
-                                                value: "vocational",
-                                            },
-                                        ]}
-                                        placeholder="Select your Educational Attainment"
-                                    />
-                                    <InputError
-                                        message={
-                                            errors[
-                                                `educational_histories.${edIndex}.education`
-                                            ]
-                                        }
-                                        className="mt-2"
-                                    />
-                                </div>
-                                <div>
-                                    <SelectField
-                                        label="Educational Status"
-                                        name="education_status"
-                                        items={[
-                                            {
-                                                label: "Graduate",
-                                                value: "graduate",
-                                            },
-                                            {
-                                                label: "Undergraduate",
-                                                value: "undergraduate",
-                                            },
-                                            {
-                                                label: "Currently Enrolled",
-                                                value: "enrolled",
-                                            },
-                                            ...(data.is_student == 0
-                                                ? [
-                                                      {
-                                                          label: "Stopped",
-                                                          value: "stopped",
-                                                      },
-                                                  ]
-                                                : []),
-                                        ]}
-                                        selectedValue={
-                                            edu_history.education_status || ""
-                                        }
-                                        onChange={(e) =>
-                                            handleArrayValues(
-                                                e,
-                                                edIndex,
-                                                "education_status",
-                                                "educational_histories"
-                                            )
-                                        }
-                                        disabled={
-                                            edu_history.education ===
-                                            "no_formal_education"
-                                        }
-                                    />
-                                    <InputError
-                                        message={
-                                            errors[
-                                                `educational_histories.${edIndex}.education_status`
-                                            ]
-                                        }
-                                        className="mt-2"
-                                    />
-                                </div>
+                        <div className="grid md:grid-cols-3 gap-10 mt-4">
+                            <div>
+                                <DropdownInputField
+                                    label="Educational Attainment"
+                                    name="education"
+                                    value={edu_history.education || ""}
+                                    onChange={(e) =>
+                                        handleArrayValues(
+                                            e,
+                                            edIndex,
+                                            "education",
+                                            "educational_histories"
+                                        )
+                                    }
+                                    items={[
+                                        ...(data.is_student == 0
+                                            ? [
+                                                  {
+                                                      label: "No Formal Education",
+                                                      value: "no_formal_education",
+                                                  },
+                                              ]
+                                            : []),
+                                        {
+                                            label: "Elementary",
+                                            value: "elementary",
+                                        },
+                                        {
+                                            label: "High School",
+                                            value: "high_school",
+                                        },
+                                        {
+                                            label: "College",
+                                            value: "college",
+                                        },
+                                        {
+                                            label: "Post Grad",
+                                            value: "post_grad",
+                                        },
+                                        {
+                                            label: "Vocational",
+                                            value: "vocational",
+                                        },
+                                    ]}
+                                    placeholder="Select your Educational Attainment"
+                                />
+                                <InputError
+                                    message={
+                                        errors[
+                                            `educational_histories.${edIndex}.education`
+                                        ]
+                                    }
+                                    className="mt-2"
+                                />
                             </div>
-                        </div>
-                        <div className="grid md:grid-cols-4 gap-4 mt-4">
+                            <div>
+                                <SelectField
+                                    label="Educational Status"
+                                    name="education_status"
+                                    items={[
+                                        {
+                                            label: "Graduate",
+                                            value: "graduate",
+                                        },
+                                        {
+                                            label: "Undergraduate",
+                                            value: "undergraduate",
+                                        },
+                                        {
+                                            label: "Currently Enrolled",
+                                            value: "enrolled",
+                                        },
+                                        ...(data.is_student == 0
+                                            ? [
+                                                  {
+                                                      label: "Stopped",
+                                                      value: "stopped",
+                                                  },
+                                              ]
+                                            : []),
+                                    ]}
+                                    selectedValue={
+                                        edu_history.education_status || ""
+                                    }
+                                    onChange={(e) =>
+                                        handleArrayValues(
+                                            e,
+                                            edIndex,
+                                            "education_status",
+                                            "educational_histories"
+                                        )
+                                    }
+                                    disabled={
+                                        edu_history.education ===
+                                        "no_formal_education"
+                                    }
+                                />
+                                <InputError
+                                    message={
+                                        errors[
+                                            `educational_histories.${edIndex}.education_status`
+                                        ]
+                                    }
+                                    className="mt-2"
+                                />
+                            </div>
                             <div>
                                 <InputField
                                     label="School Name"
@@ -516,6 +512,8 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                     className="mt-2"
                                 />
                             </div>
+                        </div>
+                        <div className="grid md:grid-cols-3 gap-4 mt-4">
                             <div>
                                 <RadioGroup
                                     label="School Type"
@@ -609,8 +607,6 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                     className="mt-2"
                                 />
                             </div>
-                        </div>
-                        <div className="grid md:grid-cols-4 gap-4 my-4">
                             {edu_history.education === "college" && (
                                 <div>
                                     <InputField

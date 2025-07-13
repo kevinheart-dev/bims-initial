@@ -67,7 +67,6 @@ class StoreResidentRequest extends FormRequest
 
             // SECTION 2: Educational Information
             'educational_histories' => ['nullable', 'array'],
-            'is_student'         => ['required', Rule::in([0, 1])],
             'educational_histories.*.school_name'        => ['nullable', 'string', 'max:155'],
             'educational_histories.*school_type'        => ['nullable', Rule::in(['public', 'private'])],
             'educational_histories.*.education'      => ['nullable', Rule::in([
@@ -134,6 +133,8 @@ class StoreResidentRequest extends FormRequest
             'housenumber' => ['required', 'integer', 'min:1', 'max:9999'],
             'street_id' => ['required', 'exists:streets,id'],
             'subdivision' => ['nullable', 'string', 'max:100'],
+            'relationship_to_head' => ['nullable', 'string', 'max:100'],
+            'household_position' => ['nullable', 'string', 'max:100'],
 
             // 'ownership_type' => ['nullable', 'string', 'max:55'],
             // 'housing_condition' => ['nullable', Rule::in(['good', 'needs repair', 'dilapidated'])],
@@ -147,8 +148,7 @@ class StoreResidentRequest extends FormRequest
             // 'water_source_type' => ['nullable', 'string', 'max:100'],
             // 'waste_management_type' => ['nullable', 'string', 'max:100'],
             // 'type_of_internet' => ['nullable', 'string', 'max:100'],
-            'relationship_to_head' => ['nullable', 'string', 'max:100'],
-            'household_position' => ['nullable', 'string', 'max:100'],
+
 
             // SECTION 5.1: Livestock information
             // 'livestocks' => ['nullable', 'array'],

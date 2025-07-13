@@ -77,6 +77,6 @@ class Household extends Model
     }
 
     public function internetAccessibility(){
-        return $this->belongsTo(InternetAccessibility::class);
+        return $this->hasMany(InternetAccessibility::class);
     }
 }

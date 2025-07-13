@@ -49,6 +49,9 @@ class DatabaseSeeder extends Seeder
         $faker = Faker::create();
         // User::factory(10)->create();
         Barangay::factory(2)->create();
+        // $this->call([
+        //     BarangaySeeder::class,
+        // ]);
         for($i = 1; $i <= 7; $i++){
             Purok::factory()->create([
                 'barangay_id' => 1,
@@ -84,41 +87,41 @@ class DatabaseSeeder extends Seeder
         ]);
         $user->assignRole($barangayOfficer);
 
-        $resRole = Role::firstOrCreate(['name' => 'resident']);
-        for($i = 0; $i <= 20; $i++){
-            $user = User::factory()->create([
-                'resident_id' => Resident::factory(),
-                'username' => 'Sample Resident Account',
-                'email' => 'user'. "$i" .'@example.com',
-                'password' => bcrypt('user123'),
-                'email_verified_at' => now(),
-                'role' => 'resident',
-                'status' => 'active'
-            ]);
-            $user->assignRole($resRole);
-        }
+        // $resRole = Role::firstOrCreate(['name' => 'resident']);
+        // for($i = 0; $i <= 20; $i++){
+        //     $user = User::factory()->create([
+        //         'resident_id' => Resident::factory(),
+        //         'username' => 'Sample Resident Account',
+        //         'email' => 'user'. "$i" .'@example.com',
+        //         'password' => bcrypt('user123'),
+        //         'email_verified_at' => now(),
+        //         'role' => 'resident',
+        //         'status' => 'active'
+        //     ]);
+        //     $user->assignRole($resRole);
+        // }
 
-        OccupationType::factory(30)->create();
-        LivelihoodType::factory(30)->create();
+        // OccupationType::factory(30)->create();
+        // LivelihoodType::factory(30)->create();
 
-        $residents = Resident::factory()->count(50)->create();
+        // $residents = Resident::factory()->count(50)->create();
 
-        MedicalInformation::factory(70)->create();
-        InternetAccessibility::factory(15)->create();
-        Livelihood::factory(60)->create();
-        Occupation::factory(40)->create();
-        EducationalHistory::factory(30)->create();
-        Vehicle::factory(30)->create();
-        Livestock::factory(30)->create();
-        ResidentVoterInformation::factory(60)->create();
-        SocialWelfareProfile::factory(60)->create();
-        SeniorCitizen::factory(30)->create();
+        // MedicalInformation::factory(70)->create();
+        // InternetAccessibility::factory(15)->create();
+        // Livelihood::factory(60)->create();
+        // Occupation::factory(40)->create();
+        // EducationalHistory::factory(30)->create();
+        // Vehicle::factory(30)->create();
+        // Livestock::factory(30)->create();
+        // ResidentVoterInformation::factory(60)->create();
+        // SocialWelfareProfile::factory(60)->create();
+        // SeniorCitizen::factory(30)->create();
 
-        $residents->groupBy('household_id')->each(function ($group) {
-            $group->first()->update(['is_household_head' => true]);
-        });
-        $this->call(FixHouseholdResidentSeeder::class);
-        $this->call(FamilyRelationSeeder::class);
+        // $residents->groupBy('household_id')->each(function ($group) {
+        //     $group->first()->update(['is_household_head' => true]);
+        // });
+        // $this->call(FixHouseholdResidentSeeder::class);
+        // $this->call(FamilyRelationSeeder::class);
 
     }
 }
