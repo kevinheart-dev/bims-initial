@@ -559,7 +559,7 @@ class ResidentController extends Controller
                 }
             }
 
-            if($data['has_vehicle']){
+            if(isset($data['has_vehicle'])){
                 foreach ($data['vehicles'] ?? [] as $vehicle){
                     $resident->vehicles()->create([
                         'vehicle_type' => $vehicle['vehicle_type'],
@@ -852,7 +852,7 @@ class ResidentController extends Controller
 
                     $resident->householdResidents()->create($householdResident);
 
-                    if($member['has_vehicle']){
+                    if(isset($member['has_vehicle'])){
                         foreach ($member['vehicles'] ?? [] as $vehicle){
                             $resident->vehicles()->create([
                                 'vehicle_type' => $vehicle['vehicle_type'],
