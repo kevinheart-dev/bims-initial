@@ -30,7 +30,7 @@ class ResidentResource extends JsonResource
             'email' => $this->email,
             'purok' => $this->purok,
             'residency_date' => $this->residency_date,
-            'resident_picture' => $this->resident_picture,
+            'resident_picture' => $this->resident_picture_path,
             'status' => $this->status,
         ];
     }

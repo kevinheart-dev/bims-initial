@@ -4,7 +4,7 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router } from "@inertiajs/react";
 
 export default function Index({ family_tree }) {
-    console.log('Family Tree JSON:', family_tree);
+    console.log("Family Tree JSON:", family_tree);
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         {
@@ -28,11 +28,9 @@ export default function Index({ family_tree }) {
                         <div className="h-[600px] w-full">
                             <FamilyTree familyData={family_tree} />
                         </div>
-
                     </div>
                 </div>
             </>
         </AdminLayout>
     );
-
 }
