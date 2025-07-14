@@ -24,10 +24,11 @@ const FamilyCard = ({ x, y, person, relation }) => {
             >
                 <div className="flex items-start space-x-3">
                     <img
-                        src={person?.resident_picture_path || "/images/default-avatar.jpg"}
+                        src={person?.resident_picture_path ? `/storage/${person.resident_picture_path}` : "/images/default-avatar.jpg"}
                         alt={`${person?.firstname}'s photo`}
                         className="w-14 h-14 rounded-full object-cover border"
                     />
+
 
                     <div className="flex-1 space-y-1">
                         <p

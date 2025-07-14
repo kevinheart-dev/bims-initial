@@ -26,12 +26,16 @@ export function transformToTreeFormat(data) {
     }));
 
     // Convert all children to tree nodes
-    const childrenNodes = children.map((child) => ({
-        ...child,
-        id: `child-${child.id}`,
-        relation: "Child",
-        children: [],
-    }));
+    const childrenNodes = children.map((child) => {
+        const parentIds = [self?.id, ...spouses.map(sp => sp.id)].filter(Boolean);
+        return {
+            ...child,
+            id: `child-${child.id}`,
+            relation: "Child",
+            children: [],
+            parents: parentIds,
+        };
+    });
 
     let mainNode;
 
@@ -57,7 +61,6 @@ export function transformToTreeFormat(data) {
         };
     }
 
-    // Handle parent-child structure
     if (parents.length > 0) {
         const parentNodes = parents.map((parent) => ({
             ...parent,
@@ -66,11 +69,19 @@ export function transformToTreeFormat(data) {
             children: [],
         }));
 
-        parentNodes[0].children.push(mainNode, ...siblingNodes);
-        root.children.push(...parentNodes);
+        const parentCoupleNode = {
+            id: `couple-parents-${self.id}`, // unique ID
+            isCouple: true,
+            relation: "ParentCouple",
+            members: parentNodes,
+            children: [mainNode, ...siblingNodes],
+        };
+
+        root.children.push(parentCoupleNode);
     } else {
         root.children.push(mainNode, ...siblingNodes);
     }
+
 
     return root;
 }
