@@ -190,6 +190,11 @@ class Resident extends Model
         return $this->hasMany(Livelihood::class);
     }
 
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class);
+    }
+
     public function seniorcitizen()
     {
         return $this->hasOne(SeniorCitizen::class);

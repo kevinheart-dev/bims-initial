@@ -78,7 +78,7 @@ const items = [
             },
             {
                 title: "Vehicles",
-                url: "#",
+                url: "/barangay_officer/vehicle",
                 icon: CarFront,
             },
             {

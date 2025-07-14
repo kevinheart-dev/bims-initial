@@ -9,6 +9,7 @@ use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\SeniorCitizenController;
+use App\Http\Controllers\VehicleController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -28,6 +29,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('senior_citizen', SeniorCitizenController::class);
     Route::resource('family_relation', FamilyRelationController::class);
     Route::resource('family', FamilyController::class);
+    Route::resource('vehicle', VehicleController::class);
 });
 
 // Resident-only routes

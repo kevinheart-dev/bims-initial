@@ -19,12 +19,9 @@ class SeniorCitizenController extends Controller
         $query = SeniorCitizen::query()
             ->whereHas('resident', function ($q) use ($brgy_id) {
                 $q->where('barangay_id', $brgy_id);
-
-                // Apply purok filter here if needed
                 if (request()->filled('purok') && request('purok') !== 'All') {
                     $q->where('purok_number', request('purok'));
                 }
-
                 if (request('name')) {
                         $q->where('firstname', 'like', '%' . request('name') . '%')
                             ->orWhere('lastname', 'like', '%' . request('name') . '%')
@@ -34,6 +31,9 @@ class SeniorCitizenController extends Controller
                             ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
                             ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, suffix) LIKE ?", ['%' . request('name') . '%']);
                             $q->where('osca_id_number', 'like', '%' . request('name') . '%');
+                }
+                if (request()->filled('birth_month') && request('birth_month') !== 'All') {
+                    $q->whereMonth('birthdate', '=', request('birth_month'));
                 }
 
 
@@ -51,6 +51,7 @@ class SeniorCitizenController extends Controller
         if (request()->filled('pension_type') && request('pension_type') !== 'All') {
             $query->where('pension_type', request('pension_type'));
         }
+
         if (request()->filled('living_alone') && request('living_alone') !== 'All') {
             $query->where('living_alone', request('living_alone'));
         }

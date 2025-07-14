@@ -7,6 +7,7 @@ use App\Http\Requests\StoreHouseholdRequest;
 use App\Http\Requests\UpdateHouseholdRequest;
 use App\Models\Purok;
 use App\Models\Street;
+use App\Models\Vehicle;
 use Inertia\Inertia;
 
 class HouseholdController extends Controller
@@ -16,7 +17,7 @@ class HouseholdController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->barangay_id;
+        $brgy_id = Auth()->user()->resident->barangay_id;
         $query = Household::query()
             ->select([
                 'id',

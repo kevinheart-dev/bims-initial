@@ -29,12 +29,10 @@ class VehicleFactory extends Factory
         }
 
         return [
-            'barangay_id' => 1,
             'resident_id' => $resident->id,
             'vehicle_type' => $selectedType,
             'vehicle_class' => $this->faker->randomElement($vehicleClasses),
             'usage_status' => $this->faker->randomElement($usageStatuses),
-            'other' => $selectedType === 'other' ? $this->faker->word() : null,
             'quantity' => $this->faker->numberBetween(1, 5),
         ];
     }

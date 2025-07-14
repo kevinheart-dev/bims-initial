@@ -6,6 +6,7 @@ import DropdownInputField from "../DropdownInputField";
 import RadioGroup from "../RadioGroup";
 import SelectField from "../SelectField";
 import YearDropdown from "../YearDropdown";
+import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 
 const Section1 = ({
     data,
@@ -691,21 +692,20 @@ const Section1 = ({
                                     ]}
                                     placeholder="Select or enter pension type"
                                 />
-
-                                <RadioGroup
-                                    label="Living alone"
-                                    name="living_alone"
-                                    options={[
-                                        { label: "Yes", value: 1 },
-                                        { label: "No", value: 0 },
-                                    ]}
-                                    selectedValue={data.living_alone || null}
-                                    onChange={(e) =>
-                                        setData("living_alone", e.target.value)
-                                    }
-                                />
                             </>
                         )}
+                        <RadioGroup
+                            label="Living alone"
+                            name="living_alone"
+                            options={[
+                                { label: "Yes", value: 1 },
+                                { label: "No", value: 0 },
+                            ]}
+                            selectedValue={data.living_alone || null}
+                            onChange={(e) =>
+                                setData("living_alone", e.target.value)
+                            }
+                        />
                     </div>
                 </div>
             )}

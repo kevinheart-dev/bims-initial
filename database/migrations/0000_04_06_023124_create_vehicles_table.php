@@ -13,12 +13,10 @@ return new class extends Migration
     {
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->enum('vehicle_type', ['motorcycle', 'tricycle', 'car', 'truck', 'bicycle', 'other']);
+            $table->string('vehicle_type', 55);
             $table->enum('vehicle_class', ['private', 'public']);
-            $table->enum('usage_status', ['personal', 'public_transport', 'business_use']);
-            $table->string('other', 55)->nullable();
+            $table->string('usage_status', 55);
             $table->integer('quantity')->default(1);
             $table->timestamps();
         });

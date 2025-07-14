@@ -148,7 +148,7 @@ class StoreResidentHouseholdRequest extends FormRequest
             'members.*.emergency_contact_number' => ['required', 'digits_between:7,15'],
             'members.*.emergency_contact_name' => ['required', 'string', 'max:255'],
             'members.*.emergency_contact_relationship' => ['required', 'string', 'max:100'],
-            'members.*.blood_type' => ['required', Rule::in(['A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−'])],
+            'members.*.blood_type' => ['nullable', Rule::in(['A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−'])],
             'members.*.has_philhealth' => ['required', Rule::in([0, 1])],
             'members.*.philhealth_id_number' => ['nullable', 'string', 'max:50'],
             'members.*.is_alcohol_user' => ['required', Rule::in([0, 1])],

@@ -171,6 +171,21 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         { label: "None", value: "none" },
     ];
 
+    const months = [
+        { label: "January", value: "1" },
+        { label: "February", value: "2" },
+        { label: "March", value: "3" },
+        { label: "April", value: "4" },
+        { label: "May", value: "5" },
+        { label: "June", value: "6" },
+        { label: "July", value: "7" },
+        { label: "August", value: "8" },
+        { label: "September", value: "9" },
+        { label: "October", value: "10" },
+        { label: "November", value: "11" },
+        { label: "December", value: "12" },
+    ];
+
     return (
         <AdminLayout>
             <Head title="Senior Citizen" />
@@ -212,6 +227,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                         passedData={seniorCitizens}
                         allColumns={allColumns}
                         columnRenderers={columnRenderers}
+                        showTotal={true}
                     >
                         <div className="flex justify-between items-center w-full">
                             <div className="flex gap-2 w-full">
@@ -300,6 +316,29 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                                         <SelectItem value="0">
                                             Not Alone
                                         </SelectItem>
+                                    </SelectContent>
+                                </Select>
+
+                                {/* months of birthdays */}
+                                <Select
+                                    onValueChange={(value) =>
+                                        searchFieldName("birth_month", value)
+                                    }
+                                    value={queryParams.birth_month}
+                                >
+                                    <SelectTrigger className="w-[140px]">
+                                        <SelectValue placeholder="Birth Month" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="All">All</SelectItem>
+                                        {months.map((month, index) => (
+                                            <SelectItem
+                                                key={index}
+                                                value={month.value}
+                                            >
+                                                {month.label}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>

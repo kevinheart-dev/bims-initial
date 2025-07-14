@@ -1458,109 +1458,106 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                     </p>
                                                 )}
                                             </div>
+                                            {member.is_pensioner === "yes" && (
+                                                <div className="flex justify-between col-span-2 gap-4">
+                                                    <div className="w-full">
+                                                        <InputField
+                                                            label="OSCA ID"
+                                                            name="osca_id_number"
+                                                            type="number"
+                                                            value={
+                                                                member.osca_id_number
+                                                            }
+                                                            onChange={(e) =>
+                                                                handleMemberChange(
+                                                                    index,
+                                                                    e
+                                                                )
+                                                            }
+                                                            placeholder="OSCA ID number"
+                                                        />
+                                                        {errors?.[
+                                                            `members.${index}.osca_id_number`
+                                                        ] && (
+                                                            <p className="text-red-500 text-xs">
+                                                                {
+                                                                    errors[
+                                                                        `members.${index}.osca_id_number`
+                                                                    ]
+                                                                }
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    <div className="w-full">
+                                                        <DropdownInputField
+                                                            label="Pension Type"
+                                                            name="pension_type"
+                                                            value={
+                                                                member.pension_type
+                                                            }
+                                                            items={[
+                                                                "SSS",
+                                                                "DSWD",
+                                                                "GSIS",
+                                                                "private",
+                                                                "none",
+                                                            ]}
+                                                            onChange={(e) =>
+                                                                handleMemberChange(
+                                                                    index,
+                                                                    e
+                                                                )
+                                                            }
+                                                            placeholder="Select type"
+                                                        />
+                                                        {errors?.[
+                                                            `members.${index}.pension_type`
+                                                        ] && (
+                                                            <p className="text-red-500 text-xs">
+                                                                {
+                                                                    errors[
+                                                                        `members.${index}.pension_type`
+                                                                    ]
+                                                                }
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
                                             <div>
-                                                {member.is_pensioner ===
-                                                    "yes" && (
-                                                    <>
-                                                        <div>
-                                                            <InputField
-                                                                label="OSCA ID"
-                                                                name="osca_id_number"
-                                                                type="number"
-                                                                value={
-                                                                    member.osca_id_number
-                                                                }
-                                                                onChange={(e) =>
-                                                                    handleMemberChange(
-                                                                        index,
-                                                                        e
-                                                                    )
-                                                                }
-                                                                placeholder="OSCA ID number"
-                                                            />
-                                                            {errors?.[
-                                                                `members.${index}.osca_id_number`
-                                                            ] && (
-                                                                <p className="text-red-500 text-xs">
-                                                                    {
-                                                                        errors[
-                                                                            `members.${index}.osca_id_number`
-                                                                        ]
-                                                                    }
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                        <div>
-                                                            <DropdownInputField
-                                                                label="Pension Type"
-                                                                name="pension_type"
-                                                                value={
-                                                                    member.pension_type
-                                                                }
-                                                                items={[
-                                                                    "SSS",
-                                                                    "DSWD",
-                                                                    "GSIS",
-                                                                    "private",
-                                                                    "none",
-                                                                ]}
-                                                                onChange={(e) =>
-                                                                    handleMemberChange(
-                                                                        index,
-                                                                        e
-                                                                    )
-                                                                }
-                                                                placeholder="Select type"
-                                                            />
-                                                            {errors?.[
-                                                                `members.${index}.pension_type`
-                                                            ] && (
-                                                                <p className="text-red-500 text-xs">
-                                                                    {
-                                                                        errors[
-                                                                            `members.${index}.pension_type`
-                                                                        ]
-                                                                    }
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                        <div>
-                                                            <RadioGroup
-                                                                label="Living Alone?"
-                                                                name="living_alone"
-                                                                selectedValue={
-                                                                    member.living_alone
-                                                                }
-                                                                options={[
-                                                                    {
-                                                                        label: "Yes",
-                                                                        value: 1,
-                                                                    },
-                                                                    {
-                                                                        label: "No",
-                                                                        value: 0,
-                                                                    },
-                                                                ]}
-                                                                onChange={(e) =>
-                                                                    handleMemberChange(
-                                                                        index,
-                                                                        e
-                                                                    )
-                                                                }
-                                                            />
-                                                            {errors?.[
+                                                <RadioGroup
+                                                    label="Living Alone?"
+                                                    name="living_alone"
+                                                    selectedValue={
+                                                        member.living_alone
+                                                    }
+                                                    options={[
+                                                        {
+                                                            label: "Yes",
+                                                            value: 1,
+                                                        },
+                                                        {
+                                                            label: "No",
+                                                            value: 0,
+                                                        },
+                                                    ]}
+                                                    onChange={(e) =>
+                                                        handleMemberChange(
+                                                            index,
+                                                            e
+                                                        )
+                                                    }
+                                                />
+                                                {errors?.[
+                                                    `members.${index}.living_alone`
+                                                ] && (
+                                                    <p className="text-red-500 text-xs">
+                                                        {
+                                                            errors[
                                                                 `members.${index}.living_alone`
-                                                            ] && (
-                                                                <p className="text-red-500 text-xs">
-                                                                    {
-                                                                        errors[
-                                                                            `members.${index}.living_alone`
-                                                                        ]
-                                                                    }
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                    </>
+                                                            ]
+                                                        }
+                                                    </p>
                                                 )}
                                             </div>
                                         </div>

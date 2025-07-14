@@ -215,7 +215,7 @@ export const HOUSEHOLD_STRUCTURE_TEXT = {
     concrete: "Concrete",
     semi_concrete: "Semi-concrete",
     wood: "Wood",
-    makeshift: "makeshift",
+    makeshift: "Makeshift",
 };
 
 export const HOUSEHOLD_CONDITION_TEXT = {

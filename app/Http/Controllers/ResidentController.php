@@ -89,7 +89,7 @@ class ResidentController extends Controller
 
         // handles age filtering
         if (request()->filled('age_group') && request('age_group') !== 'All') {
-            $today = \Carbon\Carbon::today();
+            $today = Carbon::today();
 
             switch (request('age_group')) {
                 case 'child':
@@ -559,6 +559,17 @@ class ResidentController extends Controller
                 }
             }
 
+            if($data['has_vehicle']){
+                foreach ($data['vehicles'] ?? [] as $vehicle){
+                    $resident->vehicles()->create([
+                        'vehicle_type' => $vehicle['vehicle_type'],
+                        'vehicle_class' => $vehicle['vehicle_class'],
+                        'usage_status'=> $vehicle['usage_status'],
+                        'quantity'=> $vehicle['quantity'],
+                    ]);
+                }
+            }
+
             if(calculateAge($resident->birthdate) >= 60){
                 $resident->seniorcitizen()->create([
                     'is_pensioner' => $data['is_pensioner'] ?? null,
@@ -568,7 +579,6 @@ class ResidentController extends Controller
                 ]);
             }
 
-            dd("checkpiont");
 
             return redirect()->route('resident.index')->with('success', 'Resident '. ucwords($resident->getFullNameAttribute()) .' created successfully!');
         } catch (\Exception $e) {
@@ -841,6 +851,17 @@ class ResidentController extends Controller
                     $resident->socialwelfareprofile()->create($residentSocialWelfareProfile);
 
                     $resident->householdResidents()->create($householdResident);
+
+                    if($member['has_vehicle']){
+                        foreach ($member['vehicles'] ?? [] as $vehicle){
+                            $resident->vehicles()->create([
+                                'vehicle_type' => $vehicle['vehicle_type'],
+                                'vehicle_class' => $vehicle['vehicle_class'],
+                                'usage_status'=> $vehicle['usage_status'],
+                                'quantity'=> $vehicle['quantity'],
+                            ]);
+                        }
+                    }
 
                     if(calculateAge($resident->birthdate) >= 60){
                         $resident->seniorcitizen()->create([

@@ -9,6 +9,7 @@ import {
     SquarePen,
     Trash2,
     Network,
+    SquarePlus,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -22,6 +23,8 @@ import {
     HOUSEHOLD_OWNERSHIP_TEXT,
     HOUSEHOLD_STRUCTURE_TEXT,
     HOUSING_CONDITION_COLOR,
+    VEHICLE_CLASS_TEXT,
+    VEHICLE_USAGE_TEXT,
 } from "@/constants";
 import {
     Select,
@@ -32,10 +35,15 @@ import {
 } from "@/Components/ui/select";
 import ClearFilterButton from "@/Components/ClearFiltersButton";
 
-export default function Index({ households, puroks, streets, queryParams }) {
+export default function Index({
+    vehicles,
+    vehicle_types,
+    puroks,
+    queryParams,
+}) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
-        { label: "Households Table", showOnMobile: true },
+        { label: "Veicles Table", showOnMobile: true },
     ];
     queryParams = queryParams || {};
 
@@ -56,7 +64,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
         if (queryParams.page) {
             delete queryParams.page;
         }
-        router.get(route("household.index", queryParams));
+        router.get(route("vehicle.index", queryParams));
     };
 
     const onKeyPressed = (field, e) => {
@@ -68,58 +76,50 @@ export default function Index({ households, puroks, streets, queryParams }) {
     };
 
     const allColumns = [
-        { key: "id", label: "ID" },
-        { key: "name", label: "Name of Household Head" },
-        { key: "house_number", label: "House Number" },
-        { key: "purok_number", label: "Purok" },
-        { key: "street_name", label: "Street" },
-        { key: "ownership_type", label: "Ownership Type" },
-        { key: "housing_condition", label: "Housing Condition" },
-        { key: "year_established", label: "Year Established" },
-        { key: "house_structure", label: "House Structure" },
-        { key: "number_of_rooms", label: "Number of Rooms" },
-        { key: "number_of_floors", label: "Number of Floors" },
+        { key: "id", label: "Vehicle ID" },
+        { key: "name", label: "Owner Name" },
+        { key: "vehicle_type", label: "Vehicle Type" },
+        { key: "vehicle_class", label: "Class" },
+        { key: "usage_status", label: "Usage" },
+        { key: "quantity", label: "Quantity" },
+        { key: "purok_number", label: "Purok Number" },
         { key: "actions", label: "Actions" },
     ];
 
     const columnRenderers = {
-        id: (house) => house.id,
-        name: (house) => {
-            const head = house.residents?.[0];
-            return head ? (
-                <Link
-                    href={route("resident.show", head.id)}
-                    className="hover:text-blue-500 hover:underline"
-                >
-                    {head.firstname} {head.middlename ?? ""}{" "}
-                    {head.lastname ?? ""} {head.suffix ?? ""}
-                </Link>
-            ) : (
-                <span className="text-gray-400 italic">No household head</span>
-            );
-        },
-        house_number: (house) => house.house_number ?? "N/A",
-        purok_number: (house) => house.purok.purok_number,
-        street_name: (house) => house.street.street_name,
-        ownership_type: (house) => (
-            <span>{HOUSEHOLD_OWNERSHIP_TEXT[house.ownership_type]}</span>
-        ),
-        housing_condition: (house) => (
-            <span
-                className={`px-2 py-1 text-sm rounded-lg ${
-                    HOUSING_CONDITION_COLOR[house.housing_condition] ??
-                    "bg-gray-100 text-gray-700"
-                }`}
-            >
-                {HOUSEHOLD_CONDITION_TEXT[house.housing_condition]}
+        id: (row) => row.vehicle_id,
+
+        name: (row) => (
+            <span>
+                {row.firstname} {row.middlename ?? ""} {row.lastname}{" "}
+                {row.suffix ?? ""}
             </span>
         ),
-        year_established: (house) => house.year_established ?? "Unknown",
-        house_structure: (house) => (
-            <span>{HOUSEHOLD_STRUCTURE_TEXT[house.house_structure]}</span>
+
+        vehicle_type: (row) => (
+            <span className="capitalize">{row.vehicle_type}</span>
         ),
-        number_of_rooms: (house) => house.number_of_rooms ?? "N/A",
-        number_of_floors: (house) => house.number_of_floors ?? "N/A",
+
+        vehicle_class: (row) => VEHICLE_CLASS_TEXT[row.vehicle_class],
+
+        usage_status: (row) => {
+            const statusLabel = VEHICLE_USAGE_TEXT[row.usage_status];
+            const style =
+                row.usage_status === "personal"
+                    ? "bg-blue-100 text-blue-700"
+                    : "bg-green-100 text-green-700";
+            return (
+                <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${style}`}
+                >
+                    {statusLabel}
+                </span>
+            );
+        },
+
+        quantity: (row) => row.quantity,
+
+        purok_number: (row) => row.purok_number,
         actions: (house) => (
             <ActionMenu
                 actions={[
@@ -138,39 +138,19 @@ export default function Index({ households, puroks, streets, queryParams }) {
         ),
     };
 
-    const ownershipOptions = [
-        { label: "Owned", value: "owned" },
-        { label: "Rented", value: "rented" },
-        { label: "Shared", value: "shared" },
-        { label: "Government Provided", value: "government_provided" },
-        { label: "Inherited", value: "inherited" },
-        { label: "Others", value: "others" },
-    ];
-    const houseingConditions = [
-        { label: "Good", value: "good" },
-        { label: "Needs Repair", value: "needs_repair" },
-        { label: "Delapitated", value: "delapitated" },
-    ];
-    const structureOptions = [
-        { label: "Concrete", value: "concrete" },
-        { label: "Semi Concrete", value: "semi_concrete" },
-        { label: "Wood", value: "wood" },
-        { label: "Makeshift", value: "makeshift" },
-    ];
-
     return (
         <AdminLayout>
-            <Head title="Households Dashboard" />
+            <Head title="Vehicles Dashboard" />
             <div>
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-                {/* <pre>{JSON.stringify(households, undefined, 2)}</pre> */}
+                {/* <pre>{JSON.stringify(vehicles, undefined, 2)}</pre> */}
                 <div className="p-2 md:p-4">
                     <div className="overflow-x bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-2 my-4">
                         <div className="my-1 mb-3 flex justify-between items-center">
                             <div className="flex w-full max-w-sm items-center space-x-1">
                                 <Link href={route("household.create")}>
                                     <Button className="bg-blue-700 hover:bg-blue-400 ">
-                                        <HousePlus /> Add a Household
+                                        <SquarePlus /> Add a Vehicle
                                     </Button>
                                 </Link>
                             </div>
@@ -182,7 +162,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
                                 >
                                     <Input
                                         type="text"
-                                        placeholder="Search House Number"
+                                        placeholder="Search Owner's Name"
                                         value={query}
                                         onChange={(e) =>
                                             setQuery(e.target.value)
@@ -199,7 +179,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
                             </div>
                         </div>
                         <DynamicTable
-                            passedData={households}
+                            passedData={vehicles}
                             allColumns={allColumns}
                             columnRenderers={columnRenderers}
                         >
@@ -230,116 +210,84 @@ export default function Index({ households, puroks, streets, queryParams }) {
                                         </SelectContent>
                                     </Select>
 
-                                    {/* streets */}
+                                    {/* vehicle types */}
                                     <Select
                                         onValueChange={(value) =>
-                                            searchFieldName("street", value)
+                                            searchFieldName("v_type", value)
                                         }
-                                        value={queryParams.street}
+                                        value={queryParams.v_type}
                                     >
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Street" />
+                                        <SelectTrigger className="w-[120px]">
+                                            <SelectValue placeholder="Vehicle Type" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="All">
                                                 All
                                             </SelectItem>
-                                            {streets.map((street, index) => (
-                                                <SelectItem
-                                                    key={index}
-                                                    value={street.toString()}
-                                                >
-                                                    {street}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-
-                                    {/* ownership type */}
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("own_type", value)
-                                        }
-                                        value={queryParams.own_type}
-                                    >
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Ownership Type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            {ownershipOptions.map(
-                                                (option, index) => (
+                                            {vehicle_types.map(
+                                                (type, index) => (
                                                     <SelectItem
                                                         key={index}
-                                                        value={option.value.toString()}
+                                                        value={type.toLowerCase()}
                                                     >
-                                                        {option.label}
+                                                        {type}
                                                     </SelectItem>
                                                 )
                                             )}
                                         </SelectContent>
                                     </Select>
 
-                                    {/* housing condition */}
+                                    {/* vehicle types */}
                                     <Select
                                         onValueChange={(value) =>
-                                            searchFieldName("condition", value)
+                                            searchFieldName("v_class", value)
                                         }
-                                        value={queryParams.condition}
+                                        value={queryParams.v_class}
                                     >
                                         <SelectTrigger className="w-[130px]">
-                                            <SelectValue placeholder="Condition" />
+                                            <SelectValue placeholder="Vehicle Class" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="All">
                                                 All
                                             </SelectItem>
-                                            {houseingConditions.map(
-                                                (option, index) => (
-                                                    <SelectItem
-                                                        key={index}
-                                                        value={option.value.toString()}
-                                                    >
-                                                        {option.label}
-                                                    </SelectItem>
-                                                )
-                                            )}
+                                            <SelectItem value="private">
+                                                Private
+                                            </SelectItem>
+                                            <SelectItem value="public">
+                                                Public
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
 
-                                    {/* housing structure */}
+                                    {/* usages */}
                                     <Select
                                         onValueChange={(value) =>
-                                            searchFieldName("structure", value)
+                                            searchFieldName("usage", value)
                                         }
-                                        value={queryParams.structure}
+                                        value={queryParams.usage}
                                     >
-                                        <SelectTrigger className="w-[150px]">
-                                            <SelectValue placeholder="Structure" />
+                                        <SelectTrigger className="w-[135px]">
+                                            <SelectValue placeholder="Vehicle Usage" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="All">
                                                 All
                                             </SelectItem>
-                                            {structureOptions.map(
-                                                (option, index) => (
-                                                    <SelectItem
-                                                        key={index}
-                                                        value={option.value.toString()}
-                                                    >
-                                                        {option.label}
-                                                    </SelectItem>
-                                                )
-                                            )}
+                                            <SelectItem value="personal">
+                                                Personal
+                                            </SelectItem>
+                                            <SelectItem value="public_transport">
+                                                Public Transport
+                                            </SelectItem>
+                                            <SelectItem value="business_use">
+                                                Business Use
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                                 <div className="flex justify-end">
-                                    <ClearFilterButton
-                                        link={"household.index"}
-                                    />
+                                    <ClearFilterButton link={"vehicle.index"} />
                                 </div>
                             </div>
                         </DynamicTable>
