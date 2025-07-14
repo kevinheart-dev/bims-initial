@@ -20,10 +20,9 @@ const FamilyTree = ({ familyData }) => {
         const nodesRaw = root.descendants();
         const minY = Math.min(...nodesRaw.map((d) => d.y));
         const maxY = Math.max(...nodesRaw.map((d) => d.y));
-        const svgHeight = 600; // y poition for all cards
+        const svgHeight = 600;
 
-
-        const verticalOffset = 1200; // x poition for all cards
+        const verticalOffset = 1200;
         const horizontalCenterOffset = (svgHeight - (maxY - minY)) / 2;
 
         const positioned = [];
@@ -33,38 +32,67 @@ const FamilyTree = ({ familyData }) => {
             const baseX = d.x + verticalOffset;
             const baseY = d.y + horizontalCenterOffset;
 
-            if (d.data.isCouple && d.data.members?.length >= 2) {
+            if (d.data.isCouple && d.data.members?.length >= 1) {
                 const members = d.data.members;
-                const self = members.find((m) => m.relation === "Self");
-                const spouses = members.filter((m) => m.relation === "Spouse");
-                const spacing = CARD_WIDTH + 130; // x or width for card between spouce and self
+                const spacing = CARD_WIDTH + 130;
 
-                self._x = baseX;
-                positioned.push({
-                    ...self,
-                    x: baseX,
-                    y: baseY,
-                    relation: "Self",
-                    id: self.id,
-                });
-
-                spouses.forEach((spouse, idx) => {
-                    const direction = idx % 2 === 0 ? -1 : 1;
-                    const multiplier = Math.ceil((idx + 1) / 2);
-                    const spouseX = baseX + direction * spacing * multiplier;
-
+                if (members.length === 1) {
+                    // ✅ Single parent or self
                     positioned.push({
-                        ...spouse,
-                        x: spouseX,
+                        ...members[0],
+                        x: baseX,
                         y: baseY,
-                        relation: "Spouse",
-                        id: spouse.id,
+                        relation: members[0].relation || "Relative",
+                        id: members[0].id,
                     });
-                });
+                } else {
+                    // ✅ Couple or self + spouse
+                    const self = members.find((m) => m.relation === "Self");
+                    const spouses = members.filter((m) => m.relation === "Spouse");
+
+                    if (self) {
+                        self._x = baseX;
+                        positioned.push({
+                            ...self,
+                            x: baseX,
+                            y: baseY,
+                            relation: "Self",
+                            id: self.id,
+                        });
+
+                        spouses.forEach((spouse, idx) => {
+                            const direction = idx % 2 === 0 ? -1 : 1;
+                            const multiplier = Math.ceil((idx + 1) / 2);
+                            const spouseX = baseX + direction * spacing * multiplier;
+
+                            positioned.push({
+                                ...spouse,
+                                x: spouseX,
+                                y: baseY,
+                                relation: "Spouse",
+                                id: spouse.id,
+                            });
+                        });
+                    } else {
+                        const midIndex = Math.floor(members.length / 2);
+                        members.forEach((member, idx) => {
+                            const offset = (idx - midIndex) * spacing;
+                            positioned.push({
+                                ...member,
+                                x: baseX + offset,
+                                y: baseY,
+                                relation: member.relation || "Relative",
+                                id: member.id,
+                            });
+                        });
+                    }
+                }
             } else if (d.data.id !== "virtual-root") {
+
+                // ✅ Children or other individuals
                 positioned.push({
                     ...d.data,
-                    x: baseX - 185, // x position for all child card
+                    x: baseX - CARD_WIDTH / 2 - 65,
                     y: baseY,
                     relation: d.data.relation || "Relative",
                     id: d.data.id,
@@ -74,66 +102,134 @@ const FamilyTree = ({ familyData }) => {
 
         setNodes(positioned);
 
-        // === 2. After positioning, draw lines ===
+        // === 2. Draw Lines ===
         const lines = [];
-
+        // this handle couples
         root.descendants().forEach((d) => {
-            if (d.data.isCouple && d.data.members?.length >= 2) {
+            if (d.data.isCouple && d.data.members?.length >= 1) {
                 const baseY = d.y + horizontalCenterOffset;
                 const members = d.data.members;
-                const self = members.find((m) => m.relation === "Self");
-                const spouses = members.filter((m) => m.relation === "Spouse");
 
-                const selfNode = positioned.find((p) => p.id === self.id);
-                const spouseNodes = spouses.map((s) => positioned.find((p) => p.id === s.id)).filter(Boolean);
+                const memberNodes = members
+                    .map((m) => positioned.find((p) => p.id === m.id))
+                    .filter(Boolean);
 
-                spouseNodes.forEach((spouseNode) => {
+                // Horizontal lines between couple members
+                for (let i = 0; i < memberNodes.length - 1; i++) {
                     lines.push({
                         from: {
-                            x: selfNode.x + CARD_WIDTH / 2,
-                            y: selfNode.y + CARD_HEIGHT / 2,
+                            x: memberNodes[i].x + CARD_WIDTH / 2,
+                            y: memberNodes[i].y + CARD_HEIGHT / 2,
                         },
                         to: {
-                            x: spouseNode.x + CARD_WIDTH / 2,
-                            y: spouseNode.y + CARD_HEIGHT / 2,
+                            x: memberNodes[i + 1].x + CARD_WIDTH / 2,
+                            y: memberNodes[i + 1].y + CARD_HEIGHT / 2,
                         },
                     });
-                });
+                }
 
-                // If couple has children, draw T-line connection
+                // === ✅ CHILDREN CONNECTION ===
                 if (d.children?.length > 0) {
-                    const partnerXs = [selfNode.x, ...spouseNodes.map(s => s.x)];
-                    const minX = Math.min(...partnerXs);
-                    const maxX = Math.max(...partnerXs);
-                    const coupleCenterX = (minX + maxX + CARD_WIDTH) / 2;
-                    const coupleLineY = baseY + CARD_HEIGHT / 2;
-                    const junctionY = coupleLineY + 90;
+                    const children = d.children
+                        .map((child) => positioned.find((p) => p.id === child.data.id))
+                        .filter(Boolean);
 
+                    if (children.length === 0) return;
+
+                    const parentXs = memberNodes.map(m => m.x + CARD_WIDTH / 2);
+                    const parentCenterX = (Math.min(...parentXs) + Math.max(...parentXs)) / 2;
+                    const parentBottomY = baseY + CARD_HEIGHT / 2;
+                    const junctionY = parentBottomY + 90;
+
+                    // Vertical line from parent(s) to junction point
                     lines.push({
-                        from: { x: coupleCenterX, y: coupleLineY },
-                        to: { x: coupleCenterX, y: junctionY },
+                        from: { x: parentCenterX, y: parentBottomY },
+                        to: { x: parentCenterX, y: junctionY },
                     });
 
-                    // Gather children
-                    const children = d.children.map(child => positioned.find(p => p.id === child.data.id)).filter(Boolean);
-                    const childXs = children.map(child => child.x + CARD_WIDTH / 2);
-
-                    // Horizontal line connecting all children
-                    lines.push({
-                        from: { x: Math.min(...childXs), y: junctionY },
-                        to: { x: Math.max(...childXs), y: junctionY },
-                    });
-
-                    // Vertical lines from junction to each child
-                    children.forEach(child => {
+                    if (children.length === 1) {
+                        // One child → single vertical line
+                        const child = children[0];
+                        const childX = child.x + CARD_WIDTH / 2;
                         lines.push({
-                            from: { x: child.x + CARD_WIDTH / 2, y: junctionY },
-                            to: { x: child.x + CARD_WIDTH / 2, y: child.y },
+                            from: { x: parentCenterX, y: junctionY },
+                            to: { x: childX, y: child.y },
+                        });
+                    } else {
+                        // Multiple children
+                        const childXs = children.map(child => child.x + CARD_WIDTH / 2);
+                        const minX = Math.min(...childXs);
+                        const maxX = Math.max(...childXs);
+
+                        // Horizontal line connecting children
+                        lines.push({
+                            from: { x: minX, y: junctionY },
+                            to: { x: maxX, y: junctionY },
+                        });
+
+                        // Vertical line from junction to each child
+                        children.forEach((child) => {
+                            const childX = child.x + CARD_WIDTH / 2;
+                            lines.push({
+                                from: { x: childX, y: junctionY },
+                                to: { x: childX, y: child.y },
+                            });
+                        });
+                    }
+                }
+            }
+        });
+
+        // this handle single parent
+        root.descendants().forEach((d) => {
+            if (!d.data.isCouple && d.children?.length > 0) {
+                const parent = positioned.find((p) => p.id === d.data.id);
+                if (!parent) return;
+
+                const parentX = parent.x + CARD_WIDTH / 2;
+                const parentY = parent.y + CARD_HEIGHT / 2;
+                const junctionY = parentY + 90;
+
+                const children = d.children
+                    .map((child) => positioned.find((p) => p.id === child.data.id))
+                    .filter(Boolean);
+
+                if (children.length === 1) {
+                    const child = children[0];
+                    const childX = child.x + CARD_WIDTH / 2;
+                    lines.push({
+                        from: { x: parentX, y: parentY },
+                        to: { x: childX, y: child.y },
+                    });
+                } else if (children.length > 1) {
+                    // Line from parent to junction
+                    lines.push({
+                        from: { x: parentX, y: parentY },
+                        to: { x: parentX, y: junctionY },
+                    });
+
+                    // Horizontal line through all children
+                    const childXs = children.map((child) => child.x + CARD_WIDTH / 2);
+                    const minX = Math.min(...childXs);
+                    const maxX = Math.max(...childXs);
+
+                    lines.push({
+                        from: { x: minX, y: junctionY },
+                        to: { x: maxX, y: junctionY },
+                    });
+
+                    // Lines down to each child
+                    children.forEach((child) => {
+                        const childX = child.x + CARD_WIDTH / 2;
+                        lines.push({
+                            from: { x: childX, y: junctionY },
+                            to: { x: childX, y: child.y },
                         });
                     });
                 }
             }
         });
+
 
         setConnections(lines);
 
