@@ -63,9 +63,10 @@ export const RESIDENT_REGISTER_VOTER_TEXT = {
     1: "Eligible",
 };
 export const RESIDENT_REGISTER_VOTER_CLASS = {
-    0: "p-1 bg-red-100 text-red-800 rounded-lg",
-    1: "p-1 bg-green-100 text-green-800 rounded-lg",
+    0: "p-1 bg-red-500 text-white rounded-lg",
+    1: "p-1 bg-green-500 text-white rounded-lg",
 };
+
 export const RESIDENT_RECIDENCY_TYPE_TEXT = {
     permanent: "Permanent",
     temporary: "Temporary",
@@ -325,7 +326,7 @@ export const INCOME_CATEGORY_TEXT = {
     lower_middle_income: "Lower Middle Income",
     middle_income: "Middle Income",
     upper_middle_income: "Upper Middle Income",
-    above_high_income: "Above High Income",
+    high_income: "High Income",
 };
 
 export const INCOME_BRACKET_TEXT = {
@@ -364,7 +365,7 @@ export const INCOME_BRACKETS = {
         className: "bg-emerald-100 text-emerald-700",
     },
     above_120001: {
-        label: "Above High Income",
+        label: "High Income",
         className: "bg-blue-100 text-blue-700",
     },
 };
