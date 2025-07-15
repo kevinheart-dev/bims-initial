@@ -25,9 +25,8 @@ return new class extends Migration
                 'post_graduate',
             ])->nullable();
             $table->enum('education_status', ['graduate', 'undergraduate', 'enrolled', 'stopped'])->nullable();
-            $table->year('start_year')->nullable();
-            $table->year('end_year')->nullable();
-            $table->year('year_graduated')->nullable();
+            $table->year('year_started')->nullable();
+            $table->year('year_ended')->nullable();
             $table->string('program', 55)->nullable();
             $table->timestamps();
         });

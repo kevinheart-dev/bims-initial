@@ -312,12 +312,6 @@ class ResidentController extends Controller
             //add educational histories
             if (!empty($data['educational_histories']) && is_array($data['educational_histories'])) {
                 foreach ($data['educational_histories'] ?? [] as $educationalData) {
-                    if (!empty($educationalData['education_status'])) {
-                        if ($educationalData['education_status'] === 'graduate') {
-                            $yearGraduated = $educationalData['year_ended'];
-                        }
-                    }
-
                     $resident->educationalHistories()->create([
                         'educational_attainment' => $educationalData['education'] ?? null,
                         'school_name' => $educationalData['school_name'] ?? null,
@@ -325,12 +319,10 @@ class ResidentController extends Controller
                         'year_started' => $educationalData['year_started'] ?? null,
                         'year_ended' => $educationalData['year_ended'] ?? null,
                         'program' => $educationalData['program'] ?? null,
-                        'year_graduated' => $yearGraduated ?? null,
                         'education_status' => $educationalData['education_status'] ?? null,
                     ]);
                 }
             }
-
 
             //add occupations
             if (!empty($data['occupations']) && is_array($data['occupations'])) {
@@ -813,13 +805,6 @@ class ResidentController extends Controller
                     //add educational histories
                     if (!empty($member['educations']) && is_array($member['educations'])) {
                         foreach ($member['educations'] as $educationalData) {
-                            $educationalStatus = $educationalData['educational_status'] ?? null;
-                            $yearGraduated = null;
-
-                            if ($educationalStatus === 'graduate') {
-                                $yearGraduated = $educationalData['year_ended'] ?? null;
-                            }
-
                             $resident->educationalHistories()->create([
                                 'educational_attainment' => $educationalData['education'] ?? null,
                                 'school_name'            => $educationalData['school_name'] ?? null,
@@ -827,8 +812,7 @@ class ResidentController extends Controller
                                 'year_started'           => $educationalData['year_started'] ?? null,
                                 'year_ended'             => $educationalData['year_ended'] ?? null,
                                 'program'                => $educationalData['program'] ?? null,
-                                'year_graduated'         => $yearGraduated,
-                                'education_status'       => $educationalStatus,
+                                'education_status'       => $educationalData['educational_status'] ?? null,
                             ]);
                         }
                     }

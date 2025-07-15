@@ -21,11 +21,9 @@ const FamilyCard = ({ x, y, person, relation, onViewDetail }) => {
                 <div className="flex items-start space-x-3">
                     <img
                         src={
-                            person?.resident_picture?.startsWith("http")
-                                ? person.resident_picture
-                                : person?.resident_picture
-                                    ? `/storage/${person.resident_picture}`
-                                    : "/images/default-avatar.jpg"
+                            person?.resident_picture_path == null
+                                ? "/images/default-avatar.jpg"
+                                : `/storage/${person.resident_picture_path}`
                         }
                         alt={`${person?.firstname}'s photo`}
                         className="w-14 h-14 rounded-full object-cover border"
@@ -36,12 +34,18 @@ const FamilyCard = ({ x, y, person, relation, onViewDetail }) => {
                             className={`m-0 leading-tight font-medium whitespace-nowrap overflow-hidden ${fontSizeClass}`}
                         >
                             {person?.lastname}, {person?.firstname}{" "}
-                            {person?.middlename ? person.middlename.charAt(0) + ". " : ""}
+                            {person?.middlename
+                                ? person.middlename.charAt(0) + ". "
+                                : ""}
                             {person?.suffix ?? ""}
                         </p>
-                        <h2 className="m-0 font-semibold text-gray-800">{relation}</h2>
+                        <h2 className="m-0 font-semibold text-gray-800">
+                            {relation}
+                        </h2>
                         <button
-                            onClick={() => onViewDetail({ ...person, relation })}
+                            onClick={() =>
+                                onViewDetail({ ...person, relation })
+                            }
                             className="m-0 p-0 text-xs text-blue-500 hover:underline flex items-center space-x-1"
                         >
                             <IoMdEye className="text-base" />

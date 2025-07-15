@@ -138,9 +138,7 @@ class ResidentFactory extends Factory
             'street_id' => $street->id,
             'residency_date' => $this->faker->year('-40 years'),
             'residency_type' => $this->faker->randomElement(['permanent', 'temporary', 'migrant']),
-            'resident_picture_path' => $this->faker->optional()->imageUrl(300, 300, 'people') ??
-                'https://ui-avatars.com/api/?name=' . urlencode($firstName . ' ' . $middleName . ' ' . $lname) . '&size=300',
-            'is_pwd' => $this->faker->boolean(10),
+            'resident_picture_path' => null,
             'ethnicity' => $this->faker->randomElement([
                 'Tagalog', 'Ilocano', 'Bisaya', 'Bicolano', 'Kapampangan'
             ]),

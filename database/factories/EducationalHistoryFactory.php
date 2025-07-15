@@ -34,7 +34,6 @@ class EducationalHistoryFactory extends Factory
         // Ensure realistic academic years
         $startYear = $this->faker->numberBetween(1980, now()->year - 4);
         $endYear = $this->faker->numberBetween($startYear + 1, now()->year);
-        $yearGraduated = $isGraduate ? $endYear : null;
 
         // Get a valid resident
         $resident = Resident::inRandomOrder()->first();
@@ -48,9 +47,8 @@ class EducationalHistoryFactory extends Factory
             'school_type' => $this->faker->randomElement($schoolTypes),
             'educational_attainment' => $attainment,
             'education_status' => $isGraduate ? 'graduate' : 'undergraduate',
-            'start_year' => $startYear,
-            'end_year' => $endYear,
-            'year_graduated' => $yearGraduated,
+            'year_started' => $startYear,
+            'year_ended' => $endYear,
             'program' => in_array($attainment, ['college', 'post_graduate']) ? $this->faker->jobTitle() : null,
             'created_at' => now(),
             'updated_at' => now(),
