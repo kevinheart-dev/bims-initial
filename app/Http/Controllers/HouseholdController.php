@@ -97,15 +97,16 @@ class HouseholdController extends Controller
      */
     public function show(Household $household)
     {
-        // Load all residents of this household (unfiltered, for summary display)
-        $household_details = $household->load('residents.householdResidents');
+        $household_details = $household->load('residents.householdResidents', 'toilets', 'electricityTypes', 'waterSourceTypes', 'wasteManagementTypes');
+        $household_details['bath_and_wash_area'] = [
+            'bath_and_wash_area' => $household_details['bath_and_wash_area']
+        ];
 
-        // Start resident query for filtering
         $query = Resident::query()
             ->where('household_id', $household->id)
             ->with('householdResidents');
 
-        // Filter: Search by name
+            // filters
         if (request()->filled('name')) {
             $query->where(function ($q) {
                 $q->where('firstname', 'like', '%' . request('name') . '%')
@@ -117,13 +118,9 @@ class HouseholdController extends Controller
                     ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, suffix) LIKE ?", ['%' . request('name') . '%']);
             });
         }
-
-        // Filter: Gender
         if (request()->filled('gender') && request('gender') !== 'All') {
             $query->where('gender', request('gender'));
         }
-
-        // Filter: Age group
         if (request()->filled('age_group') && request('age_group') !== 'All') {
             $today = now();
 
@@ -157,36 +154,26 @@ class HouseholdController extends Controller
             }
         }
 
-        // Filter: Employment status
         if (request()->filled('estatus') && request('estatus') !== 'All') {
             $query->where('employment_status', request('estatus'));
         }
-
-        // Filter: Voter status
         if (request()->filled('voter_status') && request('voter_status') !== 'All') {
             $query->where('registered_voter', request('voter_status'));
         }
-
-        // Filter: PWD
         if (request()->filled('is_pwd') && request('is_pwd') !== 'All') {
             $query->where('is_pwd', request('is_pwd'));
         }
-
-        // Filter: Relationship to head (via pivot)
         if (request()->filled('relation') && request('relation') !== 'All') {
             $query->whereHas('householdResidents', function ($q) {
                 $q->where('relationship_to_head', request('relation'));
             });
         }
-
-        // Filter: Household position (via pivot)
         if (request()->filled('household_position') && request('household_position') !== 'All') {
             $query->whereHas('householdResidents', function ($q) {
                 $q->where('household_position', request('household_position'));
             });
         }
 
-        // Get filtered members
         $household_members = $query->get();
 
         return Inertia::render("BarangayOfficer/Household/Show", [

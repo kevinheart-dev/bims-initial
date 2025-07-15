@@ -13,7 +13,11 @@ use App\Models\EducationStatus;
 use App\Models\Family;
 use App\Models\FamilyRelation;
 use App\Models\Household;
+use App\Models\HouseholdElectricitySource;
 use App\Models\HouseholdResident;
+use App\Models\HouseholdToilet;
+use App\Models\HouseholdWasteManagement;
+use App\Models\HouseholdWaterSource;
 use App\Models\InternetAccessibility;
 use App\Models\Livelihood;
 use App\Models\LivelihoodType;
@@ -59,8 +63,8 @@ class DatabaseSeeder extends Seeder
             ]);
         }
         Street::factory(30)->create();
-        Household::factory(25)->create();
-        Family::factory(20)->create();
+        Household::factory(5)->create();
+        Family::factory(5)->create();
         $barangayOfficer = Role::firstOrCreate(['name' => 'barangay_officer']);
         $user = User::factory()->create([
             'resident_id' => Resident::factory(),
@@ -104,23 +108,26 @@ class DatabaseSeeder extends Seeder
         OccupationType::factory(30)->create();
         LivelihoodType::factory(30)->create();
 
-        // $residents = Resident::factory()->count(50)->create();
+        $residents = Resident::factory()->count(10)->create();
 
-        // MedicalInformation::factory(70)->create();
-        // InternetAccessibility::factory(15)->create();
-        // // Livelihood::factory(60)->create();
-        // Occupation::factory(40)->create();
-        // EducationalHistory::factory(30)->create();
-        // Vehicle::factory(30)->create();
-        // Livestock::factory(30)->create();
-        // ResidentVoterInformation::factory(60)->create();
-        // SocialWelfareProfile::factory(60)->create();
-        // SeniorCitizen::factory(20)->create();
-
-        // $residents->groupBy('household_id')->each(function ($group) {
-        //     $group->first()->update(['is_household_head' => true]);
-        // });
-        // $this->call(FixHouseholdResidentSeeder::class);
-        // $this->call(FamilyRelationSeeder::class);
+        MedicalInformation::factory(10)->create();
+        InternetAccessibility::factory(3)->create();
+        // Livelihood::factory(60)->create();
+        Occupation::factory(10)->create();
+        EducationalHistory::factory(15)->create();
+        Vehicle::factory(3)->create();
+        Livestock::factory(5)->create();
+        ResidentVoterInformation::factory(10)->create();
+        SocialWelfareProfile::factory(4)->create();
+        SeniorCitizen::factory(3)->create();
+        HouseholdToilet::factory(5)->create();
+        HouseholdElectricitySource::factory(5)->create();
+        HouseholdWasteManagement::factory(5)->create();
+        HouseholdWaterSource::factory(5)->create();
+        $residents->groupBy('household_id')->each(function ($group) {
+            $group->first()->update(['is_household_head' => true]);
+        });
+        $this->call(FixHouseholdResidentSeeder::class);
+        $this->call(FamilyRelationSeeder::class);
     }
 }
