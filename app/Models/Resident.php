@@ -156,7 +156,8 @@ class Resident extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function street(){
+    public function street()
+    {
         return $this->belongsTo(Street::class);
     }
 
@@ -197,10 +198,6 @@ class Resident extends Model
     public function vehicles()
     {
         return $this->hasMany(Vehicle::class);
-    }
-    public function street()
-    {
-        return $this->belongsTo(Street::class);
     }
     public function seniorcitizen()
     {
