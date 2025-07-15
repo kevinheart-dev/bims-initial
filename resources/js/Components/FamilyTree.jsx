@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import FamilyCard from "./FamilyCard";
 import { transformToTreeFormat } from "@/utils/transformtoTreeFormat";
+import SidebarModal from "./SidebarModal";
+import PersonDetailContent, { personDetailTitle } from "./SidebarModalContents/PersonDetailContent";
+
 
 const CARD_WIDTH = 240;
 const CARD_HEIGHT = 90;
@@ -10,6 +13,19 @@ const FamilyTree = ({ familyData }) => {
     const svgRef = useRef();
     const [nodes, setNodes] = useState([]);
     const [connections, setConnections] = useState([]);
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [selectedPerson, setSelectedPerson] = useState(null);
+
+    const openSidebar = (person) => {
+        setSelectedPerson(person);
+        setIsSidebarOpen(true);
+    };
+
+    const closeSidebar = () => {
+        setIsSidebarOpen(false);
+        setSelectedPerson(null);
+    };
 
     useEffect(() => {
         const treeData = transformToTreeFormat(familyData);
@@ -277,9 +293,27 @@ const FamilyTree = ({ familyData }) => {
                                 relation={node.relation}
                             />
                         ))}
+
+                        {nodes.map((node, idx) => (
+                            <FamilyCard
+                                key={idx}
+                                x={node.x}
+                                y={node.y}
+                                person={node}
+                                relation={node.relation}
+                                onViewDetail={openSidebar} // ✅ pass openSidebar
+                            />
+                        ))}
                     </g>
                 </svg>
             </div>
+            <SidebarModal
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+                title={personDetailTitle}
+            >
+                <PersonDetailContent person={selectedPerson} />
+            </SidebarModal>
         </div>
     );
 };
