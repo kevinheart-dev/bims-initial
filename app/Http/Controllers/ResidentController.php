@@ -237,20 +237,20 @@ class ResidentController extends Controller
 
 
         $latestOccupation = collect($data['occupations'] ?? [])
-        ->filter(fn ($occ) => isset($occ['started_at']))
-        ->sortByDesc('started_at')
-        ->first();
+            ->filter(fn($occ) => isset($occ['started_at']))
+            ->sortByDesc('started_at')
+            ->first();
 
         $latestStatus = $latestOccupation['employment_status'] ?? 'unemployed';
 
         $latestEducation = collect($data['educational_histories'] ?? [])
-            ->filter(fn ($edu) => ($edu['education_status'] ?? '') === 'enrolled' && isset($edu['year_started']))
+            ->filter(fn($edu) => ($edu['education_status'] ?? '') === 'enrolled' && isset($edu['year_started']))
             ->sortByDesc('year_started') // or 'year_ended' if you want latest completed
             ->first();
         $householdId = $data['housenumber'] ?? null;
         $familyId =  Family::where('household_id', $householdId)
-                ->where('barangay_id', $barangayId)
-                ->value('id');
+            ->where('barangay_id', $barangayId)
+            ->value('id');
 
         $residentInformation = [
             'resident_picture_path' => $data['resident_image'] ?? null,
@@ -312,8 +312,8 @@ class ResidentController extends Controller
             //add educational histories
             if (!empty($data['educational_histories']) && is_array($data['educational_histories'])) {
                 foreach ($data['educational_histories'] ?? [] as $educationalData) {
-                    if(!empty($educationalData['education_status'])){
-                        if($educationalData['education_status'] === 'graduate'){
+                    if (!empty($educationalData['education_status'])) {
+                        if ($educationalData['education_status'] === 'graduate') {
                             $yearGraduated = $educationalData['year_ended'];
                         }
                     }
@@ -587,18 +587,18 @@ class ResidentController extends Controller
                 }
             }
 
-            if(isset($data['has_vehicle'])){
-                foreach ($data['vehicles'] ?? [] as $vehicle){
+            if (isset($data['has_vehicle'])) {
+                foreach ($data['vehicles'] ?? [] as $vehicle) {
                     $resident->vehicles()->create([
                         'vehicle_type' => $vehicle['vehicle_type'],
                         'vehicle_class' => $vehicle['vehicle_class'],
-                        'usage_status'=> $vehicle['usage_status'],
-                        'quantity'=> $vehicle['quantity'],
+                        'usage_status' => $vehicle['usage_status'],
+                        'quantity' => $vehicle['quantity'],
                     ]);
                 }
             }
 
-            if(calculateAge($resident->birthdate) >= 60){
+            if (calculateAge($resident->birthdate) >= 60) {
                 $resident->seniorcitizen()->create([
                     'is_pensioner' => $data['is_pensioner'] ?? null,
                     'osca_id_number' => $data['osca_id_number'] ?? null,
@@ -608,7 +608,7 @@ class ResidentController extends Controller
             }
 
 
-            return redirect()->route('resident.index')->with('success', 'Resident '. ucwords($resident->getFullNameAttribute()) .' created successfully!');
+            return redirect()->route('resident.index')->with('success', 'Resident ' . ucwords($resident->getFullNameAttribute()) . ' created successfully!');
         } catch (\Exception $e) {
             dd($e->getMessage());
             return back()->withErrors(['error' => 'Resident could not be created: ' . $e->getMessage()]);
@@ -652,38 +652,38 @@ class ResidentController extends Controller
         try {
             $household = Household::create($householdData);
 
-            if($household){
+            if ($household) {
                 // toilets
-                foreach ($data['toilets'] ?? [] as $toilet){
+                foreach ($data['toilets'] ?? [] as $toilet) {
                     $household->toilets()->create([
                         'toilet_type' => $toilet["toilet_type"] ?? null,
                     ]);
                 }
 
                 // electricity
-                foreach ($data['electricity_types'] ?? [] as $electric){
+                foreach ($data['electricity_types'] ?? [] as $electric) {
                     $household->electricityTypes()->create([
                         'electricity_type' => $electric["electricity_type"] ?? null,
                     ]);
                 }
 
                 // water sources
-                foreach ($data['water_source_types'] ?? [] as $water){
+                foreach ($data['water_source_types'] ?? [] as $water) {
                     $household->waterSourceTypes()->create([
                         'water_source_type' => $water["water_source_type"] ?? null,
                     ]);
                 }
 
                 // wastes
-                foreach ($data['waste_management_types'] ?? [] as $waste){
+                foreach ($data['waste_management_types'] ?? [] as $waste) {
                     $household->wasteManagementTypes()->create([
                         'waste_management_type' => $waste["waste_management_type"] ?? null,
                     ]);
                 }
 
                 // pets
-                if($data['has_pets']){
-                    foreach ($data['pets'] ?? [] as $pet){
+                if ($data['has_pets']) {
+                    foreach ($data['pets'] ?? [] as $pet) {
                         $household->pets()->create([
                             'pet_type' => $pet["pet_type"] ?? null,
                             'is_vaccinated' => $pet["is_vaccinated"] ?? null,
@@ -692,8 +692,8 @@ class ResidentController extends Controller
                 }
 
                 // livestocks
-                if($data['has_livestock']){
-                    foreach ($data['livestocks'] ?? [] as $livestock){
+                if ($data['has_livestock']) {
+                    foreach ($data['livestocks'] ?? [] as $livestock) {
                         $household->livestocks()->create([
                             'livestock_type' => $livestock["livestock_type"] ?? null,
                             'quantity' => $livestock["quantity"] ?? null,
@@ -703,7 +703,7 @@ class ResidentController extends Controller
                 }
 
                 // internet
-                if($data['type_of_internet']){
+                if ($data['type_of_internet']) {
                     $household->internetAccessibility()->create([
                         'type_of_internet' => $data["type_of_internet"] ?? null,
                     ]);
@@ -725,7 +725,7 @@ class ResidentController extends Controller
                 $familyMembersId = [];
 
                 // resident information
-                foreach ($members as $member){
+                foreach ($members as $member) {
                     $empStatus = null;
                     $latestStatus = null;
 
@@ -803,7 +803,7 @@ class ResidentController extends Controller
                     $familyMembersId += [$resident->id];
 
                     // add voting information
-                    if($resident->registered_voter){
+                    if ($resident->registered_voter) {
                         $resident->votingInformation()->create([
                             ...$residentVotingInformation,
                         ]);
@@ -880,18 +880,18 @@ class ResidentController extends Controller
 
                     $resident->householdResidents()->create($householdResident);
 
-                    if(isset($member['has_vehicle'])){
-                        foreach ($member['vehicles'] ?? [] as $vehicle){
+                    if (isset($member['has_vehicle'])) {
+                        foreach ($member['vehicles'] ?? [] as $vehicle) {
                             $resident->vehicles()->create([
                                 'vehicle_type' => $vehicle['vehicle_type'],
                                 'vehicle_class' => $vehicle['vehicle_class'],
-                                'usage_status'=> $vehicle['usage_status'],
-                                'quantity'=> $vehicle['quantity'],
+                                'usage_status' => $vehicle['usage_status'],
+                                'quantity' => $vehicle['quantity'],
                             ]);
                         }
                     }
 
-                    if(calculateAge($resident->birthdate) >= 60){
+                    if (calculateAge($resident->birthdate) >= 60) {
                         $resident->seniorcitizen()->create([
                             'is_pensioner' => $member['is_pensioner'] ?? null,
                             'osca_id_number' => $member['osca_id_number'] ?? null,
@@ -899,7 +899,6 @@ class ResidentController extends Controller
                             'living_alone' => $member['living_alone'] ?? null,
                         ]);
                     }
-
                 }
 
                 $householdId = $household->id;
@@ -1126,6 +1125,9 @@ class ResidentController extends Controller
             'seniorcitizen',
             'household',
             'family',
+            'street',
+            'street.purok',
+            'barangay',
         ]);
 
         $familyTree = $resident->familyTree();
@@ -1144,6 +1146,10 @@ class ResidentController extends Controller
                     'seniorcitizen',
                     'household',
                     'family',
+                    'street',
+                    'street.purok',
+                    'barangay',
+
                 ]);
             } elseif ($value instanceof \App\Models\Resident) {
                 $value->load([
@@ -1157,6 +1163,9 @@ class ResidentController extends Controller
                     'seniorcitizen',
                     'household',
                     'family',
+                    'street',
+                    'street.purok',
+                    'barangay',
                 ]);
             }
         });
@@ -1206,7 +1215,7 @@ class ResidentController extends Controller
                 'suffix',
                 'is_household_head'
             ]);
-            $barangays = Barangay::all()->pluck('barangay_name', 'id')->toArray();
+        $barangays = Barangay::all()->pluck('barangay_name', 'id')->toArray();
 
         return Inertia::render("BarangayOfficer/Resident/CreateResident", [
             'puroks' => $puroks,

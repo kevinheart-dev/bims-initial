@@ -64,9 +64,9 @@ class Resident extends Model
     public function siblings()
     {
         return $this->parents()->with('children')->get()
-            ->flatMap(fn ($parent) => $parent->children) // Get all children of parents
+            ->flatMap(fn($parent) => $parent->children) // Get all children of parents
             ->unique('id') // Remove duplicates
-            ->reject(fn ($sibling) => $sibling->id === $this->id) // Exclude self
+            ->reject(fn($sibling) => $sibling->id === $this->id) // Exclude self
             ->values(); // Reset array keys
     }
 
@@ -84,12 +84,12 @@ class Resident extends Model
         $parents = $this->parents()->with('parents')->get();
 
         // Get grandparents from parents
-        $grandparents = $parents->flatMap(fn ($parent) => $parent->parents);
+        $grandparents = $parents->flatMap(fn($parent) => $parent->parents);
 
         // Get uncles & aunts: Fetch all children of grandparents (excluding direct parents)
-        $unclesAunts = $grandparents->flatMap(fn ($grandparent) => $grandparent->children)
+        $unclesAunts = $grandparents->flatMap(fn($grandparent) => $grandparent->children)
             ->unique('id') // Remove duplicates
-            ->reject(fn ($uncleAunt) => $parents->contains('id', $uncleAunt->id)); // Exclude actual parents
+            ->reject(fn($uncleAunt) => $parents->contains('id', $uncleAunt->id)); // Exclude actual parents
 
         // Load children
         $children = $this->children()->get();
@@ -198,6 +198,10 @@ class Resident extends Model
     {
         return $this->hasMany(Vehicle::class);
     }
+    public function street()
+    {
+        return $this->belongsTo(Street::class);
+    }
     public function seniorcitizen()
     {
         return $this->hasOne(SeniorCitizen::class);
@@ -206,7 +210,8 @@ class Resident extends Model
     {
         return $this->hasMany(EducationalHistory::class);
     }
-    public function medicalInformation(){
+    public function medicalInformation()
+    {
         return $this->hasOne(MedicalInformation::class);
     }
     public function getAgeAttribute()
@@ -221,5 +226,4 @@ class Resident extends Model
         }
         return $name;
     }
-
 }

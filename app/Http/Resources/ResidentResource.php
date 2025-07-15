@@ -57,6 +57,9 @@ class ResidentResource extends JsonResource
             'senior_citizen' => $this->whenLoaded('seniorcitizen'),
             'household' => $this->whenLoaded('household'),
             'family' => $this->whenLoaded('family'),
+            'street' => $this->whenLoaded('street'),
+            'purok' => $this->whenLoaded('street.purok'),
+            'barangay' => $this->whenLoaded('barangay'),
         ];
     }
 }
