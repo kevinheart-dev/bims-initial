@@ -198,10 +198,6 @@ class Resident extends Model
     {
         return $this->hasMany(Vehicle::class);
     }
-    public function street()
-    {
-        return $this->belongsTo(Street::class);
-    }
     public function seniorcitizen()
     {
         return $this->hasOne(SeniorCitizen::class);
