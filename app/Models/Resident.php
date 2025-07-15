@@ -156,7 +156,8 @@ class Resident extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function street(){
+    public function street()
+    {
         return $this->belongsTo(Street::class);
     }
 
