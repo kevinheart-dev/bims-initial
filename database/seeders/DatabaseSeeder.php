@@ -104,23 +104,23 @@ class DatabaseSeeder extends Seeder
         OccupationType::factory(30)->create();
         LivelihoodType::factory(30)->create();
 
-        $residents = Resident::factory()->count(50)->create();
+        // $residents = Resident::factory()->count(50)->create();
 
-        MedicalInformation::factory(70)->create();
-        InternetAccessibility::factory(15)->create();
-        // Livelihood::factory(60)->create();
-        Occupation::factory(40)->create();
-        EducationalHistory::factory(30)->create();
-        Vehicle::factory(30)->create();
-        Livestock::factory(30)->create();
-        ResidentVoterInformation::factory(60)->create();
-        SocialWelfareProfile::factory(60)->create();
-        SeniorCitizen::factory(20)->create();
+        // MedicalInformation::factory(70)->create();
+        // InternetAccessibility::factory(15)->create();
+        // // Livelihood::factory(60)->create();
+        // Occupation::factory(40)->create();
+        // EducationalHistory::factory(30)->create();
+        // Vehicle::factory(30)->create();
+        // Livestock::factory(30)->create();
+        // ResidentVoterInformation::factory(60)->create();
+        // SocialWelfareProfile::factory(60)->create();
+        // SeniorCitizen::factory(20)->create();
 
-        $residents->groupBy('household_id')->each(function ($group) {
-            $group->first()->update(['is_household_head' => true]);
-        });
-        $this->call(FixHouseholdResidentSeeder::class);
-        $this->call(FamilyRelationSeeder::class);
+        // $residents->groupBy('household_id')->each(function ($group) {
+        //     $group->first()->update(['is_household_head' => true]);
+        // });
+        // $this->call(FixHouseholdResidentSeeder::class);
+        // $this->call(FamilyRelationSeeder::class);
     }
 }

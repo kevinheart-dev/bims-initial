@@ -40,20 +40,19 @@ import {
 import ClearFilterButton from "@/Components/ClearFiltersButton";
 
 export default function Index({
-    members,
-    family_details,
     household_details,
+    household_members,
     queryParams = null,
 }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         {
-            label: "Families",
-            href: route("family.index"),
+            label: "Households",
+            href: route("household.index"),
             showOnMobile: false,
         },
         {
-            label: "View Family",
+            label: "View Household",
             showOnMobile: true,
         },
     ];
@@ -78,8 +77,8 @@ export default function Index({
             delete queryParams.page;
         }
         router.get(
-            route("family.showfamily", {
-                family: family_details.id,
+            route("household.show", {
+                household: household_details.id,
                 ...queryParams,
             })
         );
@@ -208,15 +207,15 @@ export default function Index({
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                    {/* <pre>{JSON.stringify(members, undefined, 3)}</pre> */}
+                    <pre>{JSON.stringify(household_details, undefined, 3)}</pre>
                     <div className="flex flex-row overflow-hidden bg-gray-50 shadow-md rounded-xl sm:rounded-lg m-3">
                         <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
                         <div className="flex flex-col justify-start items-start p-4 w-full">
                             <p className="font-semibold text-lg md:text-3xl mb-4 md:mb-6">
-                                {family_details.family_name} Family
+                                Household Number {household_details.id}
                             </p>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                                <div className="space-y-1 md:space-y-2 text-sm md:text-lg text-gray-600">
+                                {/* <div className="space-y-1 md:space-y-2 text-sm md:text-lg text-gray-600">
                                     <div>
                                         Family Type:{" "}
                                         <span>
@@ -304,7 +303,7 @@ export default function Index({
                                             {family_details.members.length}
                                         </span>
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </div>
@@ -323,8 +322,7 @@ export default function Index({
                                 </Link>
                             </div>
                             <div className="flex w-full justify-end items-end space-x-1">
-                                {/* Search Bar */}
-                                <form
+                                {/* <form
                                     onSubmit={handleSubmit}
                                     className="flex w-full max-w-sm items-center space-x-1"
                                 >
@@ -343,11 +341,11 @@ export default function Index({
                                     <Button type="submit">
                                         <Search />
                                     </Button>
-                                </form>
+                                </form> */}
                             </div>
                         </div>
                         <DynamicTable
-                            passedData={members}
+                            passedData={household_members}
                             columnRenderers={columnRenderers}
                             allColumns={allColumns}
                             showTotal={true}
@@ -534,9 +532,9 @@ export default function Index({
                                 </div>
                                 <div className="flex justify-end">
                                     <ClearFilterButton
-                                        routeName="family.showfamily"
+                                        routeName="household.show"
                                         routeParams={{
-                                            family: family_details.id,
+                                            household: household_details.id,
                                         }}
                                     />
                                 </div>

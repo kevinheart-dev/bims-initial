@@ -677,49 +677,47 @@ function EducationandOccupation() {
                                                     </div>
 
                                                     {education.education ===
-                                                        "college"(
-                                                            <div>
-                                                                <InputField
-                                                                    label={
-                                                                        edu_history.education_status ===
-                                                                        "graduate"
-                                                                            ? "Finished Course"
-                                                                            : "Current Course"
-                                                                    }
-                                                                    name="program"
-                                                                    type="text"
-                                                                    value={
-                                                                        education.program ||
-                                                                        ""
-                                                                    }
-                                                                    onChange={(
+                                                        "college" && (
+                                                        <div>
+                                                            <InputField
+                                                                label={
+                                                                    education.education_status ===
+                                                                    "graduate"
+                                                                        ? "Finished Course"
+                                                                        : "Current Course"
+                                                                }
+                                                                name="program"
+                                                                type="text"
+                                                                value={
+                                                                    education.program ||
+                                                                    ""
+                                                                }
+                                                                onChange={(e) =>
+                                                                    handleEducationChange(
+                                                                        index,
+                                                                        eduIndex,
                                                                         e
-                                                                    ) =>
-                                                                        handleEducationChange(
-                                                                            index,
-                                                                            eduIndex,
-                                                                            e
-                                                                        )
+                                                                    )
+                                                                }
+                                                                placeholder="Enter your course"
+                                                                disabled={
+                                                                    education.education ===
+                                                                    "no_formal_education"
+                                                                }
+                                                            />
+                                                            {errors?.[
+                                                                `members.${index}.educations.${eduIndex}.program`
+                                                            ] && (
+                                                                <p className="text-red-500 text-xs">
+                                                                    {
+                                                                        errors[
+                                                                            `members.${index}.educations.${eduIndex}.program`
+                                                                        ]
                                                                     }
-                                                                    placeholder="Enter your course"
-                                                                    disabled={
-                                                                        education.education ===
-                                                                        "no_formal_education"
-                                                                    }
-                                                                />
-                                                                {errors?.[
-                                                                    `members.${index}.educations.${eduIndex}.program`
-                                                                ] && (
-                                                                    <p className="text-red-500 text-xs">
-                                                                        {
-                                                                            errors[
-                                                                                `members.${index}.educations.${eduIndex}.program`
-                                                                            ]
-                                                                        }
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                        )}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 {/* Remove Button */}

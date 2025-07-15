@@ -64,30 +64,40 @@ const items = [
                 url: "/barangay_officer/family",
                 icon: SquareUserRound,
             },
-        ],
-    },
-    {
-        title: "Household Information",
-        url: "#",
-        icon: House,
-        submenu: [
             {
-                title: "Households Table",
+                title: "Households",
                 url: "/barangay_officer/household",
-                icon: Table,
+                icon: House,
             },
             {
                 title: "Vehicles",
                 url: "/barangay_officer/vehicle",
                 icon: CarFront,
             },
-            {
-                title: "Livestocks",
-                url: "#",
-                icon: PiggyBank,
-            },
         ],
     },
+    // {
+    //     title: "Household Information",
+    //     url: "#",
+    //     icon: House,
+    //     submenu: [
+    //         {
+    //             title: "Households Table",
+    //             url: "/barangay_officer/household",
+    //             icon: Table,
+    //         },
+    //         {
+    //             title: "Vehicles",
+    //             url: "/barangay_officer/vehicle",
+    //             icon: CarFront,
+    //         },
+    //         {
+    //             title: "Livestocks",
+    //             url: "#",
+    //             icon: PiggyBank,
+    //         },
+    //     ],
+    // },
     {
         title: "Documents",
         url: "#",

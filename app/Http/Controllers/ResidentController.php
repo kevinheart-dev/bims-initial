@@ -383,7 +383,7 @@ class ResidentController extends Controller
                         $totalIncome <= 70000 => 'lower_middle_income',
                         $totalIncome <= 120000 => 'middle_income',
                         $totalIncome <= 200000 => 'upper_middle_income',
-                        default => 'high_income',
+                        default => 'above_high_income',
                     };
 
                     $family->update([
@@ -1056,6 +1056,8 @@ class ResidentController extends Controller
                         }
                     }
                 }
+
+                dd('stop');
             }
 
             return redirect()->route('resident.index')->with('success', 'Household created successfully!');

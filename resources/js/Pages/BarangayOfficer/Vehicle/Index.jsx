@@ -44,7 +44,7 @@ export default function Index({
 }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
-        { label: "Veicles Table", showOnMobile: true },
+        { label: "Veicles", showOnMobile: true },
     ];
     queryParams = queryParams || {};
 
