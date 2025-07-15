@@ -1,218 +1,329 @@
+import { useState } from "react";
 import {
-    FaUser,
     FaPhone,
     FaEnvelope,
-    FaHome,
     FaHeart,
-    FaVoteYea,
-    FaCar,
 } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import { IoBookSharp } from "react-icons/io5";
+import { MdWork } from "react-icons/md";
+import * as CONSTANTS from "@/constants";
+import { IoPerson } from "react-icons/io5";
+import { FaPeopleGroup } from "react-icons/fa6";
+
 export default function PersonDetailContent({ person }) {
+    const [activeTab, setActiveTab] = useState("education");
+
     if (!person) return <p className="text-red-500">No data found.</p>;
+
+    function calculateAge(birthdate) {
+        if (!birthdate) return "N/A";
+        const today = new Date();
+        const birth = new Date(birthdate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    }
 
     const bentoStyle = "rounded-xl border p-4 shadow-sm bg-white";
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-black text-sm">
-            {/* Top Section: Basic Info + Side Panels */}
-            <div className="col-span-1 md:col-span-2 flex flex-col md:flex-row gap-4">
-                {/* Basic Info - Left Side */}
-                <div className="flex-1 bg-white rounded-xl border p-4 shadow-sm">
-                    <div className="flex items-start gap-4">
-                        {/* Image */}
-                        <img
-                            src={
-                                person?.resident_picture?.startsWith("http")
-                                    ? person.resident_picture
-                                    : person?.resident_picture
-                                        ? `/storage/${person.resident_picture}`
-                                        : "/images/default-avatar.jpg"
-                            }
-                            alt={`${person?.firstname}'s photo`}
-                            className="w-16 h-16 rounded-full object-cover border"
-                        />
-
-                        {/* Top 3 Info beside image */}
-                        <div className="text-sm space-y-[3px]">
-                            <p className="font-bold text-xl text-blue-900 leading-tight">
-                                {person.lastname}, {person.firstname} {person.middlename || ""} {person.suffix || ""}
-                            </p>
-                            <p className="flex items-center gap-2 text-[12px] leading-none">
-                                <FaEnvelope className="text-blue-500" /> {person.email}
-                            </p>
-                            <p className="flex items-center gap-2 text-[12px] leading-none">
-                                <FaPhone className="text-blue-500" /> {person.contact_number}
-                            </p>
-                        </div>
-                    </div>
-
-                    <hr className="mt-3 border-gray-300" />
-
-                    {/* Remaining info below */}
-                    <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1 mt-4">
-                        <span className="text-left font-medium">Gender:</span>
-                        <span className="text-left capitalize">{person.gender}</span>
-
-                        <span className="text-left font-medium">Birthdate:</span>
-                        <span className="text-left capitalize">{person.birthdate}</span>
-
-                        <span className="text-left font-medium">Status:</span>
-                        <span className="text-left capitalize">{person.civil_status}</span>
-
-                        <span className="text-left font-medium">Birthplace:</span>
-                        <span className="text-left capitalize">{person.birthplace}</span>
-
-                        <span className="text-left font-medium">Religion:</span>
-                        <span className="text-left capitalize">{person.religion}</span>
-
-                        <span className="text-left font-medium">Nationality:</span>
-                        <span className="text-left capitalize">{person.citizenship}</span>
-
-                        <span className="text-left font-medium">Ethnicity:</span>
-                        <span className="text-left capitalize">{person.ethnicity}</span>
-
-                    </div>
-
+        <div className="w-full bg-white rounded-xl border shadow-sm text-sm text-black p-4 space-y-4">
+            {/* ✅ Basic Info */}
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
+                <img
+                    src={
+                        person?.resident_picture_path == null
+                            ? "/images/default-avatar.jpg"
+                            : `/storage/${person.resident_picture_path}`
+                    }
+                    alt={`${person?.firstname}'s photo`}
+                    className="w-20 h-20 rounded-full object-cover border"
+                />
+                <div className="text-center md:text-left space-y-[3px]">
+                    <p className="font-bold text-xl text-blue-900">
+                        {person.lastname}, {person.firstname} {person.middlename || ""} {person.suffix || ""}
+                    </p>
+                    <p className="flex items-center justify-center md:justify-start gap-2 text-[12px]">
+                        <FaEnvelope className="text-blue-500" /> {person.email}
+                    </p>
+                    <p className="flex items-center justify-center md:justify-start gap-2 text-[12px]">
+                        <FaPhone className="text-blue-500" /> {person.contact_number}
+                    </p>
                 </div>
-
-
-                {/* Right Side: Residency & Emergency Contact */}
-                <div className="flex flex-col gap-4 w-full md:max-w-[300px]">
-                    {/* Residency Info */}
-                    <div className={bentoStyle}>
-                        <h3 className="font-bold text-base flex items-center gap-2 text-blue-700 mb-1">
-                            <FaLocationDot className="text-blue-700" /> Residency
-                        </h3>
-                        <hr className="mb-2 border-gray-300" />
-                        <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
-                            <span className="text-left font-medium">Address:</span>
-                            <span className="text-left capitalize">
-                                {person.street?.street_name},{" "}
-                                <span>Purok</span>{" "} {person.street?.purok?.purok_number},{" "}
-                                {person.barangay?.barangay_name}, {person.barangay?.city}
-                            </span>
-
-                            <span className="text-left font-medium">Residency Type:</span>
-                            <span className="text-left capitalize">{person.residency_type}</span>
-
-                            <span className="text-left font-medium">Residency Date:</span>
-                            <span className="text-left capitalize">{person.residency_date}</span>
-                        </div>
-                    </div>
-
-                    {/* Emergency Contact */}
-                    <div className={bentoStyle}>
-                        <h3 className="font-bold text-base flex items-center gap-2 text-blue-700 mb-1">
-                            <FaPhone className="text-blue-700" /> Emergency Contact
-                        </h3>
-                        <hr className="mb-2 border-gray-300" />
-                        <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
-                            <span className="text-left font-medium">Name:</span>
-                            <span className="text-left capitalize">{person.medical_information?.emergency_contact_name}</span>
-
-                            <span className="text-left font-medium">Contact No.:</span>
-                            <span className="text-left capitalize">{person.medical_information?.emergency_contact_number}</span>
-
-                            <span className="text-left font-medium">Relationship:</span>
-                            <span className="text-left capitalize">{person.medical_information?.emergency_contact_relationship}</span>
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
-            {/* Education history */}
-            <div className={bentoStyle}>
-                <h3 className="font-bold text-base flex items-center gap-2 text-blue-700 mb-1">
-                    <IoBookSharp className="text-blue-700" /> Education History
-                </h3>
-                <hr className="mb-2 border-gray-300" />
+            {/* Info Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-x-2 gap-y-1">
+                <span className="font-medium text-left">Gender:</span>
+                <span className="text-left capitalize">{person.gender}</span>
 
-                {Array.isArray(person.educational_histories) && person.educational_histories.length > 0 ? (
-                    person.educational_histories.map((edu, index) => (
-                        <div
-                            key={index}
-                            className="text-sm grid grid-cols-2 gap-x-4 gap-y-1 mb-3 border-b border-gray-200 pb-2"
+                <span className="font-medium text-left">Birthdate:</span>
+                <span className="text-left capitalize">{person.birthdate}</span>
+
+                <span className="font-medium text-left">Age:</span>
+                <span className="text-left">{calculateAge(person.birthdate)}</span>
+
+                <span className="font-medium text-left">Status:</span>
+                <span className="text-left capitalize">{person.civil_status}</span>
+
+                <span className="font-medium text-left">Birthplace:</span>
+                <span className="text-left capitalize">{person.birthplace}</span>
+
+                <span className="font-medium text-left">Religion:</span>
+                <span className="text-left capitalize">{person.religion}</span>
+
+                <span className="font-medium text-left">Nationality:</span>
+                <span className="text-left capitalize">{person.citizenship}</span>
+
+                <span className="font-medium text-left">Ethnicity:</span>
+                <span className="text-left capitalize">{person.ethnicity}</span>
+            </div>
+
+            {/* ✅ Residency & Emergency Contact */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 col-span-2">
+                <div className={bentoStyle}>
+                    <h3 className="font-bold text-base flex items-center gap-2 text-blue-700 mb-1">
+                        <FaLocationDot className="text-blue-700" /> Residency
+                    </h3>
+                    <hr className="mb-2 border-gray-300" />
+                    <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
+                        <span className="text-left font-medium">Address:</span>
+                        <span className="text-left capitalize">
+                            {person.street?.street_name}, Purok {person.street?.purok?.purok_number}, {person.barangay?.barangay_name}, {person.barangay?.city}
+                        </span>
+                        <span className="text-left font-medium">Residency Type:</span>
+                        <span className="text-left capitalize">{person.residency_type}</span>
+                        <span className="text-left font-medium">Residency Date:</span>
+                        <span className="text-left capitalize">{person.residency_date}</span>
+                    </div>
+                </div>
+
+                <div className={bentoStyle}>
+                    <h3 className="font-bold text-base flex items-center gap-2 text-blue-700 mb-1">
+                        <FaPhone className="text-blue-700" /> Emergency Contact
+                    </h3>
+                    <hr className="mb-2 border-gray-300" />
+                    <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
+                        <span className="text-left font-medium">Name:</span>
+                        <span className="text-left capitalize">{person.medical_information?.emergency_contact_name}</span>
+                        <span className="text-left font-medium">Contact No.:</span>
+                        <span className="text-left capitalize">{person.medical_information?.emergency_contact_number}</span>
+                        <span className="text-left font-medium">Relationship:</span>
+                        <span className="text-left capitalize">{person.medical_information?.emergency_contact_relationship}</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* ✅ Tab Navigation */}
+            <div className="border-b border-gray-300 mt-4">
+                <div className="flex gap-6 text-sm font-medium">
+                    <button
+                        onClick={() => setActiveTab("education")}
+                        className={`py-2 px-1 border-b-2 ${activeTab === "education" ? "border-blue-600 text-blue-700" : "border-transparent text-gray-500"}`}
+                    >
+                        Education
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("occupation")}
+                        className={`py-2 px-1 border-b-2 ${activeTab === "occupation" ? "border-blue-600 text-blue-700" : "border-transparent text-gray-500"}`}
+                    >
+                        Occupation
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("medical")}
+                        className={`py-2 px-1 border-b-2 ${activeTab === "medical" ? "border-blue-600 text-blue-700" : "border-transparent text-gray-500"}`}
+                    >
+                        Medical
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("social")}
+                        className={`py-2 px-1 border-b-2 ${activeTab === "social" ? "border-blue-600 text-blue-700" : "border-transparent text-gray-500"}`}
+                    >
+                        Social Welfare
+                    </button>
+                    {person.senior_citizen && (
+                        <button
+                            onClick={() => setActiveTab("senior")}
+                            className={`py-2 px-1 border-b-2 ${activeTab === "senior"
+                                ? "border-blue-600 text-blue-700"
+                                : "border-transparent text-gray-500"
+                                }`}
                         >
-                            <span className="font-medium text-left">Attainment:</span>
-                            <span className="text-left capitalize">{edu.educational_attainment}</span>
+                            Senior Citizen
+                        </button>
+                    )}
+                </div>
+            </div>
 
-                            <span className="font-medium text-left">Status:</span>
-                            <span className="text-left capitalize">{edu.education_status}</span>
+            <div className="!p-0 !m-0">
+                {activeTab === "education" && (
+                    <>
+                        <h3 className="font-bold text-base flex items-center gap-2 text-blue-700 mb-2 mt-2">
+                            <IoBookSharp className="text-blue-700" /> Education History
+                        </h3>
+                        <hr className="mb-2 border-gray-300" />
+                        {Array.isArray(person.educational_histories) && person.educational_histories.length > 0 ? (
+                            person.educational_histories.map((edu, index) => (
+                                <div key={index} className="grid grid-cols-2 gap-x-4 gap-y-1 mb-4 pb-2 border-b border-gray-200">
+                                    <span className="font-medium text-left">Attainment:</span>
+                                    <span className="text-left capitalize">{CONSTANTS.EDUCATION_LEVEL_TEXT[edu.educational_attainment]}</span>
 
-                            <span className="font-medium text-left">School:</span>
-                            <span className="text-left capitalize">{edu.school_name}</span>
+                                    <span className="font-medium text-left">Status:</span>
+                                    <span className="text-left capitalize">{edu.education_status}</span>
 
-                            <span className="font-medium text-left">School Type:</span>
-                            <span className="text-left capitalize">{edu.school_type}</span>
+                                    <span className="font-medium text-left">School:</span>
+                                    <span className="text-left capitalize">{edu.school_name}</span>
 
-                            {edu.program && (
+                                    <span className="font-medium text-left">Type:</span>
+                                    <span className="text-left capitalize">{edu.school_type}</span>
+
+                                    {edu.program && (
+                                        <>
+                                            <span className="font-medium text-left">Program:</span>
+                                            <span className="text-left capitalize">{edu.program}</span>
+                                        </>
+                                    )}
+
+                                    <span className="font-medium text-left">School Years:</span>
+                                    <span className="text-left capitalize">{edu.year_started || ' '} – {edu.year_ended || 'Present'}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-sm text-gray-500 italic">No education records available.</p>
+                        )}
+                    </>
+                )}
+
+                {activeTab === "occupation" && (
+                    <>
+                        <h3 className="font-bold text-base flex items-center gap-2 text-blue-700 mb-2 mt-2">
+                            <MdWork className="text-blue-700" /> Occupation History
+                        </h3>
+                        <hr className="mb-2 border-gray-300" />
+                        {Array.isArray(person.occupations) && person.occupations.length > 0 ? (
+                            person.occupations.map((job, index) => (
+                                <div key={index} className="grid grid-cols-2 gap-x-4 gap-y-1 mb-4 pb-2 border-b border-gray-200">
+                                    <span className="font-medium text-left">Occupation:</span>
+                                    <span className="text-left capitalize">{job.occupation}</span>
+
+                                    <span className="font-medium text-left">Status:</span>
+                                    <span className="text-left capitalize">{job.occupation_status}</span>
+
+                                    <span className="font-medium text-left">Employer:</span>
+                                    <span className="text-left capitalize">{job.employer || 'N/A'}</span>
+
+                                    <span className="font-medium text-left">Type:</span>
+                                    <span className="text-left capitalize">{CONSTANTS.EMPLOYMENT_TYPE_TEXT[job.employment_type]}</span>
+
+                                    <span className="font-medium text-left">Monthly Income:</span>
+                                    <span className="text-left">{job.monthly_income}</span>
+
+                                    <span className="font-medium text-left">Work Arrangement:</span>
+                                    <span className="text-left capitalize">{job.work_arrangement}</span>
+
+                                    <span className="font-medium text-left">Years Active:</span>
+                                    <span className="text-left">{job.started_at || 'N/A'} – {job.ended_at || 'Present'}</span>
+
+                                    <span className="font-medium text-left">OFW:</span>
+                                    <span className="text-left">{job.is_ofw === 1 ? 'Yes' : 'No'}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-sm text-gray-500 italic">No occupation records available.</p>
+                        )}
+                    </>
+                )}
+
+                {activeTab === "medical" && (
+                    <>
+                        <h3 className="font-bold text-base flex items-center gap-2 text-blue-700 mb-2 mt-2">
+                            <FaHeart className="text-blue-700" /> Medical Information
+                        </h3>
+                        <hr className="mb-2 border-gray-300" />
+                        {person.medical_information ? (
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                <span className="font-medium text-left">Blood Type:</span>
+                                <span className="text-left capitalize">{person.medical_information.blood_type}</span>
+
+                                <span className="font-medium text-left">BMI:</span>
+                                <span className="text-left">{person.medical_information.bmi}</span>
+
+                                <span className="font-medium text-left">Height (cm):</span>
+                                <span className="text-left">{person.medical_information.height_cm}</span>
+
+                                <span className="font-medium text-left">Weight (kg):</span>
+                                <span className="text-left">{person.medical_information.weight_kg}</span>
+
+                                <span className="font-medium text-left">Nutrition Status:</span>
+                                <span className="text-left capitalize">{person.medical_information.nutrition_status}</span>
+
+                                <span className="font-medium text-left">PhilHealth ID:</span>
+                                <span className="text-left">{person.medical_information.philhealth_id_number || 'N/A'}</span>
+
+                                <span className="font-medium text-left">Smoker:</span>
+                                <span className="text-left">{person.medical_information.is_smoker ? 'Yes' : 'No'}</span>
+
+                                <span className="font-medium text-left">Alcohol User:</span>
+                                <span className="text-left">{person.medical_information.is_alcohol_user ? 'Yes' : 'No'}</span>
+                            </div>
+                        ) : (
+                            <p className="text-sm text-gray-500 italic">No medical info available.</p>
+                        )}
+                    </>
+                )}
+
+                {activeTab === "social" && person.social_welfare_profile && (
+                    <>
+                        <h3 className="col-span-2 font-bold text-base flex items-center gap-2 text-blue-700 mb-2 mt-2">
+                            <FaPeopleGroup className="text-blue-700" /> Social Welfare Profile
+                        </h3>
+                        <hr className="mb-2 border-gray-300" />
+                        <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
+                            <span className="font-medium text-left">Is 4Ps Beneficiary:</span>
+                            <span className="text-left">{person.social_welfare_profile.is_4ps_beneficiary ? "Yes" : "No"}</span>
+
+                            <span className="font-medium text-left">Is Solo Parent:</span>
+                            <span className="text-left">{person.social_welfare_profile.is_solo_parent ? "Yes" : "No"}</span>
+
+                            {person.social_welfare_profile.is_solo_parent === 1 && (
                                 <>
-                                    <span className="font-medium text-left">Program:</span>
-                                    <span className="text-left capitalize">{edu.program}</span>
+                                    <span className="font-medium text-left">Solo Parent ID:</span>
+                                    <span className="text-left">{person.social_welfare_profile.solo_parent_id_number}</span>
                                 </>
                             )}
-
-                            <span className="font-medium text-left">Year Graduated:</span>
-                            <span className="text-left capitalize">{edu.year_graduated || 'N/A'}</span>
                         </div>
-                    ))
-                ) : (
-                    <p className="text-sm text-gray-500 italic">No education records available.</p>
+                    </>
                 )}
+
+
+                {activeTab === "senior" && person.senior_citizen && (
+                    <>
+                        <h3 className="col-span-2 font-bold text-base flex items-center gap-2 text-blue-700 mb-2 mt-2">
+                            <IoPerson className="text-blue-700" /> Senior Information
+                        </h3>
+                        <hr className="mb-2 border-gray-300" />
+                        <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
+                            <span className="font-medium text-left">OSCA ID Number:</span>
+                            <span className="text-left">{person.senior_citizen.osca_id_number}</span>
+
+                            <span className="font-medium text-left">Is Pensioner:</span>
+                            <span className="text-left capitalize">{person.senior_citizen.is_pensioner}</span>
+
+                            <span className="font-medium text-left">Pension Type:</span>
+                            <span className="text-left capitalize">{person.senior_citizen.pension_type}</span>
+
+                            <span className="font-medium text-left">Living Alone:</span>
+                            <span className="text-left">{person.senior_citizen.living_alone ? "Yes" : "No"}</span>
+                        </div>
+                    </>
+                )}
+
+
             </div>
-
-            <div className={bentoStyle}>
-
-            </div>
-
-
-            {/* Household Info */}
-            <div className={`${bentoStyle} row-span-2`}>
-                <h3 className="font-semibold text-base mb-2 flex items-center gap-2"><FaHome /> Household Info</h3>
-                <p>House No.: {person.household?.house_number}</p>
-                <p>Street ID: {person.street_id}</p>
-                <p>House Structure: {person.household?.house_structure}</p>
-                <p>Housing Condition: {person.household?.housing_condition}</p>
-                <p>Ownership Type: {person.household?.ownership_type}</p>
-                <p>Rooms: {person.household?.number_of_rooms}</p>
-                <p>Floors: {person.household?.number_of_floors}</p>
-            </div>
-
-            {/* Medical Info */}
-            <div className={`${bentoStyle} row-span-2`}>
-                <h3 className="font-semibold text-base mb-2 flex items-center gap-2"><FaHeart /> Medical</h3>
-                <p>Blood Type: {person.medical_information?.blood_type}</p>
-                <p>BMI: {person.medical_information?.bmi}</p>
-                <p>Height (cm): {person.medical_information?.height_cm}</p>
-                <p>Weight (kg): {person.medical_information?.weight_kg}</p>
-                <p>Nutrition Status: {person.medical_information?.nutrition_status}</p>
-                <p>PhilHealth ID: {person.medical_information?.philhealth_id_number}</p>
-                <p>Smoker: {person.medical_information?.is_smoker ? "Yes" : "No"}</p>
-                <p>Alcohol User: {person.medical_information?.is_alcohol_user ? "Yes" : "No"}</p>
-            </div>
-
-            {/* Voting Info */}
-            <div className={bentoStyle}>
-                <h3 className="font-semibold text-base mb-2 flex items-center gap-2"><FaVoteYea /> Voting</h3>
-                <p>Voter ID: {person.voting_information?.voter_id_number}</p>
-                <p>Status: {person.voting_information?.voting_status}</p>
-                <p>Registered Barangay: {person.voting_information?.registered_barangay_id}</p>
-            </div>
-
-            {/* Vehicles */}
-            {person.vehicles?.length > 0 && (
-                <div className={bentoStyle}>
-                    <h3 className="font-semibold text-base mb-2 flex items-center gap-2"><FaCar /> Vehicles</h3>
-                    {person.vehicles.map((v, idx) => (
-                        <p key={idx}>
-                            {v.vehicle_type} ({v.vehicle_class}) - {v.usage_status}
-                        </p>
-                    ))}
-                </div>
-            )}
         </div>
     );
 }
