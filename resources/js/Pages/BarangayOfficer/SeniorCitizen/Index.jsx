@@ -73,29 +73,26 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         { key: "pension_type", label: "Pension Type" },
         { key: "living_alone", label: "Living Alone" },
         { key: "purok_number", label: "Purok" },
+        { key: "registered_senior", label: "Is Registered Senior?" },
         { key: "actions", label: "Actions" },
     ];
 
     const columnRenderers = {
-        id: (senior) => senior.id,
-
-        name: (senior) => {
-            const res = senior.resident;
-            return res ? (
+        id: (resident) => resident.id,
+        name: (resident) => {
+            return (
                 <Link
-                    href={route("resident.show", res.id)}
+                    href={route("resident.show", resident.id)}
                     className="hover:text-blue-500 hover:underline"
                 >
-                    {res.firstname} {res.middlename ?? ""} {res.lastname ?? ""}
-                    {res.suffix ? `, ${res.suffix}` : ""}
+                    {resident.firstname} {resident.middlename ?? ""}{" "}
+                    {resident.lastname ?? ""}
+                    {resident.suffix ? `, ${resident.suffix}` : ""}
                 </Link>
-            ) : (
-                <span className="text-gray-400 italic">No linked resident</span>
             );
         },
-
-        birthdate: (senior) => {
-            const date = senior.resident?.birthdate;
+        birthdate: (resident) => {
+            const date = resident.birthdate;
             if (!date) return <span className="text-gray-400 italic">N/A</span>;
 
             const birthdate = new Date(date);
@@ -105,58 +102,70 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                 day: "numeric",
             });
         },
-
-        age: (senior) => {
-            const birthdate = senior.resident?.birthdate;
+        age: (resident) => {
+            const birthdate = resident.birthdate;
             return calculateAge(birthdate);
         },
-
-        osca_id_number: (senior) =>
-            senior.osca_id_number ? (
-                <span className="text-gray-800">{senior.osca_id_number}</span>
+        osca_id_number: (resident) =>
+            resident.seniorcitizen?.osca_id_number ? (
+                <span className="text-gray-800">
+                    {resident.seniorcitizen.osca_id_number}
+                </span>
             ) : (
                 <span className="text-gray-400 italic">Not Assigned</span>
             ),
-
-        is_pensioner: (senior) =>
-            senior.is_pensioner?.toLowerCase() === "yes" ? (
+        is_pensioner: (resident) =>
+            resident.seniorcitizen?.is_pensioner?.toLowerCase() === "yes" ? (
                 <span className="text-green-600 font-medium">Yes</span>
             ) : (
                 <span className="text-gray-500">No</span>
             ),
-
-        pension_type: (senior) =>
-            senior.pension_type ? (
-                <span className="text-gray-800">{senior.pension_type}</span>
+        pension_type: (resident) =>
+            resident.seniorcitizen?.pension_type ? (
+                <span className="text-gray-800">
+                    {resident.seniorcitizen.pension_type}
+                </span>
             ) : (
                 <span className="text-gray-400 italic">None</span>
             ),
-
-        living_alone: (senior) =>
-            senior.living_alone ? (
+        living_alone: (resident) =>
+            resident.seniorcitizen?.living_alone == 1 ? (
                 <span className="text-red-600 font-medium">Yes</span>
             ) : (
                 <span className="text-gray-500">No</span>
             ),
-
-        purok_number: (senior) => (
-            <span className="text-gray-800">
-                {senior.resident.purok_number}
-            </span>
+        purok_number: (resident) => (
+            <span className="text-gray-800">{resident.purok_number}</span>
         ),
+        registered_senior: (resident) =>
+            resident.seniorcitizen ? (
+                <span className="text-green-600 font-medium">Yes</span>
+            ) : (
+                <div className="flex items-center gap-2">
+                    <span className="text-red-500 italic">No</span>
+                    <Link
+                        href={route("senior_citizen.create", {
+                            resident_id: resident.id,
+                        })}
+                        className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition"
+                    >
+                        Register
+                    </Link>
+                </div>
+            ),
 
-        actions: (senior) => (
+        actions: (resident) => (
             <ActionMenu
                 actions={[
                     {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
-                        onClick: () => handleEdit(senior.id),
+                        onClick: () => handleEdit(resident.seniorcitizen.id),
                     },
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(senior.id),
+                        onClick: () => handleDelete(resident.seniorcitizen.id),
                     },
                 ]}
             />

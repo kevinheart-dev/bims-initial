@@ -232,10 +232,9 @@ const Section5 = ({
                             }
                             placeholder="Select or enter house number"
                             items={[
-                                { label: "Nuclear", value: "nuclear" },
+                                { label: "Primary/Nuclear", value: "primary" },
                                 { label: "Extended", value: "extended" },
                                 { label: "Boarder", value: "boarder" },
-                                { label: "Other", value: "other" },
                             ]}
                         />
                         <InputError

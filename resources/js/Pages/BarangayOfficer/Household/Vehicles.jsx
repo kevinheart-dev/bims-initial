@@ -25,6 +25,7 @@ import {
     HOUSING_CONDITION_COLOR,
     VEHICLE_CLASS_TEXT,
     VEHICLE_USAGE_TEXT,
+    VEHICLE_USAGE_STYLES,
 } from "@/constants";
 import {
     Select,
@@ -104,13 +105,11 @@ export default function Index({
 
         usage_status: (row) => {
             const statusLabel = VEHICLE_USAGE_TEXT[row.usage_status];
-            const style =
-                row.usage_status === "personal"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-green-100 text-green-700";
             return (
                 <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${style}`}
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        VEHICLE_USAGE_STYLES[row.usage_status]
+                    }`}
                 >
                     {statusLabel}
                 </span>

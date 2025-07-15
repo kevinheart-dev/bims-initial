@@ -248,11 +248,9 @@ class ResidentController extends Controller
             ->sortByDesc('year_started') // or 'year_ended' if you want latest completed
             ->first();
         $householdId = $data['housenumber'] ?? null;
-        $familyId = $householdId
-            ? Family::where('household_id', $householdId)
+        $familyId =  Family::where('household_id', $householdId)
                 ->where('barangay_id', $barangayId)
-                ->value('id')
-            : null;
+                ->value('id');
 
         $residentInformation = [
             'resident_picture_path' => $data['resident_image'] ?? null,
@@ -354,13 +352,43 @@ class ResidentController extends Controller
                         'occupation_status' => $occupationData['occupation_status'] ?? null,
                         'work_arrangement' => $occupationData['work_arrangement'] ?? null,
                         'employer' => $occupationData['employer'] ?? null,
-                        'job_sector' => $occupationData['job_sector'] ?? null,
                         'is_ofw' => $occupationData['is_ofw'] ?? false,
                         'started_at' => $occupationData['started_at'],
                         'ended_at' => $occupationData['ended_at'] ?? null,
                         'monthly_income' => $occupationData['income'] ?? null,
                         'created_at' => now(),
                         'updated_at' => now()
+                    ]);
+
+                    $family = Family::with(['members.occupations'])->findOrFail($familyId);
+                    // Sum total monthly income from all members' occupations
+                    $totalIncome = $family->members->flatMap(function ($member) {
+                        return $member->occupations;
+                    })->sum('monthly_income');
+
+                    $incomeBracket = match (true) {
+                        $totalIncome < 5000 => 'below_5000',
+                        $totalIncome <= 10000 => '5001_10000',
+                        $totalIncome <= 20000 => '10001_20000',
+                        $totalIncome <= 40000 => '20001_40000',
+                        $totalIncome <= 70000 => '40001_70000',
+                        $totalIncome <= 120000 => '70001_120000',
+                        default => 'above_120001',
+                    };
+
+                    $incomeCategory = match (true) {
+                        $totalIncome <= 10000 => 'survival',
+                        $totalIncome <= 20000 => 'poor',
+                        $totalIncome <= 40000 => 'low_income',
+                        $totalIncome <= 70000 => 'lower_middle_income',
+                        $totalIncome <= 120000 => 'middle_income',
+                        $totalIncome <= 200000 => 'upper_middle_income',
+                        default => 'high_income',
+                    };
+
+                    $family->update([
+                        'income_bracket' => $incomeBracket,
+                        'income_category' => $incomeCategory,
                     ]);
                 }
             }
@@ -1051,7 +1079,20 @@ class ResidentController extends Controller
      */
     public function edit(Resident $resident)
     {
-        //
+        $resident->load([
+            'votingInformation',
+            'educationalHistories',
+            'occupations',
+            'medicalInformation',
+            'disabilities',
+            'socialwelfareprofile',
+            'vehicles',
+            'seniorcitizen',
+            'household',
+            'family',
+        ]);
+
+        dd($resident);
     }
 
     /**
@@ -1072,7 +1113,52 @@ class ResidentController extends Controller
 
     public function getFamilyTree(Resident $resident)
     {
+        $resident->load([
+            'votingInformation',
+            'educationalHistories',
+            'occupations',
+            'medicalInformation',
+            'disabilities',
+            'socialwelfareprofile',
+            'vehicles',
+            'seniorcitizen',
+            'household',
+            'family',
+        ]);
+
         $familyTree = $resident->familyTree();
+
+        // Eager-load relationships for all related residents
+        collect($familyTree)->each(function ($value, $key) {
+            if (is_a($value, \Illuminate\Database\Eloquent\Collection::class)) {
+                $value->load([
+                    'votingInformation',
+                    'educationalHistories',
+                    'occupations',
+                    'medicalInformation',
+                    'disabilities',
+                    'socialwelfareprofile',
+                    'vehicles',
+                    'seniorcitizen',
+                    'household',
+                    'family',
+                ]);
+            } elseif ($value instanceof \App\Models\Resident) {
+                $value->load([
+                    'votingInformation',
+                    'educationalHistories',
+                    'occupations',
+                    'medicalInformation',
+                    'disabilities',
+                    'socialwelfareprofile',
+                    'vehicles',
+                    'seniorcitizen',
+                    'household',
+                    'family',
+                ]);
+            }
+        });
+
         return Inertia::render('BarangayOfficer/Resident/FamilyTree', [
             'family_tree' => [
                 'self' => new ResidentResource($familyTree['self']),

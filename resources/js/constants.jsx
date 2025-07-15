@@ -124,6 +124,12 @@ export const VEHICLE_USAGE_TEXT = {
     business_use: "Business Use",
 };
 
+export const VEHICLE_USAGE_STYLES = {
+    personal: "bg-blue-100 text-blue-700",
+    business_use: "bg-yellow-100 text-yellow-700",
+    public_transport: "bg-green-100 text-green-700",
+};
+
 export const HOUSEHOLD_POSITION_TEXT = {
     primary: "Primary",
     extended: "Extended",

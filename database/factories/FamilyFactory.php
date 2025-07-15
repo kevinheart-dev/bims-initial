@@ -38,7 +38,18 @@ class FamilyFactory extends Factory
                 'upper_middle_income',
                 'above_high_income'
             ]),
-            'family_name' => $this->faker->lastName . ' Family',
+            'family_name' => $this->faker->randomElement([
+                    'Dela Cruz', 'Reyes', 'Santos', 'Garcia', 'Lopez',
+                    'Mendoza', 'Torres', 'Ramos', 'Gonzales', 'Fernandez',
+                    'Castro', 'Gutierrez', 'Pascual', 'Domingo', 'Villanueva',
+                    'Agbayani', 'Buenaventura', 'Cabrera', 'Lagman', 'Soriano',
+                    'Salazar', 'Alcantara', 'Yap', 'Chua', 'Tan',
+                    'Lim', 'Co', 'Ong', 'Bautista', 'Padilla',
+                    'Aquino', 'Marquez', 'Navarro', 'Del Rosario', 'Calderon',
+                    'Mercado', 'Rosales', 'Abad', 'Esquivel', 'Balagtas', 'Alejo', 'Balila', 'Quiling',
+                    'Carreon', 'Cariño', 'Medico', 'Agtarap', 'Baingan', 'dela Rosa', 'Paril',
+                    'Rivera', 'Bermudez', 'Barrio', 'Aguinaldo', 'Agriam', 'Aguilar'
+                ]),
             'family_type' => $this->faker->randomElement(["nuclear",
             "single_parent",
             "extended",

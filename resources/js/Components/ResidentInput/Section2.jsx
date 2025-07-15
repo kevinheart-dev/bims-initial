@@ -445,14 +445,10 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                             label: "Currently Enrolled",
                                             value: "enrolled",
                                         },
-                                        ...(data.is_student == 0
-                                            ? [
-                                                  {
-                                                      label: "Stopped",
-                                                      value: "stopped",
-                                                  },
-                                              ]
-                                            : []),
+                                        {
+                                            label: "Stopped",
+                                            value: "stopped",
+                                        },
                                     ]}
                                     selectedValue={
                                         edu_history.education_status || ""
@@ -591,7 +587,9 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                     }
                                     disabled={
                                         edu_history.education ===
-                                        "no_formal_education"
+                                            "no_formal_education" ||
+                                        edu_history.education_status ===
+                                            "enrolled"
                                     }
                                 />
                                 <InputError

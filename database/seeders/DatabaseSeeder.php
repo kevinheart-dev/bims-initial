@@ -106,7 +106,7 @@ class DatabaseSeeder extends Seeder
 
         $residents = Resident::factory()->count(50)->create();
 
-        //MedicalInformation::factory(70)->create();
+        MedicalInformation::factory(70)->create();
         InternetAccessibility::factory(15)->create();
         // Livelihood::factory(60)->create();
         Occupation::factory(40)->create();
@@ -115,7 +115,7 @@ class DatabaseSeeder extends Seeder
         Livestock::factory(30)->create();
         ResidentVoterInformation::factory(60)->create();
         SocialWelfareProfile::factory(60)->create();
-        SeniorCitizen::factory(30)->create();
+        SeniorCitizen::factory(20)->create();
 
         $residents->groupBy('household_id')->each(function ($group) {
             $group->first()->update(['is_household_head' => true]);

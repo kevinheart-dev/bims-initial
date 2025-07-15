@@ -60,8 +60,53 @@ class ResidentFactory extends Factory
             array_fill(0, 10, 'LGBTQ')
         ));
 
-        $firstName = $gender === 'female' ? $this->faker->firstNameFemale() : $this->faker->firstNameMale();
-        $middleName = $this->faker->firstName();
+        $maleNames = [
+            // Classic/Old Names
+            'Jose', 'Juan', 'Pedro', 'Andres', 'Ramon', 'Emilio', 'Antonio',
+            'Gregorio', 'Manuel', 'Teodoro', 'Pablo', 'Lazaro', 'Felix', 'Marcelo',
+
+            // Millennial Names (1980s–1990s)
+            'Arnel', 'Jerome', 'Jayson', 'Alvin', 'Jun', 'Bong', 'Erwin', 'Rey',
+            'Christian', 'Mark Anthony', 'Ronald', 'Marvin', 'Jaypee', 'Bryan',
+
+            // Gen Z Names
+            'Jethro', 'Aljon', 'Xedric', 'Jairus', 'Zion', 'Kyler', 'Aeron', 'Elijah',
+            'Kian', 'Axel', 'Renz', 'Jolo', 'Zander', 'Migo', 'Enzo', 'Drei', 'Jio', 'DJ',
+            'Arnie', 'Harold', 'Francis', 'Kevin', 'Reycarl', 'Prince', 'Andrey', 'Joe',
+            'Russel', 'Daryll',
+        ];
+
+        $femaleNames = [
+            // Classic/Old Names
+            'Maria', 'Josefina', 'Rosalinda', 'Luzviminda', 'Carmela', 'Corazon',
+            'Amelia', 'Imelda', 'Dolores', 'Leticia', 'Estrella', 'Teresita', 'Lourdes',
+
+            // Millennial Names (1980s–1990s)
+            'Shiela', 'Marilou', 'Rowena', 'Lorna', 'Angelica', 'Charmaine', 'Nikka',
+            'Kristine', 'Rhea', 'Analyn', 'Glenda', 'Jackie', 'Lovely', 'Jeanette',
+
+            // Gen Z Names
+            'Zyra', 'Jayda', 'Aubrey', 'Charlene', 'Denise', 'Mikaela', 'Elisha',
+            'Alexa', 'Andrea', 'Ysabel', 'Skye', 'Heaven', 'Blythe', 'Francine',
+            'Zia', 'Thea', 'Janelle', 'Reign', 'Kathrina', 'Mercy', 'Grace', 'Lady',
+            'Heart', 'Chelsie', 'Bea', 'Miah'
+        ];
+
+
+        $firstName = $gender === 'female'
+            ? $this->faker->randomElement($femaleNames)
+            : $this->faker->randomElement($maleNames);
+        $middleName = $this->faker->randomElement([
+                    'Dela Cruz', 'Reyes', 'Santos', 'Garcia', 'Lopez',
+                    'Mendoza', 'Torres', 'Ramos', 'Gonzales', 'Fernandez',
+                    'Castro', 'Gutierrez', 'Pascual', 'Domingo', 'Villanueva',
+                    'Agbayani', 'Buenaventura', 'Cabrera', 'Lagman', 'Soriano',
+                    'Salazar', 'Alcantara', 'Yap', 'Chua', 'Tan',
+                    'Lim', 'Co', 'Ong', 'Bautista', 'Padilla',
+                    'Aquino', 'Marquez', 'Navarro', 'Del Rosario', 'Calderon',
+                    'Mercado', 'Rosales', 'Abad', 'Esquivel', 'Balagtas', 'Alejo', 'Balila', 'Quiling',
+                    'Carreon', 'Cariño', 'Medico', 'Agtarap', 'Baingan'
+                ]);
         $birthdate = $this->faker->dateTimeBetween('-100 years', '-1 year')->format('Y-m-d');
 
         return [

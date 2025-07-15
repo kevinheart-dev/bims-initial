@@ -85,6 +85,10 @@ export default function Index({
         return age;
     };
 
+    const handleEdit = (id) => {
+        router.get(route("resident.edit", id));
+    };
+
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         { label: "Residents Table", showOnMobile: true },
