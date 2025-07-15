@@ -81,7 +81,7 @@ class VehicleController extends Controller
             }
         }
 
-        return Inertia::render("BarangayOfficer/Household/Vehicles", [
+        return Inertia::render("BarangayOfficer/Vehicle/Index", [
             'puroks' => $puroks,
             'vehicles' => $vehicles,
             'vehicle_types' => $vehicle_types,

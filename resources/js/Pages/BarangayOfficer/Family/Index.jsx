@@ -103,11 +103,11 @@ export default function Index({ families, queryParams = null, puroks }) {
             } ${family.suffix ?? ""}`,
         is_household_head: (family) =>
             family.is_household_head ? (
-                <span className="py-1 px-2 rounded-xl bg-green-600 text-white">
+                <span className="py-1 px-2 rounded-xl bg-green-100 text-green-800">
                     Yes
                 </span>
             ) : (
-                <span className="py-1 px-2 rounded-xl bg-red-600 text-white">
+                <span className="py-1 px-2 rounded-xl bg-red-100 text-red-800">
                     No
                 </span>
             ),
@@ -116,7 +116,7 @@ export default function Index({ families, queryParams = null, puroks }) {
                 href={route("family.showfamily", family.family_id)}
                 className="hover:text-blue-500 hover:underline"
             >
-                {family.family?.family_name}
+                {family.family?.family_name + " Family"}
             </Link>
         ),
         family_member_count: (family) => (

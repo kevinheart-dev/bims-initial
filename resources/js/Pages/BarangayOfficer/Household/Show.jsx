@@ -27,7 +27,10 @@ import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import {
     FAMILY_TYPE_TEXT,
+    HOUSEHOLD_CONDITION_TEXT,
+    HOUSEHOLD_OWNERSHIP_TEXT,
     HOUSEHOLD_POSITION_TEXT,
+    HOUSING_CONDITION_COLOR,
     INCOME_BRACKETS,
     MEDICAL_PWD_TEXT,
     RELATIONSHIP_TO_HEAD_TEXT,
@@ -40,20 +43,19 @@ import {
 import ClearFilterButton from "@/Components/ClearFiltersButton";
 
 export default function Index({
-    members,
-    family_details,
     household_details,
+    household_members,
     queryParams = null,
 }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         {
-            label: "Families",
-            href: route("family.index"),
+            label: "Households",
+            href: route("household.index"),
             showOnMobile: false,
         },
         {
-            label: "View Family",
+            label: "Household Details",
             showOnMobile: true,
         },
     ];
@@ -78,8 +80,8 @@ export default function Index({
             delete queryParams.page;
         }
         router.get(
-            route("family.showfamily", {
-                family: family_details.id,
+            route("household.show", {
+                household: household_details.id,
                 ...queryParams,
             })
         );
@@ -208,36 +210,28 @@ export default function Index({
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                    {/* <pre>{JSON.stringify(members, undefined, 3)}</pre> */}
+                    <pre>{JSON.stringify(household_details, undefined, 3)}</pre>
                     <div className="flex flex-row overflow-hidden bg-gray-50 shadow-md rounded-xl sm:rounded-lg m-3">
                         <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
                         <div className="flex flex-col justify-start items-start p-4 w-full">
                             <p className="font-semibold text-lg md:text-3xl mb-4 md:mb-6">
-                                {family_details.family_name} Family
+                                Household Number {household_details.id}
                             </p>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                                 <div className="space-y-1 md:space-y-2 text-sm md:text-lg text-gray-600">
                                     <div>
-                                        Family Type:{" "}
-                                        <span>
-                                            {
-                                                FAMILY_TYPE_TEXT[
-                                                    family_details.family_type
-                                                ]
-                                            }
-                                        </span>
-                                    </div>
-                                    <div>
-                                        Family Head
-                                        {family_details.members.filter(
-                                            (m) => m.is_family_head
+                                        Household Head
+                                        {household_details.residents.filter(
+                                            (m) => m.is_household_head
                                         ).length > 1
                                             ? "s"
                                             : ""}
                                         :{" "}
                                         <span className="font-medium text-gray-800">
-                                            {family_details.members
-                                                .filter((m) => m.is_family_head)
+                                            {household_details.residents
+                                                .filter(
+                                                    (m) => m.is_household_head
+                                                )
                                                 .map(
                                                     (m) =>
                                                         `${m.firstname} ${m.lastname}`
@@ -246,68 +240,210 @@ export default function Index({
                                         </span>
                                     </div>
                                     <div>
-                                        Income Bracket:{" "}
-                                        <span
-                                            className={`p-0 md:p-2 rounded ${
-                                                INCOME_BRACKETS[
-                                                    family_details
-                                                        .income_bracket
-                                                ]?.className ?? ""
-                                            }`}
-                                        >
-                                            {INCOME_BRACKETS[
-                                                family_details.income_bracket
-                                            ]?.label ?? "Unknown"}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="space-y-1 md:space-y-2 text-sm md:text-lg text-gray-600">
-                                    <Link
-                                        href={route(
-                                            "household.show",
-                                            family_details.household_id
-                                        )}
-                                        className="hover:underline text-blue-500 hover:text-blue-300"
-                                    >
-                                        <div>
-                                            Household Number:{" "}
-                                            <span>
-                                                {household_details.house_number}
-                                            </span>
-                                        </div>
-                                    </Link>
-                                    <div>
-                                        Household Head
-                                        {family_details.members.filter(
-                                            (m) => m.is_household_head
-                                        ).length > 1
-                                            ? "s"
-                                            : ""}
-                                        :{" "}
-                                        <span className="font-medium text-gray-800">
-                                            {family_details.members
-                                                .filter(
-                                                    (member) =>
-                                                        member.is_household_head
-                                                )
-                                                .map(
-                                                    (member) =>
-                                                        `${member.firstname} ${member.lastname}`
-                                                )
-                                                .join(", ") || "None"}
+                                        Ownership Type:{" "}
+                                        <span>
+                                            {
+                                                HOUSEHOLD_OWNERSHIP_TEXT[
+                                                    household_details
+                                                        .ownership_type
+                                                ]
+                                            }
                                         </span>
                                     </div>
 
                                     <div>
-                                        Total Members:{" "}
+                                        House Condition:{" "}
+                                        <span
+                                            className={`p-0 md:p-2 rounded ${
+                                                HOUSING_CONDITION_COLOR[
+                                                    household_details.housing_condition ??
+                                                        ""
+                                                ]
+                                            }`}
+                                        >
+                                            {
+                                                HOUSEHOLD_CONDITION_TEXT[
+                                                    household_details.housing_condition ??
+                                                        "Unknown"
+                                                ]
+                                            }
+                                        </span>
+                                    </div>
+                                    <div>
+                                        House Structure:{" "}
                                         <span>
-                                            {family_details.members.length}
+                                            {household_details.house_structure}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="space-y-1 md:space-y-2 text-sm md:text-lg text-gray-600">
+                                    <div>
+                                        Year Established:{" "}
+                                        <span>
+                                            {household_details.year_established}
+                                        </span>
+                                    </div>
+
+                                    <div>
+                                        Number of Rooms:{" "}
+                                        <span>
+                                            {household_details.number_of_rooms}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        Number of Floors:{" "}
+                                        <span>
+                                            {household_details.number_of_floors}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        Total Household Members:{" "}
+                                        <span>
+                                            {household_details.residents.length}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div className="flex flex-col md:flex-row">
+                        <div className="flex w-full overflow-hidden bg-gray-50 shadow-md rounded-xl m-3 border border-gray-100">
+                            <div className="w-2 bg-blue-600 rounded-l-2xl"></div>
+                            <div className="flex flex-col p-5 w-full">
+                                <p className="text-xl font-semibold text-gray-800 mb-4">
+                                    Household Toilets
+                                </p>
+                                <div className="space-y-2">
+                                    {household_details.toilets.length > 0 ? (
+                                        household_details.toilets.map(
+                                            (toilet, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="px-4 py-2 bg-gray-50 text-gray-800 rounded-lg border border-gray-300 shadow-sm hover:bg-gray-100 transition"
+                                                >
+                                                    {toilet.toilet_type}
+                                                </div>
+                                            )
+                                        )
+                                    ) : (
+                                        <p className="text-gray-500 italic">
+                                            No toilet information available.
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex w-full overflow-hidden bg-gray-50 shadow-md rounded-xl m-3 border border-gray-100">
+                            <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
+                            <div className="flex flex-col justify-start items-start p-4 w-full">
+                                <p className="font-semibold text-md md:text-lg mb-2 md:mb-4">
+                                    Household Wash and Bath
+                                </p>
+                                <div className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg border border-gray-300 w-full">
+                                    {household_details.bath_and_wash_area
+                                        ?.bath_and_wash_area ?? (
+                                        <span className="text-gray-500 italic">
+                                            No information available.
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex w-full overflow-hidden bg-gray-50 shadow-md rounded-xl m-3 border border-gray-100">
+                            <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
+                            <div className="flex flex-col justify-start items-start p-4 w-full">
+                                <p className="font-semibold text-md md:text-lg mb-2 md:mb-4">
+                                    Household Electricity Types
+                                </p>
+                                <div className="space-y-2 w-full">
+                                    {Array.isArray(
+                                        household_details.electricity_types
+                                    ) &&
+                                    household_details.electricity_types.length >
+                                        0 ? (
+                                        household_details.electricity_types.map(
+                                            (item, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg border border-gray-300"
+                                                >
+                                                    {item.electricity_type}
+                                                </div>
+                                            )
+                                        )
+                                    ) : (
+                                        <p className="text-gray-500 italic">
+                                            No electricity type information
+                                            available.
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex w-full overflow-hidden bg-gray-50 shadow-md rounded-xl m-3 border border-gray-100">
+                            <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
+                            <div className="flex flex-col justify-start items-start p-4 w-full">
+                                <p className="font-semibold text-md md:text-lg mb-2 md:mb-4">
+                                    Household Waste Management Types
+                                </p>
+                                <div className="space-y-2 w-full">
+                                    {Array.isArray(
+                                        household_details.waste_management_types
+                                    ) &&
+                                    household_details.waste_management_types
+                                        .length > 0 ? (
+                                        household_details.waste_management_types.map(
+                                            (item, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg border border-gray-300"
+                                                >
+                                                    {item.waste_management_type}
+                                                </div>
+                                            )
+                                        )
+                                    ) : (
+                                        <p className="text-gray-500 italic">
+                                            No waste management information
+                                            available.
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex w-full overflow-hidden bg-gray-50 shadow-md rounded-xl m-3 border border-gray-100">
+                            <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
+                            <div className="flex flex-col justify-start items-start p-4 w-full">
+                                <p className="font-semibold text-md md:text-lg mb-2 md:mb-4">
+                                    Household Water Sources
+                                </p>
+                                <div className="space-y-2 w-full">
+                                    {Array.isArray(
+                                        household_details.water_source_types
+                                    ) &&
+                                    household_details.water_source_types
+                                        .length > 0 ? (
+                                        household_details.water_source_types.map(
+                                            (item, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="px-4 py-2  text-gray-800"
+                                                >
+                                                    {item.water_source_type}
+                                                </div>
+                                            )
+                                        )
+                                    ) : (
+                                        <p className="text-gray-500 italic">
+                                            No water source information
+                                            available.
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-3">
                         <div className="my-1 mb-3 flex justify-between items-center">
                             <div className="flex w-full max-w-sm items-center space-x-1">
@@ -323,14 +459,13 @@ export default function Index({
                                 </Link>
                             </div>
                             <div className="flex w-full justify-end items-end space-x-1">
-                                {/* Search Bar */}
                                 <form
                                     onSubmit={handleSubmit}
                                     className="flex w-full max-w-sm items-center space-x-1"
                                 >
                                     <Input
                                         type="text"
-                                        placeholder="Search for Family Member Name"
+                                        placeholder="Search for Household Member Name"
                                         value={query}
                                         onChange={(e) =>
                                             setQuery(e.target.value)
@@ -347,7 +482,7 @@ export default function Index({
                             </div>
                         </div>
                         <DynamicTable
-                            passedData={members}
+                            passedData={household_members}
                             columnRenderers={columnRenderers}
                             allColumns={allColumns}
                             showTotal={true}
@@ -534,9 +669,9 @@ export default function Index({
                                 </div>
                                 <div className="flex justify-end">
                                     <ClearFilterButton
-                                        routeName="family.showfamily"
+                                        routeName="household.show"
                                         routeParams={{
-                                            family: family_details.id,
+                                            household: household_details.id,
                                         }}
                                     />
                                 </div>

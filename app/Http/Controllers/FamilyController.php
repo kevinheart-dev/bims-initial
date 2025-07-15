@@ -109,35 +109,99 @@ class FamilyController extends Controller
 
     public function showFamily(Family $family)
     {
-        $members = $family->members()
-        ->select([
-            'id',
-            'firstname',
-            'middlename',
-            'lastname',
-            'suffix',
-            'birthdate',
-            'gender',
-            'employment_status',
-            'is_family_head',
-            'is_household_head',
-            'is_pwd',
-            'registered_voter',
-            'family_id',
-            'household_id',
-        ])
-        ->with([
-            'householdResidents' => function ($query) {
-                $query->select('id', 'resident_id', 'household_id', 'relationship_to_head', 'household_position');
-            }
-        ])
-        ->get();
-        $family_details = $family;
+        $family_details = $family->load('household','members');
         $household_details = $family->household;
+
+        $query = $family->members()->with('householdResidents');
+
+        // Search by name
+        if (request()->filled('name')) {
+            $query->where(function ($q) {
+                $q->where('firstname', 'like', '%' . request('name') . '%')
+                ->orWhere('lastname', 'like', '%' . request('name') . '%')
+                ->orWhere('middlename', 'like', '%' . request('name') . '%')
+                ->orWhere('suffix', 'like', '%' . request('name') . '%')
+                ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
+                ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
+                ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, suffix) LIKE ?", ['%' . request('name') . '%']);
+            });
+        }
+
+        // Filter by gender
+        if (request()->filled('gender') && request('gender') !== 'All') {
+            $query->where('gender', request('gender'));
+        }
+
+        // Filter by age group
+        if (request()->filled('age_group') && request('age_group') !== 'All') {
+            $today = now();
+
+            switch (request('age_group')) {
+                case 'child':
+                    $max = $today->copy()->subYears(0);
+                    $min = $today->copy()->subYears(13);
+                    break;
+                case 'teen':
+                    $max = $today->copy()->subYears(13);
+                    $min = $today->copy()->subYears(18);
+                    break;
+                case 'young_adult':
+                    $max = $today->copy()->subYears(18);
+                    $min = $today->copy()->subYears(26);
+                    break;
+                case 'adult':
+                    $max = $today->copy()->subYears(26);
+                    $min = $today->copy()->subYears(60);
+                    break;
+                case 'senior':
+                    $max = $today->copy()->subYears(60);
+                    $min = null;
+                    break;
+            }
+
+            if (isset($min)) {
+                $query->whereBetween('birthdate', [$min, $max]);
+            } else {
+                $query->where('birthdate', '<=', $max);
+            }
+        }
+
+        // Filter by employment status
+        if (request()->filled('estatus') && request('estatus') !== 'All') {
+            $query->where('employment_status', request('estatus'));
+        }
+
+        // Filter by voter status
+        if (request()->filled('voter_status') && request('voter_status') !== 'All') {
+            $query->where('registered_voter', request('voter_status'));
+        }
+
+        // Filter by PWD
+        if (request()->filled('is_pwd') && request('is_pwd') !== 'All') {
+            $query->where('is_pwd', request('is_pwd'));
+        }
+
+        // Filter by relation to head (from householdResidents relation)
+        if (request()->filled('relation') && request('relation') !== 'All') {
+            $query->whereHas('householdResidents', function ($q) {
+                $q->where('relationship_to_head', request('relation'));
+            });
+        }
+
+        // Filter by household position
+        if (request()->filled('household_position') && request('household_position') !== 'All') {
+            $query->whereHas('householdResidents', function ($q) {
+                $q->where('household_position', request('household_position'));
+            });
+        }
+
+        $members = $query->get();
+
         return Inertia::render("BarangayOfficer/Family/ShowFamily", [
             'members' => $members,
             'family_details' => $family_details,
-            'household_details' => $household_details
+            'household_details' => $household_details,
+            'queryParams' => request()->query() ?: null,
         ]);
     }
 

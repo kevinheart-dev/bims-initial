@@ -317,6 +317,7 @@ export default function Index({
                             queryParams={queryParams}
                             showAll={showAll}
                             toggleShowAll={toggleShowAll}
+                            showTotal={true}
                         >
                             <ResidentFilterBar
                                 queryParams={queryParams}

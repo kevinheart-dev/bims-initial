@@ -2,11 +2,11 @@ import { router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { ListFilter } from "lucide-react";
 
-export default function ClearFilterButton({ link }) {
+export default function ClearFilterButton({ routeName, routeParams = {} }) {
     const handleClear = () => {
-        router.visit(route(link), {
+        router.visit(route(routeName, routeParams), {
             method: "get",
-            data: {},
+            data: {}, // Clear all query params
             replace: true,
             preserveScroll: true,
         });
