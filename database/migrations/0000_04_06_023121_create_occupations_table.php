@@ -21,7 +21,6 @@ return new class extends Migration
                 'seasonal',
                 'contractual',
                 'self_employed',
-                'others'
             ]);
             $table->enum('work_arrangement', ['remote', 'on_site', 'hybrid']);
             $table->string('employer', 155)->nullable();

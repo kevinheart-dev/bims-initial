@@ -8,7 +8,7 @@ import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-hot-toast";
 import SelectField from "../SelectField";
-function EducationandOccupation() {
+function EducationandOccupation({ occupationTypes }) {
     const { userData, setUserData, errors } = useContext(StepperContext);
     const members = userData.members || [];
     const [openIndex, setOpenIndex] = useState(null);
@@ -184,6 +184,8 @@ function EducationandOccupation() {
             income_category: bracketData.category || "",
         }));
     }, [userData.members]);
+
+    const occupations_types = occupationTypes.map((item) => item.toLowerCase());
 
     return (
         <div>
@@ -409,7 +411,7 @@ function EducationandOccupation() {
                                         const showProgram =
                                             education.education === "college" &&
                                             education.educational_status ===
-                                                "graduate";
+                                                "graduated";
                                         const secondRowCols = showProgram
                                             ? "md:grid-cols-4"
                                             : "md:grid-cols-3";
@@ -439,8 +441,20 @@ function EducationandOccupation() {
                                                             placeholder="Select attainment"
                                                             items={[
                                                                 {
+                                                                    label: "No Education Yet",
+                                                                    value: "no_education_yet",
+                                                                },
+                                                                {
                                                                     label: "No Formal Education",
                                                                     value: "no_formal_education",
+                                                                },
+                                                                {
+                                                                    label: "Prep School",
+                                                                    value: "prep_school",
+                                                                },
+                                                                {
+                                                                    label: "Kindergarten",
+                                                                    value: "kindergarten",
                                                                 },
                                                                 {
                                                                     label: "Elementary",
@@ -451,16 +465,28 @@ function EducationandOccupation() {
                                                                     value: "high_school",
                                                                 },
                                                                 {
+                                                                    label: "Senior High School",
+                                                                    value: "senior_high_school",
+                                                                },
+                                                                {
                                                                     label: "College",
                                                                     value: "college",
                                                                 },
                                                                 {
-                                                                    label: "Post Grad",
-                                                                    value: "post_graduate",
+                                                                    label: "ALS (Alternative Learning System)",
+                                                                    value: "als",
+                                                                },
+                                                                {
+                                                                    label: "TESDA",
+                                                                    value: "tesda",
                                                                 },
                                                                 {
                                                                     label: "Vocational",
                                                                     value: "vocational",
+                                                                },
+                                                                {
+                                                                    label: "Post Graduate",
+                                                                    value: "post_graduate",
                                                                 },
                                                             ]}
                                                         />
@@ -494,25 +520,27 @@ function EducationandOccupation() {
                                                             placeholder="Select status"
                                                             items={[
                                                                 {
-                                                                    label: "Graduate",
-                                                                    value: "graduate",
-                                                                },
-                                                                {
-                                                                    label: "Undergraduate",
-                                                                    value: "undergraduate",
-                                                                },
-                                                                {
                                                                     label: "Currently Enrolled",
                                                                     value: "enrolled",
                                                                 },
                                                                 {
-                                                                    label: "Stopped",
-                                                                    value: "stopped",
+                                                                    label: "Graduated",
+                                                                    value: "graduated",
+                                                                },
+                                                                {
+                                                                    label: "Incomplete",
+                                                                    value: "incomplete",
+                                                                },
+                                                                {
+                                                                    label: "Dropped Out",
+                                                                    value: "dropped_out",
                                                                 },
                                                             ]}
                                                             disabled={
                                                                 education.education ===
-                                                                "no_formal_education"
+                                                                    "no_formal_education" ||
+                                                                education.education ===
+                                                                    "no_education_yet"
                                                             }
                                                         />
                                                         {errors?.[
@@ -546,7 +574,9 @@ function EducationandOccupation() {
                                                             placeholder="Enter school name"
                                                             disabled={
                                                                 education.education ===
-                                                                "no_formal_education"
+                                                                    "no_formal_education" ||
+                                                                education.education ===
+                                                                    "no_education_yet"
                                                             }
                                                         />
                                                         {errors?.[
@@ -594,7 +624,9 @@ function EducationandOccupation() {
                                                             }
                                                             disabled={
                                                                 education.education ===
-                                                                "no_formal_education"
+                                                                    "no_formal_education" ||
+                                                                education.education ===
+                                                                    "no_education_yet"
                                                             }
                                                         />
                                                         {errors?.[
@@ -626,7 +658,9 @@ function EducationandOccupation() {
                                                             }
                                                             disabled={
                                                                 education.education ===
-                                                                "no_formal_education"
+                                                                    "no_formal_education" ||
+                                                                education.education ===
+                                                                    "no_education_yet"
                                                             }
                                                         />
                                                         {errors?.[
@@ -659,8 +693,8 @@ function EducationandOccupation() {
                                                             disabled={
                                                                 education.education ===
                                                                     "no_formal_education" ||
-                                                                education.educational_status ===
-                                                                    "enrolled"
+                                                                education.education ===
+                                                                    "no_education_yet"
                                                             }
                                                         />
                                                         {errors?.[
@@ -681,8 +715,8 @@ function EducationandOccupation() {
                                                         <div>
                                                             <InputField
                                                                 label={
-                                                                    education.education_status ===
-                                                                    "graduate"
+                                                                    education.educational_status ===
+                                                                    "graduated"
                                                                         ? "Finished Course"
                                                                         : "Current Course"
                                                                 }
@@ -760,7 +794,7 @@ function EducationandOccupation() {
                                         >
                                             <div className="grid md:grid-cols-4 gap-4">
                                                 <div>
-                                                    <DropdownInputField
+                                                    <SelectField
                                                         label="Employment Status"
                                                         name="employment_status"
                                                         value={
@@ -785,12 +819,8 @@ function EducationandOccupation() {
                                                                 value: "unemployed",
                                                             },
                                                             {
-                                                                label: "Student",
-                                                                value: "student",
-                                                            },
-                                                            {
-                                                                label: "Self Employed",
-                                                                value: "self_employed",
+                                                                label: "Underemployed",
+                                                                value: "under_employed",
                                                             },
                                                             {
                                                                 label: "Retired",
@@ -826,12 +856,9 @@ function EducationandOccupation() {
                                                             )
                                                         }
                                                         placeholder="Select or Enter Occupation"
-                                                        items={[
-                                                            "Farmer",
-                                                            "Nurse",
-                                                            "Teacher",
-                                                            "Vendor",
-                                                        ]}
+                                                        items={
+                                                            occupations_types
+                                                        }
                                                         disabled={
                                                             occupation.employment_status ===
                                                             "Unemployed"
@@ -850,7 +877,7 @@ function EducationandOccupation() {
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <DropdownInputField
+                                                    <SelectField
                                                         label="Employment Type"
                                                         name="employment_type"
                                                         value={
@@ -905,7 +932,7 @@ function EducationandOccupation() {
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <DropdownInputField
+                                                    <SelectField
                                                         label="Occupation Status"
                                                         name="occupation_status"
                                                         value={

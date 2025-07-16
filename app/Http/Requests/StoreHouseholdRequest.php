@@ -52,12 +52,12 @@ class StoreHouseholdRequest extends FormRequest
             'livestocks' => ['nullable', 'array'],
             'livestocks.*.livestock_type' => ['nullable', 'string', 'max:100'],
             'livestocks.*.quantity' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'livestocks.*.purpose' => ['nullable', 'string', 'max:55'],
 
             // SECTION 5.2: Pets information
             'pets' => ['nullable', 'array'],
             'pets.*.pet_type' => ['nullable', 'string', 'max:100'],
             'pets.*.is_vaccinated' => ['nullable', 'boolean'],
-            'pets.*.quantity' => ['nullable', 'integer', 'min:1', 'max:100'],
         ];
     }
 }

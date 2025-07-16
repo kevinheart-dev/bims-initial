@@ -96,13 +96,18 @@ export default function Index({ families, queryParams = null, puroks }) {
     };
 
     const columnRenderers = {
-        family_id: (family) => family.family_id,
-        name: (family) =>
-            `${family.firstname} ${family.middlename ?? ""} ${
-                family.lastname ?? ""
-            } ${family.suffix ?? ""}`,
-        is_household_head: (family) =>
-            family.is_household_head ? (
+        family_id: (row) => row?.id ?? "Unknown",
+
+        name: (row) => {
+            const head = row?.latest_head;
+            if (!head?.firstname || !head?.lastname) return "No name available";
+            return [head.firstname, head.middlename, head.lastname, head.suffix]
+                .filter(Boolean)
+                .join(" ");
+        },
+
+        is_household_head: (row) =>
+            row?.latest_head?.is_household_head ? (
                 <span className="py-1 px-2 rounded-xl bg-green-100 text-green-800">
                     Yes
                 </span>
@@ -111,65 +116,83 @@ export default function Index({ families, queryParams = null, puroks }) {
                     No
                 </span>
             ),
-        family_name: (family) => (
+
+        family_name: (row) => (
             <Link
-                href={route("family.showfamily", family.family_id)}
+                href={route("family.showfamily", row?.id ?? 0)}
                 className="hover:text-blue-500 hover:underline"
             >
-                {family.family?.family_name + " Family"}
+                {(row?.family_name ?? "Unnamed") + " Family"}
             </Link>
         ),
-        family_member_count: (family) => (
+
+        family_member_count: (row) => (
             <span className="flex items-center">
-                {family.family_member_count} <User className="ml-2 h-5 w-5" />
+                {row?.members_count ?? 0} <User className="ml-2 h-5 w-5" />
             </span>
         ),
-        income_bracket: (family) => {
-            const bracket = INCOME_BRACKET_TEXT[family.family?.income_bracket];
-            const bracket2 = INCOME_BRACKETS[family.family?.income_bracket];
-            return bracket ? (
-                <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${bracket2.className}`}
-                >
-                    {bracket}
-                </span>
-            ) : (
-                <span className="text-gray-500 italic">Unknown</span>
-            );
-        },
-        income_category: (family) => {
-            const bracket = INCOME_BRACKETS[family.family?.income_bracket];
 
-            return bracket ? (
+        income_bracket: (row) => {
+            const bracketKey = row?.income_bracket;
+            const bracketText = INCOME_BRACKET_TEXT?.[bracketKey];
+            const bracketMeta = INCOME_BRACKETS?.[bracketKey];
+
+            return bracketText ? (
                 <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${bracket.className}`}
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                        bracketMeta?.className ?? ""
+                    }`}
                 >
-                    {bracket.label}
+                    {bracketText}
                 </span>
             ) : (
                 <span className="text-gray-500 italic">Unknown</span>
             );
         },
-        family_type: (family) => FAMILY_TYPE_TEXT[family.family?.family_type],
-        house_number: (family) => family.household?.house_number,
-        purok_number: (family) => family.household?.purok?.purok_number,
-        actions: (family) => (
+
+        income_category: (row) => {
+            const bracketMeta = INCOME_BRACKETS?.[row?.income_bracket];
+
+            return bracketMeta ? (
+                <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${bracketMeta.className}`}
+                >
+                    {bracketMeta.label}
+                </span>
+            ) : (
+                <span className="text-gray-500 italic">Unknown</span>
+            );
+        },
+
+        family_type: (row) => FAMILY_TYPE_TEXT?.[row?.family_type] ?? "Unknown",
+
+        house_number: (row) => {
+            const houseNumber =
+                row?.latest_head?.household_residents?.[0]?.household
+                    ?.house_number;
+            return houseNumber ?? "Unknown";
+        },
+
+        purok_number: (row) =>
+            row?.latest_head?.street?.purok?.purok_number ?? "Unknown",
+
+        actions: (row) => (
             <ActionMenu
                 actions={[
                     {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
-                        onClick: () => handleEdit(family.id),
+                        onClick: () => handleEdit(row?.id),
                     },
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(family.id),
+                        onClick: () => handleDelete(row?.id),
                     },
                     {
                         label: "View Family",
                         icon: <UsersRound className="w-4 h-4 text-blue-600" />,
-                        onClick: () => viewFamily(family.family_id),
+                        onClick: () => viewFamily(row?.id),
                     },
                 ]}
             />

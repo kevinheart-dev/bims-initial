@@ -32,4 +32,10 @@ class Family extends Model
     {
         return $this->hasMany(Resident::class);
     }
+    public function latestHead()
+    {
+        return $this->hasOne(Resident::class, 'family_id')
+            ->where('is_family_head', true)
+            ->latest();
+    }
 }

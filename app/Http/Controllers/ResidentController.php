@@ -19,6 +19,7 @@ use App\Http\Requests\UpdateResidentRequest;
 use App\Models\Street;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Str;
 use Inertia\Inertia;
 
@@ -209,12 +210,14 @@ class ResidentController extends Controller
             ->orderBy('street_name', 'asc')
             ->with(['purok:id,purok_number'])
             ->get(['id', 'street_name', 'purok_id']);
+        $occupationTypes = OccupationType::all()->pluck('name');
 
         $barangays = Barangay::all()->pluck('barangay_name', 'id')->toArray();
         return Inertia::render("BarangayOfficer/Resident/Create", [
             'puroks' => $puroks,
             'streets' => $streets,
             'barangays' => $barangays,
+            'occupationTypes' => $occupationTypes
         ]);
     }
 
@@ -281,6 +284,7 @@ class ResidentController extends Controller
             'is_pwd' => $data['is_pwd'] ?? null,
             'family_id' => $familyId,
             'is_family_head' => $data['is_family_head'] ?? 0,
+            'verfied' => $data['verified'] ?? 0,
         ];
 
         $residentVotingInformation = [
@@ -597,8 +601,6 @@ class ResidentController extends Controller
                     'living_alone' => $data['living_alone'] ?? null,
                 ]);
             }
-
-
             return redirect()->route('resident.index')->with('success', 'Resident ' . ucwords($resident->getFullNameAttribute()) . ' created successfully!');
         } catch (\Exception $e) {
             dd($e->getMessage());
@@ -709,8 +711,6 @@ class ResidentController extends Controller
                     ->sortByDesc(fn($member) => $member['is_household_head'] ?? false)
                     ->values();
 
-                $familyMembersId = [];
-
                 // resident information
                 foreach ($members as $member) {
                     $empStatus = null;
@@ -725,14 +725,7 @@ class ResidentController extends Controller
                             $latestOccupation = collect($member['occupations'] ?? [])
                                 ->sortByDesc('started_at')
                                 ->first();
-
                             $latestStatus = $latestOccupation['employment_status'] ?? 'unemployed';
-
-                            // If you just want to inspect:
-                            // dd([
-                            //     'latest_occupation' => $latestOccupation,
-                            //     'latest_status' => $latestStatus,
-                            // ]);
                         }
                     }
 
@@ -787,7 +780,6 @@ class ResidentController extends Controller
                     ];
 
                     $resident = Resident::create($residentInformation);
-                    $familyMembersId += [$resident->id];
 
                     // add voting information
                     if ($resident->registered_voter) {
@@ -1035,11 +1027,10 @@ class ResidentController extends Controller
                     }
                 }
             }
-
-            return redirect()->route('resident.index')->with('success', 'Household created successfully!');
+            return redirect()->route('resident.index')->with('success', 'Residents Household created successfully!');
         } catch (\Exception $e) {
             dd($e->getMessage());
-            return back()->withErrors(['error' => 'Resident could not be created: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Residents Household could not be created: ' . $e->getMessage()]);
         }
     }
 
@@ -1111,7 +1102,7 @@ class ResidentController extends Controller
 
         // Eager-load relationships for all related residents
         collect($familyTree)->each(function ($value, $key) {
-            if (is_a($value, \Illuminate\Database\Eloquent\Collection::class)) {
+            if (is_a($value, Collection::class)) {
                 $value->load([
                     'votingInformation',
                     'educationalHistories',
@@ -1128,7 +1119,7 @@ class ResidentController extends Controller
                     'barangay',
 
                 ]);
-            } elseif ($value instanceof \App\Models\Resident) {
+            } elseif ($value instanceof Resident) {
                 $value->load([
                     'votingInformation',
                     'educationalHistories',

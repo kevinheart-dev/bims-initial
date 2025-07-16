@@ -476,7 +476,13 @@ const Section1 = ({
                 <h3 className="text-md font-medium text-gray-700">
                     Government Programs
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+                <div
+                    className={`grid grid-cols-1 sm:grid-cols-2 ${
+                        data.is_solo_parent == 1
+                            ? "md:grid-cols-4"
+                            : "md:grid-cols-3"
+                    } gap-2`}
+                >
                     <div>
                         <RadioGroup
                             label="4Ps Beneficiary?"
@@ -551,93 +557,90 @@ const Section1 = ({
                             className="mt-2"
                         />
                     </div>
-                    {data.registered_voter == 1 && (
-                        <>
-                            <div>
-                                <DropdownInputField
-                                    label="Voting Status"
-                                    name="voting_status"
-                                    value={data.voting_status || ""}
-                                    items={[
-                                        {
-                                            label: "Active",
-                                            value: "active",
-                                        },
-                                        {
-                                            label: "Inactive",
-                                            value: "inactive",
-                                        },
-                                        {
-                                            label: "Disqualified",
-                                            value: "disqualified",
-                                        },
-                                        {
-                                            label: "Medical",
-                                            value: "medical",
-                                        },
-                                        {
-                                            label: "Overseas",
-                                            value: "overseas",
-                                        },
-                                        {
-                                            label: "Detained",
-                                            value: "detained",
-                                        },
-                                        {
-                                            label: "Deceased",
-                                            value: "deceased",
-                                        },
-                                    ]}
-                                    onChange={(e) =>
-                                        setData("voting_status", e.target.value)
-                                    }
-                                    placeholder="Select status"
-                                />
-                                <InputError
-                                    message={errors.voting_status}
-                                    className="mt-2"
-                                />
-                            </div>
-                            <div>
-                                <InputField
-                                    label="Voter ID Number"
-                                    name="voter_id_number"
-                                    value={data.voter_id_number || ""}
-                                    onChange={(e) =>
-                                        setData(
-                                            "voter_id_number",
-                                            e.target.value
-                                        )
-                                    }
-                                    placeholder="Enter voter ID number"
-                                />
-                                <InputError
-                                    message={errors.voter_id_number}
-                                    className="mt-2"
-                                />
-                            </div>
-                            <div>
-                                <DropdownInputField
-                                    label="Votes In? "
-                                    name="registered_barangay"
-                                    value={data.registered_barangay || ""}
-                                    onChange={(e) =>
-                                        setData(
-                                            "registered_barangay",
-                                            e.target.value
-                                        )
-                                    }
-                                    items={barangayList}
-                                    placeholder="Select registered barangay"
-                                />
-                                <InputError
-                                    message={errors.registered_barangay}
-                                    className="mt-2"
-                                />
-                            </div>
-                        </>
-                    )}
                 </div>
+                {data.registered_voter == 1 && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <DropdownInputField
+                                label="Voting Status"
+                                name="voting_status"
+                                value={data.voting_status || ""}
+                                items={[
+                                    {
+                                        label: "Active",
+                                        value: "active",
+                                    },
+                                    {
+                                        label: "Inactive",
+                                        value: "inactive",
+                                    },
+                                    {
+                                        label: "Disqualified",
+                                        value: "disqualified",
+                                    },
+                                    {
+                                        label: "Medical",
+                                        value: "medical",
+                                    },
+                                    {
+                                        label: "Overseas",
+                                        value: "overseas",
+                                    },
+                                    {
+                                        label: "Detained",
+                                        value: "detained",
+                                    },
+                                    {
+                                        label: "Deceased",
+                                        value: "deceased",
+                                    },
+                                ]}
+                                onChange={(e) =>
+                                    setData("voting_status", e.target.value)
+                                }
+                                placeholder="Select status"
+                            />
+                            <InputError
+                                message={errors.voting_status}
+                                className="mt-2"
+                            />
+                        </div>
+                        <div>
+                            <InputField
+                                label="Voter ID Number"
+                                name="voter_id_number"
+                                value={data.voter_id_number || ""}
+                                onChange={(e) =>
+                                    setData("voter_id_number", e.target.value)
+                                }
+                                placeholder="Enter voter ID number"
+                            />
+                            <InputError
+                                message={errors.voter_id_number}
+                                className="mt-2"
+                            />
+                        </div>
+                        <div>
+                            <DropdownInputField
+                                label="Votes In? "
+                                name="registered_barangay"
+                                value={data.registered_barangay || ""}
+                                onChange={(e) =>
+                                    setData(
+                                        "registered_barangay",
+                                        e.target.value
+                                    )
+                                }
+                                items={barangayList}
+                                placeholder="Select registered barangay"
+                            />
+                            <InputError
+                                message={errors.registered_barangay}
+                                className="mt-2"
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* SENIOR CITIZEN (CONDITIONAL) */}

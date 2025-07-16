@@ -104,15 +104,13 @@ class DatabaseSeeder extends Seeder
         //     ]);
         //     $user->assignRole($resRole);
         // }
-
-        OccupationType::factory(30)->create();
         LivelihoodType::factory(30)->create();
 
         $residents = Resident::factory()->count(10)->create();
 
         MedicalInformation::factory(10)->create();
         InternetAccessibility::factory(3)->create();
-        // Livelihood::factory(60)->create();
+        //Livelihood::factory(60)->create();
         Occupation::factory(10)->create();
         EducationalHistory::factory(15)->create();
         Vehicle::factory(3)->create();
@@ -127,7 +125,10 @@ class DatabaseSeeder extends Seeder
         $residents->groupBy('household_id')->each(function ($group) {
             $group->first()->update(['is_household_head' => true]);
         });
-        $this->call(FixHouseholdResidentSeeder::class);
-        $this->call(FamilyRelationSeeder::class);
+        $this->call([
+            OccupationTypeSeeder::class,
+            FixHouseholdResidentSeeder::class,
+            FamilyRelationSeeder::class,
+        ]);
     }
 }

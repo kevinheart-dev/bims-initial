@@ -56,6 +56,7 @@ class StoreResidentRequest extends FormRequest
             'pension_type' => ['nullable', Rule::in(['SSS', 'GSIS', 'DSWD', 'private', 'none'])],
             'osca_id_number' => ['nullable', 'string', 'max:55'],
             'living_alone' => ['nullable', Rule::in([0, 1])],
+            'verified' => ['required', Rule::in([0, 1])],
 
             // SECTION 1.1: Vehicle Information
             'vehicles' => ['nullable', 'array'],
@@ -70,9 +71,10 @@ class StoreResidentRequest extends FormRequest
             'educational_histories.*.school_name'        => ['nullable', 'string', 'max:155'],
             'educational_histories.*.school_type'        => ['nullable', Rule::in(['public', 'private'])],
             'educational_histories.*.education'      => ['nullable', Rule::in([
-                'elementary', 'high_school', 'college', 'vocational', 'post_graduate', 'no_formal_education'
+                'no_education_yet','no_formal_education','prep_school','kindergarten','elementary',
+                'high_school','senior_high_school','college','als','tesda','vocational','post_graduate',
             ])],
-            'educational_histories.*.education_status'   => ['nullable', Rule::in(['graduate', 'undergraduate', 'enrolled', 'stopped'])],
+            'educational_histories.*.education_status'   => ['nullable', Rule::in(['graduated', 'incomplete', 'enrolled', 'dropped_out'])],
             'educational_histories.*.year_started'       => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
             'educational_histories.*.year_ended'         => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
             'educational_histories.*.program'            => ['nullable', 'string', 'max:100'],
@@ -81,7 +83,7 @@ class StoreResidentRequest extends FormRequest
             'occupations' => ['nullable', 'array'],
             'occupations.*.employment_status' => [
                 'required_with:occupations.*.occupation',
-                Rule::in(['employed', 'unemployed', 'student']),
+                Rule::in(['employed', 'unemployed', 'under_employed', 'retired']),
             ],
             'occupations.*.occupation' => ['nullable', 'string', 'max:100'],
             'occupations.*.employment_type' => [

@@ -119,8 +119,9 @@ class StoreResidentHouseholdRequest extends FormRequest
 
             // educaiton
             'members.*.educations' => ['nullable', 'array'],
-            'members.*.educations.*.education' => ['required', Rule::in(['no_formal_education', 'elementary', 'high_school', 'college', 'post_graduate', 'vocational'])],
-            'members.*.educations.*.educational_status' => ['nullable', Rule::in(['graduate', 'undergraduate', 'enrolled', 'stopped'])],
+            'members.*.educations.*.education' => ['required', Rule::in(['no_education_yet','no_formal_education','prep_school','kindergarten','elementary',
+                'high_school','senior_high_school','college','als','tesda','vocational','post_graduate',])],
+            'members.*.educations.*.educational_status' => ['nullable', Rule::in(['graduated', 'incomplete', 'enrolled', 'dropped_out'])],
             'members.*.educations.*.school_name' => ['nullable', 'string', 'max:150'],
             'members.*.educations.*.school_type' => ['nullable', Rule::in(['public', 'private'])],
             'members.*.educations.*.year_started' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
@@ -129,7 +130,7 @@ class StoreResidentHouseholdRequest extends FormRequest
 
             // occupations
             'members.*.occupations' => ['nullable', 'array'],
-            'members.*.occupations.*.employment_status' => ['required', Rule::in(['employed', 'unemployed', 'student', 'self_employed', 'retired'])],
+            'members.*.occupations.*.employment_status' => ['required', Rule::in(['employed', 'unemployed', 'under_employed', 'retired'])],
             'members.*.occupations.*.occupation' => ['nullable', 'string', 'max:100'],
             'members.*.occupations.*.employment_type' => ['nullable', Rule::in(['full_time', 'part_time', 'seasonal', 'contractual', 'self_employed'])],
             'members.*.occupations.*.occupation_status' => ['nullable', Rule::in(['active', 'inactive', 'ended', 'retired'])],

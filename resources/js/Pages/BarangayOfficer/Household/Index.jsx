@@ -17,12 +17,7 @@ import ResidentTable from "@/Components/ResidentTable";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
 import ResidentFilterBar from "@/Components/ResidentFilterBar";
-import {
-    HOUSEHOLD_CONDITION_TEXT,
-    HOUSEHOLD_OWNERSHIP_TEXT,
-    HOUSEHOLD_STRUCTURE_TEXT,
-    HOUSING_CONDITION_COLOR,
-} from "@/constants";
+import * as CONSTANTS from "@/constants";
 import {
     Select,
     SelectContent,
@@ -85,7 +80,12 @@ export default function Index({ households, puroks, streets, queryParams }) {
     const columnRenderers = {
         id: (house) => house.id,
         name: (house) => {
-            const head = house.residents?.[0];
+            const headEntry = house.household_residents.find(
+                (res) => res.relationship_to_head === "self" // or use "Head"
+            );
+
+            const head = headEntry?.resident;
+
             return head ? (
                 <Link
                     href={route("resident.show", head.id)}
@@ -110,21 +110,26 @@ export default function Index({ households, puroks, streets, queryParams }) {
         purok_number: (house) => house.purok.purok_number,
         street_name: (house) => house.street.street_name,
         ownership_type: (house) => (
-            <span>{HOUSEHOLD_OWNERSHIP_TEXT[house.ownership_type]}</span>
+            <span>
+                {CONSTANTS.HOUSEHOLD_OWNERSHIP_TEXT[house.ownership_type]}
+            </span>
         ),
         housing_condition: (house) => (
             <span
                 className={`px-2 py-1 text-sm rounded-lg ${
-                    HOUSING_CONDITION_COLOR[house.housing_condition] ??
-                    "bg-gray-100 text-gray-700"
+                    CONSTANTS.HOUSING_CONDITION_COLOR[
+                        house.housing_condition
+                    ] ?? "bg-gray-100 text-gray-700"
                 }`}
             >
-                {HOUSEHOLD_CONDITION_TEXT[house.housing_condition]}
+                {CONSTANTS.HOUSEHOLD_CONDITION_TEXT[house.housing_condition]}
             </span>
         ),
         year_established: (house) => house.year_established ?? "Unknown",
         house_structure: (house) => (
-            <span>{HOUSEHOLD_STRUCTURE_TEXT[house.house_structure]}</span>
+            <span>
+                {CONSTANTS.HOUSEHOLD_STRUCTURE_TEXT[house.house_structure]}
+            </span>
         ),
         number_of_rooms: (house) => house.number_of_rooms ?? "N/A",
         number_of_floors: (house) => house.number_of_floors ?? "N/A",

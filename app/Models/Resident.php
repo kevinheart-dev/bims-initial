@@ -150,6 +150,10 @@ class Resident extends Model
     {
         return $this->hasMany(HouseholdResident::class);
     }
+    public function householdHeadHistories()
+    {
+        return $this->hasMany(HouseholdHeadHistory::class);
+    }
 
     public function user()
     {

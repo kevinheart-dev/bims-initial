@@ -129,13 +129,13 @@ export default function Index({
     };
 
     const columnRenderers = {
-        resident_id: (member) => member.id,
+        resident_id: (member) => member.resident.id,
         name: (member) =>
-            `${member.firstname} ${member.middlename ?? ""} ${
-                member.lastname ?? ""
-            } ${member.suffix ?? ""}`,
+            `${member.resident.firstname} ${member.resident.middlename ?? ""} ${
+                member.resident.lastname ?? ""
+            } ${member.resident.suffix ?? ""}`,
         gender: (member) => {
-            const genderKey = member.gender;
+            const genderKey = member.resident.gender;
             const label = RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
             const className =
                 RESIDENT_GENDER_COLOR_CLASS[genderKey] ?? "bg-gray-300";
@@ -149,7 +149,7 @@ export default function Index({
             );
         },
         age: (member) => {
-            const age = calculateAge(member.birthdate);
+            const age = calculateAge(member.resident.birthdate);
 
             if (typeof age !== "number") return "Unknown";
 
@@ -167,17 +167,13 @@ export default function Index({
             );
         },
         relationship_to_head: (member) =>
-            RELATIONSHIP_TO_HEAD_TEXT[
-                member.household_residents?.[0]?.relationship_to_head
-            ] || "",
+            RELATIONSHIP_TO_HEAD_TEXT[member.relationship_to_head] || "Unknown",
         household_position: (member) =>
-            HOUSEHOLD_POSITION_TEXT[
-                member.household_residents?.[0]?.household_position
-            ] || "",
+            HOUSEHOLD_POSITION_TEXT[member.household_position] || "Unknown",
         employment_status: (member) =>
-            RESIDENT_EMPLOYMENT_STATUS_TEXT[member?.employment_status],
+            RESIDENT_EMPLOYMENT_STATUS_TEXT[member.resident.employment_status],
         registered_voter: (member) => {
-            const status = member?.registered_voter ?? 0;
+            const status = member.resident.registered_voter ?? 0;
             const label = RESIDENT_REGISTER_VOTER_TEXT[status] ?? "Unknown";
             const className =
                 RESIDENT_REGISTER_VOTER_CLASS[status] ??
@@ -185,19 +181,19 @@ export default function Index({
 
             return <span className={className}>{label}</span>;
         },
-        is_pwd: (member) => MEDICAL_PWD_TEXT[member?.is_pwd],
-        actions: (family) => (
+        is_pwd: (member) => MEDICAL_PWD_TEXT[member.resident.is_pwd],
+        actions: (member) => (
             <ActionMenu
                 actions={[
                     {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
-                        onClick: () => handleEdit(family.id),
+                        onClick: () => handleEdit(member.resident.id),
                     },
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(family.id),
+                        onClick: () => handleDelete(member.resident.id),
                     },
                 ]}
             />
@@ -210,7 +206,7 @@ export default function Index({
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                    <pre>{JSON.stringify(household_details, undefined, 3)}</pre>
+                    {/* <pre>{JSON.stringify(household_members, undefined, 3)}</pre> */}
                     <div className="flex flex-row overflow-hidden bg-gray-50 shadow-md rounded-xl sm:rounded-lg m-3">
                         <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
                         <div className="flex flex-col justify-start items-start p-4 w-full">
@@ -221,20 +217,22 @@ export default function Index({
                                 <div className="space-y-1 md:space-y-2 text-sm md:text-lg text-gray-600">
                                     <div>
                                         Household Head
-                                        {household_details.residents.filter(
-                                            (m) => m.is_household_head
+                                        {household_details.household_residents.filter(
+                                            (m) => m.resident.is_household_head
                                         ).length > 1
                                             ? "s"
                                             : ""}
                                         :{" "}
                                         <span className="font-medium text-gray-800">
-                                            {household_details.residents
+                                            {household_details.household_residents
                                                 .filter(
-                                                    (m) => m.is_household_head
+                                                    (m) =>
+                                                        m.resident
+                                                            .is_household_head
                                                 )
                                                 .map(
                                                     (m) =>
-                                                        `${m.firstname} ${m.lastname}`
+                                                        `${m.resident.firstname} ${m.resident.lastname}`
                                                 )
                                                 .join(", ") || "None"}
                                         </span>
@@ -299,7 +297,10 @@ export default function Index({
                                     <div>
                                         Total Household Members:{" "}
                                         <span>
-                                            {household_details.residents.length}
+                                            {
+                                                household_details
+                                                    .household_residents.length
+                                            }
                                         </span>
                                     </div>
                                 </div>

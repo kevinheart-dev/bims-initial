@@ -14,6 +14,7 @@ import Section2 from "./Section2";
 import Section3 from "./Section3";
 import Section4 from "./Section4";
 import Section5 from "./Section5";
+import Checkbox from "../Checkbox";
 
 const PersonalInformation = ({
     puroks,
@@ -217,9 +218,41 @@ const PersonalInformation = ({
                     streets={streets}
                     households={households}
                 />
+                <section className="space-y-4 border border-gray-200 p-4 rounded-md my-4">
+                    <label className="flex items-start space-x-2">
+                        <Checkbox
+                            name="verified"
+                            value={data.verified}
+                            checked={
+                                data.verified === 1 || data.verified === true
+                            }
+                            onChange={(e) =>
+                                setData("verified", e.target.checked ? 1 : 0)
+                            }
+                        />
+                        <span className="text-sm text-gray-700">
+                            I hereby certify that the above information is true
+                            and correct to the best of my knowledge. I
+                            understand that for the Barangay to carry out its
+                            mandate pursuant to Section 394(d)(6) of the Local
+                            Government Code of 1991, it must necessarily process
+                            my personal information for easy identification of
+                            inhabitants, as a tool in planning, and as an
+                            updated reference for the number of inhabitants in
+                            the Barangay. Therefore, I grant my consent and
+                            recognize the authority of the Barangay to process
+                            my personal information, subject to the provisions
+                            of the Philippine Data Privacy Act of 2012.
+                        </span>
+                    </label>
+                </section>
                 {/* Submit Button */}
                 <div className="flex w-full justify-center items-center mt-7">
-                    <Button className="w-40" type="submit">
+                    <Button
+                        className="w-40"
+                        type="submit"
+                        disabled={data.verified === 0}
+                    >
                         Submit
                     </Button>
                 </div>

@@ -1099,12 +1099,12 @@ const Section5 = ({
                                                                     placeholder="Select purpose"
                                                                     items={[
                                                                         {
-                                                                            label: "Personal",
-                                                                            value: "personal",
+                                                                            label: "Personal Consumption",
+                                                                            value: "personal_consumption",
                                                                         },
                                                                         {
-                                                                            label: "Consumption",
-                                                                            value: "consumption",
+                                                                            label: "Commercial",
+                                                                            value: "commercial",
                                                                         },
                                                                         {
                                                                             label: "Both",

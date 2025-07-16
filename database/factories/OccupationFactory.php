@@ -18,7 +18,7 @@ class OccupationFactory extends Factory
      */
     public function definition(): array
     {
-        $employmentTypes = ['full_time', 'part_time', 'seasonal', 'contractual', 'self_employed', 'others'];
+        $employmentTypes = ['full_time', 'part_time', 'seasonal', 'contractual', 'self_employed'];
         $workArrangements = ['remote', 'on_site', 'hybrid'];
         $occupationStatuses = ['active', 'inactive', 'ended', 'retired'];
 
