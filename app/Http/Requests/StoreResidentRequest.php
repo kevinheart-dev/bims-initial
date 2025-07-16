@@ -70,7 +70,7 @@ class StoreResidentRequest extends FormRequest
             'educational_histories.*.school_name'        => ['nullable', 'string', 'max:155'],
             'educational_histories.*.school_type'        => ['nullable', Rule::in(['public', 'private'])],
             'educational_histories.*.education'      => ['nullable', Rule::in([
-                'elementary', 'high_school', 'college', 'vocational', 'post_grad', 'no_formal_education'
+                'elementary', 'high_school', 'college', 'vocational', 'post_graduate', 'no_formal_education'
             ])],
             'educational_histories.*.education_status'   => ['nullable', Rule::in(['graduate', 'undergraduate', 'enrolled', 'stopped'])],
             'educational_histories.*.year_started'       => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],

@@ -456,7 +456,7 @@ function EducationandOccupation() {
                                                                 },
                                                                 {
                                                                     label: "Post Grad",
-                                                                    value: "post_grad",
+                                                                    value: "post_graduate",
                                                                 },
                                                                 {
                                                                     label: "Vocational",

@@ -9,6 +9,23 @@ const Address = ({ puroks, streets }) => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+
+        if (name === "street") {
+            const streetId = Number(value);
+            const street = streets.find((s) => s.id === streetId);
+
+            if (street) {
+                setUserData((prev) => ({
+                    ...prev,
+                    street: street.id,
+                    street_name: street.street_name,
+                    purok_id: street.purok?.id || null,
+                    purok: street.purok?.purok_number || "",
+                }));
+            }
+            return;
+        }
+
         setUserData((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -29,7 +46,6 @@ const Address = ({ puroks, streets }) => {
             <p className="text-sm text-gray-600 mb-3">
                 Please provide your complete address information to continue.
             </p>
-
             <div className="grid md:grid-cols-2 gap-4">
                 <div>
                     <InputField
@@ -51,7 +67,7 @@ const Address = ({ puroks, streets }) => {
                         type="text"
                         label="Street Name"
                         name="street"
-                        value={userData.street || ""}
+                        value={userData.street_name || ""}
                         onChange={handleChange}
                         placeholder="e.g., Rizal St., Mabini Avenue"
                         items={streetList}

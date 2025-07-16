@@ -207,7 +207,8 @@ class ResidentController extends Controller
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
         $streets = Street::whereIn('purok_id', $puroks)
             ->orderBy('street_name', 'asc')
-            ->get(['id', 'street_name']);
+            ->with(['purok:id,purok_number'])
+            ->get(['id', 'street_name', 'purok_id']);
 
         $barangays = Barangay::all()->pluck('barangay_name', 'id')->toArray();
         return Inertia::render("BarangayOfficer/Resident/Create", [
@@ -323,7 +324,6 @@ class ResidentController extends Controller
                     ]);
                 }
             }
-
             //add occupations
             if (!empty($data['occupations']) && is_array($data['occupations'])) {
                 foreach ($data['occupations'] ?? [] as $occupationData) {
@@ -405,12 +405,11 @@ class ResidentController extends Controller
 
             // add medical informations
             $resident->medicalInformation()->create($residentMedicalInformation);
+
             if ($data["is_pwd"] == '1') {
                 foreach ($data['disabilities'] ?? [] as $disability) {
                     $resident->disabilities()->create(attributes: [
                         'disability_type' => $disability['disability_type'] ?? null,
-                        'created_at' => now(),
-                        'updated_at' => now()
                     ]);
                 }
             }
@@ -620,13 +619,10 @@ class ResidentController extends Controller
             $folder = 'resident/' . $data['lastname'] . $data['firstname'] . Str::random(10);
             $data['resident_image'] = $image->store($folder, 'public');
         }
-        $purokId = Purok::where('purok_number', $data['purok'])
-            ->where('barangay_id', $barangayId)
-            ->first();
 
         $householdData = [
             'barangay_id' =>  $barangayId ?? null,
-            'purok_id' => $purokId->id ?? null,
+            'purok_id' => $data['purok'] ?? null,
             'street_id' => $data['street'] ?? null,
             'house_number' => $data['housenumber'] ?? null,
             'ownership_type' => $data['ownership_type'] ?? null,
@@ -639,7 +635,6 @@ class ResidentController extends Controller
             'latitude' => $data['latitude'] ?? 0,
             'longitude' => $data['longitude'] ?? 0,
         ];
-
 
         try {
             $household = Household::create($householdData);
@@ -1039,8 +1034,6 @@ class ResidentController extends Controller
                         }
                     }
                 }
-
-                dd('stop');
             }
 
             return redirect()->route('resident.index')->with('success', 'Household created successfully!');
@@ -1170,11 +1163,11 @@ class ResidentController extends Controller
     public function createResident()
     {
         $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
-        // $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->get();
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
         $streets = Street::whereIn('purok_id', $puroks)
             ->orderBy('street_name', 'asc')
-            ->get(['id', 'street_name']);
+            ->with(['purok:id,purok_number'])
+            ->get(['id', 'street_name', 'purok_id']);
 
         $residentHousehold = Resident::where('barangay_id', $brgy_id)
             ->whereNotNull('household_id')

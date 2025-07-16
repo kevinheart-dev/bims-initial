@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Barangay;
 use App\Models\Household;
 use App\Http\Requests\StoreHouseholdRequest;
 use App\Http\Requests\UpdateHouseholdRequest;
+use App\Models\OccupationType;
 use App\Models\Purok;
 use App\Models\Resident;
 use App\Models\Street;
@@ -81,7 +83,21 @@ class HouseholdController extends Controller
      */
     public function create()
     {
-        //
+        $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
+        $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
+        $streets = Street::whereIn('purok_id', $puroks)
+            ->orderBy('street_name', 'asc')
+            ->with(['purok:id,purok_number'])
+            ->get(['id', 'street_name', 'purok_id']);
+        $barangays = Barangay::all()->pluck('barangay_name', 'id')->toArray();
+        $residents = Resident::where('barangay_id', $brgy_id)->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'gender', 'birthdate', 'residency_type', 'residency_date')->get();
+
+        return Inertia::render("BarangayOfficer/Household/Create", [
+            'puroks' => $puroks,
+            'streets' => $streets,
+            'barangays' => $barangays,
+            'residents' => $residents
+        ]);
     }
 
     /**
@@ -89,7 +105,8 @@ class HouseholdController extends Controller
      */
     public function store(StoreHouseholdRequest $request)
     {
-        //
+        $data = $request->validated();
+        dd( $data);
     }
 
     /**

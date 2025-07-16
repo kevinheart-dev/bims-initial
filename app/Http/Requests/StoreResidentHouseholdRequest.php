@@ -26,8 +26,8 @@ class StoreResidentHouseholdRequest extends FormRequest
             // Household Info
             'housenumber' => ['required', 'string', 'max:55'],
             'subdivision' => ['nullable', 'string', 'max:100'],
-            'street' => ['required', 'string', 'max:100'],
-            'purok' => ['required', 'string', 'max:100'],
+            'street' => ['required', 'integer', 'min:1'],
+            'purok' => ['required', 'integer', 'min:1'],
             'householdCount' => ['required', 'integer', 'min:1'],
 
             // Family Info
@@ -93,7 +93,7 @@ class StoreResidentHouseholdRequest extends FormRequest
             'members.*.religion' => ['required', 'string', 'max:55'],
             'members.*.ethnicity' => ['nullable', 'string', 'max:55'],
             'members.*.contactNumber' => ['nullable', 'string', 'max:15'],
-            'members.*.email' => ['nullable', 'email', 'min:10', 'max:55'],
+            'members.*.email' => ['nullable', 'email', 'min:10', 'max:55', 'unique:residents,email'],
             'members.*.is_pensioner' => ['nullable', Rule::in(['yes', 'no'])],
             'members.*.osca_id_number' => ['nullable', 'string', 'max:55'],
             'members.*.pension_type' => ['nullable', Rule::in(['SSS', 'GSIS', 'DSWD', 'private', 'none'])],
@@ -119,7 +119,7 @@ class StoreResidentHouseholdRequest extends FormRequest
 
             // educaiton
             'members.*.educations' => ['nullable', 'array'],
-            'members.*.educations.*.education' => ['required', Rule::in(['no_formal_education', 'elementary', 'high_school', 'college', 'post_grad', 'vocational'])],
+            'members.*.educations.*.education' => ['required', Rule::in(['no_formal_education', 'elementary', 'high_school', 'college', 'post_graduate', 'vocational'])],
             'members.*.educations.*.educational_status' => ['nullable', Rule::in(['graduate', 'undergraduate', 'enrolled', 'stopped'])],
             'members.*.educations.*.school_name' => ['nullable', 'string', 'max:150'],
             'members.*.educations.*.school_type' => ['nullable', Rule::in(['public', 'private'])],

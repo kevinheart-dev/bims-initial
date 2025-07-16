@@ -43,6 +43,7 @@ const PersonalInformation = ({
         residency_date: "",
         is_household_head: 0,
         is_family_head: 0,
+        verified: 0,
         purok_number: null,
         purok_id: null,
         street_id: null,
@@ -162,7 +163,6 @@ const PersonalInformation = ({
                     purok_number: household.purok?.purok_number || "",
                 };
 
-                // Apply all updates
                 Object.entries(updates).forEach(([key, value]) =>
                     setData(key, value)
                 );

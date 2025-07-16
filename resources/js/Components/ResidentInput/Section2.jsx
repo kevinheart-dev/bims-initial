@@ -410,7 +410,7 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                         },
                                         {
                                             label: "Post Grad",
-                                            value: "post_grad",
+                                            value: "post_graduate",
                                         },
                                         {
                                             label: "Vocational",
