@@ -72,7 +72,6 @@ export default function Index({ families, queryParams = null, puroks }) {
     const allColumns = [
         { key: "family_id", label: "Family ID" },
         { key: "name", label: "Name of Family Head" },
-        { key: "is_household_head", label: "Household Head" },
         { key: "family_name", label: "Family Name" },
         { key: "income_bracket", label: "Income Bracket" },
         { key: "income_category", label: "Income Category" },
@@ -105,17 +104,6 @@ export default function Index({ families, queryParams = null, puroks }) {
                 .filter(Boolean)
                 .join(" ");
         },
-
-        is_household_head: (row) =>
-            row?.latest_head?.is_household_head ? (
-                <span className="py-1 px-2 rounded-xl bg-green-100 text-green-800">
-                    Yes
-                </span>
-            ) : (
-                <span className="py-1 px-2 rounded-xl bg-red-100 text-red-800">
-                    No
-                </span>
-            ),
 
         family_name: (row) => (
             <Link
@@ -379,7 +367,9 @@ export default function Index({ families, queryParams = null, puroks }) {
                                     </Select>
                                 </div>
                                 <div className="flex justify-end">
-                                    <ClearFilterButton link={"family.index"} />
+                                    <ClearFilterButton
+                                        routeName={"family.index"}
+                                    />
                                 </div>
                             </div>
                         </DynamicTable>

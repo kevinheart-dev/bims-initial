@@ -45,12 +45,15 @@ class HouseholdController extends Controller
                     ->with([
                         'resident:id,firstname,lastname,middlename,suffix'
                     ]);
-            }
-        ]);
+            },
+        ])
+        ->withCount('residents');
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
 
         if (request()->filled('purok') && request('purok') !== 'All') {
-            $query->where('purok_number', request('purok'));
+            $query->whereHas('purok', function ($q) {
+                $q->where('purok_number', request('purok'));
+            });
         }
 
         if (request()->filled('street') && request('street') !== 'All') {

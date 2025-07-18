@@ -42,7 +42,6 @@ class StoreResidentRequest extends FormRequest
             'residency_type' => ['required', Rule::in(['permanent', 'temporary', 'migrant'])],
             'residency_date' => ['required', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
             'is_household_head' => ['required', Rule::in([0, 1])],
-            'is_family_head' => ['required', Rule::in([0, 1])],
             'is_4ps_beneficiary' => ['nullable', Rule::in([0, 1])],
             'is_solo_parent' => ['nullable', Rule::in([0, 1])],
             'solo_parent_id_number' => ['nullable', 'string', 'max:55'],

@@ -29,9 +29,10 @@ class DocumentController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'file' => 'required|file|mimes:docx,doc,pdf,txt|max:10240', // 10MB max
         ]);
+        Document::create();
 
     }
 

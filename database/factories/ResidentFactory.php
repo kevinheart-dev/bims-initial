@@ -40,19 +40,6 @@ class ResidentFactory extends Factory
 
         $street = Street::inRandomOrder()->first() ?? Street::factory()->create();
 
-        $familyType = $randomFamily->family_type ?? 'nuclear';
-        $alreadyHasFamilyHead = Resident::where('family_id', $randomFamily->id)
-            ->where('is_family_head', true)
-            ->exists();
-        $isFamilyHead = $familyType === 'extended'
-            ? (bool) random_int(0, 1)
-            : !$alreadyHasFamilyHead;
-
-        $alreadyHasHouseholdHead = Resident::where('household_id', $household->id)
-            ->where('is_household_head', true)
-            ->exists();
-        $isHouseholdHead = !$alreadyHasHouseholdHead;
-
         // Gender and names
         $gender = $this->faker->randomElement(array_merge(
             array_fill(0, 45, 'male'),
@@ -146,7 +133,6 @@ class ResidentFactory extends Factory
             'household_id' => $household->id,
             'is_household_head' => false,
             'family_id' => $randomFamily->id,
-            'is_family_head' => $isFamilyHead,
             'verified' => true,
         ];
     }

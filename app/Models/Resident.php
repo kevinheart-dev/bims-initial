@@ -41,7 +41,6 @@ class Resident extends Model
         'household_id',
         'is_household_head',
         'family_id',
-        'is_family_head',
         'verified',
         'created_at',
         'updated_at',

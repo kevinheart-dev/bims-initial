@@ -9,6 +9,7 @@ import {
     SquarePen,
     Trash2,
     Network,
+    User,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -74,6 +75,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
         { key: "house_structure", label: "House Structure" },
         { key: "number_of_rooms", label: "Number of Rooms" },
         { key: "number_of_floors", label: "Number of Floors" },
+        { key: "number_of_occupants", label: "Number of Occupants" },
         { key: "actions", label: "Actions" },
     ];
 
@@ -133,6 +135,11 @@ export default function Index({ households, puroks, streets, queryParams }) {
         ),
         number_of_rooms: (house) => house.number_of_rooms ?? "N/A",
         number_of_floors: (house) => house.number_of_floors ?? "N/A",
+        number_of_occupants: (house) => (
+            <span className="flex items-center">
+                {house?.residents_count ?? 0} <User className="ml-2 h-5 w-5" />
+            </span>
+        ),
         actions: (house) => (
             <ActionMenu
                 actions={[
@@ -173,7 +180,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
 
     return (
         <AdminLayout>
-            <Head title="Households Dashboard" />
+            <Head title="Household" />
             <div>
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
                 {/* <pre>{JSON.stringify(households, undefined, 2)}</pre> */}
@@ -350,7 +357,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
                                 </div>
                                 <div className="flex justify-end">
                                     <ClearFilterButton
-                                        link={"household.index"}
+                                        routeName={"household.index"}
                                     />
                                 </div>
                             </div>

@@ -211,7 +211,8 @@ export default function Index({
                         <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
                         <div className="flex flex-col justify-start items-start p-4 w-full">
                             <p className="font-semibold text-lg md:text-3xl mb-4 md:mb-6">
-                                Household Number {household_details.id}
+                                Household Number:{" "}
+                                {household_details.house_number}
                             </p>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                                 <div className="space-y-1 md:space-y-2 text-sm md:text-lg text-gray-600">

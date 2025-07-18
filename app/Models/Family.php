@@ -35,7 +35,7 @@ class Family extends Model
     public function latestHead()
     {
         return $this->hasOne(Resident::class, 'family_id')
-            ->where('is_family_head', true)
+            ->where('is_household_head', true)
             ->latest();
     }
 }

@@ -283,7 +283,6 @@ class ResidentController extends Controller
             'street_id' => $data['street_id'] ?? null,
             'is_pwd' => $data['is_pwd'] ?? null,
             'family_id' => $familyId,
-            'is_family_head' => $data['is_family_head'] ?? 0,
             'verfied' => $data['verified'] ?? 0,
         ];
 
@@ -409,7 +408,6 @@ class ResidentController extends Controller
 
             // add medical informations
             $resident->medicalInformation()->create($residentMedicalInformation);
-
             if ($data["is_pwd"] == '1') {
                 foreach ($data['disabilities'] ?? [] as $disability) {
                     $resident->disabilities()->create(attributes: [
@@ -417,11 +415,8 @@ class ResidentController extends Controller
                     ]);
                 }
             }
-
-
             // add social welfare profile
             $resident->socialwelfareprofile()->create($residentSocialWelfareProfile);
-
             if ($householdId) {
                 $resident->householdResidents()->create($householdResident);
                 // Only process if not household head and has a declared relationship
@@ -754,9 +749,8 @@ class ResidentController extends Controller
                         'street_id' => $data['street'] ?? null,
                         'is_pwd' => $member['is_pwd'] ?? null,
                         'household_id' => $household->id,
-                        'is_household_head' => $member['is_household_head'] ?? false,
+                        'is_household_head' => $member['is_household_head'] ?? 0,
                         'family_id' => $family->id,
-                        'is_family_head' => $member['is_family_head'] ?? false,
                         'verified' => $data['verified'],
                     ];
 

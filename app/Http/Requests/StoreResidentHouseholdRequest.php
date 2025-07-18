@@ -32,7 +32,7 @@ class StoreResidentHouseholdRequest extends FormRequest
 
             // Family Info
             'family_name' => ['required', 'string', 'max:100'],
-            'family_type' => ['required', Rule::in(['nuclear', 'extended', 'single_parent', 'others'])],
+            'family_type' => ['required', Rule::in(['nuclear', 'extended', 'single_parent', 'stepfamilies', 'grandparent', 'childless', 'cohabiting_partners', 'one_person_household', 'roommates'])],
             'family_monthly_income' => ['required', 'numeric', 'min:0'],
             'income_bracket' => ['required', 'string', 'max:155'],
             'income_category' => ['required', 'string', 'max:155'],
@@ -100,7 +100,6 @@ class StoreResidentHouseholdRequest extends FormRequest
             'members.*.living_alone' => ['nullable', Rule::in([0, 1])],
             'members.*.residency_type' => ['required', Rule::in(['permanent', 'temporary', 'migrant'])],
             'members.*.residency_date' => ['required', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
-            'members.*.is_family_head' => ['required', Rule::in([0, 1])],
             'members.*.relation_to_household_head' => ['required', Rule::in(['self', 'spouse', 'child', 'sibling', 'parent', 'parent_in_law','grandparent'])],
             'members.*.registered_voter' => ['required', Rule::in([0, 1])],
             'members.*.registered_barangay' => ['required_if:members.*.registered_voter,1'],
@@ -184,7 +183,6 @@ class StoreResidentHouseholdRequest extends FormRequest
             $attributes["members.$index.email"] = "Email of household member #$n";
             $attributes["members.$index.residency_type"] = "Residency type of household member #$n";
             $attributes["members.$index.residency_date"] = "Residency year of household member #$n";
-            $attributes["members.$index.is_family_head"] = "Family status of household member #$n";
             $attributes["members.$index.relation_to_household_head"] = "Relation to the Head of household member #$n";
             $attributes["members.$index.registered_voter"] = "Voter registration of household member #$n";
             $attributes["members.$index.registered_barangay"] = "Voter Status of household member #$n";

@@ -199,38 +199,35 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         <AdminLayout>
             <Head title="Senior Citizen" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
+
             <div className="p-2 md:p-4">
                 {/* <pre>{JSON.stringify(seniorCitizens, undefined, 3)}</pre> */}
                 <div className="overflow-x bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-2 my-4">
-                    <div className="my-1 mb-3 flex justify-between items-center">
-                        <div className="flex w-full max-w-sm items-center space-x-1">
-                            <Link href={route("senior_citizen.create")}>
-                                <Button className="bg-blue-700 hover:bg-blue-400 ">
-                                    <UserPlus /> Add a Senior
-                                </Button>
-                            </Link>
-                        </div>
-                        <div className="flex w-full justify-end items-end space-x-1">
-                            {/* Search Bar */}
-                            <form
-                                onSubmit={handleSubmit}
-                                className="flex w-full max-w-sm items-center space-x-1"
-                            >
-                                <Input
-                                    type="text"
-                                    placeholder="Search a Name"
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                    onKeyDown={(e) =>
-                                        onKeyPressed("name", e.target.value)
-                                    }
-                                    className="ml-4"
-                                />
-                                <Button type="submit">
-                                    <Search />
-                                </Button>
-                            </form>
-                        </div>
+                    <div className="flex w-full justify-end items-end space-x-1">
+                        {/* Search Bar */}
+                        <form
+                            onSubmit={handleSubmit}
+                            className="flex w-full max-w-sm items-center space-x-1"
+                        >
+                            <Input
+                                type="text"
+                                placeholder="Search a Name"
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                onKeyDown={(e) =>
+                                    onKeyPressed("name", e.target.value)
+                                }
+                                className="ml-4"
+                            />
+                            <Button type="submit">
+                                <Search />
+                            </Button>
+                        </form>
+                        {/* <Link href={route("senior_citizen.create")}>
+                            <Button className="bg-blue-700 hover:bg-blue-400 ">
+                                <UserPlus />
+                            </Button>
+                        </Link> */}
                     </div>
                     <DynamicTable
                         passedData={seniorCitizens}
@@ -353,7 +350,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                             </div>
                             <div className="flex justify-end">
                                 <ClearFilterButton
-                                    link={"senior_citizen.index"}
+                                    routeName={"senior_citizen.index"}
                                 />
                             </div>
                         </div>

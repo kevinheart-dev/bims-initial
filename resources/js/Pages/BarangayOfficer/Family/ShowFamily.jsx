@@ -228,24 +228,6 @@ export default function Index({
                                         </span>
                                     </div>
                                     <div>
-                                        Family Head
-                                        {family_details.members.filter(
-                                            (m) => m.is_family_head
-                                        ).length > 1
-                                            ? "s"
-                                            : ""}
-                                        :{" "}
-                                        <span className="font-medium text-gray-800">
-                                            {family_details.members
-                                                .filter((m) => m.is_family_head)
-                                                .map(
-                                                    (m) =>
-                                                        `${m.firstname} ${m.lastname}`
-                                                )
-                                                .join(", ") || "None"}
-                                        </span>
-                                    </div>
-                                    <div>
                                         Income Bracket:{" "}
                                         <span
                                             className={`p-0 md:p-2 rounded ${
@@ -260,22 +242,6 @@ export default function Index({
                                             ]?.label ?? "Unknown"}
                                         </span>
                                     </div>
-                                </div>
-                                <div className="space-y-1 md:space-y-2 text-sm md:text-lg text-gray-600">
-                                    <Link
-                                        href={route(
-                                            "household.show",
-                                            family_details.household_id
-                                        )}
-                                        className="hover:underline text-blue-500 hover:text-blue-300"
-                                    >
-                                        <div>
-                                            Household Number:{" "}
-                                            <span>
-                                                {household_details.house_number}
-                                            </span>
-                                        </div>
-                                    </Link>
                                     <div>
                                         Household Head
                                         {family_details.members.filter(
@@ -297,7 +263,22 @@ export default function Index({
                                                 .join(", ") || "None"}
                                         </span>
                                     </div>
-
+                                </div>
+                                <div className="space-y-1 md:space-y-2 text-sm md:text-lg text-gray-600">
+                                    <Link
+                                        href={route(
+                                            "household.show",
+                                            family_details.household_id
+                                        )}
+                                        className="hover:underline text-blue-500 hover:text-blue-300"
+                                    >
+                                        <div>
+                                            Household Number:{" "}
+                                            <span>
+                                                {household_details.house_number}
+                                            </span>
+                                        </div>
+                                    </Link>
                                     <div>
                                         Total Members:{" "}
                                         <span>

@@ -139,7 +139,7 @@ export default function Index({
 
     return (
         <AdminLayout>
-            <Head title="Vehicles Dashboard" />
+            <Head title="Vehicles" />
             <div>
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
                 {/* <pre>{JSON.stringify(vehicles, undefined, 2)}</pre> */}
@@ -286,7 +286,9 @@ export default function Index({
                                     </Select>
                                 </div>
                                 <div className="flex justify-end">
-                                    <ClearFilterButton link={"vehicle.index"} />
+                                    <ClearFilterButton
+                                        routeName={"vehicle.index"}
+                                    />
                                 </div>
                             </div>
                         </DynamicTable>
