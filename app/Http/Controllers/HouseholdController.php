@@ -47,7 +47,9 @@ class HouseholdController extends Controller
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
 
         if (request()->filled('purok') && request('purok') !== 'All') {
-            $query->where('purok_number', request('purok'));
+            $query->whereHas('purok', function ($q) {
+                $q->where('purok_number', request('purok'));
+            });
         }
 
         if (request()->filled('street') && request('street') !== 'All') {
@@ -106,7 +108,7 @@ class HouseholdController extends Controller
     public function store(StoreHouseholdRequest $request)
     {
         $data = $request->validated();
-        dd( $data);
+        dd($data);
     }
 
     /**
@@ -123,7 +125,7 @@ class HouseholdController extends Controller
             ->where('household_id', $household->id)
             ->with('householdResidents');
 
-            // filters
+        // filters
         if (request()->filled('name')) {
             $query->where(function ($q) {
                 $q->where('firstname', 'like', '%' . request('name') . '%')
@@ -192,6 +194,7 @@ class HouseholdController extends Controller
         }
 
         $household_members = $query->get();
+        // $household_members = $query->paginate(10);
 
         return Inertia::render("BarangayOfficer/Household/Show", [
             "household_details" => $household_details,

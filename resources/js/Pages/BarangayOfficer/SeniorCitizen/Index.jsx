@@ -5,8 +5,12 @@ import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router } from "@inertiajs/react";
-import { HousePlus, Search, SquarePen, Trash2, UserPlus } from "lucide-react";
-import { useState } from "react";
+import { Eye, HousePlus, Search, SquarePen, Trash2, UserPlus } from "lucide-react";
+import { useState, useEffect } from "react";
+import FilterToggle from "@/Components/FilterButtons/FillterToggle";
+import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
+import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
+import SidebarModal from "@/Components/SidebarModal";
 import {
     Select,
     SelectContent,
@@ -14,7 +18,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
-import ClearFilterButton from "@/Components/ClearFiltersButton";
+
 
 export default function Index({ seniorCitizens, puroks, queryParams = null }) {
     const breadcrumbs = [
@@ -76,6 +80,56 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         { key: "registered_senior", label: "Is Registered Senior?" },
         { key: "actions", label: "Actions" },
     ];
+    // === FOR RESIDENT SIDE MODAL
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedResident, setSelectedResident] = useState(null);
+
+    const handleView = (resident) => {
+        setSelectedResident(resident);
+        setIsModalOpen(true);
+    };
+    // ===
+    // ===== CODED I ADDED
+    const hasActiveFilter = Object.entries(queryParams || {}).some(
+        ([key, value]) =>
+            [
+                "purok",
+                "is_pensioner",
+                "pension_type",
+                "living_alone",
+                "birth_month"
+            ].includes(key) &&
+            value &&
+            value !== "All"
+    );
+    useEffect(() => {
+        if (hasActiveFilter) {
+            setShowFilters(true);
+        }
+    }, [hasActiveFilter]);
+
+
+    const [showFilters, setShowFilters] = useState(hasActiveFilter);
+    const toggleShowFilters = () => setShowFilters((prev) => !prev);
+    const handlePrint = () => {
+        window.print();
+    };
+
+
+    const [isPaginated, setIsPaginated] = useState(true);
+    const [showAll, setShowAll] = useState(false);
+
+    const defaultVisibleCols = allColumns.map((col) => col.key);
+    const [visibleColumns, setVisibleColumns] = useState(() => {
+        const saved = localStorage.getItem("household_visible_columns");
+        return saved ? JSON.parse(saved) : defaultVisibleCols;
+    });
+
+    useEffect(() => {
+        localStorage.setItem("household_visible_columns", JSON.stringify(visibleColumns));
+    }, [visibleColumns]);
+
+    //===
 
     const columnRenderers = {
         id: (resident) => resident.id,
@@ -158,6 +212,11 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             <ActionMenu
                 actions={[
                     {
+                        label: "View",
+                        icon: <Eye className="w-4 h-4 text-indigo-600" />,
+                        onClick: () => handleView(resident),
+                    },
+                    {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
                         onClick: () => handleEdit(resident.seniorcitizen.id),
@@ -200,166 +259,101 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             <Head title="Senior Citizen" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div className="p-2 md:p-4">
-                {/* <pre>{JSON.stringify(seniorCitizens, undefined, 3)}</pre> */}
-                <div className="overflow-x bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-2 my-4">
-                    <div className="my-1 mb-3 flex justify-between items-center">
-                        <div className="flex w-full max-w-sm items-center space-x-1">
-                            <Link href={route("senior_citizen.create")}>
-                                <Button className="bg-blue-700 hover:bg-blue-400 ">
-                                    <UserPlus /> Add a Senior
-                                </Button>
-                            </Link>
-                        </div>
-                        <div className="flex w-full justify-end items-end space-x-1">
-                            {/* Search Bar */}
-                            <form
-                                onSubmit={handleSubmit}
-                                className="flex w-full max-w-sm items-center space-x-1"
-                            >
-                                <Input
-                                    type="text"
-                                    placeholder="Search a Name"
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                    onKeyDown={(e) =>
-                                        onKeyPressed("name", e.target.value)
-                                    }
-                                    className="ml-4"
+                <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
+                    {/* <pre>{JSON.stringify(seniorCitizens, undefined, 3)}</pre> */}
+                    <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                        <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <DynamicTableControls
+                                    allColumns={allColumns}
+                                    visibleColumns={visibleColumns}
+                                    setVisibleColumns={setVisibleColumns}
+                                    onPrint={handlePrint}
+                                    showFilters={showFilters}
+                                    toggleShowFilters={() => setShowFilters((prev) => !prev)}
                                 />
-                                <Button type="submit">
-                                    <Search />
-                                </Button>
-                            </form>
+                            </div>
+                            <div className="flex items-center gap-2 flex-wrap justify-end">
+                                <form
+                                    onSubmit={handleSubmit}
+                                    className="flex w-[300px] max-w-lg items-center space-x-1"
+                                >
+                                    <Input
+                                        type="text"
+                                        placeholder="Search Name"
+                                        value={query}
+                                        onChange={(e) => setQuery(e.target.value)}
+                                        onKeyDown={(e) => onKeyPressed("name", e)}
+                                        className="w-full"
+                                    />
+                                    <div className="relative group z-50">
+                                        <Button
+                                            type="submit"
+                                            className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
+                                            variant="outline"
+                                        >
+                                            <Search />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Search
+                                        </div>
+                                    </div>
+                                </form>
+                                <Link href={route("senior_citizen.create")}>
+                                    <div className="relative group z-50">
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                        >
+                                            <UserPlus className="w-4 h-4" />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Add Senior
+                                        </div>
+                                    </div>
+                                </Link>
+                            </div>
                         </div>
+                        {showFilters && (
+                            <FilterToggle
+                                queryParams={queryParams}
+                                searchFieldName={searchFieldName}
+                                visibleFilters={[
+                                    "purok",
+                                    "is_pensioner",
+                                    "pension_type",
+                                    "living_alone",
+                                    "birth_month"
+                                ]}
+                                showFilters={true}
+                                pensionTypes={pensionTypes}
+                                months={months}
+                                clearRouteName="senior_citizen.index"
+                                clearRouteParams={{}}
+                            />
+                        )}
+                        <DynamicTable
+                            passedData={seniorCitizens}
+                            columnRenderers={columnRenderers}
+                            allColumns={allColumns}
+                            is_paginated={isPaginated}
+                            toggleShowAll={() => setShowAll(!showAll)}
+                            showAll={showAll}
+                            visibleColumns={visibleColumns}
+                            setVisibleColumns={setVisibleColumns}
+                        />
                     </div>
-                    <DynamicTable
-                        passedData={seniorCitizens}
-                        allColumns={allColumns}
-                        columnRenderers={columnRenderers}
-                        showTotal={true}
-                    >
-                        <div className="flex justify-between items-center w-full">
-                            <div className="flex gap-2 w-full">
-                                {/* puroks */}
-                                <Select
-                                    onValueChange={(value) =>
-                                        searchFieldName("purok", value)
-                                    }
-                                    value={queryParams.purok}
-                                >
-                                    <SelectTrigger className="w-[95px]">
-                                        <SelectValue placeholder="Purok" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="All">All</SelectItem>
-                                        {puroks.map((purok, index) => (
-                                            <SelectItem
-                                                key={index}
-                                                value={purok.toString()}
-                                            >
-                                                Purok {purok}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-
-                                {/* is pensioner */}
-                                <Select
-                                    onValueChange={(value) =>
-                                        searchFieldName("is_pensioner", value)
-                                    }
-                                    value={queryParams.is_pensioner}
-                                >
-                                    <SelectTrigger className="w-[125px]">
-                                        <SelectValue placeholder="Is Pensioner" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="All">All</SelectItem>
-
-                                        <SelectItem value="yes">Yes</SelectItem>
-                                        <SelectItem value="no">No</SelectItem>
-                                        <SelectItem value="pending">
-                                            Pending
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-
-                                {/* pension type */}
-                                <Select
-                                    onValueChange={(value) =>
-                                        searchFieldName("pension_type", value)
-                                    }
-                                    value={queryParams.pension_type}
-                                >
-                                    <SelectTrigger className="w-[125px]">
-                                        <SelectValue placeholder="Pension Type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="All">All</SelectItem>
-
-                                        {pensionTypes.map((pentype, index) => (
-                                            <SelectItem
-                                                key={index}
-                                                value={pentype.value}
-                                            >
-                                                {pentype.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-
-                                {/* is living alone */}
-                                <Select
-                                    onValueChange={(value) =>
-                                        searchFieldName("living_alone", value)
-                                    }
-                                    value={queryParams.living_alone}
-                                >
-                                    <SelectTrigger className="w-[140px]">
-                                        <SelectValue placeholder="Type of Living" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="All">All</SelectItem>
-
-                                        <SelectItem value="1">Alone</SelectItem>
-                                        <SelectItem value="0">
-                                            Not Alone
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
-
-                                {/* months of birthdays */}
-                                <Select
-                                    onValueChange={(value) =>
-                                        searchFieldName("birth_month", value)
-                                    }
-                                    value={queryParams.birth_month}
-                                >
-                                    <SelectTrigger className="w-[140px]">
-                                        <SelectValue placeholder="Birth Month" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="All">All</SelectItem>
-                                        {months.map((month, index) => (
-                                            <SelectItem
-                                                key={index}
-                                                value={month.value}
-                                            >
-                                                {month.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="flex justify-end">
-                                <ClearFilterButton
-                                    link={"senior_citizen.index"}
-                                />
-                            </div>
-                        </div>
-                    </DynamicTable>
                 </div>
             </div>
+            <SidebarModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Resident Details"
+            >
+                {selectedResident && (
+                    <PersonDetailContent person={selectedResident} />
+                )}
+            </SidebarModal>
         </AdminLayout>
     );
 }

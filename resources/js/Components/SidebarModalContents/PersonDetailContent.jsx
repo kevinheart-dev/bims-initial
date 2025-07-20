@@ -10,6 +10,7 @@ import { MdWork } from "react-icons/md";
 import * as CONSTANTS from "@/constants";
 import { IoPerson } from "react-icons/io5";
 import { FaPeopleGroup } from "react-icons/fa6";
+import { RiWheelchairFill } from "react-icons/ri";
 
 export default function PersonDetailContent({ person }) {
     const [activeTab, setActiveTab] = useState("education");
@@ -28,10 +29,11 @@ export default function PersonDetailContent({ person }) {
         return age;
     }
 
-    const bentoStyle = "rounded-xl border p-4 shadow-sm bg-white";
+    const bentoStyle = "rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg p-4";
 
     return (
-        <div className="w-full bg-white rounded-xl border shadow-sm text-sm text-black p-4 space-y-4">
+        <div className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg text-sm text-black p-4 space-y-4">
+
             {/* ✅ Basic Info */}
             <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
                 <img
@@ -89,7 +91,7 @@ export default function PersonDetailContent({ person }) {
                     <h3 className="font-bold text-base flex items-center gap-2 text-blue-700 mb-1">
                         <FaLocationDot className="text-blue-700" /> Residency
                     </h3>
-                    <hr className="mb-2 border-gray-300" />
+                    <hr className="mb-2 border-gray-500" />
                     <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
                         <span className="text-left font-medium">Address:</span>
                         <span className="text-left capitalize">
@@ -106,7 +108,7 @@ export default function PersonDetailContent({ person }) {
                     <h3 className="font-bold text-base flex items-center gap-2 text-blue-700 mb-1">
                         <FaPhone className="text-blue-700" /> Emergency Contact
                     </h3>
-                    <hr className="mb-2 border-gray-300" />
+                    <hr className="mb-2 border-gray-500" />
                     <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
                         <span className="text-left font-medium">Name:</span>
                         <span className="text-left capitalize">{person.medical_information?.emergency_contact_name}</span>
@@ -119,7 +121,7 @@ export default function PersonDetailContent({ person }) {
             </div>
 
             {/* ✅ Tab Navigation */}
-            <div className="border-b border-gray-300 mt-4">
+            <div className="border-b border-gray-400 mt-4">
                 <div className="flex gap-6 text-sm font-medium">
                     <button
                         onClick={() => setActiveTab("education")}
@@ -165,7 +167,7 @@ export default function PersonDetailContent({ person }) {
                         <h3 className="font-bold text-base flex items-center gap-2 text-blue-700 mb-2 mt-2">
                             <IoBookSharp className="text-blue-700" /> Education History
                         </h3>
-                        <hr className="mb-2 border-gray-300" />
+                        <hr className="mb-2 border-gray-400" />
                         {Array.isArray(person.educational_histories) && person.educational_histories.length > 0 ? (
                             person.educational_histories.map((edu, index) => (
                                 <div key={index} className="grid grid-cols-2 gap-x-4 gap-y-1 mb-4 pb-2 border-b border-gray-200">
@@ -203,7 +205,7 @@ export default function PersonDetailContent({ person }) {
                         <h3 className="font-bold text-base flex items-center gap-2 text-blue-700 mb-2 mt-2">
                             <MdWork className="text-blue-700" /> Occupation History
                         </h3>
-                        <hr className="mb-2 border-gray-300" />
+                        <hr className="mb-2 border-gray-400" />
                         {Array.isArray(person.occupations) && person.occupations.length > 0 ? (
                             person.occupations.map((job, index) => (
                                 <div key={index} className="grid grid-cols-2 gap-x-4 gap-y-1 mb-4 pb-2 border-b border-gray-200">
@@ -243,7 +245,7 @@ export default function PersonDetailContent({ person }) {
                         <h3 className="font-bold text-base flex items-center gap-2 text-blue-700 mb-2 mt-2">
                             <FaHeart className="text-blue-700" /> Medical Information
                         </h3>
-                        <hr className="mb-2 border-gray-300" />
+                        <hr className="mb-2 border-gray-400" />
                         {person.medical_information ? (
                             <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                                 <span className="font-medium text-left">Blood Type:</span>
@@ -261,66 +263,111 @@ export default function PersonDetailContent({ person }) {
                                 <span className="font-medium text-left">Nutrition Status:</span>
                                 <span className="text-left capitalize">{person.medical_information.nutrition_status}</span>
 
-                                <span className="font-medium text-left">PhilHealth ID:</span>
-                                <span className="text-left">{person.medical_information.philhealth_id_number || 'N/A'}</span>
-
                                 <span className="font-medium text-left">Smoker:</span>
                                 <span className="text-left">{person.medical_information.is_smoker ? 'Yes' : 'No'}</span>
 
                                 <span className="font-medium text-left">Alcohol User:</span>
                                 <span className="text-left">{person.medical_information.is_alcohol_user ? 'Yes' : 'No'}</span>
+
+                                <span className="font-medium text-left">Is PWD:</span>
+                                <span className="text-left">{person.is_pwd ? 'Yes' : 'No'}</span>
                             </div>
                         ) : (
                             <p className="text-sm text-gray-500 italic">No medical info available.</p>
                         )}
+                        {person.is_pwd === 1 && (
+                            <>
+                                <hr className="mb-2 mt-2 border-gray-400" />
+                                <h3 className="font-bold text-base flex items-center gap-2 text-blue-700 mb-2 mt-2">
+                                    <RiWheelchairFill className="text-blue-700" /> Disability
+                                </h3>
+                                <hr className="mb-2 border-gray-400" />
+
+                                {person.disabilities?.length > 0 ? (
+                                    <ul className="list-disc list-inside">
+                                        {person.disabilities.map((disability, index) => (
+                                            <li key={index} className="capitalize">
+                                                {disability.disability_type}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-sm italic text-gray-500">No disabilities recorded.</p>
+                                )}
+
+                            </>
+                        )}
+
                     </>
                 )}
 
-                {activeTab === "social" && person.social_welfare_profile && (
+                {activeTab === "social" && (
                     <>
                         <h3 className="col-span-2 font-bold text-base flex items-center gap-2 text-blue-700 mb-2 mt-2">
                             <FaPeopleGroup className="text-blue-700" /> Social Welfare Profile
                         </h3>
-                        <hr className="mb-2 border-gray-300" />
-                        <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
-                            <span className="font-medium text-left">Is 4Ps Beneficiary:</span>
-                            <span className="text-left">{person.social_welfare_profile.is_4ps_beneficiary ? "Yes" : "No"}</span>
+                        <hr className="mb-2 border-gray-400" />
 
-                            <span className="font-medium text-left">Is Solo Parent:</span>
-                            <span className="text-left">{person.social_welfare_profile.is_solo_parent ? "Yes" : "No"}</span>
+                        {person.social_welfare_profile ? (
+                            <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
+                                <span className="font-medium text-left">Is 4Ps Beneficiary:</span>
+                                <span className="text-left">{person.social_welfare_profile.is_4ps_beneficiary ? "Yes" : "No"}</span>
 
-                            {person.social_welfare_profile.is_solo_parent === 1 && (
-                                <>
-                                    <span className="font-medium text-left">Solo Parent ID:</span>
-                                    <span className="text-left">{person.social_welfare_profile.solo_parent_id_number}</span>
-                                </>
-                            )}
-                        </div>
+                                <span className="font-medium text-left">Is PhilHealth Beneficiary:</span>
+                                <span className="text-left">{person.medical_information?.has_philhealth ? "Yes" : "No"}</span>
+
+                                {person.medical_information?.has_philhealth === 1 && (
+                                    <>
+                                        <span className="font-medium text-left">PhilHealth ID:</span>
+                                        <span className="text-left">{person.medical_information?.philhealth_id_number || 'N/A'}</span>
+                                    </>
+                                )}
+
+                                <span className="font-medium text-left">Is Solo Parent:</span>
+                                <span className="text-left">{person.social_welfare_profile.is_solo_parent ? "Yes" : "No"}</span>
+
+                                {person.social_welfare_profile.is_solo_parent === 1 && (
+                                    <>
+                                        <span className="font-medium text-left">Solo Parent ID:</span>
+                                        <span className="text-left">{person.social_welfare_profile.solo_parent_id_number}</span>
+                                    </>
+                                )}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-gray-500 italic">No social welfare info available.</p>
+                        )}
                     </>
                 )}
 
 
-                {activeTab === "senior" && person.senior_citizen && (
+
+                {activeTab === "senior" && (
                     <>
                         <h3 className="col-span-2 font-bold text-base flex items-center gap-2 text-blue-700 mb-2 mt-2">
                             <IoPerson className="text-blue-700" /> Senior Information
                         </h3>
-                        <hr className="mb-2 border-gray-300" />
-                        <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
-                            <span className="font-medium text-left">OSCA ID Number:</span>
-                            <span className="text-left">{person.senior_citizen.osca_id_number}</span>
+                        <hr className="mb-2 border-gray-400" />
 
-                            <span className="font-medium text-left">Is Pensioner:</span>
-                            <span className="text-left capitalize">{person.senior_citizen.is_pensioner}</span>
+                        {person.senior_citizen ? (
+                            <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
+                                <span className="font-medium text-left">OSCA ID Number:</span>
+                                <span className="text-left">{person.senior_citizen.osca_id_number}</span>
 
-                            <span className="font-medium text-left">Pension Type:</span>
-                            <span className="text-left capitalize">{person.senior_citizen.pension_type}</span>
+                                <span className="font-medium text-left">Is Pensioner:</span>
+                                <span className="text-left capitalize">{person.senior_citizen.is_pensioner}</span>
 
-                            <span className="font-medium text-left">Living Alone:</span>
-                            <span className="text-left">{person.senior_citizen.living_alone ? "Yes" : "No"}</span>
-                        </div>
+                                <span className="font-medium text-left">Pension Type:</span>
+                                <span className="text-left capitalize">{person.senior_citizen.pension_type}</span>
+
+                                <span className="font-medium text-left">Living Alone:</span>
+                                <span className="text-left">{person.senior_citizen.living_alone ? "Yes" : "No"}</span>
+                            </div>
+                        ) : (
+                            <p className="text-sm text-gray-500 italic">No senior info available.</p>
+                        )}
                     </>
                 )}
+
 
 
             </div>
