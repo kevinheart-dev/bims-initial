@@ -2,20 +2,23 @@ import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import ActionMenu from "@/components/ActionMenu"; // your custom action component
+import DynamicTable from "@/Components/DynamicTable";
+import { useState, useEffect } from "react";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import * as CONSTANTS from "@/constants";
+import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
+import FilterToggle from "@/Components/FilterButtons/FillterToggle";
+import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
+import SidebarModal from "@/Components/SidebarModal";
 import {
-    HousePlus,
+    Eye,
+    Share2,
     Network,
     Search,
     SquarePen,
-    SquarePlus,
     Trash2,
-    User,
-    UserRoundPlus,
-    UsersRound,
 } from "lucide-react";
-import DynamicTable from "@/Components/DynamicTable";
-import { useState } from "react";
-
 import {
     Select,
     SelectContent,
@@ -23,22 +26,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
-import {
-    FAMILY_TYPE_TEXT,
-    HOUSEHOLD_POSITION_TEXT,
-    INCOME_BRACKETS,
-    MEDICAL_PWD_TEXT,
-    RELATIONSHIP_TO_HEAD_TEXT,
-    RESIDENT_EMPLOYMENT_STATUS_TEXT,
-    RESIDENT_GENDER_COLOR_CLASS,
-    RESIDENT_GENDER_TEXT2,
-    RESIDENT_REGISTER_VOTER_CLASS,
-    RESIDENT_REGISTER_VOTER_TEXT,
-} from "@/constants";
-import ClearFilterButton from "@/Components/ClearFiltersButton";
-
 export default function Index({
     members,
     family_details,
@@ -126,17 +113,67 @@ export default function Index({
         return age;
     };
 
+    // === FOR RESIDENT SIDE MODAL
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedResident, setSelectedResident] = useState(null);
+
+    const handleView = (resident) => {
+        setSelectedResident(resident);
+        setIsModalOpen(true);
+    };
+    // ===
+
+    // === BEING ADDED
+
+    const [visibleColumns, setVisibleColumns] = useState(
+        allColumns.map((col) => col.key)
+    );
+    const [isPaginated, setIsPaginated] = useState(true);
+    const [showAll, setShowAll] = useState(false);
+
+    const hasActiveFilter = Object.entries(queryParams || {}).some(
+        ([key, value]) =>
+            [
+                "gender",
+                "age_group",
+                "relation",
+                "household_position",
+                "estatus",
+                "voter_status",
+                "is_pwd"
+            ].includes(key) &&
+            value &&
+            value !== "All"
+    );
+
+
+    useEffect(() => {
+        if (hasActiveFilter) {
+            setShowFilters(true);
+        }
+    }, [hasActiveFilter]);
+
+
+    const [showFilters, setShowFilters] = useState(hasActiveFilter);
+    const toggleShowFilters = () => setShowFilters((prev) => !prev);
+
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    // === AP TO HERE
+
     const columnRenderers = {
         resident_id: (member) => member.id,
         name: (member) =>
-            `${member.firstname} ${member.middlename ?? ""} ${
-                member.lastname ?? ""
+            `${member.firstname} ${member.middlename ?? ""} ${member.lastname ?? ""
             } ${member.suffix ?? ""}`,
         gender: (member) => {
             const genderKey = member.gender;
-            const label = RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
+            const label = CONSTANTS.RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
             const className =
-                RESIDENT_GENDER_COLOR_CLASS[genderKey] ?? "bg-gray-300";
+                CONSTANTS.RESIDENT_GENDER_COLOR_CLASS[genderKey] ?? "bg-gray-300";
 
             return (
                 <span
@@ -165,28 +202,33 @@ export default function Index({
             );
         },
         relationship_to_head: (member) =>
-            RELATIONSHIP_TO_HEAD_TEXT[
-                member.household_residents?.[0]?.relationship_to_head
+            CONSTANTS.RELATIONSHIP_TO_HEAD_TEXT[
+            member.household_residents?.[0]?.relationship_to_head
             ] || "",
         household_position: (member) =>
-            HOUSEHOLD_POSITION_TEXT[
-                member.household_residents?.[0]?.household_position
+            CONSTANTS.HOUSEHOLD_POSITION_TEXT[
+            member.household_residents?.[0]?.household_position
             ] || "",
         employment_status: (member) =>
-            RESIDENT_EMPLOYMENT_STATUS_TEXT[member?.employment_status],
+            CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[member?.employment_status],
         registered_voter: (member) => {
             const status = member?.registered_voter ?? 0;
-            const label = RESIDENT_REGISTER_VOTER_TEXT[status] ?? "Unknown";
+            const label = CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[status] ?? "Unknown";
             const className =
-                RESIDENT_REGISTER_VOTER_CLASS[status] ??
+                CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[status] ??
                 "p-1 bg-gray-300 text-black rounded-lg";
 
             return <span className={className}>{label}</span>;
         },
-        is_pwd: (member) => MEDICAL_PWD_TEXT[member?.is_pwd],
+        is_pwd: (member) => CONSTANTS.MEDICAL_PWD_TEXT[member?.is_pwd],
         actions: (family) => (
             <ActionMenu
                 actions={[
+                    {
+                        label: "View",
+                        icon: <Eye className="w-4 h-4 text-indigo-600" />,
+                        onClick: () => handleView(family),
+                    },
                     {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
@@ -207,325 +249,215 @@ export default function Index({
             <Head title="Family" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div className="pt-4">
+                {/* <pre>{JSON.stringify(members, undefined, 3)}</pre> */}
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                    {/* <pre>{JSON.stringify(members, undefined, 3)}</pre> */}
-                    <div className="flex flex-row overflow-hidden bg-gray-50 shadow-md rounded-xl sm:rounded-lg m-3">
-                        <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
-                        <div className="flex flex-col justify-start items-start p-4 w-full">
-                            <p className="font-semibold text-lg md:text-3xl mb-4 md:mb-6">
-                                {family_details.family_name} Family
-                            </p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                                <div className="space-y-1 md:space-y-2 text-sm md:text-lg text-gray-600">
-                                    <div>
-                                        Family Type:{" "}
-                                        <span>
-                                            {
-                                                FAMILY_TYPE_TEXT[
-                                                    family_details.family_type
-                                                ]
-                                            }
-                                        </span>
-                                    </div>
-                                    <div>
-                                        Income Bracket:{" "}
-                                        <span
-                                            className={`p-0 md:p-2 rounded ${
-                                                INCOME_BRACKETS[
-                                                    family_details
-                                                        .income_bracket
-                                                ]?.className ?? ""
-                                            }`}
-                                        >
-                                            {INCOME_BRACKETS[
-                                                family_details.income_bracket
-                                            ]?.label ?? "Unknown"}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        Household Head
-                                        {family_details.members.filter(
-                                            (m) => m.is_household_head
-                                        ).length > 1
-                                            ? "s"
-                                            : ""}
-                                        :{" "}
-                                        <span className="font-medium text-gray-800">
-                                            {family_details.members
-                                                .filter(
-                                                    (member) =>
-                                                        member.is_household_head
-                                                )
-                                                .map(
-                                                    (member) =>
-                                                        `${member.firstname} ${member.lastname}`
-                                                )
-                                                .join(", ") || "None"}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="space-y-1 md:space-y-2 text-sm md:text-lg text-gray-600">
-                                    <Link
-                                        href={route(
-                                            "household.show",
-                                            family_details.household_id
-                                        )}
-                                        className="hover:underline text-blue-500 hover:text-blue-300"
-                                    >
-                                        <div>
-                                            Household Number:{" "}
-                                            <span>
-                                                {household_details.house_number}
-                                            </span>
-                                        </div>
-                                    </Link>
-                                    <div>
-                                        Total Members:{" "}
-                                        <span>
-                                            {family_details.members.length}
-                                        </span>
-                                    </div>
-                                </div>
+                    <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                        <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <DynamicTableControls
+                                    allColumns={allColumns}
+                                    visibleColumns={visibleColumns}
+                                    setVisibleColumns={setVisibleColumns}
+                                    onPrint={handlePrint}
+                                    showFilters={showFilters}
+                                    toggleShowFilters={() => setShowFilters((prev) => !prev)}
+                                />
                             </div>
-                        </div>
-                    </div>
-                    <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-3">
-                        <div className="my-1 mb-3 flex justify-between items-center">
-                            <div className="flex w-full max-w-sm items-center space-x-1">
-                                <Link href={route("family.create")}>
-                                    <Button className="bg-blue-700 hover:bg-blue-500 ">
-                                        <SquarePlus /> Add a Relationship
-                                    </Button>
-                                </Link>
-                                <Link href={route("family.create")}>
-                                    <Button className="bg-blue-700 hover:bg-blue-500 ">
-                                        <Network /> Show Family Tree
-                                    </Button>
-                                </Link>
-                            </div>
-                            <div className="flex w-full justify-end items-end space-x-1">
+                            <div className="flex items-center gap-2 flex-wrap justify-end">
                                 {/* Search Bar */}
                                 <form
                                     onSubmit={handleSubmit}
-                                    className="flex w-full max-w-sm items-center space-x-1"
+                                    className="flex w-[300px] max-w-lg items-center space-x-1"
                                 >
                                     <Input
                                         type="text"
-                                        placeholder="Search for Family Member Name"
+                                        placeholder="Search for Household Member Name"
                                         value={query}
-                                        onChange={(e) =>
-                                            setQuery(e.target.value)
-                                        }
-                                        onKeyDown={(e) =>
-                                            onKeyPressed("name", e.target.value)
-                                        }
-                                        className="ml-4"
+                                        onChange={(e) => setQuery(e.target.value)}
+                                        onKeyDown={(e) => onKeyPressed("name", e)}
+                                        className="w-full"
                                     />
-                                    <Button type="submit">
-                                        <Search />
-                                    </Button>
+                                    <div className="relative group z-50">
+                                        <Button
+                                            type="submit"
+                                            className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
+                                            variant="outline"
+                                        >
+                                            <Search />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Search
+                                        </div>
+                                    </div>
                                 </form>
+                                <Link href={route("family.create")}>
+                                    <div className="relative group z-50">
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                        >
+                                            <Share2 className="w-4 h-4" />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Add Relationship
+                                        </div>
+                                    </div>
+                                </Link>
+                                <Link href={route("family.create")}>
+                                    <div className="relative group z-50">
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                        >
+                                            <Network className="w-4 h-4" />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Family Tree
+                                        </div>
+                                    </div>
+                                </Link>
                             </div>
                         </div>
+                        {showFilters && (
+                            <FilterToggle
+                                queryParams={queryParams}
+                                searchFieldName={searchFieldName}
+                                visibleFilters={[
+                                    "gender",
+                                    "age_group",
+                                    "relation",
+                                    "household_position",
+                                    "estatus",
+                                    "voter_status",
+                                    "is_pwd"
+                                ]}
+                                showFilters={true}
+                                clearRouteName="family.showfamily"
+                                clearRouteParams={{ family: family_details.id, }}
+                            />
+                        )}
                         <DynamicTable
                             passedData={members}
                             columnRenderers={columnRenderers}
                             allColumns={allColumns}
-                            showTotal={true}
-                        >
-                            <div className="flex justify-between items-center w-full">
-                                <div className="flex gap-2 w-full">
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("gender", value)
-                                        }
-                                        value={queryParams.gender}
-                                    >
-                                        <SelectTrigger className="w-[100px]">
-                                            <SelectValue placeholder="Gender" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="male">
-                                                Male
-                                            </SelectItem>
-                                            <SelectItem value="female">
-                                                Female
-                                            </SelectItem>
-                                            <SelectItem value="LGBTQ">
-                                                LGBTQ+
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("age_group", value)
-                                        }
-                                        value={queryParams.age_group}
-                                    >
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Age Group" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="child">
-                                                0 - 12 (Child)
-                                            </SelectItem>
-                                            <SelectItem value="teen">
-                                                13 - 17 (Teen)
-                                            </SelectItem>
-                                            <SelectItem value="young_adult">
-                                                18 - 25 (Young Adult)
-                                            </SelectItem>
-                                            <SelectItem value="adult">
-                                                26 - 59 (Adult)
-                                            </SelectItem>
-                                            <SelectItem value="senior">
-                                                60+ (Senior)
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("relation", value)
-                                        }
-                                        value={queryParams.relation}
-                                    >
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Relationship to Head" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="self">
-                                                Self
-                                            </SelectItem>
-                                            <SelectItem value="child">
-                                                Child
-                                            </SelectItem>
-                                            <SelectItem value="spouse">
-                                                Spouse
-                                            </SelectItem>
-                                            <SelectItem value="parent">
-                                                Parent
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName(
-                                                "household_position",
-                                                value
-                                            )
-                                        }
-                                        value={queryParams.household_position}
-                                    >
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Household Position" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="primary">
-                                                Nuclear/Primary
-                                            </SelectItem>
-                                            <SelectItem value="extended">
-                                                Extended
-                                            </SelectItem>
-                                            <SelectItem value="boarder">
-                                                Boarder
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("estatus", value)
-                                        }
-                                        value={queryParams.estatus}
-                                    >
-                                        <SelectTrigger className="w-[170px]">
-                                            <SelectValue placeholder="Employment Status" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="student">
-                                                Student
-                                            </SelectItem>
-                                            <SelectItem value="employed">
-                                                Employed
-                                            </SelectItem>
-                                            <SelectItem value="unemployed">
-                                                Unemployed
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName(
-                                                "voter_status",
-                                                value
-                                            )
-                                        }
-                                        value={queryParams.voter_status}
-                                    >
-                                        <SelectTrigger className="w-[170px]">
-                                            <SelectValue placeholder="Voter Status" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="1">
-                                                Registered Voter
-                                            </SelectItem>
-                                            <SelectItem value="0">
-                                                Unregistered Voter
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("is_pwd", value)
-                                        }
-                                        value={queryParams.is_pwd}
-                                    >
-                                        <SelectTrigger className="w-[100px]">
-                                            <SelectValue placeholder="Is PWD" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="1">
-                                                PWD
-                                            </SelectItem>
-                                            <SelectItem value="0">
-                                                Not PWD
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="flex justify-end">
-                                    <ClearFilterButton
-                                        routeName="family.showfamily"
-                                        routeParams={{
-                                            family: family_details.id,
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        </DynamicTable>
+                            // showTotal={true}
+                            is_paginated={isPaginated}
+                            toggleShowAll={() => setShowAll(!showAll)}
+                            showAll={showAll}
+                            visibleColumns={visibleColumns}
+                            setVisibleColumns={setVisibleColumns}
+                        />
                     </div>
                 </div>
             </div>
+            <SidebarModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Resident Details"
+            >
+                {selectedResident && (
+                    <PersonDetailContent person={selectedResident} />
+                )}
+            </SidebarModal>
         </AdminLayout>
     );
 }
+
+// <div className="flex flex-row overflow-hidden bg-gray-50 shadow-md rounded-xl sm:rounded-lg m-3">
+//     <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
+//     <div className="flex flex-col justify-start items-start p-4 w-full">
+//         <p className="font-semibold text-lg md:text-3xl mb-4 md:mb-6">
+//             {family_details.family_name} Family
+//         </p>
+//         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+//             {/* <div className="space-y-1 md:space-y-2 text-sm md:text-lg text-gray-600">
+//                 <div>
+//                     Family Type:{" "}
+//                     <span>
+//                         {
+//                             CONSTANTS.FAMILY_TYPE_TEXT[
+//                             family_details.family_type
+//                             ]
+//                         }
+//                     </span>
+//                 </div>
+//                 <div>
+//                     Family Head
+//                     {family_details.members.filter(
+//                         (m) => m.is_family_head
+//                     ).length > 1
+//                         ? "s"
+//                         : ""}
+//                     :{" "}
+//                     <span className="font-medium text-gray-800">
+//                         {family_details.members
+//                             .filter((m) => m.is_family_head)
+//                             .map(
+//                                 (m) =>
+//                                     `${m.firstname} ${m.lastname}`
+//                             )
+//                             .join(", ") || "None"}
+//                     </span>
+//                 </div>
+//                 <div>
+//                     Income Bracket:{" "}
+//                     <span
+//                         className={`p-0 md:p-2 rounded ${CONSTANTS.INCOME_BRACKETS[
+//                             family_details
+//                                 .income_bracket
+//                         ]?.className ?? ""
+//                             }`}
+//                     >
+//                         {CONSTANTS.INCOME_BRACKETS[
+//                             family_details.income_bracket
+//                         ]?.label ?? "Unknown"}
+//                     </span>
+//                 </div>
+//             </div> */}
+//             <div className="space-y-1 md:space-y-2 text-sm md:text-lg text-gray-600">
+//                 <Link
+//                     href={route(
+//                         "household.show",
+//                         family_details.household_id
+//                     )}
+//                     className="hover:underline text-blue-500 hover:text-blue-300"
+//                 >
+//                     <div>
+//                         Household Number:{" "}
+//                         <span>
+//                             {household_details.house_number}
+//                         </span>
+//                     </div>
+//                 </Link>
+//                 <div>
+//                     Household Head
+//                     {family_details.members.filter(
+//                         (m) => m.is_household_head
+//                     ).length > 1
+//                         ? "s"
+//                         : ""}
+//                     :{" "}
+//                     <span className="font-medium text-gray-800">
+//                         {family_details.members
+//                             .filter(
+//                                 (member) =>
+//                                     member.is_household_head
+//                             )
+//                             .map(
+//                                 (member) =>
+//                                     `${member.firstname} ${member.lastname}`
+//                             )
+//                             .join(", ") || "None"}
+//                     </span>
+//                 </div>
+
+//                 <div>
+//                     Total Members:{" "}
+//                     <span>
+//                         {family_details.members.length}
+//                     </span>
+//                 </div>
+//             </div>
+//         </div>
+//     </div>
+// </div>

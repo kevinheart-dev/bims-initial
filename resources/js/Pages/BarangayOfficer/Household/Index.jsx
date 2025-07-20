@@ -19,14 +19,11 @@ import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
 import ResidentFilterBar from "@/Components/ResidentFilterBar";
 import * as CONSTANTS from "@/constants";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/Components/ui/select";
-import ClearFilterButton from "@/Components/ClearFiltersButton";
+
+import FilterToggle from "@/Components/FilterButtons/FillterToggle";
+import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
+
+
 
 export default function Index({ households, puroks, streets, queryParams }) {
     const breadcrumbs = [
@@ -79,6 +76,47 @@ export default function Index({ households, puroks, streets, queryParams }) {
         { key: "actions", label: "Actions" },
     ];
 
+    // ===== CODED I ADDED
+    const hasActiveFilter = Object.entries(queryParams || {}).some(
+        ([key, value]) =>
+            [
+                "purok",
+                "street",
+                "own_type",
+                "condition",
+                "structure",
+            ].includes(key) &&
+            value &&
+            value !== "All"
+    );
+    useEffect(() => {
+        if (hasActiveFilter) {
+            setShowFilters(true);
+        }
+    }, [hasActiveFilter]);
+
+
+    const [showFilters, setShowFilters] = useState(hasActiveFilter);
+    const toggleShowFilters = () => setShowFilters((prev) => !prev);
+    const handlePrint = () => {
+        window.print();
+    };
+
+
+    const [isPaginated, setIsPaginated] = useState(true);
+    const [showAll, setShowAll] = useState(false);
+
+    const defaultVisibleCols = allColumns.map((col) => col.key);
+    const [visibleColumns, setVisibleColumns] = useState(() => {
+        const saved = localStorage.getItem("household_visible_columns");
+        return saved ? JSON.parse(saved) : defaultVisibleCols;
+    });
+
+    useEffect(() => {
+        localStorage.setItem("household_visible_columns", JSON.stringify(visibleColumns));
+    }, [visibleColumns]);
+
+    //===
     const columnRenderers = {
         id: (house) => house.id,
         name: (house) => {
@@ -112,26 +150,23 @@ export default function Index({ households, puroks, streets, queryParams }) {
         purok_number: (house) => house.purok.purok_number,
         street_name: (house) => house.street.street_name,
         ownership_type: (house) => (
-            <span>
-                {CONSTANTS.HOUSEHOLD_OWNERSHIP_TEXT[house.ownership_type]}
-            </span>
+            <span>{CONSTANTS.HOUSEHOLD_OWNERSHIP_TEXT[house.ownership_type]}</span>
         ),
         housing_condition: (house) => (
             <span
-                className={`px-2 py-1 text-sm rounded-lg ${
-                    CONSTANTS.HOUSING_CONDITION_COLOR[
-                        house.housing_condition
-                    ] ?? "bg-gray-100 text-gray-700"
-                }`}
+                className={`px-2 py-1 text-sm rounded-lg ${CONSTANTS.HOUSING_CONDITION_COLOR[house.housing_condition] ??
+                    "bg-gray-100 text-gray-700"
+                    }`}
+
             >
                 {CONSTANTS.HOUSEHOLD_CONDITION_TEXT[house.housing_condition]}
             </span>
         ),
         year_established: (house) => house.year_established ?? "Unknown",
         house_structure: (house) => (
-            <span>
-                {CONSTANTS.HOUSEHOLD_STRUCTURE_TEXT[house.house_structure]}
-            </span>
+
+            <span>{CONSTANTS.HOUSEHOLD_STRUCTURE_TEXT[house.house_structure]}</span>
+
         ),
         number_of_rooms: (house) => house.number_of_rooms ?? "N/A",
         number_of_floors: (house) => house.number_of_floors ?? "N/A",
@@ -158,209 +193,117 @@ export default function Index({ households, puroks, streets, queryParams }) {
         ),
     };
 
-    const ownershipOptions = [
-        { label: "Owned", value: "owned" },
-        { label: "Rented", value: "rented" },
-        { label: "Shared", value: "shared" },
-        { label: "Government Provided", value: "government_provided" },
-        { label: "Inherited", value: "inherited" },
-        { label: "Others", value: "others" },
-    ];
-    const houseingConditions = [
-        { label: "Good", value: "good" },
-        { label: "Needs Repair", value: "needs_repair" },
-        { label: "Delapitated", value: "delapitated" },
-    ];
-    const structureOptions = [
-        { label: "Concrete", value: "concrete" },
-        { label: "Semi Concrete", value: "semi_concrete" },
-        { label: "Wood", value: "wood" },
-        { label: "Makeshift", value: "makeshift" },
-    ];
+    // const ownershipOptions = [
+    //     { label: "Owned", value: "owned" },
+    //     { label: "Rented", value: "rented" },
+    //     { label: "Shared", value: "shared" },
+    //     { label: "Government Provided", value: "government_provided" },
+    //     { label: "Inherited", value: "inherited" },
+    //     { label: "Others", value: "others" },
+    // ];
+    // const houseingConditions = [
+    //     { label: "Good", value: "good" },
+    //     { label: "Needs Repair", value: "needs_repair" },
+    //     { label: "Delapitated", value: "delapitated" },
+    // ];
+    // const structureOptions = [
+    //     { label: "Concrete", value: "concrete" },
+    //     { label: "Semi Concrete", value: "semi_concrete" },
+    //     { label: "Wood", value: "wood" },
+    //     { label: "Makeshift", value: "makeshift" },
+    // ];
 
     return (
         <AdminLayout>
-            <Head title="Household" />
-            <div>
-                <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-                {/* <pre>{JSON.stringify(households, undefined, 2)}</pre> */}
-                <div className="p-2 md:p-4">
-                    <div className="overflow-x bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-2 my-4">
-                        <div className="my-1 mb-3 flex justify-between items-center">
-                            <div className="flex w-full justify-end items-end space-x-1">
-                                {/* Search Bar */}
+            <Head title="Households Dashboard" />
+            <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
+            {/* <pre>{JSON.stringify(households, undefined, 2)}</pre> */}
+            <div className="pt-4">
+                <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
+                    <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                        <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <DynamicTableControls
+                                    allColumns={allColumns}
+                                    visibleColumns={visibleColumns}
+                                    setVisibleColumns={setVisibleColumns}
+                                    onPrint={handlePrint}
+                                    showFilters={showFilters}
+                                    toggleShowFilters={() => setShowFilters((prev) => !prev)}
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-2 flex-wrap justify-end">
+
                                 <form
                                     onSubmit={handleSubmit}
-                                    className="flex w-full max-w-sm items-center space-x-1"
+                                    className="flex w-[300px] max-w-lg items-center space-x-1"
                                 >
                                     <Input
                                         type="text"
-                                        placeholder="Search House Number"
+                                        placeholder="Search for Household Member Name"
                                         value={query}
-                                        onChange={(e) =>
-                                            setQuery(e.target.value)
-                                        }
-                                        onKeyDown={(e) =>
-                                            onKeyPressed("name", e.target.value)
-                                        }
-                                        className="ml-4"
+                                        onChange={(e) => setQuery(e.target.value)}
+                                        onKeyDown={(e) => onKeyPressed("name", e)}
+                                        className="w-full"
                                     />
-                                    <Button type="submit">
-                                        <Search />
-                                    </Button>
+                                    <div className="relative group z-50">
+                                        <Button
+                                            type="submit"
+                                            className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
+                                            variant="outline"
+                                        >
+                                            <Search />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Search
+                                        </div>
+                                    </div>
                                 </form>
                                 <Link href={route("household.create")}>
-                                    <Button className="bg-blue-700 hover:bg-blue-400 ">
-                                        <HousePlus />
-                                    </Button>
+                                    <div className="relative group z-50">
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                        >
+                                            <HousePlus className="w-4 h-4" />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Add Household
+                                        </div>
+                                    </div>
                                 </Link>
                             </div>
                         </div>
+
+                        {showFilters && (
+                            <FilterToggle
+                                queryParams={queryParams}
+                                searchFieldName={searchFieldName}
+                                visibleFilters={[
+                                    "purok",
+                                    "street",
+                                    "own_type",
+                                    "condition",
+                                    "structure"
+                                ]}
+                                showFilters={true}
+                                puroks={puroks}
+                                streets={streets}
+                                clearRouteName="household.index"
+                                clearRouteParams={{}}
+                            />
+                        )}
                         <DynamicTable
                             passedData={households}
-                            allColumns={allColumns}
                             columnRenderers={columnRenderers}
-                            showTotal={true}
+                            allColumns={allColumns}
+                            is_paginated={isPaginated}
+                            toggleShowAll={() => setShowAll(!showAll)}
+                            showAll={showAll}
+                            visibleColumns={visibleColumns}
+                            setVisibleColumns={setVisibleColumns}
                         >
-                            <div className="flex justify-between items-center w-full">
-                                <div className="flex gap-2 w-full">
-                                    {/* puroks */}
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("purok", value)
-                                        }
-                                        value={queryParams.purok}
-                                    >
-                                        <SelectTrigger className="w-[95px]">
-                                            <SelectValue placeholder="Purok" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            {puroks.map((purok, index) => (
-                                                <SelectItem
-                                                    key={index}
-                                                    value={purok.toString()}
-                                                >
-                                                    Purok {purok}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-
-                                    {/* streets */}
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("street", value)
-                                        }
-                                        value={queryParams.street}
-                                    >
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Street" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            {streets.map((street, index) => (
-                                                <SelectItem
-                                                    key={index}
-                                                    value={street.toString()}
-                                                >
-                                                    {street}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-
-                                    {/* ownership type */}
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("own_type", value)
-                                        }
-                                        value={queryParams.own_type}
-                                    >
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Ownership Type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            {ownershipOptions.map(
-                                                (option, index) => (
-                                                    <SelectItem
-                                                        key={index}
-                                                        value={option.value.toString()}
-                                                    >
-                                                        {option.label}
-                                                    </SelectItem>
-                                                )
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-
-                                    {/* housing condition */}
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("condition", value)
-                                        }
-                                        value={queryParams.condition}
-                                    >
-                                        <SelectTrigger className="w-[130px]">
-                                            <SelectValue placeholder="Condition" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            {houseingConditions.map(
-                                                (option, index) => (
-                                                    <SelectItem
-                                                        key={index}
-                                                        value={option.value.toString()}
-                                                    >
-                                                        {option.label}
-                                                    </SelectItem>
-                                                )
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-
-                                    {/* housing structure */}
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("structure", value)
-                                        }
-                                        value={queryParams.structure}
-                                    >
-                                        <SelectTrigger className="w-[150px]">
-                                            <SelectValue placeholder="Structure" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            {structureOptions.map(
-                                                (option, index) => (
-                                                    <SelectItem
-                                                        key={index}
-                                                        value={option.value.toString()}
-                                                    >
-                                                        {option.label}
-                                                    </SelectItem>
-                                                )
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="flex justify-end">
-                                    <ClearFilterButton
-                                        routeName={"household.index"}
-                                    />
-                                </div>
-                            </div>
                         </DynamicTable>
                     </div>
                 </div>

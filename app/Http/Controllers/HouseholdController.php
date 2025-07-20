@@ -215,6 +215,7 @@ class HouseholdController extends Controller
             'bath_and_wash_area' => $household_details['bath_and_wash_area']
         ];
 
+
         $query = HouseholdResident::with('resident', 'household')
         ->where('household_id', $household->id);
         if (request()->filled('name')) {

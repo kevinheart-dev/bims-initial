@@ -1,51 +1,22 @@
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router } from "@inertiajs/react";
-import ActionMenu from "@/components/ActionMenu"; // your custom action component
-import {
-    HousePlus,
-    Network,
-    Search,
-    SquarePen,
-    SquarePlus,
-    Trash2,
-    User,
-    UserRoundPlus,
-    UsersRound,
-} from "lucide-react";
+import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import DynamicTable from "@/Components/DynamicTable";
-import { useState } from "react";
-
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/Components/ui/select";
+import FilterToggle from "@/Components/FilterButtons/FillterToggle";
+import { useState, useEffect } from "react";
+import SidebarModal from "@/Components/SidebarModal";
+import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
-import {
-    FAMILY_TYPE_TEXT,
-    HOUSEHOLD_CONDITION_TEXT,
-    HOUSEHOLD_OWNERSHIP_TEXT,
-    HOUSEHOLD_POSITION_TEXT,
-    HOUSING_CONDITION_COLOR,
-    INCOME_BRACKETS,
-    MEDICAL_PWD_TEXT,
-    RELATIONSHIP_TO_HEAD_TEXT,
-    RESIDENT_EMPLOYMENT_STATUS_TEXT,
-    RESIDENT_GENDER_COLOR_CLASS,
-    RESIDENT_GENDER_TEXT2,
-    RESIDENT_REGISTER_VOTER_CLASS,
-    RESIDENT_REGISTER_VOTER_TEXT,
-} from "@/constants";
-import ClearFilterButton from "@/Components/ClearFiltersButton";
+import * as CONSTANTS from "@/constants";
+import { Eye, SquarePen, Trash2, Network, Search, Share2 } from "lucide-react";
+import ActionMenu from "@/Components/ActionMenu"; // You forgot to import this before
 
 export default function Index({
     household_details,
     household_members,
-    queryParams = null,
+    queryParams: initialQueryParams = null,
 }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
@@ -60,8 +31,8 @@ export default function Index({
         },
     ];
 
-    queryParams = queryParams || {};
-
+    // ✅ Ensure queryParams is defined before use
+    const queryParams = initialQueryParams || {};
     const [query, setQuery] = useState(queryParams["name"] ?? "");
 
     const handleSubmit = (e) => {
@@ -90,8 +61,6 @@ export default function Index({
     const onKeyPressed = (field, e) => {
         if (e.key === "Enter") {
             searchFieldName(field, e.target.value);
-        } else {
-            return;
         }
     };
 
@@ -107,13 +76,64 @@ export default function Index({
         { key: "is_pwd", label: "Is PWD" },
         { key: "actions", label: "Actions" },
     ];
+    // === FOR RESIDENT SIDE MODAL
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedResident, setSelectedResident] = useState(null);
+
+    const handleView = (resident) => {
+        setSelectedResident(resident);
+        setIsModalOpen(true);
+    };
+    // ===
+
+    // === BEING ADDED
+
+    const [visibleColumns, setVisibleColumns] = useState(
+        allColumns.map((col) => col.key)
+    );
+    const [isPaginated, setIsPaginated] = useState(true);
+    const [showAll, setShowAll] = useState(false);
+
+    const hasActiveFilter = Object.entries(queryParams || {}).some(
+        ([key, value]) =>
+            [
+                "gender",
+                "age_group",
+                "relation",
+                "household_position",
+                "estatus",
+                "voter_status",
+                "is_pwd",
+            ].includes(key) &&
+            value &&
+            value !== "All"
+    );
+
+
+    useEffect(() => {
+        if (hasActiveFilter) {
+            setShowFilters(true);
+        }
+    }, [hasActiveFilter]);
+
+
+    const [showFilters, setShowFilters] = useState(hasActiveFilter);
+    const toggleShowFilters = () => setShowFilters((prev) => !prev);
+
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    // === AP TO HERE
+
 
     const handleEdit = (id) => {
-        // Your edit logic here
+        // Edit logic here
     };
 
     const handleDelete = (id) => {
-        // Your delete logic here
+        // Delete logic here
     };
 
     const calculateAge = (birthdate) => {
@@ -131,61 +151,60 @@ export default function Index({
     const columnRenderers = {
         resident_id: (member) => member.resident.id,
         name: (member) =>
-            `${member.resident.firstname} ${member.resident.middlename ?? ""} ${
-                member.resident.lastname ?? ""
-            } ${member.resident.suffix ?? ""}`,
+            `${member.firstname} ${member.middlename ?? ""} ${member.lastname ?? ""} ${member.suffix ?? ""}`,
         gender: (member) => {
-            const genderKey = member.resident.gender;
-            const label = RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
-            const className =
-                RESIDENT_GENDER_COLOR_CLASS[genderKey] ?? "bg-gray-300";
+            const genderKey = member.gender;
+            const label = CONSTANTS.RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
+            const className = CONSTANTS.RESIDENT_GENDER_COLOR_CLASS[genderKey] ?? "bg-gray-300";
+
 
             return (
-                <span
-                    className={`py-1 px-2 rounded-xl text-sm font-medium ${className}`}
-                >
+                <span className={`py-1 px-2 rounded-xl text-sm font-medium ${className}`}>
                     {label}
                 </span>
             );
         },
         age: (member) => {
-            const age = calculateAge(member.resident.birthdate);
+
+            const age = calculateAge(member.birthdate);
 
             if (typeof age !== "number") return "Unknown";
-
             return (
                 <div className="flex flex-col">
-                    <span className="font-medium text-gray-800">
-                        {age} years old
-                    </span>
+                    <span className="font-medium text-gray-800">{age} years old</span>
                     {age > 60 && (
-                        <span className="text-xs text-rose-600 font-semibold">
-                            Senior Citizen
-                        </span>
+                        <span className="text-xs text-rose-600 font-semibold">Senior Citizen</span>
                     )}
                 </div>
             );
         },
         relationship_to_head: (member) =>
-            RELATIONSHIP_TO_HEAD_TEXT[member.relationship_to_head] || "Unknown",
+
+            CONSTANTS.RELATIONSHIP_TO_HEAD_TEXT[member.household_residents?.[0]?.relationship_to_head] || "",
         household_position: (member) =>
-            HOUSEHOLD_POSITION_TEXT[member.household_position] || "Unknown",
+            CONSTANTS.HOUSEHOLD_POSITION_TEXT[member.household_residents?.[0]?.household_position] || "",
         employment_status: (member) =>
-            RESIDENT_EMPLOYMENT_STATUS_TEXT[member.resident.employment_status],
+            CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[member?.employment_status],
         registered_voter: (member) => {
-            const status = member.resident.registered_voter ?? 0;
-            const label = RESIDENT_REGISTER_VOTER_TEXT[status] ?? "Unknown";
+            const status = member?.registered_voter ?? 0;
+            const label = CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[status] ?? "Unknown";
+
             const className =
-                RESIDENT_REGISTER_VOTER_CLASS[status] ??
-                "p-1 bg-gray-300 text-black rounded-lg";
+                CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[status] ?? "p-1 bg-gray-300 text-black rounded-lg";
 
             return <span className={className}>{label}</span>;
         },
-        is_pwd: (member) => MEDICAL_PWD_TEXT[member.resident.is_pwd],
-        actions: (member) => (
+        is_pwd: (member) => CONSTANTS.MEDICAL_PWD_TEXT[member?.is_pwd],
+        actions: (family) => (
             <ActionMenu
                 actions={[
                     {
+                        label: "View",
+                        icon: <Eye className="w-4 h-4 text-indigo-600" />,
+                        onClick: () => handleView(family),
+                    },
+                    {
+
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
                         onClick: () => handleEdit(member.resident.id),
@@ -204,484 +223,121 @@ export default function Index({
         <AdminLayout>
             <Head title="Family" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
+            {/* <pre>{JSON.stringify(household_details, undefined, 3)}</pre> */}
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                    {/* <pre>{JSON.stringify(household_members, undefined, 3)}</pre> */}
-                    <div className="flex flex-row overflow-hidden bg-gray-50 shadow-md rounded-xl sm:rounded-lg m-3">
-                        <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
-                        <div className="flex flex-col justify-start items-start p-4 w-full">
-                            <p className="font-semibold text-lg md:text-3xl mb-4 md:mb-6">
-                                Household Number:{" "}
-                                {household_details.house_number}
-                            </p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                                <div className="space-y-1 md:space-y-2 text-sm md:text-lg text-gray-600">
-                                    <div>
-                                        Household Head
-                                        {household_details.household_residents.filter(
-                                            (m) => m.resident.is_household_head
-                                        ).length > 1
-                                            ? "s"
-                                            : ""}
-                                        :{" "}
-                                        <span className="font-medium text-gray-800">
-                                            {household_details.household_residents
-                                                .filter(
-                                                    (m) =>
-                                                        m.resident
-                                                            .is_household_head
-                                                )
-                                                .map(
-                                                    (m) =>
-                                                        `${m.resident.firstname} ${m.resident.lastname}`
-                                                )
-                                                .join(", ") || "None"}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        Ownership Type:{" "}
-                                        <span>
-                                            {
-                                                HOUSEHOLD_OWNERSHIP_TEXT[
-                                                    household_details
-                                                        .ownership_type
-                                                ]
-                                            }
-                                        </span>
-                                    </div>
-
-                                    <div>
-                                        House Condition:{" "}
-                                        <span
-                                            className={`p-0 md:p-2 rounded ${
-                                                HOUSING_CONDITION_COLOR[
-                                                    household_details.housing_condition ??
-                                                        ""
-                                                ]
-                                            }`}
-                                        >
-                                            {
-                                                HOUSEHOLD_CONDITION_TEXT[
-                                                    household_details.housing_condition ??
-                                                        "Unknown"
-                                                ]
-                                            }
-                                        </span>
-                                    </div>
-                                    <div>
-                                        House Structure:{" "}
-                                        <span>
-                                            {household_details.house_structure}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="space-y-1 md:space-y-2 text-sm md:text-lg text-gray-600">
-                                    <div>
-                                        Year Established:{" "}
-                                        <span>
-                                            {household_details.year_established}
-                                        </span>
-                                    </div>
-
-                                    <div>
-                                        Number of Rooms:{" "}
-                                        <span>
-                                            {household_details.number_of_rooms}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        Number of Floors:{" "}
-                                        <span>
-                                            {household_details.number_of_floors}
-                                        </span>
-                                    </div>
-                                    <div>
-                                        Total Household Members:{" "}
-                                        <span>
-                                            {
-                                                household_details
-                                                    .household_residents.length
-                                            }
-                                        </span>
-                                    </div>
-                                </div>
+                    <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                        <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <DynamicTableControls
+                                    allColumns={allColumns}
+                                    visibleColumns={visibleColumns}
+                                    setVisibleColumns={setVisibleColumns}
+                                    onPrint={handlePrint}
+                                    showFilters={showFilters}
+                                    toggleShowFilters={() => setShowFilters((prev) => !prev)}
+                                />
                             </div>
-                        </div>
-                    </div>
-                    <div className="flex flex-col md:flex-row">
-                        <div className="flex w-full overflow-hidden bg-gray-50 shadow-md rounded-xl m-3 border border-gray-100">
-                            <div className="w-2 bg-blue-600 rounded-l-2xl"></div>
-                            <div className="flex flex-col p-5 w-full">
-                                <p className="text-xl font-semibold text-gray-800 mb-4">
-                                    Household Toilets
-                                </p>
-                                <div className="space-y-2">
-                                    {household_details.toilets.length > 0 ? (
-                                        household_details.toilets.map(
-                                            (toilet, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="px-4 py-2 bg-gray-50 text-gray-800 rounded-lg border border-gray-300 shadow-sm hover:bg-gray-100 transition"
-                                                >
-                                                    {toilet.toilet_type}
-                                                </div>
-                                            )
-                                        )
-                                    ) : (
-                                        <p className="text-gray-500 italic">
-                                            No toilet information available.
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex w-full overflow-hidden bg-gray-50 shadow-md rounded-xl m-3 border border-gray-100">
-                            <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
-                            <div className="flex flex-col justify-start items-start p-4 w-full">
-                                <p className="font-semibold text-md md:text-lg mb-2 md:mb-4">
-                                    Household Wash and Bath
-                                </p>
-                                <div className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg border border-gray-300 w-full">
-                                    {household_details.bath_and_wash_area
-                                        ?.bath_and_wash_area ?? (
-                                        <span className="text-gray-500 italic">
-                                            No information available.
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex w-full overflow-hidden bg-gray-50 shadow-md rounded-xl m-3 border border-gray-100">
-                            <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
-                            <div className="flex flex-col justify-start items-start p-4 w-full">
-                                <p className="font-semibold text-md md:text-lg mb-2 md:mb-4">
-                                    Household Electricity Types
-                                </p>
-                                <div className="space-y-2 w-full">
-                                    {Array.isArray(
-                                        household_details.electricity_types
-                                    ) &&
-                                    household_details.electricity_types.length >
-                                        0 ? (
-                                        household_details.electricity_types.map(
-                                            (item, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg border border-gray-300"
-                                                >
-                                                    {item.electricity_type}
-                                                </div>
-                                            )
-                                        )
-                                    ) : (
-                                        <p className="text-gray-500 italic">
-                                            No electricity type information
-                                            available.
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex w-full overflow-hidden bg-gray-50 shadow-md rounded-xl m-3 border border-gray-100">
-                            <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
-                            <div className="flex flex-col justify-start items-start p-4 w-full">
-                                <p className="font-semibold text-md md:text-lg mb-2 md:mb-4">
-                                    Household Waste Management Types
-                                </p>
-                                <div className="space-y-2 w-full">
-                                    {Array.isArray(
-                                        household_details.waste_management_types
-                                    ) &&
-                                    household_details.waste_management_types
-                                        .length > 0 ? (
-                                        household_details.waste_management_types.map(
-                                            (item, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg border border-gray-300"
-                                                >
-                                                    {item.waste_management_type}
-                                                </div>
-                                            )
-                                        )
-                                    ) : (
-                                        <p className="text-gray-500 italic">
-                                            No waste management information
-                                            available.
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex w-full overflow-hidden bg-gray-50 shadow-md rounded-xl m-3 border border-gray-100">
-                            <div className="p-1 mr-4 bg-blue-600 rounded-xl sm:rounded-lg"></div>
-                            <div className="flex flex-col justify-start items-start p-4 w-full">
-                                <p className="font-semibold text-md md:text-lg mb-2 md:mb-4">
-                                    Household Water Sources
-                                </p>
-                                <div className="space-y-2 w-full">
-                                    {Array.isArray(
-                                        household_details.water_source_types
-                                    ) &&
-                                    household_details.water_source_types
-                                        .length > 0 ? (
-                                        household_details.water_source_types.map(
-                                            (item, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="px-4 py-2  text-gray-800"
-                                                >
-                                                    {item.water_source_type}
-                                                </div>
-                                            )
-                                        )
-                                    ) : (
-                                        <p className="text-gray-500 italic">
-                                            No water source information
-                                            available.
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-3">
-                        <div className="my-1 mb-3 flex justify-between items-center">
-                            <div className="flex w-full max-w-sm items-center space-x-1">
-                                <Link href={route("family.create")}>
-                                    <Button className="bg-blue-700 hover:bg-blue-500 ">
-                                        <SquarePlus /> Add a Relationship
-                                    </Button>
-                                </Link>
-                                <Link href={route("family.create")}>
-                                    <Button className="bg-blue-700 hover:bg-blue-500 ">
-                                        <Network /> Show Family Tree
-                                    </Button>
-                                </Link>
-                            </div>
-                            <div className="flex w-full justify-end items-end space-x-1">
+                            {/* Right Controls */}
+                            <div className="flex items-center gap-2 flex-wrap justify-end">
                                 <form
                                     onSubmit={handleSubmit}
-                                    className="flex w-full max-w-sm items-center space-x-1"
+                                    className="flex w-[300px] max-w-lg items-center space-x-1"
                                 >
                                     <Input
                                         type="text"
                                         placeholder="Search for Household Member Name"
                                         value={query}
-                                        onChange={(e) =>
-                                            setQuery(e.target.value)
-                                        }
-                                        onKeyDown={(e) =>
-                                            onKeyPressed("name", e.target.value)
-                                        }
-                                        className="ml-4"
+                                        onChange={(e) => setQuery(e.target.value)}
+                                        onKeyDown={(e) => onKeyPressed("name", e)}
+                                        className="w-full"
                                     />
-                                    <Button type="submit">
-                                        <Search />
-                                    </Button>
+                                    <div className="relative group z-50">
+                                        <Button
+                                            type="submit"
+                                            className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
+                                            variant="outline"
+                                        >
+                                            <Search />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Search
+                                        </div>
+                                    </div>
                                 </form>
+
+                                <Link href={route("family.create")}>
+                                    <div className="relative group z-50">
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                        >
+                                            <Share2 className="w-4 h-4" />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Add Relationship
+                                        </div>
+                                    </div>
+                                </Link>
+
+                                <Link href={route("family.create")}>
+                                    <div className="relative group z-50">
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                        >
+                                            <Network className="w-4 h-4" />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Family Tree
+                                        </div>
+                                    </div>
+                                </Link>
                             </div>
                         </div>
+
+                        {showFilters && (
+                            <FilterToggle
+                                queryParams={queryParams}
+                                searchFieldName={searchFieldName}
+                                visibleFilters={[
+                                    "gender",
+                                    "age_group",
+                                    "relation",
+                                    "household_position",
+                                    "estatus",
+                                    "voter_status",
+                                    "is_pwd",
+                                ]}
+                                showFilters={true}
+                                clearRouteName="household.show"
+                                clearRouteParams={{ household: household_details.id }}
+                            />
+                        )}
+
+                        {/* Data Table */}
                         <DynamicTable
                             passedData={household_members}
                             columnRenderers={columnRenderers}
                             allColumns={allColumns}
-                            showTotal={true}
-                        >
-                            <div className="flex justify-between items-center w-full">
-                                <div className="flex gap-2 w-full">
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("gender", value)
-                                        }
-                                        value={queryParams.gender}
-                                    >
-                                        <SelectTrigger className="w-[100px]">
-                                            <SelectValue placeholder="Gender" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="male">
-                                                Male
-                                            </SelectItem>
-                                            <SelectItem value="female">
-                                                Female
-                                            </SelectItem>
-                                            <SelectItem value="LGBTQ">
-                                                LGBTQ+
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("age_group", value)
-                                        }
-                                        value={queryParams.age_group}
-                                    >
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Age Group" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="child">
-                                                0 - 12 (Child)
-                                            </SelectItem>
-                                            <SelectItem value="teen">
-                                                13 - 17 (Teen)
-                                            </SelectItem>
-                                            <SelectItem value="young_adult">
-                                                18 - 25 (Young Adult)
-                                            </SelectItem>
-                                            <SelectItem value="adult">
-                                                26 - 59 (Adult)
-                                            </SelectItem>
-                                            <SelectItem value="senior">
-                                                60+ (Senior)
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("relation", value)
-                                        }
-                                        value={queryParams.relation}
-                                    >
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Relationship to Head" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="self">
-                                                Self
-                                            </SelectItem>
-                                            <SelectItem value="child">
-                                                Child
-                                            </SelectItem>
-                                            <SelectItem value="spouse">
-                                                Spouse
-                                            </SelectItem>
-                                            <SelectItem value="parent">
-                                                Parent
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName(
-                                                "household_position",
-                                                value
-                                            )
-                                        }
-                                        value={queryParams.household_position}
-                                    >
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Household Position" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="primary">
-                                                Nuclear/Primary
-                                            </SelectItem>
-                                            <SelectItem value="extended">
-                                                Extended
-                                            </SelectItem>
-                                            <SelectItem value="boarder">
-                                                Boarder
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("estatus", value)
-                                        }
-                                        value={queryParams.estatus}
-                                    >
-                                        <SelectTrigger className="w-[170px]">
-                                            <SelectValue placeholder="Employment Status" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="student">
-                                                Student
-                                            </SelectItem>
-                                            <SelectItem value="employed">
-                                                Employed
-                                            </SelectItem>
-                                            <SelectItem value="unemployed">
-                                                Unemployed
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName(
-                                                "voter_status",
-                                                value
-                                            )
-                                        }
-                                        value={queryParams.voter_status}
-                                    >
-                                        <SelectTrigger className="w-[170px]">
-                                            <SelectValue placeholder="Voter Status" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="1">
-                                                Registered Voter
-                                            </SelectItem>
-                                            <SelectItem value="0">
-                                                Unregistered Voter
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("is_pwd", value)
-                                        }
-                                        value={queryParams.is_pwd}
-                                    >
-                                        <SelectTrigger className="w-[100px]">
-                                            <SelectValue placeholder="Is PWD" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="1">
-                                                PWD
-                                            </SelectItem>
-                                            <SelectItem value="0">
-                                                Not PWD
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="flex justify-end">
-                                    <ClearFilterButton
-                                        routeName="household.show"
-                                        routeParams={{
-                                            household: household_details.id,
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        </DynamicTable>
+                            is_paginated={isPaginated}
+                            toggleShowAll={() => setShowAll(!showAll)}
+                            showAll={showAll}
+                            visibleColumns={visibleColumns}
+                            setVisibleColumns={setVisibleColumns}
+                        />
                     </div>
                 </div>
             </div>
+            <SidebarModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Resident Details"
+            >
+                {selectedResident && (
+                    <PersonDetailContent person={selectedResident} />
+                )}
+            </SidebarModal>
         </AdminLayout>
     );
 }

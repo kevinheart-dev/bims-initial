@@ -1,7 +1,13 @@
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router } from "@inertiajs/react";
-import ActionMenu from "@/components/ActionMenu"; // your custom action component
+import ActionMenu from "@/components/ActionMenu";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import DynamicTable from "@/Components/DynamicTable";
+import { useState, useEffect } from "react";
+import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
+import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import {
     HousePlus,
     Search,
@@ -12,24 +18,12 @@ import {
     UserRoundPlus,
     UsersRound,
 } from "lucide-react";
-import DynamicTable from "@/Components/DynamicTable";
-import { useState } from "react";
-
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/Components/ui/select";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
 import {
     FAMILY_TYPE_TEXT,
     INCOME_BRACKET_TEXT,
     INCOME_BRACKETS,
 } from "@/constants";
-import ClearFilterButton from "@/Components/ClearFiltersButton";
+
 
 export default function Index({ families, queryParams = null, puroks }) {
     const breadcrumbs = [
@@ -95,18 +89,60 @@ export default function Index({ families, queryParams = null, puroks }) {
         router.get(route("family.showfamily", id));
     };
 
+    // === BEING ADDED
+
+    const [visibleColumns, setVisibleColumns] = useState(
+        allColumns.map((col) => col.key)
+    );
+    const [isPaginated, setIsPaginated] = useState(true);
+    const [showAll, setShowAll] = useState(false);
+
+    const hasActiveFilter = Object.entries(queryParams || {}).some(
+        ([key, value]) =>
+            [
+                "purok",
+                "famtype",
+                "household_head",
+                "income_bracket"
+            ].includes(key) &&
+            value &&
+            value !== "All"
+    );
+
+
+    useEffect(() => {
+        if (hasActiveFilter) {
+            setShowFilters(true);
+        }
+    }, [hasActiveFilter]);
+
+
+    const [showFilters, setShowFilters] = useState(hasActiveFilter);
+    const toggleShowFilters = () => setShowFilters((prev) => !prev);
+
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    // === AP TO HERE
+
     const columnRenderers = {
-        family_id: (row) => row?.id ?? "Unknown",
-
-        name: (row) => {
-            const head = row?.latest_head;
-            if (!head?.firstname || !head?.lastname) return "No name available";
-            return [head.firstname, head.middlename, head.lastname, head.suffix]
-                .filter(Boolean)
-                .join(" ");
-        },
-
-        family_name: (row) => (
+        family_id: (family) => family.family_id,
+        name: (family) =>
+            `${family.firstname} ${family.middlename ?? ""} ${family.lastname ?? ""
+            } ${family.suffix ?? ""}`,
+        is_household_head: (family) =>
+            family.is_household_head ? (
+                <span className="py-1 px-2 rounded-xl bg-green-100 text-green-800">
+                    Yes
+                </span>
+            ) : (
+                <span className="py-1 px-2 rounded-xl bg-red-100 text-red-800">
+                    No
+                </span>
+            ),
+        family_name: (family) => (
             <Link
                 href={route("family.showfamily", row?.id ?? 0)}
                 className="hover:text-blue-500 hover:underline"
@@ -194,179 +230,97 @@ export default function Index({ families, queryParams = null, puroks }) {
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                    <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4">
+                    <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                         {/* <pre>{JSON.stringify(families, undefined, 3)}</pre> */}
-                        <div className="my-1 mb-3 flex justify-between items-center">
-                            <div className="flex w-full justify-end items-end space-x-1">
-                                {/* Search Bar */}
+                        <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <DynamicTableControls
+                                    allColumns={allColumns}
+                                    visibleColumns={visibleColumns}
+                                    setVisibleColumns={setVisibleColumns}
+                                    onPrint={handlePrint}
+                                    showFilters={showFilters}
+                                    toggleShowFilters={() => setShowFilters((prev) => !prev)}
+                                />
+                            </div>
+                            {/* Search, and other buttons */}
+                            <div className="flex items-center gap-2 flex-wrap justify-end">
                                 <form
                                     onSubmit={handleSubmit}
-                                    className="flex w-full max-w-sm items-center space-x-1"
+                                    className="flex w-[300px] max-w-lg items-center space-x-1"
                                 >
                                     <Input
                                         type="text"
-                                        placeholder="Search for Family Name or House Number"
+                                        placeholder="Search Family or House No."
                                         value={query}
-                                        onChange={(e) =>
-                                            setQuery(e.target.value)
-                                        }
-                                        onKeyDown={(e) =>
-                                            onKeyPressed("name", e.target.value)
-                                        }
-                                        className="ml-4"
+                                        onChange={(e) => setQuery(e.target.value)}
+                                        onKeyDown={(e) => onKeyPressed("name", e.target.value)}
+                                        className="w-full"
                                     />
-                                    <Button type="submit">
-                                        <Search />
-                                    </Button>
+                                    <div className="relative group z-50">
+                                        <Button
+                                            type="submit"
+                                            className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
+                                            variant="outline"
+                                        >
+                                            <Search />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Search
+                                        </div>
+                                    </div>
                                 </form>
-                                <Link href={route("family.create")}>
-                                    <Button className="bg-blue-700 hover:bg-blue-500 ">
-                                        <UserPlus />
+                                <div className="relative group z-50">
+                                    <Link href={route("family.create")}>
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                        >
+                                            <HousePlus className="w-4 h-4" />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Add Household
+                                        </div>
+                                    </Link>
+                                </div>
+
+                                {/* <Link href={route("resident.createresident")}>
+                                    <Button className="bg-green-700 hover:bg-green-400 ">
+                                        <UserRoundPlus /> Add a Resident
                                     </Button>
-                                </Link>
+                                </Link> */}
+
                             </div>
                         </div>
 
+                        {showFilters && (
+                            <FilterToggle
+                                queryParams={queryParams}
+                                searchFieldName={searchFieldName}
+                                visibleFilters={[
+                                    "purok",
+                                    "famtype",
+                                    "household_head",
+                                    "income_bracket"
+                                ]}
+                                puroks={puroks}
+                                showFilters={true}
+                                clearRouteName="family.index"
+                                clearRouteParams={{}}
+                            />
+                        )}
                         <DynamicTable
                             passedData={families}
                             allColumns={allColumns}
                             columnRenderers={columnRenderers}
                             queryParams={queryParams}
-                            showTotal={true}
-                        >
-                            <div className="flex justify-between items-center w-full">
-                                <div className="flex gap-2 w-full">
-                                    {/* puroks */}
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("purok", value)
-                                        }
-                                        value={queryParams.purok}
-                                    >
-                                        <SelectTrigger className="w-[95px]">
-                                            <SelectValue placeholder="Purok" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            {puroks.map((purok, index) => (
-                                                <SelectItem
-                                                    key={index}
-                                                    value={purok.toString()}
-                                                >
-                                                    Purok {purok}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-
-                                    {/* family type */}
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("famtype", value)
-                                        }
-                                        value={queryParams.famtype}
-                                    >
-                                        <SelectTrigger className="w-[170px]">
-                                            <SelectValue placeholder="Family Type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="nuclear">
-                                                Nuclear
-                                            </SelectItem>
-                                            <SelectItem value="single_parent">
-                                                Single-Parent
-                                            </SelectItem>
-                                            <SelectItem value="extended">
-                                                Extended
-                                            </SelectItem>
-                                            <SelectItem value="stepfamilies">
-                                                Separated
-                                            </SelectItem>
-                                            <SelectItem value="grandparent">
-                                                Grandparent
-                                            </SelectItem>
-                                            <SelectItem value="childless">
-                                                Childless
-                                            </SelectItem>
-                                            <SelectItem value="cohabiting_partners">
-                                                Cohabiting Partners
-                                            </SelectItem>
-                                            <SelectItem value="one_person_household">
-                                                One-Person Household
-                                            </SelectItem>
-                                            <SelectItem value="roommates">
-                                                Roommates
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-
-                                    {/* household head */}
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName(
-                                                "household_head",
-                                                value
-                                            )
-                                        }
-                                        value={queryParams.household_head}
-                                    >
-                                        <SelectTrigger className="w-[170px]">
-                                            <SelectValue placeholder="Is Household Head" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="1">
-                                                Head
-                                            </SelectItem>
-                                            <SelectItem value="0">
-                                                Not Head
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    {/* household head */}
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName(
-                                                "income_bracket",
-                                                value
-                                            )
-                                        }
-                                        value={queryParams.income_bracket}
-                                    >
-                                        <SelectTrigger className="w-[170px]">
-                                            <SelectValue placeholder="Income Bracket" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            {Object.entries(
-                                                INCOME_BRACKETS
-                                            ).map(([key, { label }]) => (
-                                                <SelectItem
-                                                    key={key}
-                                                    value={key}
-                                                >
-                                                    {label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="flex justify-end">
-                                    <ClearFilterButton
-                                        routeName={"family.index"}
-                                    />
-                                </div>
-                            </div>
-                        </DynamicTable>
+                            is_paginated={isPaginated}
+                            toggleShowAll={() => setShowAll(!showAll)}
+                            showAll={showAll}
+                            visibleColumns={visibleColumns}
+                            setVisibleColumns={setVisibleColumns}
+                        // showTotal={true}
+                        />
                     </div>
                 </div>
             </div>

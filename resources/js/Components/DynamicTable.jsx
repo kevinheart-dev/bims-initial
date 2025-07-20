@@ -7,29 +7,10 @@ import {
     TableCell,
     TableCaption,
 } from "@/components/ui/table";
-import {
-    DropdownMenu,
-    DropdownMenuTrigger,
-    DropdownMenuContent,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuCheckboxItem,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
-import {
-    SquarePen,
-    Trash2,
-    Network,
-    Columns3,
-    Rows4,
-    Rows3,
-    Printer,
-} from "lucide-react";
-import { usePage, router } from "@inertiajs/react";
-import { all } from "axios";
 import Pagination from "./Pagination";
+import DynamicTableControls from "./FilterButtons/DynamicTableControls";
 
 const DynamicTable = ({
     passedData,
@@ -40,21 +21,26 @@ const DynamicTable = ({
     toggleShowAll = null,
     showAll = null,
     queryParams = null,
+    searchFieldName = null,
+    householdId = null,
     showTotal = false,
-    sortable = false,
+    visibleColumns = [],
+    setVisibleColumns = () => { },
 }) => {
-    const [visibleColumns, setVisibleColumns] = useState(
-        allColumns.map((col) => col.key)
-    );
     const contentRef = useRef();
-    const reactToPrintFn = useReactToPrint({ contentRef });
+    const reactToPrintFn = useReactToPrint({ content: () => contentRef.current });
 
-    const cleanData = Array.isArray(passedData.data)
+    const cleanData = Array.isArray(passedData?.data)
         ? passedData.data
-        : passedData;
+        : passedData || [];
 
     const [sortBy, setSortBy] = useState(null);
     const [sortDirection, setSortDirection] = useState("asc");
+
+    const effectiveVisibleColumns =
+        visibleColumns !== undefined && visibleColumns !== null
+            ? visibleColumns
+            : allColumns.map((col) => col.key);
 
     const handleSort = (columnKey) => {
         if (sortBy === columnKey) {
@@ -82,80 +68,8 @@ const DynamicTable = ({
 
     return (
         <>
-            {/* Column Toggle + Print */}
+            {/* Column Controls */}
             <div className="flex justify-between items-center">
-                <div className="flex items-center gap-4 mb-4">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline">
-                                <Columns3 />
-                                Select Columns
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-48">
-                            <DropdownMenuLabel>
-                                Toggle Columns
-                            </DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuCheckboxItem
-                                checked={
-                                    visibleColumns.length === allColumns.length
-                                }
-                                onCheckedChange={(checked) => {
-                                    if (checked) {
-                                        setVisibleColumns(
-                                            allColumns.map((col) => col.key)
-                                        );
-                                    }
-                                }}
-                            >
-                                Select All
-                            </DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem
-                                checked={visibleColumns.length === 0}
-                                onCheckedChange={(checked) => {
-                                    if (checked) {
-                                        setVisibleColumns([]);
-                                    }
-                                }}
-                            >
-                                Deselect All
-                            </DropdownMenuCheckboxItem>
-                            <DropdownMenuSeparator />
-                            {allColumns.map((col) => (
-                                <DropdownMenuCheckboxItem
-                                    key={col.key}
-                                    checked={visibleColumns.includes(col.key)}
-                                    onCheckedChange={() => {
-                                        setVisibleColumns((prev) =>
-                                            prev.includes(col.key)
-                                                ? prev.filter(
-                                                      (k) => k !== col.key
-                                                  )
-                                                : [...prev, col.key]
-                                        );
-                                    }}
-                                >
-                                    {col.label}
-                                </DropdownMenuCheckboxItem>
-                            ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                    {is_paginated && (
-                        <Button
-                            onClick={toggleShowAll}
-                            variant="outline"
-                            className="flex items-center gap-2"
-                        >
-                            {showAll ? <Rows3 /> : <Rows4 />}
-                            {showAll ? "Show Paginated" : "Show Full List"}
-                        </Button>
-                    )}
-                    <Button onClick={() => reactToPrintFn()}>
-                        <Printer />
-                        Print
-                    </Button>
-                </div>
                 {showTotal && (
                     <h2 className="text-xl font-bold text-gray-800 my-2 p-2 border bg-gray-50 rounded-lg flex items-center gap-2">
                         <span>Total Records:</span>
@@ -168,6 +82,7 @@ const DynamicTable = ({
 
             <div className="mb-2">{children}</div>
 
+            {/* Table */}
             <div className="w-full overflow-x-auto border rounded-lg">
                 <div className="max-h-[800px] overflow-y-auto">
                     <table
@@ -178,7 +93,7 @@ const DynamicTable = ({
                             <tr>
                                 {allColumns.map(
                                     (col) =>
-                                        visibleColumns.includes(col.key) && (
+                                        effectiveVisibleColumns.includes(col.key) && (
                                             <th
                                                 key={col.key}
                                                 className="bg-blue-600 text-white p-3 whitespace-nowrap text-wrap text-start text-sm font-semibold min-w-[60px] max-w-[100px]"
@@ -191,20 +106,18 @@ const DynamicTable = ({
                         </thead>
                         <tbody>
                             {cleanData.length > 0 ? (
-                                cleanData.map((data) => (
+                                sortedData.map((data) => (
                                     <tr
                                         key={data.id}
                                         className="border-b hover:bg-gray-50"
                                     >
                                         {allColumns.map((col) =>
-                                            visibleColumns.includes(col.key) ? (
+                                            effectiveVisibleColumns.includes(col.key) ? (
                                                 <td
                                                     key={col.key}
                                                     className="py-2 px-3 whitespace-wrap text-wrap break-words text-sm text-gray-700 min-w-[60px] max-w-[100px]"
                                                 >
-                                                    {columnRenderers[col.key]?.(
-                                                        data
-                                                    ) ?? ""}
+                                                    {columnRenderers[col.key]?.(data) ?? ""}
                                                 </td>
                                             ) : null
                                         )}
@@ -213,7 +126,7 @@ const DynamicTable = ({
                             ) : (
                                 <tr>
                                     <td
-                                        colSpan={visibleColumns.length}
+                                        colSpan={effectiveVisibleColumns.length}
                                         className="text-center py-4 text-gray-500"
                                     >
                                         No records found.
@@ -224,13 +137,13 @@ const DynamicTable = ({
                     </table>
                 </div>
 
-                {visibleColumns.length === 0 ? (
+                {effectiveVisibleColumns.length === 0 ? (
                     <div className="p-2 text-sm text-red-600 font-medium w-full text-center rounded-lg border border-gray-200 mt-4">
                         All columns are hidden.
                     </div>
                 ) : (
                     <div className="my-4">
-                        {Array.isArray(passedData.links) &&
+                        {Array.isArray(passedData?.links) &&
                             passedData.links.length > 0 && (
                                 <Pagination
                                     links={passedData.links}

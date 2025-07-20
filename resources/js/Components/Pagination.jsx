@@ -1,7 +1,9 @@
 import { Link } from "@inertiajs/react";
 
-export default function Pagination({ links, queryParams = {} }) {
-    if (!Array.isArray(links)) return null; // Guard against undefined or non-array
+export default function Pagination({ links, queryParams }) {
+    queryParams = queryParams || {}; // ✅ Safeguard against null or undefined
+
+    if (!Array.isArray(links)) return null;
 
     const getLinkWithQueryParams = (link) => {
         if (!link.url) return null;

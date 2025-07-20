@@ -2,14 +2,8 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-    Search,
-    UserRoundPlus,
-    HousePlus,
-    SquarePen,
-    Trash2,
-    Network,
-} from "lucide-react";
+import SidebarModal from "@/Components/SidebarModal";
+import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import { Toaster, toast } from "sonner";
@@ -17,11 +11,21 @@ import ResidentTable from "@/Components/ResidentTable";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
 import ResidentFilterBar from "@/Components/ResidentFilterBar";
+import FilterToggle from "@/Components/FilterButtons/FillterToggle";
+import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
+import {
+    Search,
+    UserRoundPlus,
+    HousePlus,
+    SquarePen,
+    Trash2,
+    Network,
+    Eye,
+} from "lucide-react";
 import {
     RESIDENT_CIVIL_STATUS_TEXT,
     RESIDENT_EMPLOYMENT_STATUS_TEXT,
     RESIDENT_GENDER_COLOR_CLASS,
-    RESIDENT_GENDER_TEXT,
     RESIDENT_GENDER_TEXT2,
     RESIDENT_REGISTER_VOTER_CLASS,
     RESIDENT_REGISTER_VOTER_TEXT,
@@ -110,7 +114,55 @@ export default function Index({
         { key: "purok_number", label: "Purok" },
         { key: "actions", label: "Actions" },
     ];
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedResident, setSelectedResident] = useState(null);
 
+    const handleView = (resident) => {
+        setSelectedResident(resident);
+        setIsModalOpen(true);
+    };
+
+    // === BEING ADDED
+
+    const [visibleColumns, setVisibleColumns] = useState(
+        allColumns.map((col) => col.key)
+    );
+    const [isPaginated, setIsPaginated] = useState(true);
+
+    const hasActiveFilter = Object.entries(queryParams || {}).some(
+        ([key, value]) =>
+            [
+                "gender",
+                "age_group",
+                "purok",
+                "estatus",
+                "voter_status",
+                "cstatus",
+                "pwd",
+                "fourps",
+                "solo_parent"
+            ].includes(key) &&
+            value &&
+            value !== "All"
+    );
+
+
+    useEffect(() => {
+        if (hasActiveFilter) {
+            setShowFilters(true);
+        }
+    }, [hasActiveFilter]);
+
+
+    const [showFilters, setShowFilters] = useState(hasActiveFilter);
+    const toggleShowFilters = () => setShowFilters((prev) => !prev);
+
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    // === AP TO HERE
     const columnRenderers = {
         resident_id: (resident) => resident.id,
 
@@ -132,9 +184,8 @@ export default function Index({
 
         name: (resident) => (
             <div className="text-sm break-words whitespace-normal leading-snug">
-                {`${resident.firstname} ${resident.middlename ?? ""} ${
-                    resident.lastname ?? ""
-                } ${resident.suffix ?? ""}`}
+                {`${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname ?? ""
+                    } ${resident.suffix ?? ""}`}
             </div>
         ),
 
@@ -211,6 +262,11 @@ export default function Index({
             <ActionMenu
                 actions={[
                     {
+                        label: "View",
+                        icon: <Eye className="w-4 h-4 text-indigo-600" />,
+                        onClick: () => handleView(resident),
+                    },
+                    {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
                         onClick: () => handleEdit(resident.id),
@@ -270,64 +326,122 @@ export default function Index({
                 <Toaster />
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
                 <div className="p-2 md:p-4">
-                    <div className="overflow-x bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-2 my-4">
-                        <div className="my-1 mb-3 flex justify-between items-center">
-                            <div className="flex w-full max-w-sm items-center space-x-1">
-                                <Link href={route("resident.create")}>
-                                    <Button className="bg-blue-700 hover:bg-blue-400 ">
-                                        <HousePlus /> Add a Household
-                                    </Button>
-                                </Link>
-                                <Link href={route("resident.createresident")}>
-                                    <Button className="bg-blue-700 hover:bg-blue-400 ">
-                                        <UserRoundPlus /> Add a Resident
-                                    </Button>
-                                </Link>
-                            </div>
-                            <div className="flex w-full justify-end items-end space-x-1">
-                                {/* Search Bar */}
-                                <form
-                                    onSubmit={handleSubmit}
-                                    className="flex w-full max-w-sm items-center space-x-1"
-                                >
-                                    <Input
-                                        type="text"
-                                        placeholder="Search"
-                                        value={query}
-                                        onChange={(e) =>
-                                            setQuery(e.target.value)
-                                        }
-                                        onKeyDown={(e) =>
-                                            onKeyPressed("name", e.target.value)
-                                        }
-                                        className="ml-4"
+                    <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
+                        <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                            <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <DynamicTableControls
+                                        allColumns={allColumns}
+                                        visibleColumns={visibleColumns}
+                                        setVisibleColumns={setVisibleColumns}
+                                        onPrint={handlePrint}
+                                        showFilters={showFilters}
+                                        toggleShowFilters={() => setShowFilters((prev) => !prev)}
                                     />
-                                    <Button type="submit">
-                                        <Search />
-                                    </Button>
-                                </form>
+                                </div>
+                                <div className="flex items-center gap-2 flex-wrap justify-end">
+                                    <form
+                                        onSubmit={handleSubmit}
+                                        className="flex w-[300px] max-w-lg items-center space-x-1"
+                                    >
+                                        <Input
+                                            type="text"
+                                            placeholder="Search"
+                                            value={query}
+                                            onChange={(e) =>
+                                                setQuery(e.target.value)
+                                            }
+                                            onKeyDown={(e) =>
+                                                onKeyPressed("name", e.target.value)
+                                            }
+                                            className="ml-4"
+                                        />
+                                        <Button
+                                            type="submit"
+                                            className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
+                                            variant="outline"
+                                        >
+                                            <Search />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Search
+                                        </div>
+                                    </form>
+                                    <Link href={route("resident.create")}>
+                                        <div className="relative group z-50">
+                                            <Button
+                                                variant="outline"
+                                                className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                            >
+                                                <HousePlus className="w-4 h-4" />
+                                            </Button>
+                                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                                Add Household
+                                            </div>
+                                        </div>
+                                    </Link>
+                                    <Link href={route("resident.createresident")}>
+                                        <div className="relative group z-50">
+                                            <Button
+                                                variant="outline"
+                                                className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                            >
+                                                <UserRoundPlus className="w-4 h-4" />
+                                            </Button>
+                                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                                Add Resident
+                                            </div>
+                                        </div>
+                                    </Link>
+                                </div>
                             </div>
-                        </div>
+                            {showFilters && (
+                                <FilterToggle
+                                    queryParams={queryParams}
+                                    searchFieldName={searchFieldName}
+                                    visibleFilters={[
+                                        "gender",
+                                        "age_group",
+                                        "purok",
+                                        "estatus",
+                                        "voter_status",
+                                        "cstatus",
+                                        "pwd",
+                                        "fourps",
+                                        "solo_parent"
+                                    ]}
+                                    showFilters={true}
+                                    puroks={puroks}
+                                    clearRouteName="resident.index"
+                                    clearRouteParams={{}}
+                                />
+                            )}
 
-                        <DynamicTable
-                            passedData={residents}
-                            allColumns={allColumns}
-                            columnRenderers={columnRenderers}
-                            is_paginated={true}
-                            queryParams={queryParams}
-                            showAll={showAll}
-                            toggleShowAll={toggleShowAll}
-                            showTotal={true}
-                        >
-                            <ResidentFilterBar
-                                queryParams={queryParams}
-                                searchFieldName={searchFieldName}
-                                puroks={puroks}
+                            <DynamicTable
+                                passedData={residents}
+                                allColumns={allColumns}
+                                columnRenderers={columnRenderers}
+                                is_paginated={isPaginated}
+                                showAll={showAll}
+                                toggleShowAll={() => setShowAll(!showAll)}
+                                visibleColumns={visibleColumns}
+                                setVisibleColumns={setVisibleColumns}
+                            // showTotal={true}
                             />
-                        </DynamicTable>
+                        </div>
                     </div>
                 </div>
             </div>
+            <SidebarModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Resident Details"
+            >
+                {selectedResident && (
+                    <PersonDetailContent person={selectedResident} />
+                )}
+            </SidebarModal>
+
         </AdminLayout>
     );
 }
