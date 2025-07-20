@@ -9,4 +9,15 @@ class Document extends Model
 {
     /** @use HasFactory<\Database\Factories\DocumentFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'barangay_id',
+        'name',
+        'template_path',
+    ];
+
+    public function barangay()
+    {
+        return $this->belongsTo(Barangay::class);
+    }
 }

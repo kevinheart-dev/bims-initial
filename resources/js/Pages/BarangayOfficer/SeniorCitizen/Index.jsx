@@ -223,11 +223,11 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                                 <Search />
                             </Button>
                         </form>
-                        {/* <Link href={route("senior_citizen.create")}>
+                        <Link href={route("senior_citizen.create")}>
                             <Button className="bg-blue-700 hover:bg-blue-400 ">
                                 <UserPlus />
                             </Button>
-                        </Link> */}
+                        </Link>
                     </div>
                     <DynamicTable
                         passedData={seniorCitizens}

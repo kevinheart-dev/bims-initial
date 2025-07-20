@@ -8,6 +8,7 @@ import {
     SquarePen,
     Trash2,
     User,
+    UserPlus,
     UserRoundPlus,
     UsersRound,
 } from "lucide-react";
@@ -196,18 +197,6 @@ export default function Index({ families, queryParams = null, puroks }) {
                     <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4">
                         {/* <pre>{JSON.stringify(families, undefined, 3)}</pre> */}
                         <div className="my-1 mb-3 flex justify-between items-center">
-                            <div className="flex w-full max-w-sm items-center space-x-1">
-                                <Link href={route("family.create")}>
-                                    <Button className="bg-blue-700 hover:bg-blue-500 ">
-                                        <HousePlus /> Add a Household
-                                    </Button>
-                                </Link>
-                                {/* <Link href={route("resident.createresident")}>
-                                    <Button className="bg-green-700 hover:bg-green-400 ">
-                                        <UserRoundPlus /> Add a Resident
-                                    </Button>
-                                </Link> */}
-                            </div>
                             <div className="flex w-full justify-end items-end space-x-1">
                                 {/* Search Bar */}
                                 <form
@@ -230,6 +219,11 @@ export default function Index({ families, queryParams = null, puroks }) {
                                         <Search />
                                     </Button>
                                 </form>
+                                <Link href={route("family.create")}>
+                                    <Button className="bg-blue-700 hover:bg-blue-500 ">
+                                        <UserPlus />
+                                    </Button>
+                                </Link>
                             </div>
                         </div>
 

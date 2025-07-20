@@ -149,6 +149,18 @@ class Resident extends Model
     {
         return $this->hasMany(HouseholdResident::class);
     }
+
+    public function latestHousehold()
+    {
+        return $this->hasOneThrough(
+            Household::class,
+            HouseholdResident::class,
+            'resident_id',
+            'id',
+            'id',
+            'household_id'
+        )->latest('household_residents.created_at');
+    }
     public function householdHeadHistories()
     {
         return $this->hasMany(HouseholdHeadHistory::class);

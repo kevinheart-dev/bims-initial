@@ -8,6 +8,7 @@ use App\Models\Barangay;
 use App\Models\Family;
 use App\Models\FamilyRelation;
 use App\Models\Household;
+use App\Models\HouseholdHeadHistory;
 use App\Models\OccupationType;
 use App\Models\Purok;
 use App\Models\HouseholdResident;
@@ -782,7 +783,6 @@ class ResidentController extends Controller
                         ]);
                     }
 
-
                     //add educational histories
                     if (!empty($member['educations']) && is_array($member['educations'])) {
                         foreach ($member['educations'] as $educationalData) {
@@ -832,7 +832,6 @@ class ResidentController extends Controller
                         'created_at' => now(),
                         'updated_at' => now()
                     ];
-
                     $resident->medicalInformation()->create($residentMedicalInformation);
                     if ($member["is_pwd"] == '1') {
                         foreach ($member['disabilities'] ?? [] as $disability) {
@@ -855,6 +854,16 @@ class ResidentController extends Controller
                             ]);
                         }
                     }
+
+                    if($member['is_household_head'] == 1){
+                        HouseholdHeadHistory::create([
+                            'resident_id' => $resident->id,
+                            'household_id' => $household->id,
+                            'start_year' => 2025,
+                            'end_year' => null
+                        ]);
+                    }
+
 
                     if (calculateAge($resident->birthdate) >= 60) {
                         $resident->seniorcitizen()->create([

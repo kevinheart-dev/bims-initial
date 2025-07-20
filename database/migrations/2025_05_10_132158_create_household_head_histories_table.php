@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('household_id')->constrained('households')->onDelete('cascade');
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->year('start_date');
-            $table->year('end_date')->nullable();
+            $table->year('start_year');
+            $table->year('end_year')->nullable();
             $table->timestamps();
         });
     }

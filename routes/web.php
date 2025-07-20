@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DocumentGenerationController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyRelationController;
 use App\Http\Controllers\HouseholdController;
@@ -17,6 +19,18 @@ use Inertia\Inertia;
 // Admin-only routes
 Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('barangay_officer.dashboard');
+
+    Route::get('/document/fill/{resident}/{template}', [DocumentGenerationController::class, 'generateFilledDocument'])
+    ->name('document.fill');
+
+    // axios documents
+    Route::get('/document/preview/{id}', [DocumentController::class, 'preview'])->name('document.preview');
+    Route::get('/document/fetchdocuments', [DocumentController::class, 'fetchDocuments'])->name('document.fetchdocs');
+    Route::get('/document/fetchdocumentpath/{id}', [DocumentController::class, 'fetchDocumentPath'])->name('document.documentpath');
+    Route::get('/document/certificateissuance', [DocumentController::class, 'certificateIssuance'])->name('document.issuance');
+    Route::get('/document/fetchplaceholders/{id}', [DocumentController::class, 'fetchPlaceholders'])->name('document.placeholders');
+
+    Route::post('/certificate/store', [CertificateController::class, 'store'])->name('certificate.store');
 
     Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('resident.familytree');
     Route::get('resident/createresident', [ResidentController::class, 'createResident'])->name('resident.createresident');

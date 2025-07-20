@@ -76,39 +76,21 @@ const items = [
             },
         ],
     },
-    // {
-    //     title: "Household Information",
-    //     url: "#",
-    //     icon: House,
-    //     submenu: [
-    //         {
-    //             title: "Households Table",
-    //             url: "/barangay_officer/household",
-    //             icon: Table,
-    //         },
-    //         {
-    //             title: "Vehicles",
-    //             url: "/barangay_officer/vehicle",
-    //             icon: CarFront,
-    //         },
-    //         {
-    //             title: "Livestocks",
-    //             url: "#",
-    //             icon: PiggyBank,
-    //         },
-    //     ],
-    // },
     {
         title: "Documents",
         url: "#",
         icon: FileStack,
         submenu: [
             {
-                title: "Barangay Certificates",
+                title: "Barangay Documents",
                 url: "/barangay_officer/document",
                 icon: FileText,
             },
-            { title: "Request Certificate", url: "#", icon: FileText },
+            {
+                title: "Certificate Issuance",
+                url: "/barangay_officer/document/certificateissuance",
+                icon: FileText,
+            },
             { title: "View Certificates", url: "#", icon: FileText },
         ],
     },

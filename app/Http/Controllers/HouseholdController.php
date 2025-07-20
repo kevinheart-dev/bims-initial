@@ -6,6 +6,7 @@ use App\Models\Barangay;
 use App\Models\Household;
 use App\Http\Requests\StoreHouseholdRequest;
 use App\Http\Requests\UpdateHouseholdRequest;
+use App\Models\HouseholdHeadHistory;
 use App\Models\HouseholdResident;
 use App\Models\OccupationType;
 use App\Models\Purok;
@@ -184,16 +185,16 @@ class HouseholdController extends Controller
                 ]);
                 $household->householdHeadHistories()->create([
                     'resident_id' => $data['resident_id'],
-                    'start_date' => $data['year_established'] ?? date('Y'),
-                    'end_date' => null,
+                    'start_year' => $data['year_established'] ?? date('Y'),
+                    'end_year' => null,
                 ]);
-
                 $resident = Resident::find($data['resident_id']);
                 if ($resident && $resident->is_household_head == 0) {
                     $resident->update([
                         'is_household_head' => 1
                     ]);
                 }
+
             }
             return redirect()->route('household.index')->with('success', 'Household created successfully!');
         } catch (\Exception $e) {

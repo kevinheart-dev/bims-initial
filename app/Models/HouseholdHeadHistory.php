@@ -13,8 +13,8 @@ class HouseholdHeadHistory extends Model
     protected $fillable = [
         'household_id',
         'resident_id',
-        'start_date',
-        'end_date',
+        'start_year',
+        'end_year',
         'created_at',
         'updated_at',
     ];
