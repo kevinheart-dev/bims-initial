@@ -270,7 +270,7 @@ const Section5 = ({
                                 className="mt-2"
                             />
                         </div>
-                        {data.household_position == "extended" && (
+                        {/* {data.household_position == "extended" && (
                             <div>
                                 <RadioGroup
                                     label="Is Family Head"
@@ -298,7 +298,7 @@ const Section5 = ({
                                     className="mt-2"
                                 />
                             </div>
-                        )}
+                        )} */}
                     </div>
                 </div>
             )}
@@ -1099,12 +1099,12 @@ const Section5 = ({
                                                                     placeholder="Select purpose"
                                                                     items={[
                                                                         {
-                                                                            label: "Personal",
-                                                                            value: "personal",
+                                                                            label: "Personal Consumption",
+                                                                            value: "personal_consumption",
                                                                         },
                                                                         {
-                                                                            label: "Consumption",
-                                                                            value: "consumption",
+                                                                            label: "Commercial",
+                                                                            value: "commercial",
                                                                         },
                                                                         {
                                                                             label: "Both",

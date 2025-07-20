@@ -41,7 +41,6 @@ class Resident extends Model
         'household_id',
         'is_household_head',
         'family_id',
-        'is_family_head',
         'verified',
         'created_at',
         'updated_at',
@@ -149,6 +148,22 @@ class Resident extends Model
     public function householdResidents()
     {
         return $this->hasMany(HouseholdResident::class);
+    }
+
+    public function latestHousehold()
+    {
+        return $this->hasOneThrough(
+            Household::class,
+            HouseholdResident::class,
+            'resident_id',
+            'id',
+            'id',
+            'household_id'
+        )->latest('household_residents.created_at');
+    }
+    public function householdHeadHistories()
+    {
+        return $this->hasMany(HouseholdHeadHistory::class);
     }
 
     public function user()

@@ -321,7 +321,7 @@ export default function Index({
 
     return (
         <AdminLayout>
-            <Head title="Resident Dashboard" />
+            <Head title="Resident" />
             <div>
                 <Toaster />
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />

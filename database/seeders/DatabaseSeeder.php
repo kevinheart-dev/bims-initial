@@ -52,19 +52,19 @@ class DatabaseSeeder extends Seeder
     {
         $faker = Faker::create();
         // User::factory(10)->create();
-        Barangay::factory(2)->create();
-        // $this->call([
-        //     BarangaySeeder::class,
-        // ]);
+        // Barangay::factory(2)->create();
+        $this->call([
+            BarangaySeeder::class,
+        ]);
         for ($i = 1; $i <= 7; $i++) {
             Purok::factory()->create([
                 'barangay_id' => 1,
                 'purok_number' => $i,
             ]);
         }
-        Street::factory(30)->create();
-        Household::factory(5)->create();
-        Family::factory(5)->create();
+        Street::factory(15)->create();
+        Household::factory(3)->create();
+        Family::factory(3)->create();
         $barangayOfficer = Role::firstOrCreate(['name' => 'barangay_officer']);
         $user = User::factory()->create([
             'resident_id' => Resident::factory(),
@@ -104,15 +104,13 @@ class DatabaseSeeder extends Seeder
         //     ]);
         //     $user->assignRole($resRole);
         // }
-
-        OccupationType::factory(30)->create();
-        LivelihoodType::factory(30)->create();
+        LivelihoodType::factory(5)->create();
 
         $residents = Resident::factory()->count(10)->create();
 
         MedicalInformation::factory(10)->create();
         InternetAccessibility::factory(3)->create();
-        // Livelihood::factory(60)->create();
+        //Livelihood::factory(60)->create();
         Occupation::factory(10)->create();
         EducationalHistory::factory(15)->create();
         Vehicle::factory(3)->create();
@@ -127,7 +125,10 @@ class DatabaseSeeder extends Seeder
         $residents->groupBy('household_id')->each(function ($group) {
             $group->first()->update(['is_household_head' => true]);
         });
-        $this->call(FixHouseholdResidentSeeder::class);
-        $this->call(FamilyRelationSeeder::class);
+        $this->call([
+            OccupationTypeSeeder::class,
+            FixHouseholdResidentSeeder::class,
+            FamilyRelationSeeder::class,
+        ]);
     }
 }

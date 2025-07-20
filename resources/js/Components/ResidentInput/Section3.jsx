@@ -69,12 +69,12 @@ const Section3 = ({
                                             value: "unemployed",
                                         },
                                         {
-                                            label: "Uderemployed",
-                                            value: "underemployed",
+                                            label: "Underemployed",
+                                            value: "under_employed",
                                         },
                                         {
-                                            label: "Student",
-                                            value: "student",
+                                            label: "Retired",
+                                            value: "retired",
                                         },
                                     ]}
                                 />

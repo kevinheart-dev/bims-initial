@@ -44,7 +44,7 @@ export default function Index({
 }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
-        { label: "Veicles", showOnMobile: true },
+        { label: "Vehicles", showOnMobile: true },
     ];
     queryParams = queryParams || {};
 
@@ -139,20 +139,13 @@ export default function Index({
 
     return (
         <AdminLayout>
-            <Head title="Vehicles Dashboard" />
+            <Head title="Vehicles" />
             <div>
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
                 {/* <pre>{JSON.stringify(vehicles, undefined, 2)}</pre> */}
                 <div className="p-2 md:p-4">
                     <div className="overflow-x bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-2 my-4">
                         <div className="my-1 mb-3 flex justify-between items-center">
-                            <div className="flex w-full max-w-sm items-center space-x-1">
-                                <Link href={route("household.create")}>
-                                    <Button className="bg-blue-700 hover:bg-blue-400 ">
-                                        <SquarePlus /> Add a Vehicle
-                                    </Button>
-                                </Link>
-                            </div>
                             <div className="flex w-full justify-end items-end space-x-1">
                                 {/* Search Bar */}
                                 <form
@@ -175,6 +168,11 @@ export default function Index({
                                         <Search />
                                     </Button>
                                 </form>
+                                <Link href={route("household.create")}>
+                                    <Button className="bg-blue-700 hover:bg-blue-400 ">
+                                        <SquarePlus />
+                                    </Button>
+                                </Link>
                             </div>
                         </div>
                         <DynamicTable
@@ -286,7 +284,9 @@ export default function Index({
                                     </Select>
                                 </div>
                                 <div className="flex justify-end">
-                                    <ClearFilterButton link={"vehicle.index"} />
+                                    <ClearFilterButton
+                                        routeName={"vehicle.index"}
+                                    />
                                 </div>
                             </div>
                         </DynamicTable>

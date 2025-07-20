@@ -1054,61 +1054,65 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                         </p>
                                                     )}
                                                 </div>
-                                                <div className="w-full">
-                                                    <RadioGroup
-                                                        label="Family Head?"
-                                                        name="is_family_head"
-                                                        selectedValue={
-                                                            parseInt(
-                                                                member.is_family_head
-                                                            ) ?? 0
-                                                        }
-                                                        options={[
-                                                            {
-                                                                label: "Yes",
-                                                                value: 1,
-                                                            },
-                                                            {
-                                                                label: "No",
-                                                                value: 0,
-                                                            },
-                                                        ]}
-                                                        onChange={(e) =>
-                                                            handleMemberChange(
-                                                                index,
-                                                                {
-                                                                    target: {
-                                                                        name: "is_family_head",
-                                                                        value: parseInt(
-                                                                            e
-                                                                                .target
-                                                                                .value
-                                                                        ),
-                                                                    },
-                                                                }
-                                                            )
-                                                        }
-                                                        disabled={members.some(
-                                                            (m, i) =>
-                                                                m.is_family_head ===
-                                                                    1 &&
-                                                                i !== index &&
-                                                                userData.family_type ===
-                                                                    "nuclear"
-                                                        )}
-                                                    />
-                                                    {errors?.[
-                                                        `members.${index}.is_family_head`
-                                                    ] && (
-                                                        <p className="text-red-500 text-xs">
-                                                            {
-                                                                errors[
-                                                                    `members.${index}.is_family_head`
-                                                                ]
+                                                {/* {userData.family_type ==
+                                                    "extended" && (
+                                                    <div className="w-full">
+                                                        <RadioGroup
+                                                            label="Family Head?"
+                                                            name="is_family_head"
+                                                            selectedValue={
+                                                                parseInt(
+                                                                    member.is_family_head
+                                                                ) ?? 0
                                                             }
-                                                        </p>
-                                                    )}
-                                                </div>
+                                                            options={[
+                                                                {
+                                                                    label: "Yes",
+                                                                    value: 1,
+                                                                },
+                                                                {
+                                                                    label: "No",
+                                                                    value: 0,
+                                                                },
+                                                            ]}
+                                                            onChange={(e) =>
+                                                                handleMemberChange(
+                                                                    index,
+                                                                    {
+                                                                        target: {
+                                                                            name: "is_family_head",
+                                                                            value: parseInt(
+                                                                                e
+                                                                                    .target
+                                                                                    .value
+                                                                            ),
+                                                                        },
+                                                                    }
+                                                                )
+                                                            }
+                                                            disabled={members.some(
+                                                                (m, i) =>
+                                                                    m.is_family_head ===
+                                                                        1 &&
+                                                                    i !==
+                                                                        index &&
+                                                                    userData.family_type ===
+                                                                        "nuclear"
+                                                            )}
+                                                        />
+                                                        {errors?.[
+                                                            `members.${index}.is_family_head`
+                                                        ] && (
+                                                            <p className="text-red-500 text-xs">
+                                                                {
+                                                                    errors[
+                                                                        `members.${index}.is_family_head`
+                                                                    ]
+                                                                }
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                )} */}
                                                 <div className="w-full">
                                                     <SelectField
                                                         label="Relation to Head"

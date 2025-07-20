@@ -17,14 +17,20 @@ return new class extends Migration
             $table->string('school_name', 155)->nullable();
             $table->enum('school_type', ['private', 'public'])->nullable();
             $table->enum('educational_attainment', [
+                'no_education_yet',
                 'no_formal_education',
+                'prep_school',
+                'kindergarten',
                 'elementary',
                 'high_school',
+                'senior_high_school',
                 'college',
+                'als',
+                'tesda',
                 'vocational',
                 'post_graduate',
             ])->nullable();
-            $table->enum('education_status', ['graduate', 'undergraduate', 'enrolled', 'stopped'])->nullable();
+            $table->enum('education_status', ['enrolled','graduated','incomplete','dropped_out'])->nullable();
             $table->year('year_started')->nullable();
             $table->year('year_ended')->nullable();
             $table->string('program', 55)->nullable();

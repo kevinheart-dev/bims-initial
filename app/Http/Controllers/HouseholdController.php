@@ -6,6 +6,8 @@ use App\Models\Barangay;
 use App\Models\Household;
 use App\Http\Requests\StoreHouseholdRequest;
 use App\Http\Requests\UpdateHouseholdRequest;
+use App\Models\HouseholdHeadHistory;
+use App\Models\HouseholdResident;
 use App\Models\OccupationType;
 use App\Models\Purok;
 use App\Models\Resident;
@@ -22,28 +24,31 @@ class HouseholdController extends Controller
     {
         $brgy_id = Auth()->user()->resident->barangay_id;
         $query = Household::query()
-            ->select([
-                'id',
-                'barangay_id',
-                'purok_id',
-                'street_id',
-                'house_number',
-                'ownership_type',
-                'housing_condition',
-                'year_established',
-                'house_structure',
-                'number_of_rooms',
-                'number_of_floors',
-            ])
-            ->where("barangay_id", $brgy_id)
-            ->with([
-                'street:id,street_name',
-                'purok:id,purok_number',
-                'residents' => function ($query) {
-                    $query->where('is_household_head', true)
-                        ->select('id', 'household_id', 'firstname', 'lastname', 'middlename', 'suffix');
-                }
-            ]);
+        ->select([
+            'id',
+            'barangay_id',
+            'purok_id',
+            'street_id',
+            'house_number',
+            'ownership_type',
+            'housing_condition',
+            'year_established',
+            'house_structure',
+            'number_of_rooms',
+            'number_of_floors',
+        ])
+        ->where("barangay_id", $brgy_id)
+        ->with([
+            'street:id,street_name',
+            'purok:id,purok_number',
+            'householdResidents' => function ($query) {
+                $query->where('relationship_to_head', 'self')
+                    ->with([
+                        'resident:id,firstname,lastname,middlename,suffix'
+                    ]);
+            },
+        ])
+        ->withCount('residents');
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
 
         if (request()->filled('purok') && request('purok') !== 'All') {
@@ -107,8 +112,96 @@ class HouseholdController extends Controller
      */
     public function store(StoreHouseholdRequest $request)
     {
+        $barangayId = Auth()->user()->resident->barangay_id;
         $data = $request->validated();
-        dd($data);
+        $householdData = [
+            'barangay_id' =>  $barangayId ?? null,
+            'purok_id' => $data['purok_id'] ?? null,
+            'street_id' => $data['street_id'] ?? null,
+            'house_number' => $data['housenumber'] ?? null,
+            'ownership_type' => $data['ownership_type'] ?? null,
+            'housing_condition' => $data['housing_condition'] ?? null,
+            'year_established' => $data['year_established'] ?? null,
+            'house_structure' => $data['house_structure'] ?? null,
+            'bath_and_wash_area' => $data['bath_and_wash_area'] ?? null,
+            'number_of_rooms' => $data['number_of_rooms'] ?? null,
+            'number_of_floors' => $data['number_of_floors'] ?? null,
+            'latitude' => $data['latitude'] ?? 0,
+            'longitude' => $data['longitude'] ?? 0,
+        ];
+        try{
+            $household = Household::create($householdData);
+            if($household){
+                //toilets
+                foreach ($data['toilets'] ?? [] as $toilet) {
+                    $household->toilets()->create([
+                        'toilet_type' => $toilet["toilet_type"] ?? null,
+                    ]);
+                }
+                // electricity
+                foreach ($data['electricity_types'] ?? [] as $electric) {
+                    $household->electricityTypes()->create([
+                        'electricity_type' => $electric["electricity_type"] ?? null,
+                    ]);
+                }
+                // water sources
+                foreach ($data['water_source_types'] ?? [] as $water) {
+                    $household->waterSourceTypes()->create([
+                        'water_source_type' => $water["water_source_type"] ?? null,
+                    ]);
+                }
+                // wastes
+                foreach ($data['waste_management_types'] ?? [] as $waste) {
+                    $household->wasteManagementTypes()->create([
+                        'waste_management_type' => $waste["waste_management_type"] ?? null,
+                    ]);
+                }
+                // pets
+                foreach ($data['pets'] ?? [] as $pet) {
+                    $household->pets()->create([
+                        'pet_type' => $pet["pet_type"] ?? null,
+                        'is_vaccinated' => $pet["is_vaccinated"] ?? null,
+                    ]);
+                }
+                // livestocks
+                foreach ($data['livestocks'] ?? [] as $livestock) {
+                    $household->livestocks()->create([
+                        'livestock_type' => $livestock["livestock_type"] ?? null,
+                        'quantity' => $livestock["quantity"] ?? null,
+                        'purpose' => $livestock["purpose"] ?? null,
+                    ]);
+                }
+                // internet
+                if ($data['type_of_internet']) {
+                    $household->internetAccessibility()->create([
+                        'type_of_internet' => $data["type_of_internet"] ?? null,
+                    ]);
+                }
+
+                $household->householdResidents()->create([
+                    'resident_id' => $data['resident_id'],
+                    'relationship_to_head' => 'self',
+                    'household_position' => 'nuclear',
+                ]);
+                $household->householdHeadHistories()->create([
+                    'resident_id' => $data['resident_id'],
+                    'start_year' => $data['year_established'] ?? date('Y'),
+                    'end_year' => null,
+                ]);
+                $resident = Resident::find($data['resident_id']);
+                if ($resident && $resident->is_household_head == 0) {
+                    $resident->update([
+                        'is_household_head' => 1
+                    ]);
+                }
+
+            }
+            return redirect()->route('household.index')->with('success', 'Household created successfully!');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            return back()->withErrors(['error' => 'Household could not be created: ' . $e->getMessage()]);
+        }
+
     }
 
     /**
@@ -116,18 +209,17 @@ class HouseholdController extends Controller
      */
     public function show(Household $household)
     {
-        $household_details = $household->load('residents.householdResidents', 'toilets', 'electricityTypes', 'waterSourceTypes', 'wasteManagementTypes');
+        $household_details = $household->load('householdResidents.resident', 'toilets', 'electricityTypes', 'waterSourceTypes', 'wasteManagementTypes');
+
         $household_details['bath_and_wash_area'] = [
             'bath_and_wash_area' => $household_details['bath_and_wash_area']
         ];
 
-        $query = Resident::query()
-            ->where('household_id', $household->id)
-            ->with('householdResidents');
 
-        // filters
+        $query = HouseholdResident::with('resident', 'household')
+        ->where('household_id', $household->id);
         if (request()->filled('name')) {
-            $query->where(function ($q) {
+            $query->whereHas('resident', function ($q) {
                 $q->where('firstname', 'like', '%' . request('name') . '%')
                     ->orWhere('lastname', 'like', '%' . request('name') . '%')
                     ->orWhere('middlename', 'like', '%' . request('name') . '%')
@@ -138,11 +230,12 @@ class HouseholdController extends Controller
             });
         }
         if (request()->filled('gender') && request('gender') !== 'All') {
-            $query->where('gender', request('gender'));
+            $query->whereHas('resident', function ($q) {
+                $q->where('gender', request('gender'));
+            });
         }
         if (request()->filled('age_group') && request('age_group') !== 'All') {
             $today = now();
-
             switch (request('age_group')) {
                 case 'child':
                     $max = $today->copy()->subYears(0);
@@ -166,36 +259,36 @@ class HouseholdController extends Controller
                     break;
             }
 
-            if (isset($min)) {
-                $query->whereBetween('birthdate', [$min, $max]);
-            } else {
-                $query->where('birthdate', '<=', $max);
-            }
+            $query->whereHas('resident', function ($q) use ($min, $max) {
+                if (isset($min)) {
+                    $q->whereBetween('birthdate', [$min, $max]);
+                } else {
+                    $q->where('birthdate', '<=', $max);
+                }
+            });
         }
-
         if (request()->filled('estatus') && request('estatus') !== 'All') {
-            $query->where('employment_status', request('estatus'));
+            $query->whereHas('resident', function ($q) {
+                $q->where('employment_status', request('estatus'));
+            });
         }
         if (request()->filled('voter_status') && request('voter_status') !== 'All') {
-            $query->where('registered_voter', request('voter_status'));
+            $query->whereHas('resident', function ($q) {
+                $q->where('registered_voter', request('voter_status'));
+            });
         }
         if (request()->filled('is_pwd') && request('is_pwd') !== 'All') {
-            $query->where('is_pwd', request('is_pwd'));
+            $query->whereHas('resident', function ($q) {
+                $q->where('is_pwd', request('is_pwd'));
+            });
         }
         if (request()->filled('relation') && request('relation') !== 'All') {
-            $query->whereHas('householdResidents', function ($q) {
-                $q->where('relationship_to_head', request('relation'));
-            });
+            $query->where('relationship_to_head', request('relation'));
         }
         if (request()->filled('household_position') && request('household_position') !== 'All') {
-            $query->whereHas('householdResidents', function ($q) {
-                $q->where('household_position', request('household_position'));
-            });
+            $query->where('household_position', request('household_position'));
         }
-
         $household_members = $query->get();
-        // $household_members = $query->paginate(10);
-
         return Inertia::render("BarangayOfficer/Household/Show", [
             "household_details" => $household_details,
             'household_members' => $household_members,

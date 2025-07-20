@@ -33,344 +33,6 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                 </p>
             </div>
 
-            {/* ask student if studying or not */}
-            {/* <div className="grid md:grid-cols-4 gap-4 mb-4">
-                <RadioGroup
-                    label="Currently studying"
-                    name="is_student"
-                    options={[
-                        { label: "Yes", value: 1 },
-                        { label: "No", value: 0 },
-                    ]}
-                    selectedValue={data.is_student || ""}
-                    onChange={(e) => setData("is_student", e.target.value)}
-                />
-            </div> */}
-
-            {/* {data.is_student == 1 && (
-                <div className="grid md:grid-cols-4 gap-4 my-4">
-                    <div>
-                        <InputField
-                            label="School Name"
-                            name="school_name"
-                            type="text"
-                            value={data.school_name || ""}
-                            onChange={(e) =>
-                                setData("school_name", e.target.value)
-                            }
-                            placeholder="Enter school name"
-                        />
-                        <InputError
-                            message={errors.school_name}
-                            className="mt-2"
-                        />
-                    </div>
-                    <div>
-                        <RadioGroup
-                            label="School Type"
-                            name="school_type"
-                            options={[
-                                { label: "Public", value: "public" },
-                                { label: "Private", value: "private" },
-                            ]}
-                            selectedValue={data.school_type || ""}
-                            onChange={(e) =>
-                                setData("school_type", e.target.value)
-                            }
-                        />
-                        <InputError
-                            message={errors.school_type}
-                            className="mt-2"
-                        />
-                    </div>
-                    <div>
-                        <DropdownInputField
-                            label="Current Level"
-                            name="current_level"
-                            value={data.current_level || ""}
-                            onChange={(e) =>
-                                setData("current_level", e.target.value)
-                            }
-                            items={[
-                                {
-                                    label: "Elementary",
-                                    value: "elementary",
-                                },
-                                {
-                                    label: "High School",
-                                    value: "high_school",
-                                },
-                                { label: "College", value: "college" },
-                                {
-                                    label: "Vocational",
-                                    value: "vocational",
-                                },
-                                {
-                                    label: "Post Grad",
-                                    value: "post_grad",
-                                },
-                            ]}
-                            placeholder="Select school level"
-                        />
-                        <InputError
-                            message={errors.current_level}
-                            className="mt-2"
-                        />
-                    </div>
-                </div>
-            )}
-            {data.is_student == 0 && (
-                <>
-                    <div className="grid md:grid-cols-2 gap-10 mt-4">
-                        <div className="grid md:grid-cols-2 gap-2">
-                            <div>
-                                <DropdownInputField
-                                    label="Highest Educational Attainment"
-                                    name="education"
-                                    value={data.education || ""}
-                                    onChange={(e) =>
-                                        setData("education", e.target.value)
-                                    }
-                                    items={[
-                                        {
-                                            label: "No Formal Education",
-                                            value: "no_formal_education",
-                                        },
-                                        {
-                                            label: "Elementary",
-                                            value: "elementary",
-                                        },
-                                        {
-                                            label: "High School",
-                                            value: "high_school",
-                                        },
-                                        {
-                                            label: "College",
-                                            value: "college",
-                                        },
-                                        {
-                                            label: "Post Grad",
-                                            value: "post_grad",
-                                        },
-                                        {
-                                            label: "Vocational",
-                                            value: "vocational",
-                                        },
-                                    ]}
-                                    placeholder="Select your Educational Attainment"
-                                />
-                                <InputError
-                                    message={errors.education}
-                                    className="mt-2"
-                                />
-                            </div>
-                            <div>
-                                <RadioGroup
-                                    label="Educational Status"
-                                    name="education_status"
-                                    options={[
-                                        {
-                                            label: "Graduate",
-                                            value: "graduate",
-                                        },
-                                        {
-                                            label: "Undergraduate",
-                                            value: "undergraduate",
-                                        },
-                                    ]}
-                                    selectedValue={data.education_status || ""}
-                                    onChange={(e) =>
-                                        setData(
-                                            "education_status",
-                                            e.target.value
-                                        )
-                                    }
-                                    disabled={
-                                        data.education === "no_formal_education"
-                                    }
-                                />
-                                <InputError
-                                    message={errors.education_status}
-                                    className="mt-2"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 gap-4">
-                            {data.age >= 6 && data.age <= 14 && (
-                                <div>
-                                    <RadioGroup
-                                        label="Out of School Children (6-14 years old)"
-                                        name="osc"
-                                        options={[
-                                            { label: "Yes", value: 1 },
-                                            { label: "No", value: 0 },
-                                        ]}
-                                        selectedValue={data.osc || ""}
-                                        onChange={(e) =>
-                                            setData("osc", e.target.value)
-                                        }
-                                    />
-                                    <InputError
-                                        message={errors.osc}
-                                        className="mt-2"
-                                    />
-                                </div>
-                            )}
-                            {data.age >= 15 && data.age <= 24 && (
-                                <div>
-                                    <RadioGroup
-                                        label="Out of School Youth (15-24 years old)"
-                                        name="osy"
-                                        options={[
-                                            { label: "Yes", value: 1 },
-                                            { label: "No", value: 0 },
-                                        ]}
-                                        selectedValue={data.osy || ""}
-                                        onChange={(e) =>
-                                            setData("osy", e.target.value)
-                                        }
-                                    />
-                                    <InputError
-                                        message={errors.osy}
-                                        className="mt-2"
-                                    />
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    <div className="grid md:grid-cols-4 gap-4 mt-4">
-                        <div>
-                            <InputField
-                                label="School Name"
-                                name="school_name"
-                                type="text"
-                                value={data.school_name || ""}
-                                onChange={(e) =>
-                                    setData("school_name", e.target.value)
-                                }
-                                placeholder="Enter school name"
-                                disabled={
-                                    data.education === "no_formal_education"
-                                }
-                            />
-                            <InputError
-                                message={errors.school_name}
-                                className="mt-2"
-                            />
-                        </div>
-                        <div>
-                            <RadioGroup
-                                label="School Type"
-                                name="school_type"
-                                options={[
-                                    {
-                                        label: "Public",
-                                        value: "public",
-                                    },
-                                    {
-                                        label: "Private",
-                                        value: "private",
-                                    },
-                                ]}
-                                selectedValue={data.school_type || ""}
-                                onChange={(e) =>
-                                    setData("school_type", e.target.value)
-                                }
-                                disabled={
-                                    data.education === "no_formal_education"
-                                }
-                            />
-                            <InputError
-                                message={errors.school_type}
-                                className="mt-2"
-                            />
-                        </div>
-                        <div>
-                            <YearDropdown
-                                label="Year Started"
-                                name="year_started"
-                                value={data.year_started || ""}
-                                onChange={(e) =>
-                                    setData("year_started", e.target.value)
-                                }
-                                disabled={
-                                    data.education === "no_formal_education"
-                                }
-                            />
-                            <InputError
-                                message={errors.year_started}
-                                className="mt-2"
-                            />
-                        </div>
-                        <div>
-                            <YearDropdown
-                                label="Year Ended"
-                                name="year_ended"
-                                value={data.year_ended || ""}
-                                onChange={(e) =>
-                                    setData("year_ended", e.target.value)
-                                }
-                                disabled={
-                                    data.education === "no_formal_education"
-                                }
-                            />
-                            <InputError
-                                message={errors.year_ended}
-                                className="mt-2"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-4 gap-4 my-4">
-                        {data.education === "college" &&
-                            data.education_status === "graduate" && (
-                                <div>
-                                    <InputField
-                                        label="Finised Course"
-                                        name="program"
-                                        type="text"
-                                        value={data.program || ""}
-                                        onChange={(e) =>
-                                            setData("program", e.target.value)
-                                        }
-                                        placeholder="Enter your course"
-                                        disabled={
-                                            data.education ===
-                                            "no_formal_education"
-                                        }
-                                    />
-                                    <InputError
-                                        message={errors.program}
-                                        className="mt-2"
-                                    />
-                                </div>
-                            )}
-
-                        {data.education_status === "graduate" && (
-                            <div>
-                                <YearDropdown
-                                    label="Year Graduated"
-                                    name="year_graduated"
-                                    value={data.year_ended || ""}
-                                    onChange={(e) =>
-                                        setData(
-                                            "year_graduated",
-                                            e.target.value
-                                        )
-                                    }
-                                    disabled
-                                />
-                                <InputError
-                                    message={errors.year_graduated}
-                                    className="mt-2"
-                                />
-                            </div>
-                        )}
-                    </div>
-                </>
-            )} */}
-
             {Array.isArray(data.educational_histories) &&
                 data.educational_histories.map((edu_history, edIndex) => (
                     <div
@@ -393,8 +55,20 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                     }
                                     items={[
                                         {
+                                            label: "No Education Yet",
+                                            value: "no_education_yet",
+                                        },
+                                        {
                                             label: "No Formal Education",
                                             value: "no_formal_education",
+                                        },
+                                        {
+                                            label: "Prep School",
+                                            value: "prep_school",
+                                        },
+                                        {
+                                            label: "Kindergarten",
+                                            value: "kindergarten",
                                         },
                                         {
                                             label: "Elementary",
@@ -405,16 +79,22 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                             value: "high_school",
                                         },
                                         {
-                                            label: "College",
-                                            value: "college",
+                                            label: "Senior High School",
+                                            value: "senior_high_school",
                                         },
+                                        { label: "College", value: "college" },
                                         {
-                                            label: "Post Grad",
-                                            value: "post_graduate",
+                                            label: "ALS (Alternative Learning System)",
+                                            value: "als",
                                         },
+                                        { label: "TESDA", value: "tesda" },
                                         {
                                             label: "Vocational",
                                             value: "vocational",
+                                        },
+                                        {
+                                            label: "Post Graduate",
+                                            value: "post_graduate",
                                         },
                                     ]}
                                     placeholder="Select your Educational Attainment"
@@ -434,20 +114,20 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                     name="education_status"
                                     items={[
                                         {
-                                            label: "Graduate",
-                                            value: "graduate",
-                                        },
-                                        {
-                                            label: "Undergraduate",
-                                            value: "undergraduate",
-                                        },
-                                        {
                                             label: "Currently Enrolled",
                                             value: "enrolled",
                                         },
                                         {
-                                            label: "Stopped",
-                                            value: "stopped",
+                                            label: "Graduated",
+                                            value: "graduated",
+                                        },
+                                        {
+                                            label: "Incomplete",
+                                            value: "incomplete",
+                                        },
+                                        {
+                                            label: "Dropped Out",
+                                            value: "dropped_out",
                                         },
                                     ]}
                                     selectedValue={
@@ -463,7 +143,9 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                     }
                                     disabled={
                                         edu_history.education ===
-                                        "no_formal_education"
+                                            "no_formal_education" ||
+                                        edu_history.education ===
+                                            "no_education_yet"
                                     }
                                 />
                                 <InputError
@@ -492,7 +174,9 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                     placeholder="Enter school name"
                                     disabled={
                                         edu_history.education ===
-                                        "no_formal_education"
+                                            "no_formal_education" ||
+                                        edu_history.education ===
+                                            "no_education_yet"
                                     }
                                 />
                                 <InputError
@@ -533,7 +217,9 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                     }
                                     disabled={
                                         edu_history.education ===
-                                        "no_formal_education"
+                                            "no_formal_education" ||
+                                        edu_history.education ===
+                                            "no_education_yet"
                                     }
                                 />
                                 <InputError
@@ -560,7 +246,9 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                     }
                                     disabled={
                                         edu_history.education ===
-                                        "no_formal_education"
+                                            "no_formal_education" ||
+                                        edu_history.education ===
+                                            "no_education_yet"
                                     }
                                 />
                                 <InputError
@@ -606,7 +294,7 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                     <InputField
                                         label={
                                             edu_history.education_status ===
-                                            "graduate"
+                                            "graduated"
                                                 ? "Finished Course"
                                                 : "Current Course"
                                         }

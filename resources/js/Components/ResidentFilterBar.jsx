@@ -230,7 +230,7 @@ const ResidentFilterBar = ({ queryParams, searchFieldName, puroks }) => {
 
             {/* Clear Filter Button */}
             <div className="flex justify-end">
-                <ClearFilterButton route={"resident.index"} />
+                <ClearFilterButton routeName={"resident.index"} />
             </div>
         </div>
     );

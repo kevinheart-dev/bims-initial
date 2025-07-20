@@ -18,52 +18,35 @@ class FamilyController extends Controller
     public function index()
     {
         $brgyId = Auth()->user()->resident->barangay_id; // get brgy id through the admin
-        $query = Resident::where('barangay_id', $brgyId)
-        ->where('is_family_head', true)
-        ->select([
-            'id',
-            'firstname',
-            'lastname',
-            'middlename',
-            'suffix',
-            'family_id',
-            'is_family_head',
-            'is_household_head',
-            'household_id'
-        ])
-        ->with([
-            'family:id,family_name,income_bracket,family_type',
-            'family.members:id,family_id,barangay_id', // required for count
-            'household:id,house_number,purok_id',
-            'household.purok:id,purok_number',
-        ]);
+        $query = Family::with([
+            'latestHead.householdResidents.household'
+        ])->with([
+            'latestHead.street.purok'
+        ])->where('barangay_id', $brgyId)->withCount('members');
 
         if (request('name')) {
             $query->where(function ($q) {
-                $q->whereHas('family', function ($sub) {
-                    $sub->where('family_name', 'like', '%' . request('name') . '%');
-                })->orWhereHas('household', function ($sub) {
-                    $sub->where('house_number', 'like', '%' . request('name') . '%');
-                });
+                $q->where('family_name', 'like', '%' . request('name') . '%')
+                    ->orWhereHas('members.householdResidents.household', function ($sub) {
+                        $sub->where('house_number', 'like', '%' . request('name') . '%');
+                    });
             });
         }
-
         if (request()->filled('purok') && request('purok') !== 'All') {
-            $query->where('purok_number', request('purok'));
-        }
-
-        if (request()->filled('famtype') && request('famtype') !== 'All') {
-            $query->whereHas('family', function ($q) {
-                $q->where('family_type', request('famtype'));
+            $query->whereHas('members.householdResidents.household.purok', function ($q) {
+                $q->where('purok_number', request('purok'));
             });
+        }
+        if (request()->filled('famtype') && request('famtype') !== 'All') {
+            $query->where('family_type', request('famtype'));
         }
         if (request()->filled('income_bracket') && request('income_bracket') !== 'All') {
-            $query->whereHas('family', function ($q) {
-                $q->where('income_bracket', request('income_bracket'));
-            });
+            $query->where('income_bracket', request('income_bracket'));
         }
         if (request()->filled('household_head') && request('household_head') !== 'All') {
-            $query->where('is_household_head', request('household_head'));
+            $query->whereHas('members', function ($q) {
+                $q->where('is_household_head', request('household_head'));
+            });
         }
 
         $families = $query->get();

@@ -40,7 +40,6 @@ return new class extends Migration
             $table->foreignId('household_id')->nullable()->constrained('households')->onDelete('cascade');
             $table->boolean('is_household_head')->default(false);
             $table->foreignId('family_id')->nullable()->constrained('families')->onDelete('cascade');
-            $table->boolean('is_family_head')->default(false);
             $table->boolean('verified')->default(false);
             $table->timestamps();
         });

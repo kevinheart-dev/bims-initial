@@ -258,6 +258,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         <AdminLayout>
             <Head title="Senior Citizen" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
+
             <div className="p-2 md:p-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     {/* <pre>{JSON.stringify(seniorCitizens, undefined, 3)}</pre> */}

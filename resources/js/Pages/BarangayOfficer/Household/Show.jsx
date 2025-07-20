@@ -149,13 +149,14 @@ export default function Index({
     };
 
     const columnRenderers = {
-        resident_id: (member) => member.id,
+        resident_id: (member) => member.resident.id,
         name: (member) =>
             `${member.firstname} ${member.middlename ?? ""} ${member.lastname ?? ""} ${member.suffix ?? ""}`,
         gender: (member) => {
             const genderKey = member.gender;
             const label = CONSTANTS.RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
             const className = CONSTANTS.RESIDENT_GENDER_COLOR_CLASS[genderKey] ?? "bg-gray-300";
+
 
             return (
                 <span className={`py-1 px-2 rounded-xl text-sm font-medium ${className}`}>
@@ -164,7 +165,9 @@ export default function Index({
             );
         },
         age: (member) => {
+
             const age = calculateAge(member.birthdate);
+
             if (typeof age !== "number") return "Unknown";
             return (
                 <div className="flex flex-col">
@@ -176,6 +179,7 @@ export default function Index({
             );
         },
         relationship_to_head: (member) =>
+
             CONSTANTS.RELATIONSHIP_TO_HEAD_TEXT[member.household_residents?.[0]?.relationship_to_head] || "",
         household_position: (member) =>
             CONSTANTS.HOUSEHOLD_POSITION_TEXT[member.household_residents?.[0]?.household_position] || "",
@@ -184,6 +188,7 @@ export default function Index({
         registered_voter: (member) => {
             const status = member?.registered_voter ?? 0;
             const label = CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[status] ?? "Unknown";
+
             const className =
                 CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[status] ?? "p-1 bg-gray-300 text-black rounded-lg";
 
@@ -202,12 +207,12 @@ export default function Index({
 
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
-                        onClick: () => handleEdit(family.id),
+                        onClick: () => handleEdit(member.resident.id),
                     },
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(family.id),
+                        onClick: () => handleDelete(member.resident.id),
                     },
                 ]}
             />

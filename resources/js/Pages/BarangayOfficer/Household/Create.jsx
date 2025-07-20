@@ -149,23 +149,6 @@ export default function Create({
                                                 alt={`Resident Image`}
                                                 className="w-32 h-32 object-cover rounded-full border border-gray-200"
                                             />
-                                            <input
-                                                id="resident_image"
-                                                type="file"
-                                                name="resident_image"
-                                                accept="image/*"
-                                                onChange={(e) => {
-                                                    const file =
-                                                        e.target.files[0];
-                                                    if (file) {
-                                                        setData(
-                                                            "resident_image",
-                                                            file
-                                                        );
-                                                    }
-                                                }}
-                                                className="block w-full text-sm text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                                            />
                                         </div>
                                         <div className="md:col-span-5 space-y-2">
                                             <div className="w-full">
