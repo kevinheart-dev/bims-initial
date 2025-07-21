@@ -105,15 +105,15 @@ const DynamicTable = ({
                         </thead>
                         <tbody>
                             {cleanData.length > 0 ? (
-                                sortedData.map((data) => (
+                                sortedData.map((data, rowIndex) => (
                                     <tr
-                                        key={data.id}
+                                        key={data.id || rowIndex}
                                         className="border-b hover:bg-gray-50"
                                     >
                                         {allColumns.map((col) =>
                                             effectiveVisibleColumns.includes(col.key) ? (
                                                 <td
-                                                    key={col.key}
+                                                    key={`${data.id || rowIndex}-${col.key}`}
                                                     className="py-2 px-3 whitespace-wrap text-wrap break-words text-sm text-gray-700 min-w-[60px] max-w-[100px]"
                                                 >
                                                     {columnRenderers[col.key]?.(data) ?? ""}
