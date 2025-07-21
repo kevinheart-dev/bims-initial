@@ -22,14 +22,7 @@ import {
     Network,
     Eye,
 } from "lucide-react";
-import {
-    RESIDENT_CIVIL_STATUS_TEXT,
-    RESIDENT_EMPLOYMENT_STATUS_TEXT,
-    RESIDENT_GENDER_COLOR_CLASS,
-    RESIDENT_GENDER_TEXT2,
-    RESIDENT_REGISTER_VOTER_CLASS,
-    RESIDENT_REGISTER_VOTER_TEXT,
-} from "@/constants";
+import * as CONSTANTS from "@/constants";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 
@@ -152,7 +145,7 @@ export default function Index({
                 "solo_parent",
             ].includes(key) &&
             value &&
-            value !== "All"
+            value !== ""
     );
 
     useEffect(() => {
@@ -184,27 +177,26 @@ export default function Index({
                     e.target.src = "/images/default-avatar.jpg";
                 }}
                 alt="Resident"
-                className="w-20 h-20 min-w-20 min-h-20 object-cover rounded-full border"
+                className="w-16 h-16 min-w-16 min-h-16 object-cover rounded-full border"
             />
         ),
 
         name: (resident) => (
             <div className="text-sm break-words whitespace-normal leading-snug">
-                {`${resident.firstname} ${resident.middlename ?? ""} ${
-                    resident.lastname ?? ""
-                } ${resident.suffix ?? ""}`}
+                {`${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname ?? ""
+                    } ${resident.suffix ?? ""}`}
             </div>
         ),
 
         gender: (resident) => {
             const genderKey = resident.gender;
-            const label = RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
+            const label = CONSTANTS.RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
             const className =
-                RESIDENT_GENDER_COLOR_CLASS[genderKey] ?? "bg-gray-300";
+                CONSTANTS.RESIDENT_GENDER_COLOR_CLASS[genderKey] ?? "bg-gray-300";
 
             return (
                 <span
-                    className={`py-1 px-2 rounded-xl text-sm font-medium ${className}`}
+                    className={`py-1 px-2 rounded-xl text-sm font-medium whitespace-nowrap ${className}`}
                 >
                     {label}
                 </span>
@@ -220,7 +212,7 @@ export default function Index({
                 <div className="flex flex-col text-sm">
                     <span className="font-medium text-gray-800">{age}</span>
                     {age > 60 && (
-                        <span className="text-xs text-rose-600 font-semibold">
+                        <span className="text-xs text-rose-500 font-semibold">
                             Senior Citizen
                         </span>
                     )}
@@ -229,10 +221,10 @@ export default function Index({
         },
 
         civil_status: (resident) =>
-            RESIDENT_CIVIL_STATUS_TEXT[resident.civil_status],
+            CONSTANTS.RESIDENT_CIVIL_STATUS_TEXT[resident.civil_status],
 
         employment_status: (resident) =>
-            RESIDENT_EMPLOYMENT_STATUS_TEXT[resident.employment_status],
+            CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[resident.employment_status],
 
         occupation: (resident) => {
             const occ = resident.occupation;
@@ -241,7 +233,7 @@ export default function Index({
                     {resident.occupation}
                 </span>
             ) : (
-                <span className="text-gray-400 italic">
+                <span className="text-gray-400 text-[12px] italic">
                     No occupation available
                 </span>
             );
@@ -251,15 +243,17 @@ export default function Index({
 
         registered_voter: (resident) => (
             <span
-                className={
-                    RESIDENT_REGISTER_VOTER_CLASS[resident.registered_voter]
-                }
+                className={`${CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[resident.registered_voter]} whitespace-nowrap`}
             >
-                {RESIDENT_REGISTER_VOTER_TEXT[resident.registered_voter]}
+                {CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[resident.registered_voter]}
             </span>
         ),
 
-        contact_number: (resident) => resident.contact_number,
+        contact_number: (resident) => (
+            <span className="whitespace-nowrap">
+                {resident.contact_number}
+            </span>
+        ),
 
         purok_number: (resident) => resident.purok_number,
 
@@ -440,7 +434,7 @@ export default function Index({
                                 toggleShowAll={() => setShowAll(!showAll)}
                                 visibleColumns={visibleColumns}
                                 setVisibleColumns={setVisibleColumns}
-                                // showTotal={true}
+                            // showTotal={true}
                             />
                         </div>
                     </div>

@@ -14,6 +14,7 @@ const FilterToggle = ({
     puroks = [],
     streets = [],
     pensionTypes = [],
+    vehicle_types = [],
     months = [],
     clearRouteName = '',
     clearRouteParams = {}
@@ -425,6 +426,50 @@ const FilterToggle = ({
                         </div>
                     )}
                 </div>
+            )}
+
+            {/* VEHICLE */}
+            {isVisible("v_type") && (
+                <Select onValueChange={(v) => searchFieldName("v_type", v)} value={queryParams.v_type}>
+                    <SelectTrigger className="w-[120px]">
+                        <SelectValue placeholder="Vehicle Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {vehicle_types.map((type, index) => (
+                            <SelectItem key={index} value={type.toLowerCase()}>
+                                {type}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+
+            {isVisible("v_class") && (
+                <Select onValueChange={(v) => searchFieldName("v_class", v)} value={queryParams.v_class}>
+                    <SelectTrigger className="w-[130px]">
+                        <SelectValue placeholder="Vehicle Class" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="private">Private</SelectItem>
+                        <SelectItem value="public">Public</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+
+            {isVisible("usage") && (
+                <Select onValueChange={(v) => searchFieldName("usage", v)} value={queryParams.usage}>
+                    <SelectTrigger className="w-[135px]">
+                        <SelectValue placeholder="Vehicle Usage" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="personal">Personal</SelectItem>
+                        <SelectItem value="public_transport">Public Transport</SelectItem>
+                        <SelectItem value="business_use">Business Use</SelectItem>
+                    </SelectContent>
+                </Select>
             )}
 
             <div className="flex justify-end ml-auto">

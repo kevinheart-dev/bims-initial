@@ -75,8 +75,23 @@ export default function Index({ households, puroks, streets, queryParams }) {
         { key: "number_of_occupants", label: "Number of Occupants" },
         { key: "actions", label: "Actions" },
     ];
+    // === BEING ADDED
 
-    // ===== CODED I ADDED
+    const [visibleColumns, setVisibleColumns] = useState(
+        allColumns.map((col) => col.key)
+    );
+
+
+    useEffect(() => {
+        if (visibleColumns.length === 0) {
+            setVisibleColumns(allColumns.map((col) => col.key));
+        }
+    }, []);
+
+
+    const [isPaginated, setIsPaginated] = useState(true);
+    const [showAll, setShowAll] = useState(false);
+
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
             [
@@ -87,36 +102,23 @@ export default function Index({ households, puroks, streets, queryParams }) {
                 "structure",
             ].includes(key) &&
             value &&
-            value !== "All"
+            value !== ""
     );
+
     useEffect(() => {
         if (hasActiveFilter) {
             setShowFilters(true);
         }
     }, [hasActiveFilter]);
 
-
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
     const toggleShowFilters = () => setShowFilters((prev) => !prev);
+
     const handlePrint = () => {
         window.print();
     };
 
-
-    const [isPaginated, setIsPaginated] = useState(true);
-    const [showAll, setShowAll] = useState(false);
-
-    const defaultVisibleCols = allColumns.map((col) => col.key);
-    const [visibleColumns, setVisibleColumns] = useState(() => {
-        const saved = localStorage.getItem("household_visible_columns");
-        return saved ? JSON.parse(saved) : defaultVisibleCols;
-    });
-
-    useEffect(() => {
-        localStorage.setItem("household_visible_columns", JSON.stringify(visibleColumns));
-    }, [visibleColumns]);
-
-    //===
+    // === AP TO HERE
     const columnRenderers = {
         id: (house) => house.id,
         name: (house) => {

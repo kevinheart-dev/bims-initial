@@ -18,13 +18,6 @@ import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
 import SidebarModal from "@/Components/SidebarModal";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/Components/ui/select";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 
@@ -116,7 +109,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                 "birth_month",
             ].includes(key) &&
             value &&
-            value !== "All"
+            value !== ""
     );
     useEffect(() => {
         if (hasActiveFilter) {
@@ -349,6 +342,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                                     "living_alone",
                                     "birth_month",
                                 ]}
+                                puroks={puroks}
                                 showFilters={true}
                                 pensionTypes={pensionTypes}
                                 months={months}

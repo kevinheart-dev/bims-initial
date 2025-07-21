@@ -46,9 +46,9 @@ export const RESIDENT_GENDER_TEXT2 = {
 };
 
 export const RESIDENT_GENDER_COLOR_CLASS = {
-    male: "bg-blue-300",
-    female: "bg-red-300",
-    LGBTQ: "bg-gradient-to-r from-pink-400 via-yellow-300 to-blue-400 text-white",
+    male: "p-1 bg-blue-200 text-blue-800 rounded-lg",
+    female: "p-1 bg-red-100 text-red-800 rounded-lg",
+    LGBTQ: "bg-gradient-to-r from-pink-300 via-yellow-300 to-blue-300 text-black-400",
 };
 
 export const RESIDENT_ROLE_TEXT = {
@@ -63,9 +63,10 @@ export const RESIDENT_REGISTER_VOTER_TEXT = {
     1: "Eligible",
 };
 export const RESIDENT_REGISTER_VOTER_CLASS = {
-    0: "p-1 bg-red-500 text-white rounded-lg",
-    1: "p-1 bg-green-500 text-white rounded-lg",
+    0: "p-1 bg-red-100 text-red-800 rounded-lg",
+    1: "p-1 bg-green-200 text-green-800 rounded-lg",
 };
+
 
 export const RESIDENT_RECIDENCY_TYPE_TEXT = {
     permanent: "Permanent",
