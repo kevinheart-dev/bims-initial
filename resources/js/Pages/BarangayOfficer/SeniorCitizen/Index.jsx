@@ -262,6 +262,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             <div className="p-2 md:p-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     {/* <pre>{JSON.stringify(seniorCitizens, undefined, 3)}</pre> */}
+                    <p>may error dito hinde gumagana yung filters, no probelem with filter ui but in the controller</p>
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                             <div className="flex items-center gap-2 flex-wrap">
