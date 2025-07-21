@@ -68,7 +68,6 @@ const DynamicTable = ({
 
     return (
         <>
-            {/* Column Controls */}
             <div className="flex justify-between items-center">
                 {showTotal && (
                     <h2 className="text-xl font-bold text-gray-800 my-2 p-2 border bg-gray-50 rounded-lg flex items-center gap-2">
@@ -96,7 +95,7 @@ const DynamicTable = ({
                                         effectiveVisibleColumns.includes(col.key) && (
                                             <th
                                                 key={col.key}
-                                                className="bg-blue-600 text-white p-3 whitespace-nowrap text-wrap text-start text-sm font-semibold min-w-[60px] max-w-[100px]"
+                                                className="bg-blue-500 text-white p-3 whitespace-nowrap text-wrap text-start text-sm font-semibold min-w-[60px] max-w-[100px]"
                                             >
                                                 {col.label}
                                             </th>
@@ -142,7 +141,7 @@ const DynamicTable = ({
                         All columns are hidden.
                     </div>
                 ) : (
-                    <div className="my-4">
+                    <div className="my-2 mr-4 flex justify-end">
                         {Array.isArray(passedData?.links) &&
                             passedData.links.length > 0 && (
                                 <Pagination

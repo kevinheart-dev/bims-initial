@@ -102,7 +102,7 @@ export default function Index({ families, queryParams = null, puroks }) {
                 key
             ) &&
             value &&
-            value !== "All"
+            value !== " "
     );
 
     useEffect(() => {
@@ -124,11 +124,9 @@ export default function Index({ families, queryParams = null, puroks }) {
         family_id: (row) => row.id,
         name: (row) =>
             row.latest_head
-                ? `${row.latest_head.firstname ?? ""} ${
-                      row.latest_head.middlename ?? ""
-                  } ${row.latest_head.lastname ?? ""} ${
-                      row.latest_head.suffix ?? ""
-                  }`
+                ? `${row.latest_head.firstname ?? ""} ${row.latest_head.middlename ?? ""
+                } ${row.latest_head.lastname ?? ""} ${row.latest_head.suffix ?? ""
+                }`
                 : "Unknown",
         is_household_head: (row) =>
             row.is_household_head ? (
@@ -162,9 +160,8 @@ export default function Index({ families, queryParams = null, puroks }) {
 
             return bracketText ? (
                 <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                        bracketMeta?.className ?? ""
-                    }`}
+                    className={`px-2 py-1 rounded text-xs font-medium ${bracketMeta?.className ?? ""
+                        }`}
                 >
                     {bracketText}
                 </span>
@@ -322,7 +319,7 @@ export default function Index({ families, queryParams = null, puroks }) {
                             showAll={showAll}
                             visibleColumns={visibleColumns}
                             setVisibleColumns={setVisibleColumns}
-                            // showTotal={true}
+                        // showTotal={true}
                         />
                     </div>
                 </div>

@@ -9,6 +9,21 @@ import { Toaster, toast } from "sonner";
 import ResidentTable from "@/Components/ResidentTable";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
+import { useEffect, useState } from "react";
+import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
+import DynamicTable from "@/Components/DynamicTable";
+import ActionMenu from "@/Components/ActionMenu";
+import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
+import FilterToggle from "@/Components/FilterButtons/FillterToggle";
+import {
+    Search,
+    UserRoundPlus,
+    HousePlus,
+    SquarePen,
+    Trash2,
+    Network,
+    SquarePlus,
+} from "lucide-react";
 import {
     HOUSEHOLD_CONDITION_TEXT,
     HOUSEHOLD_OWNERSHIP_TEXT,
@@ -107,6 +122,37 @@ export default function Index({
         { key: "purok_number", label: "Purok Number" },
         { key: "actions", label: "Actions" },
     ];
+
+    // === BEING ADDED
+
+    const [visibleColumns, setVisibleColumns] = useState(
+        allColumns.map((col) => col.key)
+    );
+    const [isPaginated, setIsPaginated] = useState(true);
+    const [showAll, setShowAll] = useState(false);
+
+    const hasActiveFilter = Object.entries(queryParams || {}).some(
+        ([key, value]) =>
+            ["purok", "v_type", "v_class", "usage"].includes(key) &&
+            value &&
+            value !== ""
+    );
+
+    useEffect(() => {
+        if (hasActiveFilter) {
+            setShowFilters(true);
+        }
+    }, [hasActiveFilter]);
+
+    const [showFilters, setShowFilters] = useState(hasActiveFilter);
+    const toggleShowFilters = () => setShowFilters((prev) => !prev);
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    // === AP TO HERE
+
     const columnRenderers = {
         id: (row) => row.vehicle_id,
 
@@ -199,419 +245,86 @@ export default function Index({
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
                 {/* <pre>{JSON.stringify(vehicles, undefined, 2)}</pre> */}
                 <div className="p-2 md:p-4">
-                    <div className="overflow-x bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-2 my-4">
-                        <div className="my-1 mb-3 flex justify-between items-center">
-                            <div className="flex w-full justify-end items-end space-x-1">
-                                {/* Search Bar */}
-                                <form
-                                    onSubmit={handleSearchSubmit}
-                                    className="flex w-full max-w-sm items-center space-x-1"
-                                >
-                                    <Input
-                                        type="text"
-                                        placeholder="Search Owner's Name"
-                                        value={query}
-                                        onChange={(e) =>
-                                            setQuery(e.target.value)
+                    <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
+                        <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                            <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <DynamicTableControls
+                                        allColumns={allColumns}
+                                        visibleColumns={visibleColumns}
+                                        setVisibleColumns={setVisibleColumns}
+                                        onPrint={handlePrint}
+                                        showFilters={showFilters}
+                                        toggleShowFilters={() =>
+                                            setShowFilters((prev) => !prev)
                                         }
-                                        onKeyDown={(e) =>
-                                            onKeyPressed("name", e.target.value)
-                                        }
-                                        className="ml-4"
                                     />
-                                    <Button type="submit">
-                                        <Search />
-                                    </Button>
-                                </form>
-
-                                <Button
-                                    className="bg-blue-700 hover:bg-blue-400 "
-                                    onClick={handleAddVehicle}
-                                >
-                                    <SquarePlus />
-                                </Button>
-                            </div>
-                        </div>
-                        <DynamicTable
-                            passedData={vehicles}
-                            allColumns={allColumns}
-                            columnRenderers={columnRenderers}
-                        >
-                            <div className="flex justify-between items-center w-full">
-                                <div className="flex gap-2 w-full">
-                                    {/* puroks */}
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("purok", value)
-                                        }
-                                        value={queryParams.purok}
+                                </div>
+                                <div className="flex items-center gap-2 flex-wrap justify-end">
+                                    <form
+                                        onSubmit={handleSubmit}
+                                        className="flex w-[300px] max-w-lg items-center space-x-1"
                                     >
-                                        <SelectTrigger className="w-[95px]">
-                                            <SelectValue placeholder="Purok" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            {puroks.map((purok, index) => (
-                                                <SelectItem
-                                                    key={index}
-                                                    value={purok.toString()}
-                                                >
-                                                    Purok {purok}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-
-                                    {/* vehicle types */}
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("v_type", value)
-                                        }
-                                        value={queryParams.v_type}
-                                    >
-                                        <SelectTrigger className="w-[120px]">
-                                            <SelectValue placeholder="Vehicle Type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            {vehicle_types.map(
-                                                (type, index) => (
-                                                    <SelectItem
-                                                        key={index}
-                                                        value={type.toLowerCase()}
-                                                    >
-                                                        {type}
-                                                    </SelectItem>
+                                        <Input
+                                            type="text"
+                                            placeholder="Search Owners Name"
+                                            value={query}
+                                            onChange={(e) =>
+                                                setQuery(e.target.value)
+                                            }
+                                            onKeyDown={(e) =>
+                                                onKeyPressed(
+                                                    "name",
+                                                    e.target.value
                                                 )
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-
-                                    {/* vehicle types */}
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("v_class", value)
-                                        }
-                                        value={queryParams.v_class}
-                                    >
-                                        <SelectTrigger className="w-[130px]">
-                                            <SelectValue placeholder="Vehicle Class" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="private">
-                                                Private
-                                            </SelectItem>
-                                            <SelectItem value="public">
-                                                Public
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-
-                                    {/* usages */}
-                                    <Select
-                                        onValueChange={(value) =>
-                                            searchFieldName("usage", value)
-                                        }
-                                        value={queryParams.usage}
-                                    >
-                                        <SelectTrigger className="w-[135px]">
-                                            <SelectValue placeholder="Vehicle Usage" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="All">
-                                                All
-                                            </SelectItem>
-                                            <SelectItem value="personal">
-                                                Personal
-                                            </SelectItem>
-                                            <SelectItem value="public_transport">
-                                                Public Transport
-                                            </SelectItem>
-                                            <SelectItem value="business_use">
-                                                Business Use
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="flex justify-end">
-                                    <ClearFilterButton
-                                        routeName={"vehicle.index"}
-                                    />
-                                </div>
-                            </div>
-                        </DynamicTable>
-                        <SidebarModal
-                            isOpen={isModalOpen}
-                            onClose={() => setIsModalOpen(false)}
-                            title="Add Vehicles"
-                        >
-                            <div className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg text-sm text-black p-4 space-y-4">
-                                <form
-                                    className="bg-gray-50 p-3 rounded"
-                                    onSubmit={onSubmit}
-                                >
-                                    <h3 className="text-xl font-medium text-gray-700 mb-8">
-                                        Vehicle Info
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-6 gap-y-2 md:gap-x-4 mb-5 w-full">
-                                        <div className="md:row-span-2 md:col-span-2 flex flex-col items-center space-y-2">
-                                            <InputLabel
-                                                htmlFor={`resident_image`}
-                                                value="Profile Photo"
-                                            />
-                                            <img
-                                                src={
-                                                    data.resident_image
-                                                        ? `/storage/${data.resident_image}`
-                                                        : "/images/default-avatar.jpg"
-                                                }
-                                                alt={`Resident Image`}
-                                                className="w-32 h-32 object-cover rounded-full border border-gray-200"
-                                            />
-                                        </div>
-                                        <div className="md:col-span-4 space-y-2">
-                                            <div className="w-full">
-                                                <DropdownInputField
-                                                    label="Full Name"
-                                                    name="resident_name"
-                                                    value={
-                                                        data.resident_name || ""
-                                                    }
-                                                    placeholder="Select a resident"
-                                                    onChange={(e) =>
-                                                        handleResidentChange(e)
-                                                    }
-                                                    items={residentsList}
-                                                />
-                                                <InputError
-                                                    message={errors.resident_id}
-                                                    className="mt-2"
-                                                />
-                                            </div>
-
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                                <div>
-                                                    <InputField
-                                                        label="Birthdate"
-                                                        name="birthdate"
-                                                        value={
-                                                            data.birthdate || ""
-                                                        }
-                                                        readOnly={true}
-                                                    />
-                                                </div>
-
-                                                <div>
-                                                    <InputField
-                                                        label="Purok Number"
-                                                        name="purok_number"
-                                                        value={
-                                                            data.purok_number
-                                                        }
-                                                        readOnly={true}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-4 mt-4">
-                                        {(data.vehicles || []).map(
-                                            (vehicle, vecIndex) => (
-                                                <div
-                                                    key={vecIndex}
-                                                    className="border p-4 mb-4 rounded-md relative bg-gray-50"
-                                                >
-                                                    {/* Left: input fields */}
-                                                    <div className="grid md:grid-cols-4 gap-4">
-                                                        <div>
-                                                            <DropdownInputField
-                                                                label="Vehicle Type"
-                                                                name="vehicle_type"
-                                                                value={
-                                                                    vehicle.vehicle_type ||
-                                                                    ""
-                                                                }
-                                                                items={[
-                                                                    "Motorcycle",
-                                                                    "Tricycle",
-                                                                    "Car",
-                                                                    "Jeep",
-                                                                    "Truck",
-                                                                    "Bicycle",
-                                                                ]}
-                                                                onChange={(e) =>
-                                                                    handleArrayValues(
-                                                                        e,
-                                                                        vecIndex,
-                                                                        "vehicle_type",
-                                                                        "vehicles"
-                                                                    )
-                                                                }
-                                                                placeholder="Select type"
-                                                            />
-                                                            <InputError
-                                                                message={
-                                                                    errors[
-                                                                        `vehicles.${vecIndex}.vehicle_type`
-                                                                    ]
-                                                                }
-                                                                className="mt-2"
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <DropdownInputField
-                                                                label="Classification"
-                                                                name="vehicle_class"
-                                                                value={
-                                                                    vehicle.vehicle_class ||
-                                                                    ""
-                                                                }
-                                                                items={[
-                                                                    {
-                                                                        label: "Private",
-                                                                        value: "private",
-                                                                    },
-                                                                    {
-                                                                        label: "Public",
-                                                                        value: "public",
-                                                                    },
-                                                                ]}
-                                                                onChange={(e) =>
-                                                                    handleArrayValues(
-                                                                        e,
-                                                                        vecIndex,
-                                                                        "vehicle_class",
-                                                                        "vehicles"
-                                                                    )
-                                                                }
-                                                                placeholder="Select class"
-                                                            />
-                                                            <InputError
-                                                                message={
-                                                                    errors[
-                                                                        `vehicles.${vecIndex}.vehicle_class`
-                                                                    ]
-                                                                }
-                                                                className="mt-2"
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <DropdownInputField
-                                                                label="Usage Purpose"
-                                                                name="usage_status"
-                                                                value={
-                                                                    vehicle.usage_status ||
-                                                                    ""
-                                                                }
-                                                                items={[
-                                                                    {
-                                                                        label: "Personal",
-                                                                        value: "personal",
-                                                                    },
-                                                                    {
-                                                                        label: "Public Transport",
-                                                                        value: "public_transport",
-                                                                    },
-                                                                    {
-                                                                        label: "Business Use",
-                                                                        value: "business_use",
-                                                                    },
-                                                                ]}
-                                                                onChange={(e) =>
-                                                                    handleArrayValues(
-                                                                        e,
-                                                                        vecIndex,
-                                                                        "usage_status",
-                                                                        "vehicles"
-                                                                    )
-                                                                }
-                                                                placeholder="Select usage"
-                                                            />
-                                                            <InputError
-                                                                message={
-                                                                    errors[
-                                                                        `vehicles.${vecIndex}.usage_status`
-                                                                    ]
-                                                                }
-                                                                className="mt-2"
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <InputField
-                                                                label="Quantity"
-                                                                name="quantity"
-                                                                type="number"
-                                                                value={
-                                                                    vehicle.quantity ||
-                                                                    ""
-                                                                }
-                                                                onChange={(e) =>
-                                                                    handleArrayValues(
-                                                                        e,
-                                                                        vecIndex,
-                                                                        "quantity",
-                                                                        "vehicles"
-                                                                    )
-                                                                }
-                                                                placeholder="Number"
-                                                            />
-                                                            <InputError
-                                                                message={
-                                                                    errors[
-                                                                        `vehicles.${vecIndex}.quantity`
-                                                                    ]
-                                                                }
-                                                                className="mt-2"
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Right: remove button */}
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            removeVehicle(
-                                                                vecIndex
-                                                            )
-                                                        }
-                                                        className="absolute top-1 right-2 flex items-center gap-1 text-2xl text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
-                                                        title="Remove"
-                                                    >
-                                                        <IoIosCloseCircleOutline />
-                                                    </button>
-                                                </div>
-                                            )
-                                        )}
-                                        <div className="flex justify-between items-center p-3">
-                                            <button
-                                                type="button"
-                                                onClick={() => addVehicle()}
-                                                className="flex items-center text-blue-600 hover:text-blue-800 text-sm mt-2"
-                                                title="Add vehicle"
-                                            >
-                                                <IoIosAddCircleOutline className="text-4xl" />
-                                                <span className="ml-1">
-                                                    Add Vehicle
-                                                </span>
-                                            </button>
+                                            }
+                                            className="w-full"
+                                        />
+                                        <div className="relative group z-50">
                                             <Button
-                                                className="bg-blue-700 hover:bg-blue-400 "
-                                                type={"submit"}
+                                                type="submit"
+                                                className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
+                                                variant="outline"
                                             >
-                                                Add <MoveRight />
+                                                <Search />
                                             </Button>
+                                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                                Search
+                                            </div>
                                         </div>
-                                    </div>
-                                </form>
+                                    </form>
+                                </div>
                             </div>
-                        </SidebarModal>
+                            {showFilters && (
+                                <FilterToggle
+                                    queryParams={queryParams}
+                                    searchFieldName={searchFieldName}
+                                    visibleFilters={[
+                                        "purok",
+                                        "v_type",
+                                        "v_class",
+                                        "usage",
+                                    ]}
+                                    vehicle_types={vehicle_types}
+                                    puroks={puroks}
+                                    showFilters={true}
+                                    clearRouteName="vehicle.index"
+                                    clearRouteParams={{}}
+                                />
+                            )}
+                            <DynamicTable
+                                passedData={vehicles}
+                                allColumns={allColumns}
+                                columnRenderers={columnRenderers}
+                                queryParams={queryParams}
+                                is_paginated={isPaginated}
+                                toggleShowAll={() => setShowAll(!showAll)}
+                                showAll={showAll}
+                                visibleColumns={visibleColumns}
+                                setVisibleColumns={setVisibleColumns}
+                                // showTotal={true}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
