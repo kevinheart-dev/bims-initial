@@ -1,22 +1,14 @@
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link, router, useForm } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Search, SquarePen, Trash2, SquarePlus, MoveRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
+import { Toaster, toast } from "sonner";
+import ResidentTable from "@/Components/ResidentTable";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
-import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
-import FilterToggle from "@/Components/FilterButtons/FillterToggle";
-import {
-    Search,
-    UserRoundPlus,
-    HousePlus,
-    SquarePen,
-    Trash2,
-    Network,
-    SquarePlus,
-} from "lucide-react";
 import {
     HOUSEHOLD_CONDITION_TEXT,
     HOUSEHOLD_OWNERSHIP_TEXT,
@@ -26,13 +18,28 @@ import {
     VEHICLE_USAGE_TEXT,
     VEHICLE_USAGE_STYLES,
 } from "@/constants";
-
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+import ClearFilterButton from "@/Components/ClearFiltersButton";
+import SidebarModal from "@/Components/SidebarModal";
+import DropdownInputField from "@/Components/DropdownInputField";
+import InputError from "@/Components/InputError";
+import InputField from "@/Components/InputField";
+import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
+import InputLabel from "@/Components/InputLabel";
+import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 
 export default function Index({
     vehicles,
     vehicle_types,
     puroks,
     queryParams,
+    residents,
 }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
@@ -41,12 +48,29 @@ export default function Index({
     queryParams = queryParams || {};
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleSubmit = (e) => {
+    const { data, setData, post, errors } = useForm({
+        resident_id: null,
+        resident_name: "",
+        resident_image: null,
+        birthdate: null,
+        purok_number: null,
+        has_vehicle: null,
+        vehicles: [[]],
+    });
+    const handleArrayValues = (e, index, column, array) => {
+        const updated = [...(data[array] || [])];
+        updated[index] = {
+            ...updated[index],
+            [column]: e.target.value,
+        };
+        setData(array, updated);
+    };
+    const handleSearchSubmit = (e) => {
         e.preventDefault();
         searchFieldName("name", query);
     };
-
     const searchFieldName = (field, value) => {
         if (value && value.trim() !== "") {
             queryParams[field] = value;
@@ -59,7 +83,6 @@ export default function Index({
         }
         router.get(route("vehicle.index", queryParams));
     };
-
     const onKeyPressed = (field, e) => {
         if (e.key === "Enter") {
             searchFieldName(field, e.target.value);
@@ -67,7 +90,14 @@ export default function Index({
             return;
         }
     };
-
+    const addVehicle = () => {
+        setData("vehicles", [...(data.vehicles || []), {}]);
+    };
+    const removeVehicle = (vehicleIndex) => {
+        const updated = [...(data.vehicles || [])];
+        updated.splice(vehicleIndex, 1);
+        setData("vehicles", updated);
+    };
     const allColumns = [
         { key: "id", label: "Vehicle ID" },
         { key: "name", label: "Owner Name" },
@@ -89,9 +119,7 @@ export default function Index({
 
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
-            ["purok", "v_type", "v_class", "usage"].includes(
-                key
-            ) &&
+            ["purok", "v_type", "v_class", "usage"].includes(key) &&
             value &&
             value !== ""
     );
@@ -131,8 +159,9 @@ export default function Index({
             const statusLabel = VEHICLE_USAGE_TEXT[row.usage_status];
             return (
                 <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${VEHICLE_USAGE_STYLES[row.usage_status]
-                        }`}
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        VEHICLE_USAGE_STYLES[row.usage_status]
+                    }`}
                 >
                     {statusLabel}
                 </span>
@@ -159,6 +188,41 @@ export default function Index({
             />
         ),
     };
+    const handleAddVehicle = () => {
+        setIsModalOpen(true);
+    };
+    const handleResidentChange = (e) => {
+        const resident_id = Number(e.target.value);
+        const resident = residents.find((r) => r.id == resident_id);
+        if (resident) {
+            setData("resident_id", resident.id);
+            setData(
+                "resident_name",
+                `${resident.firstname} ${resident.middlename} ${
+                    resident.lastname
+                } ${resident.suffix ?? ""}`
+            );
+            setData("purok_number", resident.purok_number);
+            setData("birthdate", resident.birthdate);
+            setData("resident_image", resident.resident_picture_path);
+        }
+    };
+    const residentsList = residents.map((res) => ({
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
+            res.suffix ?? ""
+        }`,
+        value: res.id.toString(),
+    }));
+
+    const onSubmit = (e) => {
+        e.preventDefault();
+
+        post(route("vehicle.store"), {
+            onError: (errors) => {
+                console.error("Validation Errors:", errors);
+            },
+        });
+    };
 
     return (
         <AdminLayout>
@@ -184,7 +248,7 @@ export default function Index({
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap justify-end">
                                     <form
-                                        onSubmit={handleSubmit}
+                                        onSubmit={handleSearchSubmit}
                                         className="flex w-[300px] max-w-lg items-center space-x-1"
                                     >
                                         <Input
@@ -195,7 +259,10 @@ export default function Index({
                                                 setQuery(e.target.value)
                                             }
                                             onKeyDown={(e) =>
-                                                onKeyPressed("name", e.target.value)
+                                                onKeyPressed(
+                                                    "name",
+                                                    e.target.value
+                                                )
                                             }
                                             className="w-full"
                                         />
@@ -211,6 +278,13 @@ export default function Index({
                                                 Search
                                             </div>
                                         </div>
+                                        <Button
+                                            className="bg-blue-700 hover:bg-blue-400 "
+                                            onClick={handleAddVehicle}
+                                            type={"button"}
+                                        >
+                                            <SquarePlus />
+                                        </Button>
                                     </form>
                                 </div>
                             </div>
@@ -241,8 +315,284 @@ export default function Index({
                                 showAll={showAll}
                                 visibleColumns={visibleColumns}
                                 setVisibleColumns={setVisibleColumns}
-                            // showTotal={true}
+                                // showTotal={true}
                             />
+                            <SidebarModal
+                                isOpen={isModalOpen}
+                                onClose={() => setIsModalOpen(false)}
+                                title="Add Vehicles"
+                            >
+                                <div className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg text-sm text-black p-4 space-y-4">
+                                    <form onSubmit={onSubmit}>
+                                        <h3 className="text-xl font-medium text-gray-700 mb-8">
+                                            Vehicle Info
+                                        </h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-6 gap-y-2 md:gap-x-4 mb-5 w-full">
+                                            <div className="md:row-span-2 md:col-span-2 flex flex-col items-center space-y-2">
+                                                <InputLabel
+                                                    htmlFor={`resident_image`}
+                                                    value="Profile Photo"
+                                                />
+                                                <img
+                                                    src={
+                                                        data.resident_image
+                                                            ? `/storage/${data.resident_image}`
+                                                            : "/images/default-avatar.jpg"
+                                                    }
+                                                    alt={`Resident Image`}
+                                                    className="w-32 h-32 object-cover rounded-full border border-gray-200"
+                                                />
+                                            </div>
+                                            <div className="md:col-span-4 space-y-2">
+                                                <div className="w-full">
+                                                    <DropdownInputField
+                                                        label="Full Name"
+                                                        name="resident_name"
+                                                        value={
+                                                            data.resident_name ||
+                                                            ""
+                                                        }
+                                                        placeholder="Select a resident"
+                                                        onChange={(e) =>
+                                                            handleResidentChange(
+                                                                e
+                                                            )
+                                                        }
+                                                        items={residentsList}
+                                                    />
+                                                    <InputError
+                                                        message={
+                                                            errors.resident_id
+                                                        }
+                                                        className="mt-2"
+                                                    />
+                                                </div>
+
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                    <div>
+                                                        <InputField
+                                                            label="Birthdate"
+                                                            name="birthdate"
+                                                            value={
+                                                                data.birthdate ||
+                                                                ""
+                                                            }
+                                                            readOnly={true}
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <InputField
+                                                            label="Purok Number"
+                                                            name="purok_number"
+                                                            value={
+                                                                data.purok_number
+                                                            }
+                                                            readOnly={true}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-4 mt-4">
+                                            {(data.vehicles || []).map(
+                                                (vehicle, vecIndex) => (
+                                                    <div
+                                                        key={vecIndex}
+                                                        className="border p-4 mb-4 rounded-md relative bg-gray-50"
+                                                    >
+                                                        {/* Left: input fields */}
+                                                        <div className="grid md:grid-cols-4 gap-4">
+                                                            <div>
+                                                                <DropdownInputField
+                                                                    label="Vehicle Type"
+                                                                    name="vehicle_type"
+                                                                    value={
+                                                                        vehicle.vehicle_type ||
+                                                                        ""
+                                                                    }
+                                                                    items={[
+                                                                        "Motorcycle",
+                                                                        "Tricycle",
+                                                                        "Car",
+                                                                        "Jeep",
+                                                                        "Truck",
+                                                                        "Bicycle",
+                                                                    ]}
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleArrayValues(
+                                                                            e,
+                                                                            vecIndex,
+                                                                            "vehicle_type",
+                                                                            "vehicles"
+                                                                        )
+                                                                    }
+                                                                    placeholder="Select type"
+                                                                />
+                                                                <InputError
+                                                                    message={
+                                                                        errors[
+                                                                            `vehicles.${vecIndex}.vehicle_type`
+                                                                        ]
+                                                                    }
+                                                                    className="mt-2"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <DropdownInputField
+                                                                    label="Classification"
+                                                                    name="vehicle_class"
+                                                                    value={
+                                                                        vehicle.vehicle_class ||
+                                                                        ""
+                                                                    }
+                                                                    items={[
+                                                                        {
+                                                                            label: "Private",
+                                                                            value: "private",
+                                                                        },
+                                                                        {
+                                                                            label: "Public",
+                                                                            value: "public",
+                                                                        },
+                                                                    ]}
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleArrayValues(
+                                                                            e,
+                                                                            vecIndex,
+                                                                            "vehicle_class",
+                                                                            "vehicles"
+                                                                        )
+                                                                    }
+                                                                    placeholder="Select class"
+                                                                />
+                                                                <InputError
+                                                                    message={
+                                                                        errors[
+                                                                            `vehicles.${vecIndex}.vehicle_class`
+                                                                        ]
+                                                                    }
+                                                                    className="mt-2"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <DropdownInputField
+                                                                    label="Usage Purpose"
+                                                                    name="usage_status"
+                                                                    value={
+                                                                        vehicle.usage_status ||
+                                                                        ""
+                                                                    }
+                                                                    items={[
+                                                                        {
+                                                                            label: "Personal",
+                                                                            value: "personal",
+                                                                        },
+                                                                        {
+                                                                            label: "Public Transport",
+                                                                            value: "public_transport",
+                                                                        },
+                                                                        {
+                                                                            label: "Business Use",
+                                                                            value: "business_use",
+                                                                        },
+                                                                    ]}
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleArrayValues(
+                                                                            e,
+                                                                            vecIndex,
+                                                                            "usage_status",
+                                                                            "vehicles"
+                                                                        )
+                                                                    }
+                                                                    placeholder="Select usage"
+                                                                />
+                                                                <InputError
+                                                                    message={
+                                                                        errors[
+                                                                            `vehicles.${vecIndex}.usage_status`
+                                                                        ]
+                                                                    }
+                                                                    className="mt-2"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <InputField
+                                                                    label="Quantity"
+                                                                    name="quantity"
+                                                                    type="number"
+                                                                    value={
+                                                                        vehicle.quantity ||
+                                                                        ""
+                                                                    }
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleArrayValues(
+                                                                            e,
+                                                                            vecIndex,
+                                                                            "quantity",
+                                                                            "vehicles"
+                                                                        )
+                                                                    }
+                                                                    placeholder="Number"
+                                                                />
+                                                                <InputError
+                                                                    message={
+                                                                        errors[
+                                                                            `vehicles.${vecIndex}.quantity`
+                                                                        ]
+                                                                    }
+                                                                    className="mt-2"
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Right: remove button */}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                removeVehicle(
+                                                                    vecIndex
+                                                                )
+                                                            }
+                                                            className="absolute top-1 right-2 flex items-center gap-1 text-2xl text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
+                                                            title="Remove"
+                                                        >
+                                                            <IoIosCloseCircleOutline />
+                                                        </button>
+                                                    </div>
+                                                )
+                                            )}
+                                            <div className="flex justify-between items-center p-3">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => addVehicle()}
+                                                    className="flex items-center text-blue-600 hover:text-blue-800 text-sm mt-2"
+                                                    title="Add vehicle"
+                                                >
+                                                    <IoIosAddCircleOutline className="text-4xl" />
+                                                    <span className="ml-1">
+                                                        Add Vehicle
+                                                    </span>
+                                                </button>
+                                                <Button
+                                                    className="bg-blue-700 hover:bg-blue-400 "
+                                                    type={"submit"}
+                                                >
+                                                    Add <MoveRight />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </SidebarModal>
                         </div>
                     </div>
                 </div>

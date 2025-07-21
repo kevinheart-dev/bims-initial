@@ -22,7 +22,6 @@ class CertificateController extends Controller
         $template = Document::findOrFail($validated['document_id']);
         $resident = Resident::findOrFail($validated['resident_id']);
 
-
         return $this->store($template, $resident, $request->all());
     }
 
@@ -31,12 +30,6 @@ class CertificateController extends Controller
         if (!isset($data['purpose'])) {
             throw new \InvalidArgumentException('Purpose is required.');
         }
-
-        $customValues = collect($data)->except([
-            'document_id',
-            'resident_id',
-            'purpose',
-        ]);
 
         try {
             $templatePath = storage_path("app/public/{$template->template_path}");
@@ -49,12 +42,13 @@ class CertificateController extends Controller
 
             $placeholders = $templateProcessor->getVariables();
 
+            // Format resident name
             $fullName = trim("{$resident->firstname} {$resident->middlename} {$resident->lastname} {$resident->suffix}");
 
             $ctrlNo = 'CSA-' . now()->format('YmdHis');
 
-            // Values to replace in the template
-            $values = collect([
+            // System-defined placeholders
+            $systemValues = collect([
                 'fullname' => $fullName,
                 'day' => now()->format('j'),
                 'month' => now()->format('F'),
@@ -63,13 +57,24 @@ class CertificateController extends Controller
                 'gender' => $resident->gender,
                 'purpose' => $data['purpose'],
                 'ctrl_no' => $ctrlNo,
-            ])->merge($customValues);
+            ]);
 
-            // Replace every placeholder found in the template
+            // User-provided dynamic values (excluding known system keys)
+            $customValues = collect($data)->except([
+                'document_id',
+                'resident_id',
+                'purpose',
+            ]);
+
+            // Final merged placeholder values
+            $values = $systemValues->merge($customValues);
+
+            // Fill the placeholders in the template
             foreach ($placeholders as $placeholder) {
                 $templateProcessor->setValue($placeholder, $values->get($placeholder, ''));
             }
 
+            // Save the generated file
             $filename = 'certificate_' . Str::slug($fullName) . '_' . now()->format('Ymd_His') . '.docx';
             $outputPath = storage_path("app/temp/{$filename}");
 
