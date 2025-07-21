@@ -11,14 +11,7 @@ import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControl
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
 import SidebarModal from "@/Components/SidebarModal";
-import {
-    Eye,
-    Share2,
-    Network,
-    Search,
-    SquarePen,
-    Trash2,
-} from "lucide-react";
+import { Eye, Share2, Network, Search, SquarePen, Trash2 } from "lucide-react";
 import {
     Select,
     SelectContent,
@@ -26,6 +19,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
+import axios from "axios";
+import useAppUrl from "@/hooks/useAppUrl";
+
 export default function Index({
     members,
     family_details,
@@ -44,7 +40,7 @@ export default function Index({
             showOnMobile: true,
         },
     ];
-
+    const APP_URL = useAppUrl();
     queryParams = queryParams || {};
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
@@ -117,8 +113,15 @@ export default function Index({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedResident, setSelectedResident] = useState(null);
 
-    const handleView = (resident) => {
-        setSelectedResident(resident);
+    const handleView = async (resident) => {
+        try {
+            const response = await axios.get(
+                `${APP_URL}/barangay_officer/resident/showresident/${resident}`
+            );
+            setSelectedResident(response.data.resident);
+        } catch (error) {
+            console.error("Error fetching placeholders:", error);
+        }
         setIsModalOpen(true);
     };
     // ===
@@ -140,12 +143,11 @@ export default function Index({
                 "household_position",
                 "estatus",
                 "voter_status",
-                "is_pwd"
+                "is_pwd",
             ].includes(key) &&
             value &&
             value !== "All"
     );
-
 
     useEffect(() => {
         if (hasActiveFilter) {
@@ -153,10 +155,8 @@ export default function Index({
         }
     }, [hasActiveFilter]);
 
-
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
     const toggleShowFilters = () => setShowFilters((prev) => !prev);
-
 
     const handlePrint = () => {
         window.print();
@@ -167,13 +167,16 @@ export default function Index({
     const columnRenderers = {
         resident_id: (member) => member.id,
         name: (member) =>
-            `${member.firstname} ${member.middlename ?? ""} ${member.lastname ?? ""
+            `${member.firstname} ${member.middlename ?? ""} ${
+                member.lastname ?? ""
             } ${member.suffix ?? ""}`,
         gender: (member) => {
             const genderKey = member.gender;
-            const label = CONSTANTS.RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
+            const label =
+                CONSTANTS.RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
             const className =
-                CONSTANTS.RESIDENT_GENDER_COLOR_CLASS[genderKey] ?? "bg-gray-300";
+                CONSTANTS.RESIDENT_GENDER_COLOR_CLASS[genderKey] ??
+                "bg-gray-300";
 
             return (
                 <span
@@ -203,17 +206,20 @@ export default function Index({
         },
         relationship_to_head: (member) =>
             CONSTANTS.RELATIONSHIP_TO_HEAD_TEXT[
-            member.household_residents?.[0]?.relationship_to_head
+                member.household_residents?.[0]?.relationship_to_head
             ] || "",
         household_position: (member) =>
             CONSTANTS.HOUSEHOLD_POSITION_TEXT[
-            member.household_residents?.[0]?.household_position
+                member.household_residents?.[0]?.household_position
             ] || "",
         employment_status: (member) =>
-            CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[member?.employment_status],
+            CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
+                member?.employment_status
+            ],
         registered_voter: (member) => {
             const status = member?.registered_voter ?? 0;
-            const label = CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[status] ?? "Unknown";
+            const label =
+                CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[status] ?? "Unknown";
             const className =
                 CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[status] ??
                 "p-1 bg-gray-300 text-black rounded-lg";
@@ -221,23 +227,23 @@ export default function Index({
             return <span className={className}>{label}</span>;
         },
         is_pwd: (member) => CONSTANTS.MEDICAL_PWD_TEXT[member?.is_pwd],
-        actions: (family) => (
+        actions: (member) => (
             <ActionMenu
                 actions={[
                     {
                         label: "View",
                         icon: <Eye className="w-4 h-4 text-indigo-600" />,
-                        onClick: () => handleView(family),
+                        onClick: () => handleView(member.id),
                     },
                     {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
-                        onClick: () => handleEdit(family.id),
+                        onClick: () => handleEdit(member.id),
                     },
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(family.id),
+                        onClick: () => handleDelete(member.id),
                     },
                 ]}
             />
@@ -260,7 +266,9 @@ export default function Index({
                                     setVisibleColumns={setVisibleColumns}
                                     onPrint={handlePrint}
                                     showFilters={showFilters}
-                                    toggleShowFilters={() => setShowFilters((prev) => !prev)}
+                                    toggleShowFilters={() =>
+                                        setShowFilters((prev) => !prev)
+                                    }
                                 />
                             </div>
                             <div className="flex items-center gap-2 flex-wrap justify-end">
@@ -273,8 +281,12 @@ export default function Index({
                                         type="text"
                                         placeholder="Search for Household Member Name"
                                         value={query}
-                                        onChange={(e) => setQuery(e.target.value)}
-                                        onKeyDown={(e) => onKeyPressed("name", e)}
+                                        onChange={(e) =>
+                                            setQuery(e.target.value)
+                                        }
+                                        onKeyDown={(e) =>
+                                            onKeyPressed("name", e)
+                                        }
                                         className="w-full"
                                     />
                                     <div className="relative group z-50">
@@ -329,11 +341,11 @@ export default function Index({
                                     "household_position",
                                     "estatus",
                                     "voter_status",
-                                    "is_pwd"
+                                    "is_pwd",
                                 ]}
                                 showFilters={true}
                                 clearRouteName="family.showfamily"
-                                clearRouteParams={{ family: family_details.id, }}
+                                clearRouteParams={{ family: family_details.id }}
                             />
                         )}
                         <DynamicTable

@@ -1,24 +1,6 @@
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router, useForm } from "@inertiajs/react";
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import Pagination from "@/Components/Pagination";
-import { Input } from "@/components/ui/input";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { FilePlus2, FileUp, SquarePlus } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -72,18 +54,18 @@ export default function Index({ documents, residents }) {
 
         if (cert) {
             setData("document_name", cert.name);
-        }
+            setData("document_id", cert.id);
+            try {
+                const response = await axios.get(
+                    `${APP_URL}/barangay_officer/document/fetchplaceholders/${e}`
+                );
+                console.log("Placeholders:", response.data);
 
-        try {
-            const response = await axios.get(
-                `${APP_URL}/barangay_officer/document/fetchplaceholders/${e}`
-            );
-            console.log("Placeholders:", response.data);
-
-            // Optionally store the placeholders in state
-            setData("placeholders", response.data);
-        } catch (error) {
-            console.error("Error fetching placeholders:", error);
+                // Optionally store the placeholders in state
+                setData("placeholders", response.data.placeholders);
+            } catch (error) {
+                console.error("Error fetching placeholders:", error);
+            }
         }
     };
 
@@ -123,12 +105,57 @@ export default function Index({ documents, residents }) {
 
     const onSubmit = (e) => {
         e.preventDefault();
+        post(route("certificate.store"));
+    };
 
-        post(route("certificate.store"), data, {
-            onError: (errors) => {
-                console.error("Validation Errors:", errors);
-            },
-        });
+    const handleIssue = async () => {
+        if (!data.resident_id || !data.document_id) {
+            alert("Please select both a resident and a certificate.");
+            return;
+        }
+        const payload = {
+            document_id: data.document_id,
+            resident_id: data.resident_id,
+            purpose: data.purpose,
+            ...Object.fromEntries(
+                (data.placeholders || []).map((placeholder) => [
+                    placeholder,
+                    data[placeholder] || "",
+                ])
+            ),
+        };
+
+        try {
+            const response = await axios.post(
+                route("certificate.store"), // Laravel route
+                payload,
+                {
+                    responseType: "blob", // important for downloading file
+                }
+            );
+
+            const blob = new Blob([response.data], {
+                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+
+            // Use a smart filename if available
+            const contentDisposition = response.headers["content-disposition"];
+            const match = contentDisposition?.match(/filename="?([^"]+)"?/);
+            const filename = match ? match[1] : "certificate.docx";
+
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            // Optionally show success alert
+            console.log("Success", "Document issued successfully.");
+        } catch (error) {
+            console.error("Issuance failed", error);
+        }
     };
 
     return (
@@ -145,171 +172,160 @@ export default function Index({ documents, residents }) {
                             <p className="text-4xl font-bold text-center ">
                                 Certificate Issuance
                             </p>
-                            <form
-                                className="p-10"
-                                onSubmit={(e) => onSubmit(e)}
-                            >
-                                <h2 className="text-xl font-semibold text-gray-800 mb-1">
-                                    Certificate Information
-                                </h2>
-                                <p className="text-xs text-gray-600">
-                                    Kindly check the provided personal
-                                    information of the resident required.
-                                </p>
-                                <div className="flex items-center gap-4">
-                                    <div className="w-full">
-                                        <DropdownInputField
-                                            label={"Select a Certificate"}
-                                            items={documentsList}
-                                            value={data.document_name || ""}
-                                            onChange={(e) =>
-                                                handleDocumentChange(
-                                                    e.target.value
-                                                )
-                                            }
-                                        />
-                                    </div>
-                                    <div className="w-full">
-                                        <DropdownInputField
-                                            label={"Select a Resident"}
-                                            items={residentsList}
-                                            value={data.resident_name || ""}
-                                            onChange={(e) =>
-                                                handleResidentChange(e)
-                                            }
-                                        />
-                                    </div>
-                                </div>
 
-                                <div className="flex flex-col mt-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-6 gap-y-2 md:gap-x-4 mb-5">
-                                        <div className="md:row-span-2 flex flex-col items-center space-y-2">
-                                            <InputLabel
-                                                htmlFor={`resident_image`}
-                                                value="Profile Photo"
-                                            />
-                                            <img
-                                                src={
-                                                    data.resident_image
-                                                        ? `/storage/${data.resident_image}`
-                                                        : "/images/default-avatar.jpg"
-                                                }
-                                                alt={`Resident Image`}
-                                                className="w-32 h-32 object-cover rounded-full border border-gray-200"
-                                            />
-                                        </div>
-                                        <div className="md:col-span-5 space-y-2">
-                                            <div className="w-full">
-                                                <DropdownInputField
-                                                    label="Purpose"
-                                                    value={data.purpose || ""}
-                                                    name="purpose"
-                                                    placeholder="Enter the purpose of the certificate"
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            "purpose",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-
-                                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
-                                                <div>
-                                                    <InputField
-                                                        label="Birthdate"
-                                                        name="birthdate"
-                                                        value={data.birthdate}
-                                                        placeholder="Select a resident"
-                                                        readOnly={true}
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <InputField
-                                                        label="Gender"
-                                                        name="gender"
-                                                        value={data.gender}
-                                                        placeholder="Select a resident"
-                                                        readOnly={true}
-                                                    />
-                                                </div>{" "}
-                                                <InputField
-                                                    label="Civil Status"
-                                                    name="civil_status"
-                                                    value={
-                                                        CONSTANTS
-                                                            .RESIDENT_CIVIL_STATUS_TEXT[
-                                                            data.civil_status
-                                                        ] || ""
-                                                    }
-                                                    readOnly
-                                                />
-                                                <InputField
-                                                    label="House Number"
-                                                    name="housenumber"
-                                                    value={
-                                                        data.housenumber || ""
-                                                    }
-                                                    readOnly
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-                                    <div className="flex w-full justify-center items-center mt-7">
-                                        <Button className="w-40" type="submit">
-                                            Submit
-                                        </Button>
-                                    </div>
+                            <h2 className="text-xl font-semibold text-gray-800 mb-1">
+                                Certificate Information
+                            </h2>
+                            <p className="text-xs text-gray-600">
+                                Kindly check the provided personal information
+                                of the resident required.
+                            </p>
+                            <div className="flex items-center gap-4">
+                                <div className="w-full">
+                                    <DropdownInputField
+                                        label={"Select a Certificate"}
+                                        items={documentsList}
+                                        value={data.document_name || ""}
+                                        onChange={(e) =>
+                                            handleDocumentChange(e.target.value)
+                                        }
+                                    />
+                                    <InputError
+                                        message={errors.document_id}
+                                        className="mt-2"
+                                    />
                                 </div>
-                            </form>
-                        </div>
-                        {/* <div className="w-full bg-gray-50 rounded-xl sm:rounded-lg">
-                            <div className="p-4 w-full">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="w-[400px]">
-                                                Document Name
-                                            </TableHead>
-                                            <TableHead className="text-center">
-                                                Actions
-                                            </TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {documents.map((document) => (
-                                            <TableRow key={document.id}>
-                                                <TableCell className="w-[400px]">
-                                                    {document.name}
-                                                </TableCell>
-                                                <TableCell className="text-center">
-                                                    <Button
-                                                        className="bg-blue-700 hover:bg-blue-400"
-                                                        onClick={() =>
-                                                            window.open(
-                                                                route(
-                                                                    "document.fill",
-                                                                    {
-                                                                        resident:
-                                                                            resId,
-                                                                        template:
-                                                                            document.id,
-                                                                    }
-                                                                ),
-                                                                "_blank"
-                                                            )
-                                                        }
-                                                    >
-                                                        Issue
-                                                    </Button>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                                <div className="w-full">
+                                    <DropdownInputField
+                                        label={"Select a Resident"}
+                                        items={residentsList}
+                                        value={data.resident_name || ""}
+                                        onChange={(e) =>
+                                            handleResidentChange(e)
+                                        }
+                                    />
+                                    <InputError
+                                        message={errors.resident_id}
+                                        className="mt-2"
+                                    />
+                                </div>
                             </div>
-                        </div> */}
+
+                            <div className="flex flex-col mt-6">
+                                <div className="grid grid-cols-1 md:grid-cols-6 gap-y-2 md:gap-x-4 mb-5">
+                                    <div className="md:row-span-2 flex flex-col items-center space-y-2">
+                                        <InputLabel
+                                            htmlFor={`resident_image`}
+                                            value="Profile Photo"
+                                        />
+                                        <img
+                                            src={
+                                                data.resident_image
+                                                    ? `/storage/${data.resident_image}`
+                                                    : "/images/default-avatar.jpg"
+                                            }
+                                            alt={`Resident Image`}
+                                            className="w-32 h-32 object-cover rounded-full border border-gray-200"
+                                        />
+                                    </div>
+                                    <div className="md:col-span-5 space-y-2">
+                                        <div className="w-full">
+                                            <DropdownInputField
+                                                label="Purpose"
+                                                value={data.purpose || ""}
+                                                name="purpose"
+                                                placeholder="Enter the purpose of the certificate"
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "purpose",
+                                                        e.target.value
+                                                    )
+                                                }
+                                            />
+                                        </div>
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                                            <div>
+                                                <InputField
+                                                    label="Birthdate"
+                                                    name="birthdate"
+                                                    value={data.birthdate}
+                                                    placeholder="Select a resident"
+                                                    readOnly={true}
+                                                />
+                                            </div>
+                                            <div>
+                                                <InputField
+                                                    label="Gender"
+                                                    name="gender"
+                                                    value={data.gender}
+                                                    placeholder="Select a resident"
+                                                    readOnly={true}
+                                                />
+                                            </div>{" "}
+                                            <InputField
+                                                label="Civil Status"
+                                                name="civil_status"
+                                                value={
+                                                    CONSTANTS
+                                                        .RESIDENT_CIVIL_STATUS_TEXT[
+                                                        data.civil_status
+                                                    ] || ""
+                                                }
+                                                readOnly
+                                            />
+                                            <InputField
+                                                label="House Number"
+                                                name="housenumber"
+                                                value={data.housenumber || ""}
+                                                readOnly
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex justify-between items-center gap-4">
+                                    {data.placeholders
+                                        ?.filter(
+                                            (placeholder) =>
+                                                ![
+                                                    "fullname",
+                                                    "day",
+                                                    "month",
+                                                    "year",
+                                                    "ctrl_no",
+                                                    "civil_status",
+                                                    "purpose",
+                                                ].includes(placeholder)
+                                        )
+                                        .map((placeholder, index) => (
+                                            <InputField
+                                                key={index}
+                                                label={placeholder}
+                                                name={placeholder}
+                                                value={data[placeholder] || ""}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        placeholder,
+                                                        e.target.value
+                                                    )
+                                                }
+                                            />
+                                        ))}
+                                </div>
+                                <div className="flex w-full justify-center items-center mt-7">
+                                    <Button
+                                        onClick={handleIssue}
+                                        className="bg-blue-700 hover:bg-blue-400"
+                                        disabled={
+                                            !data.resident_id ||
+                                            !data.document_id
+                                        }
+                                    >
+                                        Issue
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

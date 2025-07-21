@@ -5,7 +5,14 @@ import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router } from "@inertiajs/react";
-import { Eye, HousePlus, Search, SquarePen, Trash2, UserPlus } from "lucide-react";
+import {
+    Eye,
+    HousePlus,
+    Search,
+    SquarePen,
+    Trash2,
+    UserPlus,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
@@ -18,7 +25,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
-
+import axios from "axios";
+import useAppUrl from "@/hooks/useAppUrl";
 
 export default function Index({ seniorCitizens, puroks, queryParams = null }) {
     const breadcrumbs = [
@@ -26,6 +34,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         { label: "Senior Citizen", showOnMobile: true },
     ];
     queryParams = queryParams || {};
+    const APP_URL = useAppUrl();
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
 
@@ -84,8 +93,15 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedResident, setSelectedResident] = useState(null);
 
-    const handleView = (resident) => {
-        setSelectedResident(resident);
+    const handleView = async (resident) => {
+        try {
+            const response = await axios.get(
+                `${APP_URL}/barangay_officer/resident/showresident/${resident}`
+            );
+            setSelectedResident(response.data.resident);
+        } catch (error) {
+            console.error("Error fetching placeholders:", error);
+        }
         setIsModalOpen(true);
     };
     // ===
@@ -97,7 +113,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                 "is_pensioner",
                 "pension_type",
                 "living_alone",
-                "birth_month"
+                "birth_month",
             ].includes(key) &&
             value &&
             value !== "All"
@@ -108,13 +124,11 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         }
     }, [hasActiveFilter]);
 
-
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
     const toggleShowFilters = () => setShowFilters((prev) => !prev);
     const handlePrint = () => {
         window.print();
     };
-
 
     const [isPaginated, setIsPaginated] = useState(true);
     const [showAll, setShowAll] = useState(false);
@@ -126,7 +140,10 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
     });
 
     useEffect(() => {
-        localStorage.setItem("household_visible_columns", JSON.stringify(visibleColumns));
+        localStorage.setItem(
+            "household_visible_columns",
+            JSON.stringify(visibleColumns)
+        );
     }, [visibleColumns]);
 
     //===
@@ -214,7 +231,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                     {
                         label: "View",
                         icon: <Eye className="w-4 h-4 text-indigo-600" />,
-                        onClick: () => handleView(resident),
+                        onClick: () => handleView(resident.id),
                     },
                     {
                         label: "Edit",
@@ -271,7 +288,9 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                                     setVisibleColumns={setVisibleColumns}
                                     onPrint={handlePrint}
                                     showFilters={showFilters}
-                                    toggleShowFilters={() => setShowFilters((prev) => !prev)}
+                                    toggleShowFilters={() =>
+                                        setShowFilters((prev) => !prev)
+                                    }
                                 />
                             </div>
                             <div className="flex items-center gap-2 flex-wrap justify-end">
@@ -283,8 +302,12 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                                         type="text"
                                         placeholder="Search Name"
                                         value={query}
-                                        onChange={(e) => setQuery(e.target.value)}
-                                        onKeyDown={(e) => onKeyPressed("name", e)}
+                                        onChange={(e) =>
+                                            setQuery(e.target.value)
+                                        }
+                                        onKeyDown={(e) =>
+                                            onKeyPressed("name", e)
+                                        }
                                         className="w-full"
                                     />
                                     <div className="relative group z-50">
@@ -324,7 +347,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                                     "is_pensioner",
                                     "pension_type",
                                     "living_alone",
-                                    "birth_month"
+                                    "birth_month",
                                 ]}
                                 showFilters={true}
                                 pensionTypes={pensionTypes}

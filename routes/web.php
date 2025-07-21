@@ -30,12 +30,16 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::get('/document/certificateissuance', [DocumentController::class, 'certificateIssuance'])->name('document.issuance');
     Route::get('/document/fetchplaceholders/{id}', [DocumentController::class, 'fetchPlaceholders'])->name('document.placeholders');
 
-    Route::post('/certificate/store', [CertificateController::class, 'store'])->name('certificate.store');
+    Route::post('/certificate/store', [CertificateController::class, 'storeFromPost'])->name('certificate.store');
 
+    // family
     Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('resident.familytree');
+    Route::get('family/showfamily/{family}', [FamilyController::class, 'showFamily'])->name('family.showfamily');
+
+    // resident
     Route::get('resident/createresident', [ResidentController::class, 'createResident'])->name('resident.createresident');
     Route::post('resident/storehousehold', [ResidentController::class, 'storeHousehold'])->name('resident.storehousehold');
-    Route::get('family/showfamily/{family}', [FamilyController::class, 'showFamily'])->name('family.showfamily');
+    Route::get('resident/showresident/{id}', [ResidentController::class, 'showResident'])->name('resident.showresident');
 
     Route::resource('resident', ResidentController::class);
     Route::resource('document', DocumentController::class);

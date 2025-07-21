@@ -24,7 +24,6 @@ import {
     INCOME_BRACKETS,
 } from "@/constants";
 
-
 export default function Index({ families, queryParams = null, puroks }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
@@ -99,16 +98,12 @@ export default function Index({ families, queryParams = null, puroks }) {
 
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
-            [
-                "purok",
-                "famtype",
-                "household_head",
-                "income_bracket"
-            ].includes(key) &&
+            ["purok", "famtype", "household_head", "income_bracket"].includes(
+                key
+            ) &&
             value &&
             value !== "All"
     );
-
 
     useEffect(() => {
         if (hasActiveFilter) {
@@ -116,10 +111,8 @@ export default function Index({ families, queryParams = null, puroks }) {
         }
     }, [hasActiveFilter]);
 
-
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
     const toggleShowFilters = () => setShowFilters((prev) => !prev);
-
 
     const handlePrint = () => {
         window.print();
@@ -128,12 +121,17 @@ export default function Index({ families, queryParams = null, puroks }) {
     // === AP TO HERE
 
     const columnRenderers = {
-        family_id: (family) => family.family_id,
-        name: (family) =>
-            `${family.firstname} ${family.middlename ?? ""} ${family.lastname ?? ""
-            } ${family.suffix ?? ""}`,
-        is_household_head: (family) =>
-            family.is_household_head ? (
+        family_id: (row) => row.id,
+        name: (row) =>
+            row.latest_head
+                ? `${row.latest_head.firstname ?? ""} ${
+                      row.latest_head.middlename ?? ""
+                  } ${row.latest_head.lastname ?? ""} ${
+                      row.latest_head.suffix ?? ""
+                  }`
+                : "Unknown",
+        is_household_head: (row) =>
+            row.is_household_head ? (
                 <span className="py-1 px-2 rounded-xl bg-green-100 text-green-800">
                     Yes
                 </span>
@@ -142,7 +140,7 @@ export default function Index({ families, queryParams = null, puroks }) {
                     No
                 </span>
             ),
-        family_name: (family) => (
+        family_name: (row) => (
             <Link
                 href={route("family.showfamily", row?.id ?? 0)}
                 className="hover:text-blue-500 hover:underline"
@@ -240,7 +238,9 @@ export default function Index({ families, queryParams = null, puroks }) {
                                     setVisibleColumns={setVisibleColumns}
                                     onPrint={handlePrint}
                                     showFilters={showFilters}
-                                    toggleShowFilters={() => setShowFilters((prev) => !prev)}
+                                    toggleShowFilters={() =>
+                                        setShowFilters((prev) => !prev)
+                                    }
                                 />
                             </div>
                             {/* Search, and other buttons */}
@@ -253,8 +253,12 @@ export default function Index({ families, queryParams = null, puroks }) {
                                         type="text"
                                         placeholder="Search Family or House No."
                                         value={query}
-                                        onChange={(e) => setQuery(e.target.value)}
-                                        onKeyDown={(e) => onKeyPressed("name", e.target.value)}
+                                        onChange={(e) =>
+                                            setQuery(e.target.value)
+                                        }
+                                        onKeyDown={(e) =>
+                                            onKeyPressed("name", e.target.value)
+                                        }
                                         className="w-full"
                                     />
                                     <div className="relative group z-50">
@@ -289,7 +293,6 @@ export default function Index({ families, queryParams = null, puroks }) {
                                         <UserRoundPlus /> Add a Resident
                                     </Button>
                                 </Link> */}
-
                             </div>
                         </div>
 
@@ -301,7 +304,7 @@ export default function Index({ families, queryParams = null, puroks }) {
                                     "purok",
                                     "famtype",
                                     "household_head",
-                                    "income_bracket"
+                                    "income_bracket",
                                 ]}
                                 puroks={puroks}
                                 showFilters={true}
@@ -319,7 +322,7 @@ export default function Index({ families, queryParams = null, puroks }) {
                             showAll={showAll}
                             visibleColumns={visibleColumns}
                             setVisibleColumns={setVisibleColumns}
-                        // showTotal={true}
+                            // showTotal={true}
                         />
                     </div>
                 </div>

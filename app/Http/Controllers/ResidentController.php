@@ -1196,4 +1196,18 @@ class ResidentController extends Controller
             'barangays' => $barangays,
         ]);
     }
+
+    public function showResident($id){
+        $resident = Resident::with('educationalHistories',
+            'occupations',
+            'medicalInformation',
+            'seniorcitizen',
+            'socialwelfareprofile',
+            'barangay',
+            'street',
+            'street.purok')->findOrFail($id);
+            return response()->json([
+                'resident' => $resident,
+            ]);
+    }
 }

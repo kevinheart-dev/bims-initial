@@ -1,4 +1,9 @@
-export default function SidebarModal({ isOpen, onClose, title = "Details", children }) {
+export default function SidebarModal({
+    isOpen,
+    onClose,
+    title = "Details",
+    children,
+}) {
     if (!isOpen) return null;
 
     return (
@@ -17,8 +22,15 @@ export default function SidebarModal({ isOpen, onClose, title = "Details", child
             >
                 {/* Header */}
                 <div className="flex justify-between items-center p-[14px] border-b border-white/30">
-                    <h2 className="text-lg font-semibold text-white">{title}</h2>
-                    <button onClick={onClose} className="text-2xl text-white hover:text-red-400 transition">&times;</button>
+                    <h2 className="text-lg font-semibold text-white">
+                        {title}
+                    </h2>
+                    <button
+                        onClick={onClose}
+                        className="text-2xl text-white hover:text-red-400 transition"
+                    >
+                        &times;
+                    </button>
                 </div>
 
                 {/* Scrollable Content */}

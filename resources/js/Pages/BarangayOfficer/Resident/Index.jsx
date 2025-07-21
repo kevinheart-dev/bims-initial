@@ -30,6 +30,8 @@ import {
     RESIDENT_REGISTER_VOTER_CLASS,
     RESIDENT_REGISTER_VOTER_TEXT,
 } from "@/constants";
+import axios from "axios";
+import useAppUrl from "@/hooks/useAppUrl";
 
 export default function Index({
     residents,
@@ -38,7 +40,7 @@ export default function Index({
     success = null,
 }) {
     queryParams = queryParams || {};
-
+    const APP_URL = useAppUrl();
     useEffect(() => {
         if (success) {
             toast.success(success, {
@@ -117,8 +119,15 @@ export default function Index({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedResident, setSelectedResident] = useState(null);
 
-    const handleView = (resident) => {
-        setSelectedResident(resident);
+    const handleView = async (resident) => {
+        try {
+            const response = await axios.get(
+                `${APP_URL}/barangay_officer/resident/showresident/${resident}`
+            );
+            setSelectedResident(response.data.resident);
+        } catch (error) {
+            console.error("Error fetching placeholders:", error);
+        }
         setIsModalOpen(true);
     };
 
@@ -140,12 +149,11 @@ export default function Index({
                 "cstatus",
                 "pwd",
                 "fourps",
-                "solo_parent"
+                "solo_parent",
             ].includes(key) &&
             value &&
             value !== "All"
     );
-
 
     useEffect(() => {
         if (hasActiveFilter) {
@@ -153,10 +161,8 @@ export default function Index({
         }
     }, [hasActiveFilter]);
 
-
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
     const toggleShowFilters = () => setShowFilters((prev) => !prev);
-
 
     const handlePrint = () => {
         window.print();
@@ -184,8 +190,9 @@ export default function Index({
 
         name: (resident) => (
             <div className="text-sm break-words whitespace-normal leading-snug">
-                {`${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname ?? ""
-                    } ${resident.suffix ?? ""}`}
+                {`${resident.firstname} ${resident.middlename ?? ""} ${
+                    resident.lastname ?? ""
+                } ${resident.suffix ?? ""}`}
             </div>
         ),
 
@@ -264,7 +271,7 @@ export default function Index({
                     {
                         label: "View",
                         icon: <Eye className="w-4 h-4 text-indigo-600" />,
-                        onClick: () => handleView(resident),
+                        onClick: () => handleView(resident.id),
                     },
                     {
                         label: "Edit",
@@ -336,7 +343,9 @@ export default function Index({
                                         setVisibleColumns={setVisibleColumns}
                                         onPrint={handlePrint}
                                         showFilters={showFilters}
-                                        toggleShowFilters={() => setShowFilters((prev) => !prev)}
+                                        toggleShowFilters={() =>
+                                            setShowFilters((prev) => !prev)
+                                        }
                                     />
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap justify-end">
@@ -352,7 +361,10 @@ export default function Index({
                                                 setQuery(e.target.value)
                                             }
                                             onKeyDown={(e) =>
-                                                onKeyPressed("name", e.target.value)
+                                                onKeyPressed(
+                                                    "name",
+                                                    e.target.value
+                                                )
                                             }
                                             className="ml-4"
                                         />
@@ -380,7 +392,9 @@ export default function Index({
                                             </div>
                                         </div>
                                     </Link>
-                                    <Link href={route("resident.createresident")}>
+                                    <Link
+                                        href={route("resident.createresident")}
+                                    >
                                         <div className="relative group z-50">
                                             <Button
                                                 variant="outline"
@@ -408,7 +422,7 @@ export default function Index({
                                         "cstatus",
                                         "pwd",
                                         "fourps",
-                                        "solo_parent"
+                                        "solo_parent",
                                     ]}
                                     showFilters={true}
                                     puroks={puroks}
@@ -426,7 +440,7 @@ export default function Index({
                                 toggleShowAll={() => setShowAll(!showAll)}
                                 visibleColumns={visibleColumns}
                                 setVisibleColumns={setVisibleColumns}
-                            // showTotal={true}
+                                // showTotal={true}
                             />
                         </div>
                     </div>
@@ -441,7 +455,6 @@ export default function Index({
                     <PersonDetailContent person={selectedResident} />
                 )}
             </SidebarModal>
-
         </AdminLayout>
     );
 }
