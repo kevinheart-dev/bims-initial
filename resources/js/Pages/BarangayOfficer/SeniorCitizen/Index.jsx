@@ -74,8 +74,8 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         { key: "name", label: "Senior Name" },
         { key: "birthdate", label: "Birthdate" },
         { key: "age", label: "Age" },
-        { key: "osca_id_number", label: "OSCA Number" },
         { key: "is_pensioner", label: "Is Pensioner?" },
+        { key: "osca_id_number", label: "OSCA Number" },
         { key: "pension_type", label: "Pension Type" },
         { key: "living_alone", label: "Living Alone" },
         { key: "purok_number", label: "Purok" },
@@ -170,6 +170,14 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             const birthdate = resident.birthdate;
             return calculateAge(birthdate);
         },
+        is_pensioner: (resident) =>
+            resident.seniorcitizen == null ? (
+                <span className="text-yellow-600 font-medium">Pending</span>
+            ) : resident.seniorcitizen.is_pensioner?.toLowerCase() === "yes" ? (
+                <span className="text-green-600 font-medium">Yes</span>
+            ) : (
+                <span className="text-gray-500">No</span>
+            ),
         osca_id_number: (resident) =>
             resident.seniorcitizen?.osca_id_number ? (
                 <span className="text-gray-800">
@@ -178,12 +186,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             ) : (
                 <span className="text-gray-400 italic">Not Assigned</span>
             ),
-        is_pensioner: (resident) =>
-            resident.seniorcitizen?.is_pensioner?.toLowerCase() === "yes" ? (
-                <span className="text-green-600 font-medium">Yes</span>
-            ) : (
-                <span className="text-gray-500">No</span>
-            ),
+
         pension_type: (resident) =>
             resident.seniorcitizen?.pension_type ? (
                 <span className="text-gray-800">
@@ -272,7 +275,10 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             <div className="p-2 md:p-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     {/* <pre>{JSON.stringify(seniorCitizens, undefined, 3)}</pre> */}
-                    <p>may error dito hinde gumagana yung filters, no probelem with filter ui but in the controller</p>
+                    <p>
+                        may error dito hinde gumagana yung filters, no probelem
+                        with filter ui but in the controller
+                    </p>
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                             <div className="flex items-center gap-2 flex-wrap">
