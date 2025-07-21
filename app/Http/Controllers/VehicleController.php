@@ -81,11 +81,13 @@ class VehicleController extends Controller
             }
         }
 
+        $residents = Resident::where('barangay_id', $brgy_id)->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'birthdate')->get();
         return Inertia::render("BarangayOfficer/Vehicle/Index", [
             'puroks' => $puroks,
             'vehicles' => $vehicles,
             'vehicle_types' => $vehicle_types,
             'queryParams' => request()->query() ?: null,
+            'residents' => $residents
         ]);
     }
 
@@ -102,7 +104,8 @@ class VehicleController extends Controller
      */
     public function store(StoreVehicleRequest $request)
     {
-        //
+        $data = $request->validated();
+        dd(  $data);
     }
 
     /**

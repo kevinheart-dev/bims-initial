@@ -118,10 +118,23 @@ export default function Index({ documents, residents }) {
             resident_id: data.resident_id,
             purpose: data.purpose,
             ...Object.fromEntries(
-                (data.placeholders || []).map((placeholder) => [
-                    placeholder,
-                    data[placeholder] || "",
-                ])
+                (data.placeholders || [])
+                    .filter(
+                        (placeholder) =>
+                            ![
+                                "fullname",
+                                "day",
+                                "month",
+                                "year",
+                                "ctrl_no",
+                                "civil_status",
+                                "purpose",
+                            ].includes(placeholder)
+                    )
+                    .map((placeholder) => [
+                        placeholder,
+                        data[placeholder] || "",
+                    ])
             ),
         };
 
@@ -304,10 +317,11 @@ export default function Index({ documents, residents }) {
                                                 name={placeholder}
                                                 value={data[placeholder] || ""}
                                                 onChange={(e) =>
-                                                    setData(
-                                                        placeholder,
-                                                        e.target.value
-                                                    )
+                                                    setData((prev) => ({
+                                                        ...prev,
+                                                        [placeholder]:
+                                                            e.target.value,
+                                                    }))
                                                 }
                                             />
                                         ))}

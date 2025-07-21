@@ -285,4 +285,59 @@ class StoreResidentHouseholdRequest extends FormRequest
 
         return $attributes;
     }
+
+    public function messages()
+    {
+        $messages = [
+            'housenumber.required' => 'The house number is required.',
+            'street.required' => 'Please select a street.',
+            'purok.required' => 'Please select a purok.',
+            'family_name.required' => 'The family name is required.',
+            'members.required' => 'At least one household member is required.',
+            'members.*.lastname.required' => 'Last name is required for all members.',
+            'members.*.firstname.required' => 'First name is required for all members.',
+            'members.*.birthdate.before' => 'Birthdate must be before today.',
+            'members.*.email.email' => 'The email address must be valid.',
+            'members.*.email.unique' => 'The email has already been taken.',
+            'members.*.educations.*.education.required' => 'The education level is required for all education entries.',
+            'members.*.occupations.*.employment_status.required' => 'Employment status is required for all occupations.',
+            'members.*.vehicles.*.vehicle_type.required' => 'Each vehicle must have a type.',
+            'members.*.disabilities.*.disability_type.required_with' => 'Each disability must have a type when present.',
+        ];
+
+        // Optional: Custom dynamic messages (more advanced)
+        foreach ((array) $this->input('members', []) as $index => $member) {
+            $n = $index + 1;
+
+            if (!empty($member['educations'])) {
+                foreach ($member['educations'] as $eIndex => $edu) {
+                    $messages["members.$index.educations.$eIndex.education.required"] =
+                        "Education level is required for member #$n (education #" . ($eIndex + 1) . ")";
+                }
+            }
+
+            if (!empty($member['occupations'])) {
+                foreach ($member['occupations'] as $oIndex => $occ) {
+                    $messages["members.$index.occupations.$oIndex.employment_status.required"] =
+                        "Employment status is required for member #$n (occupation #" . ($oIndex + 1) . ")";
+                }
+            }
+
+            if (!empty($member['vehicles'])) {
+                foreach ($member['vehicles'] as $vIndex => $veh) {
+                    $messages["members.$index.vehicles.$vIndex.vehicle_type.required"] =
+                        "Vehicle type is required for member #$n (vehicle #" . ($vIndex + 1) . ")";
+                }
+            }
+
+            if (!empty($member['disabilities'])) {
+                foreach ($member['disabilities'] as $dIndex => $dis) {
+                    $messages["members.$index.disabilities.$dIndex.disability_type.required_with"] =
+                        "Disability type is required for member #$n (disability #" . ($dIndex + 1) . ")";
+                }
+            }
+        }
+
+        return $messages;
+    }
 }
