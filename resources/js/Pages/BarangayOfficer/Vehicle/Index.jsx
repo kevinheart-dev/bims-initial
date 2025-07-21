@@ -50,15 +50,16 @@ export default function Index({
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const { data, setData, post, errors } = useForm({
-        resident_id: null,
-        resident_name: "",
-        resident_image: null,
-        birthdate: null,
-        purok_number: null,
-        has_vehicle: null,
-        vehicles: [[]],
-    });
+    const { data, setData, post, errors, setError, reset, clearErrors } =
+        useForm({
+            resident_id: null,
+            resident_name: "",
+            resident_image: null,
+            birthdate: null,
+            purok_number: null,
+            has_vehicle: null,
+            vehicles: [[]],
+        });
     const handleArrayValues = (e, index, column, array) => {
         const updated = [...(data[array] || [])];
         updated[index] = {
@@ -109,8 +110,6 @@ export default function Index({
         { key: "actions", label: "Actions" },
     ];
 
-    // === BEING ADDED
-
     const [visibleColumns, setVisibleColumns] = useState(
         allColumns.map((col) => col.key)
     );
@@ -136,8 +135,6 @@ export default function Index({
     const handlePrint = () => {
         window.print();
     };
-
-    // === AP TO HERE
 
     const columnRenderers = {
         id: (row) => row.vehicle_id,
@@ -222,6 +219,11 @@ export default function Index({
                 console.error("Validation Errors:", errors);
             },
         });
+    };
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+        reset(); // Reset form data
+        clearErrors(); // Clear validation errors
     };
 
     return (
@@ -319,7 +321,9 @@ export default function Index({
                             />
                             <SidebarModal
                                 isOpen={isModalOpen}
-                                onClose={() => setIsModalOpen(false)}
+                                onClose={() => {
+                                    handleModalClose();
+                                }}
                                 title="Add Vehicles"
                             >
                                 <div className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg text-sm text-black p-4 space-y-4">
