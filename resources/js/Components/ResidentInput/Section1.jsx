@@ -848,25 +848,35 @@ const Section1 = ({
                                             />
                                         </div>
                                         <div>
-                                            <InputField
-                                                label="Quantity"
-                                                name="quantity"
-                                                type="number"
-                                                value={vehicle.quantity || ""}
+                                            <RadioGroup
+                                                label="Is Registered?"
+                                                name="is_registered"
+                                                options={[
+                                                    {
+                                                        label: "Yes",
+                                                        value: 1,
+                                                    },
+                                                    {
+                                                        label: "No",
+                                                        value: 0,
+                                                    },
+                                                ]}
+                                                selectedValue={
+                                                    vehicle.is_registered || ""
+                                                }
                                                 onChange={(e) =>
                                                     handleArrayValues(
                                                         e,
                                                         vecIndex,
-                                                        "quantity",
+                                                        "is_registered",
                                                         "vehicles"
                                                     )
                                                 }
-                                                placeholder="Number"
                                             />
                                             <InputError
                                                 message={
                                                     errors[
-                                                        `vehicles.${vecIndex}.quantity`
+                                                        `vehicles.${vecIndex}.is_registered`
                                                     ]
                                                 }
                                                 className="mt-2"

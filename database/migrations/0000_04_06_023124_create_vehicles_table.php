@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('vehicle_type', 55);
             $table->enum('vehicle_class', ['private', 'public']);
             $table->string('usage_status', 55);
-            $table->integer('quantity')->default(1);
+            $table->tinyInteger('is_registered')->default(0);
             $table->timestamps();
         });
     }

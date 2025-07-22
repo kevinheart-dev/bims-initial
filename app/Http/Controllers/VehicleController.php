@@ -22,7 +22,7 @@ class VehicleController extends Controller
         $query = Resident::where('barangay_id', $brgy_id)
             ->whereHas('vehicles')
             ->with(['vehicles' => function ($query) {
-                $query->select('id', 'resident_id', 'vehicle_type', 'vehicle_class', 'usage_status', 'quantity');
+                $query->select('id', 'resident_id', 'vehicle_type', 'vehicle_class', 'usage_status', 'is_registered');
 
                 if (request()->filled('v_type') && request('v_type') !== 'All') {
                     $query->where('vehicle_type', request('v_type'));
@@ -87,7 +87,8 @@ class VehicleController extends Controller
             'vehicles' => $vehicles,
             'vehicle_types' => $vehicle_types,
             'queryParams' => request()->query() ?: null,
-            'residents' => $residents
+            'residents' => $residents,
+            'success' => session('success') ?? null,
         ]);
     }
 
@@ -105,7 +106,22 @@ class VehicleController extends Controller
     public function store(StoreVehicleRequest $request)
     {
         $data = $request->validated();
-        dd(  $data);
+        try{
+            foreach ($data['vehicles'] as $vehicle) {
+                Vehicle::create([
+                    'resident_id'    => $data['resident_id'],
+                    'vehicle_type'   => $vehicle['vehicle_type'],
+                    'vehicle_class'  => $vehicle['vehicle_class'],
+                    'usage_status'   => $vehicle['usage_status'],
+                    'is_registered'       => $vehicle['is_registered'],
+                ]);
+            }
+            return redirect()->route('vehicle.index')->with('success', 'Vehicle addded successfully!');
+        }catch (\Exception $e) {
+            dd($e->getMessage());
+            return back()->withErrors(['error' => 'Residents Household could not be created: ' . $e->getMessage()]);
+        }
+
     }
 
     /**

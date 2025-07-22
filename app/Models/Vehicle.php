@@ -17,7 +17,7 @@ class Vehicle extends Model
         'vehicle_type',
         'vehicle_class',
         'usage_status',
-        'quantity',
+        'is_registered',
         'created_at',
         'updated_at'
     ];

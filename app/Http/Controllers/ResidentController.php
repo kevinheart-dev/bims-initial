@@ -577,14 +577,13 @@ class ResidentController extends Controller
                     }
                 }
             }
-
             if (isset($data['has_vehicle'])) {
                 foreach ($data['vehicles'] ?? [] as $vehicle) {
                     $resident->vehicles()->create([
                         'vehicle_type' => $vehicle['vehicle_type'],
                         'vehicle_class' => $vehicle['vehicle_class'],
                         'usage_status' => $vehicle['usage_status'],
-                        'quantity' => $vehicle['quantity'],
+                        'is_registered' => $vehicle['is_registered'],
                     ]);
                 }
             }
@@ -850,7 +849,7 @@ class ResidentController extends Controller
                                 'vehicle_type' => $vehicle['vehicle_type'],
                                 'vehicle_class' => $vehicle['vehicle_class'],
                                 'usage_status' => $vehicle['usage_status'],
-                                'quantity' => $vehicle['quantity'],
+                                'is_registered' => $vehicle['is_registered'],
                             ]);
                         }
                     }

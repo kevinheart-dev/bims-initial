@@ -10,21 +10,10 @@ import ResidentTable from "@/Components/ResidentTable";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
 import {
-    HOUSEHOLD_CONDITION_TEXT,
-    HOUSEHOLD_OWNERSHIP_TEXT,
-    HOUSEHOLD_STRUCTURE_TEXT,
-    HOUSING_CONDITION_COLOR,
     VEHICLE_CLASS_TEXT,
     VEHICLE_USAGE_TEXT,
     VEHICLE_USAGE_STYLES,
 } from "@/constants";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/Components/ui/select";
 import ClearFilterButton from "@/Components/ClearFiltersButton";
 import SidebarModal from "@/Components/SidebarModal";
 import DropdownInputField from "@/Components/DropdownInputField";
@@ -33,6 +22,7 @@ import InputField from "@/Components/InputField";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import InputLabel from "@/Components/InputLabel";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
+import RadioGroup from "@/Components/RadioGroup";
 
 export default function Index({
     vehicles,
@@ -40,6 +30,7 @@ export default function Index({
     puroks,
     queryParams,
     residents,
+    success,
 }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
@@ -105,7 +96,7 @@ export default function Index({
         { key: "vehicle_type", label: "Vehicle Type" },
         { key: "vehicle_class", label: "Class" },
         { key: "usage_status", label: "Usage" },
-        { key: "quantity", label: "Quantity" },
+        { key: "is_registered", label: "Is Registered?" },
         { key: "purok_number", label: "Purok Number" },
         { key: "actions", label: "Actions" },
     ];
@@ -165,7 +156,12 @@ export default function Index({
             );
         },
 
-        quantity: (row) => row.quantity,
+        is_registered: (row) =>
+            row.is_registered ? (
+                <span className="text-green-600 font-medium">Yes</span>
+            ) : (
+                <span className="text-gray-500 font-medium">No</span>
+            ),
 
         purok_number: (row) => row.purok_number,
         actions: (house) => (
@@ -226,10 +222,22 @@ export default function Index({
         clearErrors(); // Clear validation errors
     };
 
+    useEffect(() => {
+        if (success) {
+            handleModalClose();
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                className: "bg-green-100 text-green-800",
+            });
+        }
+    }, [success]);
+
     return (
         <AdminLayout>
             <Head title="Vehicles" />
             <div>
+                <Toaster />
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
                 {/* <pre>{JSON.stringify(vehicles, undefined, 2)}</pre> */}
                 <div className="p-2 md:p-4">
@@ -527,12 +535,21 @@ export default function Index({
                                                                 />
                                                             </div>
                                                             <div>
-                                                                <InputField
-                                                                    label="Quantity"
-                                                                    name="quantity"
-                                                                    type="number"
-                                                                    value={
-                                                                        vehicle.quantity ||
+                                                                <RadioGroup
+                                                                    label="Is Registered?"
+                                                                    name="is_registered"
+                                                                    options={[
+                                                                        {
+                                                                            label: "Yes",
+                                                                            value: 1,
+                                                                        },
+                                                                        {
+                                                                            label: "No",
+                                                                            value: 0,
+                                                                        },
+                                                                    ]}
+                                                                    selectedValue={
+                                                                        vehicle.is_registered ||
                                                                         ""
                                                                     }
                                                                     onChange={(
@@ -541,16 +558,15 @@ export default function Index({
                                                                         handleArrayValues(
                                                                             e,
                                                                             vecIndex,
-                                                                            "quantity",
+                                                                            "is_registered",
                                                                             "vehicles"
                                                                         )
                                                                     }
-                                                                    placeholder="Number"
                                                                 />
                                                                 <InputError
                                                                     message={
                                                                         errors[
-                                                                            `vehicles.${vecIndex}.quantity`
+                                                                            `vehicles.${vecIndex}.is_registered`
                                                                         ]
                                                                     }
                                                                     className="mt-2"
