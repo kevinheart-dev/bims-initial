@@ -154,7 +154,7 @@ export const HOUSEHOLD_TOILET_TYPE_TEXT = {
 };
 
 export const HOUSEHOLD_ELECTRICITY_TYPE = {
-    distribution_company_iselco_ii: "ISELCO II (Distribution Company)",
+    distribution_company_iselco_ii: "ISELCO II",
     generator: "Generator",
     solar_renewable_energy_source: "Solar / Renewable Energy Source",
     battery: "Battery",

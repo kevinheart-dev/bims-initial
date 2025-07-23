@@ -248,7 +248,84 @@ export default function Index({
         <AdminLayout>
             <Head title="Family" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-            {/* <pre>{JSON.stringify(household_members, undefined, 3)}</pre> */}
+            {/* <pre>{JSON.stringify(household_details, undefined, 3)}</pre> */}
+            <div className="bg-white shadow-md rounded-lg m-5 border border-gray-200">
+                {/* Header */}
+                <div className="px-4 py-4 border-b bg-gray-100 rounded-t-lg">
+                    <h2 className="text-2xl font-semibold text-gray-800">
+                        House #{household_details.house_number}
+                    </h2>
+                    <p className="text-sm text-gray-600">Barangay 1 • Purok 7 • Street 15</p>
+                </div>
+
+                {/* Details */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
+                    {[
+                        { label: 'Ownership Type', value: CONSTANTS.HOUSEHOLD_OWNERSHIP_TEXT[household_details.ownership_type] },
+                        { label: 'Housing Condition', value: CONSTANTS.HOUSEHOLD_CONDITION_TEXT[household_details.housing_condition] },
+                        { label: 'Year Established', value: household_details.year_established },
+                        { label: 'House Structure', value: CONSTANTS.HOUSEHOLD_STRUCTURE_TEXT[household_details.house_structure] },
+                        {
+                            label: 'Bath & Wash Area',
+                            value: Array.isArray(household_details.bath_and_wash_area)
+                                ? household_details.bath_and_wash_area
+                                    .map(item => CONSTANTS.HOUSEHOLD_BATH_WASH_TEXT[item] || item)
+                                    .join(', ')
+                                : typeof household_details.bath_and_wash_area === 'object'
+                                    ? Object.values(household_details.bath_and_wash_area)
+                                        .map(item => CONSTANTS.HOUSEHOLD_BATH_WASH_TEXT[item] || item)
+                                        .join(', ')
+                                    : CONSTANTS.HOUSEHOLD_BATH_WASH_TEXT[household_details.bath_and_wash_area] || household_details.bath_and_wash_area
+
+                        },
+                        { label: 'Rooms', value: household_details.number_of_rooms },
+                        { label: 'Floors', value: household_details.number_of_floors },
+                        {
+                            label: 'Coordinates',
+                            value: `${household_details.latitude}, ${household_details.longitude}`
+                        },
+                        {
+                            label: 'Toilet Types',
+                            value: household_details.toilets?.length > 0
+                                ? household_details.toilets.map(t =>
+                                    CONSTANTS.HOUSEHOLD_TOILET_TYPE_TEXT[t.toilet_type] || t.toilet_type
+                                ).join(', ')
+                                : 'None'
+                        },
+                        {
+                            label: 'Waste Management Types',
+                            value: household_details.waste_management_types?.length > 0
+                                ? household_details.waste_management_types.map(item =>
+                                    CONSTANTS.HOUSEHOLD_WASTE_DISPOSAL_TEXT[item.waste_management_type] || item.waste_management_type
+                                ).join(', ')
+                                : 'None'
+                        },
+                        {
+                            label: 'Water Source Types',
+                            value: household_details.water_source_types?.length > 0
+                                ? household_details.water_source_types.map(w =>
+                                    CONSTANTS.HOUSEHOLD_WATER_SOURCE_TEXT[w.water_source_type] || w.water_source_type
+                                ).join(', ')
+                                : 'None'
+                        },
+                        {
+                            label: 'Electricity Types',
+                            value: household_details.electricity_types?.length > 0
+                                ? household_details.electricity_types.map(e =>
+                                    CONSTANTS.HOUSEHOLD_ELECTRICITY_TYPE[e.electricity_type] || e.electricity_type
+                                ).join(', ')
+                                : 'None'
+                        },
+                    ].map(({ label, value }, index) => (
+                        <div key={index} className="flex justify-between border-b pb-2">
+                            <span className="text-sm font-medium text-gray-700">{label}:</span>
+                            <span className="text-sm text-gray-900 text-right max-w-[60%]">{value || '—'}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
