@@ -41,16 +41,15 @@ export default function Index({
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const { data, setData, post, errors, setError, reset, clearErrors } =
-        useForm({
-            resident_id: null,
-            resident_name: "",
-            resident_image: null,
-            birthdate: null,
-            purok_number: null,
-            has_vehicle: null,
-            vehicles: [[]],
-        });
+    const { data, setData, post, errors, reset, clearErrors } = useForm({
+        resident_id: null,
+        resident_name: "",
+        resident_image: null,
+        birthdate: null,
+        purok_number: null,
+        has_vehicle: null,
+        vehicles: [[]],
+    });
     const handleArrayValues = (e, index, column, array) => {
         const updated = [...(data[array] || [])];
         updated[index] = {

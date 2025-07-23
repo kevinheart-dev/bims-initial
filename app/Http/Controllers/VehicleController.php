@@ -119,7 +119,7 @@ class VehicleController extends Controller
             return redirect()->route('vehicle.index')->with('success', 'Vehicle addded successfully!');
         }catch (\Exception $e) {
             dd($e->getMessage());
-            return back()->withErrors(['error' => 'Residents Household could not be created: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Vehicle could not be added: ' . $e->getMessage()]);
         }
 
     }

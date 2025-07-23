@@ -4,10 +4,11 @@ import DynamicTable from "@/Components/DynamicTable";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link, router, useForm } from "@inertiajs/react";
 import {
     Eye,
     HousePlus,
+    MoveRight,
     Search,
     SquarePen,
     Trash2,
@@ -20,8 +21,19 @@ import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailC
 import SidebarModal from "@/Components/SidebarModal";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
+import InputLabel from "@/Components/InputLabel";
+import InputField from "@/Components/InputField";
+import InputError from "@/Components/InputError";
+import RadioGroup from "@/Components/RadioGroup";
+import DropdownInputField from "@/Components/DropdownInputField";
+import { Toaster, toast } from "sonner";
 
-export default function Index({ seniorCitizens, puroks, queryParams = null }) {
+export default function Index({
+    seniorCitizens,
+    puroks,
+    queryParams = null,
+    success,
+}) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         { label: "Senior Citizen", showOnMobile: true },
@@ -30,12 +42,10 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
     const APP_URL = useAppUrl();
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
-
     const handleSubmit = (e) => {
         e.preventDefault();
         searchFieldName("name", query);
     };
-
     const searchFieldName = (field, value) => {
         if (value && value.trim() !== "") {
             queryParams[field] = value;
@@ -48,7 +58,6 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         }
         router.get(route("senior_citizen.index", queryParams));
     };
-
     const onKeyPressed = (field, e) => {
         if (e.key === "Enter") {
             searchFieldName(field, e.target.value);
@@ -56,7 +65,6 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             return;
         }
     };
-
     const calculateAge = (birthdate) => {
         if (!birthdate) return "Unknown";
         const birth = new Date(birthdate);
@@ -82,9 +90,9 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         { key: "registered_senior", label: "Is Registered Senior?" },
         { key: "actions", label: "Actions" },
     ];
-    // === FOR RESIDENT SIDE MODAL
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedResident, setSelectedResident] = useState(null);
+    const [registerSenior, setRegisterSenior] = useState(null);
 
     const handleView = async (resident) => {
         try {
@@ -97,8 +105,6 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         }
         setIsModalOpen(true);
     };
-    // ===
-    // ===== CODED I ADDED
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
             [
@@ -122,7 +128,6 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
     const handlePrint = () => {
         window.print();
     };
-
     const [isPaginated, setIsPaginated] = useState(true);
     const [showAll, setShowAll] = useState(false);
 
@@ -131,15 +136,12 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         const saved = localStorage.getItem("household_visible_columns");
         return saved ? JSON.parse(saved) : defaultVisibleCols;
     });
-
     useEffect(() => {
         localStorage.setItem(
             "household_visible_columns",
             JSON.stringify(visibleColumns)
         );
     }, [visibleColumns]);
-
-    //===
 
     const columnRenderers = {
         id: (resident) => resident.id,
@@ -210,14 +212,12 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             ) : (
                 <div className="flex items-center gap-2">
                     <span className="text-red-500 italic">No</span>
-                    <Link
-                        href={route("senior_citizen.create", {
-                            resident_id: resident.id,
-                        })}
+                    <Button
                         className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition"
+                        onClick={() => handleRegister(resident.id)}
                     >
                         Register
-                    </Link>
+                    </Button>
                 </div>
             ),
 
@@ -243,7 +243,6 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             />
         ),
     };
-
     const pensionTypes = [
         { label: "SSS", value: "SSS" },
         { label: "GSIS", value: "GSIS" },
@@ -251,7 +250,6 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         { label: "Private", value: "private" },
         { label: "None", value: "none" },
     ];
-
     const months = [
         { label: "January", value: "1" },
         { label: "February", value: "2" },
@@ -267,18 +265,73 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         { label: "December", value: "12" },
     ];
 
+    // modal register
+    const { data, setData, post, errors, reset, clearErrors } = useForm({
+        resident_id: null,
+        osca_id_number: "",
+        resident_image: null,
+        resident_name: "",
+        birthdate: null,
+        purok_number: null,
+        is_pensioner: null,
+        pension_type: null,
+        living_alone: null,
+    });
+
+    const handleRegister = (id) => {
+        const resident = seniorCitizens.find((r) => r.id == id);
+        if (resident) {
+            setIsModalOpen(true);
+            setRegisterSenior(resident);
+            setData("resident_id", resident.id);
+            setData(
+                "resident_name",
+                `${resident.firstname} ${resident.middlename} ${
+                    resident.lastname
+                } ${resident.suffix ?? ""}`
+            );
+            setData("purok_number", resident.purok_number);
+            setData("birthdate", resident.birthdate);
+            setData("resident_image", resident.resident_picture_path);
+        }
+    };
+
+    const handleSubmitRegistration = (e) => {
+        e.preventDefault();
+        post(route("senior_citizen.store"), {
+            onError: (errors) => {
+                console.error("Validation Errors:", errors);
+            },
+        });
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+        reset(); // Reset form data
+        clearErrors(); // Clear validation errors
+        setRegisterSenior(null);
+        setSelectedResident(null);
+    };
+
+    useEffect(() => {
+        if (success) {
+            handleModalClose();
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                className: "bg-green-100 text-green-800",
+            });
+        }
+    }, [success]);
+
     return (
         <AdminLayout>
             <Head title="Senior Citizen" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-
+            <Toaster />
             <div className="p-2 md:p-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     {/* <pre>{JSON.stringify(seniorCitizens, undefined, 3)}</pre> */}
-                    <p>
-                        may error dito hinde gumagana yung filters, no probelem
-                        with filter ui but in the controller
-                    </p>
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                             <div className="flex items-center gap-2 flex-wrap">
@@ -372,11 +425,189 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             </div>
             <SidebarModal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                title="Resident Details"
+                onClose={() => {
+                    handleModalClose();
+                }}
+                title={
+                    selectedResident != null
+                        ? "Resident Details"
+                        : "Register Senior Citizen"
+                }
             >
                 {selectedResident && (
                     <PersonDetailContent person={selectedResident} />
+                )}
+                {registerSenior && (
+                    <form
+                        className="bg-gray-50 p-4 rounded-lg"
+                        onSubmit={handleSubmitRegistration}
+                    >
+                        <h3 className="text-xl font-medium text-gray-700 mb-8">
+                            Senior Citizen Information
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-6 gap-y-2 md:gap-x-4 mb-5 w-full">
+                            <div className="md:row-span-2 md:col-span-2 flex flex-col items-center space-y-2">
+                                <InputLabel
+                                    htmlFor={`resident_image`}
+                                    value="Profile Photo"
+                                />
+                                <img
+                                    src={
+                                        data.resident_image
+                                            ? `/storage/${data.resident_image}`
+                                            : "/images/default-avatar.jpg"
+                                    }
+                                    alt={`Resident Image`}
+                                    className="w-32 h-32 object-cover rounded-full border border-gray-200"
+                                />
+                            </div>
+                            <div className="md:col-span-4 space-y-2">
+                                <div className="w-full">
+                                    <InputField
+                                        label="Full Name"
+                                        name="resident_name"
+                                        value={data.resident_name || ""}
+                                        placeholder="Select a resident"
+                                        readOnly={true}
+                                    />
+                                    <InputError
+                                        message={errors.resident_id}
+                                        className="mt-2"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    <div>
+                                        <InputField
+                                            label="Birthdate"
+                                            name="birthdate"
+                                            value={data.birthdate || ""}
+                                            readOnly={true}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <InputField
+                                            label="Purok Number"
+                                            name="purok_number"
+                                            value={data.purok_number}
+                                            readOnly={true}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex justify-center items-center gap-4">
+                            <div className="w-full">
+                                <RadioGroup
+                                    label="Pensioner?"
+                                    name="is_pensioner"
+                                    selectedValue={data.is_pensioner || ""}
+                                    options={[
+                                        {
+                                            label: "Yes",
+                                            value: "yes",
+                                        },
+                                        {
+                                            label: "No",
+                                            value: "no",
+                                        },
+                                        {
+                                            label: "Pending",
+                                            value: "pending",
+                                        },
+                                    ]}
+                                    onChange={(e) =>
+                                        setData("is_pensioner", e.target.value)
+                                    }
+                                />
+                                <InputError
+                                    message={errors.is_pensioner}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div className="w-full">
+                                <RadioGroup
+                                    label="Living Alone?"
+                                    name="living_alone"
+                                    selectedValue={data.living_alone}
+                                    options={[
+                                        {
+                                            label: "Yes",
+                                            value: 1,
+                                        },
+                                        {
+                                            label: "No",
+                                            value: 0,
+                                        },
+                                    ]}
+                                    onChange={(e) =>
+                                        setData("living_alone", e.target.value)
+                                    }
+                                />
+                                <InputError
+                                    message={errors.living_alone}
+                                    className="mt-2"
+                                />
+                            </div>
+                        </div>
+                        {data.is_pensioner === "yes" && (
+                            <div className="flex justify-between col-span-2 gap-4">
+                                <div className="w-full">
+                                    <InputField
+                                        label="OSCA ID"
+                                        name="osca_id_number"
+                                        type="number"
+                                        value={data.osca_id_number}
+                                        onChange={(e) =>
+                                            setData(
+                                                "osca_id_number",
+                                                e.target.value
+                                            )
+                                        }
+                                        placeholder="OSCA ID number"
+                                    />
+                                    <InputError
+                                        message={errors.osca_id_number}
+                                        className="mt-2"
+                                    />
+                                </div>
+                                <div className="w-full">
+                                    <DropdownInputField
+                                        label="Pension Type"
+                                        name="pension_type"
+                                        value={data.pension_type}
+                                        items={[
+                                            "SSS",
+                                            "DSWD",
+                                            "GSIS",
+                                            "private",
+                                            "none",
+                                        ]}
+                                        onChange={(e) =>
+                                            setData(
+                                                "pension_type",
+                                                e.target.value
+                                            )
+                                        }
+                                        placeholder="Select type"
+                                    />
+                                    <InputError
+                                        message={errors.pension_type}
+                                        className="mt-2"
+                                    />
+                                </div>
+                            </div>
+                        )}
+                        <div className="justify-end text-end mt-5">
+                            <Button
+                                className="bg-blue-700 hover:bg-blue-400"
+                                type={"submit"}
+                            >
+                                Register <MoveRight />
+                            </Button>
+                        </div>
+                    </form>
                 )}
             </SidebarModal>
         </AdminLayout>

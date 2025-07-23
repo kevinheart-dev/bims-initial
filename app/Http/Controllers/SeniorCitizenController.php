@@ -31,6 +31,7 @@ class SeniorCitizenController extends Controller
                 'residents.suffix',
                 'residents.birthdate',
                 'residents.purok_number',
+                'resident_picture_path',
             ])
             ->where('residents.barangay_id', $brgy_id)
             ->whereDate('residents.birthdate', '<=', now()->subYears(60))
@@ -57,6 +58,7 @@ class SeniorCitizenController extends Controller
             'seniorCitizens' => $seniorCitizens,
             'puroks' => $puroks,
             'queryParams' => request()->query() ?: null,
+            'success' => session('success') ?? null,
         ]);
     }
 
@@ -73,7 +75,20 @@ class SeniorCitizenController extends Controller
      */
     public function store(StoreSeniorCitizenRequest $request)
     {
-        //
+        $data = $request->validated();
+        try{
+            SeniorCitizen::create([
+                'resident_id' => $data['resident_id'],
+                'is_pensioner' => $data['is_pensioner'],
+                'living_alone' => $data['living_alone'],
+                'osca_id_number' => $data['is_pensioner'] === 'yes' ? $data['osca_id_number'] : null,
+                'pension_type' => $data['is_pensioner'] === 'yes' ? $data['pension_type'] : null,
+            ]);
+            return redirect()->route('senior_citizen.index')->with('success', 'Resident registered successfully!');
+        }catch (\Exception $e) {
+            dd($e->getMessage());
+            return back()->withErrors(['error' => 'Resident could not be registered: ' . $e->getMessage()]);
+        }
     }
 
     /**
