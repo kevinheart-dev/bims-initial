@@ -114,7 +114,7 @@ class StoreResidentHouseholdRequest extends FormRequest
             'members.*.vehicles.*.vehicle_type' => ['required', 'string', 'max:55'],
             'members.*.vehicles.*.vehicle_class' => ['required', 'string', 'max:55'],
             'members.*.vehicles.*.usage_status' => ['required', 'string', 'max:55'],
-            'members.*.vehicles.*.quantity' => ['required', 'integer', 'min:1', 'max:99'],
+            'members.*.vehicles.*.is_registered' => ['required', Rule::in([1, 0])],
 
             // educaiton
             'members.*.educations' => ['nullable', 'array'],

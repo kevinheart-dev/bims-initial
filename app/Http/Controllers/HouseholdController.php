@@ -210,11 +210,9 @@ class HouseholdController extends Controller
     public function show(Household $household)
     {
         $household_details = $household->load('householdResidents.resident', 'toilets', 'electricityTypes', 'waterSourceTypes', 'wasteManagementTypes');
-
         $household_details['bath_and_wash_area'] = [
             'bath_and_wash_area' => $household_details['bath_and_wash_area']
         ];
-
 
         $query = HouseholdResident::with('resident', 'household')
         ->where('household_id', $household->id);

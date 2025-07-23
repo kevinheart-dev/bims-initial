@@ -17,49 +17,42 @@ class SeniorCitizenController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->barangay_id;
+        $brgy_id = Auth()->user()->resident->barangay_id;
         $today = Carbon::today();
-
+        $puroks = Purok::where('barangay_id', $brgy_id)
+        ->orderBy('purok_number', 'asc')
+        ->pluck('purok_number');
         $query = Resident::query()
-            ->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'birthdate', 'purok_number')
-            ->where('barangay_id', $brgy_id)
-            ->whereDate('birthdate', '<=', $today->subYears(60))
+            ->select([
+                'residents.id',
+                'residents.firstname',
+                'residents.lastname',
+                'residents.middlename',
+                'residents.suffix',
+                'residents.birthdate',
+                'residents.purok_number',
+            ])
+            ->where('residents.barangay_id', $brgy_id)
+            ->whereDate('residents.birthdate', '<=', now()->subYears(60))
             ->with(['seniorcitizen:id,resident_id,osca_id_number,is_pensioner,pension_type,living_alone'])
-            ->distinct();
+            ->leftJoin('senior_citizens', 'residents.id', '=', 'senior_citizens.resident_id');
 
-        $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
-
+        // Filters
         if (request()->filled('is_pensioner') && request('is_pensioner') !== 'All') {
-            $query->where('seniorcitizen.is_pensioner', request('is_pensioner'));
+            $query->where('senior_citizens.is_pensioner', request('is_pensioner'));
         }
+
         if (request()->filled('pension_type') && request('pension_type') !== 'All') {
-            $query->where('pension_type', request('pension_type'));
+            $query->where('senior_citizens.pension_type', request('pension_type'));
         }
 
         if (request()->filled('living_alone') && request('living_alone') !== 'All') {
-            $query->where('living_alone', request('living_alone'));
+            $query->where('senior_citizens.living_alone', request('living_alone'));
         }
-
-
-        // if (request()->filled('purok') && request('purok') !== 'All') {
-        //     $q->where('purok_number', request('purok'));
-        // }
-        // if (request('name')) {
-        //         $q->where('firstname', 'like', '%' . request('name') . '%')
-        //             ->orWhere('lastname', 'like', '%' . request('name') . '%')
-        //             ->orWhere('middlename', 'like', '%' . request('name') . '%')
-        //             ->orWhere('suffix', 'like', '%' . request('name') . '%')
-        //             ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
-        //             ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
-        //             ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, suffix) LIKE ?", ['%' . request('name') . '%']);
-        //             $q->where('osca_id_number', 'like', '%' . request('name') . '%');
-        // }
-        // if (request()->filled('birth_month') && request('birth_month') !== 'All') {
-        //     $q->whereMonth('birthdate', '=', request('birth_month'));
-        // }
-
+        if (request()->filled('purok') && request('purok') !== 'All') {
+            $query->where('purok_number', request('purok'));
+        }
         $seniorCitizens = $query->get();
-
         return Inertia::render('BarangayOfficer/SeniorCitizen/Index', [
             'seniorCitizens' => $seniorCitizens,
             'puroks' => $puroks,

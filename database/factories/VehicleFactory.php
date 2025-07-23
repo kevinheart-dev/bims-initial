@@ -33,7 +33,7 @@ class VehicleFactory extends Factory
             'vehicle_type' => $selectedType,
             'vehicle_class' => $this->faker->randomElement($vehicleClasses),
             'usage_status' => $this->faker->randomElement($usageStatuses),
-            'quantity' => $this->faker->numberBetween(1, 5),
+            'is_registered' => $this->faker->numberBetween(0, 1),
         ];
     }
 }

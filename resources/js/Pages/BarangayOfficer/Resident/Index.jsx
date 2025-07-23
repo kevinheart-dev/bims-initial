@@ -183,16 +183,19 @@ export default function Index({
 
         name: (resident) => (
             <div className="text-sm break-words whitespace-normal leading-snug">
-                {`${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname ?? ""
-                    } ${resident.suffix ?? ""}`}
+                {`${resident.firstname} ${resident.middlename ?? ""} ${
+                    resident.lastname ?? ""
+                } ${resident.suffix ?? ""}`}
             </div>
         ),
 
         gender: (resident) => {
             const genderKey = resident.gender;
-            const label = CONSTANTS.RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
+            const label =
+                CONSTANTS.RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
             const className =
-                CONSTANTS.RESIDENT_GENDER_COLOR_CLASS[genderKey] ?? "bg-gray-300";
+                CONSTANTS.RESIDENT_GENDER_COLOR_CLASS[genderKey] ??
+                "bg-gray-300";
 
             return (
                 <span
@@ -224,7 +227,9 @@ export default function Index({
             CONSTANTS.RESIDENT_CIVIL_STATUS_TEXT[resident.civil_status],
 
         employment_status: (resident) =>
-            CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[resident.employment_status],
+            CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
+                resident.employment_status
+            ],
 
         occupation: (resident) => {
             const occ = resident.occupation;
@@ -243,16 +248,22 @@ export default function Index({
 
         registered_voter: (resident) => (
             <span
-                className={`${CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[resident.registered_voter]} whitespace-nowrap`}
+                className={`${
+                    CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
+                        resident.registered_voter
+                    ]
+                } whitespace-nowrap`}
             >
-                {CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[resident.registered_voter]}
+                {
+                    CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[
+                        resident.registered_voter
+                    ]
+                }
             </span>
         ),
 
         contact_number: (resident) => (
-            <span className="whitespace-nowrap">
-                {resident.contact_number}
-            </span>
+            <span className="whitespace-nowrap">{resident.contact_number}</span>
         ),
 
         purok_number: (resident) => resident.purok_number,
@@ -434,7 +445,7 @@ export default function Index({
                                 toggleShowAll={() => setShowAll(!showAll)}
                                 visibleColumns={visibleColumns}
                                 setVisibleColumns={setVisibleColumns}
-                            // showTotal={true}
+                                // showTotal={true}
                             />
                         </div>
                     </div>

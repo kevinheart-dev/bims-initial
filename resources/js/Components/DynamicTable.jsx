@@ -25,10 +25,12 @@ const DynamicTable = ({
     householdId = null,
     showTotal = false,
     visibleColumns = [],
-    setVisibleColumns = () => { },
+    setVisibleColumns = () => {},
 }) => {
     const contentRef = useRef();
-    const reactToPrintFn = useReactToPrint({ content: () => contentRef.current });
+    const reactToPrintFn = useReactToPrint({
+        content: () => contentRef.current,
+    });
 
     const cleanData = Array.isArray(passedData?.data)
         ? passedData.data
@@ -92,7 +94,9 @@ const DynamicTable = ({
                             <tr>
                                 {allColumns.map(
                                     (col) =>
-                                        effectiveVisibleColumns.includes(col.key) && (
+                                        effectiveVisibleColumns.includes(
+                                            col.key
+                                        ) && (
                                             <th
                                                 key={col.key}
                                                 className="bg-blue-500 text-white p-3 whitespace-nowrap text-wrap text-start text-sm font-semibold min-w-[60px] max-w-[100px]"
@@ -107,16 +111,20 @@ const DynamicTable = ({
                             {cleanData.length > 0 ? (
                                 sortedData.map((data, rowIndex) => (
                                     <tr
-                                        key={data.id || rowIndex}
+                                        key={rowIndex}
                                         className="border-b hover:bg-gray-50"
                                     >
                                         {allColumns.map((col) =>
-                                            effectiveVisibleColumns.includes(col.key) ? (
+                                            effectiveVisibleColumns.includes(
+                                                col.key
+                                            ) ? (
                                                 <td
-                                                    key={`${data.id || rowIndex}-${col.key}`}
+                                                    key={`${rowIndex}-${col.key}`}
                                                     className="py-2 px-3 whitespace-wrap text-wrap break-words text-sm text-gray-700 min-w-[60px] max-w-[100px]"
                                                 >
-                                                    {columnRenderers[col.key]?.(data) ?? ""}
+                                                    {columnRenderers[col.key]?.(
+                                                        data
+                                                    ) ?? ""}
                                                 </td>
                                             ) : null
                                         )}

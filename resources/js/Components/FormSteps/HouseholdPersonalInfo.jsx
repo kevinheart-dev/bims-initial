@@ -1737,12 +1737,21 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                     )}
                                                                 </div>
                                                                 <div>
-                                                                    <InputField
-                                                                        label="Quantity"
-                                                                        name="quantity"
-                                                                        type="number"
-                                                                        value={
-                                                                            vehicle.quantity ||
+                                                                    <RadioGroup
+                                                                        label="Is Registered?"
+                                                                        name="is_registered"
+                                                                        options={[
+                                                                            {
+                                                                                label: "Yes",
+                                                                                value: 1,
+                                                                            },
+                                                                            {
+                                                                                label: "No",
+                                                                                value: 0,
+                                                                            },
+                                                                        ]}
+                                                                        selectedValue={
+                                                                            vehicle.is_registered ||
                                                                             ""
                                                                         }
                                                                         onChange={(
@@ -1754,15 +1763,14 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                                 e
                                                                             )
                                                                         }
-                                                                        placeholder="Number"
                                                                     />
                                                                     {errors?.[
-                                                                        `members.${index}.vehicles.${vecIndex}.usage_status`
+                                                                        `members.${index}.vehicles.${vecIndex}.is_registered`
                                                                     ] && (
                                                                         <p className="text-red-500 text-xs">
                                                                             {
                                                                                 errors[
-                                                                                    `members.${index}.vehicles.${vecIndex}.usage_status`
+                                                                                    `members.${index}.vehicles.${vecIndex}.is_registered`
                                                                                 ]
                                                                             }
                                                                         </p>
