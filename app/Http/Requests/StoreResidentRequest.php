@@ -92,7 +92,7 @@ class StoreResidentRequest extends FormRequest
             ],
             'occupations.*.occupation_status' => [
                 'nullable',
-                Rule::in(['active', 'inactive', 'ended', 'retired']),
+                Rule::in(['active', 'inactive', 'ended', 'retired', 'terminated', 'resigned']),
             ],
             'occupations.*.work_arrangement' => [
                 'nullable',

@@ -15,7 +15,6 @@ export const RESIDENT_EMPLOYMENT_STATUS_TEXT = {
     unemployed: "Unemployed",
     self_employed: "Self Employed",
     under_employed: "Under Employed",
-    retired: "Retired",
 };
 
 export const RESIDENT_GENDER_TEXT = {
@@ -66,7 +65,6 @@ export const RESIDENT_REGISTER_VOTER_CLASS = {
     0: "p-1 bg-red-100 text-red-800 rounded-lg",
     1: "p-1 bg-green-200 text-green-800 rounded-lg",
 };
-
 
 export const RESIDENT_RECIDENCY_TYPE_TEXT = {
     permanent: "Permanent",
@@ -270,23 +268,29 @@ export const MEDICAL_PHILHEALTH_TEXT = {
 
 export const EDUCATION_SCHOOL_TYPE = {
     public: "Public",
-    label: "Private",
+    private: "Private",
 };
 
 export const EDUCATION_LEVEL_TEXT = {
+    no_education_yet: "No Education Yet",
+    prep_school: "Prep School",
+    kindergarten: "Kindergarten",
+    tesda: "TESDA",
+    junior_high_school: "Junior High School",
+    senior_high_school: "Senior High School",
     no_formal_education: "No Formal Education",
     elementary: "Elementary",
     high_school: "High School",
     college: "College",
-    post_grad: "Post Grad",
+    post_graduate: "Post Graduate",
     vocational: "Vocational",
 };
 
 export const EDUCATION_STATUS_TEXT = {
-    graduate: "Graduate",
-    undergraduate: "Undergraduate",
+    graduated: "Graduated",
     enrolled: "Currently Enrolled",
-    stopped: "Stopped",
+    incomplete: "Incomplete",
+    dropped_out: "Dropped Out",
 };
 
 export const EDUCATION_OSY_TEXT = {
@@ -316,7 +320,7 @@ export const OCCUPATION_STATUS_TEXT = {
 
 export const WORK_ARRANGEMENT_TEXT = {
     remote: "Remote",
-    onsite: "Onsite",
+    on_site: "Onsite",
     hybrid: "Hybrid",
 };
 

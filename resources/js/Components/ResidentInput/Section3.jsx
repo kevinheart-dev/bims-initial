@@ -188,6 +188,14 @@ const Section3 = ({
                                             label: "Retired",
                                             value: "retired",
                                         },
+                                        {
+                                            label: "Terminated",
+                                            value: "terminated",
+                                        },
+                                        {
+                                            label: "Resigned",
+                                            value: "resigned",
+                                        },
                                     ]}
                                 />
                                 <InputError

@@ -201,6 +201,10 @@ class Resident extends Model
     {
         return $this->hasMany(Occupation::class);
     }
+    public function latestOccupation()
+    {
+        return $this->hasOne(Occupation::class)->latestOfMany('started_at');
+    }
     public function disabilities()
     {
         return $this->hasMany(Disability::class);
@@ -221,6 +225,10 @@ class Resident extends Model
     public function educationalHistories()
     {
         return $this->hasMany(EducationalHistory::class);
+    }
+    public function latestEducation()
+    {
+        return $this->hasOne(EducationalHistory::class)->latestOfMany('year_ended');
     }
     public function medicalInformation()
     {

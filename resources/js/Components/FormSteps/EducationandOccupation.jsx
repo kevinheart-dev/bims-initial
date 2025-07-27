@@ -964,6 +964,14 @@ function EducationandOccupation({ occupationTypes }) {
                                                                 label: "Retired",
                                                                 value: "retired",
                                                             },
+                                                            {
+                                                                label: "Terminated",
+                                                                value: "terminated",
+                                                            },
+                                                            {
+                                                                label: "Resigned",
+                                                                value: "resigned",
+                                                            },
                                                         ]}
                                                         disabled={
                                                             occupation.employment_status ===

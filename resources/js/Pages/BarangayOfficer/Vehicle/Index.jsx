@@ -23,6 +23,7 @@ import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import InputLabel from "@/Components/InputLabel";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import RadioGroup from "@/Components/RadioGroup";
+import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 
 export default function Index({
     vehicles,

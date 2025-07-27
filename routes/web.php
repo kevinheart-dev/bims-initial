@@ -5,9 +5,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentGenerationController;
+use App\Http\Controllers\EducationController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyRelationController;
 use App\Http\Controllers\HouseholdController;
+use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\SeniorCitizenController;
@@ -48,6 +50,8 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('family_relation', FamilyRelationController::class);
     Route::resource('family', FamilyController::class);
     Route::resource('vehicle', VehicleController::class);
+    Route::resource('education', EducationController::class);
+    Route::resource('occupation', OccupationController::class);
 });
 
 // Resident-only routes
