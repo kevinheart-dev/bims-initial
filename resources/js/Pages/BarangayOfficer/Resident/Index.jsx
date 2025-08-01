@@ -335,7 +335,7 @@ export default function Index({
         <AdminLayout>
             <Head title="Resident" />
             <div>
-                <Toaster />
+                <Toaster richColors />
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
                 <div className="p-2 md:p-4">
                     <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">

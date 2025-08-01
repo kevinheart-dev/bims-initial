@@ -7,6 +7,7 @@ import RadioGroup from "../RadioGroup";
 import SelectField from "../SelectField";
 import YearDropdown from "../YearDropdown";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
+import { Toaster, toast } from "sonner";
 
 const Section2 = ({ data, setData, errors, handleArrayValues }) => {
     const addEducation = () => {
@@ -20,9 +21,13 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
         const updated = [...(data.educational_histories || [])];
         updated.splice(occIndex, 1);
         setData("educational_histories", updated);
+        toast.warning("History removed.", {
+            duration: 2000,
+        });
     };
     return (
         <div>
+            <Toaster richColors />
             <div className="flex flex-col mt-12">
                 <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-1">
                     Education and Occupation

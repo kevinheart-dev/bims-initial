@@ -808,6 +808,22 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
+            {isVisible("latest_education") && (
+                <Select
+                    onValueChange={(edu) =>
+                        searchFieldName("latest_education", edu)
+                    }
+                    value={queryParams.latest_education}
+                >
+                    <SelectTrigger className="w-[160px]">
+                        <SelectValue placeholder="All Education" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="1">Latest Education</SelectItem>
+                        <SelectItem value="0">All Education</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
 
             <div className="flex justify-end ml-auto">
                 <ClearFilterButton

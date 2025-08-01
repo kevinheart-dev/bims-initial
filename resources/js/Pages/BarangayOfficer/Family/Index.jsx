@@ -34,6 +34,7 @@ import DropdownInputField from "@/Components/DropdownInputField";
 import InputError from "@/Components/InputError";
 import InputField from "@/Components/InputField";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
+import { Toaster, toast } from "sonner";
 
 export default function Index({
     families,
@@ -284,6 +285,9 @@ export default function Index({
         const updated = [...(data.members || [])];
         updated.splice(memberIndex, 1);
         setData("members", updated);
+        toast.warning("Member removed.", {
+            duration: 2000,
+        });
     };
     const handleResidentChange = (e) => {
         const resident_id = Number(e.target.value);
@@ -342,6 +346,7 @@ export default function Index({
         <AdminLayout>
             <Head title="Family" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
+            <Toaster richColors />
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
@@ -399,7 +404,7 @@ export default function Index({
                                         <UserRoundPlus className="w-4 h-4" />
                                     </Button>
                                     <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                        Add Household
+                                        Add a Family
                                     </div>
                                 </div>
                             </div>

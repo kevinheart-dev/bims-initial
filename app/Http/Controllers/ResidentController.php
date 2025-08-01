@@ -330,19 +330,22 @@ class ResidentController extends Controller
             }
             //add occupations
             if (!empty($data['occupations']) && is_array($data['occupations'])) {
-                foreach ($data['occupations'] ?? [] as $occupationData) {
+                $normalizedOccupations = [];
 
-                    if ($occupationData['income_frequency'] === 'monthly') {
-                        $occupationData['income'] = $occupationData['income'] ?? 0;
-                    } elseif ($occupationData['income_frequency'] === 'weekly') {
-                        $occupationData['income'] = ($occupationData['income'] ?? 0) * 4;
-                    } elseif ($occupationData['income_frequency'] === 'annually') {
-                        $occupationData['income'] = ($occupationData['income'] ?? 0) / 12;
-                    } else {
-                        $occupationData['income'] = $occupationData['income'] ?? null;
-                    }
+                foreach ($data['occupations'] as $occupationData) {
+                    $income = $occupationData['income'] ?? 0;
 
-                    $resident->occupations()->create([
+                    // Normalize all income to monthly
+                    $monthlyIncome = match ($occupationData['income_frequency']) {
+                        'monthly' => $income,
+                        'weekly' => $income * 4,
+                        'bi-weekly' => $income * 2,
+                        'daily' => $income * 22, // Assuming 22 working days per month
+                        'annually' => $income / 12,
+                        default => null,
+                    };
+
+                    $normalizedOccupations[] = [
                         'occupation' => $occupationData['occupation'] ?? null,
                         'employment_type' => $occupationData['employment_type'] ?? null,
                         'occupation_status' => $occupationData['occupation_status'] ?? null,
@@ -351,42 +354,57 @@ class ResidentController extends Controller
                         'is_ofw' => $occupationData['is_ofw'] ?? false,
                         'started_at' => $occupationData['started_at'],
                         'ended_at' => $occupationData['ended_at'] ?? null,
-                        'monthly_income' => $occupationData['income'] ?? null,
+                        'monthly_income' => $monthlyIncome,
                         'created_at' => now(),
-                        'updated_at' => now()
-                    ]);
-
-                    $family = Family::with(['members.occupations'])->findOrFail($familyId);
-                    // Sum total monthly income from all members' occupations
-                    $totalIncome = $family->members->flatMap(function ($member) {
-                        return $member->occupations;
-                    })->sum('monthly_income');
-
-                    $incomeBracket = match (true) {
-                        $totalIncome < 5000 => 'below_5000',
-                        $totalIncome <= 10000 => '5001_10000',
-                        $totalIncome <= 20000 => '10001_20000',
-                        $totalIncome <= 40000 => '20001_40000',
-                        $totalIncome <= 70000 => '40001_70000',
-                        $totalIncome <= 120000 => '70001_120000',
-                        default => 'above_120001',
-                    };
-
-                    $incomeCategory = match (true) {
-                        $totalIncome <= 10000 => 'survival',
-                        $totalIncome <= 20000 => 'poor',
-                        $totalIncome <= 40000 => 'low_income',
-                        $totalIncome <= 70000 => 'lower_middle_income',
-                        $totalIncome <= 120000 => 'middle_income',
-                        $totalIncome <= 200000 => 'upper_middle_income',
-                        default => 'above_high_income',
-                    };
-
-                    $family->update([
-                        'income_bracket' => $incomeBracket,
-                        'income_category' => $incomeCategory,
-                    ]);
+                        'updated_at' => now(),
+                    ];
                 }
+
+                // Insert all occupations
+                $resident->occupations()->createMany($normalizedOccupations);
+
+                // Recompute family's total and average monthly income
+                $family = Family::with('members.occupations')->findOrFail($familyId);
+                $allIncomes = $family->members
+                        ->flatMap(fn($m) =>
+                            // Filter only active occupations
+                            $m->occupations->filter(fn($occupation) =>
+                                is_null($occupation->ended_at) || $occupation->ended_at >= now()
+                            )
+                        )
+                        // Extract income values
+                        ->pluck('monthly_income')
+                        // Remove nulls
+                        ->filter();
+
+                $totalIncome = $allIncomes->avg();
+
+                // Determine bracket and category
+                $incomeBracket = match (true) {
+                    $totalIncome < 5000 => 'below_5000',
+                    $totalIncome <= 10000 => '5001_10000',
+                    $totalIncome <= 20000 => '10001_20000',
+                    $totalIncome <= 40000 => '20001_40000',
+                    $totalIncome <= 70000 => '40001_70000',
+                    $totalIncome <= 120000 => '70001_120000',
+                    default => 'above_120001',
+                };
+
+                $incomeCategory = match (true) {
+                    $totalIncome <= 10000 => 'survival',
+                    $totalIncome <= 20000 => 'poor',
+                    $totalIncome <= 40000 => 'low_income',
+                    $totalIncome <= 70000 => 'lower_middle_income',
+                    $totalIncome <= 120000 => 'middle_income',
+                    $totalIncome <= 200000 => 'upper_middle_income',
+                    default => 'above_high_income',
+                };
+
+                // Update family in one go
+                $family->update([
+                    'income_bracket' => $incomeBracket,
+                    'income_category' => $incomeCategory,
+                ]);
             }
 
             $residentMedicalInformation = [
@@ -1209,4 +1227,29 @@ class ResidentController extends Controller
                 'resident' => $resident,
             ]);
     }
+
+    public function fetchResidents()
+    {
+        $barangayId = Auth()->user()->resident->barangay_id;
+        $residents = Resident::with([
+            'votingInformation',
+            'educationalHistories',
+            'occupations',
+            'medicalInformation',
+            'disabilities',
+            'socialwelfareprofile',
+            'vehicles',
+            'seniorcitizen',
+            'household',
+            'family',
+            'street',
+            'street.purok',
+            'barangay',
+        ])->where('barangay_id', $barangayId)->get();
+
+        return response()->json([
+            'residents' => ResidentResource::collection($residents),
+        ]);
+    }
+
 }

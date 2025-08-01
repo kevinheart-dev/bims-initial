@@ -24,6 +24,7 @@ import InputLabel from "@/Components/InputLabel";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import RadioGroup from "@/Components/RadioGroup";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
+import useResidentChangeHandler from "@/hooks/handleResidentChange";
 
 export default function Index({
     vehicles,
@@ -41,7 +42,6 @@ export default function Index({
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isModalOpen, setIsModalOpen] = useState(false);
-
     const { data, setData, post, errors, reset, clearErrors } = useForm({
         resident_id: null,
         resident_name: "",
@@ -51,6 +51,8 @@ export default function Index({
         has_vehicle: null,
         vehicles: [[]],
     });
+    const handleResidentChange = useResidentChangeHandler(residents, setData);
+
     const handleArrayValues = (e, index, column, array) => {
         const updated = [...(data[array] || [])];
         updated[index] = {
@@ -89,6 +91,9 @@ export default function Index({
         const updated = [...(data.vehicles || [])];
         updated.splice(vehicleIndex, 1);
         setData("vehicles", updated);
+        toast.warning("Vehicle removed.", {
+            duration: 2000,
+        });
     };
     const allColumns = [
         { key: "id", label: "Vehicle ID" },
@@ -184,22 +189,7 @@ export default function Index({
     const handleAddVehicle = () => {
         setIsModalOpen(true);
     };
-    const handleResidentChange = (e) => {
-        const resident_id = Number(e.target.value);
-        const resident = residents.find((r) => r.id == resident_id);
-        if (resident) {
-            setData("resident_id", resident.id);
-            setData(
-                "resident_name",
-                `${resident.firstname} ${resident.middlename} ${
-                    resident.lastname
-                } ${resident.suffix ?? ""}`
-            );
-            setData("purok_number", resident.purok_number);
-            setData("birthdate", resident.birthdate);
-            setData("resident_image", resident.resident_picture_path);
-        }
-    };
+
     const residentsList = residents.map((res) => ({
         label: `${res.firstname} ${res.middlename} ${res.lastname} ${
             res.suffix ?? ""
@@ -212,6 +202,11 @@ export default function Index({
 
         post(route("vehicle.store"), {
             onError: (errors) => {
+                toast.error("Failed to add education record", {
+                    description: "Please check the form for errors.",
+                    duration: 3000,
+                    className: "bg-red-100 text-red-800",
+                });
                 console.error("Validation Errors:", errors);
             },
         });
@@ -237,7 +232,7 @@ export default function Index({
         <AdminLayout>
             <Head title="Vehicles" />
             <div>
-                <Toaster />
+                <Toaster richColors />
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
                 {/* <pre>{JSON.stringify(vehicles, undefined, 2)}</pre> */}
                 <div className="p-2 md:p-4">

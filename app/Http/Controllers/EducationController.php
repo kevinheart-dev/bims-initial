@@ -7,6 +7,7 @@ use App\Http\Requests\StoreEducationalHistoryRequest;
 use App\Http\Requests\UpdateEducationalHistoryRequest;
 use App\Models\Purok;
 use App\Models\Resident;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class EducationController extends Controller
@@ -17,23 +18,45 @@ class EducationController extends Controller
     public function index()
     {
         $brgy_id = Auth()->user()->resident->barangay_id;
+
         $query = EducationalHistory::with([
-        'resident:id,firstname,lastname,middlename,suffix,purok_number,barangay_id'
-        ])
-        ->select(
-            'id',
-            'resident_id',
-            'school_name',
-            'school_type',
-            'educational_attainment',
-            'education_status',
-            'year_started',
-            'year_ended',
-            'program'
-        )
-        ->whereHas('resident', function ($q) use ($brgy_id) {
-            $q->where('barangay_id', $brgy_id);
-        });
+            'resident:id,firstname,lastname,middlename,suffix,purok_number,barangay_id'
+            ])
+            ->select(
+                'id',
+                'resident_id',
+                'school_name',
+                'school_type',
+                'educational_attainment',
+                'education_status',
+                'year_started',
+                'year_ended',
+                'program'
+            )
+            ->whereHas('resident', function ($q) use ($brgy_id) {
+                $q->where('barangay_id', $brgy_id);
+            });
+
+        if (request()->filled('latest_education')){
+            if( request('latest_education') === '1') {
+                $query = EducationalHistory::select('educational_histories.*')
+                ->join(DB::raw('(
+                    SELECT resident_id, MAX(year_ended) AS max_year
+                    FROM educational_histories
+                    GROUP BY resident_id
+                ) AS latest'), function ($join) {
+                    $join->on('educational_histories.resident_id', '=', 'latest.resident_id')
+                        ->on('educational_histories.year_ended', '=', 'latest.max_year');
+                })
+                ->with([
+                    'resident:id,firstname,lastname,middlename,suffix,purok_number,barangay_id'
+                ])
+                ->whereHas('resident', function ($q) use ($brgy_id) {
+                    $q->where('barangay_id', $brgy_id);
+                });
+            }
+        }
+
 
         if (request()->filled('name')) {
             $search = request()->input('namemarcel');
@@ -56,8 +79,8 @@ class EducationController extends Controller
             $query->where('educational_attainment', request('educational_attainment'));
         }
 
-        if (request()->filled('education_status') && request('education_status') !== 'All') {
-            $query->where('education_status', request('education_status'));
+        if (request()->filled('educational_status') && request('educational_status') !== 'All') {
+            $query->where('education_status', request('educational_status'));
         }
 
         if (request()->filled('school_type') && request('school_type') !== 'All') {
@@ -78,9 +101,12 @@ class EducationController extends Controller
 
         $educations = $query->get();
 
+        $residents = Resident::where('barangay_id', $brgy_id)->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'birthdate')->get();
+
         return Inertia::render('BarangayOfficer/Education/Index', [
             'educations' => $educations,
             'puroks' => $puroks,
+            'residents' => $residents,
             'queryParams' => request()->query() ?: null,
             'success' => session('success'),
         ]);
@@ -99,7 +125,25 @@ class EducationController extends Controller
      */
     public function store(StoreEducationalHistoryRequest $request)
     {
-        //
+        $data = $request->validated();
+        try{
+            foreach ($data['educational_histories'] as $history) {
+                EducationalHistory::create([
+                    'resident_id' => $data['resident_id'],
+                    'educational_attainment' => $history['education'] ?? null,
+                    'education_status' => $history['education_status'] ?? null,
+                    'school_name' => $history['school_name'] ?? null,
+                    'school_type' => $history['school_type'] ?? null,
+                    'year_started' => $history['year_started'] ?? null,
+                    'year_ended' => $history['year_ended'] ?? null,
+                    'program' => $history['program'] ?? null,
+                ]);
+            }
+            return redirect()->route('education.index')->with('success', 'Educational history added successfully!');
+        }catch (\Exception $e) {
+            dd($e->getMessage());
+            return back()->withErrors(['error' => 'Educational history could not be added: ' . $e->getMessage()]);
+        }
     }
 
     /**

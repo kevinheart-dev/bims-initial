@@ -8,13 +8,7 @@ import SelectField from "../SelectField";
 import YearDropdown from "../YearDropdown";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 
-const Section3 = ({
-    data,
-    setData,
-    handleArrayValues,
-    errors,
-    occupationTypes = null,
-}) => {
+const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
     const addOccupation = () => {
         setData("occupations", [...(data.occupations || []), {}]);
     };

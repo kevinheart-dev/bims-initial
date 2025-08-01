@@ -42,6 +42,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::get('resident/createresident', [ResidentController::class, 'createResident'])->name('resident.createresident');
     Route::post('resident/storehousehold', [ResidentController::class, 'storeHousehold'])->name('resident.storehousehold');
     Route::get('resident/showresident/{id}', [ResidentController::class, 'showResident'])->name('resident.showresident');
+    Route::get('resident/fetchresidents', [ResidentController::class, 'fetchResidents'])->name('resident.fetchresidents');
 
     Route::resource('resident', ResidentController::class);
     Route::resource('document', DocumentController::class);

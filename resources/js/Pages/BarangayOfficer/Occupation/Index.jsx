@@ -14,6 +14,7 @@ import {
     Pencil,
     Search,
     SquarePen,
+    SquarePlus,
     Trash2,
     User,
     UserPlus,
@@ -37,12 +38,18 @@ import {
     RESIDENT_EMPLOYMENT_STATUS_TEXT,
     WORK_ARRANGEMENT_TEXT,
 } from "@/constants";
+import useResidentChangeHandler from "@/hooks/handleResidentChange";
+import SelectField from "@/Components/SelectField";
+import YearDropdown from "@/Components/YearDropdown";
+import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 
 export default function Index({
     occupations,
     puroks,
     queryParams = null,
     success,
+    residents = [],
+    occupationTypes = [],
 }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
@@ -77,6 +84,7 @@ export default function Index({
     };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalState, setModalState] = useState("");
 
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
@@ -121,6 +129,7 @@ export default function Index({
     };
     const [isPaginated, setIsPaginated] = useState(true);
     const [showAll, setShowAll] = useState(false);
+    const [selectedResident, setSelectedResident] = useState(null);
     const defaultVisibleCols = allColumns.map((col) => col.key);
     const [visibleColumns, setVisibleColumns] = useState(() => {
         const saved = localStorage.getItem("occupation_visible_columns");
@@ -259,12 +268,87 @@ export default function Index({
         ),
     };
 
+    const handleView = async (resident) => {
+        setModalState("view");
+        setSelectedResident(null);
+        try {
+            const response = await axios.get(
+                `${APP_URL}/barangay_officer/resident/showresident/${resident}`
+            );
+            setSelectedResident(response.data.resident);
+        } catch (error) {
+            console.error("Error fetching placeholders:", error);
+        }
+        setIsModalOpen(true);
+    };
+
+    // list of residents for dropdown
+    const residentsList = residents.map((res) => ({
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
+            res.suffix ?? ""
+        }`,
+        value: res.id.toString(),
+    }));
+
+    // Handle Occupation Actions
+    const { data, setData, post, errors, reset, clearErrors } = useForm({
+        resident_id: null,
+        resident_name: "",
+        resident_image: null,
+        birthdate: null,
+        purok_number: null,
+        occupations: [[]],
+    });
+    const handleResidentChange = useResidentChangeHandler(residents, setData);
+
+    const addOccupation = () => {
+        setData("occupations", [...(data.occupations || []), {}]);
+    };
+
+    const removeOccupation = (occIndex) => {
+        const updated = [...(data.occupations || [])];
+        updated.splice(occIndex, 1);
+        setData("occupations", updated);
+        toast.warning("Occupation removed.", {
+            duration: 2000,
+        });
+    };
+
+    const handleOccupationFieldChange = (e, occIndex, fieldName) => {
+        const updated = [...(data.occupations || [])];
+
+        updated[occIndex] = {
+            ...updated[occIndex],
+            [fieldName]: e.target.value,
+        };
+
+        setData("occupations", updated);
+    };
+
+    const handleAddOccupation = () => {
+        setModalState("add");
+        setIsModalOpen(true);
+    };
+
     const handleModalClose = () => {
         setIsModalOpen(false);
-        reset(); // Reset form data
-        clearErrors(); // Clear validation errors
-        setRegisterSenior(null);
-        setSelectedResident(null);
+        setModalState("");
+        reset();
+        clearErrors();
+    };
+
+    const onSubmit = (e) => {
+        e.preventDefault();
+        post(route("occupation.store"), {
+            onError: () => {
+                toast.error("Failed to add occupation record", {
+                    description: "Please check the form for errors.",
+                    duration: 3000,
+                    className: "bg-red-100 text-red-800",
+                });
+                console.error("Validation Errors:", errors);
+            },
+        });
     };
 
     useEffect(() => {
@@ -282,10 +366,9 @@ export default function Index({
         <AdminLayout>
             <Head title="Senior Citizen" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-            <Toaster />
+            <Toaster richColors />
             <div className="p-2 md:p-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                    di pa tapos add
                     {/* <pre>{JSON.stringify(occupations, undefined, 3)}</pre> */}
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
@@ -331,6 +414,18 @@ export default function Index({
                                         </div>
                                     </div>
                                 </form>
+                                <div className="relative group z-50">
+                                    <Button
+                                        variant="outline"
+                                        className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                        onClick={handleAddOccupation}
+                                    >
+                                        <SquarePlus className="w-4 h-4" />
+                                    </Button>
+                                    <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                        Add an Occupation
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         {showFilters && (
@@ -372,8 +467,519 @@ export default function Index({
                 onClose={() => {
                     handleModalClose();
                 }}
-                title="Add Education History"
-            ></SidebarModal>
+                title={
+                    modalState === "add"
+                        ? "Add an Occupation"
+                        : "View Resident Details"
+                }
+            >
+                {modalState === "add" && (
+                    <div className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg text-sm text-black p-4 space-y-4">
+                        <form onSubmit={onSubmit}>
+                            <h3 className="text-xl font-medium text-gray-700 mb-8">
+                                Resident's Info
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-6 gap-y-2 md:gap-x-4 mb-5 w-full">
+                                <div className="md:row-span-2 md:col-span-2 flex flex-col items-center space-y-2">
+                                    <InputLabel
+                                        htmlFor={`resident_image`}
+                                        value="Profile Photo"
+                                    />
+                                    <img
+                                        src={
+                                            data.resident_image
+                                                ? `/storage/${data.resident_image}`
+                                                : "/images/default-avatar.jpg"
+                                        }
+                                        alt={`Resident Image`}
+                                        className="w-32 h-32 object-cover rounded-full border border-gray-200"
+                                    />
+                                </div>
+                                <div className="md:col-span-4 space-y-2">
+                                    <div className="w-full">
+                                        <DropdownInputField
+                                            label="Full Name"
+                                            name="resident_name"
+                                            value={data.resident_name || ""}
+                                            placeholder="Select a resident"
+                                            onChange={(e) =>
+                                                handleResidentChange(e)
+                                            }
+                                            items={residentsList}
+                                        />
+                                        <InputError
+                                            message={errors.resident_id}
+                                            className="mt-2"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <div>
+                                            <InputField
+                                                label="Birthdate"
+                                                name="birthdate"
+                                                value={data.birthdate || ""}
+                                                readOnly={true}
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <InputField
+                                                label="Purok Number"
+                                                name="purok_number"
+                                                value={data.purok_number}
+                                                readOnly={true}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {Array.isArray(data.occupations) &&
+                                data.occupations.map((occupation, occIndex) => (
+                                    <div
+                                        key={occIndex}
+                                        className="border p-4 mb-4 rounded-md relative bg-gray-50"
+                                    >
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <SelectField
+                                                    label="Employment Status"
+                                                    name="employment_status"
+                                                    value={
+                                                        occupation.employment_status ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleOccupationFieldChange(
+                                                            e,
+                                                            occIndex,
+                                                            "employment_status"
+                                                        )
+                                                    }
+                                                    items={[
+                                                        {
+                                                            label: "Employed",
+                                                            value: "employed",
+                                                        },
+                                                        {
+                                                            label: "Unemployed",
+                                                            value: "unemployed",
+                                                        },
+                                                        {
+                                                            label: "Underemployed",
+                                                            value: "under_employed",
+                                                        },
+                                                        {
+                                                            label: "Retired",
+                                                            value: "retired",
+                                                        },
+                                                    ]}
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `occupations.${occIndex}.employment_status`
+                                                        ]
+                                                    }
+                                                    className="mt-2"
+                                                />
+                                            </div>
+                                            <div>
+                                                <DropdownInputField
+                                                    label="Occupation"
+                                                    name="occupation"
+                                                    value={
+                                                        occupation.occupation ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleOccupationFieldChange(
+                                                            e,
+                                                            occIndex,
+                                                            "occupation"
+                                                        )
+                                                    }
+                                                    placeholder="Select or Enter Occupation"
+                                                    items={occupationTypes}
+                                                    disabled={
+                                                        occupation.employment_status ===
+                                                        "unemployed"
+                                                    }
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `occupations.${occIndex}.occupation`
+                                                        ]
+                                                    }
+                                                    className="mt-2"
+                                                />
+                                            </div>
+                                            <div>
+                                                <SelectField
+                                                    label="Employment Type"
+                                                    name="employment_type"
+                                                    value={
+                                                        occupation.employment_type ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleOccupationFieldChange(
+                                                            e,
+                                                            occIndex,
+                                                            "employment_type"
+                                                        )
+                                                    }
+                                                    items={[
+                                                        {
+                                                            label: "Full-time",
+                                                            value: "full_time",
+                                                        },
+                                                        {
+                                                            label: "Part-time",
+                                                            value: "part_time",
+                                                        },
+                                                        {
+                                                            label: "Seasonal",
+                                                            value: "seasonal",
+                                                        },
+                                                        {
+                                                            label: "Contractual",
+                                                            value: "contractual",
+                                                        },
+                                                        {
+                                                            label: "Self-employed",
+                                                            value: "self_employed",
+                                                        },
+                                                    ]}
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `occupations.${occIndex}.employment_type`
+                                                        ]
+                                                    }
+                                                    className="mt-2"
+                                                />
+                                            </div>
+                                            <div>
+                                                <SelectField
+                                                    label="Occupation Status"
+                                                    name="occupation_status"
+                                                    value={
+                                                        occupation.occupation_status ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleOccupationFieldChange(
+                                                            e,
+                                                            occIndex,
+                                                            "occupation_status"
+                                                        )
+                                                    }
+                                                    items={[
+                                                        {
+                                                            label: "Active",
+                                                            value: "active",
+                                                        },
+                                                        {
+                                                            label: "Inactive",
+                                                            value: "inactive",
+                                                        },
+                                                        {
+                                                            label: "Ended",
+                                                            value: "ended",
+                                                        },
+                                                        {
+                                                            label: "Retired",
+                                                            value: "retired",
+                                                        },
+                                                        {
+                                                            label: "Terminated",
+                                                            value: "terminated",
+                                                        },
+                                                        {
+                                                            label: "Resigned",
+                                                            value: "resigned",
+                                                        },
+                                                    ]}
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `occupations.${occIndex}.occupation_status`
+                                                        ]
+                                                    }
+                                                    className="mt-2"
+                                                />
+                                            </div>
+                                            <div>
+                                                <SelectField
+                                                    label="Work Arrangement"
+                                                    name="work_arrangement"
+                                                    items={[
+                                                        {
+                                                            label: "Remote",
+                                                            value: "remote",
+                                                        },
+                                                        {
+                                                            label: "On-site",
+                                                            value: "on_site",
+                                                        },
+                                                        {
+                                                            label: "Hybrid",
+                                                            value: "hybrid",
+                                                        },
+                                                    ]}
+                                                    selectedValue={
+                                                        occupation.work_arrangement ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleOccupationFieldChange(
+                                                            e,
+                                                            occIndex,
+                                                            "work_arrangement"
+                                                        )
+                                                    }
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `occupations.${occIndex}.work_arrangement`
+                                                        ]
+                                                    }
+                                                    className="mt-2"
+                                                />
+                                            </div>
+                                            <div>
+                                                <InputField
+                                                    label="Employer name"
+                                                    name="employer"
+                                                    type="text"
+                                                    value={
+                                                        occupation.employer ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleOccupationFieldChange(
+                                                            e,
+                                                            occIndex,
+                                                            "employer"
+                                                        )
+                                                    }
+                                                    placeholder="Enter employer name"
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `occupations.${occIndex}.employer`
+                                                        ]
+                                                    }
+                                                    className="mt-2"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <YearDropdown
+                                                    label="Year Started"
+                                                    name="started_at"
+                                                    value={
+                                                        occupation.started_at ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleOccupationFieldChange(
+                                                            e,
+                                                            occIndex,
+                                                            "started_at"
+                                                        )
+                                                    }
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `occupations.${occIndex}.started_at`
+                                                        ]
+                                                    }
+                                                    className="mt-2"
+                                                />
+                                            </div>
+                                            <div>
+                                                <YearDropdown
+                                                    label="Year Ended"
+                                                    name="ended_at"
+                                                    value={
+                                                        occupation.ended_at ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleOccupationFieldChange(
+                                                            e,
+                                                            occIndex,
+                                                            "ended_at"
+                                                        )
+                                                    }
+                                                    disabled={
+                                                        occupation.occupation_status ===
+                                                        "active"
+                                                    }
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `occupations.${occIndex}.ended_at`
+                                                        ]
+                                                    }
+                                                    className="mt-2"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <InputField
+                                                    type="number"
+                                                    label="Income"
+                                                    name="income"
+                                                    value={
+                                                        occupation.income || ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleOccupationFieldChange(
+                                                            e,
+                                                            occIndex,
+                                                            "income"
+                                                        )
+                                                    }
+                                                    placeholder="Enter Income"
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `occupations.${occIndex}.income`
+                                                        ]
+                                                    }
+                                                    className="mt-2"
+                                                />
+                                            </div>
+                                            <div>
+                                                <SelectField
+                                                    label="Income Frequency"
+                                                    name="income_frequency"
+                                                    value={
+                                                        occupation.income_frequency ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleOccupationFieldChange(
+                                                            e,
+                                                            occIndex,
+                                                            "income_frequency"
+                                                        )
+                                                    }
+                                                    items={[
+                                                        {
+                                                            label: "Daily",
+                                                            value: "daily",
+                                                        },
+                                                        {
+                                                            label: "Bi-weekly",
+                                                            value: "bi_weekly",
+                                                        },
+                                                        {
+                                                            label: "Weekly",
+                                                            value: "weekly",
+                                                        },
+                                                        {
+                                                            label: "Monthly",
+                                                            value: "monthly",
+                                                        },
+                                                        {
+                                                            label: "Annually",
+                                                            value: "annually",
+                                                        },
+                                                    ]}
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `occupations.${occIndex}.income_frequency`
+                                                        ]
+                                                    }
+                                                    className="mt-2"
+                                                />
+                                            </div>
+                                            <div>
+                                                <RadioGroup
+                                                    label="Overseas Filipino Worker"
+                                                    name="is_ofw"
+                                                    selectedValue={
+                                                        occupation.is_ofw || ""
+                                                    }
+                                                    options={[
+                                                        {
+                                                            label: "Yes",
+                                                            value: 1,
+                                                        },
+                                                        {
+                                                            label: "No",
+                                                            value: 0,
+                                                        },
+                                                    ]}
+                                                    onChange={(e) =>
+                                                        handleOccupationFieldChange(
+                                                            e,
+                                                            occIndex,
+                                                            "is_ofw"
+                                                        )
+                                                    }
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `occupations.${occIndex}.is_ofw`
+                                                        ]
+                                                    }
+                                                    className="mt-2"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                removeOccupation(occIndex)
+                                            }
+                                            className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
+                                        >
+                                            <IoIosCloseCircleOutline className="text-2xl" />
+                                        </button>
+                                    </div>
+                                ))}
+                            <div className="flex justify-between items-center p-3">
+                                <button
+                                    type="button"
+                                    onClick={addOccupation}
+                                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
+                                >
+                                    <IoIosAddCircleOutline className="text-2xl" />
+                                    <span>Add Occupation</span>
+                                </button>
+                                <Button
+                                    className="bg-blue-700 hover:bg-blue-400 "
+                                    type={"submit"}
+                                >
+                                    Add <MoveRight />
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                )}
+                {modalState === "view" ? (
+                    selectedResident ? (
+                        <PersonDetailContent person={selectedResident} />
+                    ) : null
+                ) : null}
+            </SidebarModal>
         </AdminLayout>
     );
 }

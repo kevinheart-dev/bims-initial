@@ -14,6 +14,7 @@ import {
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router, usePage, useForm } from "@inertiajs/react";
 import { useEffect } from "react";
+import useResidentChangeHandler from "@/hooks/handleResidentChange";
 
 export default function Create({
     auth,
@@ -65,6 +66,7 @@ export default function Create({
         has_pets: null,
         pets: [],
     });
+    const handleResidentChange = useResidentChangeHandler(residents, setData);
 
     const onSubmit = (e) => {
         e.preventDefault();
@@ -91,25 +93,6 @@ export default function Create({
         }`,
         value: res.id.toString(),
     }));
-
-    const handleResidentChange = (e) => {
-        const resident_id = Number(e.target.value);
-        const resident = residents.find((r) => r.id == resident_id);
-        if (resident) {
-            setData("resident_id", resident.id);
-            setData(
-                "fullname",
-                `${resident.firstname} ${resident.middlename} ${
-                    resident.lastname
-                } ${resident.suffix ?? ""}`
-            );
-            setData("gender", resident.gender);
-            setData("birthdate", resident.birthdate);
-            setData("residency_date", resident.residency_date);
-            setData("residency_type", resident.residency_type);
-            setData("resident_image", resident.resident_picture_path);
-        }
-    };
 
     return (
         <AdminLayout>
