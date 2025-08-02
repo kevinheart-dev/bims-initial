@@ -100,7 +100,7 @@ const items = [
             },
             {
                 title: "Certificate Issuance",
-                url: "/barangay_officer/document/certificateissuance",
+                url: "/barangay_officer/certificate/index",
                 icon: FileText,
             },
             { title: "View Certificates", url: "#", icon: FileText },

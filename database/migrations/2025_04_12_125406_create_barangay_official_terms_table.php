@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('barangay_official_terms', function (Blueprint $table) {
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->date('term_start');
-            $table->date('term_end');
+            $table->year('term_start');
+            $table->year('term_end');
+            $table->enum('status', ['active', 'inactive', 'ended'])->default('active');
             $table->timestamps();
         });
     }

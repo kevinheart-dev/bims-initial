@@ -29,10 +29,13 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::get('/document/preview/{id}', [DocumentController::class, 'preview'])->name('document.preview');
     Route::get('/document/fetchdocuments', [DocumentController::class, 'fetchDocuments'])->name('document.fetchdocs');
     Route::get('/document/fetchdocumentpath/{id}', [DocumentController::class, 'fetchDocumentPath'])->name('document.documentpath');
-    Route::get('/document/certificateissuance', [DocumentController::class, 'certificateIssuance'])->name('document.issuance');
     Route::get('/document/fetchplaceholders/{id}', [DocumentController::class, 'fetchPlaceholders'])->name('document.placeholders');
 
+    Route::get('/certificate/{id}/download', [CertificateController::class, 'download'])->name('certificate.download');
+    Route::get('/certificate/{id}/print', [CertificateController::class, 'print'])->name('certificate.print');
+    Route::get('/certificate/index', [CertificateController::class, 'index'])->name('certificate.index');
     Route::post('/certificate/store', [CertificateController::class, 'storeFromPost'])->name('certificate.store');
+
 
     // family
     Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('resident.familytree');

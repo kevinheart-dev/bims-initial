@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Allergy;
 use App\Models\Barangay;
 use App\Models\BarangayOfficial;
+use App\Models\BarangayOfficialTerm;
 use App\Models\Designation;
 use App\Models\Disability;
 use App\Models\DisasterRisk;
@@ -65,6 +66,14 @@ class DatabaseSeeder extends Seeder
         Street::factory(15)->create();
         Household::factory(3)->create();
         Family::factory(3)->create();
+
+        $term = BarangayOfficialTerm::factory()->create([
+            'barangay_id' => 1,
+            'term_start' => 2022,
+            'term_end' => 2025,
+            'status' => 'active',
+        ]);
+
         $barangayOfficer = Role::firstOrCreate(['name' => 'barangay_officer']);
         $user = User::factory()->create([
             'resident_id' => Resident::factory(),
@@ -77,6 +86,17 @@ class DatabaseSeeder extends Seeder
             'status' => 'active'
         ]);
         $user->assignRole($barangayOfficer);
+
+        BarangayOfficial::factory()->create([
+            'resident_id' => $user->resident->id,
+            'term_id' => 1,
+            'position' => 'barangay_secretary',
+            'status' => 'active',
+            'appointment_type' => 'appointed',
+            'appointted_by' => null,
+            'appointment_reason' => null,
+            'remarks' => null,
+        ]);
 
         $barangayOfficer = Role::firstOrCreate(['name' => 'barangay_officer']);
         $user = User::factory()->create([

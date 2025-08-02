@@ -234,6 +234,8 @@ class Resident extends Model
     {
         return $this->hasOne(MedicalInformation::class);
     }
+
+
     public function getAgeAttribute()
     {
         return Carbon::parse($this->birthdate)->age;

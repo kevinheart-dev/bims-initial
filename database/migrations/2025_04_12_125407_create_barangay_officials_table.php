@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
             $table->foreignId('term_id')->constrained('barangay_official_terms')->onDelete('cascade');
-
             $table->enum('position', [
                 'barangay_captain',
                 'barangay_secretary',

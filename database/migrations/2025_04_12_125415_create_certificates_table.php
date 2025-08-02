@@ -20,6 +20,9 @@ return new class extends Migration
             $table->text('purpose');
             $table->date('issued_at');
             $table->foreignId('issued_by')->constrained('barangay_officials')->onDelete('cascade'); // Assuming `users` is the table for issued_by.
+            $table->text('docx_path')->nullable(); // Path to the certificate file
+            $table->text('pdf_path')->nullable(); // Path to the generated PDF file, if applicable
+            $table->string('control_number')->nullable(); // Optional control number field
             $table->timestamps();
         });
     }

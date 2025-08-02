@@ -6,9 +6,15 @@ import {
     SelectItem,
 } from "@/components/ui/select";
 import ClearFilterButton from "@/Components/ClearFiltersButton";
-import { INCOME_BRACKETS } from "@/constants";
+import {
+    BARANGAY_OFFICIAL_POSITIONS_TEXT,
+    CERTIFICATE_REQUEST_STATUS_TEXT,
+    INCOME_BRACKETS,
+} from "@/constants";
 import { useState, useRef, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const FilterToggle = ({
     queryParams,
@@ -21,6 +27,7 @@ const FilterToggle = ({
     pensionTypes = [],
     vehicle_types = [],
     months = [],
+    certificateTypes = [],
     clearRouteName = "",
     clearRouteParams = {},
 }) => {
@@ -825,6 +832,94 @@ const FilterToggle = ({
                 </Select>
             )}
 
+            {/* Certificate */}
+            {isVisible("certificate_type") && (
+                <Select
+                    onValueChange={(type) =>
+                        searchFieldName("certificate_type", type)
+                    }
+                    value={queryParams.certificate_type}
+                >
+                    <SelectTrigger className="w-[160px]">
+                        <SelectValue placeholder="All Certificates" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {certificateTypes.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                                {type.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+
+            {isVisible("request_status") && (
+                <Select
+                    onValueChange={(status) =>
+                        searchFieldName("request_status", status)
+                    }
+                    value={queryParams.request_status}
+                >
+                    <SelectTrigger className="w-[160px]">
+                        <SelectValue placeholder="All Statuses" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {Object.entries(CERTIFICATE_REQUEST_STATUS_TEXT).map(
+                            ([value, label]) => (
+                                <SelectItem key={value} value={value}>
+                                    {label}
+                                </SelectItem>
+                            )
+                        )}
+                    </SelectContent>
+                </Select>
+            )}
+
+            {isVisible("issued_by") && (
+                <Select
+                    onValueChange={(e) => searchFieldName("issued_by", e)}
+                    value={queryParams.issued_by}
+                >
+                    <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="All Officers" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {Object.entries(BARANGAY_OFFICIAL_POSITIONS_TEXT).map(
+                            ([value, label]) => (
+                                <SelectItem key={value} value={value}>
+                                    {label}
+                                </SelectItem>
+                            )
+                        )}
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("issued_at") && (
+                <div className="flex items-center gap-2">
+                    <DatePicker
+                        selected={
+                            queryParams.issued_at
+                                ? new Date(queryParams.issued_at)
+                                : null
+                        }
+                        onChange={(date) => {
+                            const formatted = date
+                                ? date.toLocaleDateString("en-CA")
+                                : "";
+                            searchFieldName("issued_at", formatted);
+                        }}
+                        dateFormat="yyyy-MM-dd"
+                        className="border rounded px-2 py-1 w-[180px]"
+                        placeholderText="Date Issued"
+                        popperContainer={({ children }) => (
+                            <div className="z-[9999]">{children}</div>
+                        )}
+                    />
+                </div>
+            )}
+
+            {/* Clear Filters Button */}
             <div className="flex justify-end ml-auto">
                 <ClearFilterButton
                     routeName={clearRouteName}

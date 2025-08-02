@@ -374,3 +374,39 @@ export const INCOME_BRACKETS = {
         className: "bg-blue-100 text-blue-700",
     },
 };
+
+export const CERTIFICATE_REQUEST_STATUS_TEXT = {
+    pending: "Pending",
+    approved: "Approved",
+    denied: "Denied",
+    issued: "Issued",
+};
+
+export const CERTIFICATE_REQUEST_STATUS_CLASS = {
+    pending: "bg-yellow-100 p-1 rounded-lg text-yellow-800",
+    approved: "bg-blue-100 p-1 rounded-lg text-blue-800",
+    denied: "bg-red-100 p-1 rounded-lg text-red-800",
+    issued: "bg-green-100 p-1 rounded-lg text-green-800",
+};
+
+export const BARANGAY_OFFICIAL_POSITIONS_TEXT = {
+    barangay_captain: "Barangay Captain",
+    barangay_secretary: "Barangay Secretary",
+    barangay_treasurer: "Barangay Treasurer",
+    councilor: "Councilor",
+    sk_chairman: "SK Chairman",
+    sk_member: "SK Member",
+    health_worker: "Health Worker",
+    tanod: "Tanod",
+};
+
+export const BARANGAY_OFFICIAL_POSITIONS_CLASS = {
+    barangay_captain: "bg-blue-100 text-blue-800",
+    barangay_secretary: "bg-purple-100 text-purple-800",
+    barangay_treasurer: "bg-yellow-100 text-yellow-800",
+    councilor: "bg-green-100 text-green-800",
+    sk_chairman: "bg-pink-100 text-pink-800",
+    sk_member: "bg-indigo-100 text-indigo-800",
+    health_worker: "bg-teal-100 text-teal-800",
+    tanod: "bg-red-100 text-red-800",
+};

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use App\Models\Resident;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use PhpOffice\PhpWord\TemplateProcessor;
 
@@ -20,17 +21,6 @@ class DocumentController extends Controller
         $documents = $query->get();
         return Inertia::render('BarangayOfficer/Document/Index', [
             'documents' => $documents
-        ]);
-    }
-    public function certificateIssuance()
-    {
-        $barangay_id = auth()->user()->resident->barangay_id;
-        $query = Document::where('barangay_id',  $barangay_id);
-        $documents = $query->get();
-        $residents = Resident::whereBarangayId($barangay_id)->with('latestHousehold')->get();
-        return Inertia::render('BarangayOfficer/Document/CertificateIssuance', [
-            'documents' => $documents,
-            'residents' => $residents
         ]);
     }
     // axios
@@ -100,14 +90,14 @@ class DocumentController extends Controller
         $file = $data['file'];
         $originalName = $file->getClientOriginalName();
         $barangayName = $barangay->barangay_name;
-        $path = $file->storeAs("documents/templates/{$barangayName}", $originalName, 'public');
+        $barangaySlug = Str::slug($barangayName);
+        $path = $file->storeAs("documents/templates/{$barangaySlug}", $originalName, 'public');
         Document::create([
             'barangay_id' =>  $barangay->id,
             'name' => $originalName,
             'template_path' => $path,
         ]);
         return back()->with('success', 'Document uploaded.');
-
     }
 
     public function preview($id)
