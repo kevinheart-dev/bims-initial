@@ -39,7 +39,7 @@ export default function Index({
 }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
-        { label: "Documents", showOnMobile: true },
+        { label: "Certificate Issuance", showOnMobile: true },
     ];
     const APP_URL = useAppUrl();
 

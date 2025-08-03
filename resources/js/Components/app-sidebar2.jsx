@@ -47,6 +47,23 @@ const items = [
         submenu: [],
     },
     {
+        title: "Barangay",
+        url: "#",
+        icon: FileStack,
+        submenu: [
+            {
+                title: "Barangay Profile",
+                url: "#",
+                icon: FileText,
+            },
+            {
+                title: "Barangay Officials",
+                url: "#",
+                icon: FileText,
+            },
+        ],
+    },
+    {
         title: "Residents Information",
         url: "#",
         icon: FileUser,
@@ -103,7 +120,6 @@ const items = [
                 url: "/barangay_officer/certificate/index",
                 icon: FileText,
             },
-            { title: "View Certificates", url: "#", icon: FileText },
         ],
     },
     {

@@ -75,6 +75,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $barangayOfficer = Role::firstOrCreate(['name' => 'barangay_officer']);
+
         $user = User::factory()->create([
             'resident_id' => Resident::factory(),
             'barangay_id' => 1,
@@ -85,6 +86,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
             'status' => 'active'
         ]);
+
         $user->assignRole($barangayOfficer);
 
         BarangayOfficial::factory()->create([

@@ -54,6 +54,7 @@ class SeniorCitizenController extends Controller
             $query->where('purok_number', request('purok'));
         }
         $seniorCitizens = $query->get();
+        //$seniorCitizens = $query->paginate(10)->withQueryString();
         return Inertia::render('BarangayOfficer/SeniorCitizen/Index', [
             'seniorCitizens' => $seniorCitizens,
             'puroks' => $puroks,
