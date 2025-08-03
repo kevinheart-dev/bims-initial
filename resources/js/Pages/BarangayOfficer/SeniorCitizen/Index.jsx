@@ -9,6 +9,7 @@ import {
     Eye,
     HousePlus,
     MoveRight,
+    RotateCcw,
     Search,
     SquarePen,
     Trash2,
@@ -586,7 +587,11 @@ export default function Index({
                                 </div>
                             </div>
                         )}
-                        <div className="justify-end text-end mt-5">
+                        <div className="flex justify-end items-center text-end mt-5 gap-4">
+                            <Button type="button" onClick={() => reset()}>
+                                <RotateCcw /> Reset
+                            </Button>
+
                             <Button
                                 className="bg-blue-700 hover:bg-blue-400"
                                 type={"submit"}

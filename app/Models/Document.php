@@ -13,7 +13,8 @@ class Document extends Model
     protected $fillable = [
         'barangay_id',
         'name',
-        'template_path',
+        'file_path',
+        'description',
     ];
 
     public function barangay()

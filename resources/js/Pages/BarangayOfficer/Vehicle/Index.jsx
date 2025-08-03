@@ -2,7 +2,14 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router, useForm } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, SquarePen, Trash2, SquarePlus, MoveRight } from "lucide-react";
+import {
+    Search,
+    SquarePen,
+    Trash2,
+    SquarePlus,
+    MoveRight,
+    RotateCcw,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import { Toaster, toast } from "sonner";
@@ -597,12 +604,20 @@ export default function Index({
                                                         Add Vehicle
                                                     </span>
                                                 </button>
-                                                <Button
-                                                    className="bg-blue-700 hover:bg-blue-400 "
-                                                    type={"submit"}
-                                                >
-                                                    Add <MoveRight />
-                                                </Button>
+                                                <div className="flex justify-end items-center gap-2">
+                                                    <Button
+                                                        type="button"
+                                                        onClick={() => reset()}
+                                                    >
+                                                        <RotateCcw /> Reset
+                                                    </Button>
+                                                    <Button
+                                                        className="bg-blue-700 hover:bg-blue-400 "
+                                                        type={"submit"}
+                                                    >
+                                                        Add <MoveRight />
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </div>
                                     </form>

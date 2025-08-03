@@ -18,9 +18,14 @@ class DocumentController extends Controller
     {
         $barangay_id = auth()->user()->resident->barangay_id;
         $query = Document::where('barangay_id',  $barangay_id);
+        if ($search = trim(request('name', ''))) {
+            $query->where('name', 'like', "%{$search}%");
+        }
         $documents = $query->get();
         return Inertia::render('BarangayOfficer/Document/Index', [
-            'documents' => $documents
+            'documents' => $documents,
+            'queryParams' => request()->query() ?: null,
+            'success' => session('success'),
         ]);
     }
     // axios
@@ -86,6 +91,8 @@ class DocumentController extends Controller
         $barangay = auth()->user()->resident->barangay;
         $data = $request->validate([
             'file' => 'required|file|mimes:docx,doc,pdf,txt|max:10240', // 10MB max
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:255',
         ]);
         $file = $data['file'];
         $originalName = $file->getClientOriginalName();
@@ -94,10 +101,11 @@ class DocumentController extends Controller
         $path = $file->storeAs("documents/templates/{$barangaySlug}", $originalName, 'public');
         Document::create([
             'barangay_id' =>  $barangay->id,
-            'name' => $originalName,
-            'template_path' => $path,
+            'name' => $data['name'] ?? $originalName,
+            'file_path' => $path,
+            'description' => $data['description'] ?? null,
         ]);
-        return back()->with('success', 'Document uploaded.');
+        return back()->with('success', "{$data['name']} Document uploaded.");
     }
 
     public function preview($id)
@@ -109,7 +117,7 @@ class DocumentController extends Controller
         }
 
         // Sanitize the file path
-        $relativePath = str_replace('\\', '/', $document->template_path);
+        $relativePath = str_replace('\\', '/', $document->file_path);
         $filePath = storage_path('app/' . $relativePath);
         dd($filePath);
         if (!file_exists($filePath)) {

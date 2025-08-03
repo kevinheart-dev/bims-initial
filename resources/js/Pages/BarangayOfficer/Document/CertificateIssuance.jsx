@@ -7,6 +7,7 @@ import {
     FileText,
     FileUp,
     PrinterIcon,
+    RotateCcw,
     Search,
     SquarePlus,
     Trash2,
@@ -144,11 +145,6 @@ export default function Index({
         if (!data.purpose || data.purpose.trim() === "")
             newErrors.purpose = "Purpose is required.";
 
-        toast.loading("Issuing document...", {
-            duration: 5000,
-            className: "bg-blue-100 text-blue-800",
-        });
-
         // Validate dynamic placeholders
         (data.placeholders || [])
             .filter(
@@ -213,6 +209,10 @@ export default function Index({
         };
 
         try {
+            toast.loading("Issuing document...", {
+                duration: 5000,
+                className: "bg-blue-100 text-blue-800",
+            });
             const response = await axios.post(
                 route("certificate.store"),
                 payload,
@@ -829,8 +829,14 @@ export default function Index({
                                                     </div>
                                                 ))}
                                         </div>
+                                        <div className="flex w-full justify-between items-center mt-7">
+                                            <Button
+                                                type="button"
+                                                onClick={() => reset()}
+                                            >
+                                                <RotateCcw /> Reset
+                                            </Button>
 
-                                        <div className="flex w-full justify-center items-center mt-7">
                                             <Button
                                                 onClick={handleIssue}
                                                 className="bg-blue-700 hover:bg-blue-400"
@@ -839,7 +845,7 @@ export default function Index({
                                                     !data.document_id
                                                 }
                                             >
-                                                Issue
+                                                Issue Certificate
                                             </Button>
                                         </div>
                                     </div>
