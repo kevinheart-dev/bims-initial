@@ -15,6 +15,7 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router, usePage, useForm } from "@inertiajs/react";
 import { useEffect } from "react";
 import useResidentChangeHandler from "@/hooks/handleResidentChange";
+import { RotateCcw } from "lucide-react";
 
 export default function Create({
     auth,
@@ -33,7 +34,7 @@ export default function Create({
         { label: "Create a Household", showOnMobile: true },
     ];
     const { error } = usePage().props.errors;
-    const { data, setData, post, errors } = useForm({
+    const { data, setData, post, errors, reset } = useForm({
         resident_id: null,
         fullname: "",
         birthdate: "",
@@ -218,8 +219,17 @@ export default function Create({
                                         head={true}
                                     />
                                     {/* Submit Button */}
-                                    <div className="flex w-full justify-center items-center mt-7">
-                                        <Button className="w-40" type="submit">
+                                    <div className="flex w-full justify-end items-center mt-7 gap-4">
+                                        <Button
+                                            type="button"
+                                            onClick={() => reset()}
+                                        >
+                                            <RotateCcw /> Reset
+                                        </Button>
+                                        <Button
+                                            className="w-40 bg-blue-700 hover:bg-blue-400"
+                                            type="submit"
+                                        >
                                             Submit
                                         </Button>
                                     </div>

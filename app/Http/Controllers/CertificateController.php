@@ -54,6 +54,24 @@ class CertificateController extends Controller
             }
         }
 
+        $search = trim(request('name', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('resident', function ($r) use ($search) {
+                    $r->where(function ($rr) use ($search) {
+                        $rr->where('firstname', 'like', "%{$search}%")
+                        ->orWhere('middlename', 'like', "%{$search}%")
+                        ->orWhere('lastname', 'like', "%{$search}%")
+                        ->orWhere('suffix', 'like', "%{$search}%");
+                    });
+                })
+                ->orWhere('purpose', 'like', "%{$search}%")
+                ->orWhereHas('document', function ($d) use ($search) {
+                    $d->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
         $certificates = $query->get();
 
         if (request()->boolean('success')) {
@@ -223,7 +241,7 @@ class CertificateController extends Controller
         DB::beginTransaction();
 
         try {
-            $templatePath = storage_path("app/public/{$template->template_path}");
+            $templatePath = storage_path("app/public/{$template->file_path}");
             if (!file_exists($templatePath)) {
                 throw new \Exception('Template file not found.');
             }

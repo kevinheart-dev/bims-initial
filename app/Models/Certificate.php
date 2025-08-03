@@ -20,6 +20,7 @@ class Certificate extends Model
         'issued_by',
         'docx_path',
         'pdf_path',
+        'control_number',
     ];
 
     public function resident()

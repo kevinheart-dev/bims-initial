@@ -21,6 +21,7 @@ import {
     GraduationCap,
     BookOpen,
     School,
+    RotateCcw,
 } from "lucide-react";
 
 import {
@@ -722,12 +723,20 @@ export default function Index({
                                         <IoIosAddCircleOutline className="text-4xl" />
                                         <span className="ml-1">Add Member</span>
                                     </button>
-                                    <Button
-                                        className="bg-blue-700 hover:bg-blue-400 "
-                                        type={"submit"}
-                                    >
-                                        Add <MoveRight />
-                                    </Button>
+                                    <div className="flex justify-end items-center gap-2">
+                                        <Button
+                                            type="button"
+                                            onClick={() => reset()}
+                                        >
+                                            <RotateCcw /> Reset
+                                        </Button>
+                                        <Button
+                                            className="bg-blue-700 hover:bg-blue-400 "
+                                            type={"submit"}
+                                        >
+                                            Add <MoveRight />
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         </form>

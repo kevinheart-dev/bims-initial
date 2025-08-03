@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->string('name', 150);
-            $table->text('template_path');
+            $table->string('description', 255)->nullable();
+            $table->text('file_path')->nullable();
             $table->timestamps();
         });
     }

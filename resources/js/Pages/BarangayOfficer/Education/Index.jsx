@@ -9,6 +9,7 @@ import {
     Eye,
     HousePlus,
     MoveRight,
+    RotateCcw,
     Search,
     SquarePen,
     SquarePlus,
@@ -824,12 +825,20 @@ export default function Index({
                                         <IoIosAddCircleOutline className="text-2xl" />
                                         <span>Add Edicational History</span>
                                     </button>
-                                    <Button
-                                        className="bg-blue-700 hover:bg-blue-400 "
-                                        type={"submit"}
-                                    >
-                                        Add <IoIosArrowForward />
-                                    </Button>
+                                    <div className="flex justify-end items-center gap-2">
+                                        <Button
+                                            type="button"
+                                            onClick={() => reset()}
+                                        >
+                                            <RotateCcw /> Reset
+                                        </Button>
+                                        <Button
+                                            className="bg-blue-700 hover:bg-blue-400 "
+                                            type={"submit"}
+                                        >
+                                            Add <MoveRight />
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         </form>
