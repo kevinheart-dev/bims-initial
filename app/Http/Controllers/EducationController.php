@@ -59,7 +59,7 @@ class EducationController extends Controller
 
 
         if (request()->filled('name')) {
-            $search = request()->input('namemarcel');
+            $search = request()->input('name');
             $query->where(function ($q) use ($search) {
                 $q->whereHas('resident', function ($qr) use ($search) {
                     $qr->whereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ["%{$search}%"])

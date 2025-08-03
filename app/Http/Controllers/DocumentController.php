@@ -55,13 +55,13 @@ class DocumentController extends Controller
         }
 
         return response()->json([
-            'document' => $document->template_path, // or actual path field
+            'document' => $document->file_path, // or actual path field
         ]);
     }
     public function fetchPlaceholders($id)
     {
         $template = Document::findOrFail($id);
-        $templatePath = storage_path("app/public/{$template->template_path}");
+        $templatePath = storage_path("app/public/{$template->file_path}");
 
         if (!file_exists($templatePath)) {
             return response()->json(['error' => 'Template file not found.'], 404);

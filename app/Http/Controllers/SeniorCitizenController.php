@@ -38,6 +38,21 @@ class SeniorCitizenController extends Controller
             ->with(['seniorcitizen:id,resident_id,osca_id_number,is_pensioner,pension_type,living_alone'])
             ->leftJoin('senior_citizens', 'residents.id', '=', 'senior_citizens.resident_id');
 
+        if ($name = request('name')) {
+            $query->where(function ($q) use ($name) {
+                $q->where('firstname', 'like', "%{$name}%")
+                    ->orWhere('lastname', 'like', "%{$name}%")
+                    ->orWhere('middlename', 'like', "%{$name}%")
+                    ->orWhere('suffix', 'like', "%{$name}%")
+                    ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%{$name}%"])
+                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ["%{$name}%"])
+                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ["%{$name}%"]);
+            });
+
+}
+
+
+
         // Filters
         if (request()->filled('is_pensioner') && request('is_pensioner') !== 'All') {
             $query->where('senior_citizens.is_pensioner', request('is_pensioner'));

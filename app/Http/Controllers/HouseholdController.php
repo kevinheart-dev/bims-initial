@@ -25,27 +25,55 @@ class HouseholdController extends Controller
         $brgy_id = Auth()->user()->resident->barangay_id;
         $query = Household::query()
             ->select([
-                'id',
-                'barangay_id',
-                'purok_id',
-                'street_id',
-                'house_number',
-                'ownership_type',
-                'housing_condition',
-                'year_established',
-                'house_structure',
-                'number_of_rooms',
-                'number_of_floors',
+                'households.id',
+                'households.barangay_id',
+                'households.purok_id',
+                'households.street_id',
+                'households.house_number',
+                'households.ownership_type',
+                'households.housing_condition',
+                'households.year_established',
+                'households.house_structure',
+                'households.number_of_rooms',
+                'households.number_of_floors',
             ])
-            ->where("barangay_id", $brgy_id)
-            ->with([
+            ->where('households.barangay_id', $brgy_id);
+
+        // head-of-household name search
+        if ($name = request('name')) {
+            $name = trim($name);
+            $parts = collect(explode(' ', $name))
+                ->filter(fn($p) => $p !== '')
+                ->values();
+
+            $query->whereHas('householdResidents', function ($hr) use ($parts, $name) {
+                $hr->where('relationship_to_head', 'self')
+                    ->whereHas('resident', function ($r) use ($parts, $name) {
+                        $r->where(function ($w) use ($parts, $name) {
+                            foreach ($parts as $part) {
+                                $w->orWhere('firstname', 'like', "%{$part}%")
+                                ->orWhere('lastname', 'like', "%{$part}%")
+                                ->orWhere('middlename', 'like', "%{$part}%")
+                                ->orWhere('suffix', 'like', "%{$part}%");
+                            }
+
+                            // full name variants
+                            $w->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%{$name}%"])
+                            ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ["%{$name}%"])
+                            ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ["%{$name}%"]);
+                        });
+                    });
+            });
+        }
+
+        $query->with([
                 'street:id,street_name',
                 'purok:id,purok_number',
-                'householdResidents' => function ($query) {
-                    $query->where('relationship_to_head', 'self')
-                        ->with([
-                            'resident:id,firstname,lastname,middlename,suffix'
-                        ]);
+                'householdResidents' => function ($q) {
+                    $q->where('relationship_to_head', 'self')
+                    ->with([
+                        'resident:id,firstname,lastname,middlename,suffix',
+                    ]);
                 },
             ])
             ->withCount('residents');

@@ -387,10 +387,10 @@ class CertificateController extends Controller
         }
 
         // for docx
-        return Storage::disk('public')->download($certificate->docx_path);
+        //return Storage::disk('public')->download($certificate->docx_path);
 
         // for pdf
-        //return Storage::disk('public')->download($certificate->pdf_path, basename($certificate->pdf_path));
+        return Storage::disk('public')->download($certificate->pdf_path, basename($certificate->pdf_path));
     }
 
 }

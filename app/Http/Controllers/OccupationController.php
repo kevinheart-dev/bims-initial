@@ -38,14 +38,25 @@ class OccupationController extends Controller
                 $q->where('barangay_id', $brgy_id);
             });
 
-        if (request()->filled('name')) {
-            $search = request()->input('name');
+        if ($search = trim(request('name', ''))) {
+            $terms = preg_split('/\s+/', $search);
 
-            $query->where(function ($q) use ($search) {
-                $q->where('occupation', 'like', "%{$search}%")
-                    ->orWhereHas('resident', function ($subQuery) use ($search) {
-                        $subQuery->whereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ["%{$search}%"]);
-                    });
+            $query->where(function ($q) use ($terms, $search) {
+                // occupation match
+                $q->where('occupation', 'like', "%{$search}%");
+
+                // OR resident full name match (all terms must appear somewhere in name parts)
+                $q->orWhereHas('resident', function ($r) use ($terms) {
+                    foreach ($terms as $term) {
+                        $r->where(function ($r2) use ($term) {
+                            $like = "%{$term}%";
+                            $r2->where('firstname', 'like', $like)
+                                ->orWhere('middlename', 'like', $like)
+                                ->orWhere('lastname', 'like', $like)
+                                ->orWhere('suffix', 'like', $like);
+                        });
+                    }
+                });
             });
         }
 

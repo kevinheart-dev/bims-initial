@@ -3,6 +3,7 @@ import { Head, Link, router, useForm } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+    FileCheck2,
     FilePlus2,
     FileUp,
     Search,
@@ -288,17 +289,32 @@ export default function Index({ documents, success = null, queryParams }) {
                                         className="w-full text-sm hidden"
                                     />
                                     <div
-                                        className="flex items-center justify-center h-full border-2 border-blue-300 border-dashed rounded-md bg-white hover:bg-gray-50 cursor-pointer"
+                                        className={`flex items-center justify-center h-full border-2 border-blue-300 border-dashed rounded-md cursor-pointer${
+                                            data.file
+                                                ? " bg-blue-300"
+                                                : " bg-gray-50"
+                                        }`}
                                         onClick={handleDivClick}
                                         type="button"
                                     >
-                                        <FilePlus2 className="h-10 w-10 text-blue-500" />
+                                        <div className="flex flex-col items-center">
+                                            {data.file ? (
+                                                <FileCheck2 className="h-10 w-10 text-blue-500" />
+                                            ) : (
+                                                <FilePlus2 className="h-10 w-10 text-blue-500" />
+                                            )}
+                                            <p className="text-lg text-gray-600 mt-1 block">
+                                                {data.file
+                                                    ? data.file.name
+                                                    : "No file selected"}
+                                            </p>
+                                        </div>
                                     </div>
-                                    {data.file && (
+                                    {/* {data.file && (
                                         <p className="text-xs text-gray-600 mt-1">
                                             Selected: {data.file.name}
                                         </p>
-                                    )}
+                                    )} */}
                                     {errors.file && (
                                         <p className="text-xs text-red-600 mt-1">
                                             {errors.file}
