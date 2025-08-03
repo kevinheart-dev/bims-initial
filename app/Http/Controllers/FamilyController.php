@@ -51,7 +51,9 @@ class FamilyController extends Controller
             });
         }
 
-        $families = $query->get();
+        // $families = $query->get();
+        $families = $query->paginate(10)->withQueryString();
+
 
         $families->each(function ($resident) use ($brgyId) {
             $resident->family_member_count = $resident->family?->members
@@ -95,7 +97,7 @@ class FamilyController extends Controller
     {
         $data = $request->validated();
         $resident = HouseholdResident::where('resident_id', $data['resident_id'])->first();
-        try{
+        try {
             if (!empty($data['members'])) {
                 // Load all household members with relationship info
                 $members = $data['members'];
@@ -241,7 +243,7 @@ class FamilyController extends Controller
                 }
             }
             return redirect()->route('family.index')->with('success', 'Family added successfully!');
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             dd($e->getMessage());
             return back()->withErrors(['error' => 'Family could not be added: ' . $e->getMessage()]);
         }
@@ -257,7 +259,7 @@ class FamilyController extends Controller
 
     public function showFamily(Family $family)
     {
-        $family_details = $family->load('household','members');
+        $family_details = $family->load('household', 'members');
         $household_details = $family->household;
 
         $query = $family->members()->with('householdResidents');
@@ -266,12 +268,12 @@ class FamilyController extends Controller
         if (request()->filled('name')) {
             $query->where(function ($q) {
                 $q->where('firstname', 'like', '%' . request('name') . '%')
-                ->orWhere('lastname', 'like', '%' . request('name') . '%')
-                ->orWhere('middlename', 'like', '%' . request('name') . '%')
-                ->orWhere('suffix', 'like', '%' . request('name') . '%')
-                ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
-                ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
-                ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, suffix) LIKE ?", ['%' . request('name') . '%']);
+                    ->orWhere('lastname', 'like', '%' . request('name') . '%')
+                    ->orWhere('middlename', 'like', '%' . request('name') . '%')
+                    ->orWhere('suffix', 'like', '%' . request('name') . '%')
+                    ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
+                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
+                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, suffix) LIKE ?", ['%' . request('name') . '%']);
             });
         }
 

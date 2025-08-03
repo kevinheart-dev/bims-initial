@@ -20,8 +20,8 @@ class SeniorCitizenController extends Controller
         $brgy_id = Auth()->user()->resident->barangay_id;
         $today = Carbon::today();
         $puroks = Purok::where('barangay_id', $brgy_id)
-        ->orderBy('purok_number', 'asc')
-        ->pluck('purok_number');
+            ->orderBy('purok_number', 'asc')
+            ->pluck('purok_number');
         $query = Resident::query()
             ->select([
                 'residents.id',
@@ -53,7 +53,8 @@ class SeniorCitizenController extends Controller
         if (request()->filled('purok') && request('purok') !== 'All') {
             $query->where('purok_number', request('purok'));
         }
-        $seniorCitizens = $query->get();
+        // $seniorCitizens = $query->get();
+        $seniorCitizens = $query->paginate(10)->withQueryString();
         return Inertia::render('BarangayOfficer/SeniorCitizen/Index', [
             'seniorCitizens' => $seniorCitizens,
             'puroks' => $puroks,
@@ -76,7 +77,7 @@ class SeniorCitizenController extends Controller
     public function store(StoreSeniorCitizenRequest $request)
     {
         $data = $request->validated();
-        try{
+        try {
             SeniorCitizen::create([
                 'resident_id' => $data['resident_id'],
                 'is_pensioner' => $data['is_pensioner'],
@@ -85,7 +86,7 @@ class SeniorCitizenController extends Controller
                 'pension_type' => $data['is_pensioner'] === 'yes' ? $data['pension_type'] : null,
             ]);
             return redirect()->route('senior_citizen.index')->with('success', 'Resident registered successfully!');
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             dd($e->getMessage());
             return back()->withErrors(['error' => 'Resident could not be registered: ' . $e->getMessage()]);
         }

@@ -33,7 +33,7 @@ export default function PersonDetailContent({ person }) {
 
     return (
         <div className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg text-sm text-black p-4 space-y-4">
-
+            {/* <pre>{JSON.stringify(person, undefined, 2)}</pre> */}
             {/* ✅ Basic Info */}
             <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
                 <img
@@ -147,7 +147,7 @@ export default function PersonDetailContent({ person }) {
                     >
                         Social Welfare
                     </button>
-                    {person.senior_citizen && (
+                    {person.seniorcitizen && (
                         <button
                             onClick={() => setActiveTab("senior")}
                             className={`py-2 px-1 border-b-2 ${activeTab === "senior"
@@ -308,10 +308,10 @@ export default function PersonDetailContent({ person }) {
                         </h3>
                         <hr className="mb-2 border-gray-400" />
 
-                        {person.social_welfare_profile ? (
+                        {person.socialwelfareprofile ? (
                             <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
                                 <span className="font-medium text-left">Is 4Ps Beneficiary:</span>
-                                <span className="text-left">{person.social_welfare_profile.is_4ps_beneficiary ? "Yes" : "No"}</span>
+                                <span className="text-left">{person.socialwelfareprofile.is_4ps_beneficiary ? "Yes" : "No"}</span>
 
                                 <span className="font-medium text-left">Is PhilHealth Beneficiary:</span>
                                 <span className="text-left">{person.medical_information?.has_philhealth ? "Yes" : "No"}</span>
@@ -324,12 +324,12 @@ export default function PersonDetailContent({ person }) {
                                 )}
 
                                 <span className="font-medium text-left">Is Solo Parent:</span>
-                                <span className="text-left">{person.social_welfare_profile.is_solo_parent ? "Yes" : "No"}</span>
+                                <span className="text-left">{person.socialwelfareprofile.is_solo_parent ? "Yes" : "No"}</span>
 
-                                {person.social_welfare_profile.is_solo_parent === 1 && (
+                                {person.socialwelfareprofile.is_solo_parent === 1 && (
                                     <>
                                         <span className="font-medium text-left">Solo Parent ID:</span>
-                                        <span className="text-left">{person.social_welfare_profile.solo_parent_id_number}</span>
+                                        <span className="text-left">{person.socialwelfareprofile.solo_parent_id_number}</span>
                                     </>
                                 )}
                             </div>
@@ -348,19 +348,19 @@ export default function PersonDetailContent({ person }) {
                         </h3>
                         <hr className="mb-2 border-gray-400" />
 
-                        {person.senior_citizen ? (
+                        {person.seniorcitizen ? (
                             <div className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
                                 <span className="font-medium text-left">OSCA ID Number:</span>
-                                <span className="text-left">{person.senior_citizen.osca_id_number}</span>
+                                <span className="text-left">{person.seniorcitizen.osca_id_number}</span>
 
                                 <span className="font-medium text-left">Is Pensioner:</span>
-                                <span className="text-left capitalize">{person.senior_citizen.is_pensioner}</span>
+                                <span className="text-left capitalize">{person.seniorcitizen.is_pensioner}</span>
 
                                 <span className="font-medium text-left">Pension Type:</span>
-                                <span className="text-left capitalize">{person.senior_citizen.pension_type}</span>
+                                <span className="text-left capitalize">{person.seniorcitizen.pension_type}</span>
 
                                 <span className="font-medium text-left">Living Alone:</span>
-                                <span className="text-left">{person.senior_citizen.living_alone ? "Yes" : "No"}</span>
+                                <span className="text-left">{person.seniorcitizen.living_alone ? "Yes" : "No"}</span>
                             </div>
                         ) : (
                             <p className="text-sm text-gray-500 italic">No senior info available.</p>

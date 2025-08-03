@@ -21,7 +21,7 @@ class EducationController extends Controller
 
         $query = EducationalHistory::with([
             'resident:id,firstname,lastname,middlename,suffix,purok_number,barangay_id'
-            ])
+        ])
             ->select(
                 'id',
                 'resident_id',
@@ -37,23 +37,23 @@ class EducationController extends Controller
                 $q->where('barangay_id', $brgy_id);
             });
 
-        if (request()->filled('latest_education')){
-            if( request('latest_education') === '1') {
+        if (request()->filled('latest_education')) {
+            if (request('latest_education') === '1') {
                 $query = EducationalHistory::select('educational_histories.*')
-                ->join(DB::raw('(
+                    ->join(DB::raw('(
                     SELECT resident_id, MAX(year_ended) AS max_year
                     FROM educational_histories
                     GROUP BY resident_id
                 ) AS latest'), function ($join) {
-                    $join->on('educational_histories.resident_id', '=', 'latest.resident_id')
-                        ->on('educational_histories.year_ended', '=', 'latest.max_year');
-                })
-                ->with([
-                    'resident:id,firstname,lastname,middlename,suffix,purok_number,barangay_id'
-                ])
-                ->whereHas('resident', function ($q) use ($brgy_id) {
-                    $q->where('barangay_id', $brgy_id);
-                });
+                        $join->on('educational_histories.resident_id', '=', 'latest.resident_id')
+                            ->on('educational_histories.year_ended', '=', 'latest.max_year');
+                    })
+                    ->with([
+                        'resident:id,firstname,lastname,middlename,suffix,purok_number,barangay_id'
+                    ])
+                    ->whereHas('resident', function ($q) use ($brgy_id) {
+                        $q->where('barangay_id', $brgy_id);
+                    });
             }
         }
 
@@ -63,10 +63,10 @@ class EducationController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->whereHas('resident', function ($qr) use ($search) {
                     $qr->whereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ["%{$search}%"])
-                    ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%{$search}%"]);
+                        ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%{$search}%"]);
                 })
-                ->orWhere('school_name', 'like', "%{$search}%")
-                ->orWhere('program', 'like', "%{$search}%");
+                    ->orWhere('school_name', 'like', "%{$search}%")
+                    ->orWhere('program', 'like', "%{$search}%");
             });
         }
 
@@ -96,10 +96,10 @@ class EducationController extends Controller
         }
 
         $puroks = Purok::where('barangay_id', operator: $brgy_id)
-        ->orderBy('purok_number', 'asc')
-        ->pluck('purok_number');
+            ->orderBy('purok_number', 'asc')
+            ->pluck('purok_number');
 
-        $educations = $query->get();
+        $educations = $query->paginate(10)->withQueryString();
 
         $residents = Resident::where('barangay_id', $brgy_id)->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'birthdate')->get();
 
@@ -126,7 +126,7 @@ class EducationController extends Controller
     public function store(StoreEducationalHistoryRequest $request)
     {
         $data = $request->validated();
-        try{
+        try {
             foreach ($data['educational_histories'] as $history) {
                 EducationalHistory::create([
                     'resident_id' => $data['resident_id'],
@@ -140,7 +140,7 @@ class EducationController extends Controller
                 ]);
             }
             return redirect()->route('education.index')->with('success', 'Educational history added successfully!');
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             dd($e->getMessage());
             return back()->withErrors(['error' => 'Educational history could not be added: ' . $e->getMessage()]);
         }

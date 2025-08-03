@@ -20,6 +20,7 @@ import {
     UserPlus,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { IoIosArrowForward } from "react-icons/io";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
@@ -148,9 +149,8 @@ export default function Index({
         name: (row) => {
             const { firstname, middlename, lastname, suffix } =
                 row.resident ?? {};
-            const fullName = `${firstname ?? ""} ${middlename ?? ""} ${
-                lastname ?? ""
-            } ${suffix ?? ""}`.trim();
+            const fullName = `${firstname ?? ""} ${middlename ?? ""} ${lastname ?? ""
+                } ${suffix ?? ""}`.trim();
             return fullName || "—";
         },
 
@@ -164,14 +164,14 @@ export default function Index({
                 value === "employed"
                     ? "bg-green-100 text-green-800"
                     : value === "unemployed"
-                    ? "bg-red-100 text-red-800"
-                    : value === "self_employed"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : value === "student"
-                    ? "bg-blue-100 text-blue-800"
-                    : value === "under_employed"
-                    ? "bg-purple-100 text-purple-800"
-                    : "bg-gray-100 text-gray-700";
+                        ? "bg-red-100 text-red-800"
+                        : value === "self_employed"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : value === "student"
+                                ? "bg-blue-100 text-blue-800"
+                                : value === "under_employed"
+                                    ? "bg-purple-100 text-purple-800"
+                                    : "bg-gray-100 text-gray-700";
 
             return (
                 <span
@@ -200,12 +200,12 @@ export default function Index({
                 value === "active"
                     ? "bg-green-100 text-green-800"
                     : value === "inactive"
-                    ? "bg-red-100 text-red-800"
-                    : value === "retired"
-                    ? "bg-gray-100 text-gray-700"
-                    : value === "ended"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-gray-100 text-gray-700";
+                        ? "bg-red-100 text-red-800"
+                        : value === "retired"
+                            ? "bg-gray-100 text-gray-700"
+                            : value === "ended"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-gray-100 text-gray-700";
 
             return (
                 <span
@@ -229,11 +229,10 @@ export default function Index({
 
         is_ofw: (row) => (
             <span
-                className={`px-2 py-0.5 rounded-md text-xs font-medium ${
-                    row.is_ofw
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-700"
-                }`}
+                className={`px-2 py-0.5 rounded-md text-xs font-medium ${row.is_ofw
+                    ? "bg-green-100 text-green-800"
+                    : "bg-gray-100 text-gray-700"
+                    }`}
             >
                 {row.is_ofw ? "Yes" : "No"}
             </span>
@@ -284,9 +283,8 @@ export default function Index({
 
     // list of residents for dropdown
     const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
-            res.suffix ?? ""
-        }`,
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
+            }`,
         value: res.id.toString(),
     }));
 
@@ -578,7 +576,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `occupations.${occIndex}.employment_status`
+                                                        `occupations.${occIndex}.employment_status`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -609,7 +607,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `occupations.${occIndex}.occupation`
+                                                        `occupations.${occIndex}.occupation`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -656,7 +654,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `occupations.${occIndex}.employment_type`
+                                                        `occupations.${occIndex}.employment_type`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -707,7 +705,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `occupations.${occIndex}.occupation_status`
+                                                        `occupations.${occIndex}.occupation_status`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -746,7 +744,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `occupations.${occIndex}.work_arrangement`
+                                                        `occupations.${occIndex}.work_arrangement`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -773,7 +771,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `occupations.${occIndex}.employer`
+                                                        `occupations.${occIndex}.employer`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -799,7 +797,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `occupations.${occIndex}.started_at`
+                                                        `occupations.${occIndex}.started_at`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -828,7 +826,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `occupations.${occIndex}.ended_at`
+                                                        `occupations.${occIndex}.ended_at`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -855,7 +853,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `occupations.${occIndex}.income`
+                                                        `occupations.${occIndex}.income`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -902,7 +900,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `occupations.${occIndex}.income_frequency`
+                                                        `occupations.${occIndex}.income_frequency`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -936,7 +934,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `occupations.${occIndex}.is_ofw`
+                                                        `occupations.${occIndex}.is_ofw`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -968,7 +966,7 @@ export default function Index({
                                     className="bg-blue-700 hover:bg-blue-400 "
                                     type={"submit"}
                                 >
-                                    Add <MoveRight />
+                                    Add <IoIosArrowForward />
                                 </Button>
                             </div>
                         </form>
