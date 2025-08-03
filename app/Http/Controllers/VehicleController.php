@@ -54,7 +54,7 @@ class VehicleController extends Controller
             });
         }
 
-        $residentsWithVehicles = $query->get();
+        $residentsWithVehicles = $query->paginate(10)->withQueryString();
         // convert to single array
         $vehicles = [];
         $vehicle_types = [];
@@ -75,7 +75,7 @@ class VehicleController extends Controller
                     'usage_status'  => $vehicle->usage_status,
                     'quantity'      => $vehicle->quantity,
                 ];
-                if(!in_array($vehicle->vehicle_type, $vehicle_types)){
+                if (!in_array($vehicle->vehicle_type, $vehicle_types)) {
                     $vehicle_types[] = $vehicle->vehicle_type;
                 }
             }
@@ -106,7 +106,7 @@ class VehicleController extends Controller
     public function store(StoreVehicleRequest $request)
     {
         $data = $request->validated();
-        try{
+        try {
             foreach ($data['vehicles'] as $vehicle) {
                 Vehicle::create([
                     'resident_id'    => $data['resident_id'],
@@ -117,11 +117,10 @@ class VehicleController extends Controller
                 ]);
             }
             return redirect()->route('vehicle.index')->with('success', 'Vehicle addded successfully!');
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             dd($e->getMessage());
             return back()->withErrors(['error' => 'Vehicle could not be added: ' . $e->getMessage()]);
         }
-
     }
 
     /**

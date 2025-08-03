@@ -366,16 +366,18 @@ class ResidentController extends Controller
                 // Recompute family's total and average monthly income
                 $family = Family::with('members.occupations')->findOrFail($familyId);
                 $allIncomes = $family->members
-                        ->flatMap(fn($m) =>
-                            // Filter only active occupations
-                            $m->occupations->filter(fn($occupation) =>
-                                is_null($occupation->ended_at) || $occupation->ended_at >= now()
-                            )
+                    ->flatMap(
+                        fn($m) =>
+                        // Filter only active occupations
+                        $m->occupations->filter(
+                            fn($occupation) =>
+                            is_null($occupation->ended_at) || $occupation->ended_at >= now()
                         )
-                        // Extract income values
-                        ->pluck('monthly_income')
-                        // Remove nulls
-                        ->filter();
+                    )
+                    // Extract income values
+                    ->pluck('monthly_income')
+                    // Remove nulls
+                    ->filter();
 
                 $totalIncome = $allIncomes->avg();
 
@@ -872,7 +874,7 @@ class ResidentController extends Controller
                         }
                     }
 
-                    if($member['is_household_head'] == 1){
+                    if ($member['is_household_head'] == 1) {
                         HouseholdHeadHistory::create([
                             'resident_id' => $resident->id,
                             'household_id' => $household->id,
@@ -1214,18 +1216,22 @@ class ResidentController extends Controller
         ]);
     }
 
-    public function showResident($id){
-        $resident = Resident::with('educationalHistories',
+    public function showResident($id)
+    {
+        $resident = Resident::with(
+            'educationalHistories',
             'occupations',
             'medicalInformation',
             'seniorcitizen',
             'socialwelfareprofile',
+            'disabilities',
             'barangay',
             'street',
-            'street.purok')->findOrFail($id);
-            return response()->json([
-                'resident' => $resident,
-            ]);
+            'street.purok'
+        )->findOrFail($id);
+        return response()->json([
+            'resident' => $resident,
+        ]);
     }
 
     public function fetchResidents()
@@ -1251,5 +1257,4 @@ class ResidentController extends Controller
             'residents' => ResidentResource::collection($residents),
         ]);
     }
-
 }

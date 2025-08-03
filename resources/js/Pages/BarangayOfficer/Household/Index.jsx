@@ -3,6 +3,7 @@ import { Head, Link, router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+    Eye,
     Search,
     UserRoundPlus,
     HousePlus,
@@ -17,7 +18,6 @@ import { Toaster, toast } from "sonner";
 import ResidentTable from "@/Components/ResidentTable";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
-import ResidentFilterBar from "@/Components/ResidentFilterBar";
 import * as CONSTANTS from "@/constants";
 
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
@@ -180,6 +180,11 @@ export default function Index({ households, puroks, streets, queryParams }) {
         actions: (house) => (
             <ActionMenu
                 actions={[
+                    {
+                        label: "View",
+                        icon: <Eye className="w-4 h-4 text-indigo-600" />,
+                        onClick: () => router.visit(route("household.show", house.id)), // Inertia
+                    },
                     {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,

@@ -25,7 +25,7 @@ const DynamicTable = ({
     householdId = null,
     showTotal = false,
     visibleColumns = [],
-    setVisibleColumns = () => {},
+    setVisibleColumns = () => { },
 }) => {
     const contentRef = useRef();
     const reactToPrintFn = useReactToPrint({

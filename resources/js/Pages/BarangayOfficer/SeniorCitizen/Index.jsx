@@ -15,6 +15,7 @@ import {
     Trash2,
     UserPlus,
 } from "lucide-react";
+import { IoIosArrowForward } from "react-icons/io";
 import { useState, useEffect } from "react";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
@@ -280,15 +281,16 @@ export default function Index({
     });
 
     const handleRegister = (id) => {
-        const resident = seniorCitizens.find((r) => r.id == id);
+        const resident =
+            seniorCitizens.data.find((r) => r.id == id) ||
+            seniorCitizens.find((r) => r.id == id);
         if (resident) {
             setIsModalOpen(true);
             setRegisterSenior(resident);
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename} ${
-                    resident.lastname
+                `${resident.firstname} ${resident.middlename} ${resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("purok_number", resident.purok_number);
@@ -596,7 +598,7 @@ export default function Index({
                                 className="bg-blue-700 hover:bg-blue-400"
                                 type={"submit"}
                             >
-                                Register <MoveRight />
+                                Register <IoIosArrowForward />
                             </Button>
                         </div>
                     </form>
