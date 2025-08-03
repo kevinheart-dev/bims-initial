@@ -33,7 +33,8 @@ import InputLabel from "@/Components/InputLabel";
 import DropdownInputField from "@/Components/DropdownInputField";
 import InputError from "@/Components/InputError";
 import InputField from "@/Components/InputField";
-import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
+import { IoIosAddCircleOutline, IoIosCloseCircleOutline, } from "react-icons/io";
+import { PiUsersFourBold } from "react-icons/pi";
 import { Toaster, toast } from "sonner";
 
 export default function Index({
@@ -136,11 +137,9 @@ export default function Index({
         family_id: (row) => row.id,
         name: (row) =>
             row.latest_head
-                ? `${row.latest_head.firstname ?? ""} ${
-                      row.latest_head.middlename ?? ""
-                  } ${row.latest_head.lastname ?? ""} ${
-                      row.latest_head.suffix ?? ""
-                  }`
+                ? `${row.latest_head.firstname ?? ""} ${row.latest_head.middlename ?? ""
+                } ${row.latest_head.lastname ?? ""} ${row.latest_head.suffix ?? ""
+                }`
                 : "Unknown",
         is_household_head: (row) =>
             row.is_household_head ? (
@@ -174,9 +173,8 @@ export default function Index({
 
             return bracketText ? (
                 <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                        bracketMeta?.className ?? ""
-                    }`}
+                    className={`px-2 py-1 rounded text-xs font-medium ${bracketMeta?.className ?? ""
+                        }`}
                 >
                     {bracketText}
                 </span>
@@ -215,6 +213,11 @@ export default function Index({
             <ActionMenu
                 actions={[
                     {
+                        label: "View Family",
+                        icon: <UsersRound className="w-4 h-4 text-blue-600" />,
+                        onClick: () => viewFamily(row?.id),
+                    },
+                    {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
                         onClick: () => handleEdit(row?.id),
@@ -224,11 +227,7 @@ export default function Index({
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
                         onClick: () => handleDelete(row?.id),
                     },
-                    {
-                        label: "View Family",
-                        icon: <UsersRound className="w-4 h-4 text-blue-600" />,
-                        onClick: () => viewFamily(row?.id),
-                    },
+
                 ]}
             />
         ),
@@ -249,16 +248,14 @@ export default function Index({
     };
 
     const residentsList = residents.map((res) => ({
-        label: `${res.resident.firstname} ${res.resident.middlename} ${
-            res.resident.lastname
-        } ${res.resident.suffix ?? ""}`,
+        label: `${res.resident.firstname} ${res.resident.middlename} ${res.resident.lastname
+            } ${res.resident.suffix ?? ""}`,
         value: res.resident.id.toString(),
     }));
 
     const memberList = members.map((mem) => ({
-        label: `${mem.firstname} ${mem.middlename} ${mem.lastname} ${
-            mem.suffix ?? ""
-        }`,
+        label: `${mem.firstname} ${mem.middlename} ${mem.lastname} ${mem.suffix ?? ""
+            }`,
         value: mem.id.toString(),
     }));
 
@@ -296,8 +293,7 @@ export default function Index({
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename} ${
-                    resident.lastname
+                `${resident.firstname} ${resident.middlename} ${resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("purok_number", resident.purok_number);
@@ -314,9 +310,8 @@ export default function Index({
             updatedMembers[index] = {
                 ...updatedMembers[index],
                 resident_id: selected.id ?? "",
-                resident_name: `${selected.firstname ?? ""} ${
-                    selected.middlename ?? ""
-                } ${selected.lastname ?? ""} ${selected.suffix ?? ""}`,
+                resident_name: `${selected.firstname ?? ""} ${selected.middlename ?? ""
+                    } ${selected.lastname ?? ""} ${selected.suffix ?? ""}`,
                 purok_number: selected.purok_number ?? "",
                 birthdate: selected.birthdate ?? "",
                 resident_image: selected.image ?? null,
@@ -401,12 +396,25 @@ export default function Index({
                                         className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
                                         onClick={handleAddFamily}
                                     >
-                                        <UserRoundPlus className="w-4 h-4" />
+                                        <PiUsersFourBold className="w-4 h-4" />
                                     </Button>
                                     <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                                         Add a Family
                                     </div>
                                 </div>
+                                <Link href={route("resident.create")}>
+                                    <div className="relative group z-50">
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                        >
+                                            <HousePlus className="w-4 h-4" />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Add Household
+                                        </div>
+                                    </div>
+                                </Link>
                             </div>
                         </div>
 
@@ -436,9 +444,10 @@ export default function Index({
                             showAll={showAll}
                             visibleColumns={visibleColumns}
                             setVisibleColumns={setVisibleColumns}
-                            // showTotal={true}
+                        // showTotal={true}
                         />
                     </div>
+                    {/* WILL ADD A FAMILY */}
                     <SidebarModal
                         isOpen={isModalOpen}
                         onClose={() => {
@@ -446,10 +455,15 @@ export default function Index({
                         }}
                         title={"Add a Family"}
                     >
+                        <p className="text-sm text-black bg-white/10 backdrop-blur-sm border border-white/40 rounded-lg p-4 mb-6 shadow-lg">
+                            <strong>Reminder:</strong> To add a family, the household head and all family members must already be registered as residents. If they are not yet registered, please create a household first before proceeding.
+                        </p>
+
                         <form
-                            className="bg-gray-50 p-4 rounded-lg"
+                            className="bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg p-6 mb-8 text-white"
                             onSubmit={handleSubmitFamily}
                         >
+
                             <h3 className="text-xl font-medium text-gray-700 mb-8">
                                 Household Head Information
                             </h3>
@@ -519,7 +533,7 @@ export default function Index({
                             <h3 className="text-lg font-medium text-gray-700">
                                 Family Members
                             </h3>
-                            <div className="space-y-4 mt-4">
+                            <div className="space-y-4 mt-4 bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg">
                                 {(data.members || []).map(
                                     (member, memberIndex) => (
                                         <div
@@ -639,7 +653,7 @@ export default function Index({
                                                     <InputError
                                                         message={
                                                             errors[
-                                                                `members.${memberIndex}.relationship_to_head`
+                                                            `members.${memberIndex}.relationship_to_head`
                                                             ]
                                                         }
                                                         className="mt-1"
@@ -676,7 +690,7 @@ export default function Index({
                                                     <InputError
                                                         message={
                                                             errors[
-                                                                `members.${memberIndex}.household_position`
+                                                            `members.${memberIndex}.household_position`
                                                             ]
                                                         }
                                                         className="mt-1"

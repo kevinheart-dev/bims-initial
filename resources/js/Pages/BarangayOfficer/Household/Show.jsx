@@ -163,8 +163,7 @@ export default function Index({
     const columnRenderers = {
         resident_id: (member) => member.resident.id,
         name: (member) =>
-            `${member.resident.firstname} ${member.resident.middlename ?? ""} ${
-                member.resident.lastname ?? ""
+            `${member.resident.firstname} ${member.resident.middlename ?? ""} ${member.resident.lastname ?? ""
             } ${member.resident.suffix ?? ""}`,
         gender: (member) => {
             const genderKey = member.resident.gender;
@@ -206,7 +205,7 @@ export default function Index({
             CONSTANTS.HOUSEHOLD_POSITION_TEXT[member.household_position] || "",
         employment_status: (member) =>
             CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-                member.resident.employment_status
+            member.resident.employment_status
             ],
         registered_voter: (member) => {
             const status = member.resident?.registered_voter ?? 0;

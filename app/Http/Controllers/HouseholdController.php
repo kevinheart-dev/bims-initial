@@ -24,31 +24,31 @@ class HouseholdController extends Controller
     {
         $brgy_id = Auth()->user()->resident->barangay_id;
         $query = Household::query()
-        ->select([
-            'id',
-            'barangay_id',
-            'purok_id',
-            'street_id',
-            'house_number',
-            'ownership_type',
-            'housing_condition',
-            'year_established',
-            'house_structure',
-            'number_of_rooms',
-            'number_of_floors',
-        ])
-        ->where("barangay_id", $brgy_id)
-        ->with([
-            'street:id,street_name',
-            'purok:id,purok_number',
-            'householdResidents' => function ($query) {
-                $query->where('relationship_to_head', 'self')
-                    ->with([
-                        'resident:id,firstname,lastname,middlename,suffix'
-                    ]);
-            },
-        ])
-        ->withCount('residents');
+            ->select([
+                'id',
+                'barangay_id',
+                'purok_id',
+                'street_id',
+                'house_number',
+                'ownership_type',
+                'housing_condition',
+                'year_established',
+                'house_structure',
+                'number_of_rooms',
+                'number_of_floors',
+            ])
+            ->where("barangay_id", $brgy_id)
+            ->with([
+                'street:id,street_name',
+                'purok:id,purok_number',
+                'householdResidents' => function ($query) {
+                    $query->where('relationship_to_head', 'self')
+                        ->with([
+                            'resident:id,firstname,lastname,middlename,suffix'
+                        ]);
+                },
+            ])
+            ->withCount('residents');
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
 
         if (request()->filled('purok') && request('purok') !== 'All') {
@@ -72,7 +72,8 @@ class HouseholdController extends Controller
             $query->where('house_structure', request('structure'));
         }
 
-        $households = $query->get();
+        // $households = $query->get();
+        $households = $query->paginate(10)->withQueryString();
         $streets = Street::whereHas('purok', function ($query) use ($brgy_id) {
             $query->where('barangay_id', $brgy_id);
         })->pluck('street_name');
@@ -129,9 +130,9 @@ class HouseholdController extends Controller
             'latitude' => $data['latitude'] ?? 0,
             'longitude' => $data['longitude'] ?? 0,
         ];
-        try{
+        try {
             $household = Household::create($householdData);
-            if($household){
+            if ($household) {
                 //toilets
                 foreach ($data['toilets'] ?? [] as $toilet) {
                     $household->toilets()->create([
@@ -194,14 +195,12 @@ class HouseholdController extends Controller
                         'is_household_head' => 1
                     ]);
                 }
-
             }
             return redirect()->route('household.index')->with('success', 'Household created successfully!');
         } catch (\Exception $e) {
             dd($e->getMessage());
             return back()->withErrors(['error' => 'Household could not be created: ' . $e->getMessage()]);
         }
-
     }
 
     /**
@@ -215,7 +214,7 @@ class HouseholdController extends Controller
         ];
 
         $query = HouseholdResident::with('resident', 'household')
-        ->where('household_id', $household->id);
+            ->where('household_id', $household->id);
         if (request()->filled('name')) {
             $query->whereHas('resident', function ($q) {
                 $q->where('firstname', 'like', '%' . request('name') . '%')

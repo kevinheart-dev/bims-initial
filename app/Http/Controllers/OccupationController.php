@@ -20,8 +20,8 @@ class OccupationController extends Controller
     {
         $brgy_id = Auth()->user()->resident->barangay_id;
         $query = Occupation::with([
-        'resident:id,firstname,lastname,middlename,suffix,purok_number,employment_status,barangay_id'
-            ])
+            'resident:id,firstname,lastname,middlename,suffix,purok_number,employment_status,barangay_id'
+        ])
             ->select(
                 'id',
                 'resident_id',
@@ -34,18 +34,18 @@ class OccupationController extends Controller
                 'started_at',
                 'ended_at'
             )
-        ->whereHas('resident', function ($q) use ($brgy_id) {
-            $q->where('barangay_id', $brgy_id);
-        });
+            ->whereHas('resident', function ($q) use ($brgy_id) {
+                $q->where('barangay_id', $brgy_id);
+            });
 
         if (request()->filled('name')) {
             $search = request()->input('name');
 
             $query->where(function ($q) use ($search) {
                 $q->where('occupation', 'like', "%{$search}%")
-                ->orWhereHas('resident', function ($subQuery) use ($search) {
-                    $subQuery->whereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ["%{$search}%"]);
-                });
+                    ->orWhereHas('resident', function ($subQuery) use ($search) {
+                        $subQuery->whereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ["%{$search}%"]);
+                    });
             });
         }
 
@@ -94,10 +94,11 @@ class OccupationController extends Controller
         }
 
         $puroks = Purok::where('barangay_id', operator: $brgy_id)
-        ->orderBy('purok_number', 'asc')
-        ->pluck('purok_number');
+            ->orderBy('purok_number', 'asc')
+            ->pluck('purok_number');
 
-        $occupations = $query->get();
+        $occupations = $query->paginate(10)->withQueryString();
+        // $occupations = $query->get();
         $residents = Resident::where('barangay_id', $brgy_id)->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'birthdate')->get();
         $occupationTypes = OccupationType::all()->pluck('name');
 
@@ -129,7 +130,7 @@ class OccupationController extends Controller
 
         $resident = Resident::findOrFail($data['resident_id']);
 
-        try{
+        try {
             $family = Family::with(['members.occupations'])->findOrFail($resident->family_id);
 
             $newOccupations = [];
@@ -169,16 +170,18 @@ class OccupationController extends Controller
 
                 // Sum total monthly income from all members’ occupations
                 $allIncomes = $family->members
-                        ->flatMap(fn($m) =>
-                            // Filter only active occupations
-                            $m->occupations->filter(fn($occupation) =>
-                                is_null($occupation->ended_at) || $occupation->ended_at >= now()
-                            )
+                    ->flatMap(
+                        fn($m) =>
+                        // Filter only active occupations
+                        $m->occupations->filter(
+                            fn($occupation) =>
+                            is_null($occupation->ended_at) || $occupation->ended_at >= now()
                         )
-                        // Extract income values
-                        ->pluck('monthly_income')
-                        // Remove nulls
-                        ->filter();
+                    )
+                    // Extract income values
+                    ->pluck('monthly_income')
+                    // Remove nulls
+                    ->filter();
 
                 $totalIncome = $allIncomes->avg();
 
@@ -211,11 +214,10 @@ class OccupationController extends Controller
             }
 
             return redirect()->route('occupation.index')->with('success', 'Occupation(s) saved and family income updated.');
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             dd($e->getMessage());
             return back()->withErrors(['error' => 'Occupation(s) could not be saved: ' . $e->getMessage()]);
         }
-
     }
 
     /**

@@ -152,9 +152,8 @@ export default function Index({
             const statusLabel = VEHICLE_USAGE_TEXT[row.usage_status];
             return (
                 <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        VEHICLE_USAGE_STYLES[row.usage_status]
-                    }`}
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${VEHICLE_USAGE_STYLES[row.usage_status]
+                        }`}
                 >
                     {statusLabel}
                 </span>
@@ -191,9 +190,8 @@ export default function Index({
     };
 
     const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
-            res.suffix ?? ""
-        }`,
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
+            }`,
         value: res.id.toString(),
     }));
 
@@ -320,7 +318,7 @@ export default function Index({
                                 showAll={showAll}
                                 visibleColumns={visibleColumns}
                                 setVisibleColumns={setVisibleColumns}
-                                // showTotal={true}
+                            // showTotal={true}
                             />
                             <SidebarModal
                                 isOpen={isModalOpen}
@@ -441,7 +439,7 @@ export default function Index({
                                                                 <InputError
                                                                     message={
                                                                         errors[
-                                                                            `vehicles.${vecIndex}.vehicle_type`
+                                                                        `vehicles.${vecIndex}.vehicle_type`
                                                                         ]
                                                                     }
                                                                     className="mt-2"
@@ -480,7 +478,7 @@ export default function Index({
                                                                 <InputError
                                                                     message={
                                                                         errors[
-                                                                            `vehicles.${vecIndex}.vehicle_class`
+                                                                        `vehicles.${vecIndex}.vehicle_class`
                                                                         ]
                                                                     }
                                                                     className="mt-2"
@@ -523,7 +521,7 @@ export default function Index({
                                                                 <InputError
                                                                     message={
                                                                         errors[
-                                                                            `vehicles.${vecIndex}.usage_status`
+                                                                        `vehicles.${vecIndex}.usage_status`
                                                                         ]
                                                                     }
                                                                     className="mt-2"
@@ -561,7 +559,7 @@ export default function Index({
                                                                 <InputError
                                                                     message={
                                                                         errors[
-                                                                            `vehicles.${vecIndex}.is_registered`
+                                                                        `vehicles.${vecIndex}.is_registered`
                                                                         ]
                                                                     }
                                                                     className="mt-2"
