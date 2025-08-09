@@ -32,7 +32,7 @@ return new class extends Migration
             $table->integer('purok_number');
             $table->foreignId('street_id')->nullable()->constrained('streets')->onDelete('cascade');
             $table->year('residency_date');
-            $table->enum('residency_type', ['permanent', 'temporary', 'migrant']);
+            $table->enum('residency_type', ['permanent', 'temporary', 'immigrant']);
             $table->text('resident_picture_path')->nullable();
             $table->boolean('is_pwd')->default(false);
             $table->string('ethnicity', 55)->nullable();

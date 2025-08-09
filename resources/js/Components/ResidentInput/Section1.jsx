@@ -396,8 +396,8 @@ const Section1 = ({
                                         value: "temporary",
                                     },
                                     {
-                                        label: "Migrant",
-                                        value: "migrant",
+                                        label: "Immigrant",
+                                        value: "immigrant",
                                     },
                                 ]}
                             />

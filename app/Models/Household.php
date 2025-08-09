@@ -57,6 +57,12 @@ class Household extends Model
         return $this->hasMany(HouseholdHeadHistory::class);
     }
 
+    public function residentsCount()
+    {
+        return $this->residents()->selectRaw('household_id, COUNT(*) as aggregate')
+            ->groupBy('household_id');
+    }
+
     public function toilets(){
         return $this->hasMany(HouseholdToilet::class);
     }

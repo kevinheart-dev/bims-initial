@@ -113,19 +113,11 @@ export default function Index({ households, puroks, streets, queryParams }) {
     };
 
     const columnRenderers = {
-        id: (house) => house.id,
-        name: (house) => {
-            const headEntry = house.household_residents.find(
-                (res) => res.relationship_to_head === "self" // or use "Head"
-            );
-
-            const head = headEntry?.resident;
-
+        id: (house) => house.household?.id,
+        name: (entry) => {
+            const head = entry.resident;
             return head ? (
-                <Link
-                    href={route("resident.show", head.id)}
-                    className="hover:text-blue-500 hover:underline"
-                >
+                <Link href={route("resident.show", head.id)}>
                     {head.firstname} {head.middlename ?? ""}{" "}
                     {head.lastname ?? ""} {head.suffix ?? ""}
                 </Link>
@@ -139,38 +131,52 @@ export default function Index({ households, puroks, streets, queryParams }) {
                 className="hover:text-blue-500 hover:underline"
             >
                 {" "}
-                {house.house_number}
+                {house.household.house_number}
             </Link>
         ),
-        purok_number: (house) => house.purok.purok_number,
-        street_name: (house) => house.street.street_name,
+        purok_number: (house) => house.household.purok.purok_number,
+        street_name: (house) => house.household.street.street_name,
         ownership_type: (house) => (
             <span>
-                {CONSTANTS.HOUSEHOLD_OWNERSHIP_TEXT[house.ownership_type]}
+                {
+                    CONSTANTS.HOUSEHOLD_OWNERSHIP_TEXT[
+                        house.household.ownership_type
+                    ]
+                }
             </span>
         ),
         housing_condition: (house) => (
             <span
                 className={`px-2 py-1 text-sm rounded-lg ${
                     CONSTANTS.HOUSING_CONDITION_COLOR[
-                        house.housing_condition
+                        house.household.housing_condition
                     ] ?? "bg-gray-100 text-gray-700"
                 }`}
             >
-                {CONSTANTS.HOUSEHOLD_CONDITION_TEXT[house.housing_condition]}
+                {
+                    CONSTANTS.HOUSEHOLD_CONDITION_TEXT[
+                        house.household.housing_condition
+                    ]
+                }
             </span>
         ),
-        year_established: (house) => house.year_established ?? "Unknown",
+        year_established: (house) =>
+            house.household.year_established ?? "Unknown",
         house_structure: (house) => (
             <span>
-                {CONSTANTS.HOUSEHOLD_STRUCTURE_TEXT[house.house_structure]}
+                {
+                    CONSTANTS.HOUSEHOLD_STRUCTURE_TEXT[
+                        house.household.house_structure
+                    ]
+                }
             </span>
         ),
-        number_of_rooms: (house) => house.number_of_rooms ?? "N/A",
-        number_of_floors: (house) => house.number_of_floors ?? "N/A",
+        number_of_rooms: (house) => house.household.number_of_rooms ?? "N/A",
+        number_of_floors: (house) => house.household.number_of_floors ?? "N/A",
         number_of_occupants: (house) => (
             <span className="flex items-center">
-                {house?.residents_count ?? 0} <User className="ml-2 h-5 w-5" />
+                {house?.household?.residents_count?.[0]?.aggregate ?? 0}{" "}
+                <User className="ml-2 h-5 w-5" />
             </span>
         ),
         actions: (house) => (
@@ -180,12 +186,17 @@ export default function Index({ households, puroks, streets, queryParams }) {
                         label: "View",
                         icon: <Eye className="w-4 h-4 text-indigo-600" />,
                         onClick: () =>
-                            router.visit(route("household.show", house.id)), // Inertia
+                            router.visit(
+                                route("household.show", house.household?.id)
+                            ), // Inertia
                     },
                     {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
-                        onClick: () => handleEdit(house.id),
+                        onClick: () =>
+                            router.visit(
+                                route("household.edit", house.household?.id)
+                            ),
                     },
                     {
                         label: "Delete",
@@ -216,6 +227,8 @@ export default function Index({ households, puroks, streets, queryParams }) {
     //     { label: "Wood", value: "wood" },
     //     { label: "Makeshift", value: "makeshift" },
     // ];
+
+    const handleEdit = (id) => {};
 
     useEffect(() => {
         if (success) {

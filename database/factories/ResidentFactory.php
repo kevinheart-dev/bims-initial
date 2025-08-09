@@ -124,7 +124,7 @@ class ResidentFactory extends Factory
             'purok_number' => $this->faker->numberBetween(1, 7),
             'street_id' => $street->id,
             'residency_date' => $this->faker->year('-40 years'),
-            'residency_type' => $this->faker->randomElement(['permanent', 'temporary', 'migrant']),
+            'residency_type' => $this->faker->randomElement(['permanent', 'temporary', 'immigrant']),
             'resident_picture_path' => null,
             'ethnicity' => $this->faker->randomElement([
                 'Tagalog', 'Ilocano', 'Bisaya', 'Bicolano', 'Kapampangan'

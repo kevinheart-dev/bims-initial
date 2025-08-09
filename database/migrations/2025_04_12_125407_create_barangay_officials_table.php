@@ -19,9 +19,9 @@ return new class extends Migration
                 'barangay_captain',
                 'barangay_secretary',
                 'barangay_treasurer',
-                'councilor',
+                'barangay_kagawad',
                 'sk_chairman',
-                'sk_member',
+                'sk_kagawad',
                 'health_worker',
                 'tanod'
             ]);
