@@ -60,6 +60,9 @@ class ResidentResource extends JsonResource
             'street' => $this->whenLoaded('street'),
             'purok' => $this->whenLoaded('street.purok'),
             'barangay' => $this->whenLoaded('barangay'),
+            'householdResidents' => $this->whenLoaded('householdResidents'),
+            'latestHouseholdResident' => $this->whenLoaded('latestHouseholdResident'),
+
         ];
     }
 }

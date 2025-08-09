@@ -135,9 +135,7 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                             value: "dropped_out",
                                         },
                                     ]}
-                                    selectedValue={
-                                        edu_history.education_status || ""
-                                    }
+                                    value={edu_history.education_status || ""}
                                     onChange={(e) =>
                                         handleArrayValues(
                                             e,

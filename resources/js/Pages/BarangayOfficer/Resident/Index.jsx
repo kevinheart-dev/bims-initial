@@ -1,5 +1,5 @@
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SidebarModal from "@/Components/SidebarModal";
@@ -26,23 +26,34 @@ import * as CONSTANTS from "@/constants";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 
-export default function Index({
-    residents,
-    queryParams = null,
-    puroks,
-    success = null,
-}) {
+export default function Index({ residents, queryParams = null, puroks }) {
     queryParams = queryParams || {};
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
+
     const APP_URL = useAppUrl();
     useEffect(() => {
         if (success) {
             toast.success(success, {
                 description: "Operation successful!",
                 duration: 3000,
-                className: "bg-green-100 text-green-800",
+                closeButton: true,
             });
         }
+        props.success = null;
     }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
 

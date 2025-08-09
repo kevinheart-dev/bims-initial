@@ -16,7 +16,11 @@ export default function Index() {
 
     const onSubmit = (e) => {
         e.preventDefault();
-        post(route("family_relation.store"));
+        post(route("family_relation.store"), {
+            onError: () => {
+                console.error("Validation Errors:", errors);
+            },
+        });
     };
     return (
         <AdminLayout>

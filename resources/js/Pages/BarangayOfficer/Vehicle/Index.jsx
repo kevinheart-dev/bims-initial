@@ -1,5 +1,5 @@
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, Link, router, useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -32,6 +32,8 @@ import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControl
 import RadioGroup from "@/Components/RadioGroup";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import useResidentChangeHandler from "@/hooks/handleResidentChange";
+import axios from "axios";
+import useAppUrl from "@/hooks/useAppUrl";
 
 export default function Index({
     vehicles,
@@ -39,13 +41,18 @@ export default function Index({
     puroks,
     queryParams,
     residents,
-    success,
 }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         { label: "Vehicles", showOnMobile: true },
     ];
     queryParams = queryParams || {};
+    const APP_URL = useAppUrl();
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
+    const [modalState, setModalState] = useState(null);
+    const [vehicleDetails, setVehicleDetails] = useState(null);
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -57,6 +64,8 @@ export default function Index({
         purok_number: null,
         has_vehicle: null,
         vehicles: [[]],
+        vehicle_id: null,
+        _method: undefined,
     });
     const handleResidentChange = useResidentChangeHandler(residents, setData);
 
@@ -159,8 +168,9 @@ export default function Index({
             const statusLabel = VEHICLE_USAGE_TEXT[row.usage_status];
             return (
                 <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${VEHICLE_USAGE_STYLES[row.usage_status]
-                        }`}
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        VEHICLE_USAGE_STYLES[row.usage_status]
+                    }`}
                 >
                     {statusLabel}
                 </span>
@@ -175,51 +185,90 @@ export default function Index({
             ),
 
         purok_number: (row) => row.purok_number,
-        actions: (house) => (
+        actions: (row) => (
             <ActionMenu
                 actions={[
                     {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
-                        onClick: () => handleEdit(house.id),
+                        onClick: () => handleEdit(row.vehicle_id),
                     },
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(house.id),
+                        onClick: () => handleDelete(row.id),
                     },
                 ]}
             />
         ),
     };
     const handleAddVehicle = () => {
+        setModalState("add");
         setIsModalOpen(true);
     };
 
     const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
-            }`,
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
+            res.suffix ?? ""
+        }`,
         value: res.id.toString(),
     }));
 
-    const onSubmit = (e) => {
+    const onStoreSubmit = (e) => {
         e.preventDefault();
-
         post(route("vehicle.store"), {
-            onError: (errors) => {
-                toast.error("Failed to add education record", {
-                    description: "Please check the form for errors.",
-                    duration: 3000,
-                    className: "bg-red-100 text-red-800",
-                });
-                console.error("Validation Errors:", errors);
-            },
+            onError: (error) => console.log(error),
+        });
+    };
+
+    const onUpdateSubmit = (e) => {
+        e.preventDefault();
+        post(route("vehicle.update", data.vehicle_id), {
+            onError: (error) => console.log(error),
         });
     };
     const handleModalClose = () => {
         setIsModalOpen(false);
+        setModalState(null);
+        setVehicleDetails(null);
         reset(); // Reset form data
         clearErrors(); // Clear validation errors
+    };
+
+    const handleEdit = async (id) => {
+        setModalState("add");
+        try {
+            const response = await axios.get(
+                `${APP_URL}/barangay_officer/vehicle/details/${id}`
+            );
+            const vehicle = response.data.vehicle;
+            setVehicleDetails(vehicle);
+            setData({
+                resident_id: vehicle.resident.id,
+                resident_name: `${vehicle.resident.firstname} ${
+                    vehicle.resident.middlename ?? ""
+                } ${vehicle.resident.lastname}`,
+                resident_image: vehicle.resident.image ?? null,
+                birthdate: vehicle.resident.birthdate ?? null,
+                purok_number: vehicle.resident.purok_number ?? null,
+                vehicles: [
+                    {
+                        usage_status: vehicle.usage_status || "",
+                        vehicle_class: vehicle.vehicle_class || "",
+                        vehicle_status: vehicle.vehicle_status || "",
+                        vehicle_type: vehicle.vehicle_type || "",
+                        is_registered: vehicle.is_registered
+                            ? vehicle.is_registered.toString()
+                            : "",
+                    },
+                ],
+                _method: "PUT",
+                vehicle_id: vehicle.id,
+            });
+            setIsModalOpen(true);
+        } catch (error) {
+            console.error("Error fetching occupation details:", error);
+        }
     };
 
     useEffect(() => {
@@ -228,10 +277,22 @@ export default function Index({
             toast.success(success, {
                 description: "Operation successful!",
                 duration: 3000,
-                className: "bg-green-100 text-green-800",
+                closeButton: true,
             });
         }
+        props.success = null;
     }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
 
     return (
         <AdminLayout>
@@ -325,301 +386,334 @@ export default function Index({
                                 showAll={showAll}
                                 visibleColumns={visibleColumns}
                                 setVisibleColumns={setVisibleColumns}
-                            // showTotal={true}
+                                // showTotal={true}
                             />
                             <SidebarModal
                                 isOpen={isModalOpen}
                                 onClose={() => {
                                     handleModalClose();
                                 }}
-                                title="Add Vehicles"
+                                title={
+                                    vehicleDetails
+                                        ? "Edit Vehicle Details"
+                                        : "Add Vehicles"
+                                }
                             >
-                                <div className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg text-sm text-black p-4 space-y-4">
-                                    <form onSubmit={onSubmit}>
-                                        <h3 className="text-xl font-medium text-gray-700 mb-8">
-                                            Vehicle Info
-                                        </h3>
-                                        <div className="grid grid-cols-1 md:grid-cols-6 gap-y-2 md:gap-x-4 mb-5 w-full">
-                                            <div className="md:row-span-2 md:col-span-2 flex flex-col items-center space-y-2">
-                                                <InputLabel
-                                                    htmlFor={`resident_image`}
-                                                    value="Profile Photo"
-                                                />
-                                                <img
-                                                    src={
-                                                        data.resident_image
-                                                            ? `/storage/${data.resident_image}`
-                                                            : "/images/default-avatar.jpg"
-                                                    }
-                                                    alt={`Resident Image`}
-                                                    className="w-32 h-32 object-cover rounded-full border border-gray-200"
-                                                />
-                                            </div>
-                                            <div className="md:col-span-4 space-y-2">
-                                                <div className="w-full">
-                                                    <DropdownInputField
-                                                        label="Full Name"
-                                                        name="resident_name"
-                                                        value={
-                                                            data.resident_name ||
-                                                            ""
-                                                        }
-                                                        placeholder="Select a resident"
-                                                        onChange={(e) =>
-                                                            handleResidentChange(
-                                                                e
-                                                            )
-                                                        }
-                                                        items={residentsList}
+                                {modalState === "add" && (
+                                    <div className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg text-sm text-black p-4 space-y-4">
+                                        <form
+                                            onSubmit={
+                                                vehicleDetails
+                                                    ? onUpdateSubmit
+                                                    : onStoreSubmit
+                                            }
+                                        >
+                                            <h3 className="text-xl font-medium text-gray-700 mb-8">
+                                                Vehicle Info
+                                            </h3>
+                                            <div className="grid grid-cols-1 md:grid-cols-6 gap-y-2 md:gap-x-4 mb-5 w-full">
+                                                <div className="md:row-span-2 md:col-span-2 flex flex-col items-center space-y-2">
+                                                    <InputLabel
+                                                        htmlFor={`resident_image`}
+                                                        value="Profile Photo"
                                                     />
-                                                    <InputError
-                                                        message={
-                                                            errors.resident_id
+                                                    <img
+                                                        src={
+                                                            data.resident_image
+                                                                ? `/storage/${data.resident_image}`
+                                                                : "/images/default-avatar.jpg"
                                                         }
-                                                        className="mt-2"
+                                                        alt={`Resident Image`}
+                                                        className="w-32 h-32 object-cover rounded-full border border-gray-200"
                                                     />
                                                 </div>
-
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                                    <div>
-                                                        <InputField
-                                                            label="Birthdate"
-                                                            name="birthdate"
+                                                <div className="md:col-span-4 space-y-2">
+                                                    <div className="w-full">
+                                                        <DropdownInputField
+                                                            label="Full Name"
+                                                            name="resident_name"
                                                             value={
-                                                                data.birthdate ||
+                                                                data.resident_name ||
                                                                 ""
                                                             }
-                                                            readOnly={true}
+                                                            placeholder="Select a resident"
+                                                            onChange={(e) =>
+                                                                handleResidentChange(
+                                                                    e
+                                                                )
+                                                            }
+                                                            items={
+                                                                residentsList
+                                                            }
+                                                            readOnly={
+                                                                vehicleDetails
+                                                            }
+                                                        />
+                                                        <InputError
+                                                            message={
+                                                                errors.resident_id
+                                                            }
+                                                            className="mt-2"
                                                         />
                                                     </div>
 
-                                                    <div>
-                                                        <InputField
-                                                            label="Purok Number"
-                                                            name="purok_number"
-                                                            value={
-                                                                data.purok_number
-                                                            }
-                                                            readOnly={true}
-                                                        />
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                        <div>
+                                                            <InputField
+                                                                label="Birthdate"
+                                                                name="birthdate"
+                                                                value={
+                                                                    data.birthdate ||
+                                                                    ""
+                                                                }
+                                                                readOnly={true}
+                                                            />
+                                                        </div>
+
+                                                        <div>
+                                                            <InputField
+                                                                label="Purok Number"
+                                                                name="purok_number"
+                                                                value={
+                                                                    data.purok_number
+                                                                }
+                                                                readOnly={true}
+                                                            />
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div className="space-y-4 mt-4">
-                                            {(data.vehicles || []).map(
-                                                (vehicle, vecIndex) => (
-                                                    <div
-                                                        key={vecIndex}
-                                                        className="border p-4 mb-4 rounded-md relative bg-gray-50"
-                                                    >
-                                                        {/* Left: input fields */}
-                                                        <div className="grid md:grid-cols-4 gap-4">
-                                                            <div>
-                                                                <DropdownInputField
-                                                                    label="Vehicle Type"
-                                                                    name="vehicle_type"
-                                                                    value={
-                                                                        vehicle.vehicle_type ||
-                                                                        ""
-                                                                    }
-                                                                    items={[
-                                                                        "Motorcycle",
-                                                                        "Tricycle",
-                                                                        "Car",
-                                                                        "Jeep",
-                                                                        "Truck",
-                                                                        "Bicycle",
-                                                                    ]}
-                                                                    onChange={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleArrayValues(
-                                                                            e,
-                                                                            vecIndex,
-                                                                            "vehicle_type",
-                                                                            "vehicles"
-                                                                        )
-                                                                    }
-                                                                    placeholder="Select type"
-                                                                />
-                                                                <InputError
-                                                                    message={
-                                                                        errors[
-                                                                        `vehicles.${vecIndex}.vehicle_type`
-                                                                        ]
-                                                                    }
-                                                                    className="mt-2"
-                                                                />
+                                            <div className="space-y-4 mt-4">
+                                                {(data.vehicles || []).map(
+                                                    (vehicle, vecIndex) => (
+                                                        <div
+                                                            key={vecIndex}
+                                                            className="border p-4 mb-4 rounded-md relative bg-gray-50"
+                                                        >
+                                                            {/* Left: input fields */}
+                                                            <div className="grid md:grid-cols-4 gap-4">
+                                                                <div>
+                                                                    <DropdownInputField
+                                                                        label="Vehicle Type"
+                                                                        name="vehicle_type"
+                                                                        value={
+                                                                            vehicle.vehicle_type ||
+                                                                            ""
+                                                                        }
+                                                                        items={[
+                                                                            "Motorcycle",
+                                                                            "Tricycle",
+                                                                            "Car",
+                                                                            "Jeep",
+                                                                            "Truck",
+                                                                            "Bicycle",
+                                                                        ]}
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleArrayValues(
+                                                                                e,
+                                                                                vecIndex,
+                                                                                "vehicle_type",
+                                                                                "vehicles"
+                                                                            )
+                                                                        }
+                                                                        placeholder="Select type"
+                                                                    />
+                                                                    <InputError
+                                                                        message={
+                                                                            errors[
+                                                                                `vehicles.${vecIndex}.vehicle_type`
+                                                                            ]
+                                                                        }
+                                                                        className="mt-2"
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <DropdownInputField
+                                                                        label="Classification"
+                                                                        name="vehicle_class"
+                                                                        value={
+                                                                            vehicle.vehicle_class ||
+                                                                            ""
+                                                                        }
+                                                                        items={[
+                                                                            {
+                                                                                label: "Private",
+                                                                                value: "private",
+                                                                            },
+                                                                            {
+                                                                                label: "Public",
+                                                                                value: "public",
+                                                                            },
+                                                                        ]}
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleArrayValues(
+                                                                                e,
+                                                                                vecIndex,
+                                                                                "vehicle_class",
+                                                                                "vehicles"
+                                                                            )
+                                                                        }
+                                                                        placeholder="Select class"
+                                                                    />
+                                                                    <InputError
+                                                                        message={
+                                                                            errors[
+                                                                                `vehicles.${vecIndex}.vehicle_class`
+                                                                            ]
+                                                                        }
+                                                                        className="mt-2"
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <DropdownInputField
+                                                                        label="Usage Purpose"
+                                                                        name="usage_status"
+                                                                        value={
+                                                                            vehicle.usage_status ||
+                                                                            ""
+                                                                        }
+                                                                        items={[
+                                                                            {
+                                                                                label: "Personal",
+                                                                                value: "personal",
+                                                                            },
+                                                                            {
+                                                                                label: "Public Transport",
+                                                                                value: "public_transport",
+                                                                            },
+                                                                            {
+                                                                                label: "Business Use",
+                                                                                value: "business_use",
+                                                                            },
+                                                                        ]}
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleArrayValues(
+                                                                                e,
+                                                                                vecIndex,
+                                                                                "usage_status",
+                                                                                "vehicles"
+                                                                            )
+                                                                        }
+                                                                        placeholder="Select usage"
+                                                                    />
+                                                                    <InputError
+                                                                        message={
+                                                                            errors[
+                                                                                `vehicles.${vecIndex}.usage_status`
+                                                                            ]
+                                                                        }
+                                                                        className="mt-2"
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <RadioGroup
+                                                                        label="Is Registered?"
+                                                                        name="is_registered"
+                                                                        options={[
+                                                                            {
+                                                                                label: "Yes",
+                                                                                value: 1,
+                                                                            },
+                                                                            {
+                                                                                label: "No",
+                                                                                value: 0,
+                                                                            },
+                                                                        ]}
+                                                                        selectedValue={
+                                                                            vehicle.is_registered ||
+                                                                            ""
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleArrayValues(
+                                                                                e,
+                                                                                vecIndex,
+                                                                                "is_registered",
+                                                                                "vehicles"
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                    <InputError
+                                                                        message={
+                                                                            errors[
+                                                                                `vehicles.${vecIndex}.is_registered`
+                                                                            ]
+                                                                        }
+                                                                        className="mt-2"
+                                                                    />
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <DropdownInputField
-                                                                    label="Classification"
-                                                                    name="vehicle_class"
-                                                                    value={
-                                                                        vehicle.vehicle_class ||
-                                                                        ""
-                                                                    }
-                                                                    items={[
-                                                                        {
-                                                                            label: "Private",
-                                                                            value: "private",
-                                                                        },
-                                                                        {
-                                                                            label: "Public",
-                                                                            value: "public",
-                                                                        },
-                                                                    ]}
-                                                                    onChange={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleArrayValues(
-                                                                            e,
-                                                                            vecIndex,
-                                                                            "vehicle_class",
-                                                                            "vehicles"
-                                                                        )
-                                                                    }
-                                                                    placeholder="Select class"
-                                                                />
-                                                                <InputError
-                                                                    message={
-                                                                        errors[
-                                                                        `vehicles.${vecIndex}.vehicle_class`
-                                                                        ]
-                                                                    }
-                                                                    className="mt-2"
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <DropdownInputField
-                                                                    label="Usage Purpose"
-                                                                    name="usage_status"
-                                                                    value={
-                                                                        vehicle.usage_status ||
-                                                                        ""
-                                                                    }
-                                                                    items={[
-                                                                        {
-                                                                            label: "Personal",
-                                                                            value: "personal",
-                                                                        },
-                                                                        {
-                                                                            label: "Public Transport",
-                                                                            value: "public_transport",
-                                                                        },
-                                                                        {
-                                                                            label: "Business Use",
-                                                                            value: "business_use",
-                                                                        },
-                                                                    ]}
-                                                                    onChange={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleArrayValues(
-                                                                            e,
-                                                                            vecIndex,
-                                                                            "usage_status",
-                                                                            "vehicles"
-                                                                        )
-                                                                    }
-                                                                    placeholder="Select usage"
-                                                                />
-                                                                <InputError
-                                                                    message={
-                                                                        errors[
-                                                                        `vehicles.${vecIndex}.usage_status`
-                                                                        ]
-                                                                    }
-                                                                    className="mt-2"
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <RadioGroup
-                                                                    label="Is Registered?"
-                                                                    name="is_registered"
-                                                                    options={[
-                                                                        {
-                                                                            label: "Yes",
-                                                                            value: 1,
-                                                                        },
-                                                                        {
-                                                                            label: "No",
-                                                                            value: 0,
-                                                                        },
-                                                                    ]}
-                                                                    selectedValue={
-                                                                        vehicle.is_registered ||
-                                                                        ""
-                                                                    }
-                                                                    onChange={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleArrayValues(
-                                                                            e,
-                                                                            vecIndex,
-                                                                            "is_registered",
-                                                                            "vehicles"
-                                                                        )
-                                                                    }
-                                                                />
-                                                                <InputError
-                                                                    message={
-                                                                        errors[
-                                                                        `vehicles.${vecIndex}.is_registered`
-                                                                        ]
-                                                                    }
-                                                                    className="mt-2"
-                                                                />
-                                                            </div>
-                                                        </div>
 
-                                                        {/* Right: remove button */}
+                                                            {/* Right: remove button */}
+                                                            {vehicleDetails ? (
+                                                                <div></div>
+                                                            ) : (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        removeVehicle(
+                                                                            vecIndex
+                                                                        )
+                                                                    }
+                                                                    className="absolute top-1 right-2 flex items-center gap-1 text-2xl text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
+                                                                    title="Remove"
+                                                                >
+                                                                    <IoIosCloseCircleOutline />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    )
+                                                )}
+                                                <div className="flex justify-between items-center p-3">
+                                                    {vehicleDetails ? (
+                                                        <div></div>
+                                                    ) : (
                                                         <button
                                                             type="button"
                                                             onClick={() =>
-                                                                removeVehicle(
-                                                                    vecIndex
-                                                                )
+                                                                addVehicle()
                                                             }
-                                                            className="absolute top-1 right-2 flex items-center gap-1 text-2xl text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
-                                                            title="Remove"
+                                                            className="flex items-center text-blue-600 hover:text-blue-800 text-sm mt-2"
+                                                            title="Add vehicle"
                                                         >
-                                                            <IoIosCloseCircleOutline />
+                                                            <IoIosAddCircleOutline className="text-4xl" />
+                                                            <span className="ml-1">
+                                                                Add Vehicle
+                                                            </span>
                                                         </button>
+                                                    )}
+
+                                                    <div className="flex justify-end items-center gap-2">
+                                                        <Button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                reset()
+                                                            }
+                                                        >
+                                                            <RotateCcw /> Reset
+                                                        </Button>
+                                                        <Button
+                                                            className="bg-blue-700 hover:bg-blue-400 "
+                                                            type={"submit"}
+                                                        >
+                                                            {vehicleDetails
+                                                                ? "Update"
+                                                                : "Add"}{" "}
+                                                            <MoveRight />
+                                                        </Button>
                                                     </div>
-                                                )
-                                            )}
-                                            <div className="flex justify-between items-center p-3">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => addVehicle()}
-                                                    className="flex items-center text-blue-600 hover:text-blue-800 text-sm mt-2"
-                                                    title="Add vehicle"
-                                                >
-                                                    <IoIosAddCircleOutline className="text-4xl" />
-                                                    <span className="ml-1">
-                                                        Add Vehicle
-                                                    </span>
-                                                </button>
-                                                <div className="flex justify-end items-center gap-2">
-                                                    <Button
-                                                        type="button"
-                                                        onClick={() => reset()}
-                                                    >
-                                                        <RotateCcw /> Reset
-                                                    </Button>
-                                                    <Button
-                                                        className="bg-blue-700 hover:bg-blue-400 "
-                                                        type={"submit"}
-                                                    >
-                                                        Add <MoveRight />
-                                                    </Button>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </form>
-                                </div>
+                                        </form>
+                                    </div>
+                                )}
                             </SidebarModal>
                         </div>
                     </div>

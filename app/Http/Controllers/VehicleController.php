@@ -88,7 +88,6 @@ class VehicleController extends Controller
             'vehicle_types' => $vehicle_types,
             'queryParams' => request()->query() ?: null,
             'residents' => $residents,
-            'success' => session('success') ?? null,
         ]);
     }
 
@@ -118,8 +117,7 @@ class VehicleController extends Controller
             }
             return redirect()->route('vehicle.index')->with('success', 'Vehicle addded successfully!');
         } catch (\Exception $e) {
-            dd($e->getMessage());
-            return back()->withErrors(['error' => 'Vehicle could not be added: ' . $e->getMessage()]);
+            return back()->with('error','Vehicle could not be added: ' . $e->getMessage());
         }
     }
 
@@ -144,7 +142,21 @@ class VehicleController extends Controller
      */
     public function update(UpdateVehicleRequest $request, Vehicle $vehicle)
     {
-        //
+        $data = $request->validated();
+
+        try {
+            $vehicle->update([
+                'resident_id'   => $data['resident_id'],
+                'vehicle_type'  => $data['vehicles'][0]['vehicle_type'],
+                'vehicle_class' => $data['vehicles'][0]['vehicle_class'],
+                'usage_status'  => $data['vehicles'][0]['usage_status'],
+                'is_registered' => $data['vehicles'][0]['is_registered'],
+            ]);
+
+            return redirect()->route('vehicle.index')->with('success', 'Vehicle updated successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error','Vehicle could not be updated: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -153,5 +165,24 @@ class VehicleController extends Controller
     public function destroy(Vehicle $vehicle)
     {
         //
+    }
+
+    public function vehicleDetails($id){
+        $vehicle = Vehicle::with([
+            'resident:id,firstname,lastname,middlename,suffix,purok_number,birthdate,barangay_id'
+        ])
+            ->select(
+                'id',
+                    'resident_id',
+                    'vehicle_type',
+                    'vehicle_class',
+                    'usage_status',
+                    'is_registered',
+            )
+            ->where('id', $id)->first();
+
+        return response()->json([
+            'vehicle' => $vehicle,
+        ]);
     }
 }

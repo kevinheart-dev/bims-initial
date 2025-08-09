@@ -284,6 +284,7 @@ export const EDUCATION_LEVEL_TEXT = {
     college: "College",
     post_graduate: "Post Graduate",
     vocational: "Vocational",
+    als: "ALS (Alternative Learning System)",
 };
 
 export const EDUCATION_STATUS_TEXT = {

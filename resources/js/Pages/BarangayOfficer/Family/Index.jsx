@@ -1,6 +1,6 @@
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, Link, router, useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import ActionMenu from "@/components/ActionMenu";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
@@ -34,7 +34,7 @@ import InputLabel from "@/Components/InputLabel";
 import DropdownInputField from "@/Components/DropdownInputField";
 import InputError from "@/Components/InputError";
 import InputField from "@/Components/InputField";
-import { IoIosAddCircleOutline, IoIosCloseCircleOutline, } from "react-icons/io";
+import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import { PiUsersFourBold } from "react-icons/pi";
 import { Toaster, toast } from "sonner";
 
@@ -54,6 +54,9 @@ export default function Index({
         },
     ];
     queryParams = queryParams || {};
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -138,9 +141,11 @@ export default function Index({
         family_id: (row) => row.id,
         name: (row) =>
             row.latest_head
-                ? `${row.latest_head.firstname ?? ""} ${row.latest_head.middlename ?? ""
-                } ${row.latest_head.lastname ?? ""} ${row.latest_head.suffix ?? ""
-                }`
+                ? `${row.latest_head.firstname ?? ""} ${
+                      row.latest_head.middlename ?? ""
+                  } ${row.latest_head.lastname ?? ""} ${
+                      row.latest_head.suffix ?? ""
+                  }`
                 : "Unknown",
         is_household_head: (row) =>
             row.is_household_head ? (
@@ -174,8 +179,9 @@ export default function Index({
 
             return bracketText ? (
                 <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${bracketMeta?.className ?? ""
-                        }`}
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                        bracketMeta?.className ?? ""
+                    }`}
                 >
                     {bracketText}
                 </span>
@@ -228,7 +234,6 @@ export default function Index({
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
                         onClick: () => handleDelete(row?.id),
                     },
-
                 ]}
             />
         ),
@@ -249,14 +254,16 @@ export default function Index({
     };
 
     const residentsList = residents.map((res) => ({
-        label: `${res.resident.firstname} ${res.resident.middlename} ${res.resident.lastname
-            } ${res.resident.suffix ?? ""}`,
+        label: `${res.resident.firstname} ${res.resident.middlename} ${
+            res.resident.lastname
+        } ${res.resident.suffix ?? ""}`,
         value: res.resident.id.toString(),
     }));
 
     const memberList = members.map((mem) => ({
-        label: `${mem.firstname} ${mem.middlename} ${mem.lastname} ${mem.suffix ?? ""
-            }`,
+        label: `${mem.firstname} ${mem.middlename} ${mem.lastname} ${
+            mem.suffix ?? ""
+        }`,
         value: mem.id.toString(),
     }));
 
@@ -294,7 +301,8 @@ export default function Index({
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename} ${resident.lastname
+                `${resident.firstname} ${resident.middlename} ${
+                    resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("purok_number", resident.purok_number);
@@ -311,8 +319,9 @@ export default function Index({
             updatedMembers[index] = {
                 ...updatedMembers[index],
                 resident_id: selected.id ?? "",
-                resident_name: `${selected.firstname ?? ""} ${selected.middlename ?? ""
-                    } ${selected.lastname ?? ""} ${selected.suffix ?? ""}`,
+                resident_name: `${selected.firstname ?? ""} ${
+                    selected.middlename ?? ""
+                } ${selected.lastname ?? ""} ${selected.suffix ?? ""}`,
                 purok_number: selected.purok_number ?? "",
                 birthdate: selected.birthdate ?? "",
                 resident_image: selected.image ?? null,
@@ -337,6 +346,29 @@ export default function Index({
             },
         });
     };
+
+    useEffect(() => {
+        if (success) {
+            handleModalClose();
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.success = null;
+    }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
 
     return (
         <AdminLayout>
@@ -445,7 +477,7 @@ export default function Index({
                             showAll={showAll}
                             visibleColumns={visibleColumns}
                             setVisibleColumns={setVisibleColumns}
-                        // showTotal={true}
+                            // showTotal={true}
                         />
                     </div>
                     {/* WILL ADD A FAMILY */}
@@ -457,14 +489,17 @@ export default function Index({
                         title={"Add a Family"}
                     >
                         <p className="text-sm text-black bg-white/10 backdrop-blur-sm border border-white/40 rounded-lg p-4 mb-6 shadow-lg">
-                            <strong>Reminder:</strong> To add a family, the household head and all family members must already be registered as residents. If they are not yet registered, please create a household first before proceeding.
+                            <strong>Reminder:</strong> To add a family, the
+                            household head and all family members must already
+                            be registered as residents. If they are not yet
+                            registered, please create a household first before
+                            proceeding.
                         </p>
 
                         <form
                             className="bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg p-6 mb-8 text-white"
                             onSubmit={handleSubmitFamily}
                         >
-
                             <h3 className="text-xl font-medium text-gray-700 mb-8">
                                 Household Head Information
                             </h3>
@@ -654,7 +689,7 @@ export default function Index({
                                                     <InputError
                                                         message={
                                                             errors[
-                                                            `members.${memberIndex}.relationship_to_head`
+                                                                `members.${memberIndex}.relationship_to_head`
                                                             ]
                                                         }
                                                         className="mt-1"
@@ -691,7 +726,7 @@ export default function Index({
                                                     <InputError
                                                         message={
                                                             errors[
-                                                            `members.${memberIndex}.household_position`
+                                                                `members.${memberIndex}.household_position`
                                                             ]
                                                         }
                                                         className="mt-1"

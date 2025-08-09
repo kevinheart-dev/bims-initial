@@ -42,6 +42,7 @@ export default function Index({
         { label: "Certificate Issuance", showOnMobile: true },
     ];
     const APP_URL = useAppUrl();
+    const [disableSubmit, setDisableSubmit] = useState(false);
 
     const { data, setData, post, errors, setError, reset, clearErrors } =
         useForm({
@@ -134,7 +135,7 @@ export default function Index({
     // handles document issuance
     const handleIssue = async () => {
         setError({});
-
+        setDisableSubmit(true);
         const newErrors = {};
 
         // Basic required fields
@@ -501,6 +502,7 @@ export default function Index({
         setModalState("");
         reset();
         clearErrors();
+        setDisableSubmit(false);
     };
 
     // success catching
@@ -840,10 +842,7 @@ export default function Index({
                                             <Button
                                                 onClick={handleIssue}
                                                 className="bg-blue-700 hover:bg-blue-400"
-                                                disabled={
-                                                    !data.resident_id ||
-                                                    !data.document_id
-                                                }
+                                                disabled={disableSubmit}
                                             >
                                                 Issue Certificate
                                             </Button>

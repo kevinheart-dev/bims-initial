@@ -831,6 +831,22 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
+            {isVisible("latest_occupation") && (
+                <Select
+                    onValueChange={(occ) =>
+                        searchFieldName("latest_occupation", occ)
+                    }
+                    value={queryParams.latest_occupation}
+                >
+                    <SelectTrigger className="w-[160px]">
+                        <SelectValue placeholder="All Occupation" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="1">Latest Occupation</SelectItem>
+                        <SelectItem value="0">All Occupation</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
 
             {/* Certificate */}
             {isVisible("certificate_type") && (

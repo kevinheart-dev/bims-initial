@@ -15,6 +15,7 @@ const Section1 = ({
     errors,
     showMaidenMiddleName,
     barangays = [],
+    existingImagePath = null,
 }) => {
     const addVehicle = () => {
         setData("vehicles", [...(data.vehicles || []), {}]);
@@ -29,6 +30,7 @@ const Section1 = ({
         label: name,
         value: id,
     }));
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col">
@@ -51,10 +53,10 @@ const Section1 = ({
                         src={
                             data.resident_image instanceof File
                                 ? URL.createObjectURL(data.resident_image)
-                                : data.resident_image ||
+                                : existingImagePath ||
                                   "/images/default-avatar.jpg"
                         }
-                        alt={`Resident Image`}
+                        alt="Resident Image"
                         className="w-32 h-32 object-cover rounded-full border border-gray-200"
                     />
                     <input
@@ -486,18 +488,18 @@ const Section1 = ({
                     <div>
                         <RadioGroup
                             label="4Ps Beneficiary?"
-                            name="is_4ps_benificiary"
-                            selectedValue={data.is_4ps_benificiary || ""}
+                            name="is_4ps_beneficiary"
+                            selectedValue={data.is_4ps_beneficiary || ""}
                             options={[
                                 { label: "Yes", value: 1 },
                                 { label: "No", value: 0 },
                             ]}
                             onChange={(e) =>
-                                setData("is_4ps_benificiary", e.target.value)
+                                setData("is_4ps_beneficiary", e.target.value)
                             }
                         />
                         <InputError
-                            message={errors.is_4ps_benificiary}
+                            message={errors.is_4ps_beneficiary}
                             className="mt-2"
                         />
                     </div>

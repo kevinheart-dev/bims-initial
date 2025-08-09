@@ -88,6 +88,9 @@ class DocumentController extends Controller
      */
     public function store(Request $request)
     {
+        try{
+
+
         $barangay = auth()->user()->resident->barangay;
         $data = $request->validate([
             'file' => 'required|file|mimes:docx,doc,pdf,txt|max:10240', // 10MB max
@@ -105,7 +108,10 @@ class DocumentController extends Controller
             'file_path' => $path,
             'description' => $data['description'] ?? null,
         ]);
-        return back()->with('success', "{$data['name']} Document uploaded.");
+            return back()->with('success', "{$data['name']} Document uploaded.");
+        }catch (\Exception $e) {
+            return back()->with('error' ,'Failed to add document: ' . $e->getMessage());
+        }
     }
 
     public function preview($id)

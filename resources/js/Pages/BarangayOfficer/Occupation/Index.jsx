@@ -4,7 +4,7 @@ import DynamicTable from "@/Components/DynamicTable";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, Link, router, useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import {
     Badge,
     Briefcase,
@@ -48,7 +48,6 @@ export default function Index({
     occupations,
     puroks,
     queryParams = null,
-    success,
     residents = [],
     occupationTypes = [],
 }) {
@@ -58,6 +57,9 @@ export default function Index({
     ];
     queryParams = queryParams || {};
     const APP_URL = useAppUrl();
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const handleSubmit = (e) => {
@@ -86,6 +88,7 @@ export default function Index({
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalState, setModalState] = useState("");
+    const [occupationDetails, setOccupation] = useState(null);
 
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
@@ -98,6 +101,7 @@ export default function Index({
                 "is_ofw",
                 "year_started",
                 "year_ended",
+                "latest_occupation",
             ].includes(key) &&
             value &&
             value !== ""
@@ -149,8 +153,9 @@ export default function Index({
         name: (row) => {
             const { firstname, middlename, lastname, suffix } =
                 row.resident ?? {};
-            const fullName = `${firstname ?? ""} ${middlename ?? ""} ${lastname ?? ""
-                } ${suffix ?? ""}`.trim();
+            const fullName = `${firstname ?? ""} ${middlename ?? ""} ${
+                lastname ?? ""
+            } ${suffix ?? ""}`.trim();
             return fullName || "—";
         },
 
@@ -164,14 +169,14 @@ export default function Index({
                 value === "employed"
                     ? "bg-green-100 text-green-800"
                     : value === "unemployed"
-                        ? "bg-red-100 text-red-800"
-                        : value === "self_employed"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : value === "student"
-                                ? "bg-blue-100 text-blue-800"
-                                : value === "under_employed"
-                                    ? "bg-purple-100 text-purple-800"
-                                    : "bg-gray-100 text-gray-700";
+                    ? "bg-red-100 text-red-800"
+                    : value === "self_employed"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : value === "student"
+                    ? "bg-blue-100 text-blue-800"
+                    : value === "under_employed"
+                    ? "bg-purple-100 text-purple-800"
+                    : "bg-gray-100 text-gray-700";
 
             return (
                 <span
@@ -200,12 +205,12 @@ export default function Index({
                 value === "active"
                     ? "bg-green-100 text-green-800"
                     : value === "inactive"
-                        ? "bg-red-100 text-red-800"
-                        : value === "retired"
-                            ? "bg-gray-100 text-gray-700"
-                            : value === "ended"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-gray-100 text-gray-700";
+                    ? "bg-red-100 text-red-800"
+                    : value === "retired"
+                    ? "bg-gray-100 text-gray-700"
+                    : value === "ended"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : "bg-gray-100 text-gray-700";
 
             return (
                 <span
@@ -229,10 +234,11 @@ export default function Index({
 
         is_ofw: (row) => (
             <span
-                className={`px-2 py-0.5 rounded-md text-xs font-medium ${row.is_ofw
-                    ? "bg-green-100 text-green-800"
-                    : "bg-gray-100 text-gray-700"
-                    }`}
+                className={`px-2 py-0.5 rounded-md text-xs font-medium ${
+                    row.is_ofw
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-700"
+                }`}
             >
                 {row.is_ofw ? "Yes" : "No"}
             </span>
@@ -283,8 +289,9 @@ export default function Index({
 
     // list of residents for dropdown
     const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
-            }`,
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
+            res.suffix ?? ""
+        }`,
         value: res.id.toString(),
     }));
 
@@ -296,9 +303,11 @@ export default function Index({
         birthdate: null,
         purok_number: null,
         occupations: [[]],
+        _method: undefined,
+        occupation_id: null,
     });
-    const handleResidentChange = useResidentChangeHandler(residents, setData);
 
+    const handleResidentChange = useResidentChangeHandler(residents, setData);
     const addOccupation = () => {
         setData("occupations", [...(data.occupations || []), {}]);
     };
@@ -314,12 +323,10 @@ export default function Index({
 
     const handleOccupationFieldChange = (e, occIndex, fieldName) => {
         const updated = [...(data.occupations || [])];
-
         updated[occIndex] = {
             ...updated[occIndex],
             [fieldName]: e.target.value,
         };
-
         setData("occupations", updated);
     };
 
@@ -328,22 +335,69 @@ export default function Index({
         setIsModalOpen(true);
     };
 
+    const handleEdit = async (id) => {
+        setModalState("add");
+
+        try {
+            const response = await axios.get(
+                `${APP_URL}/barangay_officer/occupation/details/${id}`
+            );
+            const occupation = response.data.occupation;
+            console.log(occupation);
+            setOccupation(occupation);
+            setData({
+                resident_id: occupation.resident.id,
+                resident_name: `${occupation.resident.firstname} ${
+                    occupation.resident.middlename ?? ""
+                } ${occupation.resident.lastname}`,
+                resident_image: occupation.resident.image ?? null,
+                birthdate: occupation.resident.birthdate ?? null,
+                purok_number: occupation.resident.purok_number ?? null,
+                occupations: [
+                    {
+                        employer: occupation.employer || "",
+                        occupation: occupation.occupation || "",
+                        occupation_status: occupation.occupation_status || "",
+                        employment_type: occupation.employment_type || "",
+                        is_ofw: occupation.is_ofw || "",
+                        work_arrangement: occupation.work_arrangement || "",
+                        income: occupation.monthly_income || 0,
+                        income_frequency: "monthly",
+                        started_at: occupation.started_at || "",
+                        ended_at: occupation.ended_at || "",
+                    },
+                ],
+                _method: "PUT",
+                occupation_id: occupation.id,
+            });
+
+            setIsModalOpen(true);
+        } catch (error) {
+            console.error("Error fetching occupation details:", error);
+        }
+    };
+
     const handleModalClose = () => {
         setIsModalOpen(false);
         setModalState("");
+        setOccupation(null);
         reset();
         clearErrors();
     };
 
-    const onSubmit = (e) => {
+    const handleSubmitOccupation = (e) => {
         e.preventDefault();
         post(route("occupation.store"), {
             onError: () => {
-                toast.error("Failed to add occupation record", {
-                    description: "Please check the form for errors.",
-                    duration: 3000,
-                    className: "bg-red-100 text-red-800",
-                });
+                console.error("Validation Errors:", errors);
+            },
+        });
+    };
+
+    const handleUpdateOccupation = (e) => {
+        e.preventDefault();
+        post(route("occupation.update", data.occupation_id), {
+            onError: () => {
                 console.error("Validation Errors:", errors);
             },
         });
@@ -355,10 +409,21 @@ export default function Index({
             toast.success(success, {
                 description: "Operation successful!",
                 duration: 3000,
-                className: "bg-green-100 text-green-800",
             });
         }
+        props.success = null;
     }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
 
     return (
         <AdminLayout>
@@ -439,6 +504,7 @@ export default function Index({
                                     "is_ofw",
                                     "year_started",
                                     "year_ended",
+                                    "latest_occupation",
                                 ]}
                                 puroks={puroks}
                                 showFilters={true}
@@ -466,14 +532,22 @@ export default function Index({
                     handleModalClose();
                 }}
                 title={
-                    modalState === "add"
-                        ? "Add an Occupation"
-                        : "View Resident Details"
+                    modalState === "add" && occupationDetails
+                        ? "Edit Occupation"
+                        : modalState === "add"
+                        ? "Add Occupation"
+                        : "View Resident"
                 }
             >
                 {modalState === "add" && (
                     <div className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg text-sm text-black p-4 space-y-4">
-                        <form onSubmit={onSubmit}>
+                        <form
+                            onSubmit={
+                                occupationDetails
+                                    ? handleUpdateOccupation
+                                    : handleSubmitOccupation
+                            }
+                        >
                             <h3 className="text-xl font-medium text-gray-700 mb-8">
                                 Resident's Info
                             </h3>
@@ -504,6 +578,7 @@ export default function Index({
                                                 handleResidentChange(e)
                                             }
                                             items={residentsList}
+                                            readOnly={occupationDetails}
                                         />
                                         <InputError
                                             message={errors.resident_id}
@@ -539,7 +614,7 @@ export default function Index({
                                         className="border p-4 mb-4 rounded-md relative bg-gray-50"
                                     >
                                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                            <div>
+                                            {/* <div>
                                                 <SelectField
                                                     label="Employment Status"
                                                     name="employment_status"
@@ -576,12 +651,12 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.employment_status`
+                                                            `occupations.${occIndex}.employment_status`
                                                         ]
                                                     }
                                                     className="mt-2"
                                                 />
-                                            </div>
+                                            </div> */}
                                             <div>
                                                 <DropdownInputField
                                                     label="Occupation"
@@ -607,7 +682,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.occupation`
+                                                            `occupations.${occIndex}.occupation`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -654,7 +729,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.employment_type`
+                                                            `occupations.${occIndex}.employment_type`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -705,7 +780,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.occupation_status`
+                                                            `occupations.${occIndex}.occupation_status`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -744,7 +819,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.work_arrangement`
+                                                            `occupations.${occIndex}.work_arrangement`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -771,7 +846,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.employer`
+                                                            `occupations.${occIndex}.employer`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -797,7 +872,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.started_at`
+                                                            `occupations.${occIndex}.started_at`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -826,7 +901,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.ended_at`
+                                                            `occupations.${occIndex}.ended_at`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -853,7 +928,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.income`
+                                                            `occupations.${occIndex}.income`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -900,7 +975,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.income_frequency`
+                                                            `occupations.${occIndex}.income_frequency`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -934,39 +1009,46 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.is_ofw`
+                                                            `occupations.${occIndex}.is_ofw`
                                                         ]
                                                     }
                                                     className="mt-2"
                                                 />
                                             </div>
                                         </div>
-
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                removeOccupation(occIndex)
-                                            }
-                                            className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
-                                        >
-                                            <IoIosCloseCircleOutline className="text-2xl" />
-                                        </button>
+                                        {occupationDetails === null && (
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    removeOccupation(occIndex)
+                                                }
+                                                className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
+                                            >
+                                                <IoIosCloseCircleOutline className="text-2xl" />
+                                            </button>
+                                        )}
                                     </div>
                                 ))}
                             <div className="flex justify-between items-center p-3">
-                                <button
-                                    type="button"
-                                    onClick={addOccupation}
-                                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
-                                >
-                                    <IoIosAddCircleOutline className="text-2xl" />
-                                    <span>Add Occupation</span>
-                                </button>
+                                {occupationDetails === null ? (
+                                    <button
+                                        type="button"
+                                        onClick={addOccupation}
+                                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
+                                    >
+                                        <IoIosAddCircleOutline className="text-2xl" />
+                                        <span>Add Occupation</span>
+                                    </button>
+                                ) : (
+                                    <div></div>
+                                )}
+
                                 <Button
                                     className="bg-blue-700 hover:bg-blue-400 "
                                     type={"submit"}
                                 >
-                                    Add <IoIosArrowForward />
+                                    {occupationDetails ? "Update" : "Add"}{" "}
+                                    <IoIosArrowForward />
                                 </Button>
                             </div>
                         </form>

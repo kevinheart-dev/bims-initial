@@ -108,7 +108,6 @@ class EducationController extends Controller
             'puroks' => $puroks,
             'residents' => $residents,
             'queryParams' => request()->query() ?: null,
-            'success' => session('success'),
         ]);
     }
 
@@ -141,8 +140,7 @@ class EducationController extends Controller
             }
             return redirect()->route('education.index')->with('success', 'Educational history added successfully!');
         } catch (\Exception $e) {
-            dd($e->getMessage());
-            return back()->withErrors(['error' => 'Educational history could not be added: ' . $e->getMessage()]);
+            return back()->with('error' ,'Educational history could not be added: ' . $e->getMessage());
         }
     }
 
@@ -167,7 +165,29 @@ class EducationController extends Controller
      */
     public function update(UpdateEducationalHistoryRequest $request, EducationalHistory $educationalHistory)
     {
-        //
+        $data = $request->validated();
+        //dd($data);
+        try {
+            foreach ($data['educational_histories'] as $history) {
+            $educationalHistory->updateOrCreate(
+                [
+                    'resident_id' => $data['resident_id'],
+                ],
+                [
+                    'educational_attainment' => $history['education'] ?? null,
+                    'education_status' => $history['education_status'] ?? null,
+                    'school_name' => $history['school_name'] ?? null,
+                    'school_type' => $history['school_type'] ?? null,
+                    'year_started' => $history['year_started'] ?? null,
+                    'year_ended' => $history['year_ended'] ?? null,
+                    'program' => $history['program'] ?? null,
+                ]
+            );
+        }
+            return redirect()->route('education.index')->with('success', 'Education History details updated successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error','Education History could not be updated: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -176,5 +196,26 @@ class EducationController extends Controller
     public function destroy(EducationalHistory $educationalHistory)
     {
         //
+    }
+
+    public function educationHistory($id){
+        $history = EducationalHistory::with([
+            'resident:id,firstname,lastname,middlename,suffix,purok_number,barangay_id,resident_picture_path,birthdate'
+        ])
+            ->select(
+                'id',
+                'resident_id',
+                'school_name',
+                'school_type',
+                'educational_attainment',
+                'education_status',
+                'year_started',
+                'year_ended',
+                'program'
+            )
+            ->where('id', $id)->first();;
+        return response()->json([
+            'history' => $history,
+        ]);
     }
 }

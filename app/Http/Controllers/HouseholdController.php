@@ -227,7 +227,7 @@ class HouseholdController extends Controller
             return redirect()->route('household.index')->with('success', 'Household created successfully!');
         } catch (\Exception $e) {
             dd($e->getMessage());
-            return back()->withErrors(['error' => 'Household could not be created: ' . $e->getMessage()]);
+            return back()->with('error','Household could not be created: ' . $e->getMessage());
         }
     }
 
@@ -236,7 +236,7 @@ class HouseholdController extends Controller
      */
     public function show(Household $household)
     {
-        $household_details = $household->load('householdResidents.resident', 'toilets', 'electricityTypes', 'waterSourceTypes', 'wasteManagementTypes');
+        $household_details = $household->load('householdResidents.resident', 'toilets', 'electricityTypes', 'waterSourceTypes', 'wasteManagementTypes', 'street', 'purok', 'purok.barangay');
         $household_details['bath_and_wash_area'] = [
             'bath_and_wash_area' => $household_details['bath_and_wash_area']
         ];

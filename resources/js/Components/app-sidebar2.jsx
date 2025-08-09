@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom"; // For accessing the current route
 import {
     Home,
@@ -37,6 +37,8 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { NavUser } from "@/components/nav-user";
+import axios from "axios";
+import useAppUrl from "@/hooks/useAppUrl";
 
 // Menu items with submenus
 const items = [
@@ -139,12 +141,28 @@ const items = [
 export function AppSidebar({ auth }) {
     const location = useLocation(); // Get current location
     const [collapsed, setCollapsed] = useState({});
+    const [barangay, setBarangay] = useState(null);
 
     const toggleCollapse = (index) => {
         setCollapsed((prev) => ({ ...prev, [index]: !prev[index] }));
     };
 
     const user = auth.user;
+    const APP_URL = useAppUrl();
+    useEffect(() => {
+        const fetchBarangayDetails = async () => {
+            try {
+                const response = await axios.get(
+                    `${APP_URL}/barangay_officer/barangay_profile/barangaydetails`
+                );
+                setBarangay(response.data.data);
+            } catch (error) {
+                console.error("Error fetching barangay details:", error);
+            }
+        };
+
+        fetchBarangayDetails();
+    }, []);
 
     return (
         <Sidebar>
@@ -160,7 +178,7 @@ export function AppSidebar({ auth }) {
                             iBIMS
                         </p>
                         <p className="font-light text-sm text-white font-montserrat m-0 p-0 leading-none">
-                            Centro San Antonio
+                            {barangay ? barangay.barangay_name : "Loading..."}
                         </p>
                     </div>
                 </div>

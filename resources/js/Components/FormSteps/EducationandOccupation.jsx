@@ -826,6 +826,10 @@ function EducationandOccupation({ occupationTypes }) {
                                                                 label: "Retired",
                                                                 value: "retired",
                                                             },
+                                                            {
+                                                                label: "Student",
+                                                                value: "student",
+                                                            },
                                                         ]}
                                                     />
                                                     {errors?.[

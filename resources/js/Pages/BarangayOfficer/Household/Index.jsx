@@ -1,5 +1,5 @@
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,14 +23,15 @@ import * as CONSTANTS from "@/constants";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 
-
-
 export default function Index({ households, puroks, streets, queryParams }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         { label: "Households", showOnMobile: true },
     ];
     queryParams = queryParams || {};
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
 
@@ -75,12 +76,10 @@ export default function Index({ households, puroks, streets, queryParams }) {
         { key: "number_of_occupants", label: "Number of Occupants" },
         { key: "actions", label: "Actions" },
     ];
-    // === BEING ADDED
 
     const [visibleColumns, setVisibleColumns] = useState(
         allColumns.map((col) => col.key)
     );
-
 
     useEffect(() => {
         if (visibleColumns.length === 0) {
@@ -88,19 +87,14 @@ export default function Index({ households, puroks, streets, queryParams }) {
         }
     }, []);
 
-
     const [isPaginated, setIsPaginated] = useState(true);
     const [showAll, setShowAll] = useState(false);
 
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
-            [
-                "purok",
-                "street",
-                "own_type",
-                "condition",
-                "structure",
-            ].includes(key) &&
+            ["purok", "street", "own_type", "condition", "structure"].includes(
+                key
+            ) &&
             value &&
             value !== ""
     );
@@ -118,7 +112,6 @@ export default function Index({ households, puroks, streets, queryParams }) {
         window.print();
     };
 
-    // === AP TO HERE
     const columnRenderers = {
         id: (house) => house.id,
         name: (house) => {
@@ -152,23 +145,26 @@ export default function Index({ households, puroks, streets, queryParams }) {
         purok_number: (house) => house.purok.purok_number,
         street_name: (house) => house.street.street_name,
         ownership_type: (house) => (
-            <span>{CONSTANTS.HOUSEHOLD_OWNERSHIP_TEXT[house.ownership_type]}</span>
+            <span>
+                {CONSTANTS.HOUSEHOLD_OWNERSHIP_TEXT[house.ownership_type]}
+            </span>
         ),
         housing_condition: (house) => (
             <span
-                className={`px-2 py-1 text-sm rounded-lg ${CONSTANTS.HOUSING_CONDITION_COLOR[house.housing_condition] ??
-                    "bg-gray-100 text-gray-700"
-                    }`}
-
+                className={`px-2 py-1 text-sm rounded-lg ${
+                    CONSTANTS.HOUSING_CONDITION_COLOR[
+                        house.housing_condition
+                    ] ?? "bg-gray-100 text-gray-700"
+                }`}
             >
                 {CONSTANTS.HOUSEHOLD_CONDITION_TEXT[house.housing_condition]}
             </span>
         ),
         year_established: (house) => house.year_established ?? "Unknown",
         house_structure: (house) => (
-
-            <span>{CONSTANTS.HOUSEHOLD_STRUCTURE_TEXT[house.house_structure]}</span>
-
+            <span>
+                {CONSTANTS.HOUSEHOLD_STRUCTURE_TEXT[house.house_structure]}
+            </span>
         ),
         number_of_rooms: (house) => house.number_of_rooms ?? "N/A",
         number_of_floors: (house) => house.number_of_floors ?? "N/A",
@@ -183,7 +179,8 @@ export default function Index({ households, puroks, streets, queryParams }) {
                     {
                         label: "View",
                         icon: <Eye className="w-4 h-4 text-indigo-600" />,
-                        onClick: () => router.visit(route("household.show", house.id)), // Inertia
+                        onClick: () =>
+                            router.visit(route("household.show", house.id)), // Inertia
                     },
                     {
                         label: "Edit",
@@ -220,10 +217,33 @@ export default function Index({ households, puroks, streets, queryParams }) {
     //     { label: "Makeshift", value: "makeshift" },
     // ];
 
+    useEffect(() => {
+        if (success) {
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.success = null;
+    }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
+
     return (
         <AdminLayout>
             <Head title="Households Dashboard" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
+            <Toaster richColors />
             {/* <pre>{JSON.stringify(households, undefined, 2)}</pre> */}
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
@@ -236,12 +256,13 @@ export default function Index({ households, puroks, streets, queryParams }) {
                                     setVisibleColumns={setVisibleColumns}
                                     onPrint={handlePrint}
                                     showFilters={showFilters}
-                                    toggleShowFilters={() => setShowFilters((prev) => !prev)}
+                                    toggleShowFilters={() =>
+                                        setShowFilters((prev) => !prev)
+                                    }
                                 />
                             </div>
 
                             <div className="flex items-center gap-2 flex-wrap justify-end">
-
                                 <form
                                     onSubmit={handleSubmit}
                                     className="flex w-[300px] max-w-lg items-center space-x-1"
@@ -250,8 +271,12 @@ export default function Index({ households, puroks, streets, queryParams }) {
                                         type="text"
                                         placeholder="Search for Household Member Name"
                                         value={query}
-                                        onChange={(e) => setQuery(e.target.value)}
-                                        onKeyDown={(e) => onKeyPressed("name", e)}
+                                        onChange={(e) =>
+                                            setQuery(e.target.value)
+                                        }
+                                        onKeyDown={(e) =>
+                                            onKeyPressed("name", e)
+                                        }
                                         className="w-full"
                                     />
                                     <div className="relative group z-50">
@@ -292,7 +317,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
                                     "street",
                                     "own_type",
                                     "condition",
-                                    "structure"
+                                    "structure",
                                 ]}
                                 showFilters={true}
                                 puroks={puroks}
@@ -310,8 +335,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
                             showAll={showAll}
                             visibleColumns={visibleColumns}
                             setVisibleColumns={setVisibleColumns}
-                        >
-                        </DynamicTable>
+                        ></DynamicTable>
                     </div>
                 </div>
             </div>

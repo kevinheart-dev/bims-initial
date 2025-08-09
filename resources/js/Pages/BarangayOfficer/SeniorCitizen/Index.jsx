@@ -4,7 +4,7 @@ import DynamicTable from "@/Components/DynamicTable";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, Link, router, useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import {
     Eye,
     HousePlus,
@@ -13,6 +13,7 @@ import {
     Search,
     SquarePen,
     Trash2,
+    UserCheck,
     UserPlus,
 } from "lucide-react";
 import { IoIosArrowForward } from "react-icons/io";
@@ -30,18 +31,16 @@ import RadioGroup from "@/Components/RadioGroup";
 import DropdownInputField from "@/Components/DropdownInputField";
 import { Toaster, toast } from "sonner";
 
-export default function Index({
-    seniorCitizens,
-    puroks,
-    queryParams = null,
-    success,
-}) {
+export default function Index({ seniorCitizens, puroks, queryParams = null }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         { label: "Senior Citizen", showOnMobile: true },
     ];
     queryParams = queryParams || {};
     const APP_URL = useAppUrl();
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const handleSubmit = (e) => {
@@ -93,8 +92,9 @@ export default function Index({
         { key: "actions", label: "Actions" },
     ];
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedResident, setSelectedResident] = useState(null);
-    const [registerSenior, setRegisterSenior] = useState(null);
+    const [selectedResident, setSelectedResident] = useState(null); // view
+    const [registerSenior, setRegisterSenior] = useState(null); // add
+    const [seniorDetails, setSeniorDetails] = useState(null); // edit
 
     const handleView = async (resident) => {
         try {
@@ -107,6 +107,7 @@ export default function Index({
         }
         setIsModalOpen(true);
     };
+
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
             [
@@ -214,36 +215,43 @@ export default function Index({
             ) : (
                 <div className="flex items-center gap-2">
                     <span className="text-red-500 italic">No</span>
-                    <Button
-                        className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition"
-                        onClick={() => handleRegister(resident.id)}
-                    >
-                        Register
-                    </Button>
                 </div>
             ),
 
-        actions: (resident) => (
-            <ActionMenu
-                actions={[
-                    {
-                        label: "View",
-                        icon: <Eye className="w-4 h-4 text-indigo-600" />,
-                        onClick: () => handleView(resident.id),
-                    },
+        actions: (resident) => {
+            const isRegistered = !!resident.seniorcitizen;
+
+            const baseActions = [
+                {
+                    label: "View",
+                    icon: <Eye className="w-4 h-4 text-indigo-600" />,
+                    onClick: () => handleView(resident.id),
+                },
+            ];
+
+            if (isRegistered) {
+                baseActions.push(
                     {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
-                        onClick: () => handleEdit(resident.seniorcitizen.id),
+                        onClick: () => handleEdit(resident.id),
                     },
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
                         onClick: () => handleDelete(resident.seniorcitizen.id),
-                    },
-                ]}
-            />
-        ),
+                    }
+                );
+            } else {
+                baseActions.push({
+                    label: "Register",
+                    icon: <UserCheck className="w-4 h-4 text-blue-500" />,
+                    onClick: () => handleRegister(resident.id),
+                });
+            }
+
+            return <ActionMenu actions={baseActions} />;
+        },
     };
     const pensionTypes = [
         { label: "SSS", value: "SSS" },
@@ -270,14 +278,16 @@ export default function Index({
     // modal register
     const { data, setData, post, errors, reset, clearErrors } = useForm({
         resident_id: null,
-        osca_id_number: "",
         resident_image: null,
         resident_name: "",
         birthdate: null,
         purok_number: null,
+        osca_id_number: "",
         is_pensioner: null,
         pension_type: null,
         living_alone: null,
+        senior_id: null,
+        _method: undefined,
     });
 
     const handleRegister = (id) => {
@@ -290,7 +300,8 @@ export default function Index({
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename} ${resident.lastname
+                `${resident.firstname} ${resident.middlename} ${
+                    resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("purok_number", resident.purok_number);
@@ -308,12 +319,61 @@ export default function Index({
         });
     };
 
+    const handleUpdateRegistration = (e) => {
+        e.preventDefault();
+        post(route("senior_citizen.update", data.senior_id), {
+            onError: (errors) => {
+                console.error("Validation Errors:", errors);
+            },
+        });
+    };
+
     const handleModalClose = () => {
         setIsModalOpen(false);
         reset(); // Reset form data
         clearErrors(); // Clear validation errors
         setRegisterSenior(null);
         setSelectedResident(null);
+        setSeniorDetails(null);
+        if (props) {
+            props.success = null;
+            props.error = null;
+        }
+    };
+
+    const handleEdit = async (senior) => {
+        try {
+            const response = await axios.get(
+                `${APP_URL}/barangay_officer/senior_citizen/seniordetails/${senior}`
+            );
+            const resident = response.data.seniordetails;
+            setSeniorDetails(resident);
+            //console.log(resident);
+            setData("resident_id", resident.id);
+            setData(
+                "resident_name",
+                `${resident.firstname} ${resident.middlename} ${
+                    resident.lastname
+                } ${resident.suffix ?? ""}`
+            );
+            setData("purok_number", resident.purok_number);
+            setData("birthdate", resident.birthdate);
+            setData("resident_image", resident.resident_picture_path);
+            setData(
+                "osca_id_number",
+                resident.seniorcitizen?.osca_id_number
+                    ? resident.seniorcitizen?.osca_id_number.toString()
+                    : ""
+            );
+            setData("is_pensioner", resident.seniorcitizen?.is_pensioner || "");
+            setData("pension_type", resident.seniorcitizen?.pension_type || "");
+            setData("living_alone", resident.seniorcitizen?.living_alone || "");
+            setData("senior_id", resident.seniorcitizen.id);
+            setData("_method", "PUT");
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+        setIsModalOpen(true);
     };
 
     useEffect(() => {
@@ -322,16 +382,26 @@ export default function Index({
             toast.success(success, {
                 description: "Operation successful!",
                 duration: 3000,
-                className: "bg-green-100 text-green-800",
+                closeButton: true,
             });
         }
     }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+    }, [error]);
 
     return (
         <AdminLayout>
             <Head title="Senior Citizen" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-            <Toaster />
+            <Toaster richColors />
             <div className="p-2 md:p-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     {/* <pre>{JSON.stringify(seniorCitizens, undefined, 3)}</pre> */}
@@ -419,18 +489,27 @@ export default function Index({
                     handleModalClose();
                 }}
                 title={
-                    selectedResident != null
+                    registerSenior
+                        ? "Register Senior Citizen"
+                        : seniorDetails
+                        ? "Edit Senior Citizen Details"
+                        : selectedResident
                         ? "Resident Details"
-                        : "Register Senior Citizen"
+                        : ""
                 }
             >
                 {selectedResident && (
                     <PersonDetailContent person={selectedResident} />
                 )}
-                {registerSenior && (
+
+                {(registerSenior != null || seniorDetails != null) && (
                     <form
                         className="bg-gray-50 p-4 rounded-lg"
-                        onSubmit={handleSubmitRegistration}
+                        onSubmit={
+                            seniorDetails
+                                ? handleUpdateRegistration
+                                : handleSubmitRegistration
+                        }
                     >
                         <h3 className="text-xl font-medium text-gray-700 mb-8">
                             Senior Citizen Information
@@ -598,7 +677,8 @@ export default function Index({
                                 className="bg-blue-700 hover:bg-blue-400"
                                 type={"submit"}
                             >
-                                Register <IoIosArrowForward />
+                                {registerSenior ? "Register" : "Update"}{" "}
+                                <IoIosArrowForward />
                             </Button>
                         </div>
                     </form>

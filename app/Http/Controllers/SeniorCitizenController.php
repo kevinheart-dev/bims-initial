@@ -36,7 +36,7 @@ class SeniorCitizenController extends Controller
             ->where('residents.barangay_id', $brgy_id)
             ->whereDate('residents.birthdate', '<=', now()->subYears(60))
             ->with(['seniorcitizen:id,resident_id,osca_id_number,is_pensioner,pension_type,living_alone'])
-            ->leftJoin('senior_citizens', 'residents.id', '=', 'senior_citizens.resident_id');
+            ->leftJoin('senior_citizens', 'residents.id', '=', 'senior_citizens.resident_id')->distinct();
 
         if ($name = request('name')) {
             $query->where(function ($q) use ($name) {
@@ -74,7 +74,6 @@ class SeniorCitizenController extends Controller
             'seniorCitizens' => $seniorCitizens,
             'puroks' => $puroks,
             'queryParams' => request()->query() ?: null,
-            'success' => session('success') ?? null,
         ]);
     }
 
@@ -100,10 +99,9 @@ class SeniorCitizenController extends Controller
                 'osca_id_number' => $data['is_pensioner'] === 'yes' ? $data['osca_id_number'] : null,
                 'pension_type' => $data['is_pensioner'] === 'yes' ? $data['pension_type'] : null,
             ]);
-            return redirect()->route('senior_citizen.index')->with('success', 'Resident registered successfully!');
+            return redirect()->route('senior_citizen.index')->with('success', 'Resident registered as Senior Citizen successfully!');
         } catch (\Exception $e) {
-            dd($e->getMessage());
-            return back()->withErrors(['error' => 'Resident could not be registered: ' . $e->getMessage()]);
+            return back()->with('error','Resident could not be registered: ' . $e->getMessage());
         }
     }
 
@@ -128,7 +126,19 @@ class SeniorCitizenController extends Controller
      */
     public function update(UpdateSeniorCitizenRequest $request, SeniorCitizen $seniorCitizen)
     {
-        //
+        $data = $request->validated();
+        try {
+            $seniorCitizen->update([
+                'resident_id' => $data['resident_id'],
+                'is_pensioner' => $data['is_pensioner'],
+                'living_alone' => $data['living_alone'],
+                'osca_id_number' => $data['is_pensioner'] === 'yes' ? $data['osca_id_number'] : null,
+                'pension_type' => $data['is_pensioner'] === 'yes' ? $data['pension_type'] : null,
+            ]);
+            return redirect()->route('senior_citizen.index')->with('success', 'Resident Senior Citizen details updated successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error','Resident Deatils could not be updated: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -137,5 +147,29 @@ class SeniorCitizenController extends Controller
     public function destroy(SeniorCitizen $seniorCitizen)
     {
         //
+    }
+
+    public function seniordetails($id)
+    {
+        $resident = Resident::query()
+            ->select([
+                'residents.id',
+                'residents.firstname',
+                'residents.lastname',
+                'residents.middlename',
+                'residents.suffix',
+                'residents.birthdate',
+                'residents.purok_number',
+                'residents.resident_picture_path',
+            ])
+            ->where('residents.id', $id)
+            ->with([
+                'seniorcitizen:id,resident_id,osca_id_number,is_pensioner,pension_type,living_alone'
+            ])
+            ->first(); // Single result
+
+        return response()->json([
+            'seniordetails' => $resident,
+        ]);
     }
 }

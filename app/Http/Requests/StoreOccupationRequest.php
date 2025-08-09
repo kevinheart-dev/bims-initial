@@ -25,7 +25,6 @@ class StoreOccupationRequest extends FormRequest
             'resident_id' => ['required', 'exists:residents,id'],
 
             'occupations' => ['required', 'array', 'min:1'],
-            'occupations.*.employment_status' => ['required', 'in:employed,unemployed,under_employed,retired'],
             'occupations.*.occupation' => ['nullable', 'string', 'max:255'],
             'occupations.*.employment_type' => ['nullable', 'in:full_time,part_time,seasonal,contractual,self_employed'],
             'occupations.*.occupation_status' => ['required', 'in:active,inactive,ended,retired,terminated,resigned'],
@@ -44,8 +43,6 @@ class StoreOccupationRequest extends FormRequest
         return [
             'resident_id.required' => 'Selecting a resident is required.',
             'occupations.required' => 'At least one occupation entry is required.',
-
-            'occupations.*.employment_status.required' => 'Employment status is required.',
             'occupations.*.employment_status.in' => 'Employment status must be one of the allowed values.',
 
             'occupations.*.occupation.string' => 'Occupation must be a valid string.',

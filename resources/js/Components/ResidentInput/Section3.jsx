@@ -33,6 +33,42 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
         <div>
             <hr className="h-px bg-sky-500 border-0 transform scale-y-100 origin-center" />
             <p className="font-bold my-2 text-lg">Occupation Background</p>
+            <div className="w-[200px] mb-4">
+                <SelectField
+                    label="Current Employment Status"
+                    name="employment_status"
+                    value={data.employment_status || ""}
+                    onChange={(e) =>
+                        setData("employment_status", e.target.value)
+                    }
+                    items={[
+                        {
+                            label: "Employed",
+                            value: "employed",
+                        },
+                        {
+                            label: "Unemployed",
+                            value: "unemployed",
+                        },
+                        {
+                            label: "Underemployed",
+                            value: "under_employed",
+                        },
+                        {
+                            label: "Retired",
+                            value: "retired",
+                        },
+                        {
+                            label: "Student",
+                            value: "student",
+                        },
+                    ]}
+                />
+                <InputError
+                    message={errors.employment_status}
+                    className="mt-2"
+                />
+            </div>
 
             {Array.isArray(data.occupations) &&
                 data.occupations.map((occupation, occIndex) => (
@@ -41,46 +77,6 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                         className="border p-4 mb-4 rounded-md relative bg-gray-50"
                     >
                         <div className="grid md:grid-cols-4 gap-4">
-                            <div>
-                                <SelectField
-                                    label="Employment Status"
-                                    name="employment_status"
-                                    value={occupation.employment_status || ""}
-                                    onChange={(e) =>
-                                        handleOccupationFieldChange(
-                                            e,
-                                            occIndex,
-                                            "employment_status"
-                                        )
-                                    }
-                                    items={[
-                                        {
-                                            label: "Employed",
-                                            value: "employed",
-                                        },
-                                        {
-                                            label: "Unemployed",
-                                            value: "unemployed",
-                                        },
-                                        {
-                                            label: "Underemployed",
-                                            value: "under_employed",
-                                        },
-                                        {
-                                            label: "Retired",
-                                            value: "retired",
-                                        },
-                                    ]}
-                                />
-                                <InputError
-                                    message={
-                                        errors[
-                                            `occupations.${occIndex}.employment_status`
-                                        ]
-                                    }
-                                    className="mt-2"
-                                />
-                            </div>
                             <div>
                                 <DropdownInputField
                                     label="Occupation"
@@ -318,7 +314,11 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                     type="number"
                                     label="Income"
                                     name="income"
-                                    value={occupation.income || ""}
+                                    value={
+                                        occupation.income
+                                            ? occupation.income || ""
+                                            : occupation.monthly_income || ""
+                                    }
                                     onChange={(e) =>
                                         handleOccupationFieldChange(
                                             e,
@@ -339,7 +339,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                 <SelectField
                                     label="Income Frequency"
                                     name="income_frequency"
-                                    value={occupation.income_frequency || ""}
+                                    value={occupation.income_frequency}
                                     onChange={(e) =>
                                         handleOccupationFieldChange(
                                             e,
@@ -383,7 +383,20 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                 <RadioGroup
                                     label="Overseas Filipino Worker"
                                     name="is_ofw"
-                                    selectedValue={occupation.is_ofw || ""}
+                                    selectedValue={(() => {
+                                        try {
+                                            return (
+                                                occupation?.is_ofw?.toString() ??
+                                                ""
+                                            );
+                                        } catch (error) {
+                                            console.error(
+                                                "Error converting is_ofw to string:",
+                                                error
+                                            );
+                                            return occupation.is_ofw;
+                                        }
+                                    })()}
                                     options={[
                                         {
                                             label: "Yes",

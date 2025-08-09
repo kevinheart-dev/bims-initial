@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\BarangayOfficialController;
+use App\Http\Controllers\BarangayProfileController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DashboardController;
@@ -47,6 +49,21 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::get('resident/showresident/{id}', [ResidentController::class, 'showResident'])->name('resident.showresident');
     Route::get('resident/fetchresidents', [ResidentController::class, 'fetchResidents'])->name('resident.fetchresidents');
 
+    //barangay
+    Route::get('barangay_profile/barangaydetails', [BarangayProfileController::class, 'barangayDetails'])->name('barangay.details');
+
+    //senior
+    Route::get('senior_citizen/seniordetails/{id}', [SeniorCitizenController::class, 'seniordetails'])->name('senior_citizen.details');
+
+    //education
+    Route::get('education/history/{id}', [EducationController::class, 'educationHistory'])->name('education.history');
+
+    //occupation
+    Route::get('occupation/details/{id}', [OccupationController::class, 'occupationDetails'])->name('occupation.details');
+
+    //vehicle
+    Route::get('vehicle/details/{id}', [VehicleController::class, 'vehicleDetails'])->name('vehicle.details');
+
     Route::resource('resident', ResidentController::class);
     Route::resource('document', DocumentController::class);
     Route::resource('household', HouseholdController::class);
@@ -56,6 +73,8 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('vehicle', VehicleController::class);
     Route::resource('education', EducationController::class);
     Route::resource('occupation', OccupationController::class);
+    Route::resource('barangay_official', BarangayOfficialController::class);
+    Route::resource('barangay_profile', BarangayProfileController::class);
 });
 
 // Resident-only routes

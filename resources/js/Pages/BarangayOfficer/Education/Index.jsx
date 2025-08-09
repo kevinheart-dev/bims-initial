@@ -4,7 +4,7 @@ import DynamicTable from "@/Components/DynamicTable";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, Link, router, useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import {
     Eye,
     HousePlus,
@@ -45,7 +45,6 @@ export default function Index({
     educations,
     puroks,
     queryParams = null,
-    success,
     residents,
 }) {
     const breadcrumbs = [
@@ -54,6 +53,9 @@ export default function Index({
     ];
     queryParams = queryParams || {};
     const APP_URL = useAppUrl();
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
 
@@ -129,6 +131,7 @@ export default function Index({
     const [isPaginated, setIsPaginated] = useState(true);
     const [showAll, setShowAll] = useState(false);
     const [selectedResident, setSelectedResident] = useState(null);
+    const [educationHistory, setEducationHistory] = useState(null);
 
     const defaultVisibleCols = allColumns.map((col) => col.key);
     const [visibleColumns, setVisibleColumns] = useState(() => {
@@ -144,8 +147,9 @@ export default function Index({
 
     // list of residents for dropdown
     const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
-            }`,
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
+            res.suffix ?? ""
+        }`,
         value: res.id.toString(),
     }));
 
@@ -169,8 +173,9 @@ export default function Index({
         name: (row) => {
             const r = row?.resident;
             if (!r) return "Unknown";
-            return `${r.firstname ?? ""} ${r.middlename ?? ""} ${r.lastname ?? ""
-                } ${r.suffix ?? ""}`.trim();
+            return `${r.firstname ?? ""} ${r.middlename ?? ""} ${
+                r.lastname ?? ""
+            } ${r.suffix ?? ""}`.trim();
         },
 
         educational_attainment: (row) =>
@@ -202,10 +207,11 @@ export default function Index({
 
         school_type: (row) => (
             <span
-                className={`px-2 py-1 text-xs rounded ${row.school_type === "private"
+                className={`px-2 py-1 text-xs rounded ${
+                    row.school_type === "private"
                         ? "bg-purple-100 text-purple-800"
                         : "bg-green-100 text-green-800"
-                    }`}
+                }`}
             >
                 {EDUCATION_SCHOOL_TYPE[row.school_type] ?? "—"}
             </span>
@@ -251,6 +257,8 @@ export default function Index({
         birthdate: null,
         purok_number: null,
         educational_histories: [[]],
+        history_id: null,
+        _method: undefined,
     });
     const handleResidentChange = useResidentChangeHandler(residents, setData);
 
@@ -259,15 +267,18 @@ export default function Index({
         setIsModalOpen(true);
     };
 
-    const onSubmit = (e) => {
+    const handleAddSubmit = (e) => {
         e.preventDefault();
         post(route("education.store"), {
             onError: () => {
-                toast.error("Failed to add education record", {
-                    description: "Please check the form for errors.",
-                    duration: 3000,
-                    className: "bg-red-100 text-red-800",
-                });
+                console.error("Validation Errors:", errors);
+            },
+        });
+    };
+    const handleEditSubmit = (e) => {
+        e.preventDefault();
+        post(route("education.update", data.history_id), {
+            onError: () => {
                 console.error("Validation Errors:", errors);
             },
         });
@@ -275,6 +286,7 @@ export default function Index({
     const handleModalClose = () => {
         setIsModalOpen(false);
         setModalState("");
+        setEducationHistory(null);
         reset();
         clearErrors();
     };
@@ -284,10 +296,22 @@ export default function Index({
             toast.success(success, {
                 description: "Operation successful!",
                 duration: 3000,
-                className: "bg-green-100 text-green-800",
+                closeButton: true,
             });
         }
+        props.success = null;
     }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
 
     const addEducation = () => {
         setData("educational_histories", [
@@ -312,6 +336,44 @@ export default function Index({
             [column]: e.target.value,
         };
         setData(array, updated);
+    };
+
+    const handleEdit = async (id) => {
+        setModalState("add");
+        setEducationHistory(null);
+        try {
+            const response = await axios.get(
+                `${APP_URL}/barangay_officer/education/history/${id}`
+            );
+            const history = response.data.history;
+            setEducationHistory(history);
+            setData("resident_id", history.resident.id);
+            setData(
+                "resident_name",
+                `${history.resident.firstname} ${history.resident.middlename} ${
+                    history.resident.lastname
+                } ${history.resident.suffix ?? ""}`
+            );
+            setData("purok_number", history.resident.purok_number);
+            setData("birthdate", history.resident.birthdate);
+            setData("resident_image", history.resident.resident_picture_path);
+            setData("educational_histories", [
+                {
+                    education: history.educational_attainment || "",
+                    education_status: history.education_status || "",
+                    school_name: history.school_name || "",
+                    program: history.program || "",
+                    school_type: history.school_type || "",
+                    year_ended: history.year_ended || "",
+                    year_started: history.year_started || "",
+                },
+            ]);
+            setData("history_id", history.id);
+            setData("_method", "PUT");
+        } catch (error) {
+            console.error("Error fetching placeholders:", error);
+        }
+        setIsModalOpen(true);
     };
 
     return (
@@ -420,13 +482,21 @@ export default function Index({
                 }}
                 title={
                     modalState === "add"
-                        ? "Add Education History"
+                        ? educationHistory
+                            ? "Edit Education History"
+                            : "Add Education History"
                         : "View Resident Details"
                 }
             >
                 {modalState === "add" && (
                     <div className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg text-sm text-black p-4 space-y-4">
-                        <form onSubmit={onSubmit}>
+                        <form
+                            onSubmit={
+                                educationHistory
+                                    ? handleEditSubmit
+                                    : handleAddSubmit
+                            }
+                        >
                             <h3 className="text-xl font-medium text-gray-700 mb-8">
                                 Resident's Info
                             </h3>
@@ -457,6 +527,7 @@ export default function Index({
                                                 handleResidentChange(e)
                                             }
                                             items={residentsList}
+                                            readOnly={educationHistory}
                                         />
                                         <InputError
                                             message={errors.resident_id}
@@ -565,7 +636,7 @@ export default function Index({
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                `educational_histories.${edIndex}.education`
+                                                                    `educational_histories.${edIndex}.education`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -607,15 +678,15 @@ export default function Index({
                                                             }
                                                             disabled={
                                                                 edu_history.education ===
-                                                                "no_formal_education" ||
+                                                                    "no_formal_education" ||
                                                                 edu_history.education ===
-                                                                "no_education_yet"
+                                                                    "no_education_yet"
                                                             }
                                                         />
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                `educational_histories.${edIndex}.education_status`
+                                                                    `educational_histories.${edIndex}.education_status`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -641,15 +712,15 @@ export default function Index({
                                                             placeholder="Enter school name"
                                                             disabled={
                                                                 edu_history.education ===
-                                                                "no_formal_education" ||
+                                                                    "no_formal_education" ||
                                                                 edu_history.education ===
-                                                                "no_education_yet"
+                                                                    "no_education_yet"
                                                             }
                                                         />
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                `educational_histories.${edIndex}.school_name`
+                                                                    `educational_histories.${edIndex}.school_name`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -685,15 +756,15 @@ export default function Index({
                                                             }
                                                             disabled={
                                                                 edu_history.education ===
-                                                                "no_formal_education" ||
+                                                                    "no_formal_education" ||
                                                                 edu_history.education ===
-                                                                "no_education_yet"
+                                                                    "no_education_yet"
                                                             }
                                                         />
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                `educational_histories.${edIndex}.school_type`
+                                                                    `educational_histories.${edIndex}.school_type`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -717,15 +788,15 @@ export default function Index({
                                                             }
                                                             disabled={
                                                                 edu_history.education ===
-                                                                "no_formal_education" ||
+                                                                    "no_formal_education" ||
                                                                 edu_history.education ===
-                                                                "no_education_yet"
+                                                                    "no_education_yet"
                                                             }
                                                         />
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                `educational_histories.${edIndex}.year_started`
+                                                                    `educational_histories.${edIndex}.year_started`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -749,15 +820,15 @@ export default function Index({
                                                             }
                                                             disabled={
                                                                 edu_history.education ===
-                                                                "no_formal_education" ||
+                                                                    "no_formal_education" ||
                                                                 edu_history.education ===
-                                                                "no_education_yet"
+                                                                    "no_education_yet"
                                                             }
                                                         />
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                `educational_histories.${edIndex}.year_ended`
+                                                                    `educational_histories.${edIndex}.year_ended`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -765,66 +836,75 @@ export default function Index({
                                                     </div>
                                                     {edu_history.education ===
                                                         "college" && (
-                                                            <div>
-                                                                <InputField
-                                                                    label={
-                                                                        edu_history.education_status ===
-                                                                            "graduated"
-                                                                            ? "Finished Course"
-                                                                            : "Current Course"
-                                                                    }
-                                                                    name="program"
-                                                                    type="text"
-                                                                    value={
-                                                                        edu_history.program ||
-                                                                        ""
-                                                                    }
-                                                                    onChange={(e) =>
-                                                                        handleArrayValues(
-                                                                            e,
-                                                                            edIndex,
-                                                                            "program",
-                                                                            "educational_histories"
-                                                                        )
-                                                                    }
-                                                                    placeholder="Enter your course"
-                                                                    disabled={
-                                                                        edu_history.education ===
-                                                                        "no_formal_education"
-                                                                    }
-                                                                />
-                                                                <InputError
-                                                                    message={
-                                                                        errors[
+                                                        <div>
+                                                            <InputField
+                                                                label={
+                                                                    edu_history.education_status ===
+                                                                    "graduated"
+                                                                        ? "Finished Course"
+                                                                        : "Current Course"
+                                                                }
+                                                                name="program"
+                                                                type="text"
+                                                                value={
+                                                                    edu_history.program ||
+                                                                    ""
+                                                                }
+                                                                onChange={(e) =>
+                                                                    handleArrayValues(
+                                                                        e,
+                                                                        edIndex,
+                                                                        "program",
+                                                                        "educational_histories"
+                                                                    )
+                                                                }
+                                                                placeholder="Enter your course"
+                                                                disabled={
+                                                                    edu_history.education ===
+                                                                    "no_formal_education"
+                                                                }
+                                                            />
+                                                            <InputError
+                                                                message={
+                                                                    errors[
                                                                         `educational_histories.${edIndex}.program`
-                                                                        ]
-                                                                    }
-                                                                    className="mt-2"
-                                                                />
-                                                            </div>
-                                                        )}
+                                                                    ]
+                                                                }
+                                                                className="mt-2"
+                                                            />
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        removeEducation(edIndex)
-                                                    }
-                                                    className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
-                                                >
-                                                    <IoIosCloseCircleOutline className="text-2xl" />
-                                                </button>
+                                                {educationHistory === null && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            removeEducation(
+                                                                edIndex
+                                                            )
+                                                        }
+                                                        className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
+                                                    >
+                                                        <IoIosCloseCircleOutline className="text-2xl" />
+                                                    </button>
+                                                )}
                                             </div>
                                         )
                                     )}
                                 <div className="flex justify-between items-center p-3">
-                                    <button
-                                        type="button"
-                                        onClick={addEducation}
-                                        className="flex items-center gap-1 text-sm mb-4 text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
-                                    >
-                                        <IoIosAddCircleOutline className="text-2xl" />
-                                        <span>Add Edicational History</span>
-                                    </button>
+                                    {educationHistory === null ? (
+                                        <button
+                                            type="button"
+                                            onClick={addEducation}
+                                            className="flex items-center gap-1 text-sm mb-4 text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
+                                        >
+                                            <IoIosAddCircleOutline className="text-2xl" />
+                                            <span>Add Edicational History</span>
+                                        </button>
+                                    ) : (
+                                        <div></div>
+                                    )}
+
                                     <div className="flex justify-end items-center gap-2">
                                         <Button
                                             type="button"
@@ -836,7 +916,10 @@ export default function Index({
                                             className="bg-blue-700 hover:bg-blue-400 "
                                             type={"submit"}
                                         >
-                                            Add <MoveRight />
+                                            {educationHistory
+                                                ? "Update"
+                                                : "Add"}{" "}
+                                            <MoveRight />
                                         </Button>
                                     </div>
                                 </div>

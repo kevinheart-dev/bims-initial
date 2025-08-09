@@ -59,6 +59,7 @@ const PersonalInformation = ({
         voting_status: "",
         registered_voter: 0,
         registered_barangay: null,
+        employment_status: "",
         has_vehicle: null,
         vehicles: [],
         educational_histories: [],
@@ -105,8 +106,13 @@ const PersonalInformation = ({
 
     const onSubmit = (e) => {
         e.preventDefault();
-        post(route("resident.store"));
+        post(route("resident.store"), {
+            onSuccess: () => {
+                console.log("Successfully submitted!");
+            },
+        });
     };
+
     const showMaidenMiddleName =
         ["female", "LGBTQ"].includes(data.gender) &&
         ["married", "widowed", "Separated"].includes(data.civil_status);

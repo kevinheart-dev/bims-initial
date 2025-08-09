@@ -28,7 +28,7 @@ export default function Create({
         { label: "Residents Information", showOnMobile: false },
         {
             label: "Households",
-            href: route("resident.index"),
+            href: route("household.index"),
             showOnMobile: false,
         },
         { label: "Create a Household", showOnMobile: true },
@@ -36,7 +36,7 @@ export default function Create({
     const { error } = usePage().props.errors;
     const { data, setData, post, errors, reset } = useForm({
         resident_id: null,
-        fullname: "",
+        resident_name: "",
         birthdate: "",
         gender: "",
         resident_image: null,
@@ -73,6 +73,7 @@ export default function Create({
         e.preventDefault();
 
         post(route("household.store"), {
+            onFinish: () => reset(),
             onError: (errors) => {
                 console.error("Validation Errors:", errors);
             },
@@ -139,7 +140,9 @@ export default function Create({
                                                 <DropdownInputField
                                                     label="Full Name"
                                                     name="fullname"
-                                                    value={data.fullname || ""}
+                                                    value={
+                                                        data.resident_name || ""
+                                                    }
                                                     placeholder="Select a resident"
                                                     onChange={(e) =>
                                                         handleResidentChange(e)

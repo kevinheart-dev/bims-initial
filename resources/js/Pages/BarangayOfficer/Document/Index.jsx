@@ -1,5 +1,5 @@
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, Link, router, useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -26,13 +26,16 @@ import SidebarModal from "@/Components/SidebarModal";
 import { Textarea } from "@/components/ui/textarea";
 import { Toaster, toast } from "sonner";
 
-export default function Index({ documents, success = null, queryParams }) {
+export default function Index({ documents, queryParams }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         { label: "Documents", showOnMobile: true },
     ];
     queryParams = queryParams || {};
     const APP_URL = useAppUrl();
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const fileInputRef = useRef(null);
@@ -161,11 +164,6 @@ export default function Index({ documents, success = null, queryParams }) {
 
         post(route("document.store"), {
             onError: () => {
-                toast.error("Failed to add document", {
-                    description: "Please check the form for errors.",
-                    duration: 3000,
-                    className: "bg-red-100 text-red-800",
-                });
                 console.error("Validation Errors:", errors);
             },
         });
@@ -177,10 +175,22 @@ export default function Index({ documents, success = null, queryParams }) {
             toast.success(success, {
                 description: "Operation successful!",
                 duration: 3000,
-                className: "bg-green-100 text-green-800",
+                closeButton: true,
             });
         }
+        props.success = null;
     }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Please check the form for errors.",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
 
     return (
         <AdminLayout>
@@ -310,11 +320,11 @@ export default function Index({ documents, success = null, queryParams }) {
                                             </p>
                                         </div>
                                     </div>
-                                    {/* {data.file && (
-                                        <p className="text-xs text-gray-600 mt-1">
+                                    {data.file && (
+                                        <p className="text-sm text-gray-600 mt-1">
                                             Selected: {data.file.name}
                                         </p>
-                                    )} */}
+                                    )}
                                     {errors.file && (
                                         <p className="text-xs text-red-600 mt-1">
                                             {errors.file}

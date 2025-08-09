@@ -72,7 +72,6 @@ const Section5 = ({
                   head.suffix ? " " + head.suffix : ""
               }`
             : "";
-
         setData("housenumber", householdId); // set the selected household
         setData("name_of_head", fullName.trim()); // set the head's name
     };
@@ -199,9 +198,6 @@ const Section5 = ({
                                 label="Head of Household"
                                 name="name_of_head"
                                 value={data.name_of_head || ""}
-                                onChange={(e) =>
-                                    setData("name_of_head", e.target.value)
-                                }
                                 placeholder="Select or enter house number"
                                 disabled
                             />
@@ -237,6 +233,7 @@ const Section5 = ({
                                         value: "grandparent",
                                     },
                                 ]}
+                                disabled={data.relationship_to_head === "self"}
                             />
                             <InputError
                                 message={errors.relationship_to_head}
@@ -264,41 +261,13 @@ const Section5 = ({
                                     { label: "Extended", value: "extended" },
                                     { label: "Boarder", value: "boarder" },
                                 ]}
+                                disabled={data.relationship_to_head === "self"}
                             />
                             <InputError
                                 message={errors.household_position}
                                 className="mt-2"
                             />
                         </div>
-                        {/* {data.household_position == "extended" && (
-                            <div>
-                                <RadioGroup
-                                    label="Is Family Head"
-                                    name="is_family_head"
-                                    selectedValue={data.is_family_head || ""}
-                                    options={[
-                                        {
-                                            label: "Yes",
-                                            value: 1,
-                                        },
-                                        {
-                                            label: "No",
-                                            value: 0,
-                                        },
-                                    ]}
-                                    onChange={(e) =>
-                                        setData(
-                                            "is_family_head",
-                                            e.target.value
-                                        )
-                                    }
-                                />
-                                <InputError
-                                    message={errors.is_family_head}
-                                    className="mt-2"
-                                />
-                            </div>
-                        )} */}
                     </div>
                 </div>
             )}

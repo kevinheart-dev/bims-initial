@@ -149,6 +149,10 @@ class Resident extends Model
     {
         return $this->hasMany(HouseholdResident::class);
     }
+    public function latestHouseholdResident()
+    {
+        return $this->hasOne(HouseholdResident::class)->latestOfMany();
+    }
 
     public function latestHousehold()
     {

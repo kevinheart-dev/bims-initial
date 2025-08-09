@@ -81,9 +81,9 @@ class StoreResidentRequest extends FormRequest
 
             // SECTION 3: Occupational Information
             'occupations' => ['nullable', 'array'],
-            'occupations.*.employment_status' => [
+            'employment_status' => [
                 'required_with:occupations.*.occupation',
-                Rule::in(['employed', 'unemployed', 'under_employed', 'retired']),
+                Rule::in(['employed', 'unemployed', 'under_employed', 'retired', 'student']),
             ],
             'occupations.*.occupation' => ['nullable', 'string', 'max:100'],
             'occupations.*.employment_type' => [
@@ -115,7 +115,7 @@ class StoreResidentRequest extends FormRequest
             'emergency_contact_number' => ['required', 'digits_between:7,15'],
             'emergency_contact_name' => ['required', 'string', 'max:255'],
             'emergency_contact_relationship' => ['required', 'string', 'max:100'],
-            'blood_type' => ['required', Rule::in([
+            'blood_type' => ['nullable', Rule::in([
                 'A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−'
             ])],
 
@@ -163,20 +163,6 @@ class StoreResidentRequest extends FormRequest
             // 'pets.*.is_vaccinated' => ['required', 'boolean'],
             // 'pets.*.quantity' => ['required', 'integer', 'min:1', 'max:100'],
         ];
-
-        if ($this->input('is_household_head') == 1) {
-            $rules['ownership_type'][0] = 'required';
-            $rules['housing_condition'][0] = 'required';
-            $rules['house_structure'][0] = 'required';
-            $rules['number_of_rooms'][0] = 'required';
-            $rules['number_of_floors'][0] = 'required';
-            $rules['bath_and_wash_area'][0] = 'required';
-            $rules['toilet_type'][0] = 'required';
-            $rules['electricity_type'][0] = 'required';
-            $rules['water_source_type'][0] = 'required';
-            $rules['waste_management_type'][0] = 'required';
-            $rules['type_of_internet'][0] = 'required';
-        }
         return $rules;
     }
     public function attributes()
@@ -184,7 +170,6 @@ class StoreResidentRequest extends FormRequest
         $attributes = [];
 
         foreach ($this->input('occupations', []) as $index => $occupation) {
-            $attributes["occupations.$index.employment_status"] = "Employment Status #".($index + 1);
             $attributes["occupations.$index.occupation"] = "Occupation #".($index + 1);
             $attributes["occupations.$index.employer"] = "Employer Name #".($index + 1);
             $attributes["occupations.$index.employment_type"] = "Employment Type #".($index + 1);
