@@ -48,8 +48,7 @@ class SeniorCitizenController extends Controller
                     ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ["%{$name}%"])
                     ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ["%{$name}%"]);
             });
-
-}
+        }
 
 
 

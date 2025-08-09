@@ -25,7 +25,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('barangay_officer.dashboard');
 
     Route::get('/document/fill/{resident}/{template}', [DocumentGenerationController::class, 'generateFilledDocument'])
-    ->name('document.fill');
+        ->name('document.fill');
 
     // axios documents
     Route::get('/document/preview/{id}', [DocumentController::class, 'preview'])->name('document.preview');
