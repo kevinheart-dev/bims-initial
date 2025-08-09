@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BarangayOfficial;
 use App\Http\Requests\StoreBarangayOfficialRequest;
 use App\Http\Requests\UpdateBarangayOfficialRequest;
+use Inertia\Inertia;
 
 class BarangayOfficialController extends Controller
 {
@@ -13,7 +14,7 @@ class BarangayOfficialController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render("BarangayOfficer/BarangayInfo/BarangayOfficials");
     }
 
     /**

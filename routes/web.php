@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\BarangayOfficialController;
+use App\Http\Controllers\BarangayProfileController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DashboardController;
@@ -23,7 +25,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('barangay_officer.dashboard');
 
     Route::get('/document/fill/{resident}/{template}', [DocumentGenerationController::class, 'generateFilledDocument'])
-    ->name('document.fill');
+        ->name('document.fill');
 
     // axios documents
     Route::get('/document/preview/{id}', [DocumentController::class, 'preview'])->name('document.preview');
@@ -56,6 +58,8 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('vehicle', VehicleController::class);
     Route::resource('education', EducationController::class);
     Route::resource('occupation', OccupationController::class);
+    Route::resource('barangay_official', BarangayOfficialController::class);
+    Route::resource('barangay_profile', BarangayProfileController::class);
 });
 
 // Resident-only routes
