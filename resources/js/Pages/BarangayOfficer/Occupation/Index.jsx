@@ -12,6 +12,7 @@ import {
     HousePlus,
     MoveRight,
     Pencil,
+    RotateCcw,
     Search,
     SquarePen,
     SquarePlus,
@@ -1042,14 +1043,24 @@ export default function Index({
                                 ) : (
                                     <div></div>
                                 )}
+                                <div className="flex justify-end items-center text-end mt-5 gap-4">
+                                    {occupationDetails == null && (
+                                        <Button
+                                            type="button"
+                                            onClick={() => reset()}
+                                        >
+                                            <RotateCcw /> Reset
+                                        </Button>
+                                    )}
 
-                                <Button
-                                    className="bg-blue-700 hover:bg-blue-400 "
-                                    type={"submit"}
-                                >
-                                    {occupationDetails ? "Update" : "Add"}{" "}
-                                    <IoIosArrowForward />
-                                </Button>
+                                    <Button
+                                        className="bg-blue-700 hover:bg-blue-400 "
+                                        type={"submit"}
+                                    >
+                                        {occupationDetails ? "Update" : "Add"}{" "}
+                                        <IoIosArrowForward />
+                                    </Button>
+                                </div>
                             </div>
                         </form>
                     </div>

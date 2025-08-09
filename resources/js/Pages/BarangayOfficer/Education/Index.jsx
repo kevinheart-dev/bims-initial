@@ -906,12 +906,15 @@ export default function Index({
                                     )}
 
                                     <div className="flex justify-end items-center gap-2">
-                                        <Button
-                                            type="button"
-                                            onClick={() => reset()}
-                                        >
-                                            <RotateCcw /> Reset
-                                        </Button>
+                                        {educationHistory == null && (
+                                            <Button
+                                                type="button"
+                                                onClick={() => reset()}
+                                            >
+                                                <RotateCcw /> Reset
+                                            </Button>
+                                        )}
+
                                         <Button
                                             className="bg-blue-700 hover:bg-blue-400 "
                                             type={"submit"}
