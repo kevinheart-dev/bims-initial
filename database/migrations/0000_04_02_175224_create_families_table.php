@@ -29,7 +29,7 @@ return new class extends Migration
                 'poor',
                 'low_income',
                 'lower_middle_income',
-                'iddle_income',
+                'middle_income',
                 'upper_middle_income',
                 'above_high_income'
             ]);

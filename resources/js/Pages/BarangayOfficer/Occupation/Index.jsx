@@ -95,7 +95,6 @@ export default function Index({
         ([key, value]) =>
             [
                 "purok",
-                "employment_status",
                 "employment_type",
                 "work_arrangement",
                 "occupation_status",
@@ -117,7 +116,6 @@ export default function Index({
         { key: "id", label: "Occupation ID" },
         { key: "name", label: "Name" },
         { key: "occupation", label: "Occupation" },
-        { key: "employment_status", label: "Employment Status" },
         { key: "employment_type", label: "Employment Type" },
         { key: "work_arrangement", label: "Work Arrangement" },
         { key: "occupation_status", label: "Status" },
@@ -163,30 +161,6 @@ export default function Index({
         occupation: (row) => (
             <span className="text-xs font-medium">{row.occupation || "—"}</span>
         ),
-
-        employment_status: (row) => {
-            const value = row?.resident?.employment_status ?? "—";
-            const statusColor =
-                value === "employed"
-                    ? "bg-green-100 text-green-800"
-                    : value === "unemployed"
-                    ? "bg-red-100 text-red-800"
-                    : value === "self_employed"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : value === "student"
-                    ? "bg-blue-100 text-blue-800"
-                    : value === "under_employed"
-                    ? "bg-purple-100 text-purple-800"
-                    : "bg-gray-100 text-gray-700";
-
-            return (
-                <span
-                    className={`${statusColor} px-2 py-0.5 rounded-md text-xs font-medium capitalize`}
-                >
-                    {RESIDENT_EMPLOYMENT_STATUS_TEXT[value]}
-                </span>
-            );
-        },
 
         employment_type: (row) => (
             <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-md text-xs font-medium capitalize">
@@ -303,6 +277,7 @@ export default function Index({
         resident_image: null,
         birthdate: null,
         purok_number: null,
+        employment_status: null,
         occupations: [[]],
         _method: undefined,
         occupation_id: null,
@@ -354,13 +329,16 @@ export default function Index({
                 resident_image: occupation.resident.image ?? null,
                 birthdate: occupation.resident.birthdate ?? null,
                 purok_number: occupation.resident.purok_number ?? null,
+                employment_status: occupation.resident.employment_status,
                 occupations: [
                     {
                         employer: occupation.employer || "",
                         occupation: occupation.occupation || "",
                         occupation_status: occupation.occupation_status || "",
                         employment_type: occupation.employment_type || "",
-                        is_ofw: occupation.is_ofw || "",
+                        is_ofw: occupation.is_ofw
+                            ? occupation.is_ofw.toString()
+                            : "",
                         work_arrangement: occupation.work_arrangement || "",
                         income: occupation.monthly_income || 0,
                         income_frequency: "monthly",
@@ -428,7 +406,7 @@ export default function Index({
 
     return (
         <AdminLayout>
-            <Head title="Senior Citizen" />
+            <Head title="Residents Occupations" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <Toaster richColors />
             <div className="p-2 md:p-4">
@@ -498,7 +476,6 @@ export default function Index({
                                 searchFieldName={searchFieldName}
                                 visibleFilters={[
                                     "purok",
-                                    "employment_status",
                                     "employment_type",
                                     "work_arrangement",
                                     "occupation_status",
@@ -605,6 +582,45 @@ export default function Index({
                                                 readOnly={true}
                                             />
                                         </div>
+                                    </div>
+                                    <div className="w-[200px] mb-4">
+                                        <SelectField
+                                            label="Current Employment Status"
+                                            name="employment_status"
+                                            value={data.employment_status || ""}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "employment_status",
+                                                    e.target.value
+                                                )
+                                            }
+                                            items={[
+                                                {
+                                                    label: "Employed",
+                                                    value: "employed",
+                                                },
+                                                {
+                                                    label: "Unemployed",
+                                                    value: "unemployed",
+                                                },
+                                                {
+                                                    label: "Underemployed",
+                                                    value: "under_employed",
+                                                },
+                                                {
+                                                    label: "Retired",
+                                                    value: "retired",
+                                                },
+                                                {
+                                                    label: "Student",
+                                                    value: "student",
+                                                },
+                                            ]}
+                                        />
+                                        <InputError
+                                            message={errors.employment_status}
+                                            className="mt-2"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -805,7 +821,7 @@ export default function Index({
                                                             value: "hybrid",
                                                         },
                                                     ]}
-                                                    selectedValue={
+                                                    value={
                                                         occupation.work_arrangement ||
                                                         ""
                                                     }

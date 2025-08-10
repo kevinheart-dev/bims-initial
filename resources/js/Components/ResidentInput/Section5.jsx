@@ -232,6 +232,10 @@ const Section5 = ({
                                         label: "Grandparent",
                                         value: "grandparent",
                                     },
+                                    {
+                                        label: "Other",
+                                        value: "other",
+                                    },
                                 ]}
                                 disabled={data.relationship_to_head === "self"}
                             />
@@ -255,7 +259,7 @@ const Section5 = ({
                                 placeholder="Select or enter house number"
                                 items={[
                                     {
-                                        label: "Primary/Nuclear",
+                                        label: "Primary",
                                         value: "primary",
                                     },
                                     { label: "Extended", value: "extended" },

@@ -142,7 +142,7 @@ class OccupationController extends Controller
 
         $occupations = $query->paginate(10)->withQueryString();
         // $occupations = $query->get();
-        $residents = Resident::where('barangay_id', $brgy_id)->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'birthdate')->get();
+        $residents = Resident::where('barangay_id', $brgy_id)->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'birthdate', 'employment_status')->get();
         $occupationTypes = OccupationType::all()->pluck('name');
 
 
@@ -210,22 +210,17 @@ class OccupationController extends Controller
                 // Re-fetch occupations including newly created ones
                 $family->load(['members.occupations']);
 
-                // Sum total monthly income from all members’ occupations
-                $allIncomes = $family->members
-                    ->flatMap(
-                        fn($m) =>
-                        // Filter only active occupations
-                        $m->occupations->filter(
-                            fn($occupation) =>
-                            is_null($occupation->ended_at) || $occupation->ended_at >= now()
-                        )
-                    )
-                    // Extract income values
-                    ->pluck('monthly_income')
-                    // Remove nulls
-                    ->filter();
+                $sumIncome = $family->members->sum(function ($member) {
+                    return $member->occupations
+                        ->filter(fn($occupation) => is_null($occupation->ended_at) || $occupation->ended_at >= now())
+                        ->sum('monthly_income') ?? 0;
+                });
 
-                $totalIncome = $allIncomes->avg();
+                $memberCount = $family->members->count();
+
+                $totalIncome = $memberCount > 0
+                    ? $sumIncome / $memberCount
+                    : 0;
 
                 // Bracket classification
                 $incomeBracket = match (true) {
@@ -239,12 +234,12 @@ class OccupationController extends Controller
                 };
 
                 $incomeCategory = match (true) {
-                    $totalIncome <= 10000 => 'survival',
-                    $totalIncome <= 20000 => 'poor',
-                    $totalIncome <= 40000 => 'low_income',
-                    $totalIncome <= 70000 => 'lower_middle_income',
-                    $totalIncome <= 120000 => 'middle_income',
-                    $totalIncome <= 200000 => 'upper_middle_income',
+                    $totalIncome <= 5000 => 'survival',
+                    $totalIncome <= 10000 => 'poor',
+                    $totalIncome <= 20000 => 'low_income',
+                    $totalIncome <= 40000 => 'lower_middle_income',
+                    $totalIncome <= 70000 => 'middle_income',
+                    $totalIncome <= 120000 => 'upper_middle_income',
                     default => 'above_high_income',
                 };
 
@@ -252,6 +247,10 @@ class OccupationController extends Controller
                 $family->update([
                     'income_bracket' => $incomeBracket,
                     'income_category' => $incomeCategory,
+                ]);
+
+                $resident->update([
+                    'employment_status' => $data['employment_status']
                 ]);
             }
 
@@ -304,7 +303,7 @@ class OccupationController extends Controller
                         default => $occupationData['income'] ?? null,
                     };
 
-                    $newOccupation[] = [
+                    $newOccupation = [
                         'occupation' => $occupationData['occupation'] ?? null,
                         'employment_type' => $occupationData['employment_type'] ?? null,
                         'occupation_status' => $occupationData['occupation_status'] ?? null,
@@ -314,33 +313,25 @@ class OccupationController extends Controller
                         'started_at' => $occupationData['started_at'],
                         'ended_at' => $occupationData['ended_at'] ?? null,
                         'monthly_income' => $income,
-                        'created_at' => now(),
-                        'updated_at' => now()
                     ];
                 }
 
-                // Save all new occupations in one go
                 $occupation->update($newOccupation);
 
                 // Re-fetch occupations including newly created ones
                 $family->load(['members.occupations']);
 
-                // Sum total monthly income from all members’ occupations
-                $allIncomes = $family->members
-                    ->flatMap(
-                        fn($m) =>
-                        // Filter only active occupations
-                        $m->occupations->filter(
-                            fn($occupation) =>
-                            is_null($occupation->ended_at) || $occupation->ended_at >= now()
-                        )
-                    )
-                    // Extract income values
-                    ->pluck('monthly_income')
-                    // Remove nulls
-                    ->filter();
+                $totalIncome = $family->members->sum(function ($member) {
+                    return $member->occupations
+                        ->filter(fn($occupation) => is_null($occupation->ended_at) || $occupation->ended_at >= now())
+                        ->sum('monthly_income') ?? 0;
+                });
 
-                $totalIncome = $allIncomes->avg();
+                // $memberCount = $family->members->count();
+
+                // $totalIncome = $memberCount > 0
+                //     ? $sumIncome / $memberCount
+                //     : 0;
 
                 // Bracket classification
                 $incomeBracket = match (true) {
@@ -354,12 +345,12 @@ class OccupationController extends Controller
                 };
 
                 $incomeCategory = match (true) {
-                    $totalIncome <= 10000 => 'survival',
-                    $totalIncome <= 20000 => 'poor',
-                    $totalIncome <= 40000 => 'low_income',
-                    $totalIncome <= 70000 => 'lower_middle_income',
-                    $totalIncome <= 120000 => 'middle_income',
-                    $totalIncome <= 200000 => 'upper_middle_income',
+                    $totalIncome <= 5000 => 'survival',
+                    $totalIncome <= 10000 => 'poor',
+                    $totalIncome <= 20000 => 'low_income',
+                    $totalIncome <= 40000 => 'lower_middle_income',
+                    $totalIncome <= 70000 => 'middle_income',
+                    $totalIncome <= 120000 => 'upper_middle_income',
                     default => 'above_high_income',
                 };
 
@@ -369,11 +360,8 @@ class OccupationController extends Controller
                     'income_category' => $incomeCategory,
                 ]);
 
-
-                $latestOccupation = $resident->latestOccupation;
-                $isActive = $latestOccupation && (is_null($latestOccupation->ended_at) || $latestOccupation->ended_at >= now());
                 $resident->update([
-                    'employment_status' => $isActive ? 'employed' : 'unemployed',
+                    'employment_status' => $data['employment_status']
                 ]);
             }
 

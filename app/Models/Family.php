@@ -14,6 +14,7 @@ class Family extends Model
         'barangay_id',
         'household_id',
         'income_bracket',
+        'income_category',
         'family_type',
         'family_name',
         'created_at',

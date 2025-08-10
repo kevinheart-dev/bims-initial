@@ -127,7 +127,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
         },
         house_number: (house) => (
             <Link
-                href={route("household.show", house.id)}
+                href={route("household.show", house.household?.id)}
                 className="hover:text-blue-500 hover:underline"
             >
                 {" "}

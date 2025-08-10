@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barangay;
+use App\Models\Family;
 use App\Models\FamilyRelation;
 use App\Models\Household;
 use App\Http\Requests\StoreHouseholdRequest;
@@ -236,17 +237,58 @@ class HouseholdController extends Controller
                     ]);
                 }
                 if($resident){
-                    $resident->update([
-                        'household_id' => $household->id,
-                    ]);
                     $household->householdHeadHistories()->create([
                         'resident_id' => $data['resident_id'],
                         'start_year'  => date('Y'),
                         'end_year'    => null,
                     ]);
+
+                    // Assuming $resident already contains the single resident model
+                    $monthlyIncome = $resident->occupations()
+                        ->whereNull('ended_at')
+                        ->sum('monthly_income') ?? 0;
+
+                    // Determine income bracket based on the monthly income
+                    if ($monthlyIncome < 5000) {
+                        $incomeBracket = 'below_5000';
+                        $incomeCategory = 'survival';
+                    } elseif ($monthlyIncome <= 10000) {
+                        $incomeBracket = '5001_10000';
+                        $incomeCategory = 'poor';
+                    } elseif ($monthlyIncome <= 20000) {
+                        $incomeBracket = '10001_20000';
+                        $incomeCategory = 'low_income';
+                    } elseif ($monthlyIncome <= 40000) {
+                        $incomeBracket = '20001_40000';
+                        $incomeCategory = 'lower_middle_income';
+                    } elseif ($monthlyIncome <= 70000) {
+                        $incomeBracket = '40001_70000';
+                        $incomeCategory = 'middle_income';
+                    } elseif ($monthlyIncome <= 120000) {
+                        $incomeBracket = '70001_120000';
+                        $incomeCategory = 'upper_middle_income';
+                    } else {
+                        $incomeBracket = 'above_120001';
+                        $incomeCategory = 'high_income';
+                    }
+
+                    // Create the family record
+                    $family = Family::create([
+                        'barangay_id'     => $barangayId,
+                        'household_id'    => $household->id,
+                        'income_bracket'  => $incomeBracket,
+                        'income_category' => $incomeCategory,
+                        'family_name'     => $resident->lastname ?? null,
+                        'family_type'     => "nuclear",
+                    ]);
+
+                    $resident->update([
+                        'household_id' => $household->id,
+                        'family_id' => $family->id,
+                    ]);
+
+
                 }
-
-
             }
             return redirect()->route('household.index')->with('success', 'Household created successfully!');
         } catch (\Exception $e) {
@@ -533,18 +575,34 @@ class HouseholdController extends Controller
                     ]);
                 }
 
-                // Update old head's relationship_to_head instead of deleting
                 if ($currentHead) {
-                    $newRelationship = FamilyRelation::where('resident_id', $currentHead->resident_id)
-                        ->where('related_to', $data['resident_id'])
-                        ->value('relationship');
 
-                    $currentHead->update([
-                        'relationship_to_head' => $newRelationship ?? 'other'
-                    ]);
+                    $newRelationship = HouseholdResident::where('resident_id', $data['resident_id'])
+                        ->where('household_id', $household->id)
+                        ->value('relationship_to_head');
+
+                    HouseholdResident::where('resident_id', $data['resident_id'])
+                        ->where('household_id', $household->id)
+                        ->update([
+                            'relationship_to_head' => $currentHead->relationship_to_head
+                        ]);
+
+                    $headRelationship = match ($newRelationship) {
+                        'spouse'  => 'spouse',
+                        'child'   => 'parent',
+                        'parent'  => 'child',
+                        'sibling' => 'sibling',
+                        'grandparent' => 'grandchild',
+                        default   => 'other',
+                    };
+
+                    HouseholdResident::where('resident_id', $currentHead->resident_id)
+                        ->where('household_id', $household->id)
+                        ->update([
+                            'relationship_to_head' => $headRelationship
+                        ]);
                 }
 
-                // Update new head's householdResident record
                 $household->householdResidents()
                     ->where('resident_id', $data['resident_id'])
                     ->update([
@@ -552,14 +610,12 @@ class HouseholdController extends Controller
                         'household_position'   => 'nuclear',
                     ]);
 
-                // Add new head to history
                 $household->householdHeadHistories()->create([
                     'resident_id' => $data['resident_id'],
                     'start_year'  => date('Y'),
                     'end_year'    => null,
                 ]);
 
-                // Ensure resident is marked as head
                 $resident = Resident::find($data['resident_id']);
                 if ($resident && $resident->is_household_head == 0) {
                     $resident->update([

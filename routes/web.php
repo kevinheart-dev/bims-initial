@@ -42,6 +42,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     // family
     Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('resident.familytree');
     Route::get('family/showfamily/{family}', [FamilyController::class, 'showFamily'])->name('family.showfamily');
+    Route::get('family/getfamilydetails/{id}', [FamilyController::class, 'getFamilyDetails'])->name('family.getdetails');
 
     // resident
     Route::get('resident/createresident', [ResidentController::class, 'createResident'])->name('resident.createresident');

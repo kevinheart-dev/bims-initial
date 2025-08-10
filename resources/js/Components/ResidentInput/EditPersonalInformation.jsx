@@ -109,7 +109,9 @@ const EditPersonalInformation = ({
             resident?.social_welfare_profile?.solo_parent_id_number || "",
         voter_id_number: resident?.voting_information?.voter_id_number || "",
         voting_status: resident?.voting_information?.voting_status || "",
-        registered_voter: resident?.registered_voter || 0,
+        registered_voter: resident?.registered_voter
+            ? resident?.registered_voter.toString()
+            : "0",
         registered_barangay:
             resident?.voting_information?.registered_barangay_id?.toString() ||
             null,
@@ -129,7 +131,9 @@ const EditPersonalInformation = ({
             Array.isArray(resident?.occupations) && resident.occupations.length
                 ? resident.occupations.map((occ) => ({
                       ...occ,
+                      income: occ.monthly_income || 0,
                       income_frequency: occ.income_frequency || "monthly",
+                      work_arrangement: occ.work_arrangement || "",
                   }))
                 : [],
         weight_kg: resident?.medical_information?.weight_kg || 0,

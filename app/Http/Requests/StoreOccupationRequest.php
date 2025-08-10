@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreOccupationRequest extends FormRequest
 {
@@ -23,7 +24,10 @@ class StoreOccupationRequest extends FormRequest
     {
         return [
             'resident_id' => ['required', 'exists:residents,id'],
-
+            'employment_status' => [
+                'required_with:occupations.*.occupation',
+                Rule::in(['employed', 'unemployed', 'under_employed', 'retired', 'student']),
+            ],
             'occupations' => ['required', 'array', 'min:1'],
             'occupations.*.occupation' => ['nullable', 'string', 'max:255'],
             'occupations.*.employment_type' => ['nullable', 'in:full_time,part_time,seasonal,contractual,self_employed'],
