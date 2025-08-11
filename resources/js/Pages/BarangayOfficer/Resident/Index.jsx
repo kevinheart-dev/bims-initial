@@ -25,6 +25,7 @@ import {
 import * as CONSTANTS from "@/constants";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 
 export default function Index({ residents, queryParams = null, puroks }) {
     queryParams = queryParams || {};
@@ -173,6 +174,22 @@ export default function Index({ residents, queryParams = null, puroks }) {
     };
 
     // === AP TO HERE
+
+    // ==== delete modal
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [residentToDelete, setResidentToDelete] = useState(null);
+
+    const handleDeleteClick = (id) => {
+        setResidentToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        router.delete(route("resident.destroy", residentToDelete));
+        setIsDeleteModalOpen(false);
+    };
+
+    // ======
     const columnRenderers = {
         resident_id: (resident) => resident.id,
 
@@ -194,9 +211,8 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
         name: (resident) => (
             <div className="text-sm break-words whitespace-normal leading-snug">
-                {`${resident.firstname} ${resident.middlename ?? ""} ${
-                    resident.lastname ?? ""
-                } ${resident.suffix ?? ""}`}
+                {`${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname ?? ""
+                    } ${resident.suffix ?? ""}`}
             </div>
         ),
 
@@ -239,7 +255,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
         employment_status: (resident) =>
             CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-                resident.employment_status
+            resident.employment_status
             ],
 
         occupation: (resident) => {
@@ -259,15 +275,14 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
         registered_voter: (resident) => (
             <span
-                className={`${
-                    CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
-                        resident.registered_voter
-                    ]
-                } whitespace-nowrap`}
+                className={`${CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
+                    resident.registered_voter
+                ]
+                    } whitespace-nowrap`}
             >
                 {
                     CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[
-                        resident.registered_voter
+                    resident.registered_voter
                     ]
                 }
             </span>
@@ -297,7 +312,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(resident.id),
+                        onClick: () => handleDeleteClick(resident.id),
                     },
                     {
                         label: "Family Tree",
@@ -456,7 +471,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                 toggleShowAll={() => setShowAll(!showAll)}
                                 visibleColumns={visibleColumns}
                                 setVisibleColumns={setVisibleColumns}
-                                // showTotal={true}
+                            // showTotal={true}
                             />
                         </div>
                     </div>
@@ -471,6 +486,12 @@ export default function Index({ residents, queryParams = null, puroks }) {
                     <PersonDetailContent person={selectedResident} />
                 )}
             </SidebarModal>
+
+            <DeleteConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+            />
         </AdminLayout>
     );
 }

@@ -394,12 +394,13 @@ export const BARANGAY_OFFICIAL_POSITIONS_TEXT = {
     barangay_captain: "Barangay Captain",
     barangay_secretary: "Barangay Secretary",
     barangay_treasurer: "Barangay Treasurer",
-    councilor: "Councilor",
+    barangay_kagawad: "Barangay Kagawad",
     sk_chairman: "SK Chairman",
-    sk_member: "SK Member",
+    sk_kagawad: "SK Kagawad",
     health_worker: "Health Worker",
     tanod: "Tanod",
 };
+
 
 export const BARANGAY_OFFICIAL_POSITIONS_CLASS = {
     barangay_captain: "bg-blue-100 text-blue-800",

@@ -151,11 +151,10 @@ export default function Index({ households, puroks, streets, queryParams }) {
         ),
         housing_condition: (house) => (
             <span
-                className={`px-2 py-1 text-sm rounded-lg ${
-                    CONSTANTS.HOUSING_CONDITION_COLOR[
-                        house.housing_condition
+                className={`px-2 py-1 text-sm rounded-lg ${CONSTANTS.HOUSING_CONDITION_COLOR[
+                    house.housing_condition
                     ] ?? "bg-gray-100 text-gray-700"
-                }`}
+                    }`}
             >
                 {CONSTANTS.HOUSEHOLD_CONDITION_TEXT[house.housing_condition]}
             </span>
