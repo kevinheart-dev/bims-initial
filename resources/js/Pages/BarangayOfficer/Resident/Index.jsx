@@ -98,6 +98,9 @@ export default function Index({ residents, queryParams = null, puroks }) {
     const handleEdit = (id) => {
         router.get(route("resident.edit", id));
     };
+    const handleDelete = (id) => {
+        router.delete(route("resident.destroy", id));
+    };
 
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },

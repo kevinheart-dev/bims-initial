@@ -233,6 +233,10 @@ const Section5 = ({
                                         value: "grandparent",
                                     },
                                     {
+                                        label: "Grandchild",
+                                        value: "grandchild",
+                                    },
+                                    {
                                         label: "Other",
                                         value: "other",
                                     },

@@ -1578,7 +1578,85 @@ class ResidentController extends Controller
      */
     public function destroy(Resident $resident)
     {
-        //
+        DB::beginTransaction();
+
+        try {
+            $householdResident = HouseholdResident::where('resident_id', $resident->id)->first();
+
+            if ($householdResident && $householdResident->relationship_to_head === 'self') {
+                // Get all members in the household
+                $householdId = $householdResident->household_id;
+                $members = HouseholdResident::where('household_id', $householdId)
+                    ->where('resident_id', '!=', $resident->id)
+                    ->get();
+
+                if ($members->isNotEmpty()) {
+                    // Assign a new head (first member)
+                    $newHead = $members->firstWhere('relationship_to_head', 'spouse'); // 1. Spouse
+                    if (!$newHead) {
+                        $newHead = $members->where('relationship_to_head', 'child')
+                            ->sortBy(function ($member) {
+                                return optional($member->resident)->birthdate;
+                            })
+                            ->first(); // 2. Eldest child
+                    }
+                    if (!$newHead) {
+                        $newHead = $members->firstWhere('relationship_to_head', 'grandparent'); // 3. Grandparent
+                    }
+                    if (!$newHead) {
+                        $newHead = $members->first(); // 4. Any remaining member
+                    }
+
+                    if (!$newHead) {
+                        return; // No one to assign
+                    }
+
+                    if ($newHead) {
+                        $previousRole = $newHead->relationship_to_head;
+                        $newHead->update(['relationship_to_head' => 'self']);
+                        $newHead->resident->update(['is_household_head' => true]);
+                        // Adjust relationships based on new head
+                        foreach ($members as $member) {
+                            if ($member->id === $newHead->id) {
+                                continue; // skip the new head
+                            }
+
+                            switch ($previousRole) {
+                                case 'child':
+                                    if ($member->relationship_to_head === 'spouse') {
+                                        $member->update(['relationship_to_head' => 'parent']);
+                                    } elseif ($member->relationship_to_head === 'parent') {
+                                        $member->update(['relationship_to_head' => 'grandparent']);
+                                    }
+                                    break;
+                                case 'grandparent':
+                                    if ($member->relationship_to_head === 'parent') {
+                                        $member->update(['relationship_to_head' => 'child']);
+                                    }
+                                    break;
+
+                                default:
+                                    if ($member->relationship_to_head === 'self') {
+                                        $member->update(['relationship_to_head' => 'other']);
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Delete resident
+            $residentName = ucwords($resident->full_name);
+            $resident->delete();
+
+            DB::commit();
+            return redirect()->route('resident.index')
+                ->with('success', "Resident {$residentName} deleted successfully!");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Resident could not be deleted: ' . $e->getMessage());
+        }
     }
 
     public function getFamilyTree(Resident $resident)
