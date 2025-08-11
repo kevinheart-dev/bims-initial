@@ -19,10 +19,17 @@ const BarangayOfficials = () => {
                 {officials.map((official) => (
                     <OfficialCard
                         key={official.id}
+                        id={official.resident.id}
                         name={`${official.resident.firstname} ${official.resident.lastname}`}
-                        position={BARANGAY_OFFICIAL_POSITIONS_TEXT[official.position]}
-                        purok={official.designation?.purok?.purok_number || "N/A"}
-                        term={`${official.designation?.started_at || "0000"} – ${official.designation?.ended_at || "0000"}`}
+                        position={
+                            BARANGAY_OFFICIAL_POSITIONS_TEXT[official.position]
+                        }
+                        purok={
+                            official.designation?.purok?.purok_number || "N/A"
+                        }
+                        term={`${
+                            official.designation?.started_at || "0000"
+                        } – ${official.designation?.ended_at || "0000"}`}
                         phone={official.resident.contact_number}
                         email={official.resident.email}
                         image={official.resident.resident_picture_path}

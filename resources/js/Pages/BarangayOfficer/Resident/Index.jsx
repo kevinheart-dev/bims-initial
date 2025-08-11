@@ -99,10 +99,6 @@ export default function Index({ residents, queryParams = null, puroks }) {
     const handleEdit = (id) => {
         router.get(route("resident.edit", id));
     };
-    const handleDelete = (id) => {
-        router.delete(route("resident.destroy", id));
-    };
-
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         { label: "Residents Table", showOnMobile: true },
@@ -214,8 +210,9 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
         name: (resident) => (
             <div className="text-sm break-words whitespace-normal leading-snug">
-                {`${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname ?? ""
-                    } ${resident.suffix ?? ""}`}
+                {`${resident.firstname} ${resident.middlename ?? ""} ${
+                    resident.lastname ?? ""
+                } ${resident.suffix ?? ""}`}
             </div>
         ),
 
@@ -258,7 +255,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
         employment_status: (resident) =>
             CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-            resident.employment_status
+                resident.employment_status
             ],
 
         occupation: (resident) => {
@@ -278,14 +275,15 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
         registered_voter: (resident) => (
             <span
-                className={`${CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
-                    resident.registered_voter
-                ]
-                    } whitespace-nowrap`}
+                className={`${
+                    CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
+                        resident.registered_voter
+                    ]
+                } whitespace-nowrap`}
             >
                 {
                     CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[
-                    resident.registered_voter
+                        resident.registered_voter
                     ]
                 }
             </span>
@@ -474,7 +472,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                 toggleShowAll={() => setShowAll(!showAll)}
                                 visibleColumns={visibleColumns}
                                 setVisibleColumns={setVisibleColumns}
-                            // showTotal={true}
+                                // showTotal={true}
                             />
                         </div>
                     </div>

@@ -1,17 +1,27 @@
 import { useState } from "react";
-import axios from "axios";
 import { Mail, Phone, Pencil } from "lucide-react"; // ✅ Pencil icon for edit
 import SidebarModal from "@/Components/SidebarModal";
 import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
+import axios from "axios";
+import useAppUrl from "@/hooks/useAppUrl";
 
-const OfficialCard = ({ id, name, position, purok, term, phone, email, image }) => {
+const OfficialCard = ({
+    id,
+    name,
+    position,
+    purok,
+    term,
+    phone,
+    email,
+    image,
+}) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedResident, setSelectedResident] = useState(null);
-
+    const APP_URL = useAppUrl();
     const handleView = async (residentId) => {
         try {
             const response = await axios.get(
-                `${import.meta.env.VITE_APP_URL}/barangay_officer/resident/showresident/${residentId}`
+                `${APP_URL}/barangay_officer/resident/showresident/${residentId}`
             );
             setSelectedResident(response.data.resident);
             setIsModalOpen(true);
@@ -40,7 +50,9 @@ const OfficialCard = ({ id, name, position, purok, term, phone, email, image }) 
             <div className="px-3 py-3">
                 <h2 className="text-lg font-bold text-gray-900">{name}</h2>
                 <p className="text-blue-700 font-semibold">{position}</p>
-                <p className="text-gray-500 text-xs">Designation: Purok {purok}</p>
+                <p className="text-gray-500 text-xs">
+                    Designation: Purok {purok}
+                </p>
                 <p className="text-gray-500 text-xs mb-3">Term: {term}</p>
 
                 {/* Contact Info */}
