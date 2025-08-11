@@ -8,6 +8,7 @@ use App\Models\SeniorCitizen;
 use App\Http\Requests\StoreSeniorCitizenRequest;
 use App\Http\Requests\UpdateSeniorCitizenRequest;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class SeniorCitizenController extends Controller
@@ -17,7 +18,7 @@ class SeniorCitizenController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->resident->barangay_id;
+        $brgy_id = Auth()->user()->barangay_id;
         $today = Carbon::today();
         $puroks = Purok::where('barangay_id', $brgy_id)
             ->orderBy('purok_number', 'asc')
@@ -145,7 +146,16 @@ class SeniorCitizenController extends Controller
      */
     public function destroy(SeniorCitizen $seniorCitizen)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $seniorCitizen->delete();
+            DB::commit();
+            return redirect()->route('senior_citizen.index')
+                ->with('success', "Record deleted successfully!");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Record could not be deleted: ' . $e->getMessage());
+        }
     }
 
     public function seniordetails($id)

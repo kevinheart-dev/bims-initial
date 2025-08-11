@@ -1,13 +1,47 @@
-// resources/js/Components/DeleteConfirmationModal.jsx
 import { useState } from "react";
 import { X } from "lucide-react";
+import { useForm } from "@inertiajs/react";
+import axios from "axios";
+import { toast } from "sonner";
 
 export default function DeleteConfirmationModal({
     isOpen,
     onClose,
     onConfirm,
+    residentId,
 }) {
     const [confirmationText, setConfirmationText] = useState("");
+
+    const { data, setData, post, reset, setError } = useForm({
+        password: "",
+        id: residentId || null,
+    });
+
+    const onSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await axios.post(route("user.confirm"), {
+                id: residentId,
+                password: data.password,
+            });
+            if (res.data.status === "success") {
+                onConfirm(); // will call router.delete(...)
+                reset();
+                onClose();
+            }
+        } catch (err) {
+            toast.error("Password Incorrect", {
+                description: err.message,
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+    };
+
+    const handleClose = () => {
+        reset();
+        onClose();
+    };
 
     if (!isOpen) return null;
 
@@ -17,7 +51,7 @@ export default function DeleteConfirmationModal({
                 {/* Close Button */}
                 <button
                     className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-                    onClick={onClose}
+                    onClick={handleClose}
                 >
                     <X size={20} />
                 </button>
@@ -46,35 +80,36 @@ export default function DeleteConfirmationModal({
 
                 {/* Message */}
                 <p className="text-sm text-gray-600 text-center mb-4">
-                    Are you sure you want to delete this record? This action cannot be undone.
+                    Are you sure you want to delete this record? This action
+                    cannot be undone.
                 </p>
 
                 {/* Input */}
-                <label className="block text-sm text-gray-500 mb-1">
-                    Please type <span className="font-semibold">"Reset settings"</span> to confirm.
-                </label>
-                <input
-                    type="text"
-                    className="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-red-300 focus:outline-none"
-                    value={confirmationText}
-                    onChange={(e) => setConfirmationText(e.target.value)}
-                    placeholder="Reset settings"
-                />
+                <form onSubmit={onSubmit}>
+                    <label className="block text-sm text-gray-500 mb-1">
+                        Please type your{" "}
+                        <span className="font-semibold">
+                            "Account Password"
+                        </span>{" "}
+                        to confirm.
+                    </label>
+                    <input
+                        type="password"
+                        className="w-full border rounded-md p-2 text-sm focus:ring-2 focus:ring-red-300 focus:outline-none"
+                        name="password"
+                        value={data.password}
+                        onChange={(e) => setData("password", e.target.value)}
+                        placeholder="Confirm Password"
+                    />
 
-                {/* Confirm Button */}
-                <button
-                    onClick={() => {
-                        if (confirmationText === "Reset settings") {
-                            onConfirm();
-                            setConfirmationText("");
-                        } else {
-                            alert("Please type 'Reset settings' exactly.");
-                        }
-                    }}
-                    className="mt-4 w-full bg-black text-white py-2 rounded-md hover:bg-gray-800"
-                >
-                    I UNDERSTAND, DELETE
-                </button>
+                    {/* Confirm Button */}
+                    <button
+                        type="submit"
+                        className="mt-4 w-full bg-black text-white py-2 rounded-md hover:bg-gray-800"
+                    >
+                        I UNDERSTAND, DELETE
+                    </button>
+                </form>
             </div>
         </div>
     );

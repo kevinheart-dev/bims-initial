@@ -24,7 +24,7 @@ class HouseholdController extends Controller
      */
     public function index()
     {
-        $brgy_id = auth()->user()->resident->barangay_id;
+        $brgy_id = Auth()->user()->barangay_id;;
 
         $query = HouseholdResident::query()
             ->with([
@@ -130,7 +130,7 @@ class HouseholdController extends Controller
      */
     public function create()
     {
-        $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
+        $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
         $streets = Street::whereIn('purok_id', $puroks)
             ->orderBy('street_name', 'asc')
@@ -152,7 +152,7 @@ class HouseholdController extends Controller
      */
     public function store(StoreHouseholdRequest $request)
     {
-        $barangayId = Auth()->user()->resident->barangay_id;
+        $barangayId = Auth()->user()->barangay_id;
         $data = $request->validated();
         $householdData = [
             'barangay_id' =>  $barangayId ?? null,
@@ -393,7 +393,7 @@ class HouseholdController extends Controller
      */
     public function edit(Household $household)
     {
-        $brgy_id = auth()->user()->resident->barangay_id;
+        $brgy_id = Auth()->user()->barangay_id;
 
         // Fetch the latest head for this household
         $latestHead = HouseholdResident::with([
@@ -442,7 +442,7 @@ class HouseholdController extends Controller
      */
     public function update(UpdateHouseholdRequest $request, Household $household)
     {
-        $barangayId = auth()->user()->resident->barangay_id;
+        $barangayId = Auth()->user()->barangay_id;
         $data = $request->validated();
         //dd($data);
         $householdData = [

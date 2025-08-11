@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -61,5 +63,25 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         //
+    }
+
+    public function confirmPassword(Request $request)
+    {
+        $data = $request->validate([
+            'id' => ['required'],
+            'password' => ['required', 'min:5']
+        ]);
+
+        if (!Hash::check($data['password'], Auth::user()->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Password is incorrect!'
+            ], 422);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Password confirmed!'
+        ]);
     }
 }

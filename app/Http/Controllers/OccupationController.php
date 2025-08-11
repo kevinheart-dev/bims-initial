@@ -19,7 +19,7 @@ class OccupationController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->resident->barangay_id;
+        $brgy_id = Auth()->user()->barangay_id;
         $query = Occupation::with([
             'resident:id,firstname,lastname,middlename,suffix,purok_number,employment_status,barangay_id'
         ])

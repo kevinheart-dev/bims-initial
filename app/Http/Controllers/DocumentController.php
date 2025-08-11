@@ -16,7 +16,7 @@ class DocumentController extends Controller
      */
     public function index()
     {
-        $barangay_id = auth()->user()->resident->barangay_id;
+        $barangay_id = Auth()->user()->barangay_id;
         $query = Document::where('barangay_id',  $barangay_id);
         if ($search = trim(request('name', ''))) {
             $query->where('name', 'like', "%{$search}%");
@@ -31,7 +31,7 @@ class DocumentController extends Controller
     // axios
     // public function index()
     // {
-    //     $barangay_id = auth()->user()->resident->barangay_id;
+    //     $barangay_id = Auth()->user()->barangay_id;
     //     $query = Document::where('barangay_id',  $barangay_id);
     //     $documents = $query->get();
     //     return Inertia::render('BarangayOfficer/Document/PracticeAxios');
@@ -39,7 +39,7 @@ class DocumentController extends Controller
 
     public function fetchDocuments()
     {
-        $barangay_id = auth()->user()->resident->barangay_id;
+        $barangay_id = Auth()->user()->barangay_id;
         $query = Document::where('barangay_id',  $barangay_id);
         $documents = $query->get();
         return response()->json([

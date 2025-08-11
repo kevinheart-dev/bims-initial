@@ -34,6 +34,7 @@ import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import useResidentChangeHandler from "@/hooks/handleResidentChange";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 
 export default function Index({
     vehicles,
@@ -53,6 +54,8 @@ export default function Index({
     const error = props?.error ?? null;
     const [modalState, setModalState] = useState(null);
     const [vehicleDetails, setVehicleDetails] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
+    const [residentToDelete, setResidentToDelete] = useState(null); //delete
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -196,7 +199,7 @@ export default function Index({
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(row.id),
+                        onClick: () => handleDeleteClick(row.vehicle_id),
                     },
                 ]}
             />
@@ -269,6 +272,16 @@ export default function Index({
         } catch (error) {
             console.error("Error fetching occupation details:", error);
         }
+    };
+
+    const handleDeleteClick = (id) => {
+        setResidentToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        router.delete(route("vehicle.destroy", residentToDelete));
+        setIsDeleteModalOpen(false);
     };
 
     useEffect(() => {
@@ -715,6 +728,14 @@ export default function Index({
                                     </div>
                                 )}
                             </SidebarModal>
+                            <DeleteConfirmationModal
+                                isOpen={isDeleteModalOpen}
+                                onClose={() => {
+                                    setIsDeleteModalOpen(false);
+                                }}
+                                onConfirm={confirmDelete}
+                                residentId={residentToDelete}
+                            />
                         </div>
                     </div>
                 </div>

@@ -17,7 +17,7 @@ class EducationController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->resident->barangay_id;
+        $brgy_id = Auth()->user()->barangay_id;
 
         $query = EducationalHistory::with([
             'resident:id,firstname,lastname,middlename,suffix,purok_number,barangay_id'
@@ -193,9 +193,18 @@ class EducationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(EducationalHistory $educationalHistory)
+    public function destroy(EducationalHistory $education)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $education->delete();
+            DB::commit();
+            return redirect()->route('education.index')
+                ->with('success', "Education Record deleted successfully!");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Record could not be deleted: ' . $e->getMessage());
+        }
     }
 
     public function educationHistory($id){

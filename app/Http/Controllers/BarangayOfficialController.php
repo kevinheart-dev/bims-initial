@@ -14,7 +14,7 @@ class BarangayOfficialController extends Controller
      */
     public function index()
     {
-        $brgy_id = auth()->user()->resident->barangay_id;
+        $brgy_id = auth()->user()->barangay_id;
 
         $officials = BarangayOfficial::with([
             'resident.barangay',

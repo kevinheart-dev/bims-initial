@@ -30,6 +30,7 @@ import InputError from "@/Components/InputError";
 import RadioGroup from "@/Components/RadioGroup";
 import DropdownInputField from "@/Components/DropdownInputField";
 import { Toaster, toast } from "sonner";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 
 export default function Index({ seniorCitizens, puroks, queryParams = null }) {
     const breadcrumbs = [
@@ -95,6 +96,8 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
     const [selectedResident, setSelectedResident] = useState(null); // view
     const [registerSenior, setRegisterSenior] = useState(null); // add
     const [seniorDetails, setSeniorDetails] = useState(null); // edit
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
+    const [residentToDelete, setResidentToDelete] = useState(null); //delete
 
     const handleView = async (resident) => {
         try {
@@ -239,7 +242,8 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(resident.seniorcitizen.id),
+                        onClick: () =>
+                            handleDeleteClick(resident.seniorcitizen.id),
                     }
                 );
             } else {
@@ -374,6 +378,16 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             console.error("Error fetching data:", error);
         }
         setIsModalOpen(true);
+    };
+
+    const handleDeleteClick = (id) => {
+        setResidentToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        router.delete(route("senior_citizen.destroy", residentToDelete));
+        setIsDeleteModalOpen(false);
     };
 
     useEffect(() => {
@@ -686,6 +700,14 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                     </form>
                 )}
             </SidebarModal>
+            <DeleteConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                }}
+                onConfirm={confirmDelete}
+                residentId={residentToDelete}
+            />
         </AdminLayout>
     );
 }

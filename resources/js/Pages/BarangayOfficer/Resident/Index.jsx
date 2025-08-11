@@ -490,8 +490,11 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
             <DeleteConfirmationModal
                 isOpen={isDeleteModalOpen}
-                onClose={() => setIsDeleteModalOpen(false)}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                }}
                 onConfirm={confirmDelete}
+                residentId={residentToDelete}
             />
         </AdminLayout>
     );

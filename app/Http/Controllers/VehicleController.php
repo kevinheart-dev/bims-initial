@@ -7,6 +7,7 @@ use App\Models\Resident;
 use App\Models\Vehicle;
 use App\Http\Requests\StoreVehicleRequest;
 use App\Http\Requests\UpdateVehicleRequest;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class VehicleController extends Controller
@@ -16,7 +17,7 @@ class VehicleController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->resident->barangay_id;
+        $brgy_id = Auth()->user()->barangay_id;
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
 
         $query = Resident::where('barangay_id', $brgy_id)
@@ -164,7 +165,16 @@ class VehicleController extends Controller
      */
     public function destroy(Vehicle $vehicle)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $vehicle->delete();
+            DB::commit();
+            return redirect()->route('vehicle.index')
+                ->with('success', "Vehicle Record deleted successfully!");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Record could not be deleted: ' . $e->getMessage());
+        }
     }
 
     public function vehicleDetails($id){

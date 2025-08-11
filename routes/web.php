@@ -15,6 +15,7 @@ use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\SeniorCitizenController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -65,6 +66,11 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     //vehicle
     Route::get('vehicle/details/{id}', [VehicleController::class, 'vehicleDetails'])->name('vehicle.details');
 
+    //user
+    Route::post('user/confirmpassword', [UserController::class, 'confirmPassword'])->name('user.confirm');
+
+
+    Route::resource('user', UserController::class);
     Route::resource('resident', ResidentController::class);
     Route::resource('document', DocumentController::class);
     Route::resource('household', HouseholdController::class);

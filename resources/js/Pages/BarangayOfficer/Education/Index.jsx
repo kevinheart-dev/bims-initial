@@ -40,6 +40,7 @@ import useResidentChangeHandler from "@/hooks/handleResidentChange";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import SelectField from "@/Components/SelectField";
 import YearDropdown from "@/Components/YearDropdown";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 
 export default function Index({
     educations,
@@ -132,6 +133,8 @@ export default function Index({
     const [showAll, setShowAll] = useState(false);
     const [selectedResident, setSelectedResident] = useState(null);
     const [educationHistory, setEducationHistory] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
+    const [deleteHistoryID, setDeleteHistoryID] = useState(null); //delete
 
     const defaultVisibleCols = allColumns.map((col) => col.key);
     const [visibleColumns, setVisibleColumns] = useState(() => {
@@ -242,7 +245,7 @@ export default function Index({
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(row?.id),
+                        onClick: () => handleDeleteClick(row?.id),
                     },
                 ]}
             />
@@ -374,6 +377,16 @@ export default function Index({
             console.error("Error fetching placeholders:", error);
         }
         setIsModalOpen(true);
+    };
+
+    const handleDeleteClick = (id) => {
+        setDeleteHistoryID(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        router.delete(route("education.destroy", deleteHistoryID));
+        setIsDeleteModalOpen(false);
     };
 
     return (
@@ -936,6 +949,14 @@ export default function Index({
                     ) : null
                 ) : null}
             </SidebarModal>
+            <DeleteConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                }}
+                onConfirm={confirmDelete}
+                residentId={deleteHistoryID}
+            />
         </AdminLayout>
     );
 }

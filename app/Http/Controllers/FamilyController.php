@@ -19,7 +19,7 @@ class FamilyController extends Controller
      */
     public function index()
     {
-        $brgyId = Auth()->user()->resident->barangay_id; // get brgy id through the admin
+        $brgyId = Auth()->user()->barangay_id; // get brgy id through the admin
         $query = Family::with([
             'latestHead.householdResidents.household'
         ])->with([
@@ -87,7 +87,7 @@ class FamilyController extends Controller
     public function create()
     {
         dd('ers');
-        $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
+        $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
         return Inertia::render("BarangayOfficer/Family/AddFamily");
     }
 

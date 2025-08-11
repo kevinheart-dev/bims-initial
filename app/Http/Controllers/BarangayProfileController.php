@@ -9,7 +9,7 @@ class BarangayProfileController extends Controller
 {
     public function barangayDetails()
     {
-        $barangayId = auth()->user()->resident->barangay_id;
+        $barangayId = Auth()->user()->barangay_id;
         $barangay = Barangay::findOrFail($barangayId);
 
         return response()->json([

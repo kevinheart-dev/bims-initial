@@ -46,7 +46,7 @@ class ResidentController extends Controller
 
     public function index()
     {
-        $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
+        $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
         $query = Resident::query()
             ->with([
                 'socialwelfareprofile',
@@ -205,7 +205,7 @@ class ResidentController extends Controller
      */
     public function create()
     {
-        $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
+        $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
         $streets = Street::whereIn('purok_id', $puroks)
             ->orderBy('street_name', 'asc')
@@ -228,7 +228,7 @@ class ResidentController extends Controller
     public function store(StoreResidentRequest $request)
     {
 
-        $barangayId = Auth()->user()->resident->barangay_id; // get brgy id through the admin
+        $barangayId = Auth()->user()->barangay_id; // get brgy id through the admin
         $data = $request->validated();
         /**
          * @var $image \Illuminate\Http\UploadedFile
@@ -651,7 +651,7 @@ class ResidentController extends Controller
 
     public function storeHousehold(StoreResidentHouseholdRequest $request)
     {
-        $barangayId = Auth()->user()->resident->barangay_id;
+        $barangayId = Auth()->user()->barangay_id;
         $data = $request->validated();
         /**
          * @var $image \Illuminate\Http\UploadedFile
@@ -1116,7 +1116,7 @@ class ResidentController extends Controller
             },
         ]);
 
-        $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
+        $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
         $streets = Street::whereIn('purok_id', $puroks)
             ->orderBy('street_name', 'asc')
@@ -1329,7 +1329,7 @@ class ResidentController extends Controller
             DB::beginTransaction();
             $data = $request->validated();
             //dd($data );
-            $barangayId = Auth()->user()->resident->barangay_id;
+            $barangayId = Auth()->user()->barangay_id;
             /**
              * @var $image \Illuminate\Http\UploadedFile
              */
@@ -1732,7 +1732,7 @@ class ResidentController extends Controller
 
     public function createResident()
     {
-        $brgy_id = Auth()->user()->resident->barangay_id; // get brgy id through the admin
+        $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
         $streets = Street::whereIn('purok_id', $puroks)
             ->orderBy('street_name', 'asc')
@@ -1793,7 +1793,7 @@ class ResidentController extends Controller
 
     public function fetchResidents()
     {
-        $barangayId = Auth()->user()->resident->barangay_id;
+        $barangayId = Auth()->user()->barangay_id;
         $residents = Resident::with([
             'votingInformation',
             'educationalHistories',
