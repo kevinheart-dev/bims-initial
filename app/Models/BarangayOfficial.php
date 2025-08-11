@@ -29,4 +29,9 @@ class BarangayOfficial extends Model
     {
         return $this->belongsTo(BarangayOfficialTerm::class);
     }
+
+    public function designation()
+    {
+        return $this->hasOne(Designation::class, 'barangay_kagawad_id');
+    }
 }
