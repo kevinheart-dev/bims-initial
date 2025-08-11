@@ -909,8 +909,8 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 value: "temporary",
                                                             },
                                                             {
-                                                                label: "Migrant",
-                                                                value: "migrant",
+                                                                label: "Immigrant",
+                                                                value: "immigrant",
                                                             },
                                                         ]}
                                                         onChange={(e) =>

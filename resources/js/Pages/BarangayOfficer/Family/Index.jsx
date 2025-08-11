@@ -23,7 +23,8 @@ import {
     School,
     RotateCcw,
 } from "lucide-react";
-
+import axios from "axios";
+import useAppUrl from "@/hooks/useAppUrl";
 import {
     FAMILY_TYPE_TEXT,
     INCOME_BRACKET_TEXT,
@@ -54,12 +55,14 @@ export default function Index({
         },
     ];
     queryParams = queryParams || {};
+    const APP_URL = useAppUrl();
     const props = usePage().props;
     const success = props?.success ?? null;
     const error = props?.error ?? null;
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [familyDetails, setFamilyDetails] = useState(null);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -97,10 +100,6 @@ export default function Index({
         { key: "purok_number", label: "Purok Number" },
         { key: "actions", label: "Actions" },
     ];
-
-    const handleEdit = (id) => {
-        // Your edit logic here
-    };
 
     const handleDelete = (id) => {
         // Your delete logic here
@@ -275,10 +274,13 @@ export default function Index({
         purok_number: null,
         house_number: null,
         members: [defaultMember],
+        family_id: null,
+        _method: undefined,
     });
 
     const handleModalClose = () => {
         setIsModalOpen(false);
+        setFamilyDetails(null);
         reset();
         clearErrors();
     };
@@ -345,6 +347,76 @@ export default function Index({
                 console.error("Validation Errors:", errors);
             },
         });
+    };
+    const handleUpdateFamily = (e) => {
+        e.preventDefault();
+        post(route("family.update", data.family_id), {
+            onError: (errors) => {
+                console.error("Validation Errors:", errors);
+            },
+        });
+    };
+
+    const handleEdit = async (id) => {
+        try {
+            const response = await axios.get(
+                `${APP_URL}/barangay_officer/family/getfamilydetails/${id}`
+            );
+
+            const details = response.data.family_details;
+
+            // Find the latest household head
+            const latestHead =
+                details.members
+                    .filter((m) => m.is_household_head === 1)
+                    .sort(
+                        (a, b) =>
+                            new Date(b.updated_at) - new Date(a.updated_at)
+                    )[0] || details.members[0];
+
+            setData({
+                resident_id: latestHead?.id ?? null,
+                resident_name: `${latestHead?.firstname} ${
+                    latestHead?.middlename ? latestHead?.middlename + " " : ""
+                }${latestHead?.lastname} ${latestHead?.suffix}`.trim(),
+                resident_image: latestHead?.resident_picture_path,
+                birthdate: latestHead?.birthdate ?? null,
+                purok_number: latestHead?.purok_number ?? null,
+                house_number:
+                    latestHead?.household?.house_number ??
+                    details.household?.house_number ??
+                    null,
+                members: (details.members || [])
+                    .map((m) => {
+                        const householdResident =
+                            m.household_residents?.[0] || {};
+                        return {
+                            resident_id: m.id,
+                            resident_name: `${m.firstname} ${
+                                m.middlename ? m.middlename + " " : ""
+                            }${m.lastname} ${m.suffix}`.trim(),
+                            resident_image: m.resident_picture_path,
+                            birthdate: m.birthdate,
+                            purok_number: m.purok_number,
+                            relationship_to_head:
+                                householdResident.relationship_to_head ?? "",
+                            household_position:
+                                householdResident.household_position ?? "",
+                        };
+                    })
+                    .filter(
+                        (m) => m.relationship_to_head.toLowerCase() !== "self"
+                    ),
+                family_id: details.id,
+                _method: "PUT",
+            });
+
+            console.log(details);
+            setFamilyDetails(details);
+            setIsModalOpen(true);
+        } catch (error) {
+            console.error("Error fetching family details:", error);
+        }
     };
 
     useEffect(() => {
@@ -486,7 +558,9 @@ export default function Index({
                         onClose={() => {
                             handleModalClose();
                         }}
-                        title={"Add a Family"}
+                        title={
+                            familyDetails ? "Edit a Family" : "Create a Family"
+                        }
                     >
                         <p className="text-sm text-black bg-white/10 backdrop-blur-sm border border-white/40 rounded-lg p-4 mb-6 shadow-lg">
                             <strong>Reminder:</strong> To add a family, the
@@ -498,7 +572,11 @@ export default function Index({
 
                         <form
                             className="bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg p-6 mb-8 text-white"
-                            onSubmit={handleSubmitFamily}
+                            onSubmit={
+                                familyDetails
+                                    ? handleUpdateFamily
+                                    : handleSubmitFamily
+                            }
                         >
                             <h3 className="text-xl font-medium text-gray-700 mb-8">
                                 Household Head Information
@@ -758,18 +836,25 @@ export default function Index({
                                         <IoIosAddCircleOutline className="text-4xl" />
                                         <span className="ml-1">Add Member</span>
                                     </button>
+
                                     <div className="flex justify-end items-center gap-2">
-                                        <Button
-                                            type="button"
-                                            onClick={() => reset()}
-                                        >
-                                            <RotateCcw /> Reset
-                                        </Button>
+                                        {familyDetails ? (
+                                            <div></div>
+                                        ) : (
+                                            <Button
+                                                type="button"
+                                                onClick={() => reset()}
+                                            >
+                                                <RotateCcw /> Reset
+                                            </Button>
+                                        )}
+
                                         <Button
                                             className="bg-blue-700 hover:bg-blue-400 "
                                             type={"submit"}
                                         >
-                                            Add <MoveRight />
+                                            {familyDetails ? "Update" : "Add"}{" "}
+                                            <MoveRight />
                                         </Button>
                                     </div>
                                 </div>

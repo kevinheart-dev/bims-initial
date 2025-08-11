@@ -215,9 +215,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                             value: "hybrid",
                                         },
                                     ]}
-                                    selectedValue={
-                                        occupation.work_arrangement || ""
-                                    }
+                                    value={occupation.work_arrangement || ""}
                                     onChange={(e) =>
                                         handleOccupationFieldChange(
                                             e,

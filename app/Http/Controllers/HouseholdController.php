@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barangay;
+use App\Models\Family;
+use App\Models\FamilyRelation;
 use App\Models\Household;
 use App\Http\Requests\StoreHouseholdRequest;
 use App\Http\Requests\UpdateHouseholdRequest;
@@ -22,97 +24,106 @@ class HouseholdController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->resident->barangay_id;
-        $query = Household::query()
-            ->select([
-                'households.id',
-                'households.barangay_id',
-                'households.purok_id',
-                'households.street_id',
-                'households.house_number',
-                'households.ownership_type',
-                'households.housing_condition',
-                'households.year_established',
-                'households.house_structure',
-                'households.number_of_rooms',
-                'households.number_of_floors',
-            ])
-            ->where('households.barangay_id', $brgy_id);
+        $brgy_id = auth()->user()->resident->barangay_id;
 
-        // head-of-household name search
+        $query = HouseholdResident::query()
+            ->with([
+                'resident:id,firstname,lastname,middlename,suffix,resident_picture_path,gender,birthdate,residency_type,residency_date',
+                'household:id,barangay_id,purok_id,street_id,house_number,ownership_type,housing_condition,year_established,house_structure,number_of_rooms,number_of_floors',
+                'household.street:id,street_name',
+                'household.purok:id,purok_number',
+                'household.residentsCount'
+            ])
+            ->whereHas('household', function ($q) use ($brgy_id) {
+                $q->where('barangay_id', $brgy_id);
+            })
+            ->where('relationship_to_head', 'self')
+            ->whereIn('id', function ($sub) {
+                $sub->selectRaw('MAX(id)')
+                    ->from('household_residents')
+                    ->where('relationship_to_head', 'self')
+                    ->groupBy('household_id');
+            })
+            ->latest('updated_at');
+
+        // Head name search
         if ($name = request('name')) {
             $name = trim($name);
             $parts = collect(explode(' ', $name))
                 ->filter(fn($p) => $p !== '')
                 ->values();
 
-            $query->whereHas('householdResidents', function ($hr) use ($parts, $name) {
-                $hr->where('relationship_to_head', 'self')
-                    ->whereHas('resident', function ($r) use ($parts, $name) {
-                        $r->where(function ($w) use ($parts, $name) {
-                            foreach ($parts as $part) {
-                                $w->orWhere('firstname', 'like', "%{$part}%")
-                                ->orWhere('lastname', 'like', "%{$part}%")
-                                ->orWhere('middlename', 'like', "%{$part}%")
-                                ->orWhere('suffix', 'like', "%{$part}%");
-                            }
-
-                            // full name variants
-                            $w->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%{$name}%"])
-                            ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ["%{$name}%"])
-                            ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ["%{$name}%"]);
-                        });
-                    });
+            $query->whereHas('resident', function ($r) use ($parts, $name) {
+                $r->where(function ($w) use ($parts, $name) {
+                    foreach ($parts as $part) {
+                        $w->orWhere('firstname', 'like', "%{$part}%")
+                            ->orWhere('lastname', 'like', "%{$part}%")
+                            ->orWhere('middlename', 'like', "%{$part}%")
+                            ->orWhere('suffix', 'like', "%{$part}%");
+                    }
+                    $w->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%{$name}%"])
+                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ["%{$name}%"])
+                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ["%{$name}%"]);
+                });
             });
         }
 
-        $query->with([
-                'street:id,street_name',
-                'purok:id,purok_number',
-                'householdResidents' => function ($q) {
-                    $q->where('relationship_to_head', 'self')
-                    ->with([
-                        'resident:id,firstname,lastname,middlename,suffix',
-                    ]);
-                },
-            ])
-            ->withCount('residents');
-        $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
-
+        // Purok filter
         if (request()->filled('purok') && request('purok') !== 'All') {
-            $query->whereHas('purok', function ($q) {
+            $query->whereHas('household.purok', function ($q) {
                 $q->where('purok_number', request('purok'));
             });
         }
 
+        // Street filter
         if (request()->filled('street') && request('street') !== 'All') {
-            $query->whereHas('street', function ($q) {
+            $query->whereHas('household.street', function ($q) {
                 $q->where('street_name', request('street'));
             });
         }
+
+        // Ownership type filter
         if (request()->filled('own_type') && request('own_type') !== 'All') {
-            $query->where('ownership_type', request('own_type'));
-        }
-        if (request()->filled('condition') && request('condition') !== 'All') {
-            $query->where('housing_condition', request('condition'));
-        }
-        if (request()->filled('structure') && request('structure') !== 'All') {
-            $query->where('house_structure', request('structure'));
+            $query->whereHas('household', function ($q) {
+                $q->where('ownership_type', request('own_type'));
+            });
         }
 
-        // $households = $query->get();
-        $households = $query->paginate(10)->withQueryString();
+        // Housing condition filter
+        if (request()->filled('condition') && request('condition') !== 'All') {
+            $query->whereHas('household', function ($q) {
+                $q->where('housing_condition', request('condition'));
+            });
+        }
+
+        // Structure filter
+        if (request()->filled('structure') && request('structure') !== 'All') {
+            $query->whereHas('household', function ($q) {
+                $q->where('house_structure', request('structure'));
+            });
+        }
+
+        // Get paginated results
+        //dd($query->get());
+        $heads = $query->paginate(10)->withQueryString();
+
+        // For dropdowns
+        $puroks = Purok::where('barangay_id', $brgy_id)
+            ->orderBy('purok_number', 'asc')
+            ->pluck('purok_number');
+
         $streets = Street::whereHas('purok', function ($query) use ($brgy_id) {
             $query->where('barangay_id', $brgy_id);
         })->pluck('street_name');
 
         return Inertia::render("BarangayOfficer/Household/Index", [
-            "households" => $households,
+            "households" => $heads, // contains latest head per household
             'puroks' => $puroks,
             'streets' => $streets,
             'queryParams' => request()->query() ?: null,
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -209,8 +220,9 @@ class HouseholdController extends Controller
 
                 $household->householdResidents()->create([
                     'resident_id' => $data['resident_id'],
+                    'household_id' => $household->id,
                     'relationship_to_head' => 'self',
-                    'household_position' => 'nuclear',
+                    'household_position' => 'primary',
                 ]);
                 $household->householdHeadHistories()->create([
                     'resident_id' => $data['resident_id'],
@@ -218,10 +230,64 @@ class HouseholdController extends Controller
                     'end_year' => null,
                 ]);
                 $resident = Resident::find($data['resident_id']);
+
                 if ($resident && $resident->is_household_head == 0) {
                     $resident->update([
-                        'is_household_head' => 1
+                        'is_household_head' => 1,
                     ]);
+                }
+                if($resident){
+                    $household->householdHeadHistories()->create([
+                        'resident_id' => $data['resident_id'],
+                        'start_year'  => date('Y'),
+                        'end_year'    => null,
+                    ]);
+
+                    // Assuming $resident already contains the single resident model
+                    $monthlyIncome = $resident->occupations()
+                        ->whereNull('ended_at')
+                        ->sum('monthly_income') ?? 0;
+
+                    // Determine income bracket based on the monthly income
+                    if ($monthlyIncome < 5000) {
+                        $incomeBracket = 'below_5000';
+                        $incomeCategory = 'survival';
+                    } elseif ($monthlyIncome <= 10000) {
+                        $incomeBracket = '5001_10000';
+                        $incomeCategory = 'poor';
+                    } elseif ($monthlyIncome <= 20000) {
+                        $incomeBracket = '10001_20000';
+                        $incomeCategory = 'low_income';
+                    } elseif ($monthlyIncome <= 40000) {
+                        $incomeBracket = '20001_40000';
+                        $incomeCategory = 'lower_middle_income';
+                    } elseif ($monthlyIncome <= 70000) {
+                        $incomeBracket = '40001_70000';
+                        $incomeCategory = 'middle_income';
+                    } elseif ($monthlyIncome <= 120000) {
+                        $incomeBracket = '70001_120000';
+                        $incomeCategory = 'upper_middle_income';
+                    } else {
+                        $incomeBracket = 'above_120001';
+                        $incomeCategory = 'high_income';
+                    }
+
+                    // Create the family record
+                    $family = Family::create([
+                        'barangay_id'     => $barangayId,
+                        'household_id'    => $household->id,
+                        'income_bracket'  => $incomeBracket,
+                        'income_category' => $incomeCategory,
+                        'family_name'     => $resident->lastname ?? null,
+                        'family_type'     => "nuclear",
+                    ]);
+
+                    $resident->update([
+                        'household_id' => $household->id,
+                        'family_id' => $family->id,
+                    ]);
+
+
                 }
             }
             return redirect()->route('household.index')->with('success', 'Household created successfully!');
@@ -327,7 +393,48 @@ class HouseholdController extends Controller
      */
     public function edit(Household $household)
     {
-        //
+        $brgy_id = auth()->user()->resident->barangay_id;
+
+        // Fetch the latest head for this household
+        $latestHead = HouseholdResident::with([
+            'resident:id,firstname,lastname,middlename,suffix,resident_picture_path,gender,birthdate,residency_type,residency_date',
+            'household.street:id,street_name',
+            'household.purok:id,purok_number',
+            'household.pets',
+            'household.livestocks',
+            'household.electricityTypes',
+            'household.toilets',
+            'household.waterSourceTypes',
+            'household.internetAccessibility',
+            'household.wasteManagementTypes',
+        ])
+        ->where('household_id', $household->id)
+        ->where('relationship_to_head', 'self')
+        ->latest()
+        ->first();
+
+        $puroks = Purok::where('barangay_id', $brgy_id)
+            ->orderBy('purok_number', 'asc')
+            ->pluck('purok_number');
+
+        $streets = Street::whereIn('purok_id', $puroks)
+            ->orderBy('street_name', 'asc')
+            ->with(['purok:id,purok_number'])
+            ->get(['id', 'street_name', 'purok_id']);
+
+        $barangays = Barangay::all()->pluck('barangay_name', 'id')->toArray();
+
+        $residents = Resident::where('barangay_id', $brgy_id)
+            ->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'gender', 'birthdate', 'residency_type', 'residency_date')
+            ->get();
+
+        return Inertia::render("BarangayOfficer/Household/Edit", [
+            'puroks' => $puroks,
+            'streets' => $streets,
+            'barangays' => $barangays,
+            'residents' => $residents,
+            'latestHead' => $latestHead
+        ]);
     }
 
     /**
@@ -335,7 +442,196 @@ class HouseholdController extends Controller
      */
     public function update(UpdateHouseholdRequest $request, Household $household)
     {
-        //
+        $barangayId = auth()->user()->resident->barangay_id;
+        $data = $request->validated();
+        //dd($data);
+        $householdData = [
+            'barangay_id' => $barangayId ?? null,
+            'purok_id' => $data['purok_id'] ?? null,
+            'street_id' => $data['street_id'] ?? null,
+            'house_number' => $data['housenumber'] ?? null,
+            'ownership_type' => $data['ownership_type'] ?? null,
+            'housing_condition' => $data['housing_condition'] ?? null,
+            'year_established' => $data['year_established'] ?? null,
+            'house_structure' => $data['house_structure'] ?? null,
+            'bath_and_wash_area' => $data['bath_and_wash_area'] ?? null,
+            'number_of_rooms' => $data['number_of_rooms'] ?? null,
+            'number_of_floors' => $data['number_of_floors'] ?? null,
+            'latitude' => $data['latitude'] ?? 0,
+            'longitude' => $data['longitude'] ?? 0,
+        ];
+
+        try {
+            $household->update($householdData);
+
+            // Refresh related data
+            $existingIds = collect($data['toilets'])->pluck('id')->filter();
+            $household->toilets()->whereNotIn('id', $existingIds)->delete();
+
+            foreach ($data['toilets'] ?? [] as $toiletData) {
+                $household->toilets()->updateOrCreate(
+                    ['id' => $toiletData['id'] ?? null],
+                    ['toilet_type' => $toiletData['toilet_type'] ?? null]
+                );
+            }
+
+           // Electricity types
+            $existingIds = collect($data['electricity_types'] ?? [])->pluck('id')->filter();
+            $household->electricityTypes()->whereNotIn('id', $existingIds)->delete();
+
+            foreach ($data['electricity_types'] ?? [] as $electric) {
+                if (!empty($electric['electricity_type'])) {
+                    $household->electricityTypes()->updateOrCreate(
+                        ['id' => $electric['id'] ?? null],
+                        ['electricity_type' => $electric['electricity_type']]
+                    );
+                }
+            }
+            // Water sources
+            $existingIds = collect($data['water_source_types'] ?? [])->pluck('id')->filter();
+            $household->waterSourceTypes()->whereNotIn('id', $existingIds)->delete();
+
+            foreach ($data['water_source_types'] ?? [] as $water) {
+                if (!empty($water['water_source_type'])) {
+                    $household->waterSourceTypes()->updateOrCreate(
+                        ['id' => $water['id'] ?? null],
+                        ['water_source_type' => $water['water_source_type']]
+                    );
+                }
+            }
+
+            // Waste management
+            $existingIds = collect($data['waste_management_types'] ?? [])->pluck('id')->filter();
+            $household->wasteManagementTypes()->whereNotIn('id', $existingIds)->delete();
+
+            foreach ($data['waste_management_types'] ?? [] as $waste) {
+                if (!empty($waste['waste_management_type'])) {
+                    $household->wasteManagementTypes()->updateOrCreate(
+                        ['id' => $waste['id'] ?? null],
+                        ['waste_management_type' => $waste['waste_management_type']]
+                    );
+                }
+            }
+
+            // Pets
+            $existingIds = collect($data['pets'] ?? [])->pluck('id')->filter();
+            $household->pets()->whereNotIn('id', $existingIds)->delete();
+
+            foreach ($data['pets'] ?? [] as $pet) {
+                if (!empty($pet['pet_type'])) {
+                    $household->pets()->updateOrCreate(
+                        ['id' => $pet['id'] ?? null],
+                        [
+                            'pet_type' => $pet['pet_type'],
+                            'is_vaccinated' => $pet['is_vaccinated'] ?? null
+                        ]
+                    );
+                }
+            }
+
+            // Livestocks
+            $existingIds = collect($data['livestocks'] ?? [])->pluck('id')->filter();
+            $household->livestocks()->whereNotIn('id', $existingIds)->delete();
+
+            foreach ($data['livestocks'] ?? [] as $livestock) {
+                if (!empty($livestock['livestock_type'])) {
+                    $household->livestocks()->updateOrCreate(
+                        ['id' => $livestock['id'] ?? null],
+                        [
+                            'livestock_type' => $livestock['livestock_type'],
+                            'quantity' => $livestock['quantity'] ?? null,
+                            'purpose' => $livestock['purpose'] ?? null
+                        ]
+                    );
+                }
+            }
+
+            // Internet accessibility (single record)
+            if (!empty($data['type_of_internet'])) {
+                $household->internetAccessibility()->updateOrCreate(
+                    ['id' => $data['internet_accessibility_id'] ?? null],
+                    ['type_of_internet' => $data['type_of_internet']]
+                );
+            } else {
+                $household->internetAccessibility()->delete();
+            }
+
+            /**
+             * Update household head and history
+             */
+            $currentHead = $household->householdResidents()
+                ->where('relationship_to_head', 'self')
+                ->first();
+
+            if (!$currentHead || $currentHead->resident_id != $data['resident_id']) {
+
+                // Close old head history if exists
+                $oldHeadHistory = $household->householdHeadHistories()
+                    ->whereNull('end_year')
+                    ->first();
+                if ($oldHeadHistory) {
+                    $oldHeadHistory->update([
+                        'end_year' => date('Y')
+                    ]);
+                }
+
+                if ($currentHead) {
+
+                    $newRelationship = HouseholdResident::where('resident_id', $data['resident_id'])
+                        ->where('household_id', $household->id)
+                        ->value('relationship_to_head');
+
+                    HouseholdResident::where('resident_id', $data['resident_id'])
+                        ->where('household_id', $household->id)
+                        ->update([
+                            'relationship_to_head' => $currentHead->relationship_to_head
+                        ]);
+
+                    $headRelationship = match ($newRelationship) {
+                        'spouse'  => 'spouse',
+                        'child'   => 'parent',
+                        'parent'  => 'child',
+                        'sibling' => 'sibling',
+                        'grandparent' => 'grandchild',
+                        default   => 'other',
+                    };
+
+                    HouseholdResident::where('resident_id', $currentHead->resident_id)
+                        ->where('household_id', $household->id)
+                        ->update([
+                            'relationship_to_head' => $headRelationship
+                        ]);
+                }
+
+                $household->householdResidents()
+                    ->where('resident_id', $data['resident_id'])
+                    ->update([
+                        'relationship_to_head' => 'self',
+                        'household_position'   => 'nuclear',
+                    ]);
+
+                $household->householdHeadHistories()->create([
+                    'resident_id' => $data['resident_id'],
+                    'start_year'  => date('Y'),
+                    'end_year'    => null,
+                ]);
+
+                $resident = Resident::find($data['resident_id']);
+                if ($resident && $resident->is_household_head == 0) {
+                    $resident->update([
+                        'is_household_head' => 1
+                    ]);
+                }
+            }
+
+
+
+            return redirect()->route('household.index')
+                ->with('success', 'Household updated successfully!');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Household could not be updated: ' . $e->getMessage());
+        }
     }
 
     /**

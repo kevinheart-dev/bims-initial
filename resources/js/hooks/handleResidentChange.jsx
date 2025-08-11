@@ -20,6 +20,7 @@ export default function useResidentChangeHandler(residents, setData) {
                 setData("gender", resident.gender);
                 setData("residency_date", resident.residency_date);
                 setData("residency_type", resident.residency_type);
+                setData("employment_status", resident.employment_status);
             }
         },
         [residents, setData]

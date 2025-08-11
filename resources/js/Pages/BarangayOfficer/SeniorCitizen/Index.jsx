@@ -669,9 +669,11 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                             </div>
                         )}
                         <div className="flex justify-end items-center text-end mt-5 gap-4">
-                            <Button type="button" onClick={() => reset()}>
-                                <RotateCcw /> Reset
-                            </Button>
+                            {registerSenior != null && (
+                                <Button type="button" onClick={() => reset()}>
+                                    <RotateCcw /> Reset
+                                </Button>
+                            )}
 
                             <Button
                                 className="bg-blue-700 hover:bg-blue-400"

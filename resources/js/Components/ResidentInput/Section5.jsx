@@ -232,6 +232,10 @@ const Section5 = ({
                                         label: "Grandparent",
                                         value: "grandparent",
                                     },
+                                    {
+                                        label: "Other",
+                                        value: "other",
+                                    },
                                 ]}
                                 disabled={data.relationship_to_head === "self"}
                             />
@@ -255,7 +259,7 @@ const Section5 = ({
                                 placeholder="Select or enter house number"
                                 items={[
                                     {
-                                        label: "Primary/Nuclear",
+                                        label: "Primary",
                                         value: "primary",
                                     },
                                     { label: "Extended", value: "extended" },
@@ -579,8 +583,9 @@ const Section5 = ({
                                             />
                                             <InputError
                                                 message={
-                                                    errors?.toilets?.[idx]
-                                                        ?.toilet
+                                                    errors?.[
+                                                        `toilets.${idx}.toilet_type`
+                                                    ]
                                                 }
                                                 className="mt-1"
                                             />
@@ -673,10 +678,9 @@ const Section5 = ({
                                                 />
                                                 <InputError
                                                     message={
-                                                        errors
-                                                            ?.electricity_types?.[
-                                                            idx
-                                                        ]?.electricity_type
+                                                        errors?.[
+                                                            `electricity_types.${idx}.electricity_type`
+                                                        ]
                                                     }
                                                     className="mt-1"
                                                 />
@@ -781,10 +785,9 @@ const Section5 = ({
                                                 />
                                                 <InputError
                                                     message={
-                                                        errors
-                                                            ?.water_source_types?.[
-                                                            idx
-                                                        ]?.water_source_type
+                                                        errors?.[
+                                                            `water_source_types.${idx}.water_source_type`
+                                                        ]
                                                     }
                                                     className="mt-1"
                                                 />
@@ -885,10 +888,9 @@ const Section5 = ({
                                                 />
                                                 <InputError
                                                     message={
-                                                        errors
-                                                            ?.waste_management_types?.[
-                                                            idx
-                                                        ]?.waste_management_type
+                                                        errors?.[
+                                                            `waste_management_types.${idx}.waste_management_type`
+                                                        ]
                                                     }
                                                     className="mt-1"
                                                 />

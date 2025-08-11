@@ -39,7 +39,7 @@ class UpdateResidentRequest extends FormRequest
             'ethnicity' => ['nullable', 'string', 'max:55'],
             'contactNumber' => ['nullable', 'string', 'max:15'],
             'email' => ['nullable', 'email', 'max:55'],
-            'residency_type' => ['required', Rule::in(['permanent', 'temporary', 'migrant'])],
+            'residency_type' => ['required', Rule::in(['permanent', 'temporary', 'immigrant'])],
             'residency_date' => ['required', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
             'is_household_head' => ['required', Rule::in([0, 1])],
             'is_4ps_beneficiary' => ['nullable', Rule::in([0, 1])],

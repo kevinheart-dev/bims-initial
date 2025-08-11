@@ -98,7 +98,7 @@ class StoreResidentHouseholdRequest extends FormRequest
             'members.*.osca_id_number' => ['nullable', 'string', 'max:55'],
             'members.*.pension_type' => ['nullable', Rule::in(['SSS', 'GSIS', 'DSWD', 'private', 'none'])],
             'members.*.living_alone' => ['nullable', Rule::in([0, 1])],
-            'members.*.residency_type' => ['required', Rule::in(['permanent', 'temporary', 'migrant'])],
+            'members.*.residency_type' => ['required', Rule::in(['permanent', 'temporary', 'immigrant'])],
             'members.*.residency_date' => ['required', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
             'members.*.relation_to_household_head' => ['required', Rule::in(['self', 'spouse', 'child', 'sibling', 'parent', 'parent_in_law','grandparent'])],
             'members.*.registered_voter' => ['required', Rule::in([0, 1])],

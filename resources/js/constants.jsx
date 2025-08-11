@@ -69,7 +69,7 @@ export const RESIDENT_REGISTER_VOTER_CLASS = {
 export const RESIDENT_RECIDENCY_TYPE_TEXT = {
     permanent: "Permanent",
     temporary: "Temporary",
-    imigrant: "Imigrant",
+    immigrant: "Imigrant",
 };
 export const RESIDENT_4PS_TEXT = {
     0: "No",
