@@ -14,8 +14,30 @@ class BarangayOfficialController extends Controller
      */
     public function index()
     {
-        return Inertia::render("BarangayOfficer/BarangayInfo/BarangayOfficials");
+        $brgy_id = auth()->user()->resident->barangay_id;
+
+        $officials = BarangayOfficial::with([
+            'resident.barangay',
+            'resident.street.purok',
+            'resident.educationalHistories',
+            'resident.occupations',
+            'resident.medicalInformation',
+            'resident.seniorcitizen',
+            'resident.socialwelfareprofile',
+            'resident.disabilities',
+            'designation',
+        ])
+            ->whereHas('resident', function ($query) use ($brgy_id) {
+                $query->where('barangay_id', $brgy_id);
+            })
+            ->get();
+
+        return Inertia::render("BarangayOfficer/BarangayInfo/BarangayOfficials", [
+            'officials' => $officials
+        ]);
     }
+
+
 
     /**
      * Show the form for creating a new resource.

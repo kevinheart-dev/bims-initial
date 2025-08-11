@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('barangay_kagawad_id')->nullable()->constrained('residents')->onDelete('set null');
             $table->foreignId('sk_kagawad_id')->nullable()->constrained('residents')->onDelete('set null');
             $table->foreignId('purok_id')->constrained('puroks')->onDelete('cascade');
-            $table->date('started_at');
-            $table->date('ended_at')->nullable();
+            $table->year('started_at');
+            $table->year('ended_at')->nullable();
             $table->timestamps();
         });
     }
