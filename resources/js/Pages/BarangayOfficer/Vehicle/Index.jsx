@@ -13,7 +13,6 @@ import {
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import { Toaster, toast } from "sonner";
-import ResidentTable from "@/Components/ResidentTable";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
 import {
@@ -21,7 +20,6 @@ import {
     VEHICLE_USAGE_TEXT,
     VEHICLE_USAGE_STYLES,
 } from "@/constants";
-import ClearFilterButton from "@/Components/ClearFiltersButton";
 import SidebarModal from "@/Components/SidebarModal";
 import DropdownInputField from "@/Components/DropdownInputField";
 import InputError from "@/Components/InputError";

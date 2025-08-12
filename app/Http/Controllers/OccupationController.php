@@ -377,7 +377,16 @@ class OccupationController extends Controller
      */
     public function destroy(Occupation $occupation)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $occupation->delete();
+            DB::commit();
+            return redirect()->route('occupation.index')
+                ->with('success', "Occupation Record deleted successfully!");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Occupation could not be deleted: ' . $e->getMessage());
+        }
     }
 
     public function occupationDetails($id){

@@ -44,6 +44,7 @@ import useResidentChangeHandler from "@/hooks/handleResidentChange";
 import SelectField from "@/Components/SelectField";
 import YearDropdown from "@/Components/YearDropdown";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 
 export default function Index({
     occupations,
@@ -90,6 +91,8 @@ export default function Index({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalState, setModalState] = useState("");
     const [occupationDetails, setOccupation] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
+    const [residentToDelete, setResidentToDelete] = useState(null); //delete
 
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
@@ -241,7 +244,7 @@ export default function Index({
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(row.id),
+                        onClick: () => handleDeleteClick(row.id),
                     },
                 ]}
             />
@@ -380,6 +383,16 @@ export default function Index({
                 console.error("Validation Errors:", errors);
             },
         });
+    };
+
+    const handleDeleteClick = (id) => {
+        setResidentToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        router.delete(route("occupation.destroy", residentToDelete));
+        setIsDeleteModalOpen(false);
     };
 
     useEffect(() => {
@@ -1087,6 +1100,14 @@ export default function Index({
                     ) : null
                 ) : null}
             </SidebarModal>
+            <DeleteConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                }}
+                onConfirm={confirmDelete}
+                residentId={residentToDelete}
+            />
         </AdminLayout>
     );
 }
