@@ -30,7 +30,7 @@ export default function PersonDetailContent({ person }) {
 
     return (
         <div className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg text-sm text-black p-4 space-y-4">
-            <pre>{JSON.stringify(person, undefined, 2)}</pre>
+            {/* <pre>{JSON.stringify(person, undefined, 2)}</pre> */}
             {/* ✅ Basic Info */}
             <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
                 <img
@@ -160,8 +160,8 @@ export default function PersonDetailContent({ person }) {
                     <button
                         onClick={() => setActiveTab("education")}
                         className={`py-2 px-1 border-b-2 ${activeTab === "education"
-                                ? "border-blue-600 text-blue-700"
-                                : "border-transparent text-gray-500"
+                            ? "border-blue-600 text-blue-700"
+                            : "border-transparent text-gray-500"
                             }`}
                     >
                         Education
@@ -169,8 +169,8 @@ export default function PersonDetailContent({ person }) {
                     <button
                         onClick={() => setActiveTab("occupation")}
                         className={`py-2 px-1 border-b-2 ${activeTab === "occupation"
-                                ? "border-blue-600 text-blue-700"
-                                : "border-transparent text-gray-500"
+                            ? "border-blue-600 text-blue-700"
+                            : "border-transparent text-gray-500"
                             }`}
                     >
                         Occupation
@@ -178,8 +178,8 @@ export default function PersonDetailContent({ person }) {
                     <button
                         onClick={() => setActiveTab("medical")}
                         className={`py-2 px-1 border-b-2 ${activeTab === "medical"
-                                ? "border-blue-600 text-blue-700"
-                                : "border-transparent text-gray-500"
+                            ? "border-blue-600 text-blue-700"
+                            : "border-transparent text-gray-500"
                             }`}
                     >
                         Medical
@@ -187,8 +187,8 @@ export default function PersonDetailContent({ person }) {
                     <button
                         onClick={() => setActiveTab("social")}
                         className={`py-2 px-1 border-b-2 ${activeTab === "social"
-                                ? "border-blue-600 text-blue-700"
-                                : "border-transparent text-gray-500"
+                            ? "border-blue-600 text-blue-700"
+                            : "border-transparent text-gray-500"
                             }`}
                     >
                         Social Welfare
@@ -197,8 +197,8 @@ export default function PersonDetailContent({ person }) {
                         <button
                             onClick={() => setActiveTab("senior")}
                             className={`py-2 px-1 border-b-2 ${activeTab === "senior"
-                                    ? "border-blue-600 text-blue-700"
-                                    : "border-transparent text-gray-500"
+                                ? "border-blue-600 text-blue-700"
+                                : "border-transparent text-gray-500"
                                 }`}
                         >
                             Senior Citizen
