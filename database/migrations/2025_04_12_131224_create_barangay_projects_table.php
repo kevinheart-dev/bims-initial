@@ -19,7 +19,6 @@ return new class extends Migration
             $table->enum('status', ['planning', 'ongoing', 'completed', 'cancelled']);
             $table->string('category', 55);
             $table->foreignId('responsible_institution_id')->nullable()->constrained('barangay_institutions')->onDelete('set null')->nullable();
-            $table->string('other', 155)->nullable();
             $table->decimal('budget', 12, 2);
             $table->string('funding_source', 100);
             $table->date('start_date');

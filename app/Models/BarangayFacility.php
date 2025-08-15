@@ -9,4 +9,18 @@ class BarangayFacility extends Model
 {
     /** @use HasFactory<\Database\Factories\BarangayFacilityFactory> */
     use HasFactory;
+
+    public $timestamps = true;
+
+    protected $fillable = [
+        'barangay_id',
+        'name',
+        'facility_type',
+        'quantity',
+    ];
+
+    public function barangay()
+    {
+        return $this->belongsTo(Barangay::class);
+    }
 }

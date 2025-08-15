@@ -9,7 +9,7 @@ class Certificate extends Model
 {
     /** @use HasFactory<\Database\Factories\CertificateFactory> */
     use HasFactory;
-
+    public $timestamps = true;
     protected $fillable = [
         'resident_id',
         'document_id',

@@ -47,7 +47,6 @@ class BarangayProjectFactory extends Factory
             'status' => $this->faker->randomElement($statusOptions),
             'category' => $this->faker->randomElement($categories),
             'responsible_institution_id' => BarangayInstitution::inRandomOrder()->value('id') ?? BarangayInstitution::factory(),
-            'other' => $this->faker->boolean(20) ? $this->faker->company() : null, // Only 20% chance
             'budget' => $this->faker->numberBetween(50000, 5000000),
             'funding_source' => $this->faker->randomElement(['Barangay Fund', 'Municipal Grant', 'NGO', 'Private Donor', 'Government Program']),
             'start_date' => $startDate,
