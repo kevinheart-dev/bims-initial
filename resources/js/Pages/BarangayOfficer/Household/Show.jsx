@@ -1,6 +1,6 @@
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import DynamicTable from "@/Components/DynamicTable";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
@@ -10,9 +10,21 @@ import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailC
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import * as CONSTANTS from "@/constants";
-import { Eye, SquarePen, Trash2, Network, Search, Share2 } from "lucide-react";
+import {
+    Eye,
+    SquarePen,
+    Trash2,
+    Network,
+    Search,
+    Share2,
+    X,
+} from "lucide-react";
 import ActionMenu from "@/Components/ActionMenu"; // You forgot to import this before
 import useAppUrl from "@/hooks/useAppUrl";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
+import { Toaster, toast } from "sonner";
 
 export default function Index({
     household_details,
@@ -32,7 +44,27 @@ export default function Index({
         },
     ];
 
-    // ✅ Ensure queryParams is defined before use
+    const APP_URL = useAppUrl();
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
+
+    const {
+        data: head,
+        isLoading,
+        isError,
+    } = useQuery({
+        queryKey: ["head", household_details.id], // reactive to household ID
+        queryFn: async () => {
+            const { data } = await axios.get(
+                `${APP_URL}/barangay_officer/household/getlatesthead/${household_details.id}`
+            );
+            return data?.head || null; // return null if no head
+        },
+        enabled: !!household_details?.id, // avoid fetching if id is undefined
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    });
+
     const queryParams = initialQueryParams || {};
     const [query, setQuery] = useState(queryParams["name"] ?? "");
 
@@ -80,7 +112,6 @@ export default function Index({
     // === FOR RESIDENT SIDE MODAL
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedResident, setSelectedResident] = useState(null);
-    const APP_URL = useAppUrl();
 
     const handleView = async (resident) => {
         try {
@@ -141,11 +172,21 @@ export default function Index({
     // === AP TO HERE
 
     const handleEdit = (id) => {
-        // Edit logic here
+        router.get(route("resident.edit", id));
     };
 
-    const handleDelete = (id) => {
-        // Delete logic here
+    // ==== delete modal
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [residentToDelete, setResidentToDelete] = useState(null);
+
+    const handleDeleteClick = (id) => {
+        setResidentToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        router.get(route("household.remove", residentToDelete));
+        setIsDeleteModalOpen(false);
     };
 
     const calculateAge = (birthdate) => {
@@ -234,20 +275,43 @@ export default function Index({
                         onClick: () => handleEdit(member.resident_id),
                     },
                     {
-                        label: "Delete",
-                        icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(member.resident_id),
+                        label: "Remove",
+                        icon: <X className="w-4 h-4 text-red-600" />,
+                        onClick: () => handleDeleteClick(member.resident_id),
                     },
                 ]}
             />
         ),
     };
 
+    useEffect(() => {
+        if (success) {
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.success = null;
+    }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
+
     return (
         <AdminLayout>
             <Head title="Family" />
+            <Toaster richColors />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-            {/* <pre>{JSON.stringify(household_details, undefined, 3)}</pre> */}
+            {/* <pre>{JSON.stringify(head, undefined, 3)}</pre> */}
             <div className="bg-white shadow-md rounded-lg m-5 border border-gray-200">
                 {/* Header */}
                 <div className="px-4 py-4 border-b bg-gray-100 rounded-t-lg">
@@ -470,19 +534,26 @@ export default function Index({
                                     </div>
                                 </Link>
 
-                                <Link href={route("family.create")}>
-                                    <div className="relative group z-50">
-                                        <Button
-                                            variant="outline"
-                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                        >
-                                            <Network className="w-4 h-4" />
-                                        </Button>
-                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                            Family Tree
+                                {head && (
+                                    <Link
+                                        href={route(
+                                            "resident.familytree",
+                                            head.resident_id
+                                        )}
+                                    >
+                                        <div className="relative group z-50">
+                                            <Button
+                                                variant="outline"
+                                                className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                            >
+                                                <Network className="w-4 h-4" />
+                                            </Button>
+                                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                                Family Tree
+                                            </div>
                                         </div>
-                                    </div>
-                                </Link>
+                                    </Link>
+                                )}
                             </div>
                         </div>
 
@@ -530,6 +601,19 @@ export default function Index({
                     <PersonDetailContent person={selectedResident} />
                 )}
             </SidebarModal>
+            <DeleteConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                }}
+                onConfirm={confirmDelete}
+                residentId={residentToDelete}
+                title={"Confirm Removal"}
+                message={
+                    "Are you sure you want to remove resident from this household? This action cannot be undone."
+                }
+                buttonLabel={"I UNDERSTAND, REMOVE"}
+            />
         </AdminLayout>
     );
 }

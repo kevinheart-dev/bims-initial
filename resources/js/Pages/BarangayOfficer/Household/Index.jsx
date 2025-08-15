@@ -22,6 +22,7 @@ import * as CONSTANTS from "@/constants";
 
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 
 export default function Index({ households, puroks, streets, queryParams }) {
     const breadcrumbs = [
@@ -34,6 +35,8 @@ export default function Index({ households, puroks, streets, queryParams }) {
     const error = props?.error ?? null;
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
+    const [houseToDelete, setHouseToDelete] = useState(null); //delete
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -147,12 +150,11 @@ export default function Index({ households, puroks, streets, queryParams }) {
         ),
         housing_condition: (house) => (
             <span
-
                 className={`px-2 py-1 text-sm rounded-lg ${
                     CONSTANTS.HOUSING_CONDITION_COLOR[
                         house.household.housing_condition
                     ] ?? "bg-gray-100 text-gray-700"
-                    }`}
+                }`}
             >
                 {
                     CONSTANTS.HOUSEHOLD_CONDITION_TEXT[
@@ -202,7 +204,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(house.id),
+                        onClick: () => handleDeleteClick(house.household?.id),
                     },
                 ]}
             />
@@ -229,7 +231,15 @@ export default function Index({ households, puroks, streets, queryParams }) {
     //     { label: "Makeshift", value: "makeshift" },
     // ];
 
-    const handleEdit = (id) => {};
+    const handleDeleteClick = (id) => {
+        setHouseToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        router.delete(route("household.destroy", houseToDelete));
+        setIsDeleteModalOpen(false);
+    };
 
     useEffect(() => {
         if (success) {
@@ -350,6 +360,14 @@ export default function Index({ households, puroks, streets, queryParams }) {
                             visibleColumns={visibleColumns}
                             setVisibleColumns={setVisibleColumns}
                         ></DynamicTable>
+                        <DeleteConfirmationModal
+                            isOpen={isDeleteModalOpen}
+                            onClose={() => {
+                                setIsDeleteModalOpen(false);
+                            }}
+                            onConfirm={confirmDelete}
+                            residentId={houseToDelete}
+                        />
                     </div>
                 </div>
             </div>

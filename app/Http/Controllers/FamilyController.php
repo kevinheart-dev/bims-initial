@@ -10,6 +10,7 @@ use App\Models\FamilyRelation;
 use App\Models\HouseholdResident;
 use App\Models\Purok;
 use App\Models\Resident;
+use DB;
 use Inertia\Inertia;
 
 class FamilyController extends Controller
@@ -666,7 +667,29 @@ class FamilyController extends Controller
      */
     public function destroy(Family $family)
     {
-        //
+        DB::beginTransaction();
+        try {
+            // Load members and their family relations
+            $family->load(['members.familyRelations']);
+
+            // Delete each member's family relations and detach family_id
+            foreach ($family->members as $member) {
+                $member->familyRelations()->delete();
+                $member->update(['family_id' => null]);
+            }
+
+            // Delete the family itself
+            $family->delete(); // or forceDelete() if using SoftDeletes
+
+            DB::commit();
+
+            return redirect()
+                ->route('family.index')
+                ->with('success', 'Family permanently deleted successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Family could not be deleted: ' . $e->getMessage());
+        }
     }
 
     public function getFamilyDetails($id)

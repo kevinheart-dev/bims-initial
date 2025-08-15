@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import DynamicTable from "@/Components/DynamicTable";
-import DynamicTableControls from '@/Components/FilterButtons/DynamicTableControls';
+import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/Components/ui/skeleton";
-const BarangayInfrastucture = ({ }) => {
+const BarangayInfrastucture = ({}) => {
     const APP_URL = useAppUrl();
 
     const {
@@ -57,7 +57,9 @@ const BarangayInfrastucture = ({ }) => {
             <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                 <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                     <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                        <pre>{JSON.stringify(infrastructure, undefined, 3)}</pre>
+                        <pre>
+                            {JSON.stringify(infrastructure, undefined, 3)}
+                        </pre>
                         {/* <div className="flex items-center gap-2 flex-wrap">
                             <DynamicTableControls
                                 allColumns={allColumns}
@@ -74,7 +76,7 @@ const BarangayInfrastucture = ({ }) => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default BarangayInfrastucture
+export default BarangayInfrastucture;

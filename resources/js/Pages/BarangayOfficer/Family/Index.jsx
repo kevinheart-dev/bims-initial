@@ -38,6 +38,7 @@ import InputField from "@/Components/InputField";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import { PiUsersFourBold } from "react-icons/pi";
 import { Toaster, toast } from "sonner";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 
 export default function Index({
     families,
@@ -63,6 +64,8 @@ export default function Index({
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [familyDetails, setFamilyDetails] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
+    const [familyToDelete, setFamilyToDelete] = useState(null); //delete
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -231,7 +234,7 @@ export default function Index({
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(row?.id),
+                        onClick: () => handleDeleteClick(row?.id),
                     },
                 ]}
             />
@@ -296,6 +299,7 @@ export default function Index({
             duration: 2000,
         });
     };
+
     const handleResidentChange = (e) => {
         const resident_id = Number(e.target.value);
         const resident = members.find((r) => r.id == e.target.value);
@@ -313,6 +317,7 @@ export default function Index({
             setData("resident_image", resident.resident_picture_path);
         }
     };
+
     const handleDynamicResidentChange = (e, index) => {
         const updatedMembers = [...data.members];
         const selected = members.find((r) => r.id == e.target.value);
@@ -417,6 +422,16 @@ export default function Index({
         } catch (error) {
             console.error("Error fetching family details:", error);
         }
+    };
+
+    const handleDeleteClick = (id) => {
+        setFamilyToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        router.delete(route("family.destroy", familyToDelete));
+        setIsDeleteModalOpen(false);
     };
 
     useEffect(() => {
@@ -861,6 +876,14 @@ export default function Index({
                             </div>
                         </form>
                     </SidebarModal>
+                    <DeleteConfirmationModal
+                        isOpen={isDeleteModalOpen}
+                        onClose={() => {
+                            setIsDeleteModalOpen(false);
+                        }}
+                        onConfirm={confirmDelete}
+                        residentId={familyToDelete}
+                    />
                 </div>
             </div>
         </AdminLayout>

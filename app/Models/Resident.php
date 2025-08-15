@@ -244,6 +244,10 @@ class Resident extends Model
         return $this->hasMany(BarangayOfficial::class, 'resident_id');
     }
 
+    public function familyRelations(){
+        return $this->hasMany(FamilyRelation::class, 'resident_id');
+    }
+
 
     public function getAgeAttribute()
     {

@@ -9,6 +9,9 @@ export default function DeleteConfirmationModal({
     onClose,
     onConfirm,
     residentId,
+    title = "Confirm Delete",
+    message = "Are you sure you want to delete this record? This action cannot be undone.",
+    buttonLabel = "I UNDERSTAND, DELETE",
 }) {
     const [confirmationText, setConfirmationText] = useState("");
 
@@ -75,13 +78,12 @@ export default function DeleteConfirmationModal({
 
                 {/* Title */}
                 <h2 className="text-lg font-semibold text-center mb-2">
-                    Confirm Delete
+                    {title}
                 </h2>
 
                 {/* Message */}
                 <p className="text-sm text-gray-600 text-center mb-4">
-                    Are you sure you want to delete this record? This action
-                    cannot be undone.
+                    {message}
                 </p>
 
                 {/* Input */}
@@ -100,6 +102,7 @@ export default function DeleteConfirmationModal({
                         value={data.password}
                         onChange={(e) => setData("password", e.target.value)}
                         placeholder="Confirm Password"
+                        autoComplete="off"
                     />
 
                     {/* Confirm Button */}
@@ -107,7 +110,7 @@ export default function DeleteConfirmationModal({
                         type="submit"
                         className="mt-4 w-full bg-black text-white py-2 rounded-md hover:bg-gray-800"
                     >
-                        I UNDERSTAND, DELETE
+                        {buttonLabel}
                     </button>
                 </form>
             </div>
