@@ -37,9 +37,9 @@ return new class extends Migration
             $table->boolean('is_pwd')->default(false);
             $table->string('ethnicity', 55)->nullable();
             $table->date('date_of_death')->nullable();
-            $table->foreignId('household_id')->nullable()->constrained('households')->onDelete('cascade');
+            $table->foreignId('household_id')->nullable()->constrained('households')->onDelete('set null');
             $table->boolean('is_household_head')->default(false);
-            $table->foreignId('family_id')->nullable()->constrained('families')->onDelete('cascade');
+            $table->foreignId('family_id')->nullable()->constrained('families')->onDelete('set null');
             $table->boolean('verified')->default(false);
             $table->timestamps();
         });

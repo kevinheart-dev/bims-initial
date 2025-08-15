@@ -1390,12 +1390,6 @@ class ResidentController extends Controller
                 'voter_id_number' => $data['voter_id_number'] ?? null,
             ];
 
-            $householdResident = [
-                'household_id' => $householdId,
-                'relationship_to_head' => $data['relationship_to_head'] ?? null,
-                'household_position' => $data['household_position'] ?? null,
-            ];
-
             $residentMedicalInformation = [
                 'weight_kg' => $data['weight_kg'] ?? 0,
                 'height_cm' => $data['height_cm'] ?? 0,
@@ -1557,9 +1551,17 @@ class ResidentController extends Controller
 
             // === Update Household Relationship ===
             if ($householdId) {
-                $resident->householdResidents()?->updateOrCreate(
-                    $householdResident
+                $resident->householdResidents()->updateOrCreate(
+                    [
+                        'resident_id' => $resident->id,      // Find by resident
+                        'household_id' => $householdId,      // And household
+                    ],
+                    [
+                        'relationship_to_head' => $data['relationship_to_head'] ?? null,
+                        'household_position'   => $data['household_position'] ?? null,
+                    ]
                 );
+
                 $this->updateFamilyRelations($resident->household_id);
             }
 

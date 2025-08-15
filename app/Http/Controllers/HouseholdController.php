@@ -15,6 +15,7 @@ use App\Models\Purok;
 use App\Models\Resident;
 use App\Models\Street;
 use App\Models\Vehicle;
+use DB;
 use Inertia\Inertia;
 
 class HouseholdController extends Controller
@@ -639,6 +640,77 @@ class HouseholdController extends Controller
      */
     public function destroy(Household $household)
     {
-        //
+        try {
+            DB::transaction(function () use ($household) {
+                $household->toilets()->delete();
+                $household->electricityTypes()->delete();
+                $household->waterSourceTypes()->delete();
+                $household->wasteManagementTypes()->delete();
+                $household->pets()->delete();
+                $household->livestocks()->delete();
+                $household->internetAccessibility()->delete();
+                $household->householdResidents()->delete();
+                $household->householdHeadHistories()->delete();
+
+                $household->delete();
+            });
+
+            return redirect()
+                ->route('household.index')
+                ->with('success', 'Household deleted successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Household could not be deleted: ' . $e->getMessage());
+        }
+    }
+
+    public function getLatestHead($id)
+    {
+        try {
+            $head = HouseholdResident::with(['resident', 'household'])
+                ->where('household_id', $id)
+                ->where('relationship_to_head', 'self')
+                ->latest('created_at') // make it explicit which column to order by
+                ->first();
+
+            return response()->json([
+                'success' => true,
+                'head' => $head,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching latest head: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function remove($id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $resident = Resident::findOrFail($id);
+
+            // Delete all household resident links
+            $resident->householdResidents()->delete(); // ✅ Use relationship method, not property
+
+            // Reset resident's household info
+            $resident->update([
+                'household_id' => null,
+                'is_household_head' => 0,
+            ]);
+
+            DB::commit();
+
+            return back()->with(
+                'success', 'Resident removed from household successfully.',
+            );
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with(
+                'error', 'Failed to remove resident: ' . $e->getMessage(),
+            );
+        }
     }
 }

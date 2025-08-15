@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
 import DynamicTable from "@/Components/DynamicTable";
+
+import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
+
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/Components/ui/skeleton";
+
 import { Eye, SquarePen, Trash2 } from "lucide-react";
 import ActionMenu from "@/Components/ActionMenu";
-
 const BarangayInfrastucture = () => {
+
     const APP_URL = useAppUrl();
     const [isPaginated, setIsPaginated] = useState(true);
     const [showAll, setShowAll] = useState(false);
