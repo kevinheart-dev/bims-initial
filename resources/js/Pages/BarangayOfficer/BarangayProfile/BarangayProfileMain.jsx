@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head } from "@inertiajs/react";
 import BreadCrumbsHeader from '@/Components/BreadcrumbsHeader';
-import BarangayProjects from './BarangayProjects/BarangayProjects';
+import Index from './BarangayProjects/Index';
+import BarangayInfrastucture from './BarangayInfrastructure/BarangayInfrastucture';
 
-const BarangayProfileMain = () => {
+const BarangayProfileMain = ({ projects, infrastructure, }) => {
     const [activeTab, setActiveTab] = useState("infrastructure");
     const breadcrumbs = [{ label: "Barangay Profile", showOnMobile: false }];
 
@@ -23,7 +24,7 @@ const BarangayProfileMain = () => {
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
 
             <div className="bg-white min-h-screen p-2 m-2 rounded-sm">
-
+                {/* <pre>{JSON.stringify(projects, undefined, 3)}</pre> */}
                 <div className="bg-[#fffff2] p-5 rounded-lg shadow-lg">
                     <div className="text-gray-800 text-base leading-relaxed">
                         <h2 className="text-4xl font-black font-montserrat bg-gradient-to-r from-blue-500 to-blue-700 text-transparent bg-clip-text uppercase p-0 m-0">
@@ -108,10 +109,10 @@ const BarangayProfileMain = () => {
 
                     {/* Tab content placeholder */}
                     <div className="mt-4">
-                        {activeTab === "infrastructure" && <p>Infrastructure content goes here.</p>}
+                        {activeTab === "infrastructure" && <BarangayInfrastucture infrastructure={infrastructure} />}
                         {activeTab === "institutions" && <p>Institutions content goes here.</p>}
                         {activeTab === "facilities" && <p>Facilities content goes here.</p>}
-                        {activeTab === "projects" && <BarangayProjects />}
+                        {activeTab === "projects" && <Index projects={projects} />}
                         {activeTab === "roads" && <p>Roads content goes here.</p>}
                         {activeTab === "officials" && <p>Officials content goes here.</p>}
                         {activeTab === "disaster" && <p>Disaster content goes here.</p>}

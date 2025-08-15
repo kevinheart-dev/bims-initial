@@ -51,8 +51,6 @@ class SeniorCitizenController extends Controller
             });
         }
 
-
-
         // Filters
         if (request()->filled('is_pensioner') && request('is_pensioner') !== 'All') {
             $query->where('senior_citizens.is_pensioner', request('is_pensioner'));
@@ -101,7 +99,7 @@ class SeniorCitizenController extends Controller
             ]);
             return redirect()->route('senior_citizen.index')->with('success', 'Resident registered as Senior Citizen successfully!');
         } catch (\Exception $e) {
-            return back()->with('error','Resident could not be registered: ' . $e->getMessage());
+            return back()->with('error', 'Resident could not be registered: ' . $e->getMessage());
         }
     }
 
@@ -137,7 +135,7 @@ class SeniorCitizenController extends Controller
             ]);
             return redirect()->route('senior_citizen.index')->with('success', 'Resident Senior Citizen details updated successfully!');
         } catch (\Exception $e) {
-            return back()->with('error','Resident Deatils could not be updated: ' . $e->getMessage());
+            return back()->with('error', 'Resident Deatils could not be updated: ' . $e->getMessage());
         }
     }
 
