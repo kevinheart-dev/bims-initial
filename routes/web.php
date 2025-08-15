@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BarangayOfficialController;
 use App\Http\Controllers\BarangayProfileController;
+use App\Http\Controllers\BarangayProjectController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DashboardController;
@@ -86,6 +87,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     //barangay
     Route::resource('barangay_official', BarangayOfficialController::class);
     Route::resource('barangay_profile', BarangayProfileController::class);
+    Route::resource('barangay_project', BarangayProjectController::class);
 });
 
 // Resident-only routes
