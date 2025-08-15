@@ -1,28 +1,90 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import DynamicTable from "@/Components/DynamicTable";
-import DynamicTableControls from '@/Components/FilterButtons/DynamicTableControls';
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/Components/ui/skeleton";
-const BarangayInfrastucture = ({ }) => {
-    const APP_URL = useAppUrl();
+import { Eye, SquarePen, Trash2 } from "lucide-react";
+import ActionMenu from "@/Components/ActionMenu";
 
-    const {
-        data: infrastructure,
-        isLoading,
-        isError,
-        error,
-    } = useQuery({
+const BarangayInfrastucture = () => {
+    const APP_URL = useAppUrl();
+    const [isPaginated, setIsPaginated] = useState(true);
+    const [showAll, setShowAll] = useState(false);
+
+    const { data: infrastructure, isLoading, isError, error } = useQuery({
         queryKey: ["infrastructure"],
         queryFn: async () => {
             const { data } = await axios.get(
                 `${APP_URL}/barangay_officer/barangay_infrastructure`
             );
-            return data.infrastructure; // return only what you need
+            return data.infrastructure;
         },
-        staleTime: 1000 * 60 * 5, // 5 minutes cache
+        staleTime: 1000 * 60 * 5,
     });
+
+    const allColumns = [
+        { key: "id", label: "ID" },
+        { key: "infrastructure_type", label: "Type" },
+        { key: "infrastructure_category", label: "Category" },
+        { key: "quantity", label: "Quantity" },
+        { key: "actions", label: "Actions" },
+    ];
+
+    const columnRenderers = {
+        id: (row) => row.id,
+
+        infrastructure_type: (row) => (
+            <span className="font-medium text-gray-900">
+                {row.infrastructure_type || "—"}
+            </span>
+        ),
+
+        infrastructure_category: (row) => (
+            <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-md text-xs font-medium capitalize">
+                {row.infrastructure_category || "—"}
+            </span>
+        ),
+
+        quantity: (row) => (
+            <span className="text-sm text-gray-700">{row.quantity ?? "—"}</span>
+        ),
+
+        actions: (row) => (
+            <ActionMenu
+                actions={[
+                    {
+                        label: "View",
+                        icon: <Eye className="w-4 h-4 text-indigo-600" />,
+                        onClick: () => handleView(row.resident.id),
+                    },
+                    {
+                        label: "Edit",
+                        icon: <SquarePen className="w-4 h-4 text-green-500" />,
+                        onClick: () => handleEdit(row.id),
+                    },
+                    {
+                        label: "Delete",
+                        icon: <Trash2 className="w-4 h-4 text-red-600" />,
+                        onClick: () => handleDeleteClick(row.id),
+                    },
+                ]}
+            />
+        ),
+    };
+
+    const defaultVisibleCols = allColumns.map((col) => col.key);
+    const [visibleColumns, setVisibleColumns] = useState(() => {
+        const saved = localStorage.getItem("infrastructure_visible_columns");
+        return saved ? JSON.parse(saved) : defaultVisibleCols;
+    });
+
+    useEffect(() => {
+        localStorage.setItem(
+            "infrastructure_visible_columns",
+            JSON.stringify(visibleColumns)
+        );
+    }, [visibleColumns]);
 
     if (isLoading) {
         return (
@@ -41,40 +103,22 @@ const BarangayInfrastucture = ({ }) => {
         return <div>No infrastructure found</div>;
     }
 
-    // const allColumns = [
-    //     { key: "id", label: "ID" },
-    //     { key: "title", label: "Title" },
-    //     { key: "description", label: "Description" },
-    //     { key: "project_category", label: "Category" },
-    //     { key: "budget", label: "Budget" },
-    //     { key: "founding_source", label: "Source" },
-    //     { key: "start_date", label: "Start" },
-    //     { key: "end_date", label: "End" },
-    //     { key: "actions", label: "Actions" },
-    // ];
     return (
-        <div className="p-2 md:p-4">
+        <div className="p-2 md:px-2 md:py-2">
             <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
+                <pre>{JSON.stringify(infrastructure, undefined, 3)}</pre>
                 <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                    <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                        <pre>{JSON.stringify(infrastructure, undefined, 3)}</pre>
-                        {/* <div className="flex items-center gap-2 flex-wrap">
-                            <DynamicTableControls
-                                allColumns={allColumns}
-                                visibleColumns={visibleColumns}
-                                setVisibleColumns={setVisibleColumns}
-                                onPrint={handlePrint}
-                                showFilters={showFilters}
-                                toggleShowFilters={() =>
-                                    setShowFilters((prev) => !prev)
-                                }
-                            />
-                        </div> */}
-                    </div>
+                    <DynamicTable
+                        passedData={infrastructure}
+                        allColumns={allColumns}
+                        columnRenderers={columnRenderers}
+                        visibleColumns={visibleColumns}
+                        setVisibleColumns={setVisibleColumns}
+                    />
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default BarangayInfrastucture
+export default BarangayInfrastucture;
