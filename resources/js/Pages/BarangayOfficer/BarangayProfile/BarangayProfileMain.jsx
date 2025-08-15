@@ -5,7 +5,7 @@ import BreadCrumbsHeader from '@/Components/BreadcrumbsHeader';
 import Index from './BarangayProjects/Index';
 import BarangayInfrastucture from './BarangayInfrastructure/BarangayInfrastucture';
 
-const BarangayProfileMain = ({ projects, infrastructure, }) => {
+const BarangayProfileMain = () => {
     const [activeTab, setActiveTab] = useState("infrastructure");
     const breadcrumbs = [{ label: "Barangay Profile", showOnMobile: false }];
 
@@ -109,10 +109,10 @@ const BarangayProfileMain = ({ projects, infrastructure, }) => {
 
                     {/* Tab content placeholder */}
                     <div className="mt-4">
-                        {activeTab === "infrastructure" && <BarangayInfrastucture infrastructure={infrastructure} />}
+                        {activeTab === "infrastructure" && <BarangayInfrastucture />}
                         {activeTab === "institutions" && <p>Institutions content goes here.</p>}
                         {activeTab === "facilities" && <p>Facilities content goes here.</p>}
-                        {activeTab === "projects" && <Index projects={projects} />}
+                        {activeTab === "projects" && <Index />}
                         {activeTab === "roads" && <p>Roads content goes here.</p>}
                         {activeTab === "officials" && <p>Officials content goes here.</p>}
                         {activeTab === "disaster" && <p>Disaster content goes here.</p>}
