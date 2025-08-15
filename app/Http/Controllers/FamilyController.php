@@ -713,4 +713,35 @@ class FamilyController extends Controller
             'family_details' => $family_details,
         ]);
     }
+
+    public function remove($id){
+        DB::beginTransaction();
+
+        try {
+            $resident = Resident::findOrFail($id);
+
+            // Delete all household resident links
+            $resident->householdResidents()->delete(); // ✅ Use relationship method, not property
+            $resident->familyRelations()->delete(); // ✅ Use relationship method, not property
+
+            // Reset resident's household info
+            $resident->update([
+                'household_id' => null,
+                'family_id' => null,
+                'is_household_head' => 0,
+            ]);
+
+            DB::commit();
+
+            return back()->with(
+                'success', 'Resident removed from family successfully.',
+            );
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with(
+                'error', 'Failed to remove resident: ' . $e->getMessage(),
+            );
+        }
+    }
 }

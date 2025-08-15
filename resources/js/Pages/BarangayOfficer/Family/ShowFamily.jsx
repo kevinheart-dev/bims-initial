@@ -1,6 +1,6 @@
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link, router, usePage } from "@inertiajs/react";
 import ActionMenu from "@/components/ActionMenu"; // your custom action component
 import DynamicTable from "@/Components/DynamicTable";
 import { useState, useEffect } from "react";
@@ -11,7 +11,15 @@ import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControl
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
 import SidebarModal from "@/Components/SidebarModal";
-import { Eye, Share2, Network, Search, SquarePen, Trash2 } from "lucide-react";
+import {
+    Eye,
+    Share2,
+    Network,
+    Search,
+    SquarePen,
+    Trash2,
+    X,
+} from "lucide-react";
 import {
     Select,
     SelectContent,
@@ -21,6 +29,8 @@ import {
 } from "@/Components/ui/select";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
+import { Toaster, toast } from "sonner";
 
 export default function Index({
     members,
@@ -42,6 +52,9 @@ export default function Index({
     ];
     const APP_URL = useAppUrl();
     queryParams = queryParams || {};
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
 
@@ -90,11 +103,21 @@ export default function Index({
     ];
 
     const handleEdit = (id) => {
-        // Your edit logic here
+        router.get(route("resident.edit", id));
     };
 
-    const handleDelete = (id) => {
-        // Your delete logic here
+    // ==== delete modal
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [residentToDelete, setResidentToDelete] = useState(null);
+
+    const handleDeleteClick = (id) => {
+        setResidentToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        router.get(route("family.remove", residentToDelete));
+        setIsDeleteModalOpen(false);
     };
 
     const calculateAge = (birthdate) => {
@@ -167,7 +190,8 @@ export default function Index({
     const columnRenderers = {
         resident_id: (member) => member.id,
         name: (member) =>
-            `${member.firstname} ${member.middlename ?? ""} ${member.lastname ?? ""
+            `${member.firstname} ${member.middlename ?? ""} ${
+                member.lastname ?? ""
             } ${member.suffix ?? ""}`,
         gender: (member) => {
             const genderKey = member.gender;
@@ -205,15 +229,15 @@ export default function Index({
         },
         relationship_to_head: (member) =>
             CONSTANTS.RELATIONSHIP_TO_HEAD_TEXT[
-            member.household_residents?.[0]?.relationship_to_head
+                member.household_residents?.[0]?.relationship_to_head
             ] || "",
         household_position: (member) =>
             CONSTANTS.HOUSEHOLD_POSITION_TEXT[
-            member.household_residents?.[0]?.household_position
+                member.household_residents?.[0]?.household_position
             ] || "",
         employment_status: (member) =>
             CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-            member?.employment_status
+                member?.employment_status
             ],
         registered_voter: (member) => {
             const status = member?.registered_voter ?? 0;
@@ -240,19 +264,42 @@ export default function Index({
                         onClick: () => handleEdit(member.id),
                     },
                     {
-                        label: "Delete",
-                        icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(member.id),
+                        label: "Remove",
+                        icon: <X className="w-4 h-4 text-red-600" />,
+                        onClick: () => handleDeleteClick(member.id),
                     },
                 ]}
             />
         ),
     };
 
+    useEffect(() => {
+        if (success) {
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.success = null;
+    }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
+
     return (
         <AdminLayout>
             <Head title="Family" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
+            <Toaster richColors />
             <div className="pt-4">
                 {/* <pre>{JSON.stringify(family_details, undefined, 3)}</pre> */}
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
@@ -370,6 +417,19 @@ export default function Index({
                     <PersonDetailContent person={selectedResident} />
                 )}
             </SidebarModal>
+            <DeleteConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                }}
+                onConfirm={confirmDelete}
+                residentId={residentToDelete}
+                title={"Confirm Removal"}
+                message={
+                    "Are you sure you want to remove resident from this household? This action cannot be undone."
+                }
+                buttonLabel={"I UNDERSTAND, REMOVE"}
+            />
         </AdminLayout>
     );
 }

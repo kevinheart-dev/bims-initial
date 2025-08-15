@@ -693,10 +693,12 @@ class HouseholdController extends Controller
 
             // Delete all household resident links
             $resident->householdResidents()->delete(); // ✅ Use relationship method, not property
+            $resident->familyRelations()->delete();
 
             // Reset resident's household info
             $resident->update([
                 'household_id' => null,
+                'family_id' => null,
                 'is_household_head' => 0,
             ]);
 
