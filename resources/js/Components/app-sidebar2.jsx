@@ -55,7 +55,7 @@ const items = [
         submenu: [
             {
                 title: "Barangay Profile",
-                url: "#",
+                url: "/barangay_officer/barangay_profile",
                 icon: FileText,
             },
             {
