@@ -80,6 +80,8 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('vehicle', VehicleController::class);
     Route::resource('education', EducationController::class);
     Route::resource('occupation', OccupationController::class);
+
+    //barangay
     Route::resource('barangay_official', BarangayOfficialController::class);
     Route::resource('barangay_profile', BarangayProfileController::class);
 });
