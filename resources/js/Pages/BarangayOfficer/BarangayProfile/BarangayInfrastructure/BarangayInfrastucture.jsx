@@ -1,7 +1,25 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
 import DynamicTable from "@/Components/DynamicTable";
 import DynamicTableControls from '@/Components/FilterButtons/DynamicTableControls';
-const BarangayInfrastucture = (infrastructure) => {
+import axios from "axios";
+import useAppUrl from "@/hooks/useAppUrl";
+const BarangayInfrastucture = ({ }) => {
+    const APP_URL = useAppUrl();
+    const [infrastructure, setInfrastructure] = useState(null);
+    useEffect(() => {
+        const fetchInfrastructure = async () => {
+            try {
+                const response = await axios.get(
+                    `${APP_URL}/barangay_officer/barangay_infrastructure`
+                );
+                const infrastructure = response.data.infrastructure;
+                setInfrastructure(infrastructure);
+            } catch (error) {
+                console.error("There was an error fetching the data!", error);
+            }
+        };
+        fetchInfrastructure();
+    }, []);
 
     // const allColumns = [
     //     { key: "id", label: "ID" },

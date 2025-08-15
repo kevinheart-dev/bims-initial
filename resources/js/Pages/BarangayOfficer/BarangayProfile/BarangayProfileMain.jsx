@@ -8,7 +8,7 @@ import InstitutionIndex from "./BarangayInstitution/InstitutionIndex";
 import ProjectIndex from "./BarangayProjects/ProjectIndex";
 import RoadIndex from "./BarangayRoad/RoadIndex";
 
-const BarangayProfileMain = ({ projects, infrastructure }) => {
+const BarangayProfileMain = () => {
     const [activeTab, setActiveTab] = useState("infrastructure");
     const breadcrumbs = [{ label: "Barangay Profile", showOnMobile: false }];
 

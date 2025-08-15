@@ -34,13 +34,11 @@ class BarangayInfrastructureController extends Controller
             $query->where('infrastructure_type', 'like', "%{$search}%")
                 ->orWhere('infrastructure_category', 'like', "%{$search}%");
         }
-
         // Paginate and keep query string
         $infrastructure = $query->paginate(10)->withQueryString();
 
-        return Inertia::render('BarangayOfficer/BarangayProfile/BarangayProfileMain', [
+        return response()->json([
             'infrastructure' => $infrastructure,
-            'queryParams'    => request()->query() ?: null,
         ]);
     }
 
