@@ -33,13 +33,15 @@ class StoreBarangayOfficialRequest extends FormRequest
             // Validate array of designations for certain positions
             'designations'        => ['required_if:position,barangay_kagawad,sk_kagawad', 'array'],
             'designations.*.designation' => ['required_if:position,barangay_kagawad,sk_kagawad', 'exists:puroks,id'],
+            'designations.*.term_start' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
+            'designations.*.term_end' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
 
             'term'                => ['required', 'exists:barangay_official_terms,id'],
             'appointment_type'    => ['required', Rule::in(['elected', 'appointed', 'succession'])],
 
             // If appointed, additional fields are required
-            'appointed_by'       => ['required_if:appointment_type,appointed', 'nullable', 'string', 'max:255'],
-            'appointment_reason' => ['required_if:appointment_type,appointed', 'nullable', 'string', 'max:255'],
+            'appointed_by'       => ['nullable', 'string', 'max:255'],
+            'appointment_reason' => ['nullable', 'string', 'max:255'],
             'remarks'             => ['nullable', 'string', 'max:500'],
         ];
     }

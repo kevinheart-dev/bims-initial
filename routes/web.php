@@ -53,6 +53,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
 
     //barangay
     Route::get('barangay_profile/barangaydetails', [BarangayProfileController::class, 'barangayDetails'])->name('barangay.details');
+    Route::get('barangay_official/officialsinfo/{id}', [BarangayOfficialController::class, 'getOfficialInformation'])->name('barangay.officialinfo');
 
     //senior
     Route::get('senior_citizen/seniordetails/{id}', [SeniorCitizenController::class, 'seniordetails'])->name('senior_citizen.details');
@@ -68,6 +69,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
 
     //user
     Route::post('user/confirmpassword', [UserController::class, 'confirmPassword'])->name('user.confirm');
+
 
 
     Route::resource('user', UserController::class);

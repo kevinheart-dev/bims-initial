@@ -43,14 +43,16 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
             resident_id: "",
             resident_image: "",
             position: "",
-            designations: [[]],
+            designations: [],
             term: "",
             contact_number: "",
             email: "",
             appointment_type: "",
-            appointed_by: "",
+            appointted_by: "",
             appointment_reason: "",
             remarks: "",
+            official_id: "",
+            _method: undefined,
         });
     const handleChange = (e) => {
         setData(e.target.name, e.target.value);
@@ -96,26 +98,68 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
     };
 
     // New: open edit modal with selected official data
-    const handleEdit = (official) => {
-        setSelectedOfficial(official);
-        setIsEditModalOpen(true);
-    };
+    const handleEdit = async (id) => {
+        try {
+            const response = await axios.get(
+                `${APP_URL}/barangay_officer/barangay_official/officialsinfo/${id}`
+            );
+            const official = response.data.official;
 
-    // New: onAdd form submit handler (customize to your needs)
-    const onAddSubmit = (e) => {
-        e.preventDefault();
-        post(route("barangay_official.store"), {
-            onError: (validationErrors) => {
-                console.error("Validation Errors:", validationErrors);
-            },
-        });
-    };
-
-    // New: onEdit form submit handler
-    const onEditSubmit = (formData) => {
-        console.log("Edit official data:", formData);
-        setIsEditModalOpen(false);
-        // TODO: put formData via Inertia or axios and refresh list
+            setSelectedOfficial(official);
+            console.log(official);
+            setData("resident_id", official.resident.id || "");
+            setData(
+                "resident_name",
+                `${official.resident.firstname} ${
+                    official.resident.middlename
+                } ${official.resident.lastname} ${
+                    official.resident.suffix ?? ""
+                }`
+            );
+            setData("contact_number", official.resident.contact_number || "");
+            setData("email", official.resident.email || "");
+            setData("position", official.position || "");
+            setData(
+                "designations",
+                (official.designation || []).map((d) => ({
+                    designation: d.purok_id || "",
+                    term_start: d.started_at || "",
+                    term_end: d.ended_at || "",
+                }))
+            );
+            setData(
+                "term",
+                official.term.id ? official.term.id.toString() : ""
+            );
+            setData(
+                "resident_image",
+                official.resident.resident_picture_path || ""
+            );
+            setData("appointment_type", official.appointment_type || "");
+            if (official.appointment_type === "appointed") {
+                setData(
+                    "appointted_by",
+                    official.appointted_by
+                        ? official.appointted_by.toString()
+                        : ""
+                );
+                setData(
+                    "appointment_reason",
+                    official.appointment_reason || ""
+                );
+                setData("remarks", official.remarks || "");
+            } else {
+                setData("appointted_by", "");
+                setData("appointment_reason", "");
+                setData("remarks", "");
+            }
+            setData("_method", "PUT");
+            setData("official_id", official.id);
+            setIsModalOpen(true);
+            setIsAddModalOpen(true);
+        } catch (error) {
+            console.error("There was an error fetching the data!", error);
+        }
     };
 
     const officialPositionsList = Object.entries(
@@ -177,7 +221,7 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
         if (data.appointment_type !== "appointed") {
             setData((prev) => ({
                 ...prev,
-                appointed_by: "",
+                appointted_by: "",
                 appointment_reason: "",
             }));
         }
@@ -189,6 +233,26 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
         setIsAddModalOpen(false);
         reset();
         clearErrors();
+    };
+
+    // New: onAdd form submit handler (customize to your needs)
+    const onAddSubmit = (e) => {
+        e.preventDefault();
+        post(route("barangay_official.store"), {
+            onError: (validationErrors) => {
+                console.error("Validation Errors:", validationErrors);
+            },
+        });
+    };
+
+    // New: onEdit form submit handler
+    const onEditSubmit = (e) => {
+        e.preventDefault();
+        post(route("barangay_official.update", data.official_id), {
+            onError: (validationErrors) => {
+                console.error("Validation Errors:", validationErrors);
+            },
+        });
     };
     return (
         <AdminLayout>
@@ -216,7 +280,7 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
                         email={official.resident.email}
                         image={official.resident.resident_picture_path}
                         onView={() => handleView(official.resident.id)}
-                        onEdit={() => handleEdit(official)} // add an edit button in OfficialCard or handle here
+                        onEdit={() => handleEdit(official.id)} // add an edit button in OfficialCard or handle here
                     />
                 ))}
             </div>
@@ -228,14 +292,20 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
             <SidebarModal
                 isOpen={isModalOpen}
                 onClose={() => handleModalClose()}
-                title="Resident Details"
+                title={
+                    selectedResident
+                        ? "Resident Details"
+                        : selectedOfficial
+                        ? "Edit Official"
+                        : "Add Official"
+                }
             >
                 {selectedResident && (
                     <PersonDetailContent person={selectedResident} />
                 )}
                 {isAddModalOpen && (
                     <form
-                        onSubmit={onAddSubmit}
+                        onSubmit={selectedOfficial ? onEditSubmit : onAddSubmit}
                         className="p-10 bg-slate-400 rounded-xl space-y-6"
                     >
                         {/* Image and Name + Position */}
@@ -395,7 +465,7 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
                                     id="term"
                                     name="term"
                                     placeholder="Select term of offcial"
-                                    value={data.term}
+                                    value={data.term || ""}
                                     onChange={handleChange}
                                     items={active_terms}
                                 />
@@ -414,7 +484,7 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
                                 <SelectField
                                     id="appointment_type"
                                     name="appointment_type"
-                                    value={data.appointment_type}
+                                    value={data.appointment_type || ""}
                                     onChange={handleChange}
                                     items={[
                                         {
@@ -446,13 +516,14 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
                                     (designation, desIdx) => (
                                         <div
                                             key={desIdx}
-                                            className=" pr-8 rounded-md relative"
+                                            className="items-start pr-8 rounded-md relative"
                                         >
                                             {/* Left: input fields */}
                                             <div>
                                                 <SelectField
                                                     id="designation"
                                                     name="designation"
+                                                    label="Designation"
                                                     value={
                                                         designation.designation ||
                                                         ""
@@ -474,6 +545,54 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
                                                         ]
                                                     }
                                                     className="mt-2"
+                                                />
+                                            </div>
+                                            <div>
+                                                <YearDropdown
+                                                    id="term_start"
+                                                    name="term_start"
+                                                    label="Term Start"
+                                                    value={
+                                                        designation.term_start ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleArrayValues(
+                                                            e,
+                                                            desIdx,
+                                                            "term_start",
+                                                            "designations"
+                                                        )
+                                                    }
+                                                    className="w-full"
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `designations.${desIdx}.term_start`
+                                                        ]
+                                                    }
+                                                    className="mt-2"
+                                                />
+                                            </div>
+                                            <div>
+                                                <YearDropdown
+                                                    id="term_end"
+                                                    name="term_end"
+                                                    label="Term Ended"
+                                                    value={
+                                                        designation.term_end ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleArrayValues(
+                                                            e,
+                                                            desIdx,
+                                                            "term_end",
+                                                            "designations"
+                                                        )
+                                                    }
+                                                    className="w-full"
                                                 />
                                             </div>
                                             <button
@@ -509,20 +628,20 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
                                 <div>
                                     <label
                                         className="block text-sm font-medium mb-1"
-                                        htmlFor="appointed_by"
+                                        htmlFor="appointted_by"
                                     >
                                         Appointed By
                                     </label>
                                     <DropdownInputField
-                                        id="appointed_by"
-                                        name="appointed_by"
+                                        id="appointted_by"
+                                        name="appointted_by"
                                         placeholder="Enter full name"
-                                        value={data.appointed_by || ""}
+                                        value={data.appointted_by || ""}
                                         onChange={(e) => handleChange(e)}
                                         items={residentsList}
                                     />
                                     <InputError
-                                        message={errors.appointed_by}
+                                        message={errors.appointted_by}
                                         className="mt-2"
                                     />
                                 </div>
@@ -572,7 +691,13 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
                                 className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
                                 disabled={processing}
                             >
-                                {processing ? "Saving..." : "Save"}
+                                {selectedOfficial
+                                    ? processing
+                                        ? "Updating..."
+                                        : "Update"
+                                    : processing
+                                    ? "Saving..."
+                                    : "Save"}
                             </button>
                         </div>
                     </form>

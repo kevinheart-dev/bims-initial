@@ -78,7 +78,7 @@ class BarangayOfficialController extends Controller
                 'email'             => $data['email'],
                 'status'            => $data['status'] ?? 'active',
                 'appointment_type'  => $data['appointment_type'],
-                'appointed_by'      => $data['appointed_by'],
+                'appointted_by'      => $data['appointted_by'],
                 'appointment_reason'=> $data['appointment_reason'],
                 'remarks'           => $data['remarks'],
             ]);
@@ -125,7 +125,36 @@ class BarangayOfficialController extends Controller
      */
     public function update(UpdateBarangayOfficialRequest $request, BarangayOfficial $barangayOfficial)
     {
-        //
+        try {
+            $data = $request->validated();
+
+            // If appointment type is not "appointed", remove the appointed_by and appointment_reason
+            if ($data['appointment_type'] !== 'appointed') {
+                $data['appointed_by'] = null;
+                $data['appointment_reason'] = null;
+            }
+
+            // Update Barangay Official
+            $barangayOfficial->update([
+                'resident_id'        => $data['resident_id'],
+                'position'           => $data['position'],
+                'appointment_type'   => $data['appointment_type'],
+                'appointed_by'       => $data['appointed_by'] ?? null,
+                'appointment_reason' => $data['appointment_reason'] ?? null,
+                'term'            => $data['term'] ?? null,
+                'remarks'            => $data['remarks'] ?? null,
+            ]);
+
+            // Update designation relationship if sent
+            if (!empty($data['designations'])) {
+                $barangayOfficial->designation()->sync($data['designations']);
+            }
+
+            return back()->with('success', 'Barangay Official updated successfully.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to update Barangay Official: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -134,5 +163,19 @@ class BarangayOfficialController extends Controller
     public function destroy(BarangayOfficial $barangayOfficial)
     {
         //
+    }
+
+    public function getOfficialInformation($id)
+    {
+        $official = BarangayOfficial::with([
+            'resident.barangay',
+            'resident.street.purok',
+            'designation' => function ($query) {
+                $query->whereNull('ended_at'); // or $query->where('end_date', '>', now());
+            },
+            'term'
+        ])->findOrFail($id);
+
+        return response()->json(['official' => $official]);
     }
 }
