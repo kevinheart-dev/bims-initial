@@ -5,39 +5,62 @@ import DropdownInputField from "@/Components/DropdownInputField";
 import YearDropdown from "@/Components/YearDropdown";
 import InputLabel from "@/Components/InputLabel";
 import InputError from "@/Components/InputError";
+import SelectField from "@/Components/SelectField";
+import { BARANGAY_OFFICIAL_POSITIONS_TEXT } from "@/constants";
+import { router, useForm } from "@inertiajs/react";
+import useResidentChangeHandler from "@/hooks/handleResidentChange";
 
-const AddOfficialForm = ({ onSubmit }) => {
-    const [formData, setFormData] = useState({
-        name: "",
+const AddOfficialForm = ({ onSubmit, residents, puroks }) => {
+    const { data, setData, post, processing, reset } = useForm({
+        resident_name: "",
         position: "",
-        purok: "",
+        purok_number: "",
         termStart: "",
         termEnd: "",
-        phone: "",
+        contact_number: "",
         email: "",
-        image: "",
+        resident_image_path: "",
     });
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        setData(e.target.name, e.target.value);
     };
-
+    const handleResidentChange = useResidentChangeHandler(residents, setData);
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
-            const url = URL.createObjectURL(file);
-            setFormData({ ...formData, image: url });
+            setData("image", file); // store file directly for backend upload
         }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (onSubmit) onSubmit(formData);
+        router.post(route("barangay_official.store"));
     };
+
+    const officialPositionsList = Object.entries(
+        BARANGAY_OFFICIAL_POSITIONS_TEXT
+    ).map(([key, label]) => ({
+        label: label,
+        value: key.toString(),
+    }));
+
+    const purok_numbers = puroks.map((purok) => ({
+        label: "Purok " + purok,
+        value: purok.toString(),
+    }));
+
+    const residentsList = residents.map((res) => ({
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
+            res.suffix ?? ""
+        }`,
+        value: res.id.toString(),
+    }));
 
     return (
         <form onSubmit={handleSubmit} className="max-w-xl space-y-6">
             {/* Image and Name + Position */}
+
             <div className="flex gap-4 items-start">
                 {/* Image Upload */}
                 <div className="flex flex-col items-center">
@@ -45,9 +68,12 @@ const AddOfficialForm = ({ onSubmit }) => {
                         htmlFor="imageUpload"
                         className="w-32 h-32 border rounded overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
                     >
-                        {formData.image ? (
+                        {data.resident_image_path &&
+                        typeof data.resident_image_path !== "string" ? (
                             <img
-                                src={formData.image}
+                                src={URL.createObjectURL(
+                                    data.resident_image_path
+                                )}
                                 alt="Preview"
                                 className="object-cover w-full h-full"
                             />
@@ -64,138 +90,115 @@ const AddOfficialForm = ({ onSubmit }) => {
                         onChange={handleImageUpload}
                         className="hidden"
                     />
-                    {formData.image && (
-                        <p className="text-xs text-gray-500 mt-1 break-all w-32 text-center">
-                            {formData.image}
-                        </p>
-                    )}
                 </div>
 
                 {/* Name & Position */}
                 <div className="flex flex-col gap-4 flex-1">
                     <div>
-                        <label className="block text-sm font-medium mb-1" htmlFor="name">
+                        <label
+                            className="block text-sm font-medium mb-1"
+                            htmlFor="resident_name"
+                        >
                             Full Name
                         </label>
-                        <input
-                            id="name"
-                            name="name"
-                            type="text"
+                        <DropdownInputField
+                            id="resident_name"
+                            name="resident_name"
                             placeholder="Enter full name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={data.resident_name || ""}
+                            onChange={(e) => handleResidentChange(e)}
+                            items={residentsList}
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium mb-1" htmlFor="position">
+                        <label
+                            className="block text-sm font-medium mb-1"
+                            htmlFor="position"
+                        >
                             Position
                         </label>
-                        <select
+                        <SelectField
                             id="position"
                             name="position"
-                            value={formData.position}
+                            value={data.position}
                             onChange={handleChange}
-                            className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            items={officialPositionsList}
                         >
                             <option value="" disabled>
                                 Select barangay position
                             </option>
-                            {/* Populate options here */}
-                        </select>
+                        </SelectField>
                     </div>
                 </div>
             </div>
 
             {/* Designated Purok */}
             <div>
-                <label className="block text-sm font-medium mb-1" htmlFor="purok">
+                <label
+                    className="block text-sm font-medium mb-1"
+                    htmlFor="purok_number"
+                >
                     Designated Purok
                 </label>
-                <input
-                    id="purok"
-                    name="purok"
-                    type="text"
+                <DropdownInputField
+                    id="purok_number"
+                    name="purok_number"
                     placeholder="Enter purok number or name"
-                    value={formData.purok}
+                    value={data.purok_number.toString()}
                     onChange={handleChange}
-                    className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    items={purok_numbers}
                 />
             </div>
 
             {/* Term Start / Term End */}
             <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="termStart">
-                        Term Start
-                    </label>
-                    <YearDropdown
-                        id="termStart"
-                        name="termStart"
-                        value={formData.termStart}
-                        onChange={handleChange}
-                        className="w-full"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="termEnd">
-                        Term End
-                    </label>
-                    <YearDropdown
-                        id="termEnd"
-                        name="termEnd"
-                        value={formData.termEnd}
-                        onChange={handleChange}
-                        className="w-full"
-                    />
-                </div>
+                <YearDropdown
+                    id="termStart"
+                    name="termStart"
+                    value={data.termStart}
+                    onChange={handleChange}
+                />
+                <YearDropdown
+                    id="termEnd"
+                    name="termEnd"
+                    value={data.termEnd}
+                    onChange={handleChange}
+                />
             </div>
 
-            {/* Phone Number / Email Address */}
+            {/* Phone Number / Email */}
             <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="phone">
-                        Phone Number
-                    </label>
-                    <input
-                        id="phone"
-                        name="phone"
-                        type="text"
-                        placeholder="phone number"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        disabled
-                        className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="email">
-                        Email Address
-                    </label>
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        placeholder="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        disabled
-                        className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                </div>
+                <InputField
+                    id="contact_number"
+                    name="contact_number"
+                    type="text"
+                    placeholder="phone number"
+                    value={data.contact_number || ""}
+                    onChange={handleChange}
+                    disabled
+                />
+                <InputField
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="email"
+                    value={data.email || ""}
+                    onChange={handleChange}
+                    disabled
+                />
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <div className="flex justify-end pt-4">
                 <button
                     type="submit"
                     className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+                    disabled={processing}
                 >
-                    Save
+                    {processing ? "Saving..." : "Save"}
                 </button>
             </div>
         </form>
-
     );
 };
 

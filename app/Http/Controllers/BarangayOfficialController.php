@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\BarangayOfficial;
 use App\Http\Requests\StoreBarangayOfficialRequest;
 use App\Http\Requests\UpdateBarangayOfficialRequest;
+use App\Models\BarangayOfficialTerm;
+use App\Models\Designation;
+use App\Models\Purok;
+use App\Models\Resident;
+use DB;
 use Inertia\Inertia;
 
 class BarangayOfficialController extends Controller
@@ -19,21 +24,27 @@ class BarangayOfficialController extends Controller
         $officials = BarangayOfficial::with([
             'resident.barangay',
             'resident.street.purok',
-            'resident.educationalHistories',
-            'resident.occupations',
-            'resident.medicalInformation',
-            'resident.seniorcitizen',
-            'resident.socialwelfareprofile',
-            'resident.disabilities',
-            'designation',
+            'term',
+            'activeDesignations',
+            'activeDesignations.purok'
         ])
-            ->whereHas('resident', function ($query) use ($brgy_id) {
-                $query->where('barangay_id', $brgy_id);
-            })
-            ->get();
+        ->whereHas('resident', fn($q) => $q->where('barangay_id', $brgy_id))
+        ->get();
 
+        $residents = Resident::where('barangay_id', $brgy_id)->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'birthdate', 'email', 'contact_number')->get();
+
+        $puroks = Purok::where('barangay_id', operator: $brgy_id)
+            ->orderBy('purok_number', 'asc')
+            ->pluck('purok_number');
+
+
+        $activeterms = BarangayOfficialTerm::query()->where('barangay_id', $brgy_id)->where("status", 'active')->get();
+        //dd($officials);
         return Inertia::render("BarangayOfficer/BarangayInfo/BarangayOfficials", [
-            'officials' => $officials
+            'officials' => $officials,
+            'residents' => $residents,
+            'puroks' => $puroks,
+            'activeterms' => $activeterms
         ]);
     }
 
@@ -52,7 +63,45 @@ class BarangayOfficialController extends Controller
      */
     public function store(StoreBarangayOfficialRequest $request)
     {
-        //
+        try {
+
+            $data = $request->validated();
+            DB::beginTransaction();
+
+
+            // Store Barangay Official
+            $official = BarangayOfficial::create([
+                'resident_id'       => $data['resident_id'],
+                'term_id'           => $data['term'],
+                'position'          => $data['position'],
+                'contact_number'    => $data['contact_number'],
+                'email'             => $data['email'],
+                'status'            => $data['status'] ?? 'active',
+                'appointment_type'  => $data['appointment_type'],
+                'appointed_by'      => $data['appointed_by'],
+                'appointment_reason'=> $data['appointment_reason'],
+                'remarks'           => $data['remarks'],
+            ]);
+
+            // Store designation(s) only for kagawad positions
+            if (in_array($data['position'], ['barangay_kagawad', 'sk_kagawad']) && !empty($data['designation'])) {
+                foreach ($data['designation'] as $purokId) {
+                    Designation::create([
+                        'official_id' => $official->id,
+                        'purok_id'    => $purokId,
+                        'started_at'  => now()->year,
+                        'ended_at'    => null,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return back()->with('success', 'Barangay Official successfully added.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Barangay Official could not be added: ' . $e->getMessage());
+        }
     }
 
     /**

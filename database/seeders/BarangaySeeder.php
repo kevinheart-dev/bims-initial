@@ -3,6 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\Barangay;
+use App\Models\BarangayOfficial;
+use App\Models\BarangayOfficialTerm;
+use App\Models\Designation;
+use App\Models\Purok;
+use App\Models\Resident;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -50,5 +55,6 @@ class BarangaySeeder extends Seeder
                 'logo_path' => null,
             ]);
         }
+
     }
 }

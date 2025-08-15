@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('barangay_roads', function (Blueprint $table) {
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->enum('road_type', ['asphalt', 'concrete', 'grave', 'natural earth surface']);
+            $table->enum('road_type', ['asphalt', 'concrete', 'gravel', 'natural_earth_surface']);
             $table->decimal('length', 5, 2);
             $table->string('maintained_by', 155);
             $table->timestamps();

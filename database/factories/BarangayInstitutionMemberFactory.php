@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\BarangayInstitution;
+use App\Models\BarangayInstitutionMember;
 use App\Models\Resident;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -16,14 +17,29 @@ class BarangayInstitutionMemberFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition(): array
-    {
-        return [
-            'institution_id' => BarangayInstitution::inRandomOrder()->first()->id,
-            'resident_id' => Resident::inRandomOrder()->first()->id,
-            'member_since' => $this->faker->date(),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ];
-    }
+        protected $model = BarangayInstitutionMember::class;
+
+        public function definition()
+        {
+            return [
+                'institution_id' => BarangayInstitution::inRandomOrder()->value('id') ?? BarangayInstitution::factory(),
+                'resident_id' => Resident::inRandomOrder()->value('id') ?? Resident::factory(),
+                'is_head' => false, // default; will override later if needed
+                'member_since' => $this->faker->date(),
+                'status' => $this->faker->randomElement(['active', 'inactive', 'active', 'active']),
+            ];
+        }
+
+        /**
+         * Assign this member as the head of the institution.
+         */
+        public function head()
+        {
+            return $this->state(function () {
+                return [
+                    'is_head' => true,
+                ];
+            });
+        }
+
 }

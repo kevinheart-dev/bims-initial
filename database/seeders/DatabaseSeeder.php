@@ -64,8 +64,8 @@ class DatabaseSeeder extends Seeder
             ]);
         }
         Street::factory(15)->create();
-        Household::factory(3)->create();
-        Family::factory(3)->create();
+        Household::factory(6)->create();
+        Family::factory(7)->create();
 
         $term = BarangayOfficialTerm::factory()->create([
             'barangay_id' => 1,
@@ -128,22 +128,22 @@ class DatabaseSeeder extends Seeder
         // }
         LivelihoodType::factory(5)->create();
 
-        $residents = Resident::factory()->count(10)->create();
+        $residents = Resident::factory()->count(30)->create();
 
-        MedicalInformation::factory(10)->create();
-        InternetAccessibility::factory(3)->create();
+        MedicalInformation::factory(30)->create();
+        InternetAccessibility::factory(7)->create();
         //Livelihood::factory(60)->create();
-        Occupation::factory(10)->create();
-        EducationalHistory::factory(15)->create();
-        Vehicle::factory(3)->create();
-        Livestock::factory(5)->create();
-        ResidentVoterInformation::factory(10)->create();
-        SocialWelfareProfile::factory(4)->create();
-        SeniorCitizen::factory(3)->create();
-        HouseholdToilet::factory(5)->create();
-        HouseholdElectricitySource::factory(5)->create();
-        HouseholdWasteManagement::factory(5)->create();
-        HouseholdWaterSource::factory(5)->create();
+        Occupation::factory(40)->create();
+        EducationalHistory::factory(40)->create();
+        Vehicle::factory(10)->create();
+        Livestock::factory(7)->create();
+        ResidentVoterInformation::factory(30)->create();
+        SocialWelfareProfile::factory(15)->create();
+        SeniorCitizen::factory(15)->create();
+        HouseholdToilet::factory(7)->create();
+        HouseholdElectricitySource::factory(7)->create();
+        HouseholdWasteManagement::factory(7)->create();
+        HouseholdWaterSource::factory(7)->create();
         $residents->groupBy('household_id')->each(function ($group) {
             $group->first()->update(['is_household_head' => true]);
         });
@@ -151,6 +151,7 @@ class DatabaseSeeder extends Seeder
             OccupationTypeSeeder::class,
             FixHouseholdResidentSeeder::class,
             FamilyRelationSeeder::class,
+            BarangayInformationSeeder::class
         ]);
     }
 }

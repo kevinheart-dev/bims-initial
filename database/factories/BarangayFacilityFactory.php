@@ -14,16 +14,26 @@ class BarangayFacilityFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition(): array
+     public function definition(): array
     {
+        // Common barangay facility types and sample names
+        $facilityTypes = [
+            'Health' => ['Barangay Health Center', 'Birthing Clinic'],
+            'Education' => ['Day Care Center', 'Elementary School', 'High School'],
+            'Sports & Recreation' => ['Covered Court', 'Gymnasium', 'Playground'],
+            'Government' => ['Barangay Hall', 'Police Outpost', 'Fire Substation'],
+            'Utilities' => ['Water Tank', 'Multipurpose Hall']
+        ];
+
+        // Randomly pick a facility type and corresponding name
+        $type = $this->faker->randomElement(array_keys($facilityTypes));
+        $name = $this->faker->randomElement($facilityTypes[$type]);
+
         return [
             'barangay_id' => 1,
-            'name' => $this->faker->word(),
-            'facility_type' => $this->faker->randomElement(['health center', 'multipurpose hall', 'daycare', 'others']),
-            'other' => $this->faker->word(),
-            'quantity' => rand(1, 10),
-            'created_at' => now(),
-            'updated_at' => now(),
+            'name' => $name,
+            'facility_type' => $type,
+            'quantity' => $this->faker->numberBetween(1, 5), // realistic number of facilities
         ];
     }
 }

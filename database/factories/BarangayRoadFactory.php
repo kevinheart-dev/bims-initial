@@ -18,11 +18,16 @@ class BarangayRoadFactory extends Factory
     {
         return [
             'barangay_id' => 1,
-            'road_type' => $this->faker->randomElement(['asphalt', 'concrete', 'grave', 'natural earth surface']),
-            'length' => $this->faker->randomFloat(2, 1, 100),
-            'maintained_by' => $this->faker->company(),
-            'created_at' => now(),
-            'updated_at' => now(),
+            'road_type' => $this->faker->randomElement(['asphalt', 'concrete', 'gravel', 'natural_earth_surface']),
+            'length' => $this->faker->randomFloat(2, 0.10, 15.00), // 0.10 km to 15 km
+            'maintained_by' => $this->faker->randomElement([
+                'Barangay Government',
+                'Municipal Government',
+                'City Government',
+                'Provincial Government',
+                'Private Entity',
+                'Community Volunteers'
+            ]),
         ];
     }
 }

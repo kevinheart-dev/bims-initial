@@ -16,12 +16,17 @@ class BarangayInstitutionFactory extends Factory
      */
     public function definition(): array
     {
+        $localInstitutions = [
+            'ILAW — Ilaw ng Tahanan (Mothers\' Association)',
+            'HALIGI — Haligi ng Tahanan (Fathers\' Association)',
+            'Fisherfolk Association',
+            'Tricycle Operators and Drivers Association (TODA)',
+            'Public Utility Drivers Association',
+            'Organic Farmers Association',
+        ];
         return [
             'barangay_id' => 1,
-            'institution_head' => rand(1, 100),
-            'name' => $this->faker->company(),
-            'created_at' => now(),
-            'updated_at' => now(),
+            'name' => $this->faker->randomElement($localInstitutions),
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\BarangayInfrastructure;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -14,25 +15,27 @@ class BarangayInfrastructureFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition(): array
+
+    protected $model = BarangayInfrastructure::class;
+
+    public function definition()
     {
+        $infrastructureTypes = [
+            'Road', 'Bridge', 'Drainage System', 'Streetlight', 'Health Center',
+            'Day Care Center', 'School Building', 'Multi-Purpose Hall', 'Covered Court',
+            'Barangay Hall', 'Public Market', 'Waiting Shed', 'Water Supply System'
+        ];
+
+        $infrastructureCategories = [
+            'Transportation', 'Utilities', 'Education', 'Health', 'Community Facility', 'Public Safety'
+        ];
+
         return [
             'barangay_id' => 1,
-            'title' => $this->faker->sentence(4),
-            'description' => $this->faker->paragraph(),
-            'status' => $this->faker->randomElement(['planning', 'ongoing', 'completed', 'cancelled']),
-            'category' => $this->faker->randomElement([
-                'infrastructure', 'healthcare', 'education', 'livelihood', 'training',
-                'disaster preparedness', 'environmental', 'peace and order', 'others'
-            ]),
-            'responsible_institution' => rand(1, 5),
-            'other' => $this->faker->word(),
-            'budget' => $this->faker->randomFloat(2, 10000, 1000000),
-            'funding_source' => $this->faker->company(),
-            'start_date' => $this->faker->date(),
-            'end_date' => $this->faker->date(),
-            'created_at' => now(),
-            'updated_at' => now(),
+            'infrastructure_type' => $this->faker->randomElement($infrastructureTypes),
+            'infrastructure_category' => $this->faker->randomElement($infrastructureCategories),
+            'quantity' => $this->faker->numberBetween(1, 20),
         ];
     }
+
 }

@@ -5,7 +5,6 @@ export default function useResidentChangeHandler(residents, setData) {
         (e) => {
             const resident_id = Number(e.target.value);
             const resident = residents.find((r) => r.id === resident_id);
-
             if (resident) {
                 setData("resident_id", resident.id);
                 setData(
@@ -21,6 +20,8 @@ export default function useResidentChangeHandler(residents, setData) {
                 setData("residency_date", resident.residency_date);
                 setData("residency_type", resident.residency_type);
                 setData("employment_status", resident.employment_status);
+                setData("contact_number", resident.contact_number);
+                setData("email", resident.email);
             }
         },
         [residents, setData]

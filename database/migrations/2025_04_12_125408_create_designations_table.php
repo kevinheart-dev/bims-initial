@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('designations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('barangay_kagawad_id')->nullable()->constrained('residents')->onDelete('set null');
-            $table->foreignId('sk_kagawad_id')->nullable()->constrained('residents')->onDelete('set null');
+            $table->foreignId('official_id')->nullable()->constrained('barangay_officials')->onDelete('set null');
             $table->foreignId('purok_id')->constrained('puroks')->onDelete('cascade');
             $table->year('started_at');
             $table->year('ended_at')->nullable();

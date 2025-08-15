@@ -239,6 +239,11 @@ class Resident extends Model
         return $this->hasOne(MedicalInformation::class);
     }
 
+    public function barangayOfficials()
+    {
+        return $this->hasMany(BarangayOfficial::class, 'resident_id');
+    }
+
 
     public function getAgeAttribute()
     {

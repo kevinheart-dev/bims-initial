@@ -12,13 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('barangay_institution_members', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('institution_id')->constrained('barangay_institutions')->onDelete('cascade');
-            $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->boolean('is_head')->default(false);
-            $table->date('member_since');
-            $table->timestamps();
-        });
+        $table->id();
+        $table->foreignId('institution_id')
+            ->constrained('barangay_institutions')
+            ->cascadeOnDelete();
+        $table->foreignId('resident_id')
+            ->constrained('residents')
+            ->cascadeOnDelete();
+        $table->boolean('is_head')->default(false);
+        $table->date('member_since')->nullable(); // Optional if some members' start date is unknown
+        $table->enum('status', ['active', 'inactive'])->default('active');
+        $table->timestamps();
+
+        // Prevent duplicate membership for the same institution & resident
+        $table->unique(['institution_id', 'resident_id']);
+    });
     }
 
     /**
