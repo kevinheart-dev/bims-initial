@@ -52,71 +52,64 @@ const BarangayProfileMain = () => {
                         <div className="flex gap-6 text-sm font-medium flex-wrap">
                             <button
                                 onClick={() => setActiveTab("infrastructure")}
-                                className={`py-2 px-1 border-b-2 ${
-                                    activeTab === "infrastructure"
+                                className={`py-2 px-1 border-b-2 ${activeTab === "infrastructure"
                                         ? "border-blue-600 text-blue-700"
                                         : "border-transparent text-gray-500"
-                                }`}
+                                    }`}
                             >
                                 Infrastructure
                             </button>
                             <button
                                 onClick={() => setActiveTab("institutions")}
-                                className={`py-2 px-1 border-b-2 ${
-                                    activeTab === "institutions"
+                                className={`py-2 px-1 border-b-2 ${activeTab === "institutions"
                                         ? "border-blue-600 text-blue-700"
                                         : "border-transparent text-gray-500"
-                                }`}
+                                    }`}
                             >
                                 Institutions
                             </button>
                             <button
                                 onClick={() => setActiveTab("facilities")}
-                                className={`py-2 px-1 border-b-2 ${
-                                    activeTab === "facilities"
+                                className={`py-2 px-1 border-b-2 ${activeTab === "facilities"
                                         ? "border-blue-600 text-blue-700"
                                         : "border-transparent text-gray-500"
-                                }`}
+                                    }`}
                             >
                                 Facilities
                             </button>
                             <button
                                 onClick={() => setActiveTab("projects")}
-                                className={`py-2 px-1 border-b-2 ${
-                                    activeTab === "projects"
+                                className={`py-2 px-1 border-b-2 ${activeTab === "projects"
                                         ? "border-blue-600 text-blue-700"
                                         : "border-transparent text-gray-500"
-                                }`}
+                                    }`}
                             >
                                 Projects
                             </button>
                             <button
                                 onClick={() => setActiveTab("roads")}
-                                className={`py-2 px-1 border-b-2 ${
-                                    activeTab === "roads"
+                                className={`py-2 px-1 border-b-2 ${activeTab === "roads"
                                         ? "border-blue-600 text-blue-700"
                                         : "border-transparent text-gray-500"
-                                }`}
+                                    }`}
                             >
                                 Roads
                             </button>
                             <button
                                 onClick={() => setActiveTab("officials")}
-                                className={`py-2 px-1 border-b-2 ${
-                                    activeTab === "officials"
+                                className={`py-2 px-1 border-b-2 ${activeTab === "officials"
                                         ? "border-blue-600 text-blue-700"
                                         : "border-transparent text-gray-500"
-                                }`}
+                                    }`}
                             >
                                 Officials
                             </button>
                             <button
                                 onClick={() => setActiveTab("disaster")}
-                                className={`py-2 px-1 border-b-2 ${
-                                    activeTab === "disaster"
+                                className={`py-2 px-1 border-b-2 ${activeTab === "disaster"
                                         ? "border-blue-600 text-blue-700"
                                         : "border-transparent text-gray-500"
-                                }`}
+                                    }`}
                             >
                                 Disaster Risk Areas
                             </button>
@@ -127,7 +120,6 @@ const BarangayProfileMain = () => {
                     <div className="mt-4">
                         {activeTab === "infrastructure" && (
                             <BarangayInfrastucture
-                                infrastructure={infrastructure}
                             />
                         )}
                         {activeTab === "institutions" && <InstitutionIndex />}
