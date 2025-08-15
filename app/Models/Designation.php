@@ -10,7 +10,7 @@ class Designation extends Model
     /** @use HasFactory<\Database\Factories\DesignationFactory> */
     use HasFactory;
 
-        use HasFactory;
+    public $timestamps = true;
 
     protected $fillable = [
         'official_id',

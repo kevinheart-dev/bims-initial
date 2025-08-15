@@ -9,4 +9,16 @@ class BarangayRoad extends Model
 {
     /** @use HasFactory<\Database\Factories\BarangayRoadFactory> */
     use HasFactory;
+    public $timestamps = true;
+    protected $fillable = [
+        'barangay_id',
+        'road_type',
+        'length',
+        'maintained_by',
+    ];
+
+    public function barangay()
+    {
+        return $this->belongsTo(Barangay::class);
+    }
 }

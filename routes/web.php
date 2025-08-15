@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\BarangayFacilityController;
+use App\Http\Controllers\BarangayInstitutionController;
 use App\Http\Controllers\BarangayOfficialController;
 use App\Http\Controllers\BarangayProfileController;
 use App\Http\Controllers\BarangayProjectController;
+use App\Http\Controllers\BarangayRoadController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DashboardController;
@@ -18,6 +21,7 @@ use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\SeniorCitizenController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
+use App\Models\BarangayInstitution;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -88,6 +92,9 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('barangay_official', BarangayOfficialController::class);
     Route::resource('barangay_profile', BarangayProfileController::class);
     Route::resource('barangay_project', BarangayProjectController::class);
+    Route::resource('barangay_facility', BarangayFacilityController::class);
+    Route::resource('barangay_road', BarangayRoadController::class);
+    Route::resource('barangay_institution', BarangayInstitutionController::class);
 });
 
 // Resident-only routes
