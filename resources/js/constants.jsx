@@ -451,7 +451,7 @@ export const PROJECT_STATUS_TEXT = {
 
 export const ROAD_TYPE_TEXT = {
     asphalt: "Asphalt",
-    concrete: "concrete",
+    concrete: "Concrete",
     natural_earth_surface: "Natural Earth Surface",
     gravel: "Gravel",
 };

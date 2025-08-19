@@ -18,16 +18,34 @@ class BarangayProjectFactory extends Factory
      */
     public function definition()
     {
-        // Pick a random start date within the last 5 years
-        $startDate = $this->faker->dateTimeBetween('-5 years', 'now');
-
-        // End date could be after start date or null if ongoing
-        $endDate = $this->faker->boolean(70) // 70% chance to have an end date
-            ? $this->faker->dateTimeBetween($startDate, '+1 year')
-            : null;
+        // Pick a random start date within the last 3 years
+        $startDate = $this->faker->dateTimeBetween('-3 years', 'now');
 
         // Status options
         $statusOptions = ['planning', 'ongoing', 'completed', 'cancelled'];
+        $status = $this->faker->randomElement($statusOptions);
+
+        // Funding sources with realistic budget ranges
+        $fundingSources = [
+            'Barangay Fund' => [10000, 200000],
+            'Municipal Grant' => [50000, 1000000],
+            'NGO' => [20000, 500000],
+            'Private Donor' => [10000, 300000],
+            'Government Program' => [200000, 5000000],
+        ];
+
+        $fundingSource = $this->faker->randomElement(array_keys($fundingSources));
+        [$minBudget, $maxBudget] = $fundingSources[$fundingSource];
+
+        // End date rules
+        $endDate = null;
+        if ($status === 'completed') {
+            $endDate = $this->faker->dateTimeBetween($startDate, 'now');
+        } elseif ($status === 'ongoing') {
+            $endDate = null; // still running
+        } elseif ($status === 'planning') {
+            $startDate = $this->faker->dateTimeBetween('now', '+6 months'); // future start
+        }
 
         // Project categories
         $categories = [
@@ -40,15 +58,28 @@ class BarangayProjectFactory extends Factory
             'Community Services'
         ];
 
+        // More realistic project titles
+        $sampleTitles = [
+            'Road Rehabilitation',
+            'Drainage Improvement',
+            'Barangay Health Mission',
+            'Day Care Center Renovation',
+            'Tree Planting Program',
+            'Livelihood Training Workshop',
+            'Disaster Response Equipment',
+            'Feeding Program for Children',
+            'Barangay Street Lighting'
+        ];
+
         return [
             'barangay_id' => 1,
-            'title' => $this->faker->words(3, true) . ' Project',
-            'description' => $this->faker->paragraphs(2, true),
-            'status' => $this->faker->randomElement($statusOptions),
+            'title' => $this->faker->randomElement($sampleTitles),
+            'description' => $this->faker->sentence(15, true),
+            'status' => $status,
             'category' => $this->faker->randomElement($categories),
             'responsible_institution_id' => BarangayInstitution::inRandomOrder()->value('id') ?? BarangayInstitution::factory(),
-            'budget' => $this->faker->numberBetween(50000, 5000000),
-            'funding_source' => $this->faker->randomElement(['Barangay Fund', 'Municipal Grant', 'NGO', 'Private Donor', 'Government Program']),
+            'budget' => $this->faker->numberBetween($minBudget, $maxBudget),
+            'funding_source' => $fundingSource,
             'start_date' => $startDate,
             'end_date' => $endDate,
         ];
