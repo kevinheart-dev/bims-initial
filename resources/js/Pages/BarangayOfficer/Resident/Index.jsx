@@ -7,10 +7,8 @@ import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailC
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import { Toaster, toast } from "sonner";
-import ResidentTable from "@/Components/ResidentTable";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
-import ResidentFilterBar from "@/Components/ResidentFilterBar";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import {
@@ -210,9 +208,8 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
         name: (resident) => (
             <div className="text-sm break-words whitespace-normal leading-snug">
-                {`${resident.firstname} ${resident.middlename ?? ""} ${
-                    resident.lastname ?? ""
-                } ${resident.suffix ?? ""}`}
+                {`${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname ?? ""
+                    } ${resident.suffix ?? ""}`}
             </div>
         ),
 
@@ -255,7 +252,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
         employment_status: (resident) =>
             CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-                resident.employment_status
+            resident.employment_status
             ],
 
         occupation: (resident) => {
@@ -275,15 +272,14 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
         registered_voter: (resident) => (
             <span
-                className={`${
-                    CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
-                        resident.registered_voter
-                    ]
-                } whitespace-nowrap`}
+                className={`${CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
+                    resident.registered_voter
+                ]
+                    } whitespace-nowrap`}
             >
                 {
                     CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[
-                        resident.registered_voter
+                    resident.registered_voter
                     ]
                 }
             </span>
@@ -472,7 +468,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                 toggleShowAll={() => setShowAll(!showAll)}
                                 visibleColumns={visibleColumns}
                                 setVisibleColumns={setVisibleColumns}
-                                // showTotal={true}
+                            // showTotal={true}
                             />
                         </div>
                     </div>

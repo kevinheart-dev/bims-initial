@@ -166,7 +166,7 @@ export function AppSidebar({ auth }) {
 
     return (
         <Sidebar>
-            <SidebarContent className="bg-sky-500 shadow-lg">
+            <SidebarContent className="bg-sky-400 shadow-lg">
                 <div className="flex items-center pt-4 pb-2 px-3 text-left">
                     <img
                         src="/images/csa-logo.png"
@@ -272,7 +272,7 @@ export function AppSidebar({ auth }) {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-            <SidebarFooter className="bg-sky-500">
+            <SidebarFooter className="bg-sky-400">
                 <NavUser user={user} />
             </SidebarFooter>
         </Sidebar>

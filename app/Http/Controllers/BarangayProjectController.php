@@ -14,8 +14,9 @@ class BarangayProjectController extends Controller
     {
         $brgy_id = Auth()->user()->barangay_id;
 
-        // Base query
-        $query = BarangayProject::query()->where('barangay_id', $brgy_id)
+        // Base query with eager loading
+        $query = BarangayProject::with('institution')
+            ->where('barangay_id', $brgy_id)
             ->orderBy('start_date', 'desc');
 
         // Optional filters
@@ -30,7 +31,7 @@ class BarangayProjectController extends Controller
         if ($title = request('title')) {
             $query->where('title', 'like', "%{$title}%");
         }
-        //dd($query->get());
+
         // Paginate and keep query string
         $projects = $query->paginate(10)->withQueryString();
 
@@ -38,6 +39,7 @@ class BarangayProjectController extends Controller
             'projects' => $projects,
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.
