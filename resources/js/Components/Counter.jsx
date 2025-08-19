@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
 
-function Counter({ end, duration = 2000 }) {
+function Counter({ end, duration = 900 }) {
     const [count, setCount] = useState(0);
 
     useEffect(() => {
         let start = 0;
-        const incrementTime = Math.max(Math.floor(duration / end), 10); // speed
+        const frames = Math.floor(duration / 14); // ~60fps
+        const step = Math.max(Math.floor(end / frames), 1); // how much to add per frame
+
         const timer = setInterval(() => {
-            start += 1;
-            setCount(start);
-            if (start >= end) clearInterval(timer);
-        }, incrementTime);
+            start += step;
+            if (start >= end) {
+                setCount(end);
+                clearInterval(timer);
+            } else {
+                setCount(start);
+            }
+        }, 16);
 
         return () => clearInterval(timer);
     }, [end, duration]);
