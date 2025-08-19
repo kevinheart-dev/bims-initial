@@ -31,6 +31,7 @@ class MedicalInformationFactory extends Factory
             'blood_type' => $this->faker->randomElement(['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-']),
             'has_philhealth' => $this->faker->boolean,
             'philhealth_id_number' => $this->faker->boolean ? $this->faker->numerify('############') : null,
+            'pwd_id_number' => $this->faker->optional()->numerify('PWD-####-####'),
         ];
     }
 }

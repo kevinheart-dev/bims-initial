@@ -8,6 +8,8 @@ import {
 import ClearFilterButton from "@/Components/ClearFiltersButton";
 import {
     BARANGAY_OFFICIAL_POSITIONS_TEXT,
+    BLOOD_TYPE_OPTIONS,
+    BMI_STATUS,
     CERTIFICATE_REQUEST_STATUS_TEXT,
     INCOME_BRACKETS,
 } from "@/constants";
@@ -933,6 +935,95 @@ const FilterToggle = ({
                         )}
                     />
                 </div>
+            )}
+
+            {/* MEDICAL INFORMATION */}
+            {isVisible("nutritional_status") && (
+                <Select
+                    onValueChange={(med) =>
+                        searchFieldName("nutritional_status", med)
+                    }
+                    value={queryParams.nutritional_status}
+                >
+                    <SelectTrigger className="w-[170px]">
+                        <SelectValue placeholder="Nutritional Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {Object.entries(BMI_STATUS).map(([value, label]) => (
+                            <SelectItem key={value} value={value}>
+                                {label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("blood_type") && (
+                <Select
+                    onValueChange={(med) => searchFieldName("blood_type", med)}
+                    value={queryParams.blood_type}
+                >
+                    <SelectTrigger className="w-[120px]">
+                        <SelectValue placeholder="Blood Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {BLOOD_TYPE_OPTIONS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("is_smoker") && (
+                <Select
+                    onValueChange={(med) => searchFieldName("is_smoker", med)}
+                    value={queryParams.is_smoker}
+                >
+                    <SelectTrigger className="w-[110px]">
+                        <SelectValue placeholder="Is Smoker" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="1">Yes</SelectItem>
+                        <SelectItem value="0">No</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("alcohol_user") && (
+                <Select
+                    onValueChange={(med) =>
+                        searchFieldName("alcohol_user", med)
+                    }
+                    value={queryParams.alcohol_user}
+                >
+                    <SelectTrigger className="w-[130px]">
+                        <SelectValue placeholder="Alcohol User" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="1">Yes</SelectItem>
+                        <SelectItem value="0">No</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("has_philhealth") && (
+                <Select
+                    onValueChange={(med) =>
+                        searchFieldName("has_philhealth", med)
+                    }
+                    value={queryParams.has_philhealth}
+                >
+                    <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Has PhilHealth" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="1">Yes</SelectItem>
+                        <SelectItem value="0">No</SelectItem>
+                    </SelectContent>
+                </Select>
             )}
 
             {/* Clear Filters Button */}

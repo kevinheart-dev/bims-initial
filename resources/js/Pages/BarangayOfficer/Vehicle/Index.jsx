@@ -360,13 +360,18 @@ export default function Index({
                                                 Search
                                             </div>
                                         </div>
-                                        <Button
-                                            className="bg-blue-700 hover:bg-blue-400 "
-                                            onClick={handleAddVehicle}
-                                            type={"button"}
-                                        >
-                                            <SquarePlus />
-                                        </Button>
+                                        <div className="relative group z-50">
+                                            <Button
+                                                className="bg-blue-700 hover:bg-blue-400 "
+                                                onClick={handleAddVehicle}
+                                                type={"button"}
+                                            >
+                                                <SquarePlus />
+                                            </Button>
+                                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                                Add a Vehicle
+                                            </div>
+                                        </div>
                                     </form>
                                 </div>
                             </div>

@@ -401,7 +401,6 @@ export const BARANGAY_OFFICIAL_POSITIONS_TEXT = {
     tanod: "Tanod",
 };
 
-
 export const BARANGAY_OFFICIAL_POSITIONS_CLASS = {
     barangay_captain: "bg-blue-100 text-blue-800",
     barangay_secretary: "bg-purple-100 text-purple-800",
@@ -412,3 +411,22 @@ export const BARANGAY_OFFICIAL_POSITIONS_CLASS = {
     health_worker: "bg-teal-100 text-teal-800",
     tanod: "bg-red-100 text-red-800",
 };
+
+export const BMI_STATUS = {
+    normal: "Normal",
+    underweight: "Underweight",
+    severly_underweight: "Severly Underweight",
+    overweight: "Overweight",
+    obese: "Obese",
+};
+
+export const BLOOD_TYPE_OPTIONS = [
+    { value: "A+", label: "A+" },
+    { value: "A−", label: "A−" },
+    { value: "B+", label: "B+" },
+    { value: "B−", label: "B−" },
+    { value: "AB+", label: "AB+" },
+    { value: "AB−", label: "AB−" },
+    { value: "O+", label: "O+" },
+    { value: "O−", label: "O−" },
+];

@@ -284,8 +284,8 @@ function MedicalInfo() {
                                             onChange={(e) =>
                                                 handleMedicalChange(index, e)
                                             }
-                                            placeholder="Enter contact number"
-                                            type="number"
+                                            placeholder="09XXXXXXXXX"
+                                            type="text"
                                         />
                                         {errors?.[
                                             `members.${index}.emergency_contact_number`
@@ -538,7 +538,6 @@ function MedicalInfo() {
                                                 <InputField
                                                     label="PWD ID number"
                                                     name="pwd_id_number"
-                                                    type="number"
                                                     value={
                                                         member.pwd_id_number ||
                                                         ""
@@ -549,7 +548,7 @@ function MedicalInfo() {
                                                             e
                                                         )
                                                     }
-                                                    placeholder="Enter PWD ID number"
+                                                    placeholder="PWD-XXX-XXXXXXX"
                                                 />
                                                 {errors?.[
                                                     `members.${index}.pwd_id_number`

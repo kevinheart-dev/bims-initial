@@ -9,4 +9,15 @@ class Allergy extends Model
 {
     /** @use HasFactory<\Database\Factories\AllergyFactory> */
     use HasFactory;
+
+    public $timestamps = true;
+    protected $fillable = [
+        'resident_id',
+        'allergy_name',
+        'reaction_description',
+    ];
+
+    public function resident(){
+        return $this->belongsTo(Resident::class);
+    }
 }

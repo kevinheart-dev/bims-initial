@@ -17,10 +17,21 @@ class DisabilityFactory extends Factory
      */
     public function definition(): array
     {
+        // Common disability types in PH context (aligned with NCDA and PhilHealth classifications)
+        $disabilityTypes = [
+            'Visual Impairment',
+            'Hearing Impairment',
+            'Mobility Impairment',
+            'Speech/Communication Disorder',
+            'Intellectual Disability',
+            'Psychosocial Disability',
+            'Chronic Illness-related Disability',
+        ];
+
         return [
             'resident_id' => Resident::inRandomOrder()->first()?->id,
-            'disability_type' => $this->faker->word,
-            'pwd_id_number' => $this->faker->optional()->word,
+            // Pick a realistic disability type
+            'disability_type' => $this->faker->randomElement($disabilityTypes),
         ];
     }
 }

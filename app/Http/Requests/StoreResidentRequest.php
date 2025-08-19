@@ -112,11 +112,11 @@ class StoreResidentRequest extends FormRequest
                 'normal', 'underweight', 'severly_underweight', 'overweight', 'obese'
             ])],
 
-            'emergency_contact_number' => ['required', 'digits_between:7,15'],
+            'emergency_contact_number' => ['required', 'string', 'max:11'],
             'emergency_contact_name' => ['required', 'string', 'max:255'],
             'emergency_contact_relationship' => ['required', 'string', 'max:100'],
             'blood_type' => ['nullable', Rule::in([
-                'A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−'
+                'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
             ])],
 
             'has_philhealth' => ['required', Rule::in([0, 1])],
@@ -126,7 +126,7 @@ class StoreResidentRequest extends FormRequest
             'is_smoker' => ['required', Rule::in([0, 1])],
 
             'is_pwd' => ['required', Rule::in([0, 1])],
-            'pwd_id_number' => ['required_if:is_pwd,1', 'nullable', 'string', 'max:10'],
+            'pwd_id_number' => ['required_if:is_pwd,1', 'nullable', 'string', 'max:15'],
 
             'disabilities' => ['required_if:is_pwd,1', 'array'],
             'disabilities.*.disability_type' => ['required_with:disabilities', 'string', 'max:100'],

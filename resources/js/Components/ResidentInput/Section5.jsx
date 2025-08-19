@@ -958,9 +958,7 @@ const Section5 = ({
                                             { label: "Yes", value: 1 },
                                             { label: "No", value: 0 },
                                         ]}
-                                        selectedValue={
-                                            data.has_livestock || null
-                                        }
+                                        selectedValue={data.has_livestock || ""}
                                         onChange={(e) =>
                                             setData(
                                                 "has_livestock",

@@ -26,7 +26,7 @@ return new class extends Migration
             $table->char('blood_type', 5)->nullable();
             $table->boolean('has_philhealth')->default(true);
             $table->string('philhealth_id_number', 12)->nullable();
-            $table->string('pwd_id_number', 10)->nullable();
+            $table->string('pwd_id_number', 15)->nullable();
             $table->timestamps();
         });
     }

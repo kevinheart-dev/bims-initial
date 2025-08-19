@@ -10,6 +10,7 @@ class MedicalInformation extends Model
     /** @use HasFactory<\Database\Factories\MedicalInformationFactory> */
     use HasFactory;
     public $timestamps = true;
+    protected $table = 'medical_information';
     protected $fillable = [
         'resident_id',
         'weight_kg',
@@ -25,8 +26,6 @@ class MedicalInformation extends Model
         'has_philhealth',
         'philhealth_id_number',
         'pwd_id_number',
-        'updated_at',
-        'created_at',
     ];
 
     public function resident()

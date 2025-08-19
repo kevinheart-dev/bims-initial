@@ -98,8 +98,8 @@ const Section4 = ({ data, setData, errors }) => {
                         onChange={(e) =>
                             setData("emergency_contact_number", e.target.value)
                         }
-                        placeholder="Enter contact number"
-                        type="number"
+                        placeholder="09XXXXXXXXX"
+                        type="text"
                     />
                     <InputError
                         message={errors.emergency_contact_number}
@@ -158,14 +158,13 @@ const Section4 = ({ data, setData, errors }) => {
                         onChange={(e) => setData("blood_type", e.target.value)}
                         placeholder="Select blood type"
                         items={[
-                            "A+",
-                            "A−",
-                            "B+",
-                            "B−",
-                            "AB+",
-                            "AB−",
-                            "O+",
-                            "O−",
+                            { label: "A+", value: "A+" },
+                            { label: "A-", value: "A-" },
+                            { label: "B+", value: "B+" },
+                            { label: "B-", value: "B-" },
+                            { label: "AB+", value: "AB+" },
+                            { label: "O+", value: "O+" },
+                            { label: "O-", value: "O-" },
                         ]}
                     />
                     <InputError message={errors.blood_type} className="mt-2" />
@@ -262,12 +261,11 @@ const Section4 = ({ data, setData, errors }) => {
                             <InputField
                                 label="PWD ID number"
                                 name="pwd_id_number"
-                                type="number"
                                 value={data.pwd_id_number || ""}
                                 onChange={(e) =>
                                     setData("pwd_id_number", e.target.value)
                                 }
-                                placeholder="Enter PWD ID number"
+                                placeholder="PWD-XXX-XXXXXXX"
                             />
                             <InputError
                                 message={errors.pwd_id_number}

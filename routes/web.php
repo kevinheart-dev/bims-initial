@@ -16,6 +16,7 @@ use App\Http\Controllers\EducationController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyRelationController;
 use App\Http\Controllers\HouseholdController;
+use App\Http\Controllers\MedicalInformationController;
 use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ResidentController;
@@ -59,32 +60,32 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::get('resident/showresident/{id}', [ResidentController::class, 'showResident'])->name('resident.showresident');
     Route::get('resident/fetchresidents', [ResidentController::class, 'fetchResidents'])->name('resident.fetchresidents');
 
-    //barangay
+    // barangay
     Route::get('barangay_profile/barangaydetails', [BarangayProfileController::class, 'barangayDetails'])->name('barangay.details');
     Route::get('barangay_official/officialsinfo/{id}', [BarangayOfficialController::class, 'getOfficialInformation'])->name('barangay.officialinfo');
 
-    //household
+    // household
     Route::get('household/getlatesthead/{id}', [HouseholdController::class, 'getLatestHead'])->name('household.latesthead');
     Route::get('household/remove/{id}', [HouseholdController::class, 'remove'])->name('household.remove');
 
 
-    //senior
+    // senior
     Route::get('senior_citizen/seniordetails/{id}', [SeniorCitizenController::class, 'seniordetails'])->name('senior_citizen.details');
 
-    //education
+    // education
     Route::get('education/history/{id}', [EducationController::class, 'educationHistory'])->name('education.history');
 
-    //occupation
+    // occupation
     Route::get('occupation/details/{id}', [OccupationController::class, 'occupationDetails'])->name('occupation.details');
 
-    //vehicle
+    // vehicle
     Route::get('vehicle/details/{id}', [VehicleController::class, 'vehicleDetails'])->name('vehicle.details');
 
-    //user
+    // user
     Route::post('user/confirmpassword', [UserController::class, 'confirmPassword'])->name('user.confirm');
 
 
-
+    // residents
     Route::resource('user', UserController::class);
     Route::resource('resident', ResidentController::class);
     Route::resource('document', DocumentController::class);
@@ -95,8 +96,9 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('vehicle', VehicleController::class);
     Route::resource('education', EducationController::class);
     Route::resource('occupation', OccupationController::class);
+    Route::resource('medical', MedicalInformationController::class);
 
-    //barangay
+    // barangay
     Route::resource('barangay_official', BarangayOfficialController::class);
     Route::resource('barangay_profile', BarangayProfileController::class);
     Route::resource('barangay_project', BarangayProjectController::class);
@@ -104,6 +106,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('barangay_facility', BarangayFacilityController::class);
     Route::resource('barangay_road', BarangayRoadController::class);
     Route::resource('barangay_institution', BarangayInstitutionController::class);
+
 });
 
 // Resident-only routes

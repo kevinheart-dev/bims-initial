@@ -132,6 +132,7 @@ class DatabaseSeeder extends Seeder
 
         MedicalInformation::factory(30)->create();
         InternetAccessibility::factory(7)->create();
+        Disability::factory(10)->create();
         //Livelihood::factory(60)->create();
         Occupation::factory(40)->create();
         EducationalHistory::factory(40)->create();
@@ -153,5 +154,10 @@ class DatabaseSeeder extends Seeder
             FamilyRelationSeeder::class,
             BarangayInformationSeeder::class
         ]);
+        Resident::all()->each(function ($resident) {
+            MedicalInformation::factory()->create([
+            'resident_id' => $resident->id,
+        ]);
+    });
     }
 }

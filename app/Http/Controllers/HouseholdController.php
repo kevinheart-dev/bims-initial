@@ -25,7 +25,7 @@ class HouseholdController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->barangay_id;;
+        $brgy_id = Auth()->user()->barangay_id;
 
         $query = HouseholdResident::query()
             ->with([

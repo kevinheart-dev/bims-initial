@@ -213,6 +213,23 @@ class Resident extends Model
     {
         return $this->hasMany(Disability::class);
     }
+    public function allergies()
+    {
+        return $this->hasMany(Allergy::class);
+    }
+    public function medicalConditions()
+    {
+        return $this->hasMany(ResidentMedicalCondition::class);
+    }
+    public function vaccinations()
+    {
+        return $this->hasMany(ResidentVaccination::class);
+    }
+    public function medications()
+    {
+        return $this->hasMany(ResidentMedication::class);
+    }
+
     public function livelihoods()
     {
         return $this->hasMany(Livelihood::class);

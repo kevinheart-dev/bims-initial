@@ -14,11 +14,9 @@ return new class extends Migration
         Schema::create('resident_medications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->foreignId('medication_id')->nullable()->constrained('medications')->nullOnDelete();
-            $table->string('other', 100)->nullable();
-            $table->date('start_date');
+            $table->string('medication', 100);
+            $table->date('start_date')->nullable();;
             $table->date('end_date')->nullable();
-            $table->string('prescribe_by', 100);
             $table->timestamps();
         });
     }

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('resident_medical_conditions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->foreignId('condition_id')->constrained('medical_conditions')->onDelete('cascade');
+            $table->string('condition', 200);
             $table->enum('status', ['active', 'resolved', 'chronic'])->default('active');
             $table->date('diagnosed_date');
             $table->date('resolved_date')->nullable();
