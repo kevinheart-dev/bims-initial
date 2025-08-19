@@ -91,7 +91,7 @@ class DocumentController extends Controller
         try{
 
 
-        $barangay = auth()->user()->resident->barangay;
+        $barangay = auth()->user()->barangay_id;
         $data = $request->validate([
             'file' => 'required|file|mimes:docx,doc,pdf,txt|max:10240', // 10MB max
             'name' => 'required|string|max:255',

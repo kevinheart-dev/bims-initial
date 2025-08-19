@@ -94,7 +94,7 @@ class ResidentFactory extends Factory
                     'Mercado', 'Rosales', 'Abad', 'Esquivel', 'Balagtas', 'Alejo', 'Balila', 'Quiling',
                     'Carreon', 'Cariño', 'Medico', 'Agtarap', 'Baingan'
                 ]);
-        $birthdate = $this->faker->dateTimeBetween('-100 years', '-1 year')->format('Y-m-d');
+        $birthdate = $this->faker->dateTimeBetween('-100 years', 'now')->format('Y-m-d');
 
         return [
             'barangay_id' => 1,
