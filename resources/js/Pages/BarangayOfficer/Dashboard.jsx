@@ -4,6 +4,10 @@ import { Head } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import Counter from "@/Components/counter";
 import { Users, House } from "lucide-react";
+import GenderDonutChart from "./DashboardCharts/GenderDonutChart";
+import PopulationPerPurok from "./DashboardCharts/PopulationPerPurok";
+import AgeDistribution from "./DashboardCharts/AgeDistribution";
+import PwdDistribution from "./DashboardCharts/PwdDistribution";
 
 const iconMap = {
     users: <Users className="w-32 h-32 text-blue-500" />,
@@ -17,6 +21,10 @@ export default function Dashboard({
     seniorCitizenCount,
     totalHouseholds,
     totalFamilies,
+    genderDistribution,
+    populationPerPurok,
+    ageDistribution,
+    pwdDistribution,
 }) {
     const breadcrumbs = [{ label: "Dashboard", showOnMobile: true }];
     const data = [
@@ -33,15 +41,17 @@ export default function Dashboard({
 
             <div className="pt-4 min-h-screen bg-gradient-to-br from-white via-blue-100 to-blue-400">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6 space-y-8">
-                    <div className="grid grid-cols-12 gap-6">
-                        {/* Left Column */}
-                        <div className="col-span-8 flex flex-col gap-6">
-                            <div className="grid grid-cols-4 gap-6">
+                    {/* Main layout grid - Stacks vertically on mobile, becomes a 12-col grid on large screens */}
+                    <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6">
+                        {/* Left Column - Takes full width on mobile, 8 columns on large screens */}
+                        <div className="lg:col-span-8 flex flex-col gap-6">
+                            {/* Top stats cards - 2 columns on mobile, 4 on medium screens and up */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                                 {data.map((item, index) => (
                                     <Card
                                         key={index}
                                         className="relative flex flex-col justify-between rounded-2xl border border-white/80
-                                         bg-white/20 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-300
+                                            bg-white/20 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-300
                                             p-6 min-h-[150px] overflow-hidden"
                                     >
                                         <div className="absolute bottom-0 right-0 w-28 h-28 overflow-hidden pointer-events-none">
@@ -52,46 +62,48 @@ export default function Dashboard({
 
                                         <div className="z-10 flex flex-col items-start">
                                             <CardContent className="p-0">
-                                                <p className="text-5xl font-bold text-gray-900 drop-shadow-sm">
-                                                    <Counter end={item.value} duration={1000} />
+                                                {/* Responsive number */}
+                                                <p className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 drop-shadow-sm">
+                                                    <Counter end={item.value} duration={900} />
                                                 </p>
                                             </CardContent>
                                             <CardHeader className="p-0 mt-2">
-                                                <CardTitle className="text-base font-semibold text-gray-500">
+                                                {/* Responsive title */}
+                                                <CardTitle className="text-sm sm:text-base md:text-lg font-semibold text-gray-500">
                                                     {item.title}
                                                 </CardTitle>
                                             </CardHeader>
                                         </div>
                                     </Card>
+
                                 ))}
                             </div>
                             {/* Middle wide card */}
                             <div className="rounded-2xl border border-white/80 bg-white/20 backdrop-blur-md shadow-lg p-6 min-h-[310px]">
                                 <h2 className="text-xl font-bold text-gray-800 mb-2">Population Overview</h2>
-                                <p className="text-gray-600">Placeholder for a chart or detailed summary...</p>
+                                <PopulationPerPurok populationPerPurok={populationPerPurok} />
                             </div>
 
-                            {/* Bottom two cards */}
-                            <div className="grid grid-cols-2 gap-6">
+                            {/* Bottom two cards - Stacks on mobile, 2 columns on medium screens and up */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="rounded-2xl border border-white/80 bg-white/20 backdrop-blur-md shadow-lg p-6 min-h-[220px]">
                                     <h3 className="font-bold text-gray-700">Gender Distribution</h3>
+                                    <GenderDonutChart genderDistribution={genderDistribution} />
                                 </div>
                                 <div className="rounded-2xl border border-white/80 bg-white/20 backdrop-blur-md shadow-lg p-6 min-h-[220px]">
-                                    <h3 className="font-bold text-gray-700">Quick Links</h3>
-                                    <ul className="list-disc list-inside text-sm text-blue-600 mt-2">
-                                        <li><a href="#" className="hover:underline">Add Resident</a></li>
-                                        <li><a href="#" className="hover:underline">View Reports</a></li>
-                                    </ul>
+                                    <h3 className="font-bold text-gray-700">PWD Distribution by Gender</h3>
+                                    <PwdDistribution pwdDistribution={pwdDistribution} />
+
                                 </div>
                             </div>
                         </div>
 
-                        {/* Right Column */}
-                        <div className="col-span-4 flex flex-col gap-6">
-                            <div className="rounded-2xl border border-white/80 bg-white/20 backdrop-blur-md shadow-lg p-6 min-h-[485px]">
+                        <div className="lg:col-span-4 flex flex-col gap-6 h-full">
+                            {/* Incoming Document Requests */}
+                            <div className="flex-1 rounded-2xl border border-white/80 bg-white/20 backdrop-blur-md shadow-lg p-6 flex flex-col min-h-0">
                                 <h2 className="text-xl font-bold text-gray-800 mb-4">Incoming Document Requests</h2>
-
-                                <div className="space-y-4 max-h-[380px] overflow-y-auto pr-2">
+                                <div className="space-y-4 overflow-y-auto flex-1 pr-2">
+                                    {/* Dummy Data */}
                                     <div className="flex justify-between items-center p-4 rounded-xl bg-white/30 backdrop-blur-sm shadow">
                                         <p className="text-gray-700 font-medium">Request #1234 - Barangay Clearance</p>
                                         <span className="text-sm text-blue-600 font-semibold">Pending</span>
@@ -104,20 +116,34 @@ export default function Dashboard({
                                         <p className="text-gray-700 font-medium">Request #1236 - Indigency Cert.</p>
                                         <span className="text-sm text-green-600 font-semibold">Approved</span>
                                     </div>
-
+                                    <div className="flex justify-between items-center p-4 rounded-xl bg-white/30 backdrop-blur-sm shadow">
+                                        <p className="text-gray-700 font-medium">Request #1234 - Barangay Clearance</p>
+                                        <span className="text-sm text-blue-600 font-semibold">Pending</span>
+                                    </div>
+                                    <div className="flex justify-between items-center p-4 rounded-xl bg-white/30 backdrop-blur-sm shadow">
+                                        <p className="text-gray-700 font-medium">Request #1235 - Business Permit</p>
+                                        <span className="text-sm text-green-600 font-semibold">Approved</span>
+                                    </div>
+                                    <div className="flex justify-between items-center p-4 rounded-xl bg-white/30 backdrop-blur-sm shadow">
+                                        <p className="text-gray-700 font-medium">Request #1236 - Indigency Cert.</p>
+                                        <span className="text-sm text-green-600 font-semibold">Approved</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="rounded-2xl border border-white/80 bg-white/20 backdrop-blur-md shadow-lg p-6 min-h-[220px]">
-                                <h3 className="font-bold text-gray-700">System Health</h3>
-                                <p className="text-sm text-green-600 mt-2">All systems normal.</p>
+                            {/* System Health */}
+                            <div className="flex-1 rounded-2xl border border-white/80 bg-white/20 backdrop-blur-md shadow-lg p-6 flex flex-col min-h-0">
+                                <h3 className="font-bold text-gray-700 mb-4">Population by Age</h3>
+                                {/* This wrapper div will now control the space for the chart */}
+                                <div className="flex-1 w-full">
+                                    <AgeDistribution ageDistribution={ageDistribution} />
+                                </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
-
-
         </AdminLayout>
     );
 }

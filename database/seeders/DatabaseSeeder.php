@@ -64,8 +64,8 @@ class DatabaseSeeder extends Seeder
             ]);
         }
         Street::factory(15)->create();
-        Household::factory(6)->create();
-        Family::factory(7)->create();
+        Household::factory(1259)->create();
+        Family::factory(1258)->create();
 
         $term = BarangayOfficialTerm::factory()->create([
             'barangay_id' => 1,
@@ -128,9 +128,9 @@ class DatabaseSeeder extends Seeder
         // }
         LivelihoodType::factory(5)->create();
 
-        $residents = Resident::factory()->count(30)->create();
+        $residents = Resident::factory()->count(1890)->create();
 
-        MedicalInformation::factory(30)->create();
+        // MedicalInformation::factory(30)->create();
         InternetAccessibility::factory(7)->create();
         Disability::factory(10)->create();
         //Livelihood::factory(60)->create();
@@ -140,7 +140,7 @@ class DatabaseSeeder extends Seeder
         Livestock::factory(7)->create();
         ResidentVoterInformation::factory(30)->create();
         SocialWelfareProfile::factory(15)->create();
-        SeniorCitizen::factory(15)->create();
+        SeniorCitizen::factory(1256)->create();
         HouseholdToilet::factory(7)->create();
         HouseholdElectricitySource::factory(7)->create();
         HouseholdWasteManagement::factory(7)->create();
@@ -156,8 +156,8 @@ class DatabaseSeeder extends Seeder
         ]);
         Resident::all()->each(function ($resident) {
             MedicalInformation::factory()->create([
-            'resident_id' => $resident->id,
-        ]);
-    });
+                'resident_id' => $resident->id,
+            ]);
+        });
     }
 }
