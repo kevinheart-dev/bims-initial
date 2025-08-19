@@ -29,4 +29,9 @@ class BarangayProject extends Model
     {
         return $this->belongsTo(Barangay::class);
     }
+
+    public function institution()
+    {
+        return $this->belongsTo(BarangayInstitution::class, 'responsible_institution_id');
+    }
 }

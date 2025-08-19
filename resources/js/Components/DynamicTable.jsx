@@ -1,16 +1,7 @@
-import {
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableHead,
-    TableCell,
-    TableCaption,
-} from "@/components/ui/table";
+
 import { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import Pagination from "./Pagination";
-import DynamicTableControls from "./FilterButtons/DynamicTableControls";
 
 const DynamicTable = ({
     passedData,

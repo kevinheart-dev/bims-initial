@@ -7,9 +7,9 @@ import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/Components/ui/skeleton";
-
 import { Eye, SquarePen, Trash2 } from "lucide-react";
 import ActionMenu from "@/Components/ActionMenu";
+import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 const BarangayInfrastucture = () => {
 
     const APP_URL = useAppUrl();
@@ -60,7 +60,7 @@ const BarangayInfrastucture = () => {
                     {
                         label: "View",
                         icon: <Eye className="w-4 h-4 text-indigo-600" />,
-                        onClick: () => handleView(row.resident.id),
+                        onClick: () => handleView(row.id),
                     },
                     {
                         label: "Edit",
@@ -79,13 +79,13 @@ const BarangayInfrastucture = () => {
 
     const defaultVisibleCols = allColumns.map((col) => col.key);
     const [visibleColumns, setVisibleColumns] = useState(() => {
-        const saved = localStorage.getItem("infrastructure_visible_columns");
+        const saved = localStorage.getItem("infrastructures_visible_columns");
         return saved ? JSON.parse(saved) : defaultVisibleCols;
     });
 
     useEffect(() => {
         localStorage.setItem(
-            "infrastructure_visible_columns",
+            "infrastructures_visible_columns",
             JSON.stringify(visibleColumns)
         );
     }, [visibleColumns]);
@@ -110,7 +110,7 @@ const BarangayInfrastucture = () => {
     return (
         <div className="p-2 md:px-2 md:py-2">
             <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                <pre>{JSON.stringify(infrastructure, undefined, 3)}</pre>
+                {/* <pre>{JSON.stringify(infrastructure, undefined, 3)}</pre> */}
                 <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                     <DynamicTable
                         passedData={infrastructure}
