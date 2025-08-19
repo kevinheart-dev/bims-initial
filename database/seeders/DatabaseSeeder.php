@@ -130,7 +130,6 @@ class DatabaseSeeder extends Seeder
 
         $residents = Resident::factory()->count(30)->create();
 
-        MedicalInformation::factory(30)->create();
         InternetAccessibility::factory(7)->create();
         Disability::factory(10)->create();
         //Livelihood::factory(60)->create();

@@ -16,12 +16,31 @@ class BarangayRoadController extends Controller
         $brgy_id = Auth()->user()->barangay_id;
         $query = BarangayRoad::query()->where('barangay_id', $brgy_id);
 
-        //dd($query->get());
-        // Paginate and keep query string
-        $roads = $query->paginate(10)->withQueryString();
+        if ($status = request('road_type')) {
+            if ($status !== 'All') {
+                $query->where('road_type', $status);
+            }
+        }
 
+        if ($status = request('maintained_by')) {
+            if ($status !== 'All') {
+                $query->where('maintained_by', $status);
+            }
+        }
+
+        if (request('name')) {
+            $query->where(function ($q) {
+                $q->where('length', 'like', '%' . request('name') . '%');
+            });
+        }
+
+        $roads = $query->paginate(10)->withQueryString();
+        $types = BarangayRoad::where('barangay_id', $brgy_id)->distinct()->pluck('road_type');
+        $maintains = BarangayRoad::where('barangay_id', $brgy_id)->distinct()->pluck('maintained_by');
         return response()->json([
             'roads' => $roads,
+            'types' => $types,
+            'maintains' => $maintains
         ]);
     }
 

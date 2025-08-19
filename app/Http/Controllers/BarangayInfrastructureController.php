@@ -22,23 +22,35 @@ class BarangayInfrastructureController extends Controller
             ->orderBy('created_at', 'desc');
 
         // Optional filters
-        if ($type = request('infrastructure_type')) {
-            $query->where('infrastructure_type', $type);
+        if (request()->filled('infra_type') && request('infra_type') !== 'All') {
+            $query->where('infrastructure_type', request('infra_type'));
         }
 
-        if ($category = request('infrastructure_category')) {
-            $query->where('infrastructure_category', $category);
+        if (request()->filled('infra_category') && request('infra_category') !== 'All') {
+            $query->where('infrastructure_category', request('infra_category'));
         }
 
-        if ($search = request('search')) {
-            $query->where('infrastructure_type', 'like', "%{$search}%")
-                ->orWhere('infrastructure_category', 'like', "%{$search}%");
+
+        if (request('name')) {
+            $query->where(function ($q) {
+                $q->where('infrastructure_type', 'like', '%' . request('name') . '%')
+                    ->orWhere('infrastructure_category', 'like', '%' . request('name') . '%');
+            });
         }
         // Paginate and keep query string
         $infrastructure = $query->paginate(10)->withQueryString();
+        $types = BarangayInfrastructure::where('barangay_id', $brgy_id)
+            ->distinct()
+            ->pluck('infrastructure_type');
+
+        $categories = BarangayInfrastructure::where('barangay_id', $brgy_id)
+            ->distinct()
+            ->pluck('infrastructure_category');
 
         return response()->json([
             'infrastructure' => $infrastructure,
+            'types' => $types,
+            'categories' => $categories
         ]);
     }
 

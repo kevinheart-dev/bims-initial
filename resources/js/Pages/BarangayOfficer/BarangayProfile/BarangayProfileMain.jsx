@@ -7,19 +7,40 @@ import FacilityIndex from "./BarangayFacility/FacilityIndex";
 import InstitutionIndex from "./BarangayInstitution/InstitutionIndex";
 import ProjectIndex from "./BarangayProjects/ProjectIndex";
 import RoadIndex from "./BarangayRoad/RoadIndex";
-
+import { useQuery } from "@tanstack/react-query";
+import useAppUrl from "@/hooks/useAppUrl";
+import axios from "axios";
 const BarangayProfileMain = () => {
     const [activeTab, setActiveTab] = useState("infrastructure");
     const breadcrumbs = [{ label: "Barangay Profile", showOnMobile: false }];
+    const APP_URL = useAppUrl();
 
-    const barangayData = {
-        name: "San Isidro",
-        address: "123 Main St, City, Province",
-        contactNumber: "(+63) 912 345 6789",
+    const { data, isLoading, isError, error } = useQuery({
+        queryKey: ["details"],
+        queryFn: async () => {
+            const { data } = await axios.get(
+                `${APP_URL}/barangay_officer/barangay_profile/barangaydetails`
+            );
+            return data.data;
+        },
+        keepPreviousData: true,
+        staleTime: 1000 * 60 * 5,
+    });
+
+    // fallback static data
+    const fallbackBarangayData = {
+        barangay_name: "San Isidro",
+        city: "City of Ilagan",
+        province: "Isabela",
+        zip_code: 3300,
+        contact_number: "(+63) 912 345 6789",
         email: "sanisidro@example.com",
-        yearFounded: "1998",
-        logoUrl: "/images/csa-logo.png",
+        founded_year: "1998",
+        logo_path: "/images/csa-logo.png",
     };
+
+    // pick API data if available, else fallback
+    const barangayData = data ?? fallbackBarangayData;
 
     return (
         <AdminLayout>
@@ -31,15 +52,18 @@ const BarangayProfileMain = () => {
                 <div className="bg-[#fffff2] p-5 rounded-lg shadow-lg">
                     <div className="text-gray-800 text-base leading-relaxed">
                         <h2 className="text-4xl font-black font-montserrat bg-gradient-to-r from-blue-500 to-blue-700 text-transparent bg-clip-text uppercase p-0 m-0">
-                            {barangayData.name}
+                            {barangayData.barangay_name}
                         </h2>
 
                         <p className="text-lg p-0 m-0">
-                            {barangayData.address}
+                            {barangayData.city}
+                            {", "} {barangayData.province}
+                            {", "}
+                            {barangayData.zip_code}
                         </p>
                         <div className="flex gap-6">
                             <p className="text-gray-700 p-0 m-0">
-                                {barangayData.contactNumber}
+                                {barangayData.contact_number}
                             </p>
                             <p className="text-gray-700 p-0 m-0">
                                 {barangayData.email}
@@ -52,64 +76,71 @@ const BarangayProfileMain = () => {
                         <div className="flex gap-6 text-sm font-medium flex-wrap">
                             <button
                                 onClick={() => setActiveTab("infrastructure")}
-                                className={`py-2 px-1 border-b-2 ${activeTab === "infrastructure"
+                                className={`py-2 px-1 border-b-2 ${
+                                    activeTab === "infrastructure"
                                         ? "border-blue-600 text-blue-700"
                                         : "border-transparent text-gray-500"
-                                    }`}
+                                }`}
                             >
                                 Infrastructure
                             </button>
                             <button
                                 onClick={() => setActiveTab("institutions")}
-                                className={`py-2 px-1 border-b-2 ${activeTab === "institutions"
+                                className={`py-2 px-1 border-b-2 ${
+                                    activeTab === "institutions"
                                         ? "border-blue-600 text-blue-700"
                                         : "border-transparent text-gray-500"
-                                    }`}
+                                }`}
                             >
                                 Institutions
                             </button>
                             <button
                                 onClick={() => setActiveTab("facilities")}
-                                className={`py-2 px-1 border-b-2 ${activeTab === "facilities"
+                                className={`py-2 px-1 border-b-2 ${
+                                    activeTab === "facilities"
                                         ? "border-blue-600 text-blue-700"
                                         : "border-transparent text-gray-500"
-                                    }`}
+                                }`}
                             >
                                 Facilities
                             </button>
                             <button
                                 onClick={() => setActiveTab("projects")}
-                                className={`py-2 px-1 border-b-2 ${activeTab === "projects"
+                                className={`py-2 px-1 border-b-2 ${
+                                    activeTab === "projects"
                                         ? "border-blue-600 text-blue-700"
                                         : "border-transparent text-gray-500"
-                                    }`}
+                                }`}
                             >
                                 Projects
                             </button>
                             <button
                                 onClick={() => setActiveTab("roads")}
-                                className={`py-2 px-1 border-b-2 ${activeTab === "roads"
+                                className={`py-2 px-1 border-b-2 ${
+                                    activeTab === "roads"
                                         ? "border-blue-600 text-blue-700"
                                         : "border-transparent text-gray-500"
-                                    }`}
+                                }`}
                             >
                                 Roads
                             </button>
                             <button
                                 onClick={() => setActiveTab("officials")}
-                                className={`py-2 px-1 border-b-2 ${activeTab === "officials"
+                                className={`py-2 px-1 border-b-2 ${
+                                    activeTab === "officials"
                                         ? "border-blue-600 text-blue-700"
                                         : "border-transparent text-gray-500"
-                                    }`}
+                                }`}
                             >
                                 Officials
                             </button>
                             <button
                                 onClick={() => setActiveTab("disaster")}
-                                className={`py-2 px-1 border-b-2 ${activeTab === "disaster"
+                                className={`py-2 px-1 border-b-2 ${
+                                    activeTab === "disaster"
                                         ? "border-blue-600 text-blue-700"
                                         : "border-transparent text-gray-500"
-                                    }`}
+                                }`}
                             >
                                 Disaster Risk Areas
                             </button>
@@ -119,8 +150,7 @@ const BarangayProfileMain = () => {
                     {/* Tab content placeholder */}
                     <div className="mt-4">
                         {activeTab === "infrastructure" && (
-                            <BarangayInfrastucture
-                            />
+                            <BarangayInfrastucture />
                         )}
                         {activeTab === "institutions" && <InstitutionIndex />}
                         {activeTab === "facilities" && <FacilityIndex />}

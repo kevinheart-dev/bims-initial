@@ -16,12 +16,30 @@ class BarangayFacilityController extends Controller
         $brgy_id = Auth()->user()->barangay_id;
         $query = BarangayFacility::query()->where('barangay_id', $brgy_id);
 
-        //dd($query->get());
-        // Paginate and keep query string
+        if (request()->filled('faci_name') && request('faci_name') !== 'All') {
+            $query->where('name', request('faci_name'));
+        }
+
+        if (request()->filled('faci_type') && request('faci_type') !== 'All') {
+            $query->where('facility_type', request('faci_type'));
+        }
+
+        if (request('name')) {
+            $query->where(function ($q) {
+                $q->where('name', 'like', '%' . request('name') . '%')
+                    ->orWhere('facility_type', 'like', '%' . request('name') . '%');
+            });
+        }
+
         $facilities = $query->paginate(10)->withQueryString();
+
+        $names = BarangayFacility::where('barangay_id', $brgy_id)->distinct()->pluck('name');
+        $types = BarangayFacility::where('barangay_id', $brgy_id)->distinct()->pluck('facility_type');
 
         return response()->json([
             'facilities' => $facilities,
+            'names' => $names,
+            'types' => $types
         ]);
     }
 

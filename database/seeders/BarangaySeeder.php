@@ -51,7 +51,7 @@ class BarangaySeeder extends Seeder
                 'barangay_type' => fake()->randomElement(['rural', 'urban']),
                 'contact_number' => fake()->numerify('09#########'),
                 'area_sq_km' => fake()->randomFloat(2, 1, 20),
-                'email' => fake()->safeEmail(),
+                'email' => strtolower(str_replace(' ', '', $name)) . '@example.com',
                 'logo_path' => null,
             ]);
         }

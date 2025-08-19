@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Allergy;
 use App\Models\MedicalInformation;
 use App\Http\Requests\StoreMedicalInformationRequest;
 use App\Http\Requests\UpdateMedicalInformationRequest;
@@ -110,6 +111,7 @@ class MedicalInformationController extends Controller
         ->whereDoesntHave('medicalInformation') // no record in medical_informations
         ->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'gender','birthdate')
         ->get();
+
         return Inertia::render("BarangayOfficer/MedicalInformation/Create", [
             'puroks' => $puroks,
             'residents' => $residents,

@@ -422,11 +422,36 @@ export const BMI_STATUS = {
 
 export const BLOOD_TYPE_OPTIONS = [
     { value: "A+", label: "A+" },
-    { value: "A−", label: "A−" },
+    { value: "A-", label: "A-" },
     { value: "B+", label: "B+" },
-    { value: "B−", label: "B−" },
+    { value: "B-", label: "B-" },
     { value: "AB+", label: "AB+" },
-    { value: "AB−", label: "AB−" },
+    { value: "AB-", label: "AB-" },
     { value: "O+", label: "O+" },
-    { value: "O−", label: "O−" },
+    { value: "O-", label: "O-" },
 ];
+
+export const PROJECT_STATUS_CLASS = {
+    ongoing:
+        "bg-purple-100 px-2 py-1 rounded-lg text-purple-800 text-xs font-medium",
+    planning:
+        "bg-yellow-100 px-2 py-1 rounded-lg text-yellow-800 text-xs font-medium",
+    completed:
+        "bg-green-100 px-2 py-1 rounded-lg text-green-800 text-xs font-medium",
+    cancelled:
+        "bg-red-100 px-2 py-1 rounded-lg text-red-800 text-xs font-medium",
+};
+
+export const PROJECT_STATUS_TEXT = {
+    ongoing: "On-going",
+    planning: "Planning",
+    completed: "Completed",
+    cancelled: "Cancelled",
+};
+
+export const ROAD_TYPE_TEXT = {
+    asphalt: "Asphalt",
+    concrete: "concrete",
+    natural_earth_surface: "Natural Earth Surface",
+    gravel: "Gravel",
+};

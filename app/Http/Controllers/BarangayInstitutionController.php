@@ -14,10 +14,20 @@ class BarangayInstitutionController extends Controller
     public function index()
     {
         $brgy_id = Auth()->user()->barangay_id;
-        $query = BarangayInstitution::query()->where('barangay_id', $brgy_id);
+        $query = BarangayInstitution::query()->where('barangay_id', $brgy_id)->distinct();
 
-        //dd($query->get());
-        // Paginate and keep query string
+
+
+        if (request()->filled('institution') && request('institution') !== 'All') {
+            $query->where('name', request('institution'));
+        }
+
+        if (request('name')) {
+            $query->where(function ($q) {
+                $q->where('name', 'like', '%' . request('name') . '%');
+            });
+        }
+
         $institutions = $query->paginate(10)->withQueryString();
 
         return response()->json([

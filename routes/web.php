@@ -19,6 +19,7 @@ use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\MedicalInformationController;
 use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportGenerationController;
 use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\SeniorCitizenController;
 use App\Http\Controllers\UserController;
@@ -84,6 +85,8 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     // user
     Route::post('user/confirmpassword', [UserController::class, 'confirmPassword'])->name('user.confirm');
 
+    // reports
+    Route::get('report', [ReportGenerationController::class, 'index'])->name('report.index');
 
     // residents
     Route::resource('user', UserController::class);

@@ -140,7 +140,13 @@ const items = [
         title: "Reports",
         url: "#",
         icon: Flag,
-        submenu: [],
+        submenu: [
+            {
+                title: "CRA 2025",
+                url: "/barangay_officer/report",
+                icon: FileText,
+            },
+        ],
     },
 ];
 

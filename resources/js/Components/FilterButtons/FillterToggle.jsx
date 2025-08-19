@@ -17,6 +17,7 @@ import { useState, useRef, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import ClearFilterButton2 from "../ClearFilterButton2";
 
 const FilterToggle = ({
     queryParams,
@@ -30,8 +31,15 @@ const FilterToggle = ({
     vehicle_types = [],
     months = [],
     certificateTypes = [],
+    categories = [],
+    institutions = [],
+    types = [],
+    names = [],
     clearRouteName = "",
     clearRouteParams = {},
+    clearRouteAxios = false,
+    setQueryParams = null,
+    setQuery = null,
 }) => {
     const isVisible = (key) => visibleFilters.includes(key);
 
@@ -1026,13 +1034,269 @@ const FilterToggle = ({
                 </Select>
             )}
 
+            {/* INFRASTRUCTURE */}
+            {isVisible("infra_type") && (
+                <Select
+                    onValueChange={(inf) => searchFieldName("infra_type", inf)}
+                    value={queryParams?.infra_type ?? ""}
+                >
+                    <SelectTrigger className="w-[170px]">
+                        <SelectValue placeholder="Infrastructure Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {types.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {option}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("infra_category") && (
+                <Select
+                    onValueChange={(inf) =>
+                        searchFieldName("infra_category", inf)
+                    }
+                    value={queryParams?.infra_category ?? ""}
+                >
+                    <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Infrastructure Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {categories.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {option}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+
+            {/* INSTITUTIONS */}
+            {isVisible("institution") && (
+                <Select
+                    onValueChange={(inst) =>
+                        searchFieldName("institution", inst)
+                    }
+                    value={queryParams?.institution ?? ""}
+                >
+                    <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Name of Institution" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {institutions.map((option) => (
+                            <SelectItem key={option.id} value={option.name}>
+                                {option.name}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+
+            {/* FACILITIES */}
+            {isVisible("faci_name") && (
+                <Select
+                    onValueChange={(faci) => searchFieldName("faci_name", faci)}
+                    value={queryParams?.faci_name ?? ""}
+                >
+                    <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Facility Name" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {names.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {option}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("faci_type") && (
+                <Select
+                    onValueChange={(faci) => searchFieldName("faci_type", faci)}
+                    value={queryParams?.faci_type ?? ""}
+                >
+                    <SelectTrigger className="w-[170px]">
+                        <SelectValue placeholder="Facility Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {types.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {option}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+
+            {/* PROJECTS */}
+            {isVisible("project_status") && (
+                <Select
+                    onValueChange={(pro) =>
+                        searchFieldName("project_status", pro)
+                    }
+                    value={queryParams?.project_status ?? ""}
+                >
+                    <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Project Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="planning">Planning</SelectItem>
+                        <SelectItem value="ongoing">Ongoing</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("project_category") && (
+                <Select
+                    onValueChange={(pro) =>
+                        searchFieldName("project_category", pro)
+                    }
+                    value={queryParams?.project_category ?? ""}
+                >
+                    <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Project Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {categories.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {option}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("responsible_inti") && (
+                <Select
+                    onValueChange={(pro) =>
+                        searchFieldName("responsible_inti", pro)
+                    }
+                    value={queryParams?.responsible_inti ?? ""}
+                >
+                    <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Responsible Institution" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {institutions.map((option) => (
+                            <SelectItem key={option.id} value={option.name}>
+                                {option.name}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("start_date") && (
+                <div className="flex items-center gap-2">
+                    <DatePicker
+                        selected={
+                            queryParams.start_date
+                                ? new Date(queryParams.start_date)
+                                : null
+                        }
+                        onChange={(date) => {
+                            const formatted = date
+                                ? date.toLocaleDateString("en-CA")
+                                : "";
+                            searchFieldName("start_date", formatted);
+                        }}
+                        dateFormat="yyyy-MM-dd"
+                        className="border rounded px-2 py-1 w-[180px]"
+                        placeholderText="Date Issued"
+                        popperContainer={({ children }) => (
+                            <div className="z-[9999]">{children}</div>
+                        )}
+                    />
+                </div>
+            )}
+            {isVisible("end_date") && (
+                <div className="flex items-center gap-2">
+                    <DatePicker
+                        selected={
+                            queryParams.end_date
+                                ? new Date(queryParams.end_date)
+                                : null
+                        }
+                        onChange={(date) => {
+                            const formatted = date
+                                ? date.toLocaleDateString("en-CA")
+                                : "";
+                            searchFieldName("end_date", formatted);
+                        }}
+                        dateFormat="yyyy-MM-dd"
+                        className="border rounded px-2 py-1 w-[180px]"
+                        placeholderText="Date Issued"
+                        popperContainer={({ children }) => (
+                            <div className="z-[9999]">{children}</div>
+                        )}
+                    />
+                </div>
+            )}
+
+            {/* ROADS */}
+            {isVisible("road_type") && (
+                <Select
+                    onValueChange={(road) => searchFieldName("road_type", road)}
+                    value={queryParams?.road_type ?? ""}
+                >
+                    <SelectTrigger className="w-[120px]">
+                        <SelectValue placeholder="Road Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {types.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {option}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("maintained_by") && (
+                <Select
+                    onValueChange={(road) =>
+                        searchFieldName("maintained_by", road)
+                    }
+                    value={queryParams?.maintained_by ?? ""}
+                >
+                    <SelectTrigger className="w-[170px]">
+                        <SelectValue placeholder="Maintained By" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {names.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {option}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+
             {/* Clear Filters Button */}
-            <div className="flex justify-end ml-auto">
-                <ClearFilterButton
-                    routeName={clearRouteName}
-                    routeParams={clearRouteParams}
-                />
-            </div>
+            {clearRouteAxios ? (
+                <div className="flex justify-end ml-auto">
+                    <ClearFilterButton2
+                        setQueryParams={setQueryParams}
+                        setQuery={setQuery}
+                    />
+                </div>
+            ) : (
+                <div className="flex justify-end ml-auto">
+                    <ClearFilterButton
+                        routeName={clearRouteName}
+                        routeParams={clearRouteParams}
+                    />
+                </div>
+            )}
 
             {/* <div className="flex justify-end ml-auto">
                 <ClearFilterButton

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BarangayInstitution;
 use App\Models\BarangayProject;
 use Illuminate\Http\Request;
 
@@ -19,24 +20,62 @@ class BarangayProjectController extends Controller
             ->where('barangay_id', $brgy_id)
             ->orderBy('start_date', 'desc');
 
-        // Optional filters
-        if ($status = request('status')) {
-            $query->where('status', $status);
+        // === Apply Filters ===
+
+        // Status filter
+        if ($status = request('project_status')) {
+            if ($status !== 'All') {
+                $query->where('status', $status);
+            }
         }
 
-        if ($category = request('category')) {
-            $query->where('category', $category);
+        // Category filter
+        if ($category = request('project_category')) {
+            if ($category !== 'All') {
+                $query->where('category', $category);
+            }
         }
 
-        if ($title = request('title')) {
-            $query->where('title', 'like', "%{$title}%");
+        // Responsible institution filter
+        if ($responsible = request('responsible_inti')) {
+            if ($responsible !== 'All') {
+                $query->whereHas('institution', function ($q) use ($responsible) {
+                    $q->where('name', $responsible);
+                });
+            }
         }
 
+        // Date filters
+        if ($startDate = request('start_date')) {
+            $query->whereDate('start_date', '>=', $startDate);
+        }
+        if ($endDate = request('end_date')) {
+            $query->whereDate('end_date', '<=', $endDate);
+        }
+        if (request('name')) {
+            $query->where(function ($q) {
+                $q->where('title', 'like', '%' . request('name') . '%')
+                    ->orWhere('description', 'like', '%' . request('name') . '%');
+            });
+        }
         // Paginate and keep query string
         $projects = $query->paginate(10)->withQueryString();
 
+        // For dropdowns
+        $institutions = BarangayInstitution::query()
+            ->where('barangay_id', $brgy_id)
+            ->select('id', 'name')
+            ->distinct()
+            ->get();
+
+        $categories = BarangayProject::where('barangay_id', $brgy_id)
+            ->distinct()
+            ->pluck('category');
+
         return response()->json([
             'projects' => $projects,
+            'institutions' => $institutions,
+            'categories' => $categories
         ]);
     }
 
