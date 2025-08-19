@@ -130,21 +130,21 @@ class DatabaseSeeder extends Seeder
 
         $residents = Resident::factory()->count(1890)->create();
 
-        MedicalInformation::factory(30)->create();
-        InternetAccessibility::factory(7)->create();
-        Disability::factory(10)->create();
+        //MedicalInformation::factory(30)->create();
+        InternetAccessibility::factory(1259)->create();
+        Disability::factory(160)->create();
         //Livelihood::factory(60)->create();
-        Occupation::factory(40)->create();
-        EducationalHistory::factory(40)->create();
-        Vehicle::factory(10)->create();
-        Livestock::factory(7)->create();
-        ResidentVoterInformation::factory(30)->create();
-        SocialWelfareProfile::factory(15)->create();
-        SeniorCitizen::factory(1256)->create();
-        HouseholdToilet::factory(7)->create();
-        HouseholdElectricitySource::factory(7)->create();
-        HouseholdWasteManagement::factory(7)->create();
-        HouseholdWaterSource::factory(7)->create();
+        Occupation::factory(1400)->create();
+        EducationalHistory::factory(1890)->create();
+        Vehicle::factory(598)->create();
+        Livestock::factory(989)->create();
+        ResidentVoterInformation::factory(1890)->create();
+        SocialWelfareProfile::factory(1259)->create();
+        SeniorCitizen::factory(456)->create();
+        HouseholdToilet::factory(1259)->create();
+        HouseholdElectricitySource::factory(1259)->create();
+        HouseholdWasteManagement::factory(1259)->create();
+        HouseholdWaterSource::factory(1259)->create();
         $residents->groupBy('household_id')->each(function ($group) {
             $group->first()->update(['is_household_head' => true]);
         });
@@ -155,9 +155,16 @@ class DatabaseSeeder extends Seeder
             BarangayInformationSeeder::class
         ]);
         Resident::all()->each(function ($resident) {
-            MedicalInformation::factory()->create([
+            $medical = MedicalInformation::factory()->create([
                 'resident_id' => $resident->id,
             ]);
+
+            // ✅ Only create Disability if pwd_id_number is filled
+            if (!empty($medical->pwd_id_number)) {
+                Disability::factory()->create([
+                    'resident_id' => $resident->id,
+                ]);
+            }
         });
     }
 }

@@ -33,7 +33,7 @@ return new class extends Migration
             $table->enum('education_status', ['enrolled','graduated','incomplete','dropped_out'])->nullable();
             $table->year('year_started')->nullable();
             $table->year('year_ended')->nullable();
-            $table->string('program', 55)->nullable();
+            $table->string('program', 155)->nullable();
             $table->timestamps();
         });
     }

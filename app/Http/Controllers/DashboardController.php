@@ -13,21 +13,22 @@ class DashboardController extends Controller
 {
     public function dashboard()
     {
-        $residentCount = Resident::where('barangay_id', auth()->user()->barangay_id)->count();
-        $seniorCitizenCount = SeniorCitizen::whereHas('resident', function ($query) {
-            $query->where('barangay_id', auth()->user()->barangay_id);
+        $brgy_id = auth()->user()->barangay_id;
+        $residentCount = Resident::where('barangay_id', $brgy_id)->count();
+        $seniorCitizenCount = SeniorCitizen::whereHas('resident', function ($query) use ($brgy_id) {
+            $query->where('barangay_id', $brgy_id);
         })->count();
-        $totalHouseholds = Household::query()->where('barangay_id', auth()->user()->barangay_id)->count();
-        $totalFamilies = Family::query()->where('barangay_id', auth()->user()->barangay_id)->count();
+        $totalHouseholds = Household::query()->where('barangay_id', $brgy_id)->count();
+        $totalFamilies = Family::query()->where('barangay_id', $brgy_id)->count();
 
         $genderDistribution = Resident::select('gender')
-            ->where('barangay_id', auth()->user()->barangay_id)
+            ->where('barangay_id', $brgy_id)
             ->selectRaw('gender, COUNT(*) as count')
             ->groupBy('gender')
             ->pluck('count', 'gender');
 
         $populationPerPurok = Resident::selectRaw('purok_number, COUNT(*) as count')
-            ->where('barangay_id', auth()->user()->barangay_id)
+            ->where('barangay_id', $brgy_id)
             ->groupBy('purok_number')
             ->pluck('count', 'purok_number');
 
@@ -45,14 +46,18 @@ class DashboardController extends Controller
         $ageDistribution = [];
 
         foreach ($ageGroups as $label => [$min, $max]) {
-            $ageDistribution[$label] = Resident::where('barangay_id', auth()->user()->barangay_id)
+            $ageDistribution[$label] = Resident::where('barangay_id', $brgy_id)
                 ->whereRaw("TIMESTAMPDIFF(YEAR, birthdate, CURDATE()) BETWEEN ? AND ?", [$min, $max])
                 ->count();
         }
 
         $pwdDistribution = [
-            'PWD' => Resident::where('barangay_id', auth()->user()->barangay_id)->where('is_pwd', true)->count(),
-            'nonPWD' => Resident::where('barangay_id', auth()->user()->barangay_id)->where('is_pwd', false)->count(),
+            'PWD' => Resident::where('barangay_id', $brgy_id)
+                ->whereHas('disabilities')
+                ->count(),
+            'nonPWD' => Resident::where('barangay_id', $brgy_id)
+                ->whereDoesntHave('disabilities')
+                ->count(),
         ];
         return Inertia::render('BarangayOfficer/Dashboard', [
             'residentCount' => $residentCount,
