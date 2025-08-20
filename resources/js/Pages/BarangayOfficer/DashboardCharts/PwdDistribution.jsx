@@ -52,7 +52,7 @@ function PwdPieChart({ pwdDistribution }) {
                     cx={isMobile ? "50%" : "33%"}
                     cy="50%"
                     outerRadius={isMobile ? 60 : 70}
-                    paddingAngle={5}
+                    paddingAngle={0}
                     dataKey="value"
                 >
                     {data.map((entry, index) => (

@@ -91,7 +91,7 @@ export default function Dashboard({
                                     <GenderDonutChart genderDistribution={genderDistribution} />
                                 </div>
                                 <div className="rounded-2xl border border-white/80 bg-white/20 backdrop-blur-md shadow-lg p-6 min-h-[220px]">
-                                    <h3 className="font-bold text-gray-700">PWD Distribution by Gender</h3>
+                                    <h3 className="font-bold text-gray-700">PWD Distribution</h3>
                                     <PwdDistribution pwdDistribution={pwdDistribution} />
 
                                 </div>

@@ -24,6 +24,7 @@ import * as CONSTANTS from "@/constants";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
+import ResidentCharts from "./ResidentCharts";
 
 export default function Index({ residents, queryParams = null, puroks }) {
     queryParams = queryParams || {};
@@ -143,9 +144,9 @@ export default function Index({ residents, queryParams = null, puroks }) {
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
             [
+                "purok",
                 "gender",
                 "age_group",
-                "purok",
                 "estatus",
                 "voter_status",
                 "cstatus",
@@ -208,9 +209,8 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
         name: (resident) => (
             <div className="text-sm break-words whitespace-normal leading-snug">
-                {`${resident.firstname} ${resident.middlename ?? ""} ${
-                    resident.lastname ?? ""
-                } ${resident.suffix ?? ""}`}
+                {`${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname ?? ""
+                    } ${resident.suffix ?? ""}`}
             </div>
         ),
 
@@ -253,7 +253,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
         employment_status: (resident) =>
             CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-                resident.employment_status
+            resident.employment_status
             ],
 
         occupation: (resident) => {
@@ -273,15 +273,14 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
         registered_voter: (resident) => (
             <span
-                className={`${
-                    CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
-                        resident.registered_voter
-                    ]
-                } whitespace-nowrap`}
+                className={`${CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
+                    resident.registered_voter
+                ]
+                    } whitespace-nowrap`}
             >
                 {
                     CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[
-                        resident.registered_voter
+                    resident.registered_voter
                     ]
                 }
             </span>
@@ -365,6 +364,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                 <div className="p-2 md:p-4">
                     <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                            <ResidentCharts residents={residents} />
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <DynamicTableControls
@@ -444,9 +444,9 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                     queryParams={queryParams}
                                     searchFieldName={searchFieldName}
                                     visibleFilters={[
+                                        "purok",
                                         "gender",
                                         "age_group",
-                                        "purok",
                                         "estatus",
                                         "voter_status",
                                         "cstatus",
@@ -470,7 +470,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                 toggleShowAll={() => setShowAll(!showAll)}
                                 visibleColumns={visibleColumns}
                                 setVisibleColumns={setVisibleColumns}
-                                // showTotal={true}
+                            // showTotal={true}
                             />
                         </div>
                     </div>
