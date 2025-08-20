@@ -138,6 +138,27 @@ class StoreResidentRequest extends FormRequest
             'relationship_to_head' => ['nullable', 'string', 'max:100'],
             'household_position' => ['nullable', 'string', 'max:100'],
 
+            // SECTION 6: Livelihoods
+            'livelihoods' => ['required', 'array', 'min:1'],
+            'livelihoods.*.livelihood_type' => ['required', 'string', 'max:155'],
+            'livelihoods.*.description' => ['nullable', 'string', 'max:255'],
+
+            'livelihoods.*.status' => [
+                'required',
+                Rule::in(['active', 'inactive', 'seasonal', 'ended']),
+            ],
+
+            'livelihoods.*.is_main_livelihood' => ['required', 'boolean'],
+
+            'livelihoods.*.started_at' =>  ['nullable', 'integer', 'min:1900', 'max:' . now()->year],
+            'livelihoods.*.ended_at' =>  ['nullable', 'integer', 'min:1900', 'max:' . now()->year],
+
+            'livelihoods.*.income' => ['nullable', 'numeric', 'min:0'],
+            'livelihoods.*.income_frequency' => [
+                'nullable',
+                Rule::in(['daily', 'bi_weekly', 'weekly', 'monthly', 'annually']),
+            ],
+
             // 'ownership_type' => ['nullable', 'string', 'max:55'],
             // 'housing_condition' => ['nullable', Rule::in(['good', 'needs repair', 'dilapidated'])],
             // 'house_structure' => ['nullable', Rule::in(['concrete', 'semi_concrete', 'wood', 'makeshift'])],

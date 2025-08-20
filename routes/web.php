@@ -60,6 +60,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::post('resident/storehousehold', [ResidentController::class, 'storeHousehold'])->name('resident.storehousehold');
     Route::get('resident/showresident/{id}', [ResidentController::class, 'showResident'])->name('resident.showresident');
     Route::get('resident/fetchresidents', [ResidentController::class, 'fetchResidents'])->name('resident.fetchresidents');
+    Route::get('resident/chartdata', [ResidentController::class, 'chartData'])->name('resident.chartdata');
 
     // barangay
     Route::get('barangay_profile/barangaydetails', [BarangayProfileController::class, 'barangayDetails'])->name('barangay.details');

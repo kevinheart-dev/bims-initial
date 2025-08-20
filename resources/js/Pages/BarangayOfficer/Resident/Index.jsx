@@ -25,14 +25,16 @@ import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import ResidentCharts from "./ResidentCharts";
+import { useQuery } from "@tanstack/react-query";
+
 
 export default function Index({ residents, queryParams = null, puroks }) {
     queryParams = queryParams || {};
     const props = usePage().props;
     const success = props?.success ?? null;
     const error = props?.error ?? null;
-
     const APP_URL = useAppUrl();
+
     useEffect(() => {
         if (success) {
             toast.success(success, {
@@ -56,6 +58,19 @@ export default function Index({ residents, queryParams = null, puroks }) {
     }, [error]);
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
+
+    const { data, isLoading, isError } = useQuery({
+        queryKey: ["residents", queryParams],
+        queryFn: async () => {
+            const { data } = await axios.get(
+                `${APP_URL}/barangay_officer/resident/chartdata`,
+                { params: queryParams }
+            );
+            return data.residents;
+        },
+        keepPreviousData: true,
+        staleTime: 1000 * 60 * 5,
+    });
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -119,6 +134,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
         { key: "purok_number", label: "Purok" },
         { key: "actions", label: "Actions" },
     ];
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedResident, setSelectedResident] = useState(null);
 
@@ -133,8 +149,6 @@ export default function Index({ residents, queryParams = null, puroks }) {
         }
         setIsModalOpen(true);
     };
-
-    // === BEING ADDED
 
     const [visibleColumns, setVisibleColumns] = useState(
         allColumns.map((col) => col.key)
