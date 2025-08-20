@@ -14,12 +14,13 @@ return new class extends Migration
         Schema::create('livelihoods', function (Blueprint $table) {
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->foreignId('livelihood_type_id')->constrained('livelihood_types')->onDelete('cascade');
-            $table->decimal('monthly_income', 11, 2);
-            $table->string('other', 155)->nullable();
+            $table->string('livelihood_type', 155);
+            $table->string('description', 255)->nullable();
             $table->boolean('is_main_livelihood')->default(true);
-            $table->date('started_at');
+            $table->date('started_at')->nullable();
             $table->date('ended_at')->nullable();
+            $table->decimal('monthly_income', 11, 2)->nullable();
+            $table->enum('status', ['active', 'inactive', 'seasonal', 'ended'])->default('active');
             $table->timestamps();
         });
     }

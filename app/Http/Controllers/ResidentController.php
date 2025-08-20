@@ -316,6 +316,7 @@ class ResidentController extends Controller
                     ]);
                 }
             }
+
             //add occupations
             if (!empty($data['occupations']) && is_array($data['occupations'])) {
                 $normalizedOccupations = [];
@@ -393,6 +394,38 @@ class ResidentController extends Controller
                     'income_bracket' => $incomeBracket,
                     'income_category' => $incomeCategory,
                 ]);
+            }
+
+            //add livelihoods
+            if (!empty($data['livelihoods']) && is_array($data['livelihoods'])) {
+                $normalizedLivelihoods = [];
+
+                foreach ($data['livelihoods'] as $livelihoodData) {
+                    $income = $livelihoodData['income'] ?? 0;
+
+                    // Normalize all income to monthly
+                    $monthlyIncome = match ($livelihoodData['income_frequency']) {
+                        'monthly' => $income,
+                        'weekly' => $income * 4,
+                        'bi-weekly' => $income * 2,
+                        'daily' => $income * 22, // Assuming 22 working days per month
+                        'annually' => $income / 12,
+                        default => null,
+                    };
+
+                    $normalizedLivelihoods[] = [
+                        'livelihood_type' => $livelihoodData['livelihood_type'] ?? null,
+                        'description' => $livelihoodData['description'] ?? null,
+                        'status' => $livelihoodData['status'] ?? null,
+                        'employer' => $livelihoodData['employer'] ?? null,
+                        'is_main_livelihood' => $livelihoodData['is_ofw'] ?? false,
+                        'started_at' => $livelihoodData['started_at'],
+                        'ended_at' => $livelihoodData['ended_at'] ?? null,
+                        'monthly_income' => $monthlyIncome,
+                    ];
+                }
+
+                $resident->occupations()->createMany($normalizedLivelihoods);
             }
 
             $residentMedicalInformation = [
@@ -1814,6 +1847,132 @@ class ResidentController extends Controller
 
         return response()->json([
             'residents' => ResidentResource::collection($residents),
+        ]);
+    }
+
+    public function chartData()
+    {
+        $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
+        $query = Resident::query()
+            ->with([
+                'socialwelfareprofile',
+                'occupations',
+                'livelihoods',
+            ])
+            ->where('residents.barangay_id', $brgy_id);
+        $query = $query->where('barangay_id', $brgy_id);
+
+        // handles purok filtering
+        if (request()->filled('purok') && request('purok') !== 'All') {
+            $query->where('purok_number', request('purok'));
+        }
+
+        // handles gender filtering
+        if (request()->filled('gender') && request('gender') !== 'All') {
+            $query->where('gender', request('gender'));
+        }
+
+        // handles employment filtering
+        if (request()->filled('estatus') && request('estatus') !== 'All') {
+            $query->where('employment_status', request('estatus'));
+        }
+
+        // handles civil status filtering
+        if (request()->filled('cstatus') && request('cstatus') !== 'All') {
+            $query->where('civil_status', request('cstatus'));
+        }
+
+        // handles age filtering
+        if (request()->filled('age_group') && request('age_group') !== 'All') {
+            $today = Carbon::today();
+
+            switch (request('age_group')) {
+                case 'child':
+                    $max = $today->copy()->subYears(0);
+                    $min = $today->copy()->subYears(13);
+                    break;
+                case 'teen':
+                    $max = $today->copy()->subYears(13);
+                    $min = $today->copy()->subYears(18);
+                    break;
+                case 'young_adult':
+                    $max = $today->copy()->subYears(18);
+                    $min = $today->copy()->subYears(26);
+                    break;
+                case 'adult':
+                    $max = $today->copy()->subYears(26);
+                    $min = $today->copy()->subYears(60);
+                    break;
+                case 'senior':
+                    $max = $today->copy()->subYears(60);
+                    $min = null;
+                    break;
+            }
+
+            if (isset($min)) {
+                $query->whereBetween('birthdate', [$min, $max]);
+            } else {
+                $query->where('birthdate', '<=', $max);
+            }
+        }
+
+        // handles voter status filtering
+        if (request()->filled('voter_status') && request('voter_status') !== 'All') {
+            $query->where('registered_voter', request('voter_status'));
+        }
+
+        if (
+            request('indigent') === '1' ||
+            request('fourps') === '1' ||
+            request('solo_parent') === '1' ||
+            request('pwd') === '1'
+        ) {
+            $query->whereHas('socialwelfareprofile', function ($q) {
+                if (request('indigent') === '1') {
+                    $q->where('is_indigent', 1);
+                }
+                if (request('fourps') === '1') {
+                    $q->where('is_4ps_beneficiary', 1);
+                }
+                if (request('solo_parent') === '1') {
+                    $q->where('is_solo_parent', 1);
+                }
+                if (request('pwd') === '1') {
+                    $q->where('is_pwd', 1);
+                }
+            });
+        }
+
+        $residents = $query->get(); // full list
+
+        $transform = function ($resident) {
+            return [
+                'id' => $resident->id,
+                'gender' => $resident->gender,
+                'purok_number' => $resident->purok_number,
+                'birthdate' => $resident->birthdate,
+                'age' => $resident->age,
+                'civil_status' => $resident->civil_status,
+                'citizenship' => $resident->citizenship,
+                'religion' => $resident->religion,
+                'is_pwd' => $resident->is_pwd,
+                'registered_voter' => $resident->registered_voter,
+                'employment_status' => $resident->employment_status,
+                'isIndigent' => optional($resident->socialwelfareprofile)->is_indigent,
+                'isSoloParent' => optional($resident->socialwelfareprofile)->is_solo_parent,
+                'is4ps' => optional($resident->socialwelfareprofile)->is_4ps_beneficiary,
+                'occupation' => optional(
+                    $resident->occupations->sortByDesc('started_at')->first()
+                )?->occupation,
+            ];
+        };
+
+
+        $residents = $residents->map($transform);
+
+        //dd($residents->toArray());
+        return response()->json([
+            'residents' => $residents,
         ]);
     }
 }

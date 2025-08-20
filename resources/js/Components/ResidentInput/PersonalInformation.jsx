@@ -15,6 +15,7 @@ import Section3 from "./Section3";
 import Section4 from "./Section4";
 import Section5 from "./Section5";
 import Checkbox from "../Checkbox";
+import LivelihoodSection from "./Section6";
 
 const PersonalInformation = ({
     puroks,
@@ -83,25 +84,10 @@ const PersonalInformation = ({
         is_alcohol_user: null,
         is_smoker: null,
         disabilities: [],
-        ownership_type: "",
-        housing_condition: "",
-        house_structure: null,
-        year_established: null,
-        number_of_rooms: null,
-        number_of_floors: null,
-        bath_and_wash_area: null,
-        toilet_type: null,
-        electricity_type: null,
-        water_source_type: null,
-        waste_management_type: null,
-        type_of_internet: null,
+        livelihoods: [],
         relationship_to_head: "",
         household_position: "",
         name_of_head: "",
-        has_livestock: null,
-        livestocks: [],
-        has_pets: null,
-        pets: [],
     });
 
     const onSubmit = (e) => {
@@ -207,6 +193,12 @@ const PersonalInformation = ({
                     setData={setData}
                     errors={errors}
                     occupationTypes={occupationTypes}
+                />
+
+                <LivelihoodSection
+                    data={data}
+                    setData={setData}
+                    errors={errors}
                 />
 
                 {/* Section 4 */}

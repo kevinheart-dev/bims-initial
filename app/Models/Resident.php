@@ -205,6 +205,11 @@ class Resident extends Model
     {
         return $this->hasMany(Occupation::class);
     }
+
+    public function livelihoods()
+    {
+        return $this->hasMany(Livelihood::class);
+    }
     public function latestOccupation()
     {
         return $this->hasOne(Occupation::class)->latestOfMany('started_at');
@@ -228,11 +233,6 @@ class Resident extends Model
     public function medications()
     {
         return $this->hasMany(ResidentMedication::class);
-    }
-
-    public function livelihoods()
-    {
-        return $this->hasMany(Livelihood::class);
     }
 
     public function vehicles()

@@ -18,17 +18,39 @@ class LivelihoodFactory extends Factory
      */
     public function definition(): array
     {
-        $startDate = $this->faker->dateTimeBetween('-10 years', 'now');
-        $hasEnded = $this->faker->boolean(25); // 25% chance of ended livelihood
+
+        $livelihoods = [
+            ['type' => 'Farming', 'desc' => 'Rice and vegetable farming'],
+            ['type' => 'Fishing', 'desc' => 'Small-scale coastal fishing'],
+            ['type' => 'Tricycle Driving', 'desc' => 'Public transport service'],
+            ['type' => 'Sari-sari Store', 'desc' => 'Small retail shop at home'],
+            ['type' => 'Carpentry', 'desc' => 'Woodworks and small-scale construction'],
+            ['type' => 'Dressmaking', 'desc' => 'Tailoring and repair services'],
+            ['type' => 'Street Vending', 'desc' => 'Food and goods selling'],
+            ['type' => 'Online Selling', 'desc' => 'Clothes and gadgets'],
+            ['type' => 'Handicrafts', 'desc' => 'Bamboo and rattan crafts'],
+            ['type' => 'Poultry', 'desc' => 'Chicken and egg production'],
+            ['type' => 'Livestock', 'desc' => 'Pig raising and goat keeping'],
+        ];
+
+        $livelihood = $this->faker->randomElement($livelihoods);
+
+        $startedAt = $this->faker->dateTimeBetween('-10 years', '-1 year');
+        $isActive = $this->faker->boolean(70);
 
         return [
-            'resident_id' => Resident::inRandomOrder()->value('id') ?? 1,
-            'livelihood_type_id' => LivelihoodType::inRandomOrder()->value('id') ?? 1,
-            'monthly_income' => $this->faker->randomFloat(2, 3000, 60000),
-            'other' => $this->faker->optional()->word(),
-            'is_main_livelihood' => $this->faker->boolean(80), // 80% chance it's the main livelihood
-            'started_at' => $startDate->format('Y-m-d'),
-            'ended_at' => $hasEnded ? $this->faker->dateTimeBetween($startDate, 'now')->format('Y-m-d') : null,
+            // Pick an existing resident instead of making a new one
+            'resident_id' => Resident::inRandomOrder()->value('id'),
+
+            'livelihood_type' => $livelihood['type'],
+            'description' => $livelihood['desc'],
+            'is_main_livelihood' => $this->faker->boolean(50),
+            'started_at' => $startedAt,
+            'ended_at' => $isActive ? null : $this->faker->dateTimeBetween($startedAt, 'now'),
+            'average_monthly_income' => $this->faker->randomFloat(2, 2000, 15000),
+            'status' => $isActive
+                ? $this->faker->randomElement(['active', 'seasonal'])
+                : $this->faker->randomElement(['inactive', 'ended']),
         ];
     }
 }
