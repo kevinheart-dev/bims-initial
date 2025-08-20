@@ -179,14 +179,14 @@ export function AppSidebar({ auth }) {
     return (
         <Sidebar>
             <SidebarContent className="bg-sky-600 shadow-lg">
-                <div className="flex items-center pt-4 pb-2 px-3 text-left">
+                <div className="flex items-center pt-1 pb-0 px-4 text-left">
                     <img
                         src="/images/csa-logo.png"
                         alt="CSA Logo"
-                        className="h-14 w-14 mr-3"
+                        className="h-12 w-12 mr-3"
                     />
                     <div className="flex flex-col leading-none space-y-0">
-                        <p className="font-black text-2xl text-white font-montserrat m-0 pb-1 leading-none">
+                        <p className="font-black text-xl text-white font-montserrat m-0 pb-1 leading-none">
                             iBIMS
                         </p>
                         <p className="font-light text-sm text-white font-montserrat m-0 p-0 leading-none">
@@ -194,9 +194,9 @@ export function AppSidebar({ auth }) {
                         </p>
                     </div>
                 </div>
-                <hr className="border-t-2 border-white opacity-30 mx-3" />
+                <hr className="border-t-2 border-white opacity-30 mx-3 my-0" />
                 <SidebarGroup>
-                    <SidebarGroupLabel className="text-gray-100">
+                    <SidebarGroupLabel className="text-gray-100 m-0">
                         Main Menu
                     </SidebarGroupLabel>
                     <SidebarGroupContent>

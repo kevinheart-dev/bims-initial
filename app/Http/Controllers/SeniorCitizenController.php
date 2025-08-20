@@ -20,9 +20,11 @@ class SeniorCitizenController extends Controller
     {
         $brgy_id = Auth()->user()->barangay_id;
         $today = Carbon::today();
+
         $puroks = Purok::where('barangay_id', $brgy_id)
             ->orderBy('purok_number', 'asc')
             ->pluck('purok_number');
+
         $query = Resident::query()
             ->select([
                 'residents.id',
@@ -33,11 +35,13 @@ class SeniorCitizenController extends Controller
                 'residents.birthdate',
                 'residents.purok_number',
                 'resident_picture_path',
+                'residents.gender',   // ✅ fixed here
             ])
             ->where('residents.barangay_id', $brgy_id)
             ->whereDate('residents.birthdate', '<=', now()->subYears(60))
             ->with(['seniorcitizen:id,resident_id,osca_id_number,is_pensioner,pension_type,living_alone'])
-            ->leftJoin('senior_citizens', 'residents.id', '=', 'senior_citizens.resident_id')->distinct();
+            ->leftJoin('senior_citizens', 'residents.id', '=', 'senior_citizens.resident_id')
+            ->distinct();
 
         if ($name = request('name')) {
             $query->where(function ($q) use ($name) {
@@ -56,6 +60,11 @@ class SeniorCitizenController extends Controller
             $query->where('senior_citizens.is_pensioner', request('is_pensioner'));
         }
 
+        // ✅ fixed gender filter (use residents.gender)
+        if (request()->filled('gender') && request('gender') !== 'All') {
+            $query->where('residents.gender', request('gender'));
+        }
+
         if (request()->filled('pension_type') && request('pension_type') !== 'All') {
             $query->where('senior_citizens.pension_type', request('pension_type'));
         }
@@ -63,11 +72,13 @@ class SeniorCitizenController extends Controller
         if (request()->filled('living_alone') && request('living_alone') !== 'All') {
             $query->where('senior_citizens.living_alone', request('living_alone'));
         }
+
         if (request()->filled('purok') && request('purok') !== 'All') {
             $query->where('purok_number', request('purok'));
         }
-        // $seniorCitizens = $query->get();
+
         $seniorCitizens = $query->paginate(10)->withQueryString();
+
         return Inertia::render('BarangayOfficer/SeniorCitizen/Index', [
             'seniorCitizens' => $seniorCitizens,
             'puroks' => $puroks,

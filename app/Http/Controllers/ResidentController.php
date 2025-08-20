@@ -76,9 +76,10 @@ class ResidentController extends Controller
         }
 
         // handles gender filtering
-        if (request()->filled('sex') && request('sex') !== 'All') {
-            $query->where('gender', request('sex'));
+        if (request()->filled('gender') && request('gender') !== 'All') {
+            $query->where('gender', request('gender'));
         }
+
 
         // handles employment filtering
         if (request()->filled('estatus') && request('estatus') !== 'All') {
@@ -153,7 +154,7 @@ class ResidentController extends Controller
 
 
         if (request('all') === 'true') {
-            $residents = $query->get(); // full list
+            $residents = $query->get();
         } else {
             $residents = $query->paginate(10)->onEachSide(1);
         }
@@ -192,6 +193,7 @@ class ResidentController extends Controller
         } else {
             $residents->getCollection()->transform($transform);
         }
+
         //dd($residents->toArray());
         return Inertia::render('BarangayOfficer/Resident/Index', [
             'residents' => $residents,
@@ -258,7 +260,7 @@ class ResidentController extends Controller
             'birthplace' => $data['birthplace'],
             'civil_status' => $data['civil_status'],
             'citizenship' => $data['citizenship'],
-            'employment_status' =>$data['employment_status'],
+            'employment_status' => $data['employment_status'],
             'religion' => $data['religion'],
             'contact_number' => $data['contactNumber'] ?? null,
             'registered_voter' => $data['registered_voter'],
@@ -634,7 +636,7 @@ class ResidentController extends Controller
                 ]);
             }
             $family = Family::with(['members.occupations'])->findOrFail($familyId);
-            if($family){
+            if ($family) {
                 // Re-fetch occupations including newly created ones
                 $family->load(['members.occupations']);
 
@@ -1394,7 +1396,7 @@ class ResidentController extends Controller
                 'birthplace' => $data['birthplace'],
                 'civil_status' => $data['civil_status'],
                 'citizenship' => $data['citizenship'],
-                'employment_status' =>$data['employment_status'],
+                'employment_status' => $data['employment_status'],
                 'religion' => $data['religion'],
                 'contact_number' => $data['contactNumber'] ?? null,
                 'registered_voter' => $data['registered_voter'],
@@ -1507,8 +1509,6 @@ class ResidentController extends Controller
                         'ended_at' => $occupationData['ended_at'] ?? null,
                         'monthly_income' => $monthlyIncome,
                     ];
-
-
                 }
 
                 // Insert all occupations
