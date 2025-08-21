@@ -83,7 +83,7 @@ class StoreResidentRequest extends FormRequest
             'occupations' => ['nullable', 'array'],
             'employment_status' => [
                 'required_with:occupations.*.occupation',
-                Rule::in(['employed', 'unemployed', 'under_employed', 'retired', 'student']),
+                Rule::in(['employed', 'unemployed', 'self_employed', 'student', 'under_employed']),
             ],
             'occupations.*.occupation' => ['nullable', 'string', 'max:100'],
             'occupations.*.employment_type' => [

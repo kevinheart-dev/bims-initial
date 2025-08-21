@@ -92,33 +92,47 @@ class ResidentController extends Controller
         }
 
         // handles age filtering
-        if (request()->filled('age_group') && request('age_group') !== 'All') {
+        if (request()->filled('age_group') && request('age_group') !== 'all') {
             $today = Carbon::today();
 
             switch (request('age_group')) {
-                case 'child':
-                    $max = $today->copy()->subYears(0);
-                    $min = $today->copy()->subYears(13);
+                case '0_6_months':
+                    $max = $today->copy()->subMonths(0); // today
+                    $min = $today->copy()->subMonths(6);
                     break;
-                case 'teen':
+
+                case '7mos_2yrs':
+                    $max = $today->copy()->subYears(0)->subMonths(7);
+                    $min = $today->copy()->subYears(2);
+                    break;
+
+                case '3_5yrs':
+                    $max = $today->copy()->subYears(3);
+                    $min = $today->copy()->subYears(5);
+                    break;
+
+                case '6_12yrs':
+                    $max = $today->copy()->subYears(6);
+                    $min = $today->copy()->subYears(12);
+                    break;
+
+                case '13_17yrs':
                     $max = $today->copy()->subYears(13);
-                    $min = $today->copy()->subYears(18);
+                    $min = $today->copy()->subYears(17);
                     break;
-                case 'young_adult':
+
+                case '18_59yrs':
                     $max = $today->copy()->subYears(18);
-                    $min = $today->copy()->subYears(26);
+                    $min = $today->copy()->subYears(59);
                     break;
-                case 'adult':
-                    $max = $today->copy()->subYears(26);
-                    $min = $today->copy()->subYears(60);
-                    break;
-                case 'senior':
+
+                case '60_above':
                     $max = $today->copy()->subYears(60);
-                    $min = null;
+                    $min = null; // no lower bound
                     break;
             }
 
-            if (isset($min)) {
+            if ($min) {
                 $query->whereBetween('birthdate', [$min, $max]);
             } else {
                 $query->where('birthdate', '<=', $max);
@@ -172,7 +186,7 @@ class ResidentController extends Controller
                 'birthdate' => $resident->birthdate,
                 'age' => $resident->age,
                 'civil_status' => $resident->civil_status,
-                'citizenship' => $resident->citizenship,
+                'ethnicity' => $resident->ethnicity,
                 'religion' => $resident->religion,
                 'contact_number' => $resident->contact_number,
                 'is_pwd' => $resident->is_pwd,

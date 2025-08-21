@@ -113,18 +113,28 @@ const FilterToggle = ({
                     onValueChange={(v) => searchFieldName("age_group", v)}
                     value={queryParams.age_group}
                 >
-                    <SelectTrigger className="w-[100px]">
+                    <SelectTrigger className="w-[160px]">
                         <SelectValue placeholder="Age Group" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="All">All</SelectItem>
-                        <SelectItem value="child">0 - 12 (Child)</SelectItem>
-                        <SelectItem value="teen">13 - 17 (Teen)</SelectItem>
-                        <SelectItem value="young_adult">
-                            18 - 25 (Young Adult)
+                        <SelectItem value="0_6_months">0 – 6 months</SelectItem>
+                        <SelectItem value="7mos_2yrs">
+                            7 months – 2 years old
                         </SelectItem>
-                        <SelectItem value="adult">26 - 59 (Adult)</SelectItem>
-                        <SelectItem value="senior">60+ (Senior)</SelectItem>
+                        <SelectItem value="3_5yrs">3 – 5 years old</SelectItem>
+                        <SelectItem value="6_12yrs">
+                            6 – 12 years old
+                        </SelectItem>
+                        <SelectItem value="13_17yrs">
+                            13 – 17 years old
+                        </SelectItem>
+                        <SelectItem value="18_59yrs">
+                            18 – 59 years old
+                        </SelectItem>
+                        <SelectItem value="60_above">
+                            60 years old and above
+                        </SelectItem>
                     </SelectContent>
                 </Select>
             )}
@@ -176,6 +186,12 @@ const FilterToggle = ({
                         <SelectItem value="student">Student</SelectItem>
                         <SelectItem value="employed">Employed</SelectItem>
                         <SelectItem value="unemployed">Unemployed</SelectItem>
+                        <SelectItem value="self_employed">
+                            Self Employed
+                        </SelectItem>
+                        <SelectItem value="under_employed">
+                            Underemployed
+                        </SelectItem>
                     </SelectContent>
                 </Select>
             )}
