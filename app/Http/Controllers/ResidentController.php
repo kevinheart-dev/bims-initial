@@ -909,6 +909,36 @@ class ResidentController extends Controller
                         }
                     }
 
+                    if (!empty($member['livelihoods']) && is_array($member['livelihoods'])) {
+                        $normalizedLivelihoods = [];
+
+                        foreach ($member['livelihoods'] as $livelihoodData) {
+                            $income = $livelihoodData['income'] ?? 0;
+
+                            // Normalize all income to monthly
+                            $monthlyIncome = match ($livelihoodData['income_frequency']) {
+                                'monthly' => $income,
+                                'weekly' => $income * 4,
+                                'bi-weekly' => $income * 2,
+                                'daily' => $income * 22, // Assuming 22 working days per month
+                                'annually' => $income / 12,
+                                default => null,
+                            };
+
+                            $normalizedLivelihoods[] = [
+                                'livelihood_type' => $livelihoodData['livelihood_type'] ?? null,
+                                'description' => $livelihoodData['description'] ?? null,
+                                'status' => $livelihoodData['status'] ?? null,
+                                'employer' => $livelihoodData['employer'] ?? null,
+                                'is_main_livelihood' => $livelihoodData['is_ofw'] ?? false,
+                                'started_at' => $livelihoodData['started_at'],
+                                'ended_at' => $livelihoodData['ended_at'] ?? null,
+                                'monthly_income' => $monthlyIncome,
+                            ];
+                        }
+                        $resident->livelihoods()->createMany($normalizedLivelihoods);
+                    }
+
                     $residentMedicalInformation = [
                         'weight_kg' => $member['weight_kg'] ?? 0,
                         'height_cm' => $member['height_cm'] ?? 0,
@@ -1150,6 +1180,7 @@ class ResidentController extends Controller
             'occupations',
             'medicalInformation',
             'disabilities',
+            'livelihoods',
             'socialwelfareprofile',
             'vehicles',
             'seniorcitizen',
@@ -1564,6 +1595,39 @@ class ResidentController extends Controller
                 ]);
             }
 
+            $resident->livelihoods()->delete();
+            //add livelihoods
+            if (!empty($data['livelihoods'])) {
+                $normalizedLivelihoods = [];
+
+                foreach ($data['livelihoods'] as $livelihoodData) {
+                    $income = $livelihoodData['income'] ?? 0;
+
+                    // Normalize all income to monthly
+                    $monthlyIncome = match ($livelihoodData['income_frequency']) {
+                        'monthly' => $income,
+                        'weekly' => $income * 4,
+                        'bi-weekly' => $income * 2,
+                        'daily' => $income * 22, // Assuming 22 working days per month
+                        'annually' => $income / 12,
+                        default => null,
+                    };
+
+                    $normalizedLivelihoods[] = [
+                        'livelihood_type' => $livelihoodData['livelihood_type'] ?? null,
+                        'description' => $livelihoodData['description'] ?? null,
+                        'status' => $livelihoodData['status'] ?? null,
+                        'employer' => $livelihoodData['employer'] ?? null,
+                        'is_main_livelihood' => $livelihoodData['is_ofw'] ?? false,
+                        'started_at' => $livelihoodData['started_at'],
+                        'ended_at' => $livelihoodData['ended_at'] ?? null,
+                        'monthly_income' => $monthlyIncome,
+                    ];
+                }
+
+                $resident->livelihoods()->createMany($normalizedLivelihoods);
+            }
+
             $resident->disabilities()->delete();
             // === Update Disabilities ===
             if (isset($data['disabilities'])) {
@@ -1849,6 +1913,7 @@ class ResidentController extends Controller
             'occupations',
             'medicalInformation',
             'disabilities',
+            'livelihoods',
             'socialwelfareprofile',
             'vehicles',
             'seniorcitizen',

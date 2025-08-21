@@ -16,6 +16,7 @@ import Section4 from "./Section4";
 import Section5 from "./Section5";
 import Checkbox from "../Checkbox";
 import toast from "react-hot-toast";
+import LivelihoodSection from "./Section6";
 
 const EditPersonalInformation = ({
     puroks,
@@ -164,6 +165,19 @@ const EditPersonalInformation = ({
             resident?.medical_information?.is_smoker != null
                 ? resident.medical_information.is_smoker.toString()
                 : null,
+        livelihoods:
+            Array.isArray(resident?.livelihoods) && resident.livelihoods.length
+                ? resident.livelihoods.map((liv) => ({
+                      ...liv,
+                      income: liv.income || liv.monthly_income || 0,
+                      income_frequency: liv.income_frequency || "monthly",
+                      status: liv.status || "active",
+                      is_main_livelihood:
+                          liv.is_main_livelihood != null
+                              ? liv.is_main_livelihood.toString()
+                              : "",
+                  }))
+                : [],
         disabilities: resident?.disabilities || [],
         relationship_to_head:
             resident?.latestHouseholdResident?.relationship_to_head || "",
@@ -327,6 +341,12 @@ const EditPersonalInformation = ({
                     setData={setData}
                     errors={errors}
                     occupationTypes={occupationTypes}
+                />
+
+                <LivelihoodSection
+                    data={data}
+                    setData={setData}
+                    errors={errors}
                 />
 
                 {/* Section 4 */}

@@ -49,7 +49,7 @@ const LivelihoodSection = ({ data, setData, errors }) => {
                         key={lvlhdIdx}
                         className="border p-4 mb-4 rounded-md relative bg-gray-50"
                     >
-                        <div className={`grid md:grid-cols-${grid} gap-4`}>
+                        <div className={`grid md:grid-cols-4 gap-4`}>
                             <div>
                                 <DropdownInputField
                                     label="Livelihood"

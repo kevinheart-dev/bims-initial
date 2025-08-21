@@ -113,7 +113,7 @@ export default function Index({
     }, [hasActiveFilter]);
 
     const allColumns = [
-        { key: "id", label: "Liveluhood ID" },
+        { key: "id", label: "Livelihood ID" },
         { key: "name", label: "Resident Name" },
         { key: "livelihood_type", label: "Livelihood" },
         { key: "description", label: "Description" },

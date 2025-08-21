@@ -8,6 +8,7 @@ import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-hot-toast";
 import SelectField from "../SelectField";
+import InputError from "../InputError";
 function EducationandOccupation({ occupationTypes }) {
     const { userData, setUserData, errors } = useContext(StepperContext);
     const members = userData.members || [];
@@ -26,18 +27,29 @@ function EducationandOccupation({ occupationTypes }) {
             [name]: value,
         };
 
-        // // If year_ended or educational_status changes, handle year_graduated logic
-        // if (name === "year_ended" || name === "educational_status") {
-        //     if (updatedEducation.educational_status === "graduate") {
-        //         updatedEducation.year_graduated = updatedEducation.year_ended || '';
-        //     } else {
-        //         updatedEducation.year_graduated = '';
-        //     }
-        // }
-
         updatedEducations[educationIndex] = updatedEducation;
 
         updatedMembers[memberIndex].educations = updatedEducations;
+
+        setUserData((prev) => ({ ...prev, members: updatedMembers }));
+    };
+
+    const handleLivelihoodFieldChange = (memberIndex, livelihoodIndex, e) => {
+        const { name, value } = e.target;
+        const updatedMembers = [...members];
+
+        const updatedLivelihoods = [
+            ...(updatedMembers[memberIndex].livelihoods || []),
+        ];
+
+        const updatedLivelihood = {
+            ...updatedLivelihoods[livelihoodIndex],
+            [name]: value,
+        };
+
+        updatedLivelihoods[livelihoodIndex] = updatedLivelihood;
+
+        updatedMembers[memberIndex].livelihoods = updatedLivelihoods;
 
         setUserData((prev) => ({ ...prev, members: updatedMembers }));
     };
@@ -121,6 +133,29 @@ function EducationandOccupation({ occupationTypes }) {
 
         updatedOccupations.splice(occupationIndex, 1);
         updatedMembers[memberIndex].occupations = updatedOccupations;
+
+        setUserData((prev) => ({ ...prev, members: updatedMembers }));
+        toast.success("Occupation removed.", { duration: 2000 });
+    };
+
+    const addLivelihood = (index) => {
+        const updatedMembers = [...members];
+        const livelihoods = updatedMembers[index].livelihoods || [];
+
+        livelihoods.push({});
+        updatedMembers[index].livelihoods = livelihoods;
+
+        setUserData((prev) => ({ ...prev, members: updatedMembers }));
+    };
+
+    const removeLivelihood = (memberIndex, occupationIndex) => {
+        const updatedMembers = [...members];
+        const updatedOccupations = [
+            ...(updatedMembers[memberIndex].livelihoods || []),
+        ];
+
+        updatedOccupations.splice(occupationIndex, 1);
+        updatedMembers[memberIndex].livelihoods = updatedOccupations;
 
         setUserData((prev) => ({ ...prev, members: updatedMembers }));
         toast.success("Occupation removed.", { duration: 2000 });
@@ -1363,6 +1398,317 @@ function EducationandOccupation({ occupationTypes }) {
                                 >
                                     <IoIosAddCircleOutline className="text-4xl" />
                                     <span>Add Occupation</span>
+                                </button>
+                                <hr className="h-px bg-sky-500 border-0 transform scale-y-100 origin-center" />
+                                <p className="font-bold">
+                                    Livelihood Background
+                                </p>
+                                {Array.isArray(member.livelihoods) &&
+                                    member.livelihoods.map(
+                                        (livelihood, lvlhdIdx) => (
+                                            <div
+                                                key={lvlhdIdx}
+                                                className="border p-4 mb-4 rounded-md relative bg-gray-50"
+                                            >
+                                                <div
+                                                    className={`grid md:grid-cols-4 gap-4`}
+                                                >
+                                                    <div>
+                                                        <DropdownInputField
+                                                            label="Livelihood"
+                                                            name="livelihood_type"
+                                                            value={
+                                                                livelihood.livelihood_type ||
+                                                                ""
+                                                            }
+                                                            onChange={(e) =>
+                                                                handleLivelihoodFieldChange(
+                                                                    index,
+                                                                    lvlhdIdx,
+                                                                    e
+                                                                )
+                                                            }
+                                                            placeholder="Select or Enter Livelihood"
+                                                        />
+                                                        {errors?.[
+                                                            `members.${index}.livelihoods.${lvlhdIdx}.livelihood_type`
+                                                        ] && (
+                                                            <p className="text-red-500 text-xs">
+                                                                {
+                                                                    errors[
+                                                                        `members.${index}.livelihoods.${lvlhdIdx}.livelihood_type`
+                                                                    ]
+                                                                }
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    <SelectField
+                                                        label="Livelihood Status"
+                                                        name="status"
+                                                        value={
+                                                            livelihood.status ||
+                                                            ""
+                                                        }
+                                                        onChange={(e) =>
+                                                            handleLivelihoodFieldChange(
+                                                                index,
+                                                                lvlhdIdx,
+                                                                e
+                                                            )
+                                                        }
+                                                        items={[
+                                                            {
+                                                                label: "Active",
+                                                                value: "active",
+                                                            },
+                                                            {
+                                                                label: "Inactive",
+                                                                value: "inactive",
+                                                            },
+                                                            {
+                                                                label: "Seasonal",
+                                                                value: "seasonal",
+                                                            },
+                                                            {
+                                                                label: "Ended",
+                                                                value: "ended",
+                                                            },
+                                                        ]}
+                                                    />
+                                                    {errors?.[
+                                                        `members.${index}.livelihoods.${lvlhdIdx}.status`
+                                                    ] && (
+                                                        <p className="text-red-500 text-xs">
+                                                            {
+                                                                errors[
+                                                                    `members.${index}.livelihoods.${lvlhdIdx}.status`
+                                                                ]
+                                                            }
+                                                        </p>
+                                                    )}
+                                                    <div>
+                                                        <RadioGroup
+                                                            label="Is Main Livelihood"
+                                                            name="is_main_livelihood"
+                                                            selectedValue={
+                                                                livelihood?.is_main_livelihood?.toString() ??
+                                                                ""
+                                                            }
+                                                            options={[
+                                                                {
+                                                                    label: "Yes",
+                                                                    value: 1,
+                                                                },
+                                                                {
+                                                                    label: "No",
+                                                                    value: 0,
+                                                                },
+                                                            ]}
+                                                            onChange={(e) =>
+                                                                handleLivelihoodFieldChange(
+                                                                    index,
+                                                                    lvlhdIdx,
+                                                                    e
+                                                                )
+                                                            }
+                                                        />
+                                                        <InputError
+                                                            message={
+                                                                errors?.[
+                                                                    `members.${index}.livelihoods.${lvlhdIdx}.is_main_livelihood`
+                                                                ]
+                                                            }
+                                                            className="mt-2"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <InputField
+                                                            label="Description"
+                                                            name="description"
+                                                            type="text"
+                                                            value={
+                                                                livelihood.description ||
+                                                                ""
+                                                            }
+                                                            onChange={(e) =>
+                                                                handleLivelihoodFieldChange(
+                                                                    index,
+                                                                    lvlhdIdx,
+                                                                    e
+                                                                )
+                                                            }
+                                                            placeholder="Enter livelihood description"
+                                                        />
+                                                        <InputError
+                                                            message={
+                                                                errors?.[
+                                                                    `members.${index}.livelihoods.${lvlhdIdx}.description`
+                                                                ]
+                                                            }
+                                                            className="mt-2"
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <InputField
+                                                            label="Date Started"
+                                                            name="started_at"
+                                                            type="date"
+                                                            value={
+                                                                livelihood.started_at ||
+                                                                ""
+                                                            }
+                                                            onChange={(e) =>
+                                                                handleLivelihoodFieldChange(
+                                                                    index,
+                                                                    lvlhdIdx,
+                                                                    e
+                                                                )
+                                                            }
+                                                        />
+                                                        <InputError
+                                                            message={
+                                                                errors?.[
+                                                                    `members.${index}.livelihoods.${lvlhdIdx}.started_at`
+                                                                ]
+                                                            }
+                                                            className="mt-2"
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <InputField
+                                                            label="Date Ended"
+                                                            name="ended_at"
+                                                            type="date"
+                                                            value={
+                                                                livelihood.ended_at ||
+                                                                ""
+                                                            }
+                                                            onChange={(e) =>
+                                                                handleLivelihoodFieldChange(
+                                                                    index,
+                                                                    lvlhdIdx,
+                                                                    e
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                livelihood.occupation_status ===
+                                                                "active"
+                                                            }
+                                                        />
+                                                        <InputError
+                                                            message={
+                                                                errors?.[
+                                                                    `members.${index}.livelihoods.${lvlhdIdx}.ended_at`
+                                                                ]
+                                                            }
+                                                            className="mt-2"
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <InputField
+                                                            type="number"
+                                                            label="Income"
+                                                            name="income"
+                                                            value={
+                                                                livelihood.income
+                                                                    ? livelihood.income ||
+                                                                      ""
+                                                                    : livelihood.monthly_income ||
+                                                                      ""
+                                                            }
+                                                            onChange={(e) =>
+                                                                handleLivelihoodFieldChange(
+                                                                    index,
+                                                                    lvlhdIdx,
+                                                                    e
+                                                                )
+                                                            }
+                                                            placeholder="Enter Income"
+                                                        />
+                                                        <InputError
+                                                            message={
+                                                                errors?.[
+                                                                    `members.${index}.livelihoods.${lvlhdIdx}.income`
+                                                                ]
+                                                            }
+                                                            className="mt-2"
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <SelectField
+                                                            label="Income Frequency"
+                                                            name="income_frequency"
+                                                            value={
+                                                                livelihood.income_frequency
+                                                            }
+                                                            onChange={(e) =>
+                                                                handleLivelihoodFieldChange(
+                                                                    index,
+                                                                    lvlhdIdx,
+                                                                    e
+                                                                )
+                                                            }
+                                                            items={[
+                                                                {
+                                                                    label: "Daily",
+                                                                    value: "daily",
+                                                                },
+                                                                {
+                                                                    label: "Bi-weekly",
+                                                                    value: "bi_weekly",
+                                                                },
+                                                                {
+                                                                    label: "Weekly",
+                                                                    value: "weekly",
+                                                                },
+                                                                {
+                                                                    label: "Monthly",
+                                                                    value: "monthly",
+                                                                },
+                                                                {
+                                                                    label: "Annually",
+                                                                    value: "annually",
+                                                                },
+                                                            ]}
+                                                        />
+                                                        <InputError
+                                                            message={
+                                                                errors?.[
+                                                                    `members.${index}.livelihoods.${lvlhdIdx}.income_frequency`
+                                                                ]
+                                                            }
+                                                            className="mt-2"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        removeLivelihood(
+                                                            index,
+                                                            lvlhdIdx
+                                                        )
+                                                    }
+                                                    className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
+                                                >
+                                                    <IoIosCloseCircleOutline className="text-2xl" />
+                                                </button>
+                                            </div>
+                                        )
+                                    )}
+
+                                <button
+                                    type="button"
+                                    onClick={() => addLivelihood(index)}
+                                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
+                                >
+                                    <IoIosAddCircleOutline className="text-4xl" />
+                                    <span>Add Livelihood</span>
                                 </button>
                             </div>
                         )}

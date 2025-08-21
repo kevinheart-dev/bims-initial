@@ -52,6 +52,7 @@ class ResidentResource extends JsonResource
             'occupations' => $this->whenLoaded('occupations'),
             'medical_information' => $this->whenLoaded('medicalInformation'),
             'disabilities' => $this->whenLoaded('disabilities'),
+            'livelihoods' => $this->whenLoaded('livelihoods'),
             'vehicles' => $this->whenLoaded('vehicles'),
             'social_welfare_profile' => $this->whenLoaded('socialwelfareprofile'),
             'senior_citizen' => $this->whenLoaded('seniorcitizen'),

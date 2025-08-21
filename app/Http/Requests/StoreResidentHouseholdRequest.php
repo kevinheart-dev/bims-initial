@@ -157,6 +157,27 @@ class StoreResidentHouseholdRequest extends FormRequest
             'members.*.pwd_id_number' => ['required_if:is_pwd,1', 'nullable', 'string', 'max:15'],
             'members.*.disabilities' => ['required_if:is_pwd,1', 'array'],
             'members.*.disabilities.*.disability_type' => ['required_with:disabilities', 'string', 'max:100'],
+
+
+            // SECTION 6: Livelihoods
+            'members.*.livelihoods' => ['required', 'array', 'min:1'],
+            'members.*.livelihoods.*.livelihood_type' => ['required', 'string', 'max:155'],
+            'members.*.livelihoods.*.description' => ['nullable', 'string', 'max:255'],
+
+            'members.*.livelihoods.*.status' => [
+                'required',
+                Rule::in(['active', 'inactive', 'seasonal', 'ended']),
+            ],
+
+            'members.*.livelihoods.*.is_main_livelihood' => ['required', 'boolean'],
+
+            'members.*.livelihoods.*.started_at' => ['nullable', 'date', 'before_or_equal:today'],
+            'members.*.livelihoods.*.ended_at' => ['nullable', 'date', 'after:livelihoods.*.started_at'],
+
+            'members.*.livelihoods.*.income' => ['nullable', 'numeric', 'min:0'],
+            'members.*.livelihoods.*.income_frequency' => [
+                'nullable',
+                Rule::in(['daily', 'bi_weekly', 'weekly', 'monthly', 'annually'])]
         ];
     }
 
