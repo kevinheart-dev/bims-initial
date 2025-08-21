@@ -150,39 +150,14 @@ class StoreResidentRequest extends FormRequest
 
             'livelihoods.*.is_main_livelihood' => ['required', 'boolean'],
 
-            'livelihoods.*.started_at' =>  ['nullable', 'integer', 'min:1900', 'max:' . now()->year],
-            'livelihoods.*.ended_at' =>  ['nullable', 'integer', 'min:1900', 'max:' . now()->year],
+            'livelihoods.*.started_at' => ['nullable', 'date', 'before_or_equal:today'],
+            'livelihoods.*.ended_at' => ['nullable', 'date', 'after:livelihoods.*.started_at'],
 
             'livelihoods.*.income' => ['nullable', 'numeric', 'min:0'],
             'livelihoods.*.income_frequency' => [
                 'nullable',
                 Rule::in(['daily', 'bi_weekly', 'weekly', 'monthly', 'annually']),
             ],
-
-            // 'ownership_type' => ['nullable', 'string', 'max:55'],
-            // 'housing_condition' => ['nullable', Rule::in(['good', 'needs repair', 'dilapidated'])],
-            // 'house_structure' => ['nullable', Rule::in(['concrete', 'semi_concrete', 'wood', 'makeshift'])],
-            // 'year_established' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
-            // 'number_of_rooms' => ['nullable', 'integer', 'min:1', 'max:100'],
-            // 'number_of_floors' => ['nullable', 'integer', 'min:1', 'max:10'],
-            // 'bath_and_wash_area' => ['nullable', 'string', 'max:100'],
-            // 'toilet_type' => ['nullable', 'string', 'max:100'],
-            // 'electricity_type' => ['nullable', 'string', 'max:100'],
-            // 'water_source_type' => ['nullable', 'string', 'max:100'],
-            // 'waste_management_type' => ['nullable', 'string', 'max:100'],
-            // 'type_of_internet' => ['nullable', 'string', 'max:100'],
-
-
-            // SECTION 5.1: Livestock information
-            // 'livestocks' => ['nullable', 'array'],
-            // 'livestocks.*.livestock_type' => ['required', 'string', 'max:100'],
-            // 'livestocks.*.quantity' => ['required', 'integer', 'min:1', 'max:100'],
-
-            // SECTION 5.2: Pets information
-            // 'pets' => ['nullable', 'array'],
-            // 'pets.*.pet_type' => ['required', 'string', 'max:100'],
-            // 'pets.*.is_vaccinated' => ['required', 'boolean'],
-            // 'pets.*.quantity' => ['required', 'integer', 'min:1', 'max:100'],
         ];
         return $rules;
     }

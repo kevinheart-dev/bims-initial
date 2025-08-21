@@ -130,9 +130,9 @@ class OccupationController extends Controller
         }
 
         // Filter by purok_number (from resident relationship)
-        if (request()->filled('purok_number') && request('purok_number') !== 'All') {
+        if (request()->filled('purok') && request('purok') !== 'All') {
             $query->whereHas('resident', function ($q) {
-                $q->where('purok_number', request('purok_number'));
+                $q->where('purok_number', request('purok'));
             });
         }
 
@@ -381,8 +381,7 @@ class OccupationController extends Controller
         try {
             $occupation->delete();
             DB::commit();
-            return redirect()->route('occupation.index')
-                ->with('success', "Occupation Record deleted successfully!");
+            return back()->with('success', "Occupation Record deleted successfully!");
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Occupation could not be deleted: ' . $e->getMessage());

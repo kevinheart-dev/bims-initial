@@ -29,6 +29,7 @@ const FilterToggle = ({
     streets = [],
     pensionTypes = [],
     vehicle_types = [],
+    livelihood_types = [],
     months = [],
     certificateTypes = [],
     categories = [],
@@ -107,7 +108,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("age_group") && (
                 <Select
                     onValueChange={(v) => searchFieldName("age_group", v)}
@@ -128,7 +128,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("relation") && (
                 <Select
                     onValueChange={(v) => searchFieldName("relation", v)}
@@ -146,7 +145,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("household_position") && (
                 <Select
                     onValueChange={(v) =>
@@ -165,7 +163,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("estatus") && (
                 <Select
                     onValueChange={(v) => searchFieldName("estatus", v)}
@@ -182,7 +179,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("voter_status") && (
                 <Select
                     onValueChange={(v) => searchFieldName("voter_status", v)}
@@ -198,7 +194,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("is_pwd") && (
                 <Select
                     onValueChange={(v) => searchFieldName("is_pwd", v)}
@@ -214,9 +209,7 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {/* ==== INDEX FILLTER ====*/}
-
             {isVisible("street") && (
                 <Select
                     onValueChange={(v) => searchFieldName("street", v)}
@@ -235,7 +228,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("own_type") && (
                 <Select
                     onValueChange={(v) => searchFieldName("own_type", v)}
@@ -257,7 +249,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("condition") && (
                 <Select
                     onValueChange={(v) => searchFieldName("condition", v)}
@@ -276,7 +267,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("structure") && (
                 <Select
                     onValueChange={(v) => searchFieldName("structure", v)}
@@ -296,9 +286,7 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {/* Added fillter family index */}
-
             {isVisible("famtype") && (
                 <Select
                     onValueChange={(v) => searchFieldName("famtype", v)}
@@ -327,7 +315,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("household_head") && (
                 <Select
                     onValueChange={(v) => searchFieldName("household_head", v)}
@@ -343,7 +330,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("income_bracket") && (
                 <Select
                     onValueChange={(v) => searchFieldName("income_bracket", v)}
@@ -364,9 +350,7 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {/* SENIOR INDEX */}
-
             {isVisible("is_pensioner") && (
                 <Select
                     onValueChange={(v) => searchFieldName("is_pensioner", v)}
@@ -383,7 +367,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("pension_type") && (
                 <Select
                     onValueChange={(v) => searchFieldName("pension_type", v)}
@@ -402,7 +385,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("living_alone") && (
                 <Select
                     onValueChange={(v) => searchFieldName("living_alone", v)}
@@ -418,7 +400,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("birth_month") && (
                 <Select
                     onValueChange={(v) => searchFieldName("birth_month", v)}
@@ -437,7 +418,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {/* RESIDENT INDEX */}
             {isVisible("cstatus") && (
                 <Select
@@ -458,92 +438,91 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {(isVisible("pwd") ||
                 isVisible("fourps") ||
                 isVisible("solo_parent")) && (
-                    <div
-                        className="relative inline-block text-left w-56"
-                        ref={welfareRef}
+                <div
+                    className="relative inline-block text-left w-56"
+                    ref={welfareRef}
+                >
+                    <button
+                        onClick={() => setOpenWelfare(!openWelfare)}
+                        className="inline-flex justify-between items-center w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none"
                     >
-                        <button
-                            onClick={() => setOpenWelfare(!openWelfare)}
-                            className="inline-flex justify-between items-center w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none"
+                        Social Welfare Filter
+                        <svg
+                            className={`ml-2 h-5 w-5 transition-transform duration-200 ${
+                                openWelfare ? "rotate-180" : ""
+                            }`}
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
                         >
-                            Social Welfare Filter
-                            <svg
-                                className={`ml-2 h-5 w-5 transition-transform duration-200 ${openWelfare ? "rotate-180" : ""
-                                    }`}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 9l-7 7-7-7"
-                                />
-                            </svg>
-                        </button>
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                            />
+                        </svg>
+                    </button>
 
-                        {openWelfare && (
-                            <div className="absolute mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg z-50 max-h-60 overflow-auto">
-                                <div className="py-2 px-4 space-y-2">
-                                    {isVisible("pwd") && (
-                                        <label className="flex items-center space-x-2 cursor-pointer">
-                                            <Checkbox
-                                                id="pwd-checkbox"
-                                                checked={queryParams.pwd === "1"}
-                                                onCheckedChange={(checked) =>
-                                                    searchFieldName(
-                                                        "pwd",
-                                                        checked ? "1" : "0"
-                                                    )
-                                                }
-                                            />
-                                            <span>PWD</span>
-                                        </label>
-                                    )}
-                                    {isVisible("fourps") && (
-                                        <label className="flex items-center space-x-2 cursor-pointer">
-                                            <Checkbox
-                                                id="fourps-checkbox"
-                                                checked={queryParams.fourps === "1"}
-                                                onCheckedChange={(checked) =>
-                                                    searchFieldName(
-                                                        "fourps",
-                                                        checked ? "1" : "0"
-                                                    )
-                                                }
-                                            />
-                                            <span>4ps Beneficiary</span>
-                                        </label>
-                                    )}
-                                    {isVisible("solo_parent") && (
-                                        <label className="flex items-center space-x-2 cursor-pointer">
-                                            <Checkbox
-                                                id="solo-parent-checkbox"
-                                                checked={
-                                                    queryParams.solo_parent === "1"
-                                                }
-                                                onCheckedChange={(checked) =>
-                                                    searchFieldName(
-                                                        "solo_parent",
-                                                        checked ? "1" : "0"
-                                                    )
-                                                }
-                                            />
-                                            <span>Solo Parent</span>
-                                        </label>
-                                    )}
-                                </div>
+                    {openWelfare && (
+                        <div className="absolute mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg z-50 max-h-60 overflow-auto">
+                            <div className="py-2 px-4 space-y-2">
+                                {isVisible("pwd") && (
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        <Checkbox
+                                            id="pwd-checkbox"
+                                            checked={queryParams.pwd === "1"}
+                                            onCheckedChange={(checked) =>
+                                                searchFieldName(
+                                                    "pwd",
+                                                    checked ? "1" : "0"
+                                                )
+                                            }
+                                        />
+                                        <span>PWD</span>
+                                    </label>
+                                )}
+                                {isVisible("fourps") && (
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        <Checkbox
+                                            id="fourps-checkbox"
+                                            checked={queryParams.fourps === "1"}
+                                            onCheckedChange={(checked) =>
+                                                searchFieldName(
+                                                    "fourps",
+                                                    checked ? "1" : "0"
+                                                )
+                                            }
+                                        />
+                                        <span>4ps Beneficiary</span>
+                                    </label>
+                                )}
+                                {isVisible("solo_parent") && (
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        <Checkbox
+                                            id="solo-parent-checkbox"
+                                            checked={
+                                                queryParams.solo_parent === "1"
+                                            }
+                                            onCheckedChange={(checked) =>
+                                                searchFieldName(
+                                                    "solo_parent",
+                                                    checked ? "1" : "0"
+                                                )
+                                            }
+                                        />
+                                        <span>Solo Parent</span>
+                                    </label>
+                                )}
                             </div>
-                        )}
-                    </div>
-                )}
-
+                        </div>
+                    )}
+                </div>
+            )}
             {/* VEHICLE */}
             {isVisible("v_type") && (
                 <Select
@@ -563,7 +542,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("v_class") && (
                 <Select
                     onValueChange={(v) => searchFieldName("v_class", v)}
@@ -579,7 +557,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("usage") && (
                 <Select
                     onValueChange={(v) => searchFieldName("usage", v)}
@@ -600,7 +577,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {/* EDUCATION */}
             {isVisible("educational_attainment") && (
                 <Select
@@ -683,7 +659,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {/* OCCUPATION */}
             {isVisible("employment_status") && (
                 <Select
@@ -855,7 +830,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {/* Certificate */}
             {isVisible("certificate_type") && (
                 <Select
@@ -876,7 +850,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("request_status") && (
                 <Select
                     onValueChange={(status) =>
@@ -898,7 +871,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {isVisible("issued_by") && (
                 <Select
                     onValueChange={(e) => searchFieldName("issued_by", e)}
@@ -942,7 +914,6 @@ const FilterToggle = ({
                     />
                 </div>
             )}
-
             {/* MEDICAL INFORMATION */}
             {isVisible("nutritional_status") && (
                 <Select
@@ -1031,7 +1002,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {/* INFRASTRUCTURE */}
             {isVisible("infra_type") && (
                 <Select
@@ -1071,7 +1041,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {/* INSTITUTIONS */}
             {isVisible("institution") && (
                 <Select
@@ -1093,7 +1062,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {/* FACILITIES */}
             {isVisible("faci_name") && (
                 <Select
@@ -1131,7 +1099,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-
             {/* PROJECTS */}
             {isVisible("project_status") && (
                 <Select
@@ -1238,7 +1205,6 @@ const FilterToggle = ({
                     />
                 </div>
             )}
-
             {/* ROADS */}
             {isVisible("road_type") && (
                 <Select
@@ -1278,6 +1244,61 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
+            {/* ROADS */}
+            {isVisible("livelihood_type") && (
+                <Select
+                    onValueChange={(live) =>
+                        searchFieldName("livelihood_type", live)
+                    }
+                    value={queryParams?.livelihood_type ?? ""}
+                >
+                    <SelectTrigger className="w-[170px]">
+                        <SelectValue placeholder="Livelihood Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {livelihood_types.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {option}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("livelihood_status") && (
+                <Select
+                    onValueChange={(live) =>
+                        searchFieldName("livelihood_status", live)
+                    }
+                    value={queryParams?.livelihood_status ?? ""}
+                >
+                    <SelectTrigger className="w-[170px]">
+                        <SelectValue placeholder="Livelihood Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="seasonal">Seasonal</SelectItem>
+                        <SelectItem value="ended">Ended</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("is_main") && (
+                <Select
+                    onValueChange={(live) => searchFieldName("is_main", live)}
+                    value={queryParams.is_main}
+                >
+                    <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Main Livelihood" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="1">Yes</SelectItem>
+                        <SelectItem value="0">No</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
 
             {/* Clear Filters Button */}
             {clearRouteAxios ? (
@@ -1295,7 +1316,6 @@ const FilterToggle = ({
                     />
                 </div>
             )}
-
             {/* <div className="flex justify-end ml-auto">
                 <ClearFilterButton
                     routeName={householdId ? "household.show" : "household.index"}

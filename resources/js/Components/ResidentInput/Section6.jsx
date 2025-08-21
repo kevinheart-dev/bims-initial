@@ -8,12 +8,7 @@ import SelectField from "../SelectField";
 import YearDropdown from "../YearDropdown";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 
-const LivelihoodSection = ({
-    data,
-    setData,
-    errors,
-    occupationTypes = null,
-}) => {
+const LivelihoodSection = ({ data, setData, errors }) => {
     const addLivelihood = () => {
         setData("livelihoods", [...(data.livelihoods || []), {}]);
     };
@@ -22,6 +17,9 @@ const LivelihoodSection = ({
         const updated = [...(data.livelihoods || [])];
         updated.splice(lvlhdIdx, 1);
         setData("livelihoods", updated);
+        toast.warning("Livelihood removed.", {
+            duration: 2000,
+        });
     };
 
     const handleLivelihoodFieldChange = (e, lvlhdIdx, fieldName) => {
@@ -51,7 +49,7 @@ const LivelihoodSection = ({
                         key={lvlhdIdx}
                         className="border p-4 mb-4 rounded-md relative bg-gray-50"
                     >
-                        <div className="grid md:grid-cols-4 gap-4">
+                        <div className={`grid md:grid-cols-${grid} gap-4`}>
                             <div>
                                 <DropdownInputField
                                     label="Livelihood"
@@ -184,9 +182,10 @@ const LivelihoodSection = ({
                             </div>
 
                             <div>
-                                <YearDropdown
-                                    label="Year Started"
+                                <InputField
+                                    label="Date Started"
                                     name="started_at"
+                                    type="date"
                                     value={livelihood.started_at || ""}
                                     onChange={(e) =>
                                         handleLivelihoodFieldChange(
@@ -206,9 +205,10 @@ const LivelihoodSection = ({
                                 />
                             </div>
                             <div>
-                                <YearDropdown
-                                    label="Year Ended"
+                                <InputField
+                                    label="Date Ended"
                                     name="ended_at"
+                                    type="date"
                                     value={livelihood.ended_at || ""}
                                     onChange={(e) =>
                                         handleLivelihoodFieldChange(

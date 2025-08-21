@@ -249,7 +249,7 @@ class DatabaseSeeder extends Seeder
         //     ]);
         //     $user->assignRole($resRole);
         // }
-        LivelihoodType::factory(5)->create();
+        LivelihoodType::factory(50)->create();
 
        $residents = Resident::factory()->count(50)->create(); // ✅ very minimal
 
@@ -266,6 +266,7 @@ class DatabaseSeeder extends Seeder
         HouseholdElectricitySource::factory(25)->create();
         HouseholdWasteManagement::factory(25)->create();
         HouseholdWaterSource::factory(25)->create();
+        Livelihood::factory(35)->create();
 
         // Mark household heads
         $residents->groupBy('household_id')->each(function ($group) {
@@ -289,6 +290,11 @@ class DatabaseSeeder extends Seeder
             if (!empty($medical->pwd_id_number)) {
                 Disability::factory()->create([
                     'resident_id' => $resident->id,
+                ]);
+
+                // mark resident as PWD
+                $resident->update([
+                    'is_pwd' => 1,
                 ]);
             }
         });

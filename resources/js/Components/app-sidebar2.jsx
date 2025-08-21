@@ -24,6 +24,7 @@ import {
     GraduationCap,
     BriefcaseBusiness,
     SquareActivity,
+    Tractor,
 } from "lucide-react";
 
 import {
@@ -97,14 +98,19 @@ const items = [
                 icon: CarFront,
             },
             {
-                title: "Residents Education",
+                title: "Education",
                 url: "/barangay_officer/education",
                 icon: GraduationCap,
             },
             {
-                title: "Residents Occupation",
+                title: "Occupation",
                 url: "/barangay_officer/occupation",
                 icon: BriefcaseBusiness,
+            },
+            {
+                title: "Livelihood",
+                url: "/barangay_officer/livelihood",
+                icon: Tractor,
             },
             {
                 title: "Medical Information",
@@ -212,11 +218,12 @@ export function AppSidebar({ auth }) {
                                         >
                                             <a
                                                 href={item.url}
-                                                className={`flex items-center justify-between w-full my-1 ${location.pathname ===
+                                                className={`flex items-center justify-between w-full my-1 ${
+                                                    location.pathname ===
                                                     item.url
-                                                    ? "bg-gray-200 text-primary" // Active item styles
-                                                    : "text-white"
-                                                    }`}
+                                                        ? "bg-gray-200 text-primary" // Active item styles
+                                                        : "text-white"
+                                                }`}
                                             >
                                                 <div className="flex items-center">
                                                     <item.icon className="mr-2" />
@@ -237,10 +244,11 @@ export function AppSidebar({ auth }) {
 
                                     {item.submenu.length > 0 && (
                                         <SidebarGroupContent
-                                            className={`overflow-hidden transition-all duration-300 ease-in-out transform ${collapsed[index]
-                                                ? "max-h-0 opacity-0 translate-x-[-10px]"
-                                                : "max-h-[1000px] opacity-100 translate-x-0"
-                                                }`}
+                                            className={`overflow-hidden transition-all duration-300 ease-in-out transform ${
+                                                collapsed[index]
+                                                    ? "max-h-0 opacity-0 translate-x-[-10px]"
+                                                    : "max-h-[1000px] opacity-100 translate-x-0"
+                                            }`}
                                             style={{
                                                 transitionProperty:
                                                     "max-height, opacity, transform",
@@ -255,11 +263,12 @@ export function AppSidebar({ auth }) {
                                                             href={
                                                                 submenuItem.url
                                                             }
-                                                            className={`flex items-center pl-6 my-1 ${location.pathname ===
+                                                            className={`flex items-center pl-6 my-1 ${
+                                                                location.pathname ===
                                                                 submenuItem.url
-                                                                ? "bg-gray-200 text-primary"
-                                                                : "text-gray-200"
-                                                                }`}
+                                                                    ? "bg-gray-200 text-primary"
+                                                                    : "text-gray-200"
+                                                            }`}
                                                             style={{
                                                                 maxWidth:
                                                                     "calc(100% - 2rem)", // Adjust width

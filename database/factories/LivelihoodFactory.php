@@ -47,7 +47,7 @@ class LivelihoodFactory extends Factory
             'is_main_livelihood' => $this->faker->boolean(50),
             'started_at' => $startedAt,
             'ended_at' => $isActive ? null : $this->faker->dateTimeBetween($startedAt, 'now'),
-            'average_monthly_income' => $this->faker->randomFloat(2, 2000, 15000),
+            'monthly_income' => $this->faker->randomFloat(2, 2000, 15000),
             'status' => $isActive
                 ? $this->faker->randomElement(['active', 'seasonal'])
                 : $this->faker->randomElement(['inactive', 'ended']),

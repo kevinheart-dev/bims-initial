@@ -16,6 +16,7 @@ use App\Http\Controllers\EducationController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyRelationController;
 use App\Http\Controllers\HouseholdController;
+use App\Http\Controllers\LivelihoodController;
 use App\Http\Controllers\MedicalInformationController;
 use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\ProfileController;
@@ -80,6 +81,9 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     // occupation
     Route::get('occupation/details/{id}', [OccupationController::class, 'occupationDetails'])->name('occupation.details');
 
+    // livelihood
+    Route::get('livelihood/details/{id}', [LivelihoodController::class, 'livelihoodDetails'])->name('livelihood.details');
+
     // vehicle
     Route::get('vehicle/details/{id}', [VehicleController::class, 'vehicleDetails'])->name('vehicle.details');
 
@@ -101,6 +105,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('education', EducationController::class);
     Route::resource('occupation', OccupationController::class);
     Route::resource('medical', MedicalInformationController::class);
+    Route::resource('livelihood', LivelihoodController::class);
 
     // barangay
     Route::resource('barangay_official', BarangayOfficialController::class);
