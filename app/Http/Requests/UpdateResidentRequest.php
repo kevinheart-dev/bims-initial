@@ -116,7 +116,7 @@ class UpdateResidentRequest extends FormRequest
             'emergency_contact_name' => ['required', 'string', 'max:255'],
             'emergency_contact_relationship' => ['required', 'string', 'max:100'],
             'blood_type' => ['nullable', Rule::in([
-                'A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−'
+                'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
             ])],
 
             'has_philhealth' => ['required', Rule::in([0, 1])],
