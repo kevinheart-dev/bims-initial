@@ -251,7 +251,7 @@ class DatabaseSeeder extends Seeder
         // }
         LivelihoodType::factory(5)->create();
 
-       $residents = Resident::factory()->count(50)->create(); // ✅ very minimal
+        $residents = Resident::factory()->count(1289)->create(); // ✅ very minimal
 
         // Related sample data (scaled down)
         InternetAccessibility::factory(20)->create();
