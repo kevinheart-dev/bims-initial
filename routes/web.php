@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AllergyController;
 use App\Http\Controllers\BarangayInfrastructureController;
 use App\Http\Controllers\BarangayFacilityController;
 use App\Http\Controllers\BarangayInstitutionController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\BarangayRoadController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DisabilityController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentGenerationController;
 use App\Http\Controllers\EducationController;
@@ -22,6 +24,9 @@ use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportGenerationController;
 use App\Http\Controllers\ResidentController;
+use App\Http\Controllers\ResidentMedicalConditionController;
+use App\Http\Controllers\ResidentMedicationController;
+use App\Http\Controllers\ResidentVaccinationController;
 use App\Http\Controllers\SeniorCitizenController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
@@ -106,6 +111,11 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('occupation', OccupationController::class);
     Route::resource('medical', MedicalInformationController::class);
     Route::resource('livelihood', LivelihoodController::class);
+    Route::resource('medical_condition', ResidentMedicalConditionController::class);
+    Route::resource('medication', ResidentMedicationController::class);
+    Route::resource('vaccination', ResidentVaccinationController::class);
+    Route::resource('disability', DisabilityController::class);
+    Route::resource('allergy', AllergyController::class);
 
     // barangay
     Route::resource('barangay_official', BarangayOfficialController::class);

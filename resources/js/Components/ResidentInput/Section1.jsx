@@ -153,7 +153,7 @@ const Section1 = ({
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
                         <div>
                             <DropdownInputField
                                 label="Suffix"
@@ -198,20 +198,37 @@ const Section1 = ({
                         </div>
                         <div>
                             <RadioGroup
-                                label="Gender"
-                                name="gender"
+                                label="Sex"
+                                name="sex"
                                 options={[
                                     { label: "Male", value: "male" },
                                     {
                                         label: "Female",
                                         value: "female",
                                     },
+                                ]}
+                                selectedValue={data.sex || ""}
+                                onChange={(e) => setData("sex", e.target.value)}
+                            />
+
+                            <InputError message={errors.sex} className="mt-2" />
+                        </div>
+                        <div>
+                            <DropdownInputField
+                                label="Gender"
+                                name="gender"
+                                items={[
+                                    { label: "Male", value: "male" },
                                     {
-                                        label: "LGBTQIA+",
-                                        value: "LGBTQ",
+                                        label: "Female",
+                                        value: "female",
+                                    },
+                                    {
+                                        label: "LGBTQ+",
+                                        value: "lgbtq",
                                     },
                                 ]}
-                                selectedValue={data.gender || ""}
+                                value={data.gender || ""}
                                 onChange={(e) =>
                                     setData("gender", e.target.value)
                                 }

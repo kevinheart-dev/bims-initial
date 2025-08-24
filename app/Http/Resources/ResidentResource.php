@@ -23,6 +23,7 @@ class ResidentResource extends JsonResource
             'lastname' => $this->lastname,
             'suffix' => $this->suffix,
             'maiden_name' => $this->maiden_name,
+            'sex' => $this->sex,
             'gender' => $this->gender,
             'birthdate' => $this->birthdate,
             'birthplace' => $this->birthplace,

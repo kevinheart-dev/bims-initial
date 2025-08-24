@@ -16,7 +16,11 @@ import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import { Toaster, toast } from "sonner";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
-import { BMI_STATUS } from "@/constants";
+import {
+    BMI_STATUS,
+    RESIDENT_GENDER_COLOR_CLASS,
+    RESIDENT_GENDER_TEXT2,
+} from "@/constants";
 import SidebarModal from "@/Components/SidebarModal";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
@@ -98,6 +102,7 @@ export default function Index({ medical_information, puroks, queryParams }) {
         { key: "name", label: "Resident Name" },
         { key: "weight_kg", label: "Weight (kg)" },
         { key: "height_cm", label: "Height (cm)" },
+        { key: "sex", label: "Sex" },
         { key: "nutrition_status", label: "Nutritional Status" },
         { key: "blood_type", label: "Blood Type" },
         { key: "emergency_contact_number", label: "Emergency Contact Number" },
@@ -105,7 +110,6 @@ export default function Index({ medical_information, puroks, queryParams }) {
         { key: "is_alcohol_user", label: "Alcohol User?" },
         { key: "philhealth_id_number", label: "PhilHealth ID" },
         { key: "is_pwd", label: "Is PWD?" },
-        { key: "pwd_id_number", label: "PWD ID" },
         { key: "purok_number", label: "Purok Number" },
         { key: "actions", label: "Actions" },
     ];
@@ -120,11 +124,13 @@ export default function Index({ medical_information, puroks, queryParams }) {
         ([key, value]) =>
             [
                 "purok",
+                "sex",
                 "nutritional_status",
                 "blood_type",
                 "is_smoker",
                 "alcohol_user",
                 "has_philhealth",
+                "is_pwd",
             ].includes(key) &&
             value &&
             value !== ""
@@ -158,7 +164,20 @@ export default function Index({ medical_information, puroks, queryParams }) {
 
         weight_kg: (row) => row.weight_kg ?? "—",
         height_cm: (row) => row.height_cm ?? "—",
+        sex: (row) => {
+            const genderKey = row.resident.sex;
+            const label = RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
+            const className =
+                RESIDENT_GENDER_COLOR_CLASS[genderKey] ?? "bg-gray-300";
 
+            return (
+                <span
+                    className={`py-1 px-2 rounded-xl text-sm font-medium whitespace-nowrap ${className}`}
+                >
+                    {label}
+                </span>
+            );
+        },
         nutrition_status: (row) => {
             const status = row.nutrition_status;
             const statusText = BMI_STATUS[status] ?? "—";
@@ -207,10 +226,7 @@ export default function Index({ medical_information, puroks, queryParams }) {
             ) : (
                 <span className="text-gray-500">No</span>
             ),
-
         philhealth_id_number: (row) => row.philhealth_id_number ?? "—",
-        pwd_id_number: (row) => row.pwd_id_number ?? "—",
-
         purok_number: (row) => row.resident?.purok_number ?? "—",
 
         actions: (medical) => (
@@ -366,11 +382,13 @@ export default function Index({ medical_information, puroks, queryParams }) {
                                     searchFieldName={searchFieldName}
                                     visibleFilters={[
                                         "purok",
+                                        "sex",
                                         "nutritional_status",
                                         "blood_type",
                                         "is_smoker",
                                         "alcohol_user",
                                         "has_philhealth",
+                                        "is_pwd",
                                     ]}
                                     puroks={puroks}
                                     showFilters={true}

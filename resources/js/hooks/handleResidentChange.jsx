@@ -17,6 +17,7 @@ export default function useResidentChangeHandler(residents, setData) {
                 setData("birthdate", resident.birthdate);
                 setData("resident_image", resident.resident_picture_path);
                 setData("gender", resident.gender);
+                setData("sex", resident.sex);
                 setData("residency_date", resident.residency_date);
                 setData("residency_type", resident.residency_type);
                 setData("employment_status", resident.employment_status);

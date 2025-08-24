@@ -57,27 +57,42 @@ const BarangayProfileMain = () => {
                         </h2>
 
                         <p className="text-lg p-0 m-0">
-                            {barangayData.city}, {barangayData.province}, {barangayData.zip_code}
+                            {barangayData.city}, {barangayData.province},{" "}
+                            {barangayData.zip_code}
                         </p>
                         <div className="flex gap-6">
-                            <p className="text-gray-700 p-0 m-0">{barangayData.contact_number}</p>
-                            <p className="text-gray-700 p-0 m-0">{barangayData.email}</p>
+                            <p className="text-gray-700 p-0 m-0">
+                                {barangayData.contact_number}
+                            </p>
+                            <p className="text-gray-700 p-0 m-0">
+                                {barangayData.email}
+                            </p>
                         </div>
                     </div>
 
                     {/* Tab Navigation */}
                     <div className="border-b border-gray-400 mt-4">
                         <div className="flex gap-6 text-sm font-medium flex-wrap">
-                            {["infrastructure", "institutions", "facilities", "projects", "roads", "officials", "disaster"].map((tab) => (
+                            {[
+                                "infrastructure",
+                                "institutions",
+                                "facilities",
+                                "projects",
+                                "roads",
+                                "officials",
+                                "disaster",
+                            ].map((tab) => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`py-2 px-1 border-b-2 ${activeTab === tab
-                                        ? "border-blue-600 text-blue-700"
-                                        : "border-transparent text-gray-500"
-                                        }`}
+                                    className={`py-2 px-1 border-b-2 ${
+                                        activeTab === tab
+                                            ? "border-blue-600 text-blue-700"
+                                            : "border-transparent text-gray-500"
+                                    }`}
                                 >
-                                    {tab.charAt(0).toUpperCase() + tab.slice(1).replace(/([A-Z])/g, ' $1')}
+                                    {tab.charAt(0).toUpperCase() +
+                                        tab.slice(1).replace(/([A-Z])/g, " $1")}
                                 </button>
                             ))}
                         </div>
@@ -85,13 +100,19 @@ const BarangayProfileMain = () => {
 
                     {/* Tab content */}
                     <div className="mt-4">
-                        {activeTab === "infrastructure" && <BarangayInfrastucture />}
+                        {activeTab === "infrastructure" && (
+                            <BarangayInfrastucture />
+                        )}
                         {activeTab === "institutions" && <InstitutionIndex />}
                         {activeTab === "facilities" && <FacilityIndex />}
                         {activeTab === "projects" && <ProjectIndex />}
                         {activeTab === "roads" && <RoadIndex />}
-                        {activeTab === "officials" && <p>Officials content goes here.</p>}
-                        {activeTab === "disaster" && <p>Disaster content goes here.</p>}
+                        {activeTab === "officials" && (
+                            <p>Officials content goes here.</p>
+                        )}
+                        {activeTab === "disaster" && (
+                            <p>Disaster content goes here.</p>
+                        )}
                     </div>
                 </div>
             </div>

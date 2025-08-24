@@ -92,6 +92,21 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
+            {isVisible("sex") && (
+                <Select
+                    onValueChange={(v) => searchFieldName("sex", v)}
+                    value={queryParams.sex}
+                >
+                    <SelectTrigger className="w-[100px]">
+                        <SelectValue placeholder="Sex" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
             {isVisible("gender") && (
                 <Select
                     onValueChange={(v) => searchFieldName("gender", v)}
@@ -104,7 +119,7 @@ const FilterToggle = ({
                         <SelectItem value="All">All</SelectItem>
                         <SelectItem value="male">Male</SelectItem>
                         <SelectItem value="female">Female</SelectItem>
-                        <SelectItem value="LGBTQ">LGBTQ+</SelectItem>
+                        <SelectItem value="lgbtq">LGBTQ+</SelectItem>
                     </SelectContent>
                 </Select>
             )}

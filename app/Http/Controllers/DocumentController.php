@@ -22,7 +22,7 @@ class DocumentController extends Controller
             $query->where('name', 'like', "%{$search}%");
         }
         $documents = $query->get();
-        return Inertia::render('BarangayOfficer/Document/Index', [
+        return Inertia::render('BarangayOfficer/BarangayProfile/BarangayDocument', [
             'documents' => $documents,
             'queryParams' => request()->query() ?: null,
             'success' => session('success'),
@@ -91,7 +91,7 @@ class DocumentController extends Controller
         try{
 
 
-        $barangay = auth()->user()->barangay_id;
+        $barangay = auth()->user()->resident->barangay;
         $data = $request->validate([
             'file' => 'required|file|mimes:docx,doc,pdf,txt|max:10240', // 10MB max
             'name' => 'required|string|max:255',

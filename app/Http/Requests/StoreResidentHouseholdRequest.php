@@ -87,7 +87,8 @@ class StoreResidentHouseholdRequest extends FormRequest
             'members.*.birthdate' => ['required', 'date', 'before:today'],
             'members.*.birthplace' => ['required', 'string', 'max:150'],
             'members.*.civil_status' => ['required', Rule::in(['single', 'married', 'widowed', 'divorced', 'separated', 'annulled'])],
-            'members.*.gender' => ['required', Rule::in(['male', 'female', 'LGBTQ'])],
+            'members.*.sex' => ['required', Rule::in(['male', 'female'])],
+            'members.*.gender' => ['required', 'string', 'max:55'],
             'members.*.maiden_middle_name' => ['nullable', 'string', 'max:100'],
             'members.*.citizenship' => ['required', 'string', 'max:55'],
             'members.*.religion' => ['required', 'string', 'max:55'],
@@ -160,19 +161,19 @@ class StoreResidentHouseholdRequest extends FormRequest
 
 
             // SECTION 6: Livelihoods
-            'members.*.livelihoods' => ['required', 'array', 'min:1'],
-            'members.*.livelihoods.*.livelihood_type' => ['required', 'string', 'max:155'],
+            'members.*.livelihoods' => ['nullable', 'array'],
+            'members.*.livelihoods.*.livelihood_type' => ['nullable', 'string', 'max:155'],
             'members.*.livelihoods.*.description' => ['nullable', 'string', 'max:255'],
 
             'members.*.livelihoods.*.status' => [
-                'required',
+                'nullable',
                 Rule::in(['active', 'inactive', 'seasonal', 'ended']),
             ],
 
-            'members.*.livelihoods.*.is_main_livelihood' => ['required', 'boolean'],
+            'members.*.livelihoods.*.is_main_livelihood' => ['nullable', 'boolean'],
 
             'members.*.livelihoods.*.started_at' => ['nullable', 'date', 'before_or_equal:today'],
-            'members.*.livelihoods.*.ended_at' => ['nullable', 'date', 'after:livelihoods.*.started_at'],
+            'members.*.livelihoods.*.ended_at' => ['nullable', 'date', 'after:started_at'],
 
             'members.*.livelihoods.*.income' => ['nullable', 'numeric', 'min:0'],
             'members.*.livelihoods.*.income_frequency' => [

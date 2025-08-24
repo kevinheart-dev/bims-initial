@@ -62,6 +62,7 @@ const EditPersonalInformation = ({
         age: resident ? calculateAge(resident.birthdate) : 0,
         birthplace: resident?.birthplace || "",
         civil_status: resident?.civil_status || "",
+        sex: resident?.sex ? resident?.sex.toString() : "",
         gender: resident?.gender || "",
         maiden_name: resident?.maiden_name || "",
         citizenship: resident?.citizenship || "",
@@ -206,7 +207,7 @@ const EditPersonalInformation = ({
         : null;
 
     const showMaidenMiddleName =
-        ["female", "LGBTQ"].includes(data.gender) &&
+        ["female"].includes(data.gender) &&
         ["married", "widowed", "Separated"].includes(data.civil_status);
 
     const householdMap = useMemo(() => {

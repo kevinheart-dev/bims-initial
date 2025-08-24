@@ -32,7 +32,8 @@ class UpdateResidentRequest extends FormRequest
             'birthdate' => ['required', 'date', 'before:today'],
             'birthplace' => ['required', 'string', 'max:150'],
             'civil_status' => ['required', Rule::in(['single', 'married', 'widowed', 'divorced', 'separated', 'annulled'])],
-            'gender' => ['required', Rule::in(['male', 'female', 'LGBTQ'])],
+            'sex' => ['required', Rule::in(['male', 'female'])],
+            'gender' => ['required', 'string', 'max:55'],
             'maiden_middle_name' => ['nullable', 'string', 'max:100'],
             'citizenship' => ['required', 'string', 'max:55'],
             'religion' => ['required', 'string', 'max:55'],
@@ -138,19 +139,19 @@ class UpdateResidentRequest extends FormRequest
             'relationship_to_head' => ['nullable', 'string', 'max:100'],
             'household_position' => ['nullable', 'string', 'max:100'],
 
-            'livelihoods' => ['required', 'array', 'min:1'],
-            'livelihoods.*.livelihood_type' => ['required', 'string', 'max:155'],
+            'livelihoods' => ['nullable', 'array'],
+            'livelihoods.*.livelihood_type' => ['nullable', 'string', 'max:155'],
             'livelihoods.*.description' => ['nullable', 'string', 'max:255'],
 
             'livelihoods.*.status' => [
-                'required',
+                'nullable',
                 Rule::in(['active', 'inactive', 'seasonal', 'ended']),
             ],
 
-            'livelihoods.*.is_main_livelihood' => ['required', 'boolean'],
+            'livelihoods.*.is_main_livelihood' => ['nullable', 'boolean'],
 
             'livelihoods.*.started_at' => ['nullable', 'date', 'before_or_equal:today'],
-            'livelihoods.*.ended_at' => ['nullable', 'date', 'after:livelihoods.*.started_at'],
+            'livelihoods.*.ended_at' => ['nullable', 'date', 'after:started_at'],
 
             'livelihoods.*.income' => ['nullable', 'numeric', 'min:0'],
             'livelihoods.*.income_frequency' => [

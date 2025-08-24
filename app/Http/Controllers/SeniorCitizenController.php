@@ -35,7 +35,7 @@ class SeniorCitizenController extends Controller
                 'residents.birthdate',
                 'residents.purok_number',
                 'resident_picture_path',
-                'residents.gender',   // ✅ fixed here
+                'residents.sex',   // ✅ fixed here
             ])
             ->where('residents.barangay_id', $brgy_id)
             ->whereDate('residents.birthdate', '<=', now()->subYears(60))
@@ -63,6 +63,10 @@ class SeniorCitizenController extends Controller
         // ✅ fixed gender filter (use residents.gender)
         if (request()->filled('gender') && request('gender') !== 'All') {
             $query->where('residents.gender', request('gender'));
+        }
+
+        if (request()->filled('sex') && request('sex') !== 'All') {
+            $query->where('residents.sex', request('sex'));
         }
 
         if (request()->filled('pension_type') && request('pension_type') !== 'All') {

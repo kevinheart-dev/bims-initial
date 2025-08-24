@@ -1,6 +1,6 @@
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 import Stepper from "@/Components/Stepper";
 import StepperController from "@/Components/StepperControler";
@@ -12,7 +12,8 @@ import EducationandOccupation from "@/Components/FormSteps/EducationandOccupatio
 import HouseInformation from "@/Components/FormSteps/HouseInformation";
 import MedicalInfo from "@/Components/FormSteps/MedicalInfo";
 import { router } from "@inertiajs/react";
-import { toast } from "react-hot-toast";
+import { Toaster, toast } from "sonner";
+import useAppUrl from "@/hooks/useAppUrl";
 export default function Index({ puroks, streets, barangays, occupationTypes }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
@@ -68,21 +69,23 @@ export default function Index({ puroks, streets, barangays, occupationTypes }) {
 
         if (direction === "next") {
             if (currentStep === steps.length) {
-                console.log("DATA BEING SENT:", userData);
-
                 router.post(route("resident.storehousehold"), userData, {
-                    onSuccess: () => {
-                        toast.success("Household data submitted successfully!");
-                    },
                     onError: (errors) => {
-                        console.error(errors);
                         setErrors(errors);
-                        toast.error(
-                            "Failed to submit household data. Please check the form."
-                        );
-                    },
-                    onFinish: () => {
-                        console.log("Submission attempt finished.");
+
+                        const allErrors = Object.values(errors).join("<br />");
+
+                        toast.error("Validation Errors", {
+                            description: (
+                                <div
+                                    dangerouslySetInnerHTML={{
+                                        __html: allErrors,
+                                    }}
+                                />
+                            ),
+                            duration: 5000,
+                            closeButton: true,
+                        });
                     },
                 });
 
@@ -99,8 +102,36 @@ export default function Index({ puroks, streets, barangays, occupationTypes }) {
         }
     };
 
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
+    const APP_URL = useAppUrl();
+
+    useEffect(() => {
+        if (success) {
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.success = null;
+    }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
+
     return (
         <AdminLayout>
+            <Toaster richColors />
             <Head title="Resident Dashboard" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 mt-6">

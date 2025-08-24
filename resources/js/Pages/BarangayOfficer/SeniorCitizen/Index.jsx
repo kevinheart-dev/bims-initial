@@ -83,7 +83,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
     const allColumns = [
         { key: "id", label: "ID" },
         { key: "name", label: "Senior Name" },
-        { key: "gender", label: "Gender" },
+        { key: "sex", label: "Sex" },
         { key: "birthdate", label: "Birthdate" },
         { key: "age", label: "Age" },
         { key: "is_pensioner", label: "Is Pensioner?" },
@@ -117,6 +117,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         ([key, value]) =>
             [
                 "purok",
+                "sex",
                 "gender",
                 "is_pensioner",
                 "pension_type",
@@ -166,8 +167,8 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                 </Link>
             );
         },
-        gender: (resident) => {
-            const genderKey = resident.gender;
+        sex: (resident) => {
+            const genderKey = resident.sex;
             const label =
                 CONSTANTS.RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
             const className =
@@ -324,7 +325,8 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename} ${resident.lastname
+                `${resident.firstname} ${resident.middlename} ${
+                    resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("purok_number", resident.purok_number);
@@ -375,7 +377,8 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename} ${resident.lastname
+                `${resident.firstname} ${resident.middlename} ${
+                    resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("purok_number", resident.purok_number);
@@ -436,7 +439,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             <Toaster richColors />
             <div className="p-2 md:p-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                    <pre>{JSON.stringify(seniorCitizens, undefined, 3)}</pre>
+                    {/* <pre>{JSON.stringify(seniorCitizens, undefined, 3)}</pre> */}
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                             <div className="flex items-center gap-2 flex-wrap">
@@ -489,6 +492,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                                 searchFieldName={searchFieldName}
                                 visibleFilters={[
                                     "purok",
+                                    "sex",
                                     "gender",
                                     "is_pensioner",
                                     "pension_type",
@@ -525,10 +529,10 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                     registerSenior
                         ? "Register Senior Citizen"
                         : seniorDetails
-                            ? "Edit Senior Citizen Details"
-                            : selectedResident
-                                ? "Resident Details"
-                                : ""
+                        ? "Edit Senior Citizen Details"
+                        : selectedResident
+                        ? "Resident Details"
+                        : ""
                 }
             >
                 {selectedResident && (

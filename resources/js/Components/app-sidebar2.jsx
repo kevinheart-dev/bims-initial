@@ -25,6 +25,7 @@ import {
     BriefcaseBusiness,
     SquareActivity,
     Tractor,
+    HeartPulse,
 } from "lucide-react";
 
 import {
@@ -65,6 +66,11 @@ const items = [
                 url: "/barangay_officer/barangay_official",
                 icon: FileText,
             },
+            {
+                title: "Barangay Documents",
+                url: "/barangay_officer/document",
+                icon: FileText,
+            },
         ],
     },
     {
@@ -73,7 +79,7 @@ const items = [
         icon: FileUser,
         submenu: [
             {
-                title: "Residents Table",
+                title: "Information Table",
                 url: "/barangay_officer/resident",
                 icon: Table,
             },
@@ -112,23 +118,30 @@ const items = [
                 url: "/barangay_officer/livelihood",
                 icon: Tractor,
             },
+        ],
+    },
+    {
+        title: "Medical Information",
+        url: "#",
+        icon: HeartPulse,
+        submenu: [
             {
-                title: "Medical Information",
+                title: "Information Table",
                 url: "/barangay_officer/medical",
+                icon: Table,
+            },
+            {
+                title: "Medical Condition",
+                url: "/barangay_officer/medical_condition",
                 icon: SquareActivity,
             },
         ],
     },
     {
-        title: "Documents",
+        title: "Issuance",
         url: "#",
         icon: FileStack,
         submenu: [
-            {
-                title: "Barangay Documents",
-                url: "/barangay_officer/document",
-                icon: FileText,
-            },
             {
                 title: "Certificate Issuance",
                 url: "/barangay_officer/certificate/index",

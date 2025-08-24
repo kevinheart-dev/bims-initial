@@ -180,14 +180,14 @@ const Summary = ({ onBack, onSubmit, streets }) => {
                                                 ]
                                             )}
                                             {renderDetail(
-                                                "Gender",
+                                                "Sex",
                                                 CONSTANTS.RESIDENT_GENDER_TEXT2[
-                                                    member.gender
+                                                    member.sex
                                                 ]
                                             )}
-                                            {["female", "LGBTQ"].includes(
+                                            {["female"].includes(
                                                 CONSTANTS.RESIDENT_GENDER_TEXT2[
-                                                    member.gender
+                                                    member.sex
                                                 ]
                                             ) &&
                                                 [

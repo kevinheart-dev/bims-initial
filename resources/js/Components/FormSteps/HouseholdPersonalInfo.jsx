@@ -18,6 +18,7 @@ const defaultMember = {
     birthplace: "",
     civil_status: "",
     gender: "",
+    sex: "",
     maiden_middle_name: "",
     citizenship: "",
     religion: "",
@@ -531,7 +532,7 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
                                             <div>
                                                 <DropdownInputField
                                                     label="Suffix"
@@ -618,10 +619,10 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                             </div>
                                             <div>
                                                 <RadioGroup
-                                                    label="Gender"
-                                                    name="gender"
+                                                    label="Sex"
+                                                    name="sex"
                                                     selectedValue={
-                                                        member.gender || ""
+                                                        member.sex || ""
                                                     }
                                                     options={[
                                                         {
@@ -632,9 +633,43 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                             label: "Female",
                                                             value: "female",
                                                         },
+                                                    ]}
+                                                    onChange={(e) =>
+                                                        handleMemberChange(
+                                                            index,
+                                                            e
+                                                        )
+                                                    }
+                                                />
+                                                {errors?.[
+                                                    `members.${index}.sex`
+                                                ] && (
+                                                    <p className="text-red-500 text-xs">
                                                         {
-                                                            label: "LGBTQIA+",
-                                                            value: "LGBTQ",
+                                                            errors[
+                                                                `members.${index}.sex`
+                                                            ]
+                                                        }
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <DropdownInputField
+                                                    label="Gender"
+                                                    name="gender"
+                                                    value={member.gender}
+                                                    items={[
+                                                        {
+                                                            label: "Male",
+                                                            value: "male",
+                                                        },
+                                                        {
+                                                            label: "Female",
+                                                            value: "female",
+                                                        },
+                                                        {
+                                                            label: "LGBTQ+",
+                                                            value: "lgbtq",
                                                         },
                                                     ]}
                                                     onChange={(e) =>
@@ -643,6 +678,7 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                             e
                                                         )
                                                     }
+                                                    placeholder="Select gender"
                                                 />
                                                 {errors?.[
                                                     `members.${index}.gender`

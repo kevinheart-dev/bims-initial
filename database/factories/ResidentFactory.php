@@ -41,10 +41,9 @@ class ResidentFactory extends Factory
         $street = Street::inRandomOrder()->first() ?? Street::factory()->create();
 
         // Gender and names
-        $gender = $this->faker->randomElement(array_merge(
+        $sex = $this->faker->randomElement(array_merge(
             array_fill(0, 45, 'male'),
-            array_fill(0, 45, 'female'),
-            array_fill(0, 10, 'LGBTQ')
+            array_fill(0, 45, 'female')
         ));
 
         $maleNames = [
@@ -80,7 +79,22 @@ class ResidentFactory extends Factory
         ];
 
 
-        $firstName = $gender === 'female'
+        $genders = [
+            'male' => 45,
+            'female' => 45,
+            'lgbtq' => 10
+        ];
+
+        $gender = $this->faker->randomElement(
+            array_merge(...array_map(
+                fn($g, $w) => array_fill(0, $w, $g),
+                array_keys($genders),
+                $genders
+            ))
+        );
+
+
+        $firstName = $sex === 'female'
             ? $this->faker->randomElement($femaleNames)
             : $this->faker->randomElement($maleNames);
         $middleName = $this->faker->randomElement([
@@ -101,8 +115,9 @@ class ResidentFactory extends Factory
             'firstname' => $firstName,
             'middlename' => $middleName,
             'lastname' => $lname,
-            'maiden_name' => $gender === 'female' ? $this->faker->optional()->lastName : null,
+            'maiden_name' => $sex === 'female' ? $this->faker->optional()->lastName : null,
             'suffix' => $this->faker->optional(0.1)->randomElement($suffixes),
+            'sex' => $sex,
             'gender' => $gender,
             'birthdate' => $birthdate,
             'birthplace' => $this->faker->city . ', ' . $this->faker->state,

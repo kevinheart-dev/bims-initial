@@ -51,7 +51,7 @@ export default function Index({ res_med_info }) {
         resident_image: null,
         birthdate: null,
         civil_status: "",
-        gender: "",
+        sex: "",
         purok_number: "",
 
         // Medical information fields
@@ -91,7 +91,7 @@ export default function Index({ res_med_info }) {
                 resident_image: res_med_info.resident.image ?? null,
                 birthdate: res_med_info.resident.birthdate ?? null,
                 civil_status: res_med_info.resident.civil_status ?? "",
-                gender: res_med_info.resident.gender ?? "",
+                sex: res_med_info.resident.sex ?? "",
                 purok_number: res_med_info.resident.purok_number ?? "",
                 medical_information_id: res_med_info.id,
                 weight_kg: res_med_info.weight_kg ?? "",
@@ -289,12 +289,11 @@ export default function Index({ res_med_info }) {
 
                                                 <div>
                                                     <InputField
-                                                        label="Gender"
-                                                        name="gender"
+                                                        label="Sex"
+                                                        name="sex"
                                                         value={
                                                             RESIDENT_GENDER_TEXT2[
-                                                                data.gender ||
-                                                                    ""
+                                                                data.sex || ""
                                                             ]
                                                         }
                                                         placeholder="Select a resident"

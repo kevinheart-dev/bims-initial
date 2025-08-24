@@ -76,6 +76,9 @@ class ResidentController extends Controller
         }
 
         // handles gender filtering
+        if (request()->filled('sex') && request('sex') !== 'All') {
+            $query->where('sex', request('sex'));
+        }
         if (request()->filled('gender') && request('gender') !== 'All') {
             $query->where('gender', request('gender'));
         }
@@ -138,7 +141,6 @@ class ResidentController extends Controller
                 $query->where('birthdate', '<=', $max);
             }
         }
-
         // handles voter status filtering
         if (request()->filled('voter_status') && request('voter_status') !== 'All') {
             $query->where('registered_voter', request('voter_status'));
@@ -181,7 +183,7 @@ class ResidentController extends Controller
                 'middlename' => $resident->middlename,
                 'lastname' => $resident->lastname,
                 'suffix' => $resident->suffix,
-                'gender' => $resident->gender,
+                'sex' => $resident->sex,
                 'purok_number' => $resident->purok_number,
                 'birthdate' => $resident->birthdate,
                 'age' => $resident->age,
@@ -245,73 +247,75 @@ class ResidentController extends Controller
     {
 
         $barangayId = Auth()->user()->barangay_id; // get brgy id through the admin
-        $data = $request->validated();
-        /**
-         * @var $image \Illuminate\Http\UploadedFile
-         */
-        //dd($data);
-        $image = $data['resident_image'] ?? null;
-        if ($image) {
-            $folder = 'resident/' . $data['lastname'] . $data['firstname'] . Str::random(10);
-            $data['resident_image'] = $image->store($folder, 'public');
-        }
-
-        $householdId = $data['housenumber'] ?? null;
-        $familyId =  Family::where('household_id', $householdId)
-            ->where('barangay_id', $barangayId)
-            ->value('id');
-
-        $residentInformation = [
-            'resident_picture_path' => $data['resident_image'] ?? null,
-            'barangay_id' => $barangayId,
-            'firstname' => $data['firstname'],
-            'middlename' => $data['middlename'],
-            'lastname' => $data['lastname'],
-            'maiden_name' => $data['maiden_name'] ?? null,
-            'suffix' => $data['suffix'] ?? null,
-            'gender' => $data['gender'],
-            'birthdate' => $data['birthdate'],
-            'birthplace' => $data['birthplace'],
-            'civil_status' => $data['civil_status'],
-            'citizenship' => $data['citizenship'],
-            'employment_status' => $data['employment_status'],
-            'religion' => $data['religion'],
-            'contact_number' => $data['contactNumber'] ?? null,
-            'registered_voter' => $data['registered_voter'],
-            'is_household_head' => 0,
-            'household_id' => $householdId,
-            'ethnicity' => $data['ethnicity'] ?? null,
-            'email' => $data['email'] ?? null,
-            'residency_date' => $data['residency_date'] ?? now(),
-            'residency_type' => $data['residency_type'] ?? 'permanent',
-            'purok_number' => $data['purok_number'],
-            'street_id' => $data['street_id'] ?? null,
-            'is_pwd' => $data['is_pwd'] ?? null,
-            'family_id' => $familyId,
-            'verfied' => $data['verified'] ?? 0,
-        ];
-
-        $residentVotingInformation = [
-            'registered_barangay_id' => $data['registered_barangay'] ?? null,
-            'voting_status' => $data['voting_status'] ?? null,
-            'voter_id_number' => $data['voter_id_number'] ?? null,
-        ];
-
-
-        $residentSocialWelfareProfile = [
-            'barangay_id' => $barangayId,
-            'is_4ps_beneficiary' => $data['is_4ps_beneficiary'] ?? false,
-            'is_solo_parent' => $data['is_solo_parent'] ?? false,
-            'solo_parent_id_number' => $data['solo_parent_id_number'] ?? null,
-        ];
-
-        $householdResident = [
-            'household_id' => $householdId,
-            'relationship_to_head' => $data['relationship_to_head'] ?? null,
-            'household_position' => $data['household_position'] ?? null,
-        ];
-
         try {
+            $data = $request->validated();
+            /**
+             * @var $image \Illuminate\Http\UploadedFile
+             */
+            //dd($data);
+            $image = $data['resident_image'] ?? null;
+            if ($image) {
+                $folder = 'resident/' . $data['lastname'] . $data['firstname'] . Str::random(10);
+                $data['resident_image'] = $image->store($folder, 'public');
+            }
+
+            $householdId = $data['housenumber'] ?? null;
+            $familyId =  Family::where('household_id', $householdId)
+                ->where('barangay_id', $barangayId)
+                ->value('id');
+
+            $residentInformation = [
+                'resident_picture_path' => $data['resident_image'] ?? null,
+                'barangay_id' => $barangayId,
+                'firstname' => $data['firstname'],
+                'middlename' => $data['middlename'],
+                'lastname' => $data['lastname'],
+                'maiden_name' => $data['maiden_name'] ?? null,
+                'suffix' => $data['suffix'] ?? null,
+                'sex' => $data['sex'],
+                'gender' => $data['gender'],
+                'birthdate' => $data['birthdate'],
+                'birthplace' => $data['birthplace'],
+                'civil_status' => $data['civil_status'],
+                'citizenship' => $data['citizenship'],
+                'employment_status' => $data['employment_status'],
+                'religion' => $data['religion'],
+                'contact_number' => $data['contactNumber'] ?? null,
+                'registered_voter' => $data['registered_voter'],
+                'is_household_head' => 0,
+                'household_id' => $householdId,
+                'ethnicity' => $data['ethnicity'] ?? null,
+                'email' => $data['email'] ?? null,
+                'residency_date' => $data['residency_date'] ?? now(),
+                'residency_type' => $data['residency_type'] ?? 'permanent',
+                'purok_number' => $data['purok_number'],
+                'street_id' => $data['street_id'] ?? null,
+                'is_pwd' => $data['is_pwd'] ?? null,
+                'family_id' => $familyId,
+                'verfied' => $data['verified'] ?? 0,
+            ];
+
+            $residentVotingInformation = [
+                'registered_barangay_id' => $data['registered_barangay'] ?? null,
+                'voting_status' => $data['voting_status'] ?? null,
+                'voter_id_number' => $data['voter_id_number'] ?? null,
+            ];
+
+
+            $residentSocialWelfareProfile = [
+                'barangay_id' => $barangayId,
+                'is_4ps_beneficiary' => $data['is_4ps_beneficiary'] ?? false,
+                'is_solo_parent' => $data['is_solo_parent'] ?? false,
+                'solo_parent_id_number' => $data['solo_parent_id_number'] ?? null,
+            ];
+
+            $householdResident = [
+                'household_id' => $householdId,
+                'relationship_to_head' => $data['relationship_to_head'] ?? null,
+                'household_position' => $data['household_position'] ?? null,
+            ];
+
+
             $resident = Resident::create($residentInformation);
             // add voting information
             $resident->votingInformation()->create([
@@ -701,34 +705,35 @@ class ResidentController extends Controller
     public function storeHousehold(StoreResidentHouseholdRequest $request)
     {
         $barangayId = Auth()->user()->barangay_id;
-        $data = $request->validated();
-        /**
-         * @var $image \Illuminate\Http\UploadedFile
-         */
-        //dd($data);
-        $image = $data['resident_image'] ?? null;
-        if ($image) {
-            $folder = 'resident/' . $data['lastname'] . $data['firstname'] . Str::random(10);
-            $data['resident_image'] = $image->store($folder, 'public');
-        }
-
-        $householdData = [
-            'barangay_id' =>  $barangayId ?? null,
-            'purok_id' => $data['purok'] ?? null,
-            'street_id' => $data['street'] ?? null,
-            'house_number' => $data['housenumber'] ?? null,
-            'ownership_type' => $data['ownership_type'] ?? null,
-            'housing_condition' => $data['housing_condition'] ?? null,
-            'year_established' => $data['year_established'] ?? null,
-            'house_structure' => $data['house_structure'] ?? null,
-            'bath_and_wash_area' => $data['bath_and_wash_area'] ?? null,
-            'number_of_rooms' => $data['number_of_rooms'] ?? null,
-            'number_of_floors' => $data['number_of_floors'] ?? null,
-            'latitude' => $data['latitude'] ?? 0,
-            'longitude' => $data['longitude'] ?? 0,
-        ];
-
         try {
+            $data = $request->validated();
+            /**
+             * @var $image \Illuminate\Http\UploadedFile
+             */
+            //dd($data);
+            $image = $data['resident_image'] ?? null;
+            if ($image) {
+                $folder = 'resident/' . $data['lastname'] . $data['firstname'] . Str::random(10);
+                $data['resident_image'] = $image->store($folder, 'public');
+            }
+
+            $householdData = [
+                'barangay_id' =>  $barangayId ?? null,
+                'purok_id' => $data['purok'] ?? null,
+                'street_id' => $data['street'] ?? null,
+                'house_number' => $data['housenumber'] ?? null,
+                'ownership_type' => $data['ownership_type'] ?? null,
+                'housing_condition' => $data['housing_condition'] ?? null,
+                'year_established' => $data['year_established'] ?? null,
+                'house_structure' => $data['house_structure'] ?? null,
+                'bath_and_wash_area' => $data['bath_and_wash_area'] ?? null,
+                'number_of_rooms' => $data['number_of_rooms'] ?? null,
+                'number_of_floors' => $data['number_of_floors'] ?? null,
+                'latitude' => $data['latitude'] ?? 0,
+                'longitude' => $data['longitude'] ?? 0,
+            ];
+
+
             $household = Household::create($householdData);
 
             if ($household) {
@@ -827,6 +832,7 @@ class ResidentController extends Controller
                         'lastname' => $member['lastname'],
                         'maiden_name' => $member['maiden_name'] ?? null,
                         'suffix' => $member['suffix'] ?? null,
+                        'sex' => $member['sex'],
                         'gender' => $member['gender'],
                         'birthdate' => $member['birthdate'],
                         'birthplace' => $member['birthplace'],
@@ -1436,6 +1442,7 @@ class ResidentController extends Controller
                 'lastname' => $data['lastname'],
                 'maiden_name' => $data['maiden_name'] ?? null,
                 'suffix' => $data['suffix'] ?? null,
+                'sex' => $data['sex'],
                 'gender' => $data['gender'],
                 'birthdate' => $data['birthdate'],
                 'birthplace' => $data['birthplace'],
@@ -1947,6 +1954,9 @@ class ResidentController extends Controller
         }
 
         // handles gender filtering
+        if (request()->filled('sex') && request('sex') !== 'All') {
+            $query->where('sex', request('sex'));
+        }
         if (request()->filled('gender') && request('gender') !== 'All') {
             $query->where('gender', request('gender'));
         }
@@ -1962,33 +1972,47 @@ class ResidentController extends Controller
         }
 
         // handles age filtering
-        if (request()->filled('age_group') && request('age_group') !== 'All') {
+               if (request()->filled('age_group') && request('age_group') !== 'all') {
             $today = Carbon::today();
 
             switch (request('age_group')) {
-                case 'child':
-                    $max = $today->copy()->subYears(0);
-                    $min = $today->copy()->subYears(13);
+                case '0_6_months':
+                    $max = $today->copy()->subMonths(0); // today
+                    $min = $today->copy()->subMonths(6);
                     break;
-                case 'teen':
+
+                case '7mos_2yrs':
+                    $max = $today->copy()->subYears(0)->subMonths(7);
+                    $min = $today->copy()->subYears(2);
+                    break;
+
+                case '3_5yrs':
+                    $max = $today->copy()->subYears(3);
+                    $min = $today->copy()->subYears(5);
+                    break;
+
+                case '6_12yrs':
+                    $max = $today->copy()->subYears(6);
+                    $min = $today->copy()->subYears(12);
+                    break;
+
+                case '13_17yrs':
                     $max = $today->copy()->subYears(13);
-                    $min = $today->copy()->subYears(18);
+                    $min = $today->copy()->subYears(17);
                     break;
-                case 'young_adult':
+
+                case '18_59yrs':
                     $max = $today->copy()->subYears(18);
-                    $min = $today->copy()->subYears(26);
+                    $min = $today->copy()->subYears(59);
                     break;
-                case 'adult':
-                    $max = $today->copy()->subYears(26);
-                    $min = $today->copy()->subYears(60);
-                    break;
-                case 'senior':
+
+                case '60_above':
                     $max = $today->copy()->subYears(60);
-                    $min = null;
+                    $min = null; // no lower bound
                     break;
             }
 
-            if (isset($min)) {
+            if ($min) {
                 $query->whereBetween('birthdate', [$min, $max]);
             } else {
                 $query->where('birthdate', '<=', $max);

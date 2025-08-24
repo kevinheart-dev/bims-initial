@@ -114,14 +114,14 @@ export default function Index({ residents, queryParams = null, puroks }) {
     };
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
-        { label: "Residents Table", showOnMobile: true },
+        { label: "Information Table", showOnMobile: true },
     ];
 
     const allColumns = [
         { key: "resident_id", label: "ID" },
         { key: "resident_picture", label: "Resident Image" },
         { key: "name", label: "Name" },
-        { key: "gender", label: "Gender" },
+        { key: "sex", label: "Sex" },
         { key: "age", label: "Age" },
         { key: "civil_status", label: "Civil Status" },
         { key: "employment_status", label: "Employment" },
@@ -158,6 +158,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
         ([key, value]) =>
             [
                 "purok",
+                "sex",
                 "gender",
                 "age_group",
                 "estatus",
@@ -228,8 +229,8 @@ export default function Index({ residents, queryParams = null, puroks }) {
             </div>
         ),
 
-        gender: (resident) => {
-            const genderKey = resident.gender;
+        sex: (resident) => {
+            const genderKey = resident.sex;
             const label =
                 CONSTANTS.RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
             const className =
@@ -379,7 +380,10 @@ export default function Index({ residents, queryParams = null, puroks }) {
                 <div className="p-2 md:p-4">
                     <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                            <ResidentCharts residents={data ?? []} isLoading={isLoading} />
+                            <ResidentCharts
+                                residents={data ?? []}
+                                isLoading={isLoading}
+                            />
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <DynamicTableControls
@@ -460,6 +464,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                     searchFieldName={searchFieldName}
                                     visibleFilters={[
                                         "purok",
+                                        "sex",
                                         "gender",
                                         "age_group",
                                         "estatus",

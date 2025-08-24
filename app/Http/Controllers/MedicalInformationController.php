@@ -21,7 +21,7 @@ class MedicalInformationController extends Controller
 
         $query = MedicalInformation::query()
             ->with([
-                'resident:id,firstname,middlename,lastname,suffix,purok_number,barangay_id',
+                'resident:id,firstname,middlename,lastname,suffix,purok_number,barangay_id,sex',
                 'resident.disabilities'
             ])
             ->whereHas('resident', function ($q) use ($brgy_id) {
@@ -56,6 +56,18 @@ class MedicalInformationController extends Controller
         if (request()->filled('purok') && request('purok') !== 'All') {
             $query->whereHas('resident', function ($q) {
                 $q->where('purok_number', request('purok'));
+            });
+        }
+
+        if (request()->filled('sex') && request('sex') !== 'All') {
+            $query->whereHas('resident', function ($q) {
+                $q->where('sex', request('sex'));
+            });
+        }
+
+        if (request()->filled('is_pwd') && request('is_pwd') !== 'All') {
+            $query->whereHas('resident', function ($q) {
+                $q->where('is_pwd', request('is_pwd'));
             });
         }
 
@@ -218,7 +230,7 @@ class MedicalInformationController extends Controller
     public function edit($id)
     {
         $medicalInformation = MedicalInformation::with([
-            'resident:id,firstname,middlename,lastname,suffix,purok_number,barangay_id,birthdate,gender',
+            'resident:id,firstname,middlename,lastname,suffix,purok_number,barangay_id,birthdate,sex',
             'resident.disabilities',
             'resident.allergies',
             'resident.medicalConditions',

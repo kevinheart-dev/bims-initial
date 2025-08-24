@@ -35,6 +35,7 @@ const PersonalInformation = ({
         birthplace: "",
         civil_status: "",
         gender: "",
+        sex: "",
         maiden_middle_name: "",
         citizenship: "",
         religion: "",
@@ -69,8 +70,8 @@ const PersonalInformation = ({
         osca_id_number: "",
         pension_type: "",
         living_alone: null,
-        weight: 0,
-        height: 0,
+        weight_kg: 0,
+        height_cm: 0,
         bmi: 0,
         nutrition_status: "",
         emergency_contact_name: "",
@@ -96,11 +97,14 @@ const PersonalInformation = ({
             onSuccess: () => {
                 console.log("Successfully submitted!");
             },
+            onError: (error) => {
+                console.log("error", error);
+            },
         });
     };
 
     const showMaidenMiddleName =
-        ["female", "LGBTQ"].includes(data.gender) &&
+        ["female"].includes(data.sex) &&
         ["married", "widowed", "Separated"].includes(data.civil_status);
 
     const handleArrayValues = (e, index, column, array) => {
