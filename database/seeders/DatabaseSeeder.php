@@ -187,8 +187,8 @@ class DatabaseSeeder extends Seeder
         }
 
         Street::factory(12)->create();      // just 2 streets
-        Household::factory(11)->create();   // only 5 households
-        Family::factory(14)->create();
+        Household::factory(1439)->create();   // only 5 households
+        Family::factory(1789)->create();
 
         $term = BarangayOfficialTerm::factory()->create([
             'barangay_id' => 1,
@@ -261,7 +261,7 @@ class DatabaseSeeder extends Seeder
         Livestock::factory(20)->create();
         ResidentVoterInformation::factory(50)->create();
         SocialWelfareProfile::factory(25)->create();
-        SeniorCitizen::factory(15)->create();
+        SeniorCitizen::factory(567)->create();
         HouseholdToilet::factory(25)->create();
         HouseholdElectricitySource::factory(25)->create();
         HouseholdWasteManagement::factory(25)->create();
