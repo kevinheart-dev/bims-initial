@@ -4,22 +4,44 @@ import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import { Skeleton } from "@/Components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { Eye, Plus, Search, SquarePen, Trash2 } from "lucide-react";
+import { Eye, Plus, RotateCcw, Search, SquarePen, Trash2 } from "lucide-react";
 import ActionMenu from "@/Components/ActionMenu";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
-import { Link } from "@inertiajs/react";
+import { Link, router, useForm, usePage } from "@inertiajs/react";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
+import SidebarModal from "@/Components/SidebarModal";
+import InputField from "@/Components/InputField";
+import InputError from "@/Components/InputError";
+import DropdownInputField from "@/Components/DropdownInputField";
+import {
+    IoIosAddCircleOutline,
+    IoIosArrowForward,
+    IoIosCloseCircleOutline,
+} from "react-icons/io";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
+import { Toaster, toast } from "sonner";
 
 const FacilityIndex = () => {
     const APP_URL = useAppUrl();
-    const [isPaginated, setIsPaginated] = useState(true);
-    const [showAll, setShowAll] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalState, setModalState] = useState("");
+    const [facilityDetails, setFacilityDetails] = useState(null);
+    const props = usePage().props;
+    const Toasterror = props?.error ?? null;
     const [queryParams, setQueryParams] = useState({});
     const [query, setQuery] = useState(queryParams["name"] ?? "");
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
+    const [facilityToDelete, setFacilityToDelete] = useState(null); //delete
 
-    const { data, isLoading, isError, error } = useQuery({
+    const {
+        data: getData,
+        isLoading,
+        isError,
+        error,
+        refetch,
+    } = useQuery({
         queryKey: ["facilities", queryParams],
         queryFn: async () => {
             const { data } = await axios.get(
@@ -32,15 +54,17 @@ const FacilityIndex = () => {
         staleTime: 1000 * 60 * 5,
     });
 
-    const facilities = data?.facilities;
-    const types = data?.types;
-    const names = data?.names;
+    const facilities = getData?.facilities;
+    const types = getData?.types;
+    const names = getData?.names;
 
     const allColumns = [
         { key: "id", label: "ID" },
         { key: "name", label: "Name" },
         { key: "facility_type", label: "Facilitiy Type" },
         { key: "quantity", label: "Quantity" },
+        { key: "created_at", label: "Created At" },
+        { key: "updated_at", label: "Updated At" },
         { key: "actions", label: "Actions" },
     ];
 
@@ -114,15 +138,37 @@ const FacilityIndex = () => {
         quantity: (row) => (
             <span className="text-sm text-gray-700">{row.quantity ?? "—"}</span>
         ),
+        created_at: (row) => (
+            <span className="text-sm text-gray-500">
+                {row.created_at
+                    ? new Date(row.created_at).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                      })
+                    : "—"}
+            </span>
+        ),
+
+        updated_at: (row) => (
+            <span className="text-sm text-gray-500">
+                {row.updated_at
+                    ? new Date(row.updated_at).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                      })
+                    : "—"}
+            </span>
+        ),
 
         actions: (row) => (
             <ActionMenu
                 actions={[
-                    {
-                        label: "View",
-                        icon: <Eye className="w-4 h-4 text-indigo-600" />,
-                        onClick: () => handleView(row.id),
-                    },
                     {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
@@ -137,6 +183,168 @@ const FacilityIndex = () => {
             />
         ),
     };
+    // add
+    const handleAddFacility = () => {
+        setModalState("add");
+        setIsModalOpen(true);
+    };
+
+    const { data, setData, post, errors, reset, clearErrors } = useForm({
+        facilities: [[]],
+        _method: undefined,
+        facility_id: null,
+    });
+
+    const addFacility = () => {
+        setData("facilities", [...(data.facilities || []), {}]);
+    };
+
+    const removeFacility = (facIdx) => {
+        const updated = [...(data.facilities || [])];
+        updated.splice(facIdx, 1);
+        setData("facilities", updated);
+        toast.warning("Facility removed.", {
+            duration: 2000,
+        });
+    };
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+        setModalState("");
+        setFacilityDetails(null);
+        reset();
+        clearErrors();
+    };
+
+    const handlePrint = () => {
+        window.print();
+    };
+    const handleFacilityFieldChange = (value, facIdx, field) => {
+        setData((prevData) => {
+            const updated = [...prevData.facilities];
+
+            // make sure the institution entry exists
+            if (!updated[facIdx]) {
+                updated[facIdx] = {};
+            }
+
+            updated[facIdx] = {
+                ...updated[facIdx],
+                [field]: value,
+            };
+
+            return { ...prevData, facilities: updated };
+        });
+    };
+
+    const handleSubmitFacility = (e) => {
+        e.preventDefault();
+        post(route("barangay_facility.store"), {
+            onError: (errors) => {
+                console.error("Validation Errors:", errors);
+
+                const allErrors = Object.values(errors).join("<br />");
+                toast.error("Validation Error", {
+                    description: (
+                        <span dangerouslySetInnerHTML={{ __html: allErrors }} />
+                    ),
+                    duration: 3000,
+                    closeButton: true,
+                });
+            },
+            onSuccess: () => {
+                refetch();
+                handleModalClose();
+            },
+        });
+    };
+    // edit
+    const handleEdit = async (id) => {
+        setModalState("edit");
+
+        try {
+            const response = await axios.get(
+                `${APP_URL}/barangay_officer/barangay_facility/details/${id}`
+            );
+            const facility = response.data.facility;
+            setFacilityDetails(facility);
+            setData({
+                facilities: [
+                    {
+                        name: facility.name || "",
+                        facility_type: facility.facility_type || "",
+                        quantity: facility.quantity || 1,
+                    },
+                ],
+                _method: "PUT",
+                facility_id: facility.id,
+            });
+
+            setIsModalOpen(true);
+        } catch (error) {
+            console.error("Error fetching facility details:", error);
+        }
+    };
+
+    const handleUpdateFacility = (e) => {
+        e.preventDefault();
+        post(route("barangay_facility.update", data.facility_id), {
+            onError: (errors) => {
+                console.error("Validation Errors:", errors);
+
+                const allErrors = Object.values(errors).join("<br />");
+                toast.error("Validation Error", {
+                    description: (
+                        <span dangerouslySetInnerHTML={{ __html: allErrors }} />
+                    ),
+                    duration: 3000,
+                    closeButton: true,
+                });
+            },
+            onSuccess: () => {
+                refetch(); // refresh the list
+                handleModalClose();
+            },
+        });
+    };
+
+    // delete
+    const handleDeleteClick = (id) => {
+        setFacilityToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        router.delete(route("barangay_facility.destroy", facilityToDelete), {
+            onError: (errors) => {
+                console.error("Validation Errors:", errors);
+
+                const allErrors = Object.values(errors).join("<br />");
+                toast.error("Validation Error", {
+                    description: (
+                        <span dangerouslySetInnerHTML={{ __html: allErrors }} />
+                    ),
+                    duration: 3000,
+                    closeButton: true,
+                });
+            },
+            onSuccess: () => {
+                refetch();
+                handleModalClose();
+            },
+        });
+        setIsDeleteModalOpen(false);
+    };
+
+    useEffect(() => {
+        if (Toasterror) {
+            toast.error(Toasterror, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [Toasterror]);
 
     if (isLoading) {
         return (
@@ -146,17 +354,12 @@ const FacilityIndex = () => {
             </div>
         );
     }
-
     if (isError) {
         return <div className="text-red-500">Error: {error.message}</div>;
     }
-
-    const handlePrint = () => {
-        window.print();
-    };
-
     return (
         <div className="p-2 md:px-2 md:py-2">
+            <Toaster richColors />
             <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                 {/* <pre>{JSON.stringify(facilities, undefined, 3)}</pre> */}
                 <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
@@ -198,19 +401,18 @@ const FacilityIndex = () => {
                                 Search
                             </div>
                         </form>
-                        <Link href={route("barangay_infrastructure.create")}>
-                            <div className="relative group z-50">
-                                <Button
-                                    variant="outline"
-                                    className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                >
-                                    <Plus className="w-4 h-4" />
-                                </Button>
-                                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                    Add a Facility
-                                </div>
+                        <div className="relative group z-50">
+                            <Button
+                                variant="outline"
+                                className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                onClick={handleAddFacility}
+                            >
+                                <Plus className="w-4 h-4" />
+                            </Button>
+                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                Add a Facility
                             </div>
-                        </Link>
+                        </div>
                     </div>
                 </div>
                 <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
@@ -236,6 +438,200 @@ const FacilityIndex = () => {
                     />
                 </div>
             </div>
+            <SidebarModal
+                isOpen={isModalOpen}
+                onClose={() => {
+                    handleModalClose();
+                }}
+                title={modalState == "add" ? "Add Facility" : "Edit Facility"}
+            >
+                <form
+                    className="bg-gray-50 p-4 rounded-lg"
+                    onSubmit={
+                        facilityDetails
+                            ? handleUpdateFacility
+                            : handleSubmitFacility
+                    }
+                >
+                    <h3 className="text-2xl font-medium text-gray-700">
+                        Barangay Facility Information
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-8">
+                        Please provide details about the existing facilities in
+                        the barangay.
+                    </p>
+
+                    {Array.isArray(data.facilities) &&
+                        data.facilities.map((facility, facIdx) => (
+                            <div
+                                key={facIdx}
+                                className="border p-4 mb-4 rounded-md relative bg-gray-50"
+                            >
+                                <div className="grid grid-cols-1 md:grid-cols-6 mb-6">
+                                    {/* Facility Details */}
+                                    <div className="md:col-span-6 space-y-4">
+                                        {/* Facility Name */}
+                                        <InputField
+                                            label="Facility Name"
+                                            type="text"
+                                            name="name"
+                                            value={facility.name || ""}
+                                            onChange={(e) =>
+                                                handleFacilityFieldChange(
+                                                    e.target.value,
+                                                    facIdx,
+                                                    "name"
+                                                )
+                                            }
+                                            placeholder="Enter Facility Name"
+                                        />
+                                        <InputError
+                                            message={
+                                                errors[
+                                                    `facilities.${facIdx}.name`
+                                                ]
+                                            }
+                                            className="mt-1"
+                                        />
+
+                                        {/* Facility Type + Quantity */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                                            <div className="sm:col-span-2">
+                                                <DropdownInputField
+                                                    label="Facility Type"
+                                                    name="facility_type"
+                                                    value={
+                                                        facility.facility_type ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleFacilityFieldChange(
+                                                            e.target.value,
+                                                            facIdx,
+                                                            "facility_type"
+                                                        )
+                                                    }
+                                                    items={[
+                                                        {
+                                                            label: "Government",
+                                                            value: "government",
+                                                        },
+                                                        {
+                                                            label: "Protection",
+                                                            value: "protection",
+                                                        },
+                                                        {
+                                                            label: "Security",
+                                                            value: "security",
+                                                        },
+                                                        {
+                                                            label: "Finance",
+                                                            value: "finance",
+                                                        },
+                                                        {
+                                                            label: "Service",
+                                                            value: "service",
+                                                        },
+                                                        {
+                                                            label: "Commerce",
+                                                            value: "commerce",
+                                                        },
+                                                    ]}
+                                                    placeholder="Select Facility Type"
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `facilities.${facIdx}.facility_type`
+                                                        ]
+                                                    }
+                                                    className="mt-1"
+                                                />
+                                            </div>
+
+                                            <div className="sm:col-span-2">
+                                                <InputField
+                                                    type="number"
+                                                    label="Quantity"
+                                                    name="quantity"
+                                                    value={
+                                                        facility.quantity || ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleFacilityFieldChange(
+                                                            e.target.value,
+                                                            facIdx,
+                                                            "quantity"
+                                                        )
+                                                    }
+                                                    placeholder="Enter Quantity"
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `facilities.${facIdx}.quantity`
+                                                        ]
+                                                    }
+                                                    className="mt-1"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {facilityDetails === null && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeFacility(facIdx)}
+                                        className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
+                                    >
+                                        <IoIosCloseCircleOutline className="text-2xl" />
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+
+                    {/* Footer Buttons */}
+                    <div className="flex justify-between items-center p-3">
+                        {facilityDetails === null ? (
+                            <button
+                                type="button"
+                                onClick={addFacility}
+                                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
+                            >
+                                <IoIosAddCircleOutline className="text-2xl" />
+                                <span>Add Facility</span>
+                            </button>
+                        ) : (
+                            <div></div>
+                        )}
+
+                        <div className="flex justify-end items-center text-end mt-5 gap-4">
+                            {facilityDetails == null && (
+                                <Button type="button" onClick={() => reset()}>
+                                    <RotateCcw /> Reset
+                                </Button>
+                            )}
+
+                            <Button
+                                className="bg-blue-700 hover:bg-blue-400 "
+                                type={"submit"}
+                            >
+                                {facilityDetails ? "Update" : "Add"}{" "}
+                                <IoIosArrowForward />
+                            </Button>
+                        </div>
+                    </div>
+                </form>
+            </SidebarModal>
+            <DeleteConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                }}
+                onConfirm={confirmDelete}
+                residentId={facilityToDelete}
+            />
         </div>
     );
 };

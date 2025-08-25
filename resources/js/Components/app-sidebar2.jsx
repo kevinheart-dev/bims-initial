@@ -26,6 +26,11 @@ import {
     SquareActivity,
     Tractor,
     HeartPulse,
+    Accessibility,
+    Pill,
+    Syringe,
+    Heart,
+    Stethoscope,
 } from "lucide-react";
 
 import {
@@ -133,7 +138,27 @@ const items = [
             {
                 title: "Medical Condition",
                 url: "/barangay_officer/medical_condition",
+                icon: Stethoscope,
+            },
+            {
+                title: "Disabilities",
+                url: "#",
+                icon: Accessibility,
+            },
+            {
+                title: "Medications",
+                url: "#",
+                icon: Pill,
+            },
+            {
+                title: "Pregnancy Records",
+                url: "#",
                 icon: SquareActivity,
+            },
+            {
+                title: "Vaccinations",
+                url: "#",
+                icon: Syringe,
             },
         ],
     },

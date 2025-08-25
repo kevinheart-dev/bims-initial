@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BarangayInstitution;
 use App\Http\Requests\StoreBarangayInstitutionRequest;
 use App\Http\Requests\UpdateBarangayInstitutionRequest;
+use Illuminate\Support\Facades\DB;
 
 class BarangayInstitutionController extends Controller
 {
@@ -48,7 +49,34 @@ class BarangayInstitutionController extends Controller
      */
     public function store(StoreBarangayInstitutionRequest $request)
     {
-        //
+        $brgy_id = auth()->user()->barangay_id;
+        $data = $request->validated();
+        try {
+            if (!empty($data['institutions']) && is_array($data['institutions'])) {
+                foreach ($data['institutions'] as $insti) {
+                    BarangayInstitution::create([
+                        'barangay_id'        => $brgy_id,
+                        'name'               => $insti['name'],
+                        'type'               => $insti['type'],
+                        'year_established'   => $insti['year_established'],
+                        'status'             => $insti['status'],
+                        'description'        => $insti['description'],
+                    ]);
+                }
+            }
+
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success' => 'Institution(s) saved successfully.',
+                    'activeTab' => 'institutions'
+                ]);
+        } catch (\Exception $e) {
+            return back()->with(
+                'error',
+                'Institution(s) could not be saved: ' . $e->getMessage()
+            );
+        }
     }
 
     /**
@@ -72,7 +100,32 @@ class BarangayInstitutionController extends Controller
      */
     public function update(UpdateBarangayInstitutionRequest $request, BarangayInstitution $barangayInstitution)
     {
-        //
+        $data = $request->validated();
+        try {
+            if (!empty($data['institutions']) && is_array($data['institutions'])) {
+                foreach ($data['institutions'] as $insti) {
+                    $barangayInstitution->update([
+                        'name'             => $insti['name'],
+                        'type'             => $insti['type'],
+                        'year_established' => $insti['year_established'],
+                        'status'           => $insti['status'],
+                        'description'      => $insti['description'],
+                    ]);
+                }
+            }
+
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success' => 'Institution updated successfully.',
+                    'activeTab' => 'institutions'
+                ]);
+        } catch (\Exception $e) {
+            return back()->with(
+                'error',
+                'Institution could not be updated: ' . $e->getMessage()
+            );
+        }
     }
 
     /**
@@ -80,6 +133,26 @@ class BarangayInstitutionController extends Controller
      */
     public function destroy(BarangayInstitution $barangayInstitution)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $barangayInstitution->delete();
+            DB::commit();
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success' => 'Institution deleted successfully!',
+                    'activeTab' => 'institutions'
+                ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Institution could not be deleted: ' . $e->getMessage());
+        }
+    }
+
+    public function institutionDetails($id){
+        $institution = BarangayInstitution::findOrFail($id);
+        return response()->json([
+            'institution' => $institution,
+        ]);
     }
 }

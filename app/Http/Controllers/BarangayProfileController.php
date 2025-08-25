@@ -12,7 +12,7 @@ class BarangayProfileController extends Controller
 {
     public function index()
     {
-        return Inertia::render('BarangayOfficer/BarangayProfile/BarangayProfileMain', []);
+        return Inertia::render('BarangayOfficer/BarangayProfile/BarangayProfileMain');
     }
     public function barangayDetails()
     {

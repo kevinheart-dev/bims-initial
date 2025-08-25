@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BarangayFacility;
 use App\Http\Requests\StoreBarangayFacilityRequest;
 use App\Http\Requests\UpdateBarangayFacilityRequest;
+use DB;
 
 class BarangayFacilityController extends Controller
 {
@@ -56,7 +57,33 @@ class BarangayFacilityController extends Controller
      */
     public function store(StoreBarangayFacilityRequest $request)
     {
-        //
+        $brgy_id = auth()->user()->barangay_id;
+        $data = $request->validated();
+
+        try {
+            if (!empty($data['facilities']) && is_array($data['facilities'])) {
+                foreach ($data['facilities'] as $facility) {
+                    BarangayFacility::create([
+                        'barangay_id'   => $brgy_id,
+                        'name'          => $facility['name'],
+                        'facility_type' => $facility['facility_type'],
+                        'quantity'      => $facility['quantity'] ?? 1,
+                    ]);
+                }
+            }
+
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success'   => 'Facility(ies) saved successfully.',
+                    'activeTab' => 'facilities'
+                ]);
+        } catch (\Exception $e) {
+            return back()->with(
+                'error',
+                'Facility(ies) could not be saved: ' . $e->getMessage()
+            );
+        }
     }
 
     /**
@@ -80,7 +107,31 @@ class BarangayFacilityController extends Controller
      */
     public function update(UpdateBarangayFacilityRequest $request, BarangayFacility $barangayFacility)
     {
-        //
+        $data = $request->validated();
+
+        try {
+            if (!empty($data['facilities']) && is_array($data['facilities'])) {
+                foreach ($data['facilities'] as $facility) {
+                    $barangayFacility->update([
+                        'name'          => $facility['name'],
+                        'facility_type' => $facility['facility_type'],
+                        'quantity'      => $facility['quantity'] ?? 1,
+                    ]);
+                }
+            }
+
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success'   => 'Facility updated successfully.',
+                    'activeTab' => 'facilities'
+                ]);
+        } catch (\Exception $e) {
+            return back()->with(
+                'error',
+                'Facility could not be updated: ' . $e->getMessage()
+            );
+        }
     }
 
     /**
@@ -88,6 +139,31 @@ class BarangayFacilityController extends Controller
      */
     public function destroy(BarangayFacility $barangayFacility)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $barangayFacility->delete();
+            DB::commit();
+
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success'   => 'Facility deleted successfully!',
+                    'activeTab' => 'facilities'
+                ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return back()->with(
+                'error',
+                'Facility could not be deleted: ' . $e->getMessage()
+            );
+        }
+    }
+
+    public function facilityDetails($id){
+        $facility = BarangayFacility::findOrFail($id);
+        return response()->json([
+            'facility' => $facility,
+        ]);
     }
 }

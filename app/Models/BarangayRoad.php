@@ -14,6 +14,8 @@ class BarangayRoad extends Model
         'barangay_id',
         'road_type',
         'length',
+        'status',
+        'condition',
         'maintained_by',
     ];
 

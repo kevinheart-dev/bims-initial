@@ -69,8 +69,13 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::get('resident/chartdata', [ResidentController::class, 'chartData'])->name('resident.chartdata');
 
     // barangay
-    Route::get('barangay_profile/barangaydetails', [BarangayProfileController::class, 'barangayDetails'])->name('barangay.details');
-    Route::get('barangay_official/officialsinfo/{id}', [BarangayOfficialController::class, 'getOfficialInformation'])->name('barangay.officialinfo');
+    Route::get('barangay_profile/barangaydetails', [BarangayProfileController::class, 'barangayDetails'])->name('barangay_profile.details');
+    Route::get('barangay_official/officialsinfo/{id}', [BarangayOfficialController::class, 'getOfficialInformation'])->name('barangay_official.info');
+    Route::get('barangay_infrastructure/details/{id}', [BarangayInfrastructureController::class, 'infrastructureDetails'])->name('barangay_infrastructure.details');
+    Route::get('barangay_institution/details/{id}', [BarangayInstitutionController::class, 'institutionDetails'])->name('barangay_institution.details');
+    Route::get('barangay_facility/details/{id}', [BarangayFacilityController::class, 'facilityDetails'])->name('barangay_facility.details');
+    Route::get('barangay_project/details/{id}', [BarangayProjectController::class, 'projectDetails'])->name('barangay_project.details');
+    Route::get('barangay_road/details/{id}', [BarangayRoadController::class, 'roadDetails'])->name('barangay_road.details');
 
     // household
     Route::get('household/getlatesthead/{id}', [HouseholdController::class, 'getLatestHead'])->name('household.latesthead');
@@ -97,6 +102,8 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
 
     // reports
     Route::get('report', [ReportGenerationController::class, 'index'])->name('report.index');
+
+
 
     // residents
     Route::resource('user', UserController::class);

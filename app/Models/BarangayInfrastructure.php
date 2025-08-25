@@ -14,6 +14,7 @@ class BarangayInfrastructure extends Model
 
     protected $fillable = [
         'barangay_id',
+        'infrastructure_image',
         'infrastructure_type',
         'infrastructure_category',
         'quantity',

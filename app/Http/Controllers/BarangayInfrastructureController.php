@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\BarangayInfrastructure;
 use App\Http\Requests\StoreBarangayInfrastructureRequest;
 use App\Http\Requests\UpdateBarangayInfrastructureRequest;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Str;
 
 class BarangayInfrastructureController extends Controller
 {
@@ -30,6 +32,13 @@ class BarangayInfrastructureController extends Controller
             $query->where('infrastructure_category', request('infra_category'));
         }
 
+        if (request()->filled('created_at')) {
+            $query->whereDate('created_at', request('created_at'));
+        }
+
+        if (request()->filled('updated_at')) {
+            $query->whereDate('updated_at', request('updated_at'));
+        }
 
         if (request('name')) {
             $query->where(function ($q) {
@@ -67,7 +76,43 @@ class BarangayInfrastructureController extends Controller
      */
     public function store(StoreBarangayInfrastructureRequest $request)
     {
-        //
+        $brgy_id = auth()->user()->barangay_id;
+        $data = $request->validated();
+
+        try {
+            if (!empty($data['infrastructures']) && is_array($data['infrastructures'])) {
+                foreach ($data['infrastructures'] as $infra) {
+
+                    $imagePath = $infra['infrastructure_image'] ?? null;
+
+                    // If it's a file upload, store it
+                    if ($imagePath instanceof \Illuminate\Http\UploadedFile) {
+                        $folder = 'infrastructure/' . Str::slug($infra['infrastructure_type']) . Str::random(10);
+                        $imagePath = $imagePath->store($folder, 'public');
+                    }
+
+                    BarangayInfrastructure::create([
+                        'barangay_id'             => $brgy_id,
+                        'infrastructure_image'    => $imagePath, // either stored file or existing string
+                        'infrastructure_category' => $infra['infrastructure_category'],
+                        'infrastructure_type'     => $infra['infrastructure_type'],
+                        'quantity'                => $infra['quantity'],
+                    ]);
+                }
+            }
+
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success' => 'Infrastructure(s) saved successfully.',
+                    'activeTab' => 'infrastructure'
+                ]);
+        } catch (\Exception $e) {
+            return back()->with(
+                'error',
+                'Infrastructure(s) could not be saved: ' . $e->getMessage()
+            );
+        }
     }
 
     /**
@@ -91,7 +136,55 @@ class BarangayInfrastructureController extends Controller
      */
     public function update(UpdateBarangayInfrastructureRequest $request, BarangayInfrastructure $barangayInfrastructure)
     {
-        //
+        $brgy_id = auth()->user()->barangay_id;
+        $data = $request->validated();
+
+        try {
+            if (!empty($data['infrastructures']) && is_array($data['infrastructures'])) {
+                foreach ($data['infrastructures'] as $infra) {
+                    // Skip if no id is provided
+                    if (empty($data['infrastructure_id'])) {
+                        return back()->with(
+                            'error',
+                            'Infrastructure(s) could not be updated: No id provided'
+                        );
+                    }
+
+                    $existingInfra = BarangayInfrastructure::where('barangay_id', $brgy_id)
+                        ->where('id', $data['infrastructure_id'])
+                        ->first();
+
+                    if ($existingInfra) {
+                        $imagePath = $infra['infrastructure_image'] ?? $existingInfra->infrastructure_image;
+
+                        // If it's a new file upload, store it
+                        if ($imagePath instanceof \Illuminate\Http\UploadedFile) {
+                            $folder = 'infrastructure/' . Str::slug($infra['infrastructure_type']) . Str::random(10);
+                            $imagePath = $imagePath->store($folder, 'public');
+                        }
+
+                        $existingInfra->update([
+                            'infrastructure_image'    => $imagePath,
+                            'infrastructure_category' => $infra['infrastructure_category'] ?? $existingInfra->infrastructure_category,
+                            'infrastructure_type'     => $infra['infrastructure_type'] ?? $existingInfra->infrastructure_type,
+                            'quantity'                => $infra['quantity'] ?? $existingInfra->quantity,
+                        ]);
+                    }
+                }
+            }
+
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success' => 'Infrastructure(s) updated successfully.',
+                    'activeTab' => 'infrastructure'
+                ]);
+        } catch (\Exception $e) {
+            return back()->with(
+                'error',
+                'Infrastructure(s) could not be updated: ' . $e->getMessage()
+            );
+        }
     }
 
     /**
@@ -99,6 +192,26 @@ class BarangayInfrastructureController extends Controller
      */
     public function destroy(BarangayInfrastructure $barangayInfrastructure)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $barangayInfrastructure->delete();
+            DB::commit();
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success' => 'Infrastructure deleted successfully!',
+                    'activeTab' => 'infrastructure'
+                ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Infrastructure could not be deleted: ' . $e->getMessage());
+        }
+    }
+
+    public function infrastructureDetails($id){
+        $infra = BarangayInfrastructure::findOrFail($id);
+        return response()->json([
+            'infra' => $infra,
+        ]);
     }
 }

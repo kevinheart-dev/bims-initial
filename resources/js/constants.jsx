@@ -325,6 +325,19 @@ export const WORK_ARRANGEMENT_TEXT = {
     hybrid: "Hybrid",
 };
 
+export const INSTITUTION_STATUS_TEXT = {
+    active: "Active",
+    inactive: "Inactive",
+    dissolved: "Dissolved",
+};
+export const INSTITUTION_TYPE_TEXT = {
+    youth_org: "Youth Organization",
+    coop: "Cooperative",
+    religious: "Religious Group",
+    farmers: "Farmers Association",
+    transport: "Transport Group",
+};
+
 export const INCOME_CATEGORY_TEXT = {
     survival: "Survival",
     poor: "Poor",
@@ -455,3 +468,12 @@ export const ROAD_TYPE_TEXT = {
     natural_earth_surface: "Natural Earth Surface",
     gravel: "Gravel",
 };
+
+export const FACILITY_TYPE_TEXT = [
+    { value: "government", label: "Government" },
+    { value: "protection", label: "Protection" },
+    { value: "security", label: "Security" },
+    { value: "finance", label: "Finance" },
+    { value: "service", label: "Service" },
+    { value: "commerce", label: "Commerce" },
+];

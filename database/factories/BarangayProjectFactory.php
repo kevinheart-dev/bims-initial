@@ -77,7 +77,7 @@ class BarangayProjectFactory extends Factory
             'description' => $this->faker->sentence(15, true),
             'status' => $status,
             'category' => $this->faker->randomElement($categories),
-            'responsible_institution_id' => BarangayInstitution::inRandomOrder()->value('id') ?? BarangayInstitution::factory(),
+            'responsible_institution' => BarangayInstitution::inRandomOrder()->value('name') ?? BarangayInstitution::factory(),
             'budget' => $this->faker->numberBetween($minBudget, $maxBudget),
             'funding_source' => $fundingSource,
             'start_date' => $startDate,

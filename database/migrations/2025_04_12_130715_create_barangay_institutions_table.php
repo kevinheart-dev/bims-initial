@@ -15,6 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->string('name', 255);
+            $table->string('type', 100)->nullable(); // youth org, coop, religious group, etc.
+            $table->text('description')->nullable();
+            $table->year('year_established')->nullable();
+            $table->enum('status', ['active', 'inactive', 'dissolved'])->default('active');
             $table->timestamps();
         });
     }

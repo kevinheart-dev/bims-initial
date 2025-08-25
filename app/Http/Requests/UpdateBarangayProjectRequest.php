@@ -11,7 +11,7 @@ class UpdateBarangayProjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,41 @@ class UpdateBarangayProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'projects' => ['required', 'array'],
+            'project_id' => ['required', 'exists:barangay_projects,id'],
+            'projects.*.title' => ['required', 'string', 'max:55'],
+            'projects.*.description' => ['required', 'string'],
+            'projects.*.status' => ['required', 'in:planning,ongoing,completed,cancelled'],
+            'projects.*.category' => ['required', 'string', 'max:55'],
+            'projects.*.responsible_institution' => ['nullable', 'string', 'max:155'],
+            'projects.*.budget' => ['required', 'numeric', 'min:0'],
+            'projects.*.funding_source' => ['required', 'string', 'max:100'],
+            'projects.*.start_date' => ['required', 'date'],
+            'projects.*.end_date' => ['nullable', 'date', 'after_or_equal:projects.*.start_date'],
+        ];
+    }
+    public function attributes(): array
+    {
+        return [
+            'projects.*.title' => 'project title',
+            'projects.*.description' => 'project description',
+            'projects.*.status' => 'status',
+            'projects.*.category' => 'project category',
+            'projects.*.responsible_institution' => 'responsible institution',
+            'projects.*.budget' => 'budget',
+            'projects.*.funding_source' => 'funding source',
+            'projects.*.start_date' => 'start date',
+            'projects.*.end_date' => 'end date',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'projects.*.title.required' => 'Project title is required.',
+            'projects.*.status.in' => 'Status must be planning, ongoing, completed, or cancelled.',
+            'projects.*.budget.min' => 'Budget must be at least 0.',
+            'projects.*.end_date.after_or_equal' => 'End date cannot be before start date.',
         ];
     }
 }

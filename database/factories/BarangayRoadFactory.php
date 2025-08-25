@@ -18,13 +18,33 @@ class BarangayRoadFactory extends Factory
     {
         return [
             'barangay_id' => 1,
-            'road_type' => $this->faker->randomElement(['asphalt', 'concrete', 'gravel', 'natural_earth_surface']),
-            'length' => $this->faker->randomFloat(2, 0.10, 15.00), // 0.10 km to 15 km
+            'road_type' => $this->faker->randomElement([
+                'asphalt',
+                'concrete',
+                'gravel',
+                'natural_earth_surface'
+            ]),
+            'length' => $this->faker->randomFloat(2, 0.10, 50.00), // 0.10 km to 50 km
+
+            'condition' => $this->faker->randomElement([
+                'good',
+                'fair',
+                'poor',
+                'under_construction',
+                'impassable'
+            ]),
+
+            'status' => $this->faker->randomElement([
+                'active',
+                'inactive',
+            ]),
+
             'maintained_by' => $this->faker->randomElement([
                 'Barangay Government',
                 'Municipal Government',
                 'City Government',
                 'Provincial Government',
+                'DPWH',
                 'Private Entity',
                 'Community Volunteers'
             ]),

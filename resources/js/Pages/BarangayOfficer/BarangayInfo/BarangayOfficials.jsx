@@ -106,7 +106,7 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
             const official = response.data.official;
 
             setSelectedOfficial(official);
-            console.log(official);
+            //console.log(official);
             setData("resident_id", official.resident.id || "");
             setData(
                 "resident_name",
@@ -230,6 +230,7 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
     const handleModalClose = () => {
         setIsModalOpen(false);
         setSelectedResident(null);
+        setSelectedOfficial(null);
         setIsAddModalOpen(false);
         reset();
         clearErrors();
@@ -306,50 +307,60 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
                 {isAddModalOpen && (
                     <form
                         onSubmit={selectedOfficial ? onEditSubmit : onAddSubmit}
-                        className="p-10 bg-slate-400 rounded-xl space-y-6"
+                        className="bg-gray-50 p-4 rounded-lg"
                     >
+                        <h3 className="text-2xl font-medium text-gray-700">
+                            Barangay Officials Information
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-8">
+                            Please provide details about the elected and
+                            appointed officials serving in the barangay,
+                            including their positions, terms, and
+                            responsibilities.
+                        </p>
                         {/* Image and Name + Position */}
-                        <div className="flex gap-4 items-start">
+                        <div className="flex gap-4 items-center">
                             {/* Image Upload */}
-                            <div className="flex flex-col items-center">
-                                <label
-                                    htmlFor="imageUpload"
-                                    className="w-40 h-40 border rounded overflow-hidden bg-gray-100 flex items-center justify-center cursor-pointer hover:bg-gray-200 transition"
-                                >
-                                    {data.resident_image &&
-                                    typeof data.resident_image !== "string" ? (
-                                        <img
-                                            src={
-                                                data.resident_image instanceof
-                                                File
-                                                    ? URL.createObjectURL(
-                                                          data.resident_image
-                                                      )
-                                                    : existingImagePath ||
-                                                      "/images/default-avatar.jpg"
-                                            }
-                                            alt="Preview"
-                                            className="object-cover w-full h-full"
-                                        />
-                                    ) : (
-                                        <span className="text-gray-400 text-sm text-center px-2">
-                                            Click to Upload
-                                        </span>
-                                    )}
-                                </label>
-                                <input
-                                    id="imageUpload"
-                                    type="file"
-                                    name="resident_image"
-                                    accept="image/*"
-                                    onChange={(e) => {
-                                        const file = e.target.files[0];
-                                        if (file) {
-                                            setData("resident_image", file);
+                            <div className="flex flex-col  items-center">
+                                <div className="flex flex-col items-center space-y-2">
+                                    <InputLabel
+                                        htmlFor="resident_image"
+                                        value="Resident Photo"
+                                    />
+
+                                    <img
+                                        src={
+                                            data.resident_image instanceof File
+                                                ? URL.createObjectURL(
+                                                      data.resident_image
+                                                  )
+                                                : data.resident_image
+                                                ? `/storage/${data.resident_image}`
+                                                : "/images/default-avatar.jpg"
                                         }
-                                    }}
-                                    className="hidden w-full text-sm text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                                />
+                                        alt="Resident Image"
+                                        className="w-64 h-64 object-cover rounded-full border border-gray-200"
+                                    />
+
+                                    {/* <input
+                                        id="resident_image"
+                                        type="file"
+                                        name="resident_image"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                                setData("resident_image", file);
+                                            }
+                                        }}
+                                        className="block w-full text-sm text-gray-500
+                                                    file:mr-2 file:py-1 file:px-3
+                                                    file:rounded file:border-0
+                                                    file:text-xs file:font-semibold
+                                                    file:bg-blue-50 file:text-blue-700
+                                                    hover:file:bg-blue-100"
+                                    /> */}
+                                </div>
                                 <InputError
                                     message={errors.resident_image}
                                     className="mt-2"

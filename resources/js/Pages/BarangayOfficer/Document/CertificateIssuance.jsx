@@ -179,6 +179,7 @@ export default function Index({
                 duration: 4000,
                 className: "bg-red-100 text-red-800",
             });
+            setDisableSubmit(false);
             return;
         }
 

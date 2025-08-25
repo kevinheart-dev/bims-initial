@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import BarangayInfrastucture from "./BarangayInfrastructure/BarangayInfrastucture";
 import FacilityIndex from "./BarangayFacility/FacilityIndex";
@@ -11,13 +11,18 @@ import { useQuery } from "@tanstack/react-query";
 import useAppUrl from "@/hooks/useAppUrl";
 import axios from "axios";
 import { Skeleton } from "@/Components/ui/skeleton";
+import { Toaster, toast } from "sonner";
 
 const BarangayProfileMain = () => {
-    const [activeTab, setActiveTab] = useState("infrastructure");
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const tab = props?.activeTab ?? null;
+
+    const [activeTab, setActiveTab] = useState(tab ?? "infrastructure");
     const breadcrumbs = [{ label: "Barangay Profile", showOnMobile: false }];
     const APP_URL = useAppUrl();
 
-    const { data, isLoading, isError, error } = useQuery({
+    const { data, isLoading, isError } = useQuery({
         queryKey: ["details"],
         queryFn: async () => {
             const { data } = await axios.get(
@@ -29,6 +34,18 @@ const BarangayProfileMain = () => {
         staleTime: 1000 * 60 * 5,
     });
 
+    useEffect(() => {
+        setActiveTab(tab ?? "infrastructure");
+        if (success) {
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.success = null;
+    }, [success]);
+
     if (isLoading) {
         return (
             <div className="gap-2 space-y-4">
@@ -36,10 +53,6 @@ const BarangayProfileMain = () => {
                 <Skeleton className="h-[10px] w-[100px] rounded-full" />
             </div>
         );
-    }
-
-    if (isError) {
-        return <div className="text-red-500">Error: {error.message}</div>;
     }
 
     const barangayData = data; // directly use API data
@@ -69,7 +82,6 @@ const BarangayProfileMain = () => {
                             </p>
                         </div>
                     </div>
-
                     {/* Tab Navigation */}
                     <div className="border-b border-gray-400 mt-4">
                         <div className="flex gap-6 text-sm font-medium flex-wrap">
@@ -97,7 +109,6 @@ const BarangayProfileMain = () => {
                             ))}
                         </div>
                     </div>
-
                     {/* Tab content */}
                     <div className="mt-4">
                         {activeTab === "infrastructure" && (

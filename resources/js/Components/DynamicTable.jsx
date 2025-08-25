@@ -1,4 +1,3 @@
-
 import { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import Pagination from "./Pagination";

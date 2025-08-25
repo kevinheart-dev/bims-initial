@@ -18,23 +18,66 @@ class BarangayInfrastructureFactory extends Factory
 
     protected $model = BarangayInfrastructure::class;
 
-    public function definition()
+    public function definition(): array
     {
-        $infrastructureTypes = [
-            'Road', 'Bridge', 'Drainage System', 'Streetlight', 'Health Center',
-            'Day Care Center', 'School Building', 'Multi-Purpose Hall', 'Covered Court',
-            'Barangay Hall', 'Public Market', 'Waiting Shed', 'Water Supply System'
+        $infrastructures = [
+            // Disaster & Community Facilities
+            'Evacuation Center' => 'Disaster & Community Facility',
+            'Flood Control' => 'Disaster & Community Facility',
+            'Rain Water Harvester (Communal)' => 'Disaster & Community Facility',
+            'Barangay Disaster Operation Center' => 'Disaster & Community Facility',
+            'Public Comfort Room/Toilet' => 'Disaster & Community Facility',
+            'Community Garden' => 'Disaster & Community Facility',
+
+            // Health & Medical
+            'Barangay Health Center' => 'Health & Medical',
+            'Hospital' => 'Health & Medical',
+            'Maternity Clinic' => 'Health & Medical',
+            'Child Clinic' => 'Health & Medical',
+            'Private Medical Clinic' => 'Health & Medical',
+            'Barangay Drug Store' => 'Health & Medical',
+            'City/Municipal Public Drug Store' => 'Health & Medical',
+            'Private Drug Store' => 'Health & Medical',
+            'Quarantine/Isolation Facility' => 'Health & Medical',
+
+            // Education
+            'Child Development Center' => 'Education',
+            'Preschool' => 'Education',
+            'Elementary' => 'Education',
+            'Secondary' => 'Education',
+            'Vocational' => 'Education',
+            'College/University' => 'Education',
+            'Islamic School' => 'Education',
+
+            // Agricultural
+            'Rice Mill' => 'Agricultural',
+            'Corn Mill' => 'Agricultural',
+            'Feed Mill' => 'Agricultural',
+            'Agricultural Produce Market' => 'Agricultural',
         ];
 
-        $infrastructureCategories = [
-            'Transportation', 'Utilities', 'Education', 'Health', 'Community Facility', 'Public Safety'
-        ];
+        static $index = 0;
+        $types = array_keys($infrastructures);
+
+        $type = $types[$index % count($types)];
+        $category = $infrastructures[$type];
+        $index++;
+
+        // realistic quantity based on category
+        $quantity = match($category) {
+            'Disaster & Community Facility' => $this->faker->numberBetween(0, 2),
+            'Health & Medical' => $this->faker->numberBetween(1, 2),
+            'Education' => $this->faker->numberBetween(1, 3),
+            'Agricultural' => $this->faker->numberBetween(1, 5),
+            default => 1,
+        };
 
         return [
             'barangay_id' => 1,
-            'infrastructure_type' => $this->faker->randomElement($infrastructureTypes),
-            'infrastructure_category' => $this->faker->randomElement($infrastructureCategories),
-            'quantity' => $this->faker->numberBetween(1, 20),
+            'infrastructure_image' => null,
+            'infrastructure_type' => $type,
+            'infrastructure_category' => $category,
+            'quantity' => $quantity,
         ];
     }
 

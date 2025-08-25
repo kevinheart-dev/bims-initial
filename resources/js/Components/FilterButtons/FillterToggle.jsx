@@ -1275,7 +1275,46 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-            {/* ROADS */}
+            {isVisible("road_status") && (
+                <Select
+                    onValueChange={(status) =>
+                        searchFieldName("status", status)
+                    }
+                    value={queryParams?.status ?? ""}
+                >
+                    <SelectTrigger className="w-[170px]">
+                        <SelectValue placeholder="Road Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("road_condition") && (
+                <Select
+                    onValueChange={(condition) =>
+                        searchFieldName("condition", condition)
+                    }
+                    value={queryParams?.condition ?? ""}
+                >
+                    <SelectTrigger className="w-[170px]">
+                        <SelectValue placeholder="Road Condition" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="good">Good</SelectItem>
+                        <SelectItem value="fair">Fair</SelectItem>
+                        <SelectItem value="poor">Poor</SelectItem>
+                        <SelectItem value="under_construction">
+                            Under Construction
+                        </SelectItem>
+                        <SelectItem value="impassable">Impassable</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {/* LIVELIHOOD */}
             {isVisible("livelihood_type") && (
                 <Select
                     onValueChange={(live) =>
@@ -1331,6 +1370,53 @@ const FilterToggle = ({
                 </Select>
             )}
 
+            {isVisible("created_at") && (
+                <div className="flex items-center gap-2">
+                    <DatePicker
+                        selected={
+                            queryParams.created_at
+                                ? new Date(queryParams.created_at)
+                                : null
+                        }
+                        onChange={(date) => {
+                            const formatted = date
+                                ? date.toLocaleDateString("en-CA")
+                                : "";
+                            searchFieldName("created_at", formatted);
+                        }}
+                        dateFormat="yyyy-MM-dd"
+                        className="border border-gray-200 shadow-sm rounded px-2 py-1 w-[180px]"
+                        placeholderText="Created At"
+                        popperContainer={({ children }) => (
+                            <div className="z-[9999]">{children}</div>
+                        )}
+                    />
+                </div>
+            )}
+            {/* Filter by Updated At */}
+            {isVisible("updated_at") && (
+                <div className="flex items-center gap-2">
+                    <DatePicker
+                        selected={
+                            queryParams.updated_at
+                                ? new Date(queryParams.updated_at)
+                                : null
+                        }
+                        onChange={(date) => {
+                            const formatted = date
+                                ? date.toLocaleDateString("en-CA")
+                                : "";
+                            searchFieldName("updated_at", formatted);
+                        }}
+                        dateFormat="yyyy-MM-dd"
+                        className="border border-gray-200 shadow-sm rounded px-2 py-1 w-[180px]"
+                        placeholderText="Updated At"
+                        popperContainer={({ children }) => (
+                            <div className="z-[9999]">{children}</div>
+                        )}
+                    />
+                </div>
+            )}
             {/* Clear Filters Button */}
             {clearRouteAxios ? (
                 <div className="flex justify-end ml-auto">

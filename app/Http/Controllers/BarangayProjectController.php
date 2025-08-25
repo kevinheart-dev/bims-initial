@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreBarangayProjectRequest;
+use App\Http\Requests\UpdateBarangayProjectRequest;
 use App\Models\BarangayInstitution;
 use App\Models\BarangayProject;
+use DB;
 use Illuminate\Http\Request;
 
 class BarangayProjectController extends Controller
@@ -91,9 +94,41 @@ class BarangayProjectController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreBarangayProjectRequest $request)
     {
-        //
+        $brgy_id = auth()->user()->barangay_id;
+        $data = $request->validated();
+
+        try {
+            if (!empty($data['projects']) && is_array($data['projects'])) {
+                foreach ($data['projects'] as $proj) {
+                    BarangayProject::create([
+                        'barangay_id'               => $brgy_id,
+                        'title'                     => $proj['title'],
+                        'description'               => $proj['description'],
+                        'status'                    => $proj['status'],
+                        'category'                  => $proj['category'],
+                        'responsible_institution'   => $proj['responsible_institution'] ?? null,
+                        'budget'                     => $proj['budget'],
+                        'funding_source'             => $proj['funding_source'],
+                        'start_date'                 => $proj['start_date'],
+                        'end_date'                   => $proj['end_date'] ?? null,
+                    ]);
+                }
+            }
+
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success'   => 'Project(s) saved successfully.',
+                    'activeTab' => 'projects'
+                ]);
+        } catch (\Exception $e) {
+            return back()->with(
+                'error',
+                'Project(s) could not be saved: ' . $e->getMessage()
+            );
+        }
     }
 
     /**
@@ -115,9 +150,39 @@ class BarangayProjectController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, BarangayProject $barangayProject)
+    public function update(UpdateBarangayProjectRequest $request, BarangayProject $barangayProject)
     {
-        //
+        $data = $request->validated();
+
+        try {
+            if (!empty($data['projects']) && is_array($data['projects'])) {
+                foreach ($data['projects'] as $proj) {
+                    $barangayProject->update([
+                        'title'                  => $proj['title'],
+                        'description'            => $proj['description'],
+                        'status'                 => $proj['status'],
+                        'category'               => $proj['category'],
+                        'responsible_institution'=> $proj['responsible_institution'] ?? null,
+                        'budget'                 => $proj['budget'],
+                        'funding_source'         => $proj['funding_source'],
+                        'start_date'             => $proj['start_date'],
+                        'end_date'               => $proj['end_date'] ?? null,
+                    ]);
+                }
+            }
+
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success' => 'Project updated successfully.',
+                    'activeTab' => 'projects'
+                ]);
+        } catch (\Exception $e) {
+            return back()->with(
+                'error',
+                'Project could not be updated: ' . $e->getMessage()
+            );
+        }
     }
 
     /**
@@ -125,6 +190,26 @@ class BarangayProjectController extends Controller
      */
     public function destroy(BarangayProject $barangayProject)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $barangayProject->delete();
+            DB::commit();
+
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success' => 'Project deleted successfully!',
+                    'activeTab' => 'projects'
+                ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Project could not be deleted: ' . $e->getMessage());
+        }
+    }
+    public function projectDetails($id){
+        $project = BarangayProject::findOrFail($id);
+        return response()->json([
+            'project' => $project,
+        ]);
     }
 }

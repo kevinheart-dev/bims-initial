@@ -24,18 +24,14 @@ class UpdateBarangayOfficialRequest extends FormRequest
      public function rules(): array
     {
         return [
-            'resident_image'      => ['nullable', 'image', 'max:5120'], // 5MB max
             'resident_id'         => ['required', 'exists:residents,id'],
             'position'            => ['required', 'string', 'max:100'],
-            'contact_number'      => ['nullable', 'string', 'regex:/^09\d{9}$/'],
-            'email'               => ['nullable', 'email', 'max:255'],
 
             // Validate array of designations for certain positions
             'designations'        => ['required_if:position,barangay_kagawad,sk_kagawad', 'array'],
             'designations.*.designation' => ['required_if:position,barangay_kagawad,sk_kagawad', 'exists:puroks,id'],
             'designations.*.term_start' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
             'designations.*.term_end' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
-
             'term'                => ['required', 'exists:barangay_official_terms,id'],
             'appointment_type'    => ['required', Rule::in(['elected', 'appointed', 'succession'])],
 

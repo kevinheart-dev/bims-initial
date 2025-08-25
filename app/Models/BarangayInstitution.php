@@ -13,6 +13,10 @@ class BarangayInstitution extends Model
     protected $fillable = [
         'barangay_id',
         'name',
+        'type',
+        'description',
+        'year_established',
+        'status',
     ];
 
     public function barangay()

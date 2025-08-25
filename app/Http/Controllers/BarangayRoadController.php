@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BarangayRoad;
 use App\Http\Requests\StoreBarangayRoadRequest;
 use App\Http\Requests\UpdateBarangayRoadRequest;
+use DB;
 
 class BarangayRoadController extends Controller
 {
@@ -21,13 +22,21 @@ class BarangayRoadController extends Controller
                 $query->where('road_type', $status);
             }
         }
-
         if ($status = request('maintained_by')) {
             if ($status !== 'All') {
                 $query->where('maintained_by', $status);
             }
         }
-
+        if ($status = request('status')) {
+            if ($status !== 'All') {
+                $query->where('status', $status);
+            }
+        }
+        if ($condition = request('condition')) {
+            if ($condition !== 'All') {
+                $query->where('condition', $condition);
+            }
+        }
         if (request('name')) {
             $query->where(function ($q) {
                 $q->where('length', 'like', '%' . request('name') . '%');
@@ -57,7 +66,35 @@ class BarangayRoadController extends Controller
      */
     public function store(StoreBarangayRoadRequest $request)
     {
-        //
+        $brgy_id = auth()->user()->barangay_id;
+        $data = $request->validated();
+
+        try {
+            if (!empty($data['roads']) && is_array($data['roads'])) {
+                foreach ($data['roads'] as $road) {
+                    BarangayRoad::create([
+                        'barangay_id'   => $brgy_id,
+                        'road_type'     => $road['road_type'],
+                        'length'        => $road['length'],
+                        'condition'     => $road['condition'],
+                        'status'        => $road['status'],
+                        'maintained_by' => $road['maintained_by'] ?? null,
+                    ]);
+                }
+            }
+
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success' => 'Road(s) saved successfully.',
+                    'activeTab' => 'roads'
+                ]);
+        } catch (\Exception $e) {
+            return back()->with(
+                'error',
+                'Road(s) could not be saved: ' . $e->getMessage()
+            );
+        }
     }
 
     /**
@@ -81,7 +118,33 @@ class BarangayRoadController extends Controller
      */
     public function update(UpdateBarangayRoadRequest $request, BarangayRoad $barangayRoad)
     {
-        //
+        $data = $request->validated();
+
+        try {
+            if (!empty($data['roads']) && is_array($data['roads'])) {
+                foreach ($data['roads'] as $road) {
+                    $barangayRoad->update([
+                        'road_type'     => $road['road_type'],
+                        'length'        => $road['length'],
+                        'condition'     => $road['condition'],
+                        'status'        => $road['status'],
+                        'maintained_by' => $road['maintained_by'] ?? null,
+                    ]);
+                }
+            }
+
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success' => 'Road updated successfully.',
+                    'activeTab' => 'roads'
+                ]);
+        } catch (\Exception $e) {
+            return back()->with(
+                'error',
+                'Road could not be updated: ' . $e->getMessage()
+            );
+        }
     }
 
     /**
@@ -89,6 +152,25 @@ class BarangayRoadController extends Controller
      */
     public function destroy(BarangayRoad $barangayRoad)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $barangayRoad->delete();
+            DB::commit();
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success' => 'Road deleted successfully!',
+                    'activeTab' => 'roads'
+                ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Road could not be deleted: ' . $e->getMessage());
+        }
+    }
+    public function roadDetails($id){
+        $road = BarangayRoad::findOrFail($id);
+        return response()->json([
+            'road' => $road,
+        ]);
     }
 }

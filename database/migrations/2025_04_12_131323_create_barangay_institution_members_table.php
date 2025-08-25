@@ -23,9 +23,6 @@ return new class extends Migration
         $table->date('member_since')->nullable(); // Optional if some members' start date is unknown
         $table->enum('status', ['active', 'inactive'])->default('active');
         $table->timestamps();
-
-        // Prevent duplicate membership for the same institution & resident
-        $table->unique(['institution_id', 'resident_id']);
     });
     }
 

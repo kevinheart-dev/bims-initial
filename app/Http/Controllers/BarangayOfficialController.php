@@ -11,6 +11,7 @@ use App\Models\Purok;
 use App\Models\Resident;
 use DB;
 use Inertia\Inertia;
+use Str;
 
 class BarangayOfficialController extends Controller
 {
@@ -68,19 +69,16 @@ class BarangayOfficialController extends Controller
             $data = $request->validated();
             DB::beginTransaction();
 
-
             // Store Barangay Official
             $official = BarangayOfficial::create([
                 'resident_id'       => $data['resident_id'],
                 'term_id'           => $data['term'],
                 'position'          => $data['position'],
-                'contact_number'    => $data['contact_number'],
-                'email'             => $data['email'],
                 'status'            => $data['status'] ?? 'active',
-                'appointment_type'  => $data['appointment_type'],
-                'appointted_by'      => $data['appointted_by'],
-                'appointment_reason'=> $data['appointment_reason'],
-                'remarks'           => $data['remarks'],
+                'appointment_type'  => $data['appointment_type']  ?? null,
+                'appointted_by'      => $data['appointted_by'] ?? null,
+                'appointment_reason'=> $data['appointment_reason']  ?? null,
+                'remarks'           => $data['remarks']  ?? null,
             ]);
 
             // Store designation(s) only for kagawad positions
@@ -94,9 +92,7 @@ class BarangayOfficialController extends Controller
                     ]);
                 }
             }
-
             DB::commit();
-
             return back()->with('success', 'Barangay Official successfully added.');
         } catch (\Exception $e) {
             DB::rollBack();

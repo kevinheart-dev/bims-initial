@@ -13,10 +13,14 @@ return new class extends Migration
     {
         Schema::create('barangay_roads', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
+            $table->foreignId('barangay_id')
+                ->constrained('barangays')
+                ->onDelete('cascade');
             $table->enum('road_type', ['asphalt', 'concrete', 'gravel', 'natural_earth_surface']);
-            $table->decimal('length', 5, 2);
-            $table->string('maintained_by', 155);
+            $table->decimal('length', 8, 2)->comment('Length of the road in kilometers');
+            $table->enum('condition', ['good', 'fair', 'poor', 'under_construction', 'impassable']);
+            $table->enum('status', ['active', 'inactive']);
+            $table->string('maintained_by', 155)->nullable();
             $table->timestamps();
         });
     }
