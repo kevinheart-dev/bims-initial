@@ -1,49 +1,43 @@
 import { Link } from "@inertiajs/react";
 
 export default function Pagination({ links, queryParams }) {
-    queryParams = queryParams || {}; // ✅ Safeguard against null or undefined
+    queryParams = queryParams || {}; // safeguard
 
     if (!Array.isArray(links)) return null;
 
     const getLinkWithQueryParams = (link) => {
         if (!link.url) return null;
 
-        const baseUrl = new URL(link.url, window.location.origin);
-        const pageParam = baseUrl.searchParams.get("page");
+        const url = new URL(link.url, window.location.origin);
 
-        const urlWithQueryParams = new URL(
-            window.location.pathname,
-            window.location.origin
-        );
-        urlWithQueryParams.searchParams.set("page", pageParam);
-
+        // Preserve additional query params
         for (const [key, value] of Object.entries(queryParams)) {
             if (key !== "page") {
-                urlWithQueryParams.searchParams.set(key, value);
+                url.searchParams.set(key, value);
             }
         }
 
-        return urlWithQueryParams.toString();
+        return url.pathname + url.search; // return relative path only
     };
 
     return (
-        <nav className="text-center mt-4">
-            {links.map((link) => {
+        <nav className="text-center mt-4 space-x-1">
+            {links.map((link, index) => {
                 const urlWithParams = getLinkWithQueryParams(link);
 
                 return (
                     <Link
-                        key={link.label}
+                        key={index}
                         href={urlWithParams || "#"}
                         className={
                             "inline-block py-2 px-3 rounded-lg text-gray-700 text-xs " +
-                            (link.active ? "bg-blue-400 " : " ") +
+                            (link.active ? "bg-blue-400 text-white " : "") +
                             (!link.url
-                                ? " !text-gray-800 cursor-not-allowed "
-                                : "hover:bg-blue-400 ")
+                                ? " !text-gray-400 cursor-not-allowed "
+                                : "hover:bg-blue-300 ")
                         }
                         dangerouslySetInnerHTML={{ __html: link.label }}
-                    ></Link>
+                    />
                 );
             })}
         </nav>

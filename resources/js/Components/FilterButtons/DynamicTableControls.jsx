@@ -25,7 +25,7 @@ const DynamicTableControls = ({
             {/* Columns Dropdown */}
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <div className="relative group z-50">
+                    <div className="relative group z-5">
                         <Button
                             className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
                             variant="outline"
@@ -98,7 +98,7 @@ const DynamicTableControls = ({
             )}
 
             {/* Print */}
-            <div className="relative group z-50">
+            <div className="relative group z-5">
                 <Button
                     className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
                     variant="outline"

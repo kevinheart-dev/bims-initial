@@ -223,9 +223,8 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
         name: (resident) => (
             <div className="text-sm break-words whitespace-normal leading-snug">
-                {`${resident.firstname} ${resident.middlename ?? ""} ${
-                    resident.lastname ?? ""
-                } ${resident.suffix ?? ""}`}
+                {`${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname ?? ""
+                    } ${resident.suffix ?? ""}`}
             </div>
         ),
 
@@ -268,7 +267,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
         employment_status: (resident) =>
             CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-                resident.employment_status
+            resident.employment_status
             ],
 
         occupation: (resident) => {
@@ -288,15 +287,14 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
         registered_voter: (resident) => (
             <span
-                className={`${
-                    CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
-                        resident.registered_voter
-                    ]
-                } whitespace-nowrap`}
+                className={`${CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
+                    resident.registered_voter
+                ]
+                    } whitespace-nowrap`}
             >
                 {
                     CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[
-                        resident.registered_voter
+                    resident.registered_voter
                     ]
                 }
             </span>
@@ -378,7 +376,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                 <Toaster richColors />
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
                 <div className="p-2 md:p-4">
-                    <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
+                    <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-0">
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                             <ResidentCharts
                                 residents={data ?? []}
@@ -485,12 +483,12 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                 passedData={residents}
                                 allColumns={allColumns}
                                 columnRenderers={columnRenderers}
-                                is_paginated={isPaginated}
+                                // is_paginated={isPaginated}
                                 showAll={showAll}
-                                toggleShowAll={() => setShowAll(!showAll)}
+                                // toggleShowAll={() => setShowAll(!showAll)}
                                 visibleColumns={visibleColumns}
-                                setVisibleColumns={setVisibleColumns}
-                                // showTotal={true}
+                            // setVisibleColumns={setVisibleColumns}
+                            // showTotal={true}
                             />
                         </div>
                     </div>
