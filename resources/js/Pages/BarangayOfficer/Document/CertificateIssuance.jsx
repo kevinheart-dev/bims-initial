@@ -358,7 +358,7 @@ export default function Index({
             <span
                 className={`text-xs font-medium ${CONSTANTS.CERTIFICATE_REQUEST_STATUS_CLASS[
                     row.request_status
-                    ]
+                ]
                     }`}
             >
                 {CONSTANTS.CERTIFICATE_REQUEST_STATUS_TEXT[
