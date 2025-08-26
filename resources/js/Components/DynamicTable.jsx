@@ -2,6 +2,7 @@
 import { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import Pagination from "./Pagination";
+import { ClipboardX } from 'lucide-react';
 
 const DynamicTable = ({
     passedData,
@@ -61,7 +62,7 @@ const DynamicTable = ({
 
     return (
         <>
-            <div className="flex justify-between items-center">
+            {/* <div className="flex justify-between items-center">
                 {showTotal && (
                     <h2 className="text-xl font-bold text-gray-800 my-2 p-2 border bg-gray-50 rounded-lg flex items-center gap-2">
                         <span>Total Records:</span>
@@ -70,7 +71,7 @@ const DynamicTable = ({
                         </span>
                     </h2>
                 )}
-            </div>
+            </div> */}
 
             <div className="mb-2">{children}</div>
 
@@ -81,7 +82,7 @@ const DynamicTable = ({
                         ref={contentRef}
                         className="table-auto w-full min-w-max"
                     >
-                        <thead className="sticky top-0 z-10 bg-white shadow-md">
+                        <thead className="sticky top-0 z-5 bg-white shadow-md">
                             <tr>
                                 {allColumns.map(
                                     (col) =>
@@ -90,10 +91,11 @@ const DynamicTable = ({
                                         ) && (
                                             <th
                                                 key={col.key}
-                                                className="bg-blue-500 text-white p-3 whitespace-nowrap text-wrap text-start text-sm font-semibold min-w-[60px] max-w-[100px]"
+                                                className="bg-gray-100 text-gray-800 p-3 whitespace-nowrap text-wrap text-start text-sm font-semibold min-w-[60px] max-w-[100px]"
                                             >
                                                 {col.label}
                                             </th>
+
                                         )
                                 )}
                             </tr>
@@ -125,9 +127,12 @@ const DynamicTable = ({
                                 <tr>
                                     <td
                                         colSpan={effectiveVisibleColumns.length}
-                                        className="text-center py-4 text-gray-500"
+                                        className="text-center py-6 text-gray-500"
                                     >
-                                        No records found.
+                                        <div className="flex flex-col items-center justify-center space-y-2">
+                                            <ClipboardX className="w-20 h-20 text-gray-400" />
+                                            <span className="text-md font-medium">No records found</span>
+                                        </div>
                                     </td>
                                 </tr>
                             )}

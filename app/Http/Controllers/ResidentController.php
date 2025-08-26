@@ -169,11 +169,21 @@ class ResidentController extends Controller
         }
 
 
+        // if (request('all') === 'true') {
+        //     $residents = $query->get();
+        // } else {
+        //     $residents = $query->paginate(10)->onEachSide(1);
+        // }
+
+        // dito na part yung binago ko
         if (request('all') === 'true') {
             $residents = $query->get();
         } else {
-            $residents = $query->paginate(10)->onEachSide(1);
+            // This now tells Laravel to add all current filters to the pagination links
+            $residents = $query->paginate(10)->onEachSide(1)->appends(request()->query());
         }
+
+
 
         $transform = function ($resident) {
             return [
@@ -1972,7 +1982,7 @@ class ResidentController extends Controller
         }
 
         // handles age filtering
-               if (request()->filled('age_group') && request('age_group') !== 'all') {
+        if (request()->filled('age_group') && request('age_group') !== 'all') {
             $today = Carbon::today();
 
             switch (request('age_group')) {

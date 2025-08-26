@@ -13,6 +13,7 @@ import {
     CartesianGrid,
     LabelList,
 } from "recharts";
+import { FileChartPie } from 'lucide-react';
 
 // --- Color constants and data processing logic ---
 
@@ -86,10 +87,24 @@ const ResidentCharts = ({ residents, isLoading }) => {
             </div>
         );
     }
-
     if (!residentArray || residentArray.length === 0) {
-        return <div>No data available for charts</div>;
+        return (
+            <div className="flex flex-col items-center justify-center p-6 text-gray-500">
+                <img
+                    src="/images/chart_error.png"
+                    alt="No records illustration"
+                    className="h-40 w-auto mb-3"
+                />
+                <p className="text-lg font-semibold">No records found</p>
+                <p className="text-sm text-gray-400">
+                    Try adjusting your filters or check back later.
+                </p>
+            </div>
+        );
     }
+
+
+
 
 
     const genderCounts = residentArray.reduce((acc, r) => {
@@ -193,7 +208,7 @@ const ResidentCharts = ({ residents, isLoading }) => {
                         <div className="bg-white shadow-lg rounded-2xl p-6">
                             <h2 className="text-xl font-semibold mb-4 text-gray-700">Voter Registration by Purok</h2>
                             <ResponsiveContainer width="100%" height={140}>
-                                <BarChart data={voterData} layout="vertical" margin={{ top: -10, right: -10, left: -40, bottom: 10 }}>
+                                <BarChart data={voterData} layout="vertical" margin={{ top: -10, right: 20, left: -40, bottom: 10 }}>
                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                                     <XAxis type="number" hide />
                                     <YAxis type="category" dataKey="name" width={60} axisLine={false} tickLine={false} tick={{ fontSize: 10 }} />

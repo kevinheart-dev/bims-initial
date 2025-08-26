@@ -187,8 +187,8 @@ class DatabaseSeeder extends Seeder
         }
 
         Street::factory(12)->create();      // just 2 streets
-        Household::factory(1439)->create();   // only 5 households
-        Family::factory(1789)->create();
+        Household::factory(50)->create();   // only 5 households
+        Family::factory(50)->create();
 
         $term = BarangayOfficialTerm::factory()->create([
             'barangay_id' => 1,
@@ -251,7 +251,7 @@ class DatabaseSeeder extends Seeder
         // }
         LivelihoodType::factory(50)->create();
 
-        $residents = Resident::factory()->count(1289)->create(); // ✅ very minimal
+        $residents = Resident::factory()->count(63)->create(); // ✅ very minimal
 
         // Related sample data (scaled down)
         InternetAccessibility::factory(20)->create();

@@ -106,8 +106,7 @@ export default function Index({
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename} ${
-                    resident.lastname
+                `${resident.firstname} ${resident.middlename} ${resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("gender", resident.gender);
@@ -119,9 +118,8 @@ export default function Index({
     };
 
     const residentsList = residents.map((resident) => ({
-        label: `${resident.firstname} ${resident.middlename ?? ""} ${
-            resident.lastname
-        }${resident.suffix ? ", " + resident.suffix : ""}`
+        label: `${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname
+            }${resident.suffix ? ", " + resident.suffix : ""}`
             .replace(/\s+/g, " ")
             .trim(),
         value: resident.id,
@@ -238,7 +236,7 @@ export default function Index({
 
             router.get(route("certificate.index", { success: true }));
         } catch (error) {
-            //console.error("Issuance failed", error);
+            console.error("Issuance failed", error);
 
             const serverMessage =
                 error?.response?.data?.message || "Unknown error occurred.";
@@ -337,9 +335,8 @@ export default function Index({
 
         name: (row) => {
             const r = row.resident ?? {};
-            const fullName = `${r.firstname ?? ""} ${r.middlename ?? ""} ${
-                r.lastname ?? ""
-            } ${r.suffix ?? ""}`.trim();
+            const fullName = `${r.firstname ?? ""} ${r.middlename ?? ""} ${r.lastname ?? ""
+                } ${r.suffix ?? ""}`.trim();
             return (
                 <span className="text-sm font-medium text-gray-800">
                     {fullName || "—"}
@@ -358,11 +355,10 @@ export default function Index({
         ),
         request_status: (row) => (
             <span
-                className={`text-xs font-medium ${
-                    CONSTANTS.CERTIFICATE_REQUEST_STATUS_CLASS[
-                        row.request_status
+                className={`text-xs font-medium ${CONSTANTS.CERTIFICATE_REQUEST_STATUS_CLASS[
+                    row.request_status
                     ]
-                }`}
+                    }`}
             >
                 {CONSTANTS.CERTIFICATE_REQUEST_STATUS_TEXT[
                     row.request_status
@@ -764,8 +760,8 @@ export default function Index({
                                                         value={
                                                             CONSTANTS
                                                                 .RESIDENT_CIVIL_STATUS_TEXT[
-                                                                data
-                                                                    .civil_status
+                                                            data
+                                                                .civil_status
                                                             ] || ""
                                                         }
                                                         readOnly
@@ -805,7 +801,7 @@ export default function Index({
                                                             name={placeholder}
                                                             value={
                                                                 data[
-                                                                    placeholder
+                                                                placeholder
                                                                 ] || ""
                                                             }
                                                             onChange={(e) =>
@@ -823,7 +819,7 @@ export default function Index({
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    placeholder
+                                                                placeholder
                                                                 ]
                                                             }
                                                             className="mt-2"

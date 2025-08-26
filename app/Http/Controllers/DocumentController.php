@@ -88,29 +88,29 @@ class DocumentController extends Controller
      */
     public function store(Request $request)
     {
-        try{
+        try {
 
 
-        $barangay = auth()->user()->resident->barangay;
-        $data = $request->validate([
-            'file' => 'required|file|mimes:docx,doc,pdf,txt|max:10240', // 10MB max
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:255',
-        ]);
-        $file = $data['file'];
-        $originalName = $file->getClientOriginalName();
-        $barangayName = $barangay->barangay_name;
-        $barangaySlug = Str::slug($barangayName);
-        $path = $file->storeAs("documents/templates/{$barangaySlug}", $originalName, 'public');
-        Document::create([
-            'barangay_id' =>  $barangay->id,
-            'name' => $data['name'] ?? $originalName,
-            'file_path' => $path,
-            'description' => $data['description'] ?? null,
-        ]);
+            $barangay = auth()->user()->resident->barangay;
+            $data = $request->validate([
+                'file' => 'required|file|mimes:docx,doc,pdf,txt|max:10240', // 10MB max
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string|max:255',
+            ]);
+            $file = $data['file'];
+            $originalName = $file->getClientOriginalName();
+            $barangayName = $barangay->barangay_name;
+            $barangaySlug = Str::slug($barangayName);
+            $path = $file->storeAs("documents/templates/{$barangaySlug}", $originalName, 'public');
+            Document::create([
+                'barangay_id' =>  $barangay->id,
+                'name' => $data['name'] ?? $originalName,
+                'file_path' => $path,
+                'description' => $data['description'] ?? null,
+            ]);
             return back()->with('success', "{$data['name']} Document uploaded.");
-        }catch (\Exception $e) {
-            return back()->with('error' ,'Failed to add document: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to add document: ' . $e->getMessage());
         }
     }
 
@@ -137,10 +137,7 @@ class DocumentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Document $document)
-    {
-
-    }
+    public function show(Document $document) {}
 
     /**
      * Show the form for editing the specified resource.
