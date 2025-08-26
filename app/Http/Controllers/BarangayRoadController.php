@@ -6,6 +6,7 @@ use App\Models\BarangayRoad;
 use App\Http\Requests\StoreBarangayRoadRequest;
 use App\Http\Requests\UpdateBarangayRoadRequest;
 use DB;
+use Str;
 
 class BarangayRoadController extends Controller
 {
@@ -72,8 +73,18 @@ class BarangayRoadController extends Controller
         try {
             if (!empty($data['roads']) && is_array($data['roads'])) {
                 foreach ($data['roads'] as $road) {
+
+                    $imagePath = $road['road_image'] ?? null;
+
+                    // If it's a file upload, store it
+                    if ($imagePath instanceof \Illuminate\Http\UploadedFile) {
+                        $folder = 'road/' . Str::slug($road['road_type']) . Str::random(10);
+                        $imagePath = $imagePath->store($folder, 'public');
+                    }
+
                     BarangayRoad::create([
                         'barangay_id'   => $brgy_id,
+                        'road_image'    => $imagePath,
                         'road_type'     => $road['road_type'],
                         'length'        => $road['length'],
                         'condition'     => $road['condition'],
@@ -123,8 +134,18 @@ class BarangayRoadController extends Controller
         try {
             if (!empty($data['roads']) && is_array($data['roads'])) {
                 foreach ($data['roads'] as $road) {
+
+                    $imagePath = $road['road_image'] ?? $barangayRoad->road_image;
+
+                    // If it's a file upload, store it
+                    if ($imagePath instanceof \Illuminate\Http\UploadedFile) {
+                        $folder = 'road/' . Str::slug($road['road_type']) . Str::random(10);
+                        $imagePath = $imagePath->store($folder, 'public');
+                    }
+
                     $barangayRoad->update([
                         'road_type'     => $road['road_type'],
+                        'road_image'    => $imagePath,
                         'length'        => $road['length'],
                         'condition'     => $road['condition'],
                         'status'        => $road['status'],

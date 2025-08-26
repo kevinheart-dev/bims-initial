@@ -154,7 +154,7 @@ const BarangayInfrastucture = () => {
                     e.target.src = "/images/default-avatar.jpg";
                 }}
                 alt="Resident"
-                className="w-20 h-20 min-w-20 min-h-20 object-cover rounded-full border"
+                className="w-20 h-20 min-w-20 min-h-20 object-cover rounded-sm border"
             />
         ),
         infrastructure_type: (row) => (
@@ -364,10 +364,9 @@ const BarangayInfrastucture = () => {
             setData({
                 infrastructures: [
                     {
-                        infrastructure_image: null,
-                        previewImage:
-                            `/storage/${infrastructure.infrastructure_image}` ||
-                            "",
+                        infrastructure_image:
+                            infrastructure.infrastructure_image || null,
+                        previewImage: null,
                         infrastructure_type:
                             infrastructure.infrastructure_type || "",
                         infrastructure_category:
@@ -591,7 +590,7 @@ const BarangayInfrastucture = () => {
                                                     : "/images/default-avatar.jpg" // Fallback placeholder
                                             }
                                             alt="Infrastructure Image"
-                                            className="w-32 h-32 object-cover rounded-full border border-gray-200"
+                                            className="w-32 h-32 object-cover rounded-sm border border-gray-200"
                                         />
 
                                         <input

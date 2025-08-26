@@ -22,6 +22,7 @@ import {
 } from "react-icons/io";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import { Toaster, toast } from "sonner";
+import InputLabel from "@/Components/InputLabel";
 
 const FacilityIndex = () => {
     const APP_URL = useAppUrl();
@@ -60,6 +61,7 @@ const FacilityIndex = () => {
 
     const allColumns = [
         { key: "id", label: "ID" },
+        { key: "image", label: "Image" },
         { key: "name", label: "Name" },
         { key: "facility_type", label: "Facilitiy Type" },
         { key: "quantity", label: "Quantity" },
@@ -124,6 +126,21 @@ const FacilityIndex = () => {
 
     const columnRenderers = {
         id: (row) => row.id,
+        image: (row) => (
+            <img
+                src={
+                    row.facility_image
+                        ? `/storage/${row.facility_image}`
+                        : "/images/default-avatar.jpg"
+                }
+                onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/images/default-avatar.jpg";
+                }}
+                alt="Resident"
+                className="w-16 h-16 min-w-16 min-h-16 object-cover rounded-sm border"
+            />
+        ),
 
         name: (row) => (
             <span className="font-medium text-gray-900">{row.name || "—"}</span>
@@ -222,15 +239,20 @@ const FacilityIndex = () => {
         setData((prevData) => {
             const updated = [...prevData.facilities];
 
-            // make sure the institution entry exists
-            if (!updated[facIdx]) {
-                updated[facIdx] = {};
+            // if updating file input
+            if (field === "facility_image" && value instanceof File) {
+                updated[facIdx] = {
+                    ...updated[facIdx],
+                    facility_image: value, // store file for submission
+                    previewImage: URL.createObjectURL(value), // generate preview URL
+                };
+            } else {
+                // for other fields or preview assignment
+                updated[facIdx] = {
+                    ...updated[facIdx],
+                    [field]: value,
+                };
             }
-
-            updated[facIdx] = {
-                ...updated[facIdx],
-                [field]: value,
-            };
 
             return { ...prevData, facilities: updated };
         });
@@ -270,6 +292,8 @@ const FacilityIndex = () => {
             setData({
                 facilities: [
                     {
+                        facility_image: facility.facility_image || null, // keep original DB filename
+                        previewImage: null, // no preview yet
                         name: facility.name || "",
                         facility_type: facility.facility_type || "",
                         quantity: facility.quantity || 1,
@@ -469,7 +493,55 @@ const FacilityIndex = () => {
                             >
                                 <div className="grid grid-cols-1 md:grid-cols-6 mb-6">
                                     {/* Facility Details */}
-                                    <div className="md:col-span-6 space-y-4">
+                                    <div className="md:col-span-2 flex flex-col items-center space-y-2">
+                                        <InputLabel
+                                            htmlFor={`facility_image_${facIdx}`}
+                                            value="Facility Photo"
+                                        />
+
+                                        <img
+                                            src={
+                                                facility.previewImage
+                                                    ? facility.previewImage // If user selected new file (preview)
+                                                    : facility.facility_image
+                                                    ? `/storage/${facility.facility_image}` // If existing image in DB
+                                                    : "/images/default-avatar.jpg" // Fallback placeholder
+                                            }
+                                            alt="Facility Image"
+                                            className="w-32 h-32 object-cover rounded-sm border border-gray-200"
+                                        />
+
+                                        <input
+                                            id={`facility_image_${facIdx}`}
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                    handleFacilityFieldChange(
+                                                        file,
+                                                        facIdx,
+                                                        "facility_image"
+                                                    );
+                                                }
+                                            }}
+                                            className="block w-full text-sm text-gray-500
+                                                                                            file:mr-2 file:py-1 file:px-3
+                                                                                            file:rounded file:border-0
+                                                                                            file:text-xs file:font-semibold
+                                                                                            file:bg-blue-50 file:text-blue-700
+                                                                                            hover:file:bg-blue-100"
+                                        />
+                                        <InputError
+                                            message={
+                                                errors[
+                                                    `facilities.${facIdx}.facility_image`
+                                                ]
+                                            }
+                                            className="mt-2"
+                                        />
+                                    </div>
+                                    <div className="md:col-span-4 space-y-4">
                                         {/* Facility Name */}
                                         <InputField
                                             label="Facility Name"

@@ -22,6 +22,7 @@ class UpdateBarangayRoadRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'roads.*.road_image' => ['nullable', 'image', 'max:5120'],
             'road_id' => ['required', 'exists:barangay_roads,id'],
             'roads.*.road_type' => ['required', 'in:asphalt,concrete,gravel,natural_earth_surface'],
             'roads.*.length' => ['required', 'numeric', 'min:0.10', 'max:999999.99'],
@@ -35,6 +36,7 @@ class UpdateBarangayRoadRequest extends FormRequest
     {
         return [
             'road_id'   => 'road',
+            'roads.*.road_image'    => 'road image',
             'roads.*.road_type'     => 'road type',
             'roads.*.length'        => 'road length',
             'roads.*.condition'     => 'road condition',

@@ -73,6 +73,7 @@ class BarangayProjectFactory extends Factory
 
         return [
             'barangay_id' => 1,
+            'project_image' => null,
             'title' => $this->faker->randomElement($sampleTitles),
             'description' => $this->faker->sentence(15, true),
             'status' => $status,

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('barangay_facilities', function (Blueprint $table) {
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
+            $table->text('facility_image')->nullable();
             $table->string('name', 100);
             $table->string('facility_type', 55);
             $table->tinyInteger('quantity')->default(1);

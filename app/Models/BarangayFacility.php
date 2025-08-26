@@ -14,6 +14,7 @@ class BarangayFacility extends Model
 
     protected $fillable = [
         'barangay_id',
+        'facility_image',
         'name',
         'facility_type',
         'quantity',

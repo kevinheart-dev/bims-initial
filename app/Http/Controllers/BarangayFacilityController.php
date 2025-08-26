@@ -6,6 +6,7 @@ use App\Models\BarangayFacility;
 use App\Http\Requests\StoreBarangayFacilityRequest;
 use App\Http\Requests\UpdateBarangayFacilityRequest;
 use DB;
+use Str;
 
 class BarangayFacilityController extends Controller
 {
@@ -63,8 +64,18 @@ class BarangayFacilityController extends Controller
         try {
             if (!empty($data['facilities']) && is_array($data['facilities'])) {
                 foreach ($data['facilities'] as $facility) {
+
+                    $imagePath = $facility['facility_image'] ?? null;
+
+                    // If it's a file upload, store it
+                    if ($imagePath instanceof \Illuminate\Http\UploadedFile) {
+                        $folder = 'facility/' . Str::slug($facility['name']) . Str::random(10);
+                        $imagePath = $imagePath->store($folder, 'public');
+                    }
+
                     BarangayFacility::create([
                         'barangay_id'   => $brgy_id,
+                        'facility_image'=> $imagePath,
                         'name'          => $facility['name'],
                         'facility_type' => $facility['facility_type'],
                         'quantity'      => $facility['quantity'] ?? 1,
@@ -112,8 +123,18 @@ class BarangayFacilityController extends Controller
         try {
             if (!empty($data['facilities']) && is_array($data['facilities'])) {
                 foreach ($data['facilities'] as $facility) {
+
+
+                    $imagePath = $facility['facility_image'] ?? $barangayFacility->facility_image;
+
+                    // If it's a file upload, store it
+                    if ($imagePath instanceof \Illuminate\Http\UploadedFile) {
+                        $folder = 'facility/' . Str::slug($facility['name']) . Str::random(10);
+                        $imagePath = $imagePath->store($folder, 'public');
+                    }
                     $barangayFacility->update([
                         'name'          => $facility['name'],
+                        'facility_image'=> $imagePath,
                         'facility_type' => $facility['facility_type'],
                         'quantity'      => $facility['quantity'] ?? 1,
                     ]);

@@ -18,6 +18,7 @@ class BarangayRoadFactory extends Factory
     {
         return [
             'barangay_id' => 1,
+            'road_image' => null,
             'road_type' => $this->faker->randomElement([
                 'asphalt',
                 'concrete',

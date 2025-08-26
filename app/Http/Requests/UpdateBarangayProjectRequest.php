@@ -24,6 +24,7 @@ class UpdateBarangayProjectRequest extends FormRequest
         return [
             'projects' => ['required', 'array'],
             'project_id' => ['required', 'exists:barangay_projects,id'],
+            'projects.*.project_image' => ['nullable', 'image', 'max:5120'],
             'projects.*.title' => ['required', 'string', 'max:55'],
             'projects.*.description' => ['required', 'string'],
             'projects.*.status' => ['required', 'in:planning,ongoing,completed,cancelled'],
@@ -39,6 +40,7 @@ class UpdateBarangayProjectRequest extends FormRequest
     {
         return [
             'projects.*.title' => 'project title',
+            'projects.*.project_image' => 'project image',
             'projects.*.description' => 'project description',
             'projects.*.status' => 'status',
             'projects.*.category' => 'project category',

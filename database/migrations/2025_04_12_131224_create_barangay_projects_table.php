@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('barangay_projects', function (Blueprint $table) {
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
+            $table->text('project_image')->nullable();
             $table->string('title', 55);
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->enum('status', ['planning', 'ongoing', 'completed', 'cancelled']);
             $table->string('category', 55);
             $table->string('responsible_institution', 155)->nullable();

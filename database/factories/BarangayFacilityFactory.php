@@ -41,6 +41,7 @@ class BarangayFacilityFactory extends Factory
 
         return [
             'barangay_id' => 1,
+            'facility_image' => null,
             'name' => $facility['name'],
             'facility_type' => $facility['facility_type'],
             'quantity' => $quantity,

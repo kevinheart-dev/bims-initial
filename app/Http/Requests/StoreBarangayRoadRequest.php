@@ -22,6 +22,7 @@ class StoreBarangayRoadRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'roads.*.road_image' => ['nullable', 'image', 'max:5120'],
             'roads.*.road_type' => ['required', 'in:asphalt,concrete,gravel,natural_earth_surface'],
             'roads.*.length' => ['required', 'numeric', 'min:0.10', 'max:999999.99'],
             'roads.*.condition' => ['required', 'in:good,fair,poor,under_construction,impassable'],
@@ -34,6 +35,7 @@ class StoreBarangayRoadRequest extends FormRequest
     {
         return [
             'roads.*.road_type'     => 'road type',
+            'roads.*.road_image'    => 'road image',
             'roads.*.length'        => 'road length',
             'roads.*.condition'     => 'road condition',
             'roads.*.status'        => 'road status',

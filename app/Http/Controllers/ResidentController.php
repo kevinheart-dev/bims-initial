@@ -95,7 +95,7 @@ class ResidentController extends Controller
         }
 
         // handles age filtering
-        if (request()->filled('age_group') && request('age_group') !== 'all') {
+        if (request()->filled('age_group') && request('age_group') !== 'All') {
             $today = Carbon::today();
 
             switch (request('age_group')) {
@@ -1982,7 +1982,7 @@ class ResidentController extends Controller
         }
 
         // handles age filtering
-        if (request()->filled('age_group') && request('age_group') !== 'all') {
+        if (request()->filled('age_group') && request('age_group') !== 'll') {
             $today = Carbon::today();
 
             switch (request('age_group')) {

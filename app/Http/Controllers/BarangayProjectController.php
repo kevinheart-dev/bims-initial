@@ -8,6 +8,7 @@ use App\Models\BarangayInstitution;
 use App\Models\BarangayProject;
 use DB;
 use Illuminate\Http\Request;
+use Str;
 
 class BarangayProjectController extends Controller
 {
@@ -102,9 +103,19 @@ class BarangayProjectController extends Controller
         try {
             if (!empty($data['projects']) && is_array($data['projects'])) {
                 foreach ($data['projects'] as $proj) {
+
+                    $imagePath = $facility['project_image'] ?? null;
+
+                    // If it's a file upload, store it
+                    if ($imagePath instanceof \Illuminate\Http\UploadedFile) {
+                        $folder = 'projects/' . Str::slug($proj['title']) . Str::random(10);
+                        $imagePath = $imagePath->store($folder, 'public');
+                    }
+
                     BarangayProject::create([
                         'barangay_id'               => $brgy_id,
                         'title'                     => $proj['title'],
+                        'project_image'             => $imagePath,
                         'description'               => $proj['description'],
                         'status'                    => $proj['status'],
                         'category'                  => $proj['category'],
@@ -153,12 +164,21 @@ class BarangayProjectController extends Controller
     public function update(UpdateBarangayProjectRequest $request, BarangayProject $barangayProject)
     {
         $data = $request->validated();
-
         try {
             if (!empty($data['projects']) && is_array($data['projects'])) {
                 foreach ($data['projects'] as $proj) {
+
+                    $imagePath = $proj['project_image'] ?? $barangayProject->project_image;
+
+                    // If it's a file upload, store it
+                    if ($imagePath instanceof \Illuminate\Http\UploadedFile) {
+                        $folder = 'projects/' . Str::slug($proj['title']) . Str::random(10);
+                        $imagePath = $imagePath->store($folder, 'public');
+                    }
+
                     $barangayProject->update([
                         'title'                  => $proj['title'],
+                        'project_image'          => $imagePath,
                         'description'            => $proj['description'],
                         'status'                 => $proj['status'],
                         'category'               => $proj['category'],

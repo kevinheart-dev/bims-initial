@@ -23,6 +23,7 @@ class UpdateBarangayFacilityRequest extends FormRequest
     {
         return [
             'facilities' => ['required', 'array', 'min:1'],
+            'facilities.*.facility_image' => ['nullable', 'image', 'max:5120'],
             'facilities.*.name' => ['required', 'string', 'max:100'],
             'facilities.*.facility_type' => ['required', 'string', 'max:55'],
             'facilities.*.quantity' => ['required', 'integer', 'min:0'],
@@ -33,6 +34,7 @@ class UpdateBarangayFacilityRequest extends FormRequest
     {
         return [
             'facilities' => 'facilities list',
+            'facilities.*.facility_image' => 'facility image',
             'facilities.*.name' => 'facility name',
             'facilities.*.facility_type' => 'facility type',
             'facilities.*.quantity' => 'facility quantity',

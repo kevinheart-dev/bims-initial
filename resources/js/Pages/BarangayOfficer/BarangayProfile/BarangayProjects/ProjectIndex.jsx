@@ -25,6 +25,7 @@ import {
 } from "react-icons/io";
 import { Toaster, toast } from "sonner";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
+import InputLabel from "@/Components/InputLabel";
 
 const ProjectIndex = () => {
     const APP_URL = useAppUrl();
@@ -64,6 +65,7 @@ const ProjectIndex = () => {
     const allColumns = [
         { key: "id", label: "ID" },
         { key: "title", label: "Title" },
+        { key: "image", label: "Project Image" },
         { key: "description", label: "Description" },
         { key: "status", label: "Status" },
         { key: "category", label: "Category" },
@@ -139,6 +141,21 @@ const ProjectIndex = () => {
 
     const columnRenderers = {
         id: (row) => <span className="text-gray-600 text-sm">{row.id}</span>,
+        image: (row) => (
+            <img
+                src={
+                    row.project_image
+                        ? `/storage/${row.project_image}`
+                        : "/images/default-avatar.jpg"
+                }
+                onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/images/default-avatar.jpg";
+                }}
+                alt="Resident"
+                className="w-16 h-16 min-w-16 min-h-16 object-cover rounded-sm border"
+            />
+        ),
 
         title: (row) => (
             <span className="font-semibold text-gray-900">
@@ -252,27 +269,35 @@ const ProjectIndex = () => {
     const handleModalClose = () => {
         setIsModalOpen(false);
         setModalState("");
+        setProjectDetails(null);
         setProjectToDelete(null);
         reset();
         clearErrors();
     };
+
     const handleProjectFieldChange = (value, projIdx, field) => {
         setData((prevData) => {
             const updated = [...prevData.projects];
 
-            // make sure the project entry exists
-            if (!updated[projIdx]) {
-                updated[projIdx] = {};
+            // if updating file input
+            if (field === "project_image" && value instanceof File) {
+                updated[projIdx] = {
+                    ...updated[projIdx],
+                    project_image: value, // store file for submission
+                    previewImage: URL.createObjectURL(value), // generate preview URL
+                };
+            } else {
+                // for other fields or preview assignment
+                updated[projIdx] = {
+                    ...updated[projIdx],
+                    [field]: value,
+                };
             }
-
-            updated[projIdx] = {
-                ...updated[projIdx],
-                [field]: value,
-            };
 
             return { ...prevData, projects: updated };
         });
     };
+
     const handleSubmitProject = (e) => {
         e.preventDefault();
         post(route("barangay_project.store"), {
@@ -314,6 +339,8 @@ const ProjectIndex = () => {
                     {
                         title: project.title || "",
                         description: project.description || "",
+                        project_image: project.project_image || null, // keep original DB filename
+                        previewImage: null, // no preview yet
                         status: project.status || "planning",
                         category: project.category || "",
                         responsible_institution:
@@ -524,77 +551,126 @@ const ProjectIndex = () => {
                             >
                                 <div className="grid grid-cols-1 md:grid-cols-6 mb-6 gap-4">
                                     {/* Title */}
-                                    <div className="md:col-span-3">
-                                        <InputField
-                                            label="Project Title"
-                                            name="title"
-                                            value={project.title || ""}
-                                            onChange={(e) =>
-                                                handleProjectFieldChange(
-                                                    e.target.value,
-                                                    projIdx,
-                                                    "title"
-                                                )
+                                    <div className="md:col-span-2 flex flex-col items-center space-y-2">
+                                        <InputLabel
+                                            htmlFor={`facility_image_${projIdx}`}
+                                            value="Facility Photo"
+                                        />
+
+                                        <img
+                                            src={
+                                                project.previewImage
+                                                    ? project.previewImage // If user selected new file (preview)
+                                                    : project.project_image
+                                                    ? `/storage/${project.project_image}` // If existing image in DB
+                                                    : "/images/default-avatar.jpg" // Fallback placeholder
                                             }
-                                            placeholder="e.g. Barangay Health Center Construction"
+                                            alt="Facility Image"
+                                            className="w-32 h-32 object-cover rounded-sm border border-gray-200"
+                                        />
+
+                                        <input
+                                            id={`facility_image_${projIdx}`}
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                    handleProjectFieldChange(
+                                                        file,
+                                                        projIdx,
+                                                        "project_image"
+                                                    );
+                                                }
+                                            }}
+                                            className="block w-full text-sm text-gray-500
+                                                                                                                                file:mr-2 file:py-1 file:px-3
+                                                                                                                                file:rounded file:border-0
+                                                                                                                                file:text-xs file:font-semibold
+                                                                                                                                file:bg-blue-50 file:text-blue-700
+                                                                                                                                hover:file:bg-blue-100"
                                         />
                                         <InputError
                                             message={
                                                 errors[
-                                                    `projects.${projIdx}.title`
+                                                    `projects.${projIdx}.project_image`
                                                 ]
                                             }
-                                            className="mt-1"
+                                            className="mt-2"
                                         />
                                     </div>
+                                    <div className="md:col-span-4 space-y-4">
+                                        <div className="md:col-span-3">
+                                            <InputField
+                                                label="Project Title"
+                                                name="title"
+                                                value={project.title || ""}
+                                                onChange={(e) =>
+                                                    handleProjectFieldChange(
+                                                        e.target.value,
+                                                        projIdx,
+                                                        "title"
+                                                    )
+                                                }
+                                                placeholder="e.g. Barangay Health Center Construction"
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `projects.${projIdx}.title`
+                                                    ]
+                                                }
+                                                className="mt-1"
+                                            />
+                                        </div>
 
-                                    {/* Category */}
-                                    <div className="md:col-span-3">
-                                        <DropdownInputField
-                                            label="Category"
-                                            name="category"
-                                            value={project.category || ""}
-                                            onChange={(e) =>
-                                                handleProjectFieldChange(
-                                                    e.target.value,
-                                                    projIdx,
-                                                    "category"
-                                                )
-                                            }
-                                            placeholder="Select category"
-                                            items={[
-                                                {
-                                                    label: "Infrastructure",
-                                                    value: "infrastructure",
-                                                },
-                                                {
-                                                    label: "Health",
-                                                    value: "health",
-                                                },
-                                                {
-                                                    label: "Education",
-                                                    value: "education",
-                                                },
-                                                {
-                                                    label: "Livelihood",
-                                                    value: "livelihood",
-                                                },
-                                                {
-                                                    label: "Others",
-                                                    value: "others",
-                                                },
-                                            ]}
-                                        />
-                                        <InputError
-                                            message={
-                                                errors[
-                                                    `projects.${projIdx}.category`
-                                                ]
-                                            }
-                                            className="mt-1"
-                                        />
+                                        {/* Category */}
+                                        <div className="md:col-span-3">
+                                            <DropdownInputField
+                                                label="Category"
+                                                name="category"
+                                                value={project.category || ""}
+                                                onChange={(e) =>
+                                                    handleProjectFieldChange(
+                                                        e.target.value,
+                                                        projIdx,
+                                                        "category"
+                                                    )
+                                                }
+                                                placeholder="Select category"
+                                                items={[
+                                                    {
+                                                        label: "Infrastructure",
+                                                        value: "infrastructure",
+                                                    },
+                                                    {
+                                                        label: "Health",
+                                                        value: "health",
+                                                    },
+                                                    {
+                                                        label: "Education",
+                                                        value: "education",
+                                                    },
+                                                    {
+                                                        label: "Livelihood",
+                                                        value: "livelihood",
+                                                    },
+                                                    {
+                                                        label: "Others",
+                                                        value: "others",
+                                                    },
+                                                ]}
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `projects.${projIdx}.category`
+                                                    ]
+                                                }
+                                                className="mt-1"
+                                            />
+                                        </div>
                                     </div>
-
                                     {/* Description */}
                                     <div className="md:col-span-6">
                                         <Textarea
@@ -620,7 +696,6 @@ const ProjectIndex = () => {
                                             className="mt-1"
                                         />
                                     </div>
-
                                     {/* Status */}
                                     <div className="md:col-span-2">
                                         <SelectField

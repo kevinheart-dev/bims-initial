@@ -12,6 +12,7 @@ class BarangayRoad extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'road_image',
         'road_type',
         'length',
         'status',

@@ -24,6 +24,7 @@ import {
 import SidebarModal from "@/Components/SidebarModal";
 import { Toaster, toast } from "sonner";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
+import InputLabel from "@/Components/InputLabel";
 
 const BarangayRoads = () => {
     const APP_URL = useAppUrl();
@@ -62,6 +63,7 @@ const BarangayRoads = () => {
 
     const allColumns = [
         { key: "id", label: "ID" },
+        { key: "image", label: "Road Image" },
         { key: "road_type", label: "Road Type" },
         { key: "maintained_by", label: "Maintained By" },
         { key: "length", label: "Length" },
@@ -129,6 +131,21 @@ const BarangayRoads = () => {
 
     const columnRenderers = {
         id: (row) => row.id,
+        image: (row) => (
+            <img
+                src={
+                    row.road_image
+                        ? `/storage/${row.road_image}`
+                        : "/images/default-avatar.jpg"
+                }
+                onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/images/default-avatar.jpg";
+                }}
+                alt="Resident"
+                className="w-16 h-16 min-w-16 min-h-16 object-cover rounded-sm border"
+            />
+        ),
 
         road_type: (row) => (
             <span className="font-medium text-gray-900">
@@ -262,14 +279,20 @@ const BarangayRoads = () => {
         setData((prevData) => {
             const updated = [...prevData.roads];
 
-            if (!updated[roadIdx]) {
-                updated[roadIdx] = {};
+            // if updating file input
+            if (field === "road_image" && value instanceof File) {
+                updated[roadIdx] = {
+                    ...updated[roadIdx],
+                    road_image: value, // store file for submission
+                    previewImage: URL.createObjectURL(value), // generate preview URL
+                };
+            } else {
+                // for other fields or preview assignment
+                updated[roadIdx] = {
+                    ...updated[roadIdx],
+                    [field]: value,
+                };
             }
-
-            updated[roadIdx] = {
-                ...updated[roadIdx],
-                [field]: value,
-            };
 
             return { ...prevData, roads: updated };
         });
@@ -312,6 +335,8 @@ const BarangayRoads = () => {
             setData({
                 roads: [
                     {
+                        road_image: road.road_image || null, // keep original DB filename
+                        previewImage: null, // no preview yet
                         road_type: road.road_type || "",
                         length: road.length || "",
                         condition: road.condition || "",
@@ -369,7 +394,16 @@ const BarangayRoads = () => {
         });
         setIsDeleteModalOpen(false);
     };
-
+    useEffect(() => {
+        if (Toasterror) {
+            toast.error(Toasterror, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [Toasterror]);
     const handlePrint = () => {
         window.print();
     };
@@ -500,74 +534,125 @@ const BarangayRoads = () => {
                                     className="border p-4 mb-4 rounded-md relative bg-gray-50"
                                 >
                                     <div className="grid grid-cols-1 md:grid-cols-6 mb-6 gap-4">
-                                        {/* Road Type */}
-                                        <div className="md:col-span-3">
-                                            <DropdownInputField
-                                                label="Road Type"
-                                                name="road_type"
-                                                value={road.road_type || ""}
-                                                onChange={(e) =>
-                                                    handleRoadFieldChange(
-                                                        e.target.value,
-                                                        roadIdx,
-                                                        "road_type"
-                                                    )
+                                        <div className="md:col-span-2 flex flex-col items-center space-y-2">
+                                            <InputLabel
+                                                htmlFor={`facility_image_${roadIdx}`}
+                                                value="Road Image"
+                                            />
+
+                                            <img
+                                                src={
+                                                    road.previewImage
+                                                        ? road.previewImage // If user selected new file (preview)
+                                                        : road.road_image
+                                                        ? `/storage/${road.road_image}` // If existing image in DB
+                                                        : "/images/default-avatar.jpg" // Fallback placeholder
                                                 }
-                                                placeholder="Select road type"
-                                                items={[
-                                                    {
-                                                        label: "Asphalt",
-                                                        value: "asphalt",
-                                                    },
-                                                    {
-                                                        label: "Concrete",
-                                                        value: "concrete",
-                                                    },
-                                                    {
-                                                        label: "Gravel",
-                                                        value: "gravel",
-                                                    },
-                                                    {
-                                                        label: "Natural Earth Surface",
-                                                        value: "natural_earth_surface",
-                                                    },
-                                                ]}
+                                                alt="Road Image"
+                                                className="w-32 h-32 object-cover rounded-sm border border-gray-200"
+                                            />
+
+                                            <input
+                                                id={`facility_image_${roadIdx}`}
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    const file =
+                                                        e.target.files[0];
+                                                    if (file) {
+                                                        handleRoadFieldChange(
+                                                            file,
+                                                            roadIdx,
+                                                            "road_image"
+                                                        );
+                                                    }
+                                                }}
+                                                className="block w-full text-sm text-gray-500
+                                                                                                                                    file:mr-2 file:py-1 file:px-3
+                                                                                                                                    file:rounded file:border-0
+                                                                                                                                    file:text-xs file:font-semibold
+                                                                                                                                    file:bg-blue-50 file:text-blue-700
+                                                                                                                                    hover:file:bg-blue-100"
                                             />
                                             <InputError
                                                 message={
                                                     errors[
-                                                        `roads.${roadIdx}.road_type`
+                                                        `roads.${roadIdx}.road_image`
                                                     ]
                                                 }
-                                                className="mt-1"
+                                                className="mt-2"
                                             />
                                         </div>
+                                        <div className="md:col-span-4 space-y-4">
+                                            {/* Road Type */}
+                                            <div className="md:col-span-3">
+                                                <DropdownInputField
+                                                    label="Road Type"
+                                                    name="road_type"
+                                                    value={road.road_type || ""}
+                                                    onChange={(e) =>
+                                                        handleRoadFieldChange(
+                                                            e.target.value,
+                                                            roadIdx,
+                                                            "road_type"
+                                                        )
+                                                    }
+                                                    placeholder="Select road type"
+                                                    items={[
+                                                        {
+                                                            label: "Asphalt",
+                                                            value: "asphalt",
+                                                        },
+                                                        {
+                                                            label: "Concrete",
+                                                            value: "concrete",
+                                                        },
+                                                        {
+                                                            label: "Gravel",
+                                                            value: "gravel",
+                                                        },
+                                                        {
+                                                            label: "Natural Earth Surface",
+                                                            value: "natural_earth_surface",
+                                                        },
+                                                    ]}
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `roads.${roadIdx}.road_type`
+                                                        ]
+                                                    }
+                                                    className="mt-1"
+                                                />
+                                            </div>
 
-                                        {/* Length */}
-                                        <div className="md:col-span-3">
-                                            <InputField
-                                                label="Length (km)"
-                                                name="length"
-                                                type="number"
-                                                step="0.01"
-                                                value={road.length || ""}
-                                                onChange={(e) =>
-                                                    handleRoadFieldChange(
-                                                        e.target.value,
-                                                        roadIdx,
-                                                        "length"
-                                                    )
-                                                }
-                                                placeholder="e.g. 2.50"
-                                            />
-                                            <InputError
-                                                message={
-                                                    errors[
-                                                        `roads.${roadIdx}.length`
-                                                    ]
-                                                }
-                                                className="mt-1"
-                                            />
+                                            {/* Length */}
+                                            <div className="md:col-span-3">
+                                                <InputField
+                                                    label="Length (km)"
+                                                    name="length"
+                                                    type="number"
+                                                    step="0.01"
+                                                    value={road.length || ""}
+                                                    onChange={(e) =>
+                                                        handleRoadFieldChange(
+                                                            e.target.value,
+                                                            roadIdx,
+                                                            "length"
+                                                        )
+                                                    }
+                                                    placeholder="e.g. 2.50"
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `roads.${roadIdx}.length`
+                                                        ]
+                                                    }
+                                                    className="mt-1"
+                                                />
+                                            </div>
                                         </div>
 
                                         {/* Condition */}

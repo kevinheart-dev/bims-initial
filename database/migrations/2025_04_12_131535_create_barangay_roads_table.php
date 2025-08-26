@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('barangay_id')
                 ->constrained('barangays')
                 ->onDelete('cascade');
+            $table->text('road_image')->nullable();
             $table->enum('road_type', ['asphalt', 'concrete', 'gravel', 'natural_earth_surface']);
             $table->decimal('length', 8, 2)->comment('Length of the road in kilometers');
             $table->enum('condition', ['good', 'fair', 'poor', 'under_construction', 'impassable']);
