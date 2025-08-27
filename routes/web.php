@@ -21,6 +21,7 @@ use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\LivelihoodController;
 use App\Http\Controllers\MedicalInformationController;
 use App\Http\Controllers\OccupationController;
+use App\Http\Controllers\PregnancyRecordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportGenerationController;
 use App\Http\Controllers\ResidentController;
@@ -123,6 +124,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('vaccination', ResidentVaccinationController::class);
     Route::resource('disability', DisabilityController::class);
     Route::resource('allergy', AllergyController::class);
+    Route::resource('pregnancy', PregnancyRecordController::class);
 
     // barangay
     Route::resource('barangay_official', BarangayOfficialController::class);

@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Allergy;
 use App\Http\Requests\StoreAllergyRequest;
 use App\Http\Requests\UpdateAllergyRequest;
+use App\Models\Purok;
+use DB;
+use Inertia\Inertia;
 
 class AllergyController extends Controller
 {
@@ -13,7 +16,119 @@ class AllergyController extends Controller
      */
     public function index()
     {
-        //
+        $brgy_id = auth()->user()->barangay_id;
+        $filters = request()->all();
+
+        $puroks = Purok::where('barangay_id', $brgy_id)
+            ->orderBy('purok_number', 'asc')
+            ->pluck('purok_number');
+
+        $query = Allergy::query()
+            ->with([
+                'resident:id,firstname,lastname,suffix,birthdate,purok_number,sex',
+                'resident.medicalInformation:id,resident_id'
+            ])
+            ->whereHas('resident', function ($q) use ($brgy_id, $filters) {
+                $q->where('barangay_id', $brgy_id);
+
+                // 🔹 Filter by Purok
+                if (!empty($filters['purok']) && $filters['purok'] !== "All") {
+                    $q->where('purok_number', $filters['purok']);
+                }
+
+                // 🔹 Filter by Sex
+                if (!empty($filters['sex']) && $filters['sex'] !== "All") {
+                    $q->where('sex', $filters['sex']);
+                }
+
+                // 🔹 Filter by Age Group
+                if (!empty($filters['age_group']) && $filters['age_group'] !== "All") {
+                    $today = now();
+
+                    switch ($filters['age_group']) {
+                        case '0_6_months':
+                            $q->whereBetween('birthdate', [
+                                $today->copy()->subMonths(6),
+                                $today,
+                            ]);
+                            break;
+
+                        case '7mos_2yrs':
+                            $q->whereBetween('birthdate', [
+                                $today->copy()->subYears(2),
+                                $today->copy()->subMonths(7),
+                            ]);
+                            break;
+
+                        case '3_5yrs':
+                            $q->whereBetween('birthdate', [
+                                $today->copy()->subYears(5),
+                                $today->copy()->subYears(3),
+                            ]);
+                            break;
+
+                        case '6_12yrs':
+                            $q->whereBetween('birthdate', [
+                                $today->copy()->subYears(12),
+                                $today->copy()->subYears(6),
+                            ]);
+                            break;
+
+                        case '13_17yrs':
+                            $q->whereBetween('birthdate', [
+                                $today->copy()->subYears(17),
+                                $today->copy()->subYears(13),
+                            ]);
+                            break;
+
+                        case '18_59yrs':
+                            $q->whereBetween('birthdate', [
+                                $today->copy()->subYears(59),
+                                $today->copy()->subYears(18),
+                            ]);
+                            break;
+
+                        case '60_above':
+                            $q->where('birthdate', '<=', $today->copy()->subYears(60));
+                            break;
+                    }
+                }
+            });
+
+        // 🔹 Filter by Allergy Name
+        if (!empty($filters['allergy'])) {
+            $query->where('allergy_name', 'like', '%' . $filters['allergy'] . '%');
+        }
+
+        if (request('name')) {
+            $search = request('name');
+            $query->where(function ($q) use ($search) {
+                // Search resident fields
+                $q->whereHas('resident', function ($sub) use ($search) {
+                    $sub->where(function ($r) use ($search) {
+                        $r->where('firstname', 'like', '%' . $search . '%')
+                            ->orWhere('lastname', 'like', '%' . $search . '%')
+                            ->orWhere('middlename', 'like', '%' . $search . '%')
+                            ->orWhere('suffix', 'like', '%' . $search . '%')
+                            ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . $search . '%'])
+                            ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ['%' . $search . '%'])
+                            ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ['%' . $search . '%']);
+                    });
+                });
+
+                // Search medications
+                $q->orWhere('allergy_name', 'like', '%' . $search . '%');
+                $q->orWhere('reaction_description', 'like', '%' . $search . '%');
+            });
+        }
+
+        $allergies = $query->paginate(10)->withQueryString();
+
+        return Inertia::render("BarangayOfficer/MedicalInformation/Allergy/Index", [
+            "allergies" => $allergies,
+            "puroks" => $puroks,
+            'queryParams' => request()->query() ?: null,
+        ]);
     }
 
     /**
@@ -59,8 +174,21 @@ class AllergyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Allergy $allergy)
+    public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $residentAllergy = Allergy::findOrFail($id);
+            $residentAllergy->delete();
+            DB::commit();
+
+            return redirect()
+                ->route('allergy.index')
+                ->with(
+                    'success', 'Allergy deleted successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Allergy could not be deleted: ' . $e->getMessage());
+        }
     }
 }

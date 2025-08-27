@@ -477,3 +477,30 @@ export const FACILITY_TYPE_TEXT = [
     { value: "service", label: "Service" },
     { value: "commerce", label: "Commerce" },
 ];
+
+export const MEDICAL_CONDITION_STATUSES = {
+    active: "Active",
+    resolved: "Resolved",
+    chronic: "Chronic",
+};
+export const MEDICAL_CONDITION_STATUS_STYLES = {
+    active: "bg-yellow-100 text-yellow-800 px-2 py-1 rounded",
+    resolved: "bg-green-100 text-green-800 px-2 py-1 rounded",
+    chronic: "bg-red-100 text-red-800 px-2 py-1 rounded",
+    default: "bg-gray-100 text-gray-800 px-2 py-1 rounded",
+};
+
+export const PREGNANCY_STATUSES = {
+    ongoing: "Ongoing",
+    delivered: "Delivered",
+    miscarried: "Miscarried",
+    aborted: "Aborted",
+};
+
+export const PREGNANCY_STATUS_STYLES = {
+    ongoing: "bg-yellow-100 text-yellow-800 px-2 py-1 rounded",
+    delivered: "bg-green-100 text-green-800 px-2 py-1 rounded",
+    miscarried: "bg-red-100 text-red-800 px-2 py-1 rounded",
+    aborted: "bg-purple-100 text-purple-800 px-2 py-1 rounded",
+    default: "bg-gray-100 text-gray-800 px-2 py-1 rounded",
+};

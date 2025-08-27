@@ -30,6 +30,9 @@ use App\Models\OccupationType;
 use App\Models\PregnancyRecords;
 use App\Models\Purok;
 use App\Models\Resident;
+use App\Models\ResidentMedicalCondition;
+use App\Models\ResidentMedication;
+use App\Models\ResidentVaccination;
 use App\Models\ResidentVoterInformation;
 use App\Models\SeniorCitizen;
 use App\Models\SocialAssistance;
@@ -298,5 +301,10 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         });
+        ResidentMedicalCondition::factory(30)->create();
+        ResidentMedication::factory(30)->create();
+        ResidentVaccination::factory(30)->create();
+        Allergy::factory(30)->create();
+        PregnancyRecords::factory(15)->create();
     }
 }

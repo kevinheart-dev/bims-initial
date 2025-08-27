@@ -2,22 +2,15 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-    Search,
-    SquarePen,
-    Trash2,
-    SquarePlus,
-    MoveRight,
-    RotateCcw,
-    Eye,
-} from "lucide-react";
+import { Search, SquarePen, Trash2, SquarePlus, Eye } from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import { Toaster, toast } from "sonner";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
 import {
-    BMI_STATUS,
+    MEDICAL_CONDITION_STATUS_STYLES,
+    MEDICAL_CONDITION_STATUSES,
     RESIDENT_GENDER_COLOR_CLASS,
     RESIDENT_GENDER_TEXT2,
 } from "@/constants";
@@ -29,10 +22,10 @@ import useAppUrl from "@/hooks/useAppUrl";
 import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 
-export default function Index({ medical_information, puroks, queryParams }) {
+export default function Index({ disabilities, puroks, queryParams }) {
     const breadcrumbs = [
-        { label: "Residents Information", showOnMobile: false },
-        { label: "Medical Information", showOnMobile: true },
+        { label: "Medical Information", showOnMobile: false },
+        { label: "Disabilities", showOnMobile: true },
     ];
     queryParams = queryParams || {};
     const APP_URL = useAppUrl();
@@ -40,38 +33,23 @@ export default function Index({ medical_information, puroks, queryParams }) {
     const success = props?.success ?? null;
     const error = props?.error ?? null;
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
-    const [residentToDelete, setResidentToDelete] = useState(null); //delete
+    const [disabilityToDelete, setDisabilityToDelete] = useState(null); //delete
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedResident, setSelectedResident] = useState(null);
 
-    // const { data, setData, post, errors, reset, clearErrors } = useForm({
-    //     // Resident-level fields
-    //     resident_id: null,
-    //     resident_name: "", // (optional: if you want full name)
-    //     resident_image: null,
-    //     birthdate: null,
-    //     civil_status: "",
-    //     purok_number: null,
-
-    //     // Medical information fields
-    //     weight_kg: "",
-    //     height_cm: "",
-    //     bmi: "",
-    //     nutrition_status: "",
-    //     blood_type: "",
-    //     emergency_contact_number: "",
-    //     emergency_contact_name: "",
-    //     emergency_contact_relationship: "",
-    //     is_smoker: false,
-    //     is_alcohol_user: false,
-    //     has_philhealth: false,
-    //     philhealth_id_number: "",
-    //     pwd_id_number: "",
-
-    //     _method: undefined,
-    // });
+    const calculateAge = (birthdate) => {
+        if (!birthdate) return "Unknown";
+        const birth = new Date(birthdate);
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    };
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
@@ -87,7 +65,7 @@ export default function Index({ medical_information, puroks, queryParams }) {
         if (queryParams.page) {
             delete queryParams.page;
         }
-        router.get(route("medical.index", queryParams));
+        router.get(route("disability.index", queryParams));
     };
     const onKeyPressed = (field, e) => {
         if (e.key === "Enter") {
@@ -100,16 +78,10 @@ export default function Index({ medical_information, puroks, queryParams }) {
     const allColumns = [
         { key: "id", label: "ID" },
         { key: "name", label: "Resident Name" },
-        { key: "weight_kg", label: "Weight (kg)" },
-        { key: "height_cm", label: "Height (cm)" },
+        { key: "age", label: "Age" },
         { key: "sex", label: "Sex" },
-        { key: "nutrition_status", label: "Nutritional Status" },
-        { key: "blood_type", label: "Blood Type" },
-        { key: "emergency_contact_number", label: "Emergency Contact Number" },
-        { key: "is_smoker", label: "Smoker?" },
-        { key: "is_alcohol_user", label: "Alcohol User?" },
-        { key: "philhealth_id_number", label: "PhilHealth ID" },
-        { key: "is_pwd", label: "Is PWD?" },
+        { key: "type", label: "Disability Type" },
+        { key: "pwd_id_number", label: "PWD ID Number" },
         { key: "purok_number", label: "Purok Number" },
         { key: "actions", label: "Actions" },
     ];
@@ -117,21 +89,9 @@ export default function Index({ medical_information, puroks, queryParams }) {
     const [visibleColumns, setVisibleColumns] = useState(
         allColumns.map((col) => col.key)
     );
-    const [isPaginated, setIsPaginated] = useState(true);
-    const [showAll, setShowAll] = useState(false);
-
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
-            [
-                "purok",
-                "sex",
-                "nutritional_status",
-                "blood_type",
-                "is_smoker",
-                "alcohol_user",
-                "has_philhealth",
-                "is_pwd",
-            ].includes(key) &&
+            ["purok", "sex", "age_group", "disability_type"].includes(key) &&
             value &&
             value !== ""
     );
@@ -162,13 +122,13 @@ export default function Index({ medical_information, puroks, queryParams }) {
             );
         },
 
-        weight_kg: (row) => row.weight_kg ?? "—",
-        height_cm: (row) => row.height_cm ?? "—",
         sex: (row) => {
-            const genderKey = row.resident.sex;
-            const label = RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
+            const genderKey = row.resident?.sex;
+            const label =
+                RESIDENT_GENDER_TEXT2?.[genderKey] ?? genderKey ?? "Unknown";
             const className =
-                RESIDENT_GENDER_COLOR_CLASS[genderKey] ?? "bg-gray-300";
+                RESIDENT_GENDER_COLOR_CLASS?.[genderKey] ??
+                "bg-gray-100 text-gray-800 px-2 py-1 rounded";
 
             return (
                 <span
@@ -178,55 +138,31 @@ export default function Index({ medical_information, puroks, queryParams }) {
                 </span>
             );
         },
-        nutrition_status: (row) => {
-            const status = row.nutrition_status;
-            const statusText = BMI_STATUS[status] ?? "—";
-            let colorClass = "";
-            switch (status) {
-                case "normal":
-                    colorClass = "bg-green-100 text-green-800 p-1 rounded";
-                    break;
-                case "underweight":
-                case "severly_underweight":
-                    colorClass = "bg-yellow-100 text-yellow-800 p-1 rounded";
-                    break;
-                case "overweight":
-                    colorClass = "bg-orange-100 text-orange-800 p-1 rounded";
-                    break;
-                case "obese":
-                    colorClass = "bg-red-100 text-red-800 p-1 rounded";
-                    break;
-                default:
-                    colorClass = "bg-gray-100 text-gray-800 p-1 rounded";
-            }
-            return <span className={colorClass}>{statusText}</span>;
+
+        age: (row) => {
+            const age = calculateAge(row.resident?.birthdate);
+
+            if (typeof age !== "number") return "Unknown";
+
+            return (
+                <div className="flex flex-col text-sm">
+                    <span className="font-medium text-gray-800">{age}</span>
+                    {age > 60 && (
+                        <span className="text-xs text-rose-500 font-semibold">
+                            Senior Citizen
+                        </span>
+                    )}
+                </div>
+            );
         },
 
-        blood_type: (row) => row.blood_type ?? "—",
-        emergency_contact_number: (row) => row.emergency_contact_number ?? "—",
+        type: (row) => row.disability_type ?? "—",
 
-        is_pwd: (row) => {
-            const isPwd = (row.resident?.disabilities?.length ?? 0) > 0;
-            const colorClass = isPwd
-                ? "bg-green-100 text-green-800 px-2 py-1 rounded"
-                : "bg-gray-100 text-gray-800 px-2 py-1 rounded";
-            return <span className={colorClass}>{isPwd ? "Yes" : "No"}</span>;
-        },
+        pwd_id_number: (row) =>
+            row?.resident?.medical_information?.pwd_id_number
+                ? row?.resident?.medical_information?.pwd_id_number
+                : "—",
 
-        is_smoker: (row) =>
-            row.is_smoker ? (
-                <span className="text-red-500">Yes</span>
-            ) : (
-                <span className="text-gray-500">No</span>
-            ),
-
-        is_alcohol_user: (row) =>
-            row.is_alcohol_user ? (
-                <span className="text-red-500">Yes</span>
-            ) : (
-                <span className="text-gray-500">No</span>
-            ),
-        philhealth_id_number: (row) => row.philhealth_id_number ?? "—",
         purok_number: (row) => row.resident?.purok_number ?? "—",
 
         actions: (medical) => (
@@ -235,13 +171,18 @@ export default function Index({ medical_information, puroks, queryParams }) {
                     {
                         label: "View",
                         icon: <Eye className="w-4 h-4 text-indigo-600" />,
-                        onClick: () => handleView(medical.resident.id),
+                        onClick: () => handleView(medical.resident?.id),
                     },
                     {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
                         onClick: () => {
-                            router.get(route("medical.edit", medical.id));
+                            router.get(
+                                route(
+                                    "medical.edit",
+                                    medical?.resident?.medical_information?.id
+                                )
+                            );
                         },
                     },
                     {
@@ -253,18 +194,32 @@ export default function Index({ medical_information, puroks, queryParams }) {
             />
         ),
     };
+
     const handleModalClose = () => {
         setIsModalOpen(false);
         setSelectedResident(null);
     };
 
     const handleDeleteClick = (id) => {
-        setResidentToDelete(id);
+        setDisabilityToDelete(id);
         setIsDeleteModalOpen(true);
     };
 
     const confirmDelete = () => {
-        router.delete(route("medical.destroy", residentToDelete));
+        router.delete(route("disability.destroy", disabilityToDelete), {
+            onError: (errors) => {
+                console.error("Validation Errors:", errors);
+
+                const allErrors = Object.values(errors).join("<br />");
+                toast.error("Validation Error", {
+                    description: (
+                        <span dangerouslySetInnerHTML={{ __html: allErrors }} />
+                    ),
+                    duration: 3000,
+                    closeButton: true,
+                });
+            },
+        });
         setIsDeleteModalOpen(false);
     };
 
@@ -309,7 +264,7 @@ export default function Index({ medical_information, puroks, queryParams }) {
             <div>
                 <Toaster richColors />
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-                {/* <pre>{JSON.stringify(medical_information, undefined, 2)}</pre> */}
+                {/* <pre>{JSON.stringify(disabilities, undefined, 2)}</pre> */}
                 <div className="p-2 md:p-4">
                     <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
@@ -329,11 +284,11 @@ export default function Index({ medical_information, puroks, queryParams }) {
                                 <div className="flex items-center gap-2 flex-wrap justify-end">
                                     <form
                                         onSubmit={handleSearchSubmit}
-                                        className="flex w-[300px] max-w-lg items-center space-x-1"
+                                        className="flex w-[380px] max-w-lg items-center space-x-1"
                                     >
                                         <Input
                                             type="text"
-                                            placeholder="Search Resident Name"
+                                            placeholder="Search Disability or Resident Name"
                                             value={query}
                                             onChange={(e) =>
                                                 setQuery(e.target.value)
@@ -383,27 +338,20 @@ export default function Index({ medical_information, puroks, queryParams }) {
                                     visibleFilters={[
                                         "purok",
                                         "sex",
-                                        "nutritional_status",
-                                        "blood_type",
-                                        "is_smoker",
-                                        "alcohol_user",
-                                        "has_philhealth",
-                                        "is_pwd",
+                                        "age_group",
+                                        "disability_type",
                                     ]}
                                     puroks={puroks}
                                     showFilters={true}
-                                    clearRouteName="medical.index"
+                                    clearRouteName="disability.index"
                                     clearRouteParams={{}}
                                 />
                             )}
                             <DynamicTable
-                                passedData={medical_information}
+                                passedData={disabilities}
                                 allColumns={allColumns}
                                 columnRenderers={columnRenderers}
                                 queryParams={queryParams}
-                                is_paginated={isPaginated}
-                                toggleShowAll={() => setShowAll(!showAll)}
-                                showAll={showAll}
                                 visibleColumns={visibleColumns}
                                 setVisibleColumns={setVisibleColumns}
                             />
@@ -425,7 +373,7 @@ export default function Index({ medical_information, puroks, queryParams }) {
                         setIsDeleteModalOpen(false);
                     }}
                     onConfirm={confirmDelete}
-                    residentId={residentToDelete}
+                    residentId={disabilityToDelete}
                 />
             </div>
         </AdminLayout>

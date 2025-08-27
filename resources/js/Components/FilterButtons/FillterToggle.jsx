@@ -472,87 +472,88 @@ const FilterToggle = ({
             {(isVisible("pwd") ||
                 isVisible("fourps") ||
                 isVisible("solo_parent")) && (
-                    <div
-                        className="relative inline-block text-left w-56"
-                        ref={welfareRef}
+                <div
+                    className="relative inline-block text-left w-56"
+                    ref={welfareRef}
+                >
+                    <button
+                        onClick={() => setOpenWelfare(!openWelfare)}
+                        className="inline-flex justify-between items-center w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50 focus:outline-none"
                     >
-                        <button
-                            onClick={() => setOpenWelfare(!openWelfare)}
-                            className="inline-flex justify-between items-center w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50 focus:outline-none"
+                        Social Welfare
+                        <svg
+                            className={`ml-2 h-5 w-5 transition-transform duration-200 ${
+                                openWelfare ? "rotate-180" : ""
+                            }`}
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
                         >
-                            Social Welfare
-                            <svg
-                                className={`ml-2 h-5 w-5 transition-transform duration-200 ${openWelfare ? "rotate-180" : ""
-                                    }`}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M19 9l-7 7-7-7"
-                                />
-                            </svg>
-                        </button>
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                            />
+                        </svg>
+                    </button>
 
-                        {openWelfare && (
-                            <div className="absolute mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg z-50 max-h-60 overflow-auto">
-                                <div className="py-2 px-4 space-y-2">
-                                    {isVisible("pwd") && (
-                                        <label className="flex items-center space-x-2 cursor-pointer">
-                                            <Checkbox
-                                                id="pwd-checkbox"
-                                                checked={queryParams.pwd === "1"}
-                                                onCheckedChange={(checked) =>
-                                                    searchFieldName(
-                                                        "pwd",
-                                                        checked ? "1" : "0"
-                                                    )
-                                                }
-                                            />
-                                            <span>PWD</span>
-                                        </label>
-                                    )}
-                                    {isVisible("fourps") && (
-                                        <label className="flex items-center space-x-2 cursor-pointer">
-                                            <Checkbox
-                                                id="fourps-checkbox"
-                                                checked={queryParams.fourps === "1"}
-                                                onCheckedChange={(checked) =>
-                                                    searchFieldName(
-                                                        "fourps",
-                                                        checked ? "1" : "0"
-                                                    )
-                                                }
-                                            />
-                                            <span>4ps Beneficiary</span>
-                                        </label>
-                                    )}
-                                    {isVisible("solo_parent") && (
-                                        <label className="flex items-center space-x-2 cursor-pointer">
-                                            <Checkbox
-                                                id="solo-parent-checkbox"
-                                                checked={
-                                                    queryParams.solo_parent === "1"
-                                                }
-                                                onCheckedChange={(checked) =>
-                                                    searchFieldName(
-                                                        "solo_parent",
-                                                        checked ? "1" : "0"
-                                                    )
-                                                }
-                                            />
-                                            <span>Solo Parent</span>
-                                        </label>
-                                    )}
-                                </div>
+                    {openWelfare && (
+                        <div className="absolute mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg z-50 max-h-60 overflow-auto">
+                            <div className="py-2 px-4 space-y-2">
+                                {isVisible("pwd") && (
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        <Checkbox
+                                            id="pwd-checkbox"
+                                            checked={queryParams.pwd === "1"}
+                                            onCheckedChange={(checked) =>
+                                                searchFieldName(
+                                                    "pwd",
+                                                    checked ? "1" : "0"
+                                                )
+                                            }
+                                        />
+                                        <span>PWD</span>
+                                    </label>
+                                )}
+                                {isVisible("fourps") && (
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        <Checkbox
+                                            id="fourps-checkbox"
+                                            checked={queryParams.fourps === "1"}
+                                            onCheckedChange={(checked) =>
+                                                searchFieldName(
+                                                    "fourps",
+                                                    checked ? "1" : "0"
+                                                )
+                                            }
+                                        />
+                                        <span>4ps Beneficiary</span>
+                                    </label>
+                                )}
+                                {isVisible("solo_parent") && (
+                                    <label className="flex items-center space-x-2 cursor-pointer">
+                                        <Checkbox
+                                            id="solo-parent-checkbox"
+                                            checked={
+                                                queryParams.solo_parent === "1"
+                                            }
+                                            onCheckedChange={(checked) =>
+                                                searchFieldName(
+                                                    "solo_parent",
+                                                    checked ? "1" : "0"
+                                                )
+                                            }
+                                        />
+                                        <span>Solo Parent</span>
+                                    </label>
+                                )}
                             </div>
-                        )}
-                    </div>
-                )}
+                        </div>
+                    )}
+                </div>
+            )}
             {/* VEHICLE */}
             {isVisible("v_type") && (
                 <Select
@@ -1204,7 +1205,7 @@ const FilterToggle = ({
                             searchFieldName("start_date", formatted);
                         }}
                         dateFormat="yyyy-MM-dd"
-                        className="border rounded px-2 py-1 w-[180px]"
+                        className="border border-gray-300 rounded-md shadow-sm px-2 py-1 w-[180px]"
                         placeholderText="Date Issued"
                         popperContainer={({ children }) => (
                             <div className="z-[9999]">{children}</div>
@@ -1227,7 +1228,7 @@ const FilterToggle = ({
                             searchFieldName("end_date", formatted);
                         }}
                         dateFormat="yyyy-MM-dd"
-                        className="border rounded px-2 py-1 w-[180px]"
+                        className="border border-gray-300 rounded-md shadow-sm px-2 py-1 w-[180px]"
                         placeholderText="Date Issued"
                         popperContainer={({ children }) => (
                             <div className="z-[9999]">{children}</div>
@@ -1367,6 +1368,299 @@ const FilterToggle = ({
                         <SelectItem value="0">No</SelectItem>
                     </SelectContent>
                 </Select>
+            )}
+
+            {/* MEDICAL CONDITION */}
+            {isVisible("condition_status") && (
+                <Select
+                    onValueChange={(medCon) =>
+                        searchFieldName("condition_status", medCon)
+                    }
+                    value={queryParams.condition_status}
+                >
+                    <SelectTrigger className="w-[160px]">
+                        <SelectValue placeholder="Condition Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="resolved">Resolved</SelectItem>
+                        <SelectItem value="chronic">Chronic</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+
+            {/* DISABILITIES */}
+            {isVisible("disability_type") && (
+                <Select
+                    onValueChange={(type) =>
+                        searchFieldName("disability_type", type)
+                    }
+                    value={queryParams.disability_type}
+                >
+                    <SelectTrigger className="w-[220px]">
+                        <SelectValue placeholder="Disability Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="Visual Impairment">
+                            Visual Impairment
+                        </SelectItem>
+                        <SelectItem value="Hearing Impairment">
+                            Hearing Impairment
+                        </SelectItem>
+                        <SelectItem value="Mobility Impairment">
+                            Mobility Impairment
+                        </SelectItem>
+                        <SelectItem value="Speech/Communication Disorder">
+                            Speech/Communication Disorder
+                        </SelectItem>
+                        <SelectItem value="Intellectual Disability">
+                            Intellectual Disability
+                        </SelectItem>
+                        <SelectItem value="Psychosocial Disability">
+                            Psychosocial Disability
+                        </SelectItem>
+                        <SelectItem value="Chronic Illness-related Disability">
+                            Chronic Illness-related Disability
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+
+            {/* MEDICATION */}
+            {isVisible("medication") && (
+                <Select
+                    onValueChange={(med) => searchFieldName("medication", med)}
+                    value={queryParams.medication}
+                >
+                    <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Medication" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="Paracetamol">Paracetamol</SelectItem>
+                        <SelectItem value="Amoxicillin">Amoxicillin</SelectItem>
+                        <SelectItem value="Metformin">Metformin</SelectItem>
+                        <SelectItem value="Losartan">Losartan</SelectItem>
+                        <SelectItem value="Atorvastatin">
+                            Atorvastatin
+                        </SelectItem>
+                        <SelectItem value="Omeprazole">Omeprazole</SelectItem>
+                        <SelectItem value="Aspirin">Aspirin</SelectItem>
+                        <SelectItem value="Ibuprofen">Ibuprofen</SelectItem>
+                        <SelectItem value="Cetirizine">Cetirizine</SelectItem>
+                        <SelectItem value="Salbutamol">Salbutamol</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("med_start") && (
+                <div className="flex items-center gap-2">
+                    <DatePicker
+                        selected={
+                            queryParams.start_date
+                                ? new Date(queryParams.start_date)
+                                : null
+                        }
+                        onChange={(date) => {
+                            const formatted = date
+                                ? date.toLocaleDateString("en-CA")
+                                : "";
+                            searchFieldName("start_date", formatted);
+                        }}
+                        dateFormat="yyyy-MM-dd"
+                        className="border border-gray-300 rounded-md shadow-sm px-2 py-1 w-[180px]"
+                        placeholderText="Date Started"
+                        popperContainer={({ children }) => (
+                            <div className="z-[9999]">{children}</div>
+                        )}
+                    />
+                </div>
+            )}
+            {isVisible("med_end") && (
+                <div className="flex items-center gap-2">
+                    <DatePicker
+                        selected={
+                            queryParams.end_date
+                                ? new Date(queryParams.end_date)
+                                : null
+                        }
+                        onChange={(date) => {
+                            const formatted = date
+                                ? date.toLocaleDateString("en-CA")
+                                : "";
+                            searchFieldName("end_date", formatted);
+                        }}
+                        dateFormat="yyyy-MM-dd"
+                        className="border border-gray-300 rounded-md shadow-sm px-2 py-1 w-[180px]"
+                        placeholderText="Date Ended"
+                        popperContainer={({ children }) => (
+                            <div className="z-[9999]">{children}</div>
+                        )}
+                    />
+                </div>
+            )}
+
+            {/* VACCINATION */}
+            {isVisible("vaccine") && (
+                <Select
+                    onValueChange={(vac) => searchFieldName("vaccine", vac)}
+                    value={queryParams.vaccine}
+                >
+                    <SelectTrigger className="w-[220px]">
+                        <SelectValue placeholder="Vaccine" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="COVID-19 (Pfizer)">
+                            COVID-19 (Pfizer)
+                        </SelectItem>
+                        <SelectItem value="COVID-19 (Moderna)">
+                            COVID-19 (Moderna)
+                        </SelectItem>
+                        <SelectItem value="COVID-19 (Sinovac)">
+                            COVID-19 (Sinovac)
+                        </SelectItem>
+                        <SelectItem value="Influenza">Influenza</SelectItem>
+                        <SelectItem value="Hepatitis B">Hepatitis B</SelectItem>
+                        <SelectItem value="Measles">Measles</SelectItem>
+                        <SelectItem value="Tetanus">Tetanus</SelectItem>
+                        <SelectItem value="Polio">Polio</SelectItem>
+                        <SelectItem value="Chickenpox">Chickenpox</SelectItem>
+                        <SelectItem value="HPV">HPV</SelectItem>
+                        <SelectItem value="Anti-Rabies">Anti-Rabies</SelectItem>
+                        <SelectItem value="Dengue">Dengue</SelectItem>
+                        <SelectItem value="Typhoid">Typhoid</SelectItem>
+                        <SelectItem value="Pneumococcal">
+                            Pneumococcal
+                        </SelectItem>
+                        <SelectItem value="Meningococcal">
+                            Meningococcal
+                        </SelectItem>
+                        <SelectItem value="Tuberculosis (BCG)">
+                            Tuberculosis (BCG)
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("vaccination_date") && (
+                <div className="flex items-center gap-2">
+                    <DatePicker
+                        selected={
+                            queryParams.vaccination_date
+                                ? new Date(queryParams.vaccination_date)
+                                : null
+                        }
+                        onChange={(date) => {
+                            const formatted = date
+                                ? date.toLocaleDateString("en-CA")
+                                : "";
+                            searchFieldName("vaccination_date", formatted);
+                        }}
+                        dateFormat="yyyy-MM-dd"
+                        className="border border-gray-300 rounded-md shadow-sm px-2 py-1 w-[180px]"
+                        placeholderText="Vaccination Date"
+                        popperContainer={({ children }) => (
+                            <div className="z-[9999]">{children}</div>
+                        )}
+                    />
+                </div>
+            )}
+
+            {/* ALLERGY */}
+            {isVisible("allergy") && (
+                <Select
+                    onValueChange={(allergy) =>
+                        searchFieldName("allergy", allergy)
+                    }
+                    value={queryParams.allergy}
+                >
+                    <SelectTrigger className="w-[220px]">
+                        <SelectValue placeholder="Allergy" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="Peanuts">Peanuts</SelectItem>
+                        <SelectItem value="Shellfish">Shellfish</SelectItem>
+                        <SelectItem value="Dust Mites">Dust Mites</SelectItem>
+                        <SelectItem value="Pollen">Pollen</SelectItem>
+                        <SelectItem value="Milk">Milk</SelectItem>
+                        <SelectItem value="Eggs">Eggs</SelectItem>
+                        <SelectItem value="Wheat">Wheat</SelectItem>
+                        <SelectItem value="Soy">Soy</SelectItem>
+                        <SelectItem value="Latex">Latex</SelectItem>
+                        <SelectItem value="Bee Stings">Bee Stings</SelectItem>
+                        <SelectItem value="Penicillin">Penicillin</SelectItem>
+                        <SelectItem value="Aspirin">Aspirin</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+
+            {/* PREGNANCY */}
+            {isVisible("pregnancy_status") && (
+                <Select
+                    onValueChange={(status) =>
+                        searchFieldName("pregnancy_status", status)
+                    }
+                    value={queryParams.pregnancy_status}
+                >
+                    <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Pregnancy Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="ongoing">Ongoing</SelectItem>
+                        <SelectItem value="delivered">Delivered</SelectItem>
+                        <SelectItem value="miscarried">Miscarried</SelectItem>
+                        <SelectItem value="aborted">Aborted</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("expected_due_date") && (
+                <div className="flex items-center gap-2">
+                    <DatePicker
+                        selected={
+                            queryParams.expected_due_date
+                                ? new Date(queryParams.expected_due_date)
+                                : null
+                        }
+                        onChange={(date) => {
+                            const formatted = date
+                                ? date.toLocaleDateString("en-CA")
+                                : "";
+                            searchFieldName("expected_due_date", formatted);
+                        }}
+                        dateFormat="yyyy-MM-dd"
+                        className="border border-gray-300 rounded-md shadow-sm px-2 py-1 w-[180px]"
+                        placeholderText="Expected Due Date"
+                        popperContainer={({ children }) => (
+                            <div className="z-[9999]">{children}</div>
+                        )}
+                    />
+                </div>
+            )}
+            {isVisible("delivery_date") && (
+                <div className="flex items-center gap-2">
+                    <DatePicker
+                        selected={
+                            queryParams.delivery_date
+                                ? new Date(queryParams.delivery_date)
+                                : null
+                        }
+                        onChange={(date) => {
+                            const formatted = date
+                                ? date.toLocaleDateString("en-CA")
+                                : "";
+                            searchFieldName("delivery_date", formatted);
+                        }}
+                        dateFormat="yyyy-MM-dd"
+                        className="border border-gray-300 rounded-md shadow-sm px-2 py-1 w-[180px]"
+                        placeholderText="Delivery Date"
+                        popperContainer={({ children }) => (
+                            <div className="z-[9999]">{children}</div>
+                        )}
+                    />
+                </div>
             )}
 
             {isVisible("created_at") && (

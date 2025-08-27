@@ -31,6 +31,7 @@ import {
     Syringe,
     Heart,
     Stethoscope,
+    Tablets,
 } from "lucide-react";
 
 import {
@@ -136,28 +137,33 @@ const items = [
                 icon: Table,
             },
             {
+                title: "Allergies",
+                url: "/barangay_officer/allergy",
+                icon: Tablets,
+            },
+            {
                 title: "Medical Condition",
                 url: "/barangay_officer/medical_condition",
                 icon: Stethoscope,
             },
             {
                 title: "Disabilities",
-                url: "#",
+                url: "/barangay_officer/disability",
                 icon: Accessibility,
             },
             {
                 title: "Medications",
-                url: "#",
+                url: "/barangay_officer/medication",
                 icon: Pill,
             },
             {
                 title: "Pregnancy Records",
-                url: "#",
+                url: "/barangay_officer/pregnancy",
                 icon: SquareActivity,
             },
             {
                 title: "Vaccinations",
-                url: "#",
+                url: "/barangay_officer/vaccination",
                 icon: Syringe,
             },
         ],

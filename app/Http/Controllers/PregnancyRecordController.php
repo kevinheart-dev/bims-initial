@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MedicalCondition;
+use App\Models\PregnancyRecords;
+use App\Http\Requests\StorePregnancyRecordsRequest;
+use App\Http\Requests\UpdatePregnancyRecordsRequest;
 use App\Models\Purok;
-use App\Models\ResidentMedicalCondition;
-use App\Http\Requests\StoreResidentMedicalConditionRequest;
-use App\Http\Requests\UpdateResidentMedicalConditionRequest;
 use DB;
 use Inertia\Inertia;
 
-class ResidentMedicalConditionController extends Controller
+class PregnancyRecordController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,13 +17,14 @@ class ResidentMedicalConditionController extends Controller
     public function index()
     {
         $brgy_id = auth()->user()->barangay_id;
-        $filters = request()->only(['purok', 'sex', 'age_group', 'condition_status']);
+        $filters = request()->all();
 
         $puroks = Purok::where('barangay_id', $brgy_id)
             ->orderBy('purok_number', 'asc')
             ->pluck('purok_number');
 
-        $query = ResidentMedicalCondition::query()
+
+        $query = PregnancyRecords::query()
             ->with([
                 'resident:id,firstname,lastname,suffix,birthdate,purok_number,sex',
                 'resident.medicalInformation:id,resident_id'
@@ -96,14 +96,10 @@ class ResidentMedicalConditionController extends Controller
                 }
             });
 
-        // ✅ Filter by Condition Status
-        if (!empty($filters['condition_status']) && $filters['condition_status'] !== "All") {
-            $query->where('status', $filters['condition_status']);
-        }
         if (request('name')) {
             $search = request('name');
             $query->where(function ($q) use ($search) {
-                // Search resident-related fields
+                // Search resident fields
                 $q->whereHas('resident', function ($sub) use ($search) {
                     $sub->where(function ($r) use ($search) {
                         $r->where('firstname', 'like', '%' . $search . '%')
@@ -115,21 +111,32 @@ class ResidentMedicalConditionController extends Controller
                             ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ['%' . $search . '%']);
                     });
                 });
-
-                // ✅ Search medical condition fields too
-                $q->orWhere('condition', 'like', '%' . $search . '%');
             });
         }
 
-        $medicalConditions = $query->paginate(10)->withQueryString();
+        // ✅ Filter by Pregnancy Status
+        if (!empty($filters['pregnancy_status']) && $filters['pregnancy_status'] !== "All") {
+            $query->where('status', $filters['pregnancy_status']);
+        }
 
-        return Inertia::render("BarangayOfficer/MedicalInformation/MedicalCondition/Index", [
-            "medicalConditions" => $medicalConditions,
+        // ✅ Filter by Expected Due Date
+        if (!empty($filters['expected_due_date'])) {
+            $query->whereDate('expected_due_date', $filters['expected_due_date']);
+        }
+
+        // ✅ Filter by Delivery Date
+        if (!empty($filters['delivery_date'])) {
+            $query->whereDate('delivery_date', $filters['delivery_date']);
+        }
+
+        $pregnancy_records = $query->paginate(10)->withQueryString();
+
+        return Inertia::render("BarangayOfficer/MedicalInformation/Pregnancy/Index", [
+            "pregnancy_records" => $pregnancy_records,
             "puroks" => $puroks,
             'queryParams' => request()->query() ?: null,
         ]);
     }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -141,7 +148,7 @@ class ResidentMedicalConditionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreResidentMedicalConditionRequest $request)
+    public function store(StorePregnancyRecordsRequest $request)
     {
         //
     }
@@ -149,7 +156,7 @@ class ResidentMedicalConditionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(ResidentMedicalCondition $residentMedicalCondition)
+    public function show(PregnancyRecords $pregnancyRecords)
     {
         //
     }
@@ -157,7 +164,7 @@ class ResidentMedicalConditionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ResidentMedicalCondition $residentMedicalCondition)
+    public function edit(PregnancyRecords $pregnancyRecords)
     {
         //
     }
@@ -165,7 +172,7 @@ class ResidentMedicalConditionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateResidentMedicalConditionRequest $request, ResidentMedicalCondition $residentMedicalCondition)
+    public function update(UpdatePregnancyRecordsRequest $request, PregnancyRecords $pregnancyRecords)
     {
         //
     }
@@ -177,17 +184,17 @@ class ResidentMedicalConditionController extends Controller
     {
         DB::beginTransaction();
         try {
-            $residentMedicalCondition = ResidentMedicalCondition::findOrFail($id);
-            $residentMedicalCondition->delete();
+            $record = PregnancyRecords::findOrFail($id);
+            $record->delete();
             DB::commit();
 
             return redirect()
-                ->route('medical_condition.index')
+                ->route('pregnancy.index')
                 ->with(
-                    'success', 'Medical condition deleted successfully!');
+                    'success', 'Pregnancy Record deleted successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Medical condition could not be deleted: ' . $e->getMessage());
+            return back()->with('error', 'Pregnancy Record could not be deleted: ' . $e->getMessage());
         }
     }
 }

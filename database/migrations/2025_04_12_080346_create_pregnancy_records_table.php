@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('pregnancy_records', function (Blueprint $table) {
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->boolean('is_pregnant');
-            $table->date('expected_due_date');
+            $table->enum('status', ['ongoing', 'delivered', 'miscarried', 'aborted'])->default('ongoing');
+            $table->date('expected_due_date')->nullable();
+            $table->date('delivery_date')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
         });

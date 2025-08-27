@@ -110,7 +110,7 @@ export default function Index({ res_med_info }) {
                 has_philhealth: res_med_info.has_philhealth ? "1" : "0",
                 philhealth_id_number: res_med_info.philhealth_id_number ?? "",
                 pwd_id_number: res_med_info.pwd_id_number ?? null,
-                is_pwd: res_med_info.is_pwd ? "1" : "0",
+                is_pwd: res_med_info.pwd_id_number ? "1" : "0",
                 disabilities: res_med_info.resident.disabilities ?? [],
                 has_allergies:
                     res_med_info.resident.allergies?.length > 0 ? "1" : "0",
