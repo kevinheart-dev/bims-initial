@@ -2,7 +2,14 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, SquarePen, Trash2, SquarePlus, Eye } from "lucide-react";
+import {
+    Search,
+    SquarePen,
+    Trash2,
+    SquarePlus,
+    Eye,
+    RotateCcw,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import { Toaster, toast } from "sonner";
@@ -23,8 +30,25 @@ import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
+import InputLabel from "@/Components/InputLabel";
+import DropdownInputField from "@/Components/DropdownInputField";
+import InputField from "@/Components/InputField";
+import useResidentChangeHandler from "@/hooks/handleResidentChange";
+import InputError from "@/Components/InputError";
+import SelectField from "@/Components/SelectField";
+import { Textarea } from "@/Components/ui/textarea";
+import {
+    IoIosAddCircleOutline,
+    IoIosArrowForward,
+    IoIosCloseCircleOutline,
+} from "react-icons/io";
 
-export default function Index({ pregnancy_records, puroks, queryParams }) {
+export default function Index({
+    pregnancy_records,
+    puroks,
+    queryParams,
+    residents,
+}) {
     const breadcrumbs = [
         { label: "Medical Information", showOnMobile: false },
         { label: "Vaccinations", showOnMobile: true },
@@ -35,7 +59,9 @@ export default function Index({ pregnancy_records, puroks, queryParams }) {
     const success = props?.success ?? null;
     const error = props?.error ?? null;
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
-    const [medicalConditionToDelete, setConditionToDelete] = useState(null); //delete
+    const [recordToDelete, setRecordToDelete] = useState(null); //delete
+    const [modalState, setModalState] = useState(null); //delete
+    const [pregnancyDetails, setPregnancyDetails] = useState(null);
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,7 +78,6 @@ export default function Index({ pregnancy_records, puroks, queryParams }) {
         }
         return age;
     };
-
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         searchFieldName("name", query);
@@ -88,11 +113,9 @@ export default function Index({ pregnancy_records, puroks, queryParams }) {
         { key: "purok_number", label: "Purok Number" },
         { key: "actions", label: "Actions" },
     ];
-
     const [visibleColumns, setVisibleColumns] = useState(
         allColumns.map((col) => col.key)
     );
-
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
             [
@@ -190,7 +213,7 @@ export default function Index({ pregnancy_records, puroks, queryParams }) {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
                         onClick: () => {
-                            router.get(route("pregnancy.edit", row.id));
+                            handleEdit(row.id);
                         },
                     },
                     {
@@ -203,19 +226,154 @@ export default function Index({ pregnancy_records, puroks, queryParams }) {
         ),
     };
 
-    const handleModalClose = () => {
-        setIsModalOpen(false);
-        setSelectedResident(null);
+    // add
+    const handleAddRecord = () => {
+        setModalState("add");
+        setIsModalOpen(true);
+    };
+
+    const { data, setData, post, errors, reset, clearErrors } = useForm({
+        resident_id: null,
+        resident_name: "", // (optional: if you want full name)
+        resident_image: null,
+        birthdate: null,
+        civil_status: "",
+        purok_number: null,
+        pregnancy_records: [[]],
+        _method: undefined,
+        record_id: null,
+    });
+
+    const handleResidentChange = useResidentChangeHandler(residents, setData);
+    const residentsList = residents.map((res) => ({
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
+            res.suffix ?? ""
+        }`,
+        value: res.id.toString(),
+    }));
+
+    const addRecord = () => {
+        setData("pregnancy_records", [...(data.pregnancy_records || []), {}]);
+    };
+    const removeRecord = (recordIdx) => {
+        const updated = [...(data.pregnancy_records || [])];
+        updated.splice(recordIdx, 1);
+        setData("pregnancy_records", updated);
+        toast.warning("Record removed.", {
+            duration: 2000,
+        });
+    };
+    // Update a specific pregnancy record field in state
+    const handlePregnancyFieldChange = (value, idx, field) => {
+        setData((prevData) => {
+            const updated = [...prevData.pregnancy_records];
+
+            // Ensure the record exists
+            if (!updated[idx]) {
+                updated[idx] = {};
+            }
+
+            updated[idx] = {
+                ...updated[idx],
+                [field]: value,
+            };
+
+            return { ...prevData, pregnancy_records: updated };
+        });
+    };
+    // Submit new pregnancy record(s)
+    const handleSubmitPregnancy = (e) => {
+        e.preventDefault();
+        post(route("pregnancy.store"), {
+            onError: (errors) => {
+                console.error("Validation Errors:", errors);
+
+                const allErrors = Object.values(errors).join("<br />");
+                toast.error("Validation Error", {
+                    description: (
+                        <span dangerouslySetInnerHTML={{ __html: allErrors }} />
+                    ),
+                    duration: 3000,
+                    closeButton: true,
+                });
+            },
+            onSuccess: () => {
+                handleModalClose(); // close modal if using one
+            },
+        });
+    };
+
+    // edit
+    const handleEdit = async (id) => {
+        setModalState("edit");
+
+        try {
+            // Fetch pregnancy record details
+            const response = await axios.get(
+                `${APP_URL}/barangay_officer/pregnancy/details/${id}`
+            );
+
+            const record = response.data.record;
+            setPregnancyDetails(record);
+            // Populate form data
+            setData({
+                resident_id: record.resident_id || null,
+                resident_name: record.resident
+                    ? `${record.resident.firstname} ${
+                          record.resident.middlename ?? ""
+                      } ${record.resident.lastname} ${
+                          record.resident.suffix ?? ""
+                      }`.trim()
+                    : "",
+                resident_image: record.resident?.resident_picture_path || null,
+                birthdate: record.resident?.birthdate || null,
+                sex: record.resident?.sex || "",
+                purok_number: record.resident?.purok_number || null,
+                pregnancy_records: [
+                    {
+                        status: record.status || "",
+                        expected_due_date: record.expected_due_date || "",
+                        delivery_date: record.delivery_date || "",
+                        notes: record.notes || "",
+                    },
+                ],
+                _method: "PUT",
+                record_id: record.id,
+            });
+
+            setIsModalOpen(true);
+        } catch (error) {
+            console.error("Error fetching pregnancy record details:", error);
+        }
+    };
+    const handleUpdatePregnancy = (e) => {
+        e.preventDefault();
+        post(route("pregnancy.update", data.record_id), {
+            onError: (errors) => {
+                //console.error("Validation Errors:", errors);
+
+                const allErrors = Object.values(errors).join("<br />");
+                toast.error("Validation Error", {
+                    description: (
+                        <span dangerouslySetInnerHTML={{ __html: allErrors }} />
+                    ),
+                    duration: 3000,
+                    closeButton: true,
+                });
+            },
+            onSuccess: () => {
+                handleModalClose();
+            },
+        });
     };
 
     // delete
     const handleDeleteClick = (id) => {
-        setConditionToDelete(id);
+        setRecordToDelete(id);
         setIsDeleteModalOpen(true);
     };
-
     const confirmDelete = () => {
-        router.delete(route("pregnancy.destroy", medicalConditionToDelete), {
+        router.delete(route("pregnancy.destroy", recordToDelete), {
             onError: (errors) => {
                 console.error("Validation Errors:", errors);
 
@@ -242,6 +400,15 @@ export default function Index({ pregnancy_records, puroks, queryParams }) {
             console.error("Error fetching placeholders:", error);
         }
         setIsModalOpen(true);
+        setModalState("view");
+    };
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+        setSelectedResident(null);
+        setPregnancyDetails(null);
+        setModalState(null);
+        reset();
+        clearErrors();
     };
 
     useEffect(() => {
@@ -296,7 +463,7 @@ export default function Index({ pregnancy_records, puroks, queryParams }) {
                                     >
                                         <Input
                                             type="text"
-                                            placeholder="Search Vaccine or Resident Name"
+                                            placeholder="Search Resident Name"
                                             value={query}
                                             onChange={(e) =>
                                                 setQuery(e.target.value)
@@ -325,6 +492,7 @@ export default function Index({ pregnancy_records, puroks, queryParams }) {
                                             <Button
                                                 className="bg-blue-700 hover:bg-blue-400 "
                                                 type={"button"}
+                                                onClick={handleAddRecord}
                                             >
                                                 <SquarePlus />
                                             </Button>
@@ -367,10 +535,283 @@ export default function Index({ pregnancy_records, puroks, queryParams }) {
                 <SidebarModal
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
-                    title="Resident Details"
+                    title={
+                        modalState == "view"
+                            ? "Resident Details"
+                            : modalState == "add"
+                            ? "Add Pregnancy Records"
+                            : "Edit Pregnancy Record"
+                    }
                 >
-                    {selectedResident && (
+                    {modalState == "view" && (
                         <PersonDetailContent person={selectedResident} />
+                    )}
+                    {modalState != "view" && (
+                        <form
+                            className="bg-gray-50 p-4 rounded-lg"
+                            onSubmit={
+                                pregnancyDetails
+                                    ? handleUpdatePregnancy
+                                    : handleSubmitPregnancy
+                            }
+                        >
+                            <h3 className="text-2xl font-medium text-gray-700">
+                                Pregnancy Record
+                            </h3>
+                            <p className="text-sm text-gray-500 mb-8">
+                                Please provide details about the pregnancy
+                                record for the selected resident.
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-6 gap-y-2 md:gap-x-4 mb-5">
+                                <div className="md:row-span-2 flex flex-col md:col-span-2 items-center space-y-2">
+                                    <InputLabel
+                                        htmlFor={`resident_image`}
+                                        value="Profile Photo"
+                                    />
+                                    <img
+                                        src={
+                                            data.resident_image
+                                                ? `/storage/${data.resident_image}`
+                                                : "/images/default-avatar.jpg"
+                                        }
+                                        alt={`Resident Image`}
+                                        className="w-32 h-32 object-cover rounded-sm border border-gray-200"
+                                    />
+                                </div>
+                                <div className="md:col-span-4 space-y-2">
+                                    <div className="w-full">
+                                        <DropdownInputField
+                                            label="Full Name"
+                                            name="fullname"
+                                            value={data.resident_name || ""}
+                                            placeholder="Select a resident"
+                                            onChange={(e) =>
+                                                handleResidentChange(e)
+                                            }
+                                            items={residentsList}
+                                        />
+                                        <InputError
+                                            message={errors.resident_id}
+                                            className="mt-2"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                        <div>
+                                            <InputField
+                                                label="Birthdate"
+                                                name="birthdate"
+                                                value={data.birthdate || ""}
+                                                placeholder="Select a resident"
+                                                readOnly={true}
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <InputField
+                                                label="Sex"
+                                                name="sex"
+                                                value={
+                                                    RESIDENT_GENDER_TEXT2[
+                                                        data.sex || ""
+                                                    ]
+                                                }
+                                                placeholder="Select a resident"
+                                                readOnly={true}
+                                            />
+                                        </div>
+                                        <div>
+                                            <InputField
+                                                label="Purok"
+                                                name="purok_number"
+                                                value={data.purok_number || ""}
+                                                readOnly={true}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {Array.isArray(data.pregnancy_records) &&
+                                data.pregnancy_records.map((record, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="border p-4 mb-4 rounded-md relative bg-gray-50"
+                                    >
+                                        <div className="grid grid-cols-1 md:grid-cols-6 mb-6 gap-4">
+                                            {/* Status */}
+                                            <div className="md:col-span-2">
+                                                <SelectField
+                                                    label="Status"
+                                                    name="status"
+                                                    value={record.status || ""}
+                                                    onChange={(e) =>
+                                                        handlePregnancyFieldChange(
+                                                            e.target.value,
+                                                            idx,
+                                                            "status"
+                                                        )
+                                                    }
+                                                    items={[
+                                                        {
+                                                            label: "Ongoing",
+                                                            value: "ongoing",
+                                                        },
+                                                        {
+                                                            label: "Delivered",
+                                                            value: "delivered",
+                                                        },
+                                                        {
+                                                            label: "Miscarried",
+                                                            value: "miscarried",
+                                                        },
+                                                        {
+                                                            label: "Aborted",
+                                                            value: "aborted",
+                                                        },
+                                                    ]}
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `pregnancyRecords.${idx}.status`
+                                                        ]
+                                                    }
+                                                    className="mt-1"
+                                                />
+                                            </div>
+
+                                            {/* Expected Due Date */}
+                                            <div className="md:col-span-2">
+                                                <InputField
+                                                    label="Expected Due Date"
+                                                    type="date"
+                                                    name="expected_due_date"
+                                                    value={
+                                                        record.expected_due_date ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handlePregnancyFieldChange(
+                                                            e.target.value,
+                                                            idx,
+                                                            "expected_due_date"
+                                                        )
+                                                    }
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `pregnancyRecords.${idx}.expected_due_date`
+                                                        ]
+                                                    }
+                                                    className="mt-1"
+                                                />
+                                            </div>
+
+                                            {/* Delivery Date */}
+                                            <div className="md:col-span-2">
+                                                <InputField
+                                                    label="Delivery Date"
+                                                    type="date"
+                                                    name="delivery_date"
+                                                    value={
+                                                        record.delivery_date ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handlePregnancyFieldChange(
+                                                            e.target.value,
+                                                            idx,
+                                                            "delivery_date"
+                                                        )
+                                                    }
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `pregnancyRecords.${idx}.delivery_date`
+                                                        ]
+                                                    }
+                                                    className="mt-1"
+                                                />
+                                            </div>
+
+                                            {/* Notes */}
+                                            <div className="md:col-span-6">
+                                                <Textarea
+                                                    label="Notes"
+                                                    name="notes"
+                                                    value={record.notes || ""}
+                                                    onChange={(e) =>
+                                                        handlePregnancyFieldChange(
+                                                            e.target.value,
+                                                            idx,
+                                                            "notes"
+                                                        )
+                                                    }
+                                                    placeholder="Additional notes..."
+                                                    className="text-gray-600"
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `pregnancyRecords.${idx}.notes`
+                                                        ]
+                                                    }
+                                                    className="mt-1"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Remove Button */}
+                                        {pregnancyDetails === null && (
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    removeRecord(idx)
+                                                }
+                                                className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
+                                            >
+                                                <IoIosCloseCircleOutline className="text-2xl" />
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+
+                            <div className="flex justify-between items-center p-3">
+                                {pregnancyDetails === null ? (
+                                    <button
+                                        type="button"
+                                        onClick={addRecord}
+                                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
+                                    >
+                                        <IoIosAddCircleOutline className="text-2xl" />
+                                        <span>Add Pregnancy Record</span>
+                                    </button>
+                                ) : (
+                                    <div></div>
+                                )}
+
+                                <div className="flex justify-end items-center text-end mt-5 gap-4">
+                                    {pregnancyDetails == null && (
+                                        <Button
+                                            type="button"
+                                            onClick={() => reset()}
+                                        >
+                                            <RotateCcw /> Reset
+                                        </Button>
+                                    )}
+
+                                    <Button
+                                        className="bg-blue-700 hover:bg-blue-400"
+                                        type={"submit"}
+                                    >
+                                        {pregnancyDetails ? "Update" : "Add"}{" "}
+                                        <IoIosArrowForward />
+                                    </Button>
+                                </div>
+                            </div>
+                        </form>
                     )}
                 </SidebarModal>
                 <DeleteConfirmationModal
@@ -379,7 +820,7 @@ export default function Index({ pregnancy_records, puroks, queryParams }) {
                         setIsDeleteModalOpen(false);
                     }}
                     onConfirm={confirmDelete}
-                    residentId={medicalConditionToDelete}
+                    residentId={recordToDelete}
                 />
             </div>
         </AdminLayout>

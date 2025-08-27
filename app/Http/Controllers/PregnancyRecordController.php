@@ -6,6 +6,7 @@ use App\Models\PregnancyRecords;
 use App\Http\Requests\StorePregnancyRecordsRequest;
 use App\Http\Requests\UpdatePregnancyRecordsRequest;
 use App\Models\Purok;
+use App\Models\Resident;
 use DB;
 use Inertia\Inertia;
 
@@ -131,10 +132,14 @@ class PregnancyRecordController extends Controller
 
         $pregnancy_records = $query->paginate(10)->withQueryString();
 
+       $residents = Resident::where('sex', 'female')
+        ->where('barangay_id', $brgy_id)
+        ->get();
         return Inertia::render("BarangayOfficer/MedicalInformation/Pregnancy/Index", [
             "pregnancy_records" => $pregnancy_records,
             "puroks" => $puroks,
             'queryParams' => request()->query() ?: null,
+            'residents'=> $residents
         ]);
     }
     /**
@@ -150,7 +155,31 @@ class PregnancyRecordController extends Controller
      */
     public function store(StorePregnancyRecordsRequest $request)
     {
-        //
+        $data = $request->validated();
+        try {
+            if (!empty($data['pregnancy_records']) && is_array($data['pregnancy_records'])) {
+                foreach ($data['pregnancy_records'] as $record) {
+                    PregnancyRecords::create([
+                        'resident_id'       => $data['resident_id'],
+                        'status'            => $record['status'],
+                        'expected_due_date' => $record['expected_due_date'] ?? null,
+                        'delivery_date'     => $record['delivery_date'] ?? null,
+                        'notes'             => $record['notes'] ?? null,
+                    ]);
+                }
+            }
+
+            return redirect()
+                ->route('pregnancy.index')
+                ->with([
+                    'success' => 'Pregnancy record(s) saved successfully.',
+                ]);
+        } catch (\Exception $e) {
+            return back()->with(
+                'error',
+                'Pregnancy record(s) could not be saved: ' . $e->getMessage()
+            );
+        }
     }
 
     /**
@@ -174,8 +203,24 @@ class PregnancyRecordController extends Controller
      */
     public function update(UpdatePregnancyRecordsRequest $request, PregnancyRecords $pregnancyRecords)
     {
-        //
-    }
+        $data = $request->validated();
+        $recordData = $data['pregnancy_records'][0] ?? [];
+        $pregnancyRecords = PregnancyRecords::findOrFail($data['record_id']);
+        try {
+            $pregnancyRecords->update([
+                'status' => $recordData['status'] ?? $pregnancyRecords->status,
+                'expected_due_date' => $recordData['expected_due_date'] ?? $pregnancyRecords->expected_due_date,
+                'delivery_date' => $recordData['delivery_date'] ?? $pregnancyRecords->delivery_date,
+                'notes' => $recordData['notes'] ?? $pregnancyRecords->notes,
+            ]);
+
+            return redirect()
+                ->route('pregnancy.index')
+                ->with('success', 'Pregnancy record updated successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Pregnancy record could not be updated: ' . $e->getMessage());
+        }
+}
 
     /**
      * Remove the specified resource from storage.
@@ -196,5 +241,15 @@ class PregnancyRecordController extends Controller
             DB::rollBack();
             return back()->with('error', 'Pregnancy Record could not be deleted: ' . $e->getMessage());
         }
+    }
+
+    public function pregnancyDetails($id){
+        $record = PregnancyRecords::query()
+            ->with([
+                'resident:id,firstname,lastname,suffix,birthdate,purok_number,sex,resident_picture_path',
+            ])->findOrFail($id);
+        return response()->json([
+            'record' => $record,
+        ]);
     }
 }

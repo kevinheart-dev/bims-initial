@@ -104,7 +104,8 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     // reports
     Route::get('report', [ReportGenerationController::class, 'index'])->name('report.index');
 
-
+    // pregnancy
+    Route::get('pregnancy/details/{id}', [PregnancyRecordController::class, 'pregnancyDetails'])->name('pregnancy.details');
 
     // residents
     Route::resource('user', UserController::class);
