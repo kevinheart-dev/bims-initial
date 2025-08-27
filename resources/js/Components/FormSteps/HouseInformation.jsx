@@ -110,6 +110,7 @@ function HouseInformation() {
                             },
                             { label: "Inherited", value: "inherited" },
                         ]}
+                        required
                     />
                     {errors.ownership_type && (
                         <p className="text-red-500 text-xs">
@@ -129,6 +130,7 @@ function HouseInformation() {
                             { label: "Needs Repair", value: "needs_repair" },
                             { label: "Dilapidated", value: "dilapidated" },
                         ]}
+                        required
                     />
                     {errors.housing_condition && (
                         <p className="text-red-500 text-xs">
@@ -149,6 +151,7 @@ function HouseInformation() {
                             { label: "Wood", value: "wood" },
                             { label: "Makeshift", value: "makeshift" },
                         ]}
+                        required
                     />
                     {errors.house_structure && (
                         <p className="text-red-500 text-xs">
@@ -163,6 +166,7 @@ function HouseInformation() {
                         value={userData.year_established}
                         onChange={handleChange}
                         placeholder="Select year"
+                        required
                     />
                     {errors.year_established && (
                         <p className="text-red-500 text-xs">
@@ -178,6 +182,7 @@ function HouseInformation() {
                         value={userData.number_of_rooms || ""}
                         onChange={handleChange}
                         placeholder="Enter number of rooms"
+                        required
                     />
                     {errors.number_of_rooms && (
                         <p className="text-red-500 text-xs">
@@ -193,6 +198,7 @@ function HouseInformation() {
                         value={userData.number_of_floors || ""}
                         onChange={handleChange}
                         placeholder="Enter number of floors"
+                        required
                     />
                     {errors.number_of_rooms && (
                         <p className="text-red-500 text-xs">
@@ -226,6 +232,7 @@ function HouseInformation() {
                             },
                             { label: "None", value: "none" },
                         ]}
+                        required
                     />
                     {errors.bath_and_wash_area && (
                         <p className="text-red-500 text-xs">
@@ -247,7 +254,9 @@ function HouseInformation() {
                                 value: "wireless_fidelity",
                             },
                             { label: "None", value: "none" },
+
                         ]}
+                        required
                     />
                     {errors.type_of_internet && (
                         <p className="text-red-500 text-xs">
@@ -258,9 +267,6 @@ function HouseInformation() {
 
                 {/* Toilets */}
                 <div className="w-full">
-                    <label className="block text-sm font-semibold text-gray-700 mb-0 mt-4">
-                        Type of Toilet(s)
-                    </label>
                     <div className="flex flex-col gap-2">
                         {(userData.toilets || []).map((toilet, idx) => (
                             <div
@@ -269,6 +275,7 @@ function HouseInformation() {
                             >
                                 <div>
                                     <DropdownInputField
+                                        label=" Type of Toilet(s)"
                                         name="toilet_type"
                                         value={toilet.toilet_type || ""}
                                         onChange={(e) =>
@@ -301,12 +308,13 @@ function HouseInformation() {
                                                 value: "no_latrine",
                                             },
                                         ]}
+                                        required
                                     />
                                     {errors?.[`toilets.${idx}.toilet_type`] && (
                                         <p className="text-red-500 text-xs">
                                             {
                                                 errors[
-                                                    `toilets.${idx}.toilet_type`
+                                                `toilets.${idx}.toilet_type`
                                                 ]
                                             }
                                         </p>
@@ -347,9 +355,6 @@ function HouseInformation() {
 
                 {/* Electricity */}
                 <div className="w-full">
-                    <label className="block text-sm font-semibold text-gray-700 mb-0 mt-4">
-                        Electricity Source(s)
-                    </label>
                     <div className="flex flex-col gap-2">
                         {(userData.electricity_types || []).map(
                             (entry, idx) => (
@@ -359,6 +364,7 @@ function HouseInformation() {
                                 >
                                     <div>
                                         <DropdownInputField
+                                            label="Electricity Source(s)"
                                             name="electricity_type"
                                             value={entry.electricity_type || ""}
                                             onChange={(e) =>
@@ -391,18 +397,19 @@ function HouseInformation() {
                                                     value: "none",
                                                 },
                                             ]}
+                                            required
                                         />
                                         {errors?.[
                                             `electricity_types.${idx}.electricity_type`
                                         ] && (
-                                            <p className="text-red-500 text-xs">
-                                                {
-                                                    errors[
+                                                <p className="text-red-500 text-xs">
+                                                    {
+                                                        errors[
                                                         `electricity_types.${idx}.electricity_type`
-                                                    ]
-                                                }
-                                            </p>
-                                        )}
+                                                        ]
+                                                    }
+                                                </p>
+                                            )}
                                     </div>
                                     {userData.electricity_types.length > 1 && (
                                         <button
@@ -442,9 +449,6 @@ function HouseInformation() {
 
                 {/* Water Source */}
                 <div className="w-full">
-                    <label className="block text-sm font-semibold text-gray-700 mb-0 mt-4">
-                        Water Source(s)
-                    </label>
                     <div className="flex flex-col gap-2">
                         {(userData.water_source_types || []).map(
                             (entry, idx) => (
@@ -454,6 +458,7 @@ function HouseInformation() {
                                 >
                                     <div>
                                         <DropdownInputField
+                                            label="Water Source(s)"
                                             name="water_source_type"
                                             value={
                                                 entry.water_source_type || ""
@@ -496,18 +501,19 @@ function HouseInformation() {
                                                     value: "none",
                                                 },
                                             ]}
+                                            required
                                         />
                                         {errors?.[
                                             `water_source_types.${idx}.water_source_type`
                                         ] && (
-                                            <p className="text-red-500 text-xs">
-                                                {
-                                                    errors[
+                                                <p className="text-red-500 text-xs">
+                                                    {
+                                                        errors[
                                                         `water_source_types.${idx}.water_source_type`
-                                                    ]
-                                                }
-                                            </p>
-                                        )}
+                                                        ]
+                                                    }
+                                                </p>
+                                            )}
                                     </div>
                                     {userData.water_source_types.length > 1 && (
                                         <button
@@ -547,9 +553,6 @@ function HouseInformation() {
 
                 {/* Waste Management */}
                 <div className="w-full">
-                    <label className="block text-sm font-semibold text-gray-700 mb-0 mt-4">
-                        Waste Disposal Method(s)
-                    </label>
                     <div className="flex flex-col gap-2">
                         {(userData.waste_management_types || []).map(
                             (entry, idx) => (
@@ -559,6 +562,7 @@ function HouseInformation() {
                                 >
                                     <div>
                                         <DropdownInputField
+                                            label="Waste Disposal Method(s)"
                                             name="waste_management_type"
                                             value={
                                                 entry.waste_management_type ||
@@ -598,35 +602,36 @@ function HouseInformation() {
                                                     value: "none",
                                                 },
                                             ]}
+                                            required
                                         />
                                         {errors?.[
                                             `waste_management_types.${idx}.waste_management_type`
                                         ] && (
-                                            <p className="text-red-500 text-xs">
-                                                {
-                                                    errors[
+                                                <p className="text-red-500 text-xs">
+                                                    {
+                                                        errors[
                                                         `waste_management_types.${idx}.waste_management_type`
-                                                    ]
-                                                }
-                                            </p>
-                                        )}
+                                                        ]
+                                                    }
+                                                </p>
+                                            )}
                                     </div>
 
                                     {userData.waste_management_types.length >
                                         1 && (
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                removeDynamicField(
-                                                    "waste_management_types",
-                                                    idx
-                                                )
-                                            }
-                                            className="text-red-500 hover:text-red-700 text-xl"
-                                        >
-                                            <IoIosCloseCircleOutline />
-                                        </button>
-                                    )}
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    removeDynamicField(
+                                                        "waste_management_types",
+                                                        idx
+                                                    )
+                                                }
+                                                className="text-red-500 hover:text-red-700 text-xl"
+                                            >
+                                                <IoIosCloseCircleOutline />
+                                            </button>
+                                        )}
                                 </div>
                             )
                         )}
@@ -670,6 +675,7 @@ function HouseInformation() {
                                 ]}
                                 selectedValue={userData.has_livestock || ""}
                                 onChange={handleChange}
+                                required
                             />
                             {errors.has_livestock && (
                                 <p className="text-red-500 text-xs">
@@ -721,14 +727,14 @@ function HouseInformation() {
                                                         {errors?.[
                                                             `livestocks.${livIndex}.livestock_type`
                                                         ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
+                                                                <p className="text-red-500 text-xs">
+                                                                    {
+                                                                        errors[
                                                                         `livestocks.${livIndex}.livestock_type`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
+                                                                        ]
+                                                                    }
+                                                                </p>
+                                                            )}
                                                     </div>
                                                     <div>
                                                         <InputField
@@ -750,14 +756,14 @@ function HouseInformation() {
                                                         {errors?.[
                                                             `livestocks.${livIndex}.quantity`
                                                         ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
+                                                                <p className="text-red-500 text-xs">
+                                                                    {
+                                                                        errors[
                                                                         `livestocks.${livIndex}.quantity`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
+                                                                        ]
+                                                                    }
+                                                                </p>
+                                                            )}
                                                     </div>
                                                     <div>
                                                         <DropdownInputField
@@ -792,14 +798,14 @@ function HouseInformation() {
                                                         {errors?.[
                                                             `livestocks.${livIndex}.purpose`
                                                         ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
+                                                                <p className="text-red-500 text-xs">
+                                                                    {
+                                                                        errors[
                                                                         `livestocks.${livIndex}.purpose`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
+                                                                        ]
+                                                                    }
+                                                                </p>
+                                                            )}
                                                     </div>
 
                                                     <button
@@ -855,6 +861,7 @@ function HouseInformation() {
                                 ]}
                                 selectedValue={userData.has_pets || ""}
                                 onChange={handleChange}
+                                required
                             />
                             {errors.has_pets && (
                                 <p className="text-red-500 text-xs">
@@ -899,14 +906,14 @@ function HouseInformation() {
                                                     {errors?.[
                                                         `pets.${petIndex}.pet_type`
                                                     ] && (
-                                                        <p className="text-red-500 text-xs">
-                                                            {
-                                                                errors[
+                                                            <p className="text-red-500 text-xs">
+                                                                {
+                                                                    errors[
                                                                     `pets.${petIndex}.pet_type`
-                                                                ]
-                                                            }
-                                                        </p>
-                                                    )}
+                                                                    ]
+                                                                }
+                                                            </p>
+                                                        )}
                                                 </div>
                                                 <div>
                                                     <RadioGroup
@@ -936,14 +943,14 @@ function HouseInformation() {
                                                     {errors?.[
                                                         `pets.${petIndex}.is_vaccinated`
                                                     ] && (
-                                                        <p className="text-red-500 text-xs">
-                                                            {
-                                                                errors[
+                                                            <p className="text-red-500 text-xs">
+                                                                {
+                                                                    errors[
                                                                     `pets.${petIndex}.is_vaccinated`
-                                                                ]
-                                                            }
-                                                        </p>
-                                                    )}
+                                                                    ]
+                                                                }
+                                                            </p>
+                                                        )}
                                                 </div>
 
                                                 <button

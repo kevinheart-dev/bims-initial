@@ -55,6 +55,7 @@ const Address = ({ puroks, streets }) => {
                         value={userData.housenumber || ""}
                         onChange={handleChange}
                         placeholder="e.g., Lot 12 Blk 7 or Unit 3A"
+                        required
                     />
                     {errors.housenumber && (
                         <p className="text-red-500 text-sm">
@@ -71,6 +72,7 @@ const Address = ({ puroks, streets }) => {
                         onChange={handleChange}
                         placeholder="e.g., Rizal St., Mabini Avenue"
                         items={streetList}
+                        required
                     />
                     {errors.street && (
                         <p className="text-red-500 text-sm">{errors.street}</p>
@@ -104,6 +106,7 @@ const Address = ({ puroks, streets }) => {
                         onChange={handleChange}
                         placeholder="e.g., Purok 5, Sitio Lupa"
                         items={purok_numbers}
+                        required
                     />
                     {errors.purok && (
                         <p className="text-red-500 text-sm">{errors.purok}</p>

@@ -155,9 +155,8 @@ function MedicalInfo() {
 
             {members.map((member, index) => {
                 const isOpen = openIndex === index;
-                const displayName = `${member.firstname || ""} ${
-                    member.lastname || ""
-                }`;
+                const displayName = `${member.firstname || ""} ${member.lastname || ""
+                    }`;
 
                 return (
                     <div
@@ -167,10 +166,9 @@ function MedicalInfo() {
                         <button
                             type="button"
                             className={`w-full text-left p-4 font-semibold flex justify-between items-center
-                                ${
-                                    isOpen
-                                        ? "border-t-2 border-blue-600 text-gray-900"
-                                        : "text-gray-700 hover:bg-sky-100"
+                                ${isOpen
+                                    ? "border-t-2 border-blue-600 text-gray-900"
+                                    : "text-gray-700 hover:bg-sky-100"
                                 }
                                 transition duration-300 ease-in-out`}
                             onClick={() => setOpenIndex(isOpen ? null : index)}
@@ -199,18 +197,19 @@ function MedicalInfo() {
                                             placeholder="Enter weight in kg"
                                             type="number"
                                             step="0.01"
+                                            required
                                         />
                                         {errors?.[
                                             `members.${index}.weight_kg`
                                         ] && (
-                                            <p className="text-red-500 text-xs">
-                                                {
-                                                    errors[
+                                                <p className="text-red-500 text-xs">
+                                                    {
+                                                        errors[
                                                         `members.${index}.weight_kg`
-                                                    ]
-                                                }
-                                            </p>
-                                        )}
+                                                        ]
+                                                    }
+                                                </p>
+                                            )}
                                     </div>
                                     <div>
                                         <InputField
@@ -223,18 +222,19 @@ function MedicalInfo() {
                                             placeholder="Enter height in cm"
                                             type="number"
                                             step="0.01"
+                                            required
                                         />
                                         {errors?.[
                                             `members.${index}.height_cm`
                                         ] && (
-                                            <p className="text-red-500 text-xs">
-                                                {
-                                                    errors[
+                                                <p className="text-red-500 text-xs">
+                                                    {
+                                                        errors[
                                                         `members.${index}.height_cm`
-                                                    ]
-                                                }
-                                            </p>
-                                        )}
+                                                        ]
+                                                    }
+                                                </p>
+                                            )}
                                     </div>
                                     <div>
                                         <InputField
@@ -242,17 +242,18 @@ function MedicalInfo() {
                                             name="bmi"
                                             value={
                                                 member.weight_kg &&
-                                                member.height_cm
+                                                    member.height_cm
                                                     ? (
-                                                          member.weight_kg /
-                                                          (member.height_cm /
-                                                              100) **
-                                                              2
-                                                      ).toFixed(2)
+                                                        member.weight_kg /
+                                                        (member.height_cm /
+                                                            100) **
+                                                        2
+                                                    ).toFixed(2)
                                                     : ""
                                             }
                                             placeholder="Auto-calculated BMI"
                                             disabled
+                                            required
                                         />
                                         {errors?.[`members.${index}.bmi`] && (
                                             <p className="text-red-500 text-xs">
@@ -269,6 +270,7 @@ function MedicalInfo() {
                                             }
                                             placeholder="Automatically determined"
                                             disabled
+                                            required
                                         />
                                     </div>
 
@@ -286,18 +288,19 @@ function MedicalInfo() {
                                             }
                                             placeholder="09XXXXXXXXX"
                                             type="text"
+                                            required
                                         />
                                         {errors?.[
                                             `members.${index}.emergency_contact_number`
                                         ] && (
-                                            <p className="text-red-500 text-xs">
-                                                {
-                                                    errors[
+                                                <p className="text-red-500 text-xs">
+                                                    {
+                                                        errors[
                                                         `members.${index}.emergency_contact_number`
-                                                    ]
-                                                }
-                                            </p>
-                                        )}
+                                                        ]
+                                                    }
+                                                </p>
+                                            )}
                                     </div>
                                     <div>
                                         <InputField
@@ -311,18 +314,19 @@ function MedicalInfo() {
                                                 handleMedicalChange(index, e)
                                             }
                                             placeholder="Enter contact name"
+                                            required
                                         />
                                         {errors?.[
                                             `members.${index}.emergency_contact_name`
                                         ] && (
-                                            <p className="text-red-500 text-xs">
-                                                {
-                                                    errors[
+                                                <p className="text-red-500 text-xs">
+                                                    {
+                                                        errors[
                                                         `members.${index}.emergency_contact_name`
-                                                    ]
-                                                }
-                                            </p>
-                                        )}
+                                                        ]
+                                                    }
+                                                </p>
+                                            )}
                                     </div>
                                     <div>
                                         <DropdownInputField
@@ -346,18 +350,19 @@ function MedicalInfo() {
                                                 "Friend",
                                                 "Guardian",
                                             ]}
+                                            required
                                         />
                                         {errors?.[
                                             `members.${index}.emergency_contact_relationship`
                                         ] && (
-                                            <p className="text-red-500 text-xs">
-                                                {
-                                                    errors[
+                                                <p className="text-red-500 text-xs">
+                                                    {
+                                                        errors[
                                                         `members.${index}.emergency_contact_relationship`
-                                                    ]
-                                                }
-                                            </p>
-                                        )}
+                                                        ]
+                                                    }
+                                                </p>
+                                            )}
                                     </div>
                                     <div>
                                         <DropdownInputField
@@ -382,14 +387,14 @@ function MedicalInfo() {
                                         {errors?.[
                                             `members.${index}.blood_type`
                                         ] && (
-                                            <p className="text-red-500 text-xs">
-                                                {
-                                                    errors[
+                                                <p className="text-red-500 text-xs">
+                                                    {
+                                                        errors[
                                                         `members.${index}.blood_type`
-                                                    ]
-                                                }
-                                            </p>
-                                        )}
+                                                        ]
+                                                    }
+                                                </p>
+                                            )}
                                     </div>
                                     <div>
                                         <RadioGroup
@@ -405,18 +410,19 @@ function MedicalInfo() {
                                             onChange={(e) =>
                                                 handleMedicalChange(index, e)
                                             }
+                                            required
                                         />
                                         {errors?.[
                                             `members.${index}.has_philhealth`
                                         ] && (
-                                            <p className="text-red-500 text-xs">
-                                                {
-                                                    errors[
+                                                <p className="text-red-500 text-xs">
+                                                    {
+                                                        errors[
                                                         `members.${index}.has_philhealth`
-                                                    ]
-                                                }
-                                            </p>
-                                        )}
+                                                        ]
+                                                    }
+                                                </p>
+                                            )}
                                     </div>
 
                                     {member.has_philhealth == 1 && (
@@ -439,14 +445,14 @@ function MedicalInfo() {
                                             {errors?.[
                                                 `members.${index}.philhealth_id_number`
                                             ] && (
-                                                <p className="text-red-500 text-xs">
-                                                    {
-                                                        errors[
+                                                    <p className="text-red-500 text-xs">
+                                                        {
+                                                            errors[
                                                             `members.${index}.philhealth_id_number`
-                                                        ]
-                                                    }
-                                                </p>
-                                            )}
+                                                            ]
+                                                        }
+                                                    </p>
+                                                )}
                                         </div>
                                     )}
                                     <div>
@@ -463,18 +469,19 @@ function MedicalInfo() {
                                             onChange={(e) =>
                                                 handleMedicalChange(index, e)
                                             }
+                                            required
                                         />
                                         {errors?.[
                                             `members.${index}.is_alcohol_user`
                                         ] && (
-                                            <p className="text-red-500 text-xs">
-                                                {
-                                                    errors[
+                                                <p className="text-red-500 text-xs">
+                                                    {
+                                                        errors[
                                                         `members.${index}.is_alcohol_user`
-                                                    ]
-                                                }
-                                            </p>
-                                        )}
+                                                        ]
+                                                    }
+                                                </p>
+                                            )}
                                     </div>
                                     <div>
                                         <RadioGroup
@@ -490,18 +497,19 @@ function MedicalInfo() {
                                             onChange={(e) =>
                                                 handleMedicalChange(index, e)
                                             }
+                                            required
                                         />
                                         {errors?.[
                                             `members.${index}.is_smoker`
                                         ] && (
-                                            <p className="text-red-500 text-xs">
-                                                {
-                                                    errors[
+                                                <p className="text-red-500 text-xs">
+                                                    {
+                                                        errors[
                                                         `members.${index}.is_smoker`
-                                                    ]
-                                                }
-                                            </p>
-                                        )}
+                                                        ]
+                                                    }
+                                                </p>
+                                            )}
                                     </div>
                                     <div>
                                         <RadioGroup
@@ -515,18 +523,19 @@ function MedicalInfo() {
                                             onChange={(e) =>
                                                 handlePWDChange(index, e)
                                             }
+                                            required
                                         />
                                         {errors?.[
                                             `members.${index}.is_pwd`
                                         ] && (
-                                            <p className="text-red-500 text-xs">
-                                                {
-                                                    errors[
+                                                <p className="text-red-500 text-xs">
+                                                    {
+                                                        errors[
                                                         `members.${index}.is_pwd`
-                                                    ]
-                                                }
-                                            </p>
-                                        )}
+                                                        ]
+                                                    }
+                                                </p>
+                                            )}
                                     </div>
                                 </div>
 
@@ -553,14 +562,14 @@ function MedicalInfo() {
                                                 {errors?.[
                                                     `members.${index}.pwd_id_number`
                                                 ] && (
-                                                    <p className="text-red-500 text-xs">
-                                                        {
-                                                            errors[
+                                                        <p className="text-red-500 text-xs">
+                                                            {
+                                                                errors[
                                                                 `members.${index}.pwd_id_number`
-                                                            ]
-                                                        }
-                                                    </p>
-                                                )}
+                                                                ]
+                                                            }
+                                                        </p>
+                                                    )}
                                             </div>
                                             {/* Disability Types */}
                                             <div>
@@ -603,14 +612,14 @@ function MedicalInfo() {
                                                                     {errors?.[
                                                                         `members.${index}.disabilities.${disIndex}.disability_type`
                                                                     ] && (
-                                                                        <p className="text-red-500 text-xs">
-                                                                            {
-                                                                                errors[
+                                                                            <p className="text-red-500 text-xs">
+                                                                                {
+                                                                                    errors[
                                                                                     `members.${index}.disabilities.${disIndex}.disability_type`
-                                                                                ]
-                                                                            }
-                                                                        </p>
-                                                                    )}
+                                                                                    ]
+                                                                                }
+                                                                            </p>
+                                                                        )}
                                                                 </div>
 
                                                                 <button

@@ -9,7 +9,8 @@ const DropdownInputField = ({
     placeholder,
     items = [],
     disabled = false,
-    readOnly = false
+    readOnly = false,
+    required = false,   // ✅ added
 }) => {
     const [inputValue, setInputValue] = useState('');
     const [showDropdown, setShowDropdown] = useState(false);
@@ -90,9 +91,15 @@ const DropdownInputField = ({
 
     return (
         <div className="relative">
-            <label className={`block text-sm font-semibold mb-3 mt-4 ${disabled || readOnly ? 'text-gray-400' : 'text-gray-700'}`}>
-                {label}
-            </label>
+            {label && (
+                <label
+                    className={`block text-sm font-semibold mb-3 mt-4 ${disabled || readOnly ? 'text-gray-400' : 'text-gray-700'
+                        }`}
+                >
+                    {label}
+                    {required && <span className="text-red-500"> *</span>}
+                </label>
+            )}
 
             {readOnly ? (
                 <div
@@ -112,6 +119,7 @@ const DropdownInputField = ({
                     className={`${baseClass} ${stateClass}`}
                     autoComplete="off"
                     disabled={disabled}
+                    required={required}   // ✅ enforce required at HTML level
                 />
             )}
 

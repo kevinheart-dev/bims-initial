@@ -11,7 +11,8 @@ const InputField = ({
     readOnly = false,
     isTextarea = false,
     rows = 3,
-    options = []
+    options = [],
+    required = false,
 }) => {
     const getDisplayValue = () => {
         if (options.length > 0) {
@@ -30,9 +31,15 @@ const InputField = ({
 
     return (
         <div>
-            <label className={`block text-sm font-semibold mb-3 mt-4 ${disabled || readOnly ? 'text-gray-400' : 'text-gray-700'}`}>
-                {label}
-            </label>
+            {label && (
+                <label
+                    className={`block text-sm font-semibold mb-3 mt-4 ${disabled || readOnly ? 'text-gray-400' : 'text-gray-700'
+                        }`}
+                >
+                    {label}
+                    {required && <span className="text-red-500"> *</span>}
+                </label>
+            )}
 
             {readOnly ? (
                 <div
@@ -48,6 +55,7 @@ const InputField = ({
                     disabled={disabled}
                     placeholder={placeholder}
                     rows={rows}
+                    required={required}
                     className={`${baseClass} resize-none ${stateClass}`}
                 />
             ) : (
@@ -58,6 +66,7 @@ const InputField = ({
                     onChange={onChange}
                     disabled={disabled}
                     placeholder={placeholder}
+                    required={required}
                     className={`${baseClass} ${stateClass}`}
                 />
             )}
