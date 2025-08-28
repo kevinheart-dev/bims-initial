@@ -41,7 +41,7 @@ export const RESIDENT_GENDER_TEXT = {
 export const RESIDENT_GENDER_TEXT2 = {
     male: "Male",
     female: "Female",
-    LGBTQ: "LGBTQA+",
+    LGBTQ: "LGBTQ",
 };
 
 export const RESIDENT_GENDER_COLOR_CLASS = {
@@ -122,6 +122,11 @@ export const VEHICLE_USAGE_TEXT = {
     public_transport: "Public Transport",
     business_use: "Business Use",
 };
+
+export const VEHICLE_IS_REGISTERED_TEXT = {
+    1: "Yes",
+    0: "No",
+}
 
 export const VEHICLE_USAGE_STYLES = {
     personal: "bg-blue-100 text-blue-700",
@@ -317,6 +322,16 @@ export const OCCUPATION_STATUS_TEXT = {
     inactive: "Inactive",
     ended: "Ended",
     retired: "Retired",
+};
+
+export const OCCUPATION_IS_OFW_TEXT = {
+    0: "No",
+    1: "Yes",
+};
+
+export const OCCUPATION_IS_MAIN_SOURCE_TEXT = {
+    0: "No",
+    1: "Yes",
 };
 
 export const WORK_ARRANGEMENT_TEXT = {
