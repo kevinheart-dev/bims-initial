@@ -46,102 +46,76 @@ class ResidentController extends Controller
 
     public function index()
     {
-        $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
+        $brgy_id = auth()->user()->barangay_id;
+
         $query = Resident::query()
             ->with([
                 'socialwelfareprofile',
-                'occupations',
+                'occupations' => function ($q) {
+                    $q->latest('started_at'); // ensures newest occupation is first
+                },
                 'livelihoods',
             ])
-            ->where('residents.barangay_id', $brgy_id);
-        // $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->get();
-        $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
-        $query = $query->where('barangay_id', $brgy_id);
+            ->where('barangay_id', $brgy_id);
 
-        if (request('name')) {
-            $query->where(function ($q) {
-                $q->where('firstname', 'like', '%' . request('name') . '%')
-                    ->orWhere('lastname', 'like', '%' . request('name') . '%')
-                    ->orWhere('middlename', 'like', '%' . request('name') . '%')
-                    ->orWhere('suffix', 'like', '%' . request('name') . '%')
-                    ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
-                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
-                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, suffix) LIKE ?", ['%' . request('name') . '%']);
+        // ✅ get puroks once
+        $puroks = Purok::where('barangay_id', $brgy_id)
+            ->orderBy('purok_number', 'asc')
+            ->pluck('purok_number');
+
+        // ✅ name search optimization
+        if ($name = request('name')) {
+            $query->where(function ($q) use ($name) {
+                $like = "%{$name}%";
+                $q->where('firstname', 'like', $like)
+                    ->orWhere('lastname', 'like', $like)
+                    ->orWhere('middlename', 'like', $like)
+                    ->orWhere('suffix', 'like', $like)
+                    ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", [$like])
+                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", [$like])
+                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", [$like]);
             });
         }
 
-        // handles purok filtering
+        // ✅ filtering
         if (request()->filled('purok') && request('purok') !== 'All') {
             $query->where('purok_number', request('purok'));
         }
-
-        // handles gender filtering
         if (request()->filled('sex') && request('sex') !== 'All') {
             $query->where('sex', request('sex'));
         }
         if (request()->filled('gender') && request('gender') !== 'All') {
             $query->where('gender', request('gender'));
         }
-
-
-        // handles employment filtering
         if (request()->filled('estatus') && request('estatus') !== 'All') {
             $query->where('employment_status', request('estatus'));
         }
-
-        // handles civil status filtering
         if (request()->filled('cstatus') && request('cstatus') !== 'All') {
             $query->where('civil_status', request('cstatus'));
         }
 
-        // handles age filtering
+        // ✅ age filtering
         if (request()->filled('age_group') && request('age_group') !== 'All') {
             $today = Carbon::today();
 
-            switch (request('age_group')) {
-                case '0_6_months':
-                    $max = $today->copy()->subMonths(0); // today
-                    $min = $today->copy()->subMonths(6);
-                    break;
+            [$min, $max] = match (request('age_group')) {
+                '0_6_months' => [$today->copy()->subMonths(6), $today],
+                '7mos_2yrs'  => [$today->copy()->subYears(2), $today->copy()->subMonths(7)],
+                '3_5yrs'     => [$today->copy()->subYears(5), $today->copy()->subYears(3)],
+                '6_12yrs'    => [$today->copy()->subYears(12), $today->copy()->subYears(6)],
+                '13_17yrs'   => [$today->copy()->subYears(17), $today->copy()->subYears(13)],
+                '18_59yrs'   => [$today->copy()->subYears(59), $today->copy()->subYears(18)],
+                '60_above'   => [null, $today->copy()->subYears(60)],
+                default      => [null, null],
+            };
 
-                case '7mos_2yrs':
-                    $max = $today->copy()->subYears(0)->subMonths(7);
-                    $min = $today->copy()->subYears(2);
-                    break;
-
-                case '3_5yrs':
-                    $max = $today->copy()->subYears(3);
-                    $min = $today->copy()->subYears(5);
-                    break;
-
-                case '6_12yrs':
-                    $max = $today->copy()->subYears(6);
-                    $min = $today->copy()->subYears(12);
-                    break;
-
-                case '13_17yrs':
-                    $max = $today->copy()->subYears(13);
-                    $min = $today->copy()->subYears(17);
-                    break;
-
-                case '18_59yrs':
-                    $max = $today->copy()->subYears(18);
-                    $min = $today->copy()->subYears(59);
-                    break;
-
-                case '60_above':
-                    $max = $today->copy()->subYears(60);
-                    $min = null; // no lower bound
-                    break;
-            }
-
-            if ($min) {
+            if ($min && $max) {
                 $query->whereBetween('birthdate', [$min, $max]);
-            } else {
+            } elseif ($max) {
                 $query->where('birthdate', '<=', $max);
             }
         }
-        // handles voter status filtering
+
         if (request()->filled('voter_status') && request('voter_status') !== 'All') {
             $query->where('registered_voter', request('voter_status'));
         }
@@ -153,38 +127,19 @@ class ResidentController extends Controller
             request('pwd') === '1'
         ) {
             $query->whereHas('socialwelfareprofile', function ($q) {
-                if (request('indigent') === '1') {
-                    $q->where('is_indigent', 1);
-                }
-                if (request('fourps') === '1') {
-                    $q->where('is_4ps_beneficiary', 1);
-                }
-                if (request('solo_parent') === '1') {
-                    $q->where('is_solo_parent', 1);
-                }
-                if (request('pwd') === '1') {
-                    $q->where('is_pwd', 1);
-                }
+                if (request('indigent') === '1') $q->where('is_indigent', 1);
+                if (request('fourps') === '1') $q->where('is_4ps_beneficiary', 1);
+                if (request('solo_parent') === '1') $q->where('is_solo_parent', 1);
+                if (request('pwd') === '1') $q->where('is_pwd', 1);
             });
         }
 
+        // ✅ Fetch residents
+        $residents = request('all') === 'true'
+            ? $query->get()
+            : $query->paginate(10)->onEachSide(1)->appends(request()->query());
 
-        // if (request('all') === 'true') {
-        //     $residents = $query->get();
-        // } else {
-        //     $residents = $query->paginate(10)->onEachSide(1);
-        // }
-
-        // dito na part yung binago ko
-        if (request('all') === 'true') {
-            $residents = $query->get();
-        } else {
-            // This now tells Laravel to add all current filters to the pagination links
-            $residents = $query->paginate(10)->onEachSide(1)->appends(request()->query());
-        }
-
-
-
+        // ✅ Transform data
         $transform = function ($resident) {
             return [
                 'id' => $resident->id,
@@ -205,12 +160,10 @@ class ResidentController extends Controller
                 'email' => $resident->email,
                 'registered_voter' => $resident->registered_voter,
                 'employment_status' => $resident->employment_status,
-                'isIndigent' => optional($resident->socialwelfareprofile)->is_indigent,
-                'isSoloParent' => optional($resident->socialwelfareprofile)->is_solo_parent,
-                'is4ps' => optional($resident->socialwelfareprofile)->is_4ps_beneficiary,
-                'occupation' => optional(
-                    $resident->occupations->sortByDesc('started_at')->first()
-                )?->occupation,
+                'isIndigent' => $resident->socialwelfareprofile?->is_indigent,
+                'isSoloParent' => $resident->socialwelfareprofile?->is_solo_parent,
+                'is4ps' => $resident->socialwelfareprofile?->is_4ps_beneficiary,
+                'occupation' => $resident->occupations->first()?->occupation, // already ordered by latest
             ];
         };
 
@@ -220,13 +173,197 @@ class ResidentController extends Controller
             $residents->getCollection()->transform($transform);
         }
 
-        //dd($residents->toArray());
         return Inertia::render('BarangayOfficer/Resident/Index', [
             'residents' => $residents,
             'queryParams' => request()->query() ?: null,
             'puroks' => $puroks,
         ]);
     }
+
+    // unoptimized
+    // public function index()
+    // {
+    //     $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
+    //     $query = Resident::query()
+    //         ->with([
+    //             'socialwelfareprofile',
+    //             'occupations',
+    //             'livelihoods',
+    //         ])
+    //         ->where('residents.barangay_id', $brgy_id);
+    //     // $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->get();
+    //     $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
+    //     $query = $query->where('barangay_id', $brgy_id);
+
+    //     if (request('name')) {
+    //         $query->where(function ($q) {
+    //             $q->where('firstname', 'like', '%' . request('name') . '%')
+    //                 ->orWhere('lastname', 'like', '%' . request('name') . '%')
+    //                 ->orWhere('middlename', 'like', '%' . request('name') . '%')
+    //                 ->orWhere('suffix', 'like', '%' . request('name') . '%')
+    //                 ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
+    //                 ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
+    //                 ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, suffix) LIKE ?", ['%' . request('name') . '%']);
+    //         });
+    //     }
+
+    //     // handles purok filtering
+    //     if (request()->filled('purok') && request('purok') !== 'All') {
+    //         $query->where('purok_number', request('purok'));
+    //     }
+
+    //     // handles gender filtering
+    //     if (request()->filled('sex') && request('sex') !== 'All') {
+    //         $query->where('sex', request('sex'));
+    //     }
+    //     if (request()->filled('gender') && request('gender') !== 'All') {
+    //         $query->where('gender', request('gender'));
+    //     }
+
+
+    //     // handles employment filtering
+    //     if (request()->filled('estatus') && request('estatus') !== 'All') {
+    //         $query->where('employment_status', request('estatus'));
+    //     }
+
+    //     // handles civil status filtering
+    //     if (request()->filled('cstatus') && request('cstatus') !== 'All') {
+    //         $query->where('civil_status', request('cstatus'));
+    //     }
+
+    //     // handles age filtering
+    //     if (request()->filled('age_group') && request('age_group') !== 'All') {
+    //         $today = Carbon::today();
+
+    //         switch (request('age_group')) {
+    //             case '0_6_months':
+    //                 $max = $today->copy()->subMonths(0); // today
+    //                 $min = $today->copy()->subMonths(6);
+    //                 break;
+
+    //             case '7mos_2yrs':
+    //                 $max = $today->copy()->subYears(0)->subMonths(7);
+    //                 $min = $today->copy()->subYears(2);
+    //                 break;
+
+    //             case '3_5yrs':
+    //                 $max = $today->copy()->subYears(3);
+    //                 $min = $today->copy()->subYears(5);
+    //                 break;
+
+    //             case '6_12yrs':
+    //                 $max = $today->copy()->subYears(6);
+    //                 $min = $today->copy()->subYears(12);
+    //                 break;
+
+    //             case '13_17yrs':
+    //                 $max = $today->copy()->subYears(13);
+    //                 $min = $today->copy()->subYears(17);
+    //                 break;
+
+    //             case '18_59yrs':
+    //                 $max = $today->copy()->subYears(18);
+    //                 $min = $today->copy()->subYears(59);
+    //                 break;
+
+    //             case '60_above':
+    //                 $max = $today->copy()->subYears(60);
+    //                 $min = null; // no lower bound
+    //                 break;
+    //         }
+
+    //         if ($min) {
+    //             $query->whereBetween('birthdate', [$min, $max]);
+    //         } else {
+    //             $query->where('birthdate', '<=', $max);
+    //         }
+    //     }
+    //     // handles voter status filtering
+    //     if (request()->filled('voter_status') && request('voter_status') !== 'All') {
+    //         $query->where('registered_voter', request('voter_status'));
+    //     }
+
+    //     if (
+    //         request('indigent') === '1' ||
+    //         request('fourps') === '1' ||
+    //         request('solo_parent') === '1' ||
+    //         request('pwd') === '1'
+    //     ) {
+    //         $query->whereHas('socialwelfareprofile', function ($q) {
+    //             if (request('indigent') === '1') {
+    //                 $q->where('is_indigent', 1);
+    //             }
+    //             if (request('fourps') === '1') {
+    //                 $q->where('is_4ps_beneficiary', 1);
+    //             }
+    //             if (request('solo_parent') === '1') {
+    //                 $q->where('is_solo_parent', 1);
+    //             }
+    //             if (request('pwd') === '1') {
+    //                 $q->where('is_pwd', 1);
+    //             }
+    //         });
+    //     }
+
+
+    //     // if (request('all') === 'true') {
+    //     //     $residents = $query->get();
+    //     // } else {
+    //     //     $residents = $query->paginate(10)->onEachSide(1);
+    //     // }
+
+    //     // dito na part yung binago ko
+    //     if (request('all') === 'true') {
+    //         $residents = $query->get();
+    //     } else {
+    //         // This now tells Laravel to add all current filters to the pagination links
+    //         $residents = $query->paginate(10)->onEachSide(1)->appends(request()->query());
+    //     }
+
+
+
+    //     $transform = function ($resident) {
+    //         return [
+    //             'id' => $resident->id,
+    //             'resident_picture' => $resident->resident_picture_path,
+    //             'firstname' => $resident->firstname,
+    //             'middlename' => $resident->middlename,
+    //             'lastname' => $resident->lastname,
+    //             'suffix' => $resident->suffix,
+    //             'sex' => $resident->sex,
+    //             'purok_number' => $resident->purok_number,
+    //             'birthdate' => $resident->birthdate,
+    //             'age' => $resident->age,
+    //             'civil_status' => $resident->civil_status,
+    //             'ethnicity' => $resident->ethnicity,
+    //             'religion' => $resident->religion,
+    //             'contact_number' => $resident->contact_number,
+    //             'is_pwd' => $resident->is_pwd,
+    //             'email' => $resident->email,
+    //             'registered_voter' => $resident->registered_voter,
+    //             'employment_status' => $resident->employment_status,
+    //             'isIndigent' => optional($resident->socialwelfareprofile)->is_indigent,
+    //             'isSoloParent' => optional($resident->socialwelfareprofile)->is_solo_parent,
+    //             'is4ps' => optional($resident->socialwelfareprofile)->is_4ps_beneficiary,
+    //             'occupation' => optional(
+    //                 $resident->occupations->sortByDesc('started_at')->first()
+    //             )?->occupation,
+    //         ];
+    //     };
+
+    //     if (request('all') === 'true') {
+    //         $residents = $residents->map($transform);
+    //     } else {
+    //         $residents->getCollection()->transform($transform);
+    //     }
+
+    //     //dd($residents->toArray());
+    //     return Inertia::render('BarangayOfficer/Resident/Index', [
+    //         'residents' => $residents,
+    //         'queryParams' => request()->query() ?: null,
+    //         'puroks' => $puroks,
+    //     ]);
+    // }
 
     /**
      * Show the form for creating a new resource.
@@ -1946,79 +2083,215 @@ class ResidentController extends Controller
         ]);
     }
 
+    // unoptimized
+    // public function chartData()
+    // {
+    //     $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
+    //     $query = Resident::query()
+    //         ->with([
+    //             'socialwelfareprofile',
+    //             'occupations',
+    //             'livelihoods',
+    //         ])
+    //         ->where('residents.barangay_id', $brgy_id);
+    //     $query = $query->where('barangay_id', $brgy_id);
+
+    //     // handles purok filtering
+    //     if (request()->filled('purok') && request('purok') !== 'All') {
+    //         $query->where('purok_number', request('purok'));
+    //     }
+
+    //     // handles gender filtering
+    //     if (request()->filled('sex') && request('sex') !== 'All') {
+    //         $query->where('sex', request('sex'));
+    //     }
+    //     if (request()->filled('gender') && request('gender') !== 'All') {
+    //         $query->where('gender', request('gender'));
+    //     }
+
+    //     // handles employment filtering
+    //     if (request()->filled('estatus') && request('estatus') !== 'All') {
+    //         $query->where('employment_status', request('estatus'));
+    //     }
+
+    //     // handles civil status filtering
+    //     if (request()->filled('cstatus') && request('cstatus') !== 'All') {
+    //         $query->where('civil_status', request('cstatus'));
+    //     }
+
+    //     // handles age filtering
+    //     if (request()->filled('age_group') && request('age_group') !== 'll') {
+    //         $today = Carbon::today();
+
+    //         switch (request('age_group')) {
+    //             case '0_6_months':
+    //                 $max = $today->copy()->subMonths(0); // today
+    //                 $min = $today->copy()->subMonths(6);
+    //                 break;
+
+    //             case '7mos_2yrs':
+    //                 $max = $today->copy()->subYears(0)->subMonths(7);
+    //                 $min = $today->copy()->subYears(2);
+    //                 break;
+
+    //             case '3_5yrs':
+    //                 $max = $today->copy()->subYears(3);
+    //                 $min = $today->copy()->subYears(5);
+    //                 break;
+
+    //             case '6_12yrs':
+    //                 $max = $today->copy()->subYears(6);
+    //                 $min = $today->copy()->subYears(12);
+    //                 break;
+
+    //             case '13_17yrs':
+    //                 $max = $today->copy()->subYears(13);
+    //                 $min = $today->copy()->subYears(17);
+    //                 break;
+
+    //             case '18_59yrs':
+    //                 $max = $today->copy()->subYears(18);
+    //                 $min = $today->copy()->subYears(59);
+    //                 break;
+
+    //             case '60_above':
+    //                 $max = $today->copy()->subYears(60);
+    //                 $min = null; // no lower bound
+    //                 break;
+    //         }
+
+    //         if ($min) {
+    //             $query->whereBetween('birthdate', [$min, $max]);
+    //         } else {
+    //             $query->where('birthdate', '<=', $max);
+    //         }
+    //     }
+
+    //     // handles voter status filtering
+    //     if (request()->filled('voter_status') && request('voter_status') !== 'All') {
+    //         $query->where('registered_voter', request('voter_status'));
+    //     }
+
+    //     if (
+    //         request('indigent') === '1' ||
+    //         request('fourps') === '1' ||
+    //         request('solo_parent') === '1' ||
+    //         request('pwd') === '1'
+    //     ) {
+    //         $query->whereHas('socialwelfareprofile', function ($q) {
+    //             if (request('indigent') === '1') {
+    //                 $q->where('is_indigent', 1);
+    //             }
+    //             if (request('fourps') === '1') {
+    //                 $q->where('is_4ps_beneficiary', 1);
+    //             }
+    //             if (request('solo_parent') === '1') {
+    //                 $q->where('is_solo_parent', 1);
+    //             }
+    //             if (request('pwd') === '1') {
+    //                 $q->where('is_pwd', 1);
+    //             }
+    //         });
+    //     }
+
+    //     $residents = $query->get(); // full list
+
+    //     $transform = function ($resident) {
+    //         return [
+    //             'id' => $resident->id,
+    //             'gender' => $resident->gender,
+    //             'purok_number' => $resident->purok_number,
+    //             'birthdate' => $resident->birthdate,
+    //             'age' => $resident->age,
+    //             'civil_status' => $resident->civil_status,
+    //             'citizenship' => $resident->citizenship,
+    //             'religion' => $resident->religion,
+    //             'is_pwd' => $resident->is_pwd,
+    //             'registered_voter' => $resident->registered_voter,
+    //             'employment_status' => $resident->employment_status,
+    //             'isIndigent' => optional($resident->socialwelfareprofile)->is_indigent,
+    //             'isSoloParent' => optional($resident->socialwelfareprofile)->is_solo_parent,
+    //             'is4ps' => optional($resident->socialwelfareprofile)->is_4ps_beneficiary,
+    //             'occupation' => optional(
+    //                 $resident->occupations->sortByDesc('started_at')->first()
+    //             )?->occupation,
+    //         ];
+    //     };
+
+
+    //     $residents = $residents->map($transform);
+
+    //     //dd($residents->toArray());
+    //     return response()->json([
+    //         'residents' => $residents,
+    //     ]);
+    // }
+
+
+    // optimized
     public function chartData()
     {
-        $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
+        $brgy_id = auth()->user()->barangay_id;
+
         $query = Resident::query()
             ->with([
-                'socialwelfareprofile',
-                'occupations',
-                'livelihoods',
+                'socialwelfareprofile', // keep full relation
+                'occupations' => function ($q) {
+                    $q->latest('started_at'); // fetch latest first
+                },
+                'livelihoods', // keep full relation
             ])
-            ->where('residents.barangay_id', $brgy_id);
-        $query = $query->where('barangay_id', $brgy_id);
+            ->where('barangay_id', $brgy_id);
 
-        // handles purok filtering
+        // ✅ filters
         if (request()->filled('purok') && request('purok') !== 'All') {
             $query->where('purok_number', request('purok'));
         }
-
-        // handles gender filtering
         if (request()->filled('sex') && request('sex') !== 'All') {
             $query->where('sex', request('sex'));
         }
         if (request()->filled('gender') && request('gender') !== 'All') {
             $query->where('gender', request('gender'));
         }
-
-        // handles employment filtering
         if (request()->filled('estatus') && request('estatus') !== 'All') {
             $query->where('employment_status', request('estatus'));
         }
-
-        // handles civil status filtering
         if (request()->filled('cstatus') && request('cstatus') !== 'All') {
             $query->where('civil_status', request('cstatus'));
         }
 
-        // handles age filtering
-        if (request()->filled('age_group') && request('age_group') !== 'll') {
+        // ✅ age filter
+        if (request()->filled('age_group') && request('age_group') !== 'All') {
             $today = Carbon::today();
 
             switch (request('age_group')) {
                 case '0_6_months':
-                    $max = $today->copy()->subMonths(0); // today
+                    $max = $today;
                     $min = $today->copy()->subMonths(6);
                     break;
-
                 case '7mos_2yrs':
-                    $max = $today->copy()->subYears(0)->subMonths(7);
+                    $max = $today->copy()->subMonths(7);
                     $min = $today->copy()->subYears(2);
                     break;
-
                 case '3_5yrs':
                     $max = $today->copy()->subYears(3);
                     $min = $today->copy()->subYears(5);
                     break;
-
                 case '6_12yrs':
                     $max = $today->copy()->subYears(6);
                     $min = $today->copy()->subYears(12);
                     break;
-
                 case '13_17yrs':
                     $max = $today->copy()->subYears(13);
                     $min = $today->copy()->subYears(17);
                     break;
-
                 case '18_59yrs':
                     $max = $today->copy()->subYears(18);
                     $min = $today->copy()->subYears(59);
                     break;
-
                 case '60_above':
                     $max = $today->copy()->subYears(60);
-                    $min = null; // no lower bound
+                    $min = null;
                     break;
             }
 
@@ -2029,11 +2302,12 @@ class ResidentController extends Controller
             }
         }
 
-        // handles voter status filtering
+        // ✅ voter filter
         if (request()->filled('voter_status') && request('voter_status') !== 'All') {
             $query->where('registered_voter', request('voter_status'));
         }
 
+        // ✅ welfare filter
         if (
             request('indigent') === '1' ||
             request('fourps') === '1' ||
@@ -2056,9 +2330,9 @@ class ResidentController extends Controller
             });
         }
 
-        $residents = $query->get(); // full list
+        $residents = $query->get();
 
-        $transform = function ($resident) {
+        $residents = $residents->map(function ($resident) {
             return [
                 'id' => $resident->id,
                 'gender' => $resident->gender,
@@ -2071,19 +2345,14 @@ class ResidentController extends Controller
                 'is_pwd' => $resident->is_pwd,
                 'registered_voter' => $resident->registered_voter,
                 'employment_status' => $resident->employment_status,
-                'isIndigent' => optional($resident->socialwelfareprofile)->is_indigent,
-                'isSoloParent' => optional($resident->socialwelfareprofile)->is_solo_parent,
-                'is4ps' => optional($resident->socialwelfareprofile)->is_4ps_beneficiary,
-                'occupation' => optional(
-                    $resident->occupations->sortByDesc('started_at')->first()
-                )?->occupation,
+                'isIndigent' => $resident->socialwelfareprofile?->is_indigent,
+                'isSoloParent' => $resident->socialwelfareprofile?->is_solo_parent,
+                'is4ps' => $resident->socialwelfareprofile?->is_4ps_beneficiary,
+                'occupation' => $resident->occupations->first()?->occupation, // already ordered by latest
+                'livelihoods' => $resident->livelihoods, // keep full data
             ];
-        };
+        });
 
-
-        $residents = $residents->map($transform);
-
-        //dd($residents->toArray());
         return response()->json([
             'residents' => $residents,
         ]);

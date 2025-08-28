@@ -264,7 +264,7 @@ class DatabaseSeeder extends Seeder
         Livestock::factory(20)->create();
         ResidentVoterInformation::factory(50)->create();
         SocialWelfareProfile::factory(25)->create();
-        SeniorCitizen::factory(567)->create();
+        SeniorCitizen::factory(20)->create();
         HouseholdToilet::factory(25)->create();
         HouseholdElectricitySource::factory(25)->create();
         HouseholdWasteManagement::factory(25)->create();
