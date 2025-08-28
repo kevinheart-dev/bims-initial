@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('employer', 155)->nullable();
             $table->enum('occupation_status', ['active', 'inactive', 'ended', 'retired', 'terminated', 'resigned']);
             $table->boolean('is_ofw')->default(false);
+            $table->boolean('is_main_livelihood')->default(false);
             $table->year('started_at');
             $table->year('ended_at')->nullable();
             $table->decimal('monthly_income', 11, 2);

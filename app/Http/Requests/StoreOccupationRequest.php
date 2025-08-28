@@ -38,7 +38,8 @@ class StoreOccupationRequest extends FormRequest
             'occupations.*.ended_at' => ['nullable', 'digits:4', 'integer', 'gte:occupations.*.started_at'],
             'occupations.*.income' => ['nullable', 'numeric', 'min:0'],
             'occupations.*.income_frequency' => ['nullable', 'in:daily,bi_weekly,weekly,monthly,annually'],
-            'occupations.*.is_ofw' => ['required', 'boolean'],
+            'occupations.*.is_ofw' => ['nullable', 'boolean'],
+            'occupations.*.is_main_livelihood' => ['nullable', 'boolean'],
         ];
     }
 
@@ -72,9 +73,8 @@ class StoreOccupationRequest extends FormRequest
             'occupations.*.income.min' => 'Income must be zero or more.',
 
             'occupations.*.income_frequency.in' => 'Choose a valid income frequency.',
-
-            'occupations.*.is_ofw.required' => 'OFW status is required.',
             'occupations.*.is_ofw.boolean' => 'OFW status must be true or false.',
+            'occupations.*.is_main_livelihood.boolean' => 'Is Main Livelihood status must be true or false.',
         ];
     }
 

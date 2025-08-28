@@ -33,7 +33,7 @@ return new class extends Migration
                 'upper_middle_income',
                 'above_high_income'
             ]);
-            $table->string('family_name', 155);
+            $table->string('family_name', 55)->nullable();
             $table->string('family_type', 55);
             $table->timestamps();
         });

@@ -32,6 +32,7 @@ class OccupationController extends Controller
                 'employer',
                 'occupation_status',
                 'is_ofw',
+                'is_main_livelihood',
                 'started_at',
                 'ended_at'
             )
@@ -196,6 +197,7 @@ class OccupationController extends Controller
                         'work_arrangement' => $occupationData['work_arrangement'] ?? null,
                         'employer' => $occupationData['employer'] ?? null,
                         'is_ofw' => $occupationData['is_ofw'] ?? false,
+                        'is_main_livelihood' =>  $occupationData['is_main_livelihood'] ?? false,
                         'started_at' => $occupationData['started_at'],
                         'ended_at' => $occupationData['ended_at'] ?? null,
                         'monthly_income' => $income,
@@ -310,6 +312,7 @@ class OccupationController extends Controller
                         'work_arrangement' => $occupationData['work_arrangement'] ?? null,
                         'employer' => $occupationData['employer'] ?? null,
                         'is_ofw' => $occupationData['is_ofw'] ?? false,
+                        'is_main_livelihood' =>  $occupationData['is_main_livelihood'] ?? false,
                         'started_at' => $occupationData['started_at'],
                         'ended_at' => $occupationData['ended_at'] ?? null,
                         'monthly_income' => $income,
@@ -402,6 +405,7 @@ class OccupationController extends Controller
                 'occupation_status',
                 'monthly_income',
                 'is_ofw',
+                'is_main_livelihood',
                 'started_at',
                 'ended_at'
             )

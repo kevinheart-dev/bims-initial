@@ -73,6 +73,7 @@ class FamilyController extends Controller
 
         $members = Resident::with('latestHousehold')->get();
 
+
         return Inertia::render("BarangayOfficer/Family/Index", [
             'families' => $families,
             'queryParams' => request()->query() ?: null,
@@ -138,6 +139,7 @@ class FamilyController extends Controller
             };
 
             // Create the Family record
+            $resident->family?->delete();
             $family = Family::create([
                 'barangay_id' => $resident->resident->barangay_id,
                 'household_id' => $resident->household_id,

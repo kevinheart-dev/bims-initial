@@ -19,6 +19,7 @@ class Occupation extends Model
         'job_sector',
         'occupation_status',
         'is_ofw',
+        'is_main_livelihood',
         'started_at',
         'ended_at',
         'monthly_income',

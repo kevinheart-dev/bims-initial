@@ -199,11 +199,11 @@ const PersonalInformation = ({
                     occupationTypes={occupationTypes}
                 />
 
-                <LivelihoodSection
+                {/* <LivelihoodSection
                     data={data}
                     setData={setData}
                     errors={errors}
-                />
+                /> */}
 
                 {/* Section 4 */}
                 {/* Medical Information */}

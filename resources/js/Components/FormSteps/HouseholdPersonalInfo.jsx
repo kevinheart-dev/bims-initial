@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useContext } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import InputField from "@/Components/InputField";
@@ -139,12 +138,15 @@ const HouseholdPersonalInfo = ({ barangays }) => {
         const existingMembers = families[familyIndex].members || [];
 
         families[familyIndex].memberCount = count;
-        families[familyIndex].members = Array.from({ length: count }, (_, i) => {
-            if (existingMembers[i]) return existingMembers[i];
+        families[familyIndex].members = Array.from(
+            { length: count },
+            (_, i) => {
+                if (existingMembers[i]) return existingMembers[i];
 
-            // ✅ Every NEW member (in ANY family) inherits the first member's shared fields
-            return { ...defaultMember, ...sharedFields };
-        });
+                // ✅ Every NEW member (in ANY family) inherits the first member's shared fields
+                return { ...defaultMember, ...sharedFields };
+            }
+        );
 
         setUserData({ ...userData, household: { ...household, families } });
     };
@@ -179,18 +181,20 @@ const HouseholdPersonalInfo = ({ barangays }) => {
             const updatedHousehold = { ...prevUserData.household };
 
             // loop through all families
-            updatedHousehold.families = updatedHousehold.families.map((family, fIdx) => {
-                return {
-                    ...family,
-                    members: family.members.map((member, mIdx) => {
-                        // ✅ Apply shared fields to all members
-                        return {
-                            ...member,
-                            [name]: value,
-                        };
-                    }),
-                };
-            });
+            updatedHousehold.families = updatedHousehold.families.map(
+                (family, fIdx) => {
+                    return {
+                        ...family,
+                        members: family.members.map((member, mIdx) => {
+                            // ✅ Apply shared fields to all members
+                            return {
+                                ...member,
+                                [name]: value,
+                            };
+                        }),
+                    };
+                }
+            );
 
             return { ...prevUserData, household: updatedHousehold };
         });
@@ -220,7 +224,6 @@ const HouseholdPersonalInfo = ({ barangays }) => {
             }));
         }
     }, [household.families, household.household_count, setUserData]);
-
 
     // Update a vehicle field for a specific member
     const handleVehicleChange = (fIndex, mIndex, vehicleIndex, name, value) => {
@@ -267,16 +270,14 @@ const HouseholdPersonalInfo = ({ barangays }) => {
         }));
     };
 
-
-
-
     return (
         <div>
             <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-1">
                 Household Members Information
             </h2>
             <p className="text-sm text-gray-600 mb-3">
-                Kindly provide the personal information of all household members.
+                Kindly provide the personal information of all household
+                members.
             </p>
 
             <div className="grid md:grid-cols-4 gap-4 mb-6 sm:grid-cols-1">
@@ -298,14 +299,23 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                         { label: "Single Parent", value: "single_parent" },
                         { label: "Grandparent", value: "grandparent" },
                         { label: "Childless", value: "childless" },
-                        { label: "Cohabiting Partners", value: "cohabiting_partners" },
-                        { label: "One-person Household", value: "one_person_household" },
+                        {
+                            label: "Cohabiting Partners",
+                            value: "cohabiting_partners",
+                        },
+                        {
+                            label: "One-person Household",
+                            value: "one_person_household",
+                        },
                         { label: "Roommates", value: "roommates" },
                     ]}
                     onChange={(e) =>
                         setUserData({
                             ...userData,
-                            household: { ...household, household_type: e.target.value },
+                            household: {
+                                ...household,
+                                household_type: e.target.value,
+                            },
                         })
                     }
                     placeholder="Select household type"
@@ -323,18 +333,24 @@ const HouseholdPersonalInfo = ({ barangays }) => {
             {/* ------------------------------- */}
             {/* Families and Members Accordion */}
             {household.families?.map((family, fIndex) => (
-                <div key={fIndex} className="mb-4 border rounded shadow-sm bg-white">
+                <div
+                    key={fIndex}
+                    className="mb-4 border rounded shadow-sm bg-white"
+                >
                     {/* Family Accordion Header */}
                     <button
                         type="button"
                         className={`w-full text-left p-4 font-semibold flex justify-between items-center
-                        ${openFamilyIndex === fIndex
+                        ${
+                            openFamilyIndex === fIndex
                                 ? "border-t-2 border-blue-600 text-gray-900"
                                 : "text-gray-700 hover:bg-sky-100"
-                            }
+                        }
                         transition duration-300 ease-in-out`}
                         onClick={() =>
-                            setOpenFamilyIndex(openFamilyIndex === fIndex ? null : fIndex)
+                            setOpenFamilyIndex(
+                                openFamilyIndex === fIndex ? null : fIndex
+                            )
                         }
                     >
                         <span>Family {fIndex + 1}</span>
@@ -355,7 +371,10 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                     label="Number of Family Members"
                                     value={family.memberCount || ""}
                                     onChange={(e) =>
-                                        handleMemberCountChange(fIndex, e.target.value)
+                                        handleMemberCountChange(
+                                            fIndex,
+                                            e.target.value
+                                        )
                                     }
                                 />
 
@@ -364,16 +383,41 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                     value={family.family_type || ""}
                                     items={[
                                         { label: "Nuclear", value: "nuclear" },
-                                        { label: "Extended", value: "extended" },
-                                        { label: "Single Parent", value: "single_parent" },
-                                        { label: "Grandparent", value: "grandparent" },
-                                        { label: "Childless", value: "childless" },
-                                        { label: "Cohabiting Partners", value: "cohabiting_partners" },
-                                        { label: "One-person Household", value: "one_person_household" },
-                                        { label: "Roommates", value: "roommates" },
+                                        {
+                                            label: "Extended",
+                                            value: "extended",
+                                        },
+                                        {
+                                            label: "Single Parent",
+                                            value: "single_parent",
+                                        },
+                                        {
+                                            label: "Grandparent",
+                                            value: "grandparent",
+                                        },
+                                        {
+                                            label: "Childless",
+                                            value: "childless",
+                                        },
+                                        {
+                                            label: "Cohabiting Partners",
+                                            value: "cohabiting_partners",
+                                        },
+                                        {
+                                            label: "One-person Household",
+                                            value: "one_person_household",
+                                        },
+                                        {
+                                            label: "Roommates",
+                                            value: "roommates",
+                                        },
                                     ]}
                                     onChange={(e) =>
-                                        handleFamilyChange(fIndex, "family_type", e.target.value)
+                                        handleFamilyChange(
+                                            fIndex,
+                                            "family_type",
+                                            e.target.value
+                                        )
                                     }
                                     placeholder="Select family type"
                                     required
@@ -395,29 +439,39 @@ const HouseholdPersonalInfo = ({ barangays }) => {
 
                             {/* Members */}
                             {family.members?.map((member, mIndex) => {
-                                const isOpen = openMemberIndex[fIndex] === mIndex;
+                                const isOpen =
+                                    openMemberIndex[fIndex] === mIndex;
                                 const isFirst = mIndex === 0;
                                 const showMaidenMiddleName =
                                     ["female"].includes(member.sex) &&
-                                    ["married", "widowed", "separated"].includes(
-                                        member.civil_status
-                                    );
+                                    [
+                                        "married",
+                                        "widowed",
+                                        "separated",
+                                    ].includes(member.civil_status);
 
                                 return (
-                                    <div key={mIndex} className="mt-3 border rounded bg-white">
+                                    <div
+                                        key={mIndex}
+                                        className="mt-3 border rounded bg-white"
+                                    >
                                         {/* Member Header */}
                                         <button
                                             type="button"
                                             className={`w-full text-left p-4 font-semibold flex justify-between items-center
-                                            ${isOpen
+                                            ${
+                                                isOpen
                                                     ? "border-t-2 border-blue-600 text-gray-900"
                                                     : "text-gray-700 hover:bg-sky-100"
-                                                }
+                                            }
                                             transition duration-300 ease-in-out`}
                                             onClick={() =>
                                                 setOpenMemberIndex((prev) => ({
                                                     ...prev,
-                                                    [fIndex]: prev[fIndex] === mIndex ? null : mIndex,
+                                                    [fIndex]:
+                                                        prev[fIndex] === mIndex
+                                                            ? null
+                                                            : mIndex,
                                                 }))
                                             }
                                         >
@@ -447,11 +501,17 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                         />
                                                         <img
                                                             src={
-                                                                member.resident_image instanceof File
-                                                                    ? URL.createObjectURL(member.resident_image)
-                                                                    : member.resident_image || "/images/default-avatar.jpg"
+                                                                member.resident_image instanceof
+                                                                File
+                                                                    ? URL.createObjectURL(
+                                                                          member.resident_image
+                                                                      )
+                                                                    : member.resident_image ||
+                                                                      "/images/default-avatar.jpg"
                                                             }
-                                                            alt={`Resident ${mIndex + 1}`}
+                                                            alt={`Resident ${
+                                                                mIndex + 1
+                                                            }`}
                                                             className="w-32 h-32 object-cover rounded-full border border-gray-200"
                                                         />
                                                         <input
@@ -460,24 +520,48 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                             name="resident_image"
                                                             accept="image/*"
                                                             onChange={(e) => {
-                                                                const file = e.target.files[0];
+                                                                const file =
+                                                                    e.target
+                                                                        .files[0];
                                                                 if (file) {
-                                                                    const updatedFamilies = [...household.families];
-                                                                    updatedFamilies[fIndex].members[mIndex].resident_image = file;
+                                                                    const updatedFamilies =
+                                                                        [
+                                                                            ...household.families,
+                                                                        ];
+                                                                    updatedFamilies[
+                                                                        fIndex
+                                                                    ].members[
+                                                                        mIndex
+                                                                    ].resident_image =
+                                                                        file;
 
-                                                                    setUserData((prev) => ({
-                                                                        ...prev,
-                                                                        household: { ...prev.household, families: updatedFamilies },
-                                                                    }));
+                                                                    setUserData(
+                                                                        (
+                                                                            prev
+                                                                        ) => ({
+                                                                            ...prev,
+                                                                            household:
+                                                                                {
+                                                                                    ...prev.household,
+                                                                                    families:
+                                                                                        updatedFamilies,
+                                                                                },
+                                                                        })
+                                                                    );
                                                                 }
                                                             }}
-
                                                             className="block w-full text-sm text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                                         />
 
-                                                        {errors?.[`members.${mIndex}.resident_image`] && (
+                                                        {errors?.[
+                                                            `members.${mIndex}.resident_image`
+                                                        ] && (
                                                             <p className="text-red-500 text-xs">
-                                                                {errors[`members.${mIndex}.resident_image`]}
+                                                                {
+                                                                    errors[
+                                                                        `members.${mIndex}.resident_image`
+                                                                    ]
+                                                                }
                                                             </p>
                                                         )}
                                                     </div>
@@ -485,33 +569,54 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                     {/* Right Side Fields */}
                                                     <div className="md:col-span-5 space-y-2">
                                                         {/* Name Fields */}
-                                                        <div className={`grid gap-2 grid-cols-1 sm:grid-cols-2 md:${showMaidenMiddleName
-                                                            ? "grid-cols-4"
-                                                            : "grid-cols-3"
-                                                            }`}>
+                                                        <div
+                                                            className={`grid gap-2 grid-cols-1 sm:grid-cols-2 md:${
+                                                                showMaidenMiddleName
+                                                                    ? "grid-cols-4"
+                                                                    : "grid-cols-3"
+                                                            }`}
+                                                        >
                                                             <div>
                                                                 <InputField
                                                                     label="Last Name"
                                                                     name="lastname"
-                                                                    value={isFirst ? sharedFields.lastname : member.lastname}
+                                                                    value={
+                                                                        isFirst
+                                                                            ? sharedFields.lastname
+                                                                            : member.lastname
+                                                                    }
                                                                     onChange={
                                                                         isFirst
-                                                                            ? (e) => handleSharedChange(e)
-                                                                            : (e) =>
-                                                                                handleMemberChange(
-                                                                                    fIndex,
-                                                                                    mIndex,
-                                                                                    "lastname",
-                                                                                    e.target.value
-                                                                                )
+                                                                            ? (
+                                                                                  e
+                                                                              ) =>
+                                                                                  handleSharedChange(
+                                                                                      e
+                                                                                  )
+                                                                            : (
+                                                                                  e
+                                                                              ) =>
+                                                                                  handleMemberChange(
+                                                                                      fIndex,
+                                                                                      mIndex,
+                                                                                      "lastname",
+                                                                                      e
+                                                                                          .target
+                                                                                          .value
+                                                                                  )
                                                                     }
-
                                                                     placeholder="Last name"
                                                                     required
                                                                 />
-                                                                {errors?.[`members.${mIndex}.lastname`] && (
+                                                                {errors?.[
+                                                                    `members.${mIndex}.lastname`
+                                                                ] && (
                                                                     <p className="text-red-500 text-xs">
-                                                                        {errors[`members.${mIndex}.lastname`]}
+                                                                        {
+                                                                            errors[
+                                                                                `members.${mIndex}.lastname`
+                                                                            ]
+                                                                        }
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -519,16 +624,33 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 <InputField
                                                                     label="First Name"
                                                                     name="firstname"
-                                                                    value={member.firstname}
-                                                                    onChange={(e) =>
-                                                                        handleMemberChange(fIndex, mIndex, "firstname", e.target.value)
+                                                                    value={
+                                                                        member.firstname
+                                                                    }
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleMemberChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            "firstname",
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
                                                                     }
                                                                     placeholder="Given name"
                                                                     required
                                                                 />
-                                                                {errors?.[`members.${mIndex}.firstname`] && (
+                                                                {errors?.[
+                                                                    `members.${mIndex}.firstname`
+                                                                ] && (
                                                                     <p className="text-red-500 text-xs">
-                                                                        {errors[`members.${mIndex}.firstname`]}
+                                                                        {
+                                                                            errors[
+                                                                                `members.${mIndex}.firstname`
+                                                                            ]
+                                                                        }
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -536,15 +658,32 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 <InputField
                                                                     label="Middle Name"
                                                                     name="middlename"
-                                                                    value={member.middlename}
-                                                                    onChange={(e) =>
-                                                                        handleMemberChange(fIndex, mIndex, "middlename", e.target.value)
+                                                                    value={
+                                                                        member.middlename
+                                                                    }
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleMemberChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            "middlename",
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
                                                                     }
                                                                     placeholder="Middle name"
                                                                 />
-                                                                {errors?.[`members.${mIndex}.middlename`] && (
+                                                                {errors?.[
+                                                                    `members.${mIndex}.middlename`
+                                                                ] && (
                                                                     <p className="text-red-500 text-xs">
-                                                                        {errors[`members.${mIndex}.middlename`]}
+                                                                        {
+                                                                            errors[
+                                                                                `members.${mIndex}.middlename`
+                                                                            ]
+                                                                        }
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -556,8 +695,17 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                         value={
                                                                             member.maiden_middle_name
                                                                         }
-                                                                        onChange={(e) =>
-                                                                            handleMemberChange(fIndex, mIndex, "maiden_middle_name", e.target.value)
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleMemberChange(
+                                                                                fIndex,
+                                                                                mIndex,
+                                                                                "maiden_middle_name",
+                                                                                e
+                                                                                    .target
+                                                                                    .value
+                                                                            )
                                                                         }
                                                                         placeholder="Mother's name"
                                                                     />
@@ -565,17 +713,16 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 {errors?.[
                                                                     `members.${mIndex}.maiden_middle_name`
                                                                 ] && (
-                                                                        <p className="text-red-500 text-xs">
-                                                                            {
-                                                                                errors[
+                                                                    <p className="text-red-500 text-xs">
+                                                                        {
+                                                                            errors[
                                                                                 `members.${mIndex}.maiden_middle_name`
-                                                                                ]
-                                                                            }
-                                                                        </p>
-                                                                    )}
+                                                                            ]
+                                                                        }
+                                                                    </p>
+                                                                )}
                                                             </div>
                                                         </div>
-
 
                                                         {/* Extra Info */}
                                                         <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
@@ -583,16 +730,40 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 <DropdownInputField
                                                                     label="Suffix"
                                                                     name="suffix"
-                                                                    value={member.suffix}
-                                                                    items={["Jr.", "Sr.", "I", "II", "III", "IV"]}
-                                                                    onChange={(e) =>
-                                                                        handleMemberChange(fIndex, mIndex, "suffix", e.target.value)
+                                                                    value={
+                                                                        member.suffix
+                                                                    }
+                                                                    items={[
+                                                                        "Jr.",
+                                                                        "Sr.",
+                                                                        "I",
+                                                                        "II",
+                                                                        "III",
+                                                                        "IV",
+                                                                    ]}
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleMemberChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            "suffix",
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
                                                                     }
                                                                     placeholder="Select suffix"
                                                                 />
-                                                                {errors?.[`members.${mIndex}.suffix`] && (
+                                                                {errors?.[
+                                                                    `members.${mIndex}.suffix`
+                                                                ] && (
                                                                     <p className="text-red-500 text-xs">
-                                                                        {errors[`members.${mIndex}.suffix`]}
+                                                                        {
+                                                                            errors[
+                                                                                `members.${mIndex}.suffix`
+                                                                            ]
+                                                                        }
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -600,24 +771,59 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 <SelectField
                                                                     label="Civil Status"
                                                                     name="civil_status"
-                                                                    value={member.civil_status}
+                                                                    value={
+                                                                        member.civil_status
+                                                                    }
                                                                     items={[
-                                                                        { label: "Single", value: "single" },
-                                                                        { label: "Married", value: "married" },
-                                                                        { label: "Widowed", value: "widowed" },
-                                                                        { label: "Divorced", value: "divorced" },
-                                                                        { label: "Separated", value: "separated" },
-                                                                        { label: "Annulled", value: "annulled" },
+                                                                        {
+                                                                            label: "Single",
+                                                                            value: "single",
+                                                                        },
+                                                                        {
+                                                                            label: "Married",
+                                                                            value: "married",
+                                                                        },
+                                                                        {
+                                                                            label: "Widowed",
+                                                                            value: "widowed",
+                                                                        },
+                                                                        {
+                                                                            label: "Divorced",
+                                                                            value: "divorced",
+                                                                        },
+                                                                        {
+                                                                            label: "Separated",
+                                                                            value: "separated",
+                                                                        },
+                                                                        {
+                                                                            label: "Annulled",
+                                                                            value: "annulled",
+                                                                        },
                                                                     ]}
-                                                                    onChange={(e) =>
-                                                                        handleMemberChange(fIndex, mIndex, "civil_status", e.target.value)
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleMemberChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            "civil_status",
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
                                                                     }
                                                                     placeholder="Select status"
                                                                     required
                                                                 />
-                                                                {errors?.[`members.${mIndex}.civil_status`] && (
+                                                                {errors?.[
+                                                                    `members.${mIndex}.civil_status`
+                                                                ] && (
                                                                     <p className="text-red-500 text-xs">
-                                                                        {errors[`members.${mIndex}.civil_status`]}
+                                                                        {
+                                                                            errors[
+                                                                                `members.${mIndex}.civil_status`
+                                                                            ]
+                                                                        }
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -625,19 +831,43 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 <RadioGroup
                                                                     label="Sex"
                                                                     name="sex"
-                                                                    selectedValue={member.sex || ""}
+                                                                    selectedValue={
+                                                                        member.sex ||
+                                                                        ""
+                                                                    }
                                                                     options={[
-                                                                        { label: "Male", value: "male" },
-                                                                        { label: "Female", value: "female" },
+                                                                        {
+                                                                            label: "Male",
+                                                                            value: "male",
+                                                                        },
+                                                                        {
+                                                                            label: "Female",
+                                                                            value: "female",
+                                                                        },
                                                                     ]}
-                                                                    onChange={(e) =>
-                                                                        handleMemberChange(fIndex, mIndex, "sex", e.target.value)
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleMemberChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            "sex",
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
                                                                     }
                                                                     required
                                                                 />
-                                                                {errors?.[`members.${mIndex}.sex`] && (
+                                                                {errors?.[
+                                                                    `members.${mIndex}.sex`
+                                                                ] && (
                                                                     <p className="text-red-500 text-xs">
-                                                                        {errors[`members.${mIndex}.sex`]}
+                                                                        {
+                                                                            errors[
+                                                                                `members.${mIndex}.sex`
+                                                                            ]
+                                                                        }
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -645,21 +875,47 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 <DropdownInputField
                                                                     label="Gender"
                                                                     name="gender"
-                                                                    value={member.gender}
+                                                                    value={
+                                                                        member.gender
+                                                                    }
                                                                     items={[
-                                                                        { label: "Male", value: "male" },
-                                                                        { label: "Female", value: "female" },
-                                                                        { label: "LGBTQ+", value: "LGBTQ" },
+                                                                        {
+                                                                            label: "Male",
+                                                                            value: "male",
+                                                                        },
+                                                                        {
+                                                                            label: "Female",
+                                                                            value: "female",
+                                                                        },
+                                                                        {
+                                                                            label: "LGBTQ+",
+                                                                            value: "LGBTQ",
+                                                                        },
                                                                     ]}
-                                                                    onChange={(e) =>
-                                                                        handleMemberChange(fIndex, mIndex, "gender", e.target.value)
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleMemberChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            "gender",
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
                                                                     }
                                                                     placeholder="Select gender"
                                                                     required
                                                                 />
-                                                                {errors?.[`members.${mIndex}.gender`] && (
+                                                                {errors?.[
+                                                                    `members.${mIndex}.gender`
+                                                                ] && (
                                                                     <p className="text-red-500 text-xs">
-                                                                        {errors[`members.${mIndex}.gender`]}
+                                                                        {
+                                                                            errors[
+                                                                                `members.${mIndex}.gender`
+                                                                            ]
+                                                                        }
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -678,15 +934,29 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 type="date"
                                                                 label="Birth Date"
                                                                 name="birthdate"
-                                                                value={member.birthdate}
+                                                                value={
+                                                                    member.birthdate
+                                                                }
                                                                 onChange={(e) =>
-                                                                    handleMemberChange(fIndex, mIndex, "birthdate", e.target.value)
+                                                                    handleMemberChange(
+                                                                        fIndex,
+                                                                        mIndex,
+                                                                        "birthdate",
+                                                                        e.target
+                                                                            .value
+                                                                    )
                                                                 }
                                                                 required
                                                             />
-                                                            {errors?.[`members.${mIndex}.birthdate`] && (
+                                                            {errors?.[
+                                                                `members.${mIndex}.birthdate`
+                                                            ] && (
                                                                 <p className="text-red-500 text-xs">
-                                                                    {errors[`members.${mIndex}.birthdate`]}
+                                                                    {
+                                                                        errors[
+                                                                            `members.${mIndex}.birthdate`
+                                                                        ]
+                                                                    }
                                                                 </p>
                                                             )}
                                                         </div>
@@ -696,16 +966,30 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                             <InputField
                                                                 label="Birth Place"
                                                                 name="birthplace"
-                                                                value={member.birthplace}
+                                                                value={
+                                                                    member.birthplace
+                                                                }
                                                                 onChange={(e) =>
-                                                                    handleMemberChange(fIndex, mIndex, "birthplace", e.target.value)
+                                                                    handleMemberChange(
+                                                                        fIndex,
+                                                                        mIndex,
+                                                                        "birthplace",
+                                                                        e.target
+                                                                            .value
+                                                                    )
                                                                 }
                                                                 placeholder="City/Municipality"
                                                                 required
                                                             />
-                                                            {errors?.[`members.${mIndex}.birthplace`] && (
+                                                            {errors?.[
+                                                                `members.${mIndex}.birthplace`
+                                                            ] && (
                                                                 <p className="text-red-500 text-xs">
-                                                                    {errors[`members.${mIndex}.birthplace`]}
+                                                                    {
+                                                                        errors[
+                                                                            `members.${mIndex}.birthplace`
+                                                                        ]
+                                                                    }
                                                                 </p>
                                                             )}
                                                         </div>
@@ -715,20 +999,42 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                             <DropdownInputField
                                                                 label="Religion"
                                                                 name="religion"
-                                                                value={isFirst ? sharedFields.religion : member.religion}
-                                                                items={["Roman Catholic", "Iglesia ni Cristo", "Born Again", "Baptists"]}
+                                                                value={
+                                                                    isFirst
+                                                                        ? sharedFields.religion
+                                                                        : member.religion
+                                                                }
+                                                                items={[
+                                                                    "Roman Catholic",
+                                                                    "Iglesia ni Cristo",
+                                                                    "Born Again",
+                                                                    "Baptists",
+                                                                ]}
                                                                 onChange={
                                                                     isFirst
                                                                         ? handleSharedChange
                                                                         : (e) =>
-                                                                            handleMemberChange(fIndex, mIndex, "religion", e.target.value)
+                                                                              handleMemberChange(
+                                                                                  fIndex,
+                                                                                  mIndex,
+                                                                                  "religion",
+                                                                                  e
+                                                                                      .target
+                                                                                      .value
+                                                                              )
                                                                 }
                                                                 placeholder="Select religion"
                                                                 required
                                                             />
-                                                            {errors?.[`members.${mIndex}.religion`] && (
+                                                            {errors?.[
+                                                                `members.${mIndex}.religion`
+                                                            ] && (
                                                                 <p className="text-red-500 text-xs">
-                                                                    {errors[`members.${mIndex}.religion`]}
+                                                                    {
+                                                                        errors[
+                                                                            `members.${mIndex}.religion`
+                                                                        ]
+                                                                    }
                                                                 </p>
                                                             )}
                                                         </div>
@@ -738,19 +1044,41 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                             <DropdownInputField
                                                                 label="Ethnicity"
                                                                 name="ethnicity"
-                                                                value={isFirst ? sharedFields.ethnicity : member.ethnicity}
-                                                                items={["Ilocano", "Ibanag", "Tagalog", "Indigenous People"]}
+                                                                value={
+                                                                    isFirst
+                                                                        ? sharedFields.ethnicity
+                                                                        : member.ethnicity
+                                                                }
+                                                                items={[
+                                                                    "Ilocano",
+                                                                    "Ibanag",
+                                                                    "Tagalog",
+                                                                    "Indigenous People",
+                                                                ]}
                                                                 onChange={
                                                                     isFirst
                                                                         ? handleSharedChange
                                                                         : (e) =>
-                                                                            handleMemberChange(fIndex, mIndex, "ethnicity", e.target.value)
+                                                                              handleMemberChange(
+                                                                                  fIndex,
+                                                                                  mIndex,
+                                                                                  "ethnicity",
+                                                                                  e
+                                                                                      .target
+                                                                                      .value
+                                                                              )
                                                                 }
                                                                 placeholder="Select ethnicity"
                                                             />
-                                                            {errors?.[`members.${mIndex}.ethnicity`] && (
+                                                            {errors?.[
+                                                                `members.${mIndex}.ethnicity`
+                                                            ] && (
                                                                 <p className="text-red-500 text-xs">
-                                                                    {errors[`members.${mIndex}.ethnicity`]}
+                                                                    {
+                                                                        errors[
+                                                                            `members.${mIndex}.ethnicity`
+                                                                        ]
+                                                                    }
                                                                 </p>
                                                             )}
                                                         </div>
@@ -760,20 +1088,41 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                             <DropdownInputField
                                                                 label="Citizenship"
                                                                 name="citizenship"
-                                                                value={isFirst ? sharedFields.citizenship : member.citizenship}
-                                                                items={["Filipino", "Chinese", "American"]}
+                                                                value={
+                                                                    isFirst
+                                                                        ? sharedFields.citizenship
+                                                                        : member.citizenship
+                                                                }
+                                                                items={[
+                                                                    "Filipino",
+                                                                    "Chinese",
+                                                                    "American",
+                                                                ]}
                                                                 onChange={
                                                                     isFirst
                                                                         ? handleSharedChange
                                                                         : (e) =>
-                                                                            handleMemberChange(fIndex, mIndex, "citizenship", e.target.value)
+                                                                              handleMemberChange(
+                                                                                  fIndex,
+                                                                                  mIndex,
+                                                                                  "citizenship",
+                                                                                  e
+                                                                                      .target
+                                                                                      .value
+                                                                              )
                                                                 }
                                                                 placeholder="Select citizenship"
                                                                 required
                                                             />
-                                                            {errors?.[`members.${mIndex}.citizenship`] && (
+                                                            {errors?.[
+                                                                `members.${mIndex}.citizenship`
+                                                            ] && (
                                                                 <p className="text-red-500 text-xs">
-                                                                    {errors[`members.${mIndex}.citizenship`]}
+                                                                    {
+                                                                        errors[
+                                                                            `members.${mIndex}.citizenship`
+                                                                        ]
+                                                                    }
                                                                 </p>
                                                             )}
                                                         </div>
@@ -783,42 +1132,78 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                     {/* Contact Info */}
                                                     <div className="bg-gray-50 p-3 rounded space-y-2">
-                                                        <h3 className="text-md font-medium text-gray-700">Contact Info</h3>
+                                                        <h3 className="text-md font-medium text-gray-700">
+                                                            Contact Info
+                                                        </h3>
                                                         <div className="space-y-2">
                                                             <InputField
                                                                 label="Contact Number"
                                                                 name="contactNumber"
-                                                                value={member.contactNumber}
-                                                                onChange={(e) => {
-                                                                    const value = e.target.value;
+                                                                value={
+                                                                    member.contactNumber
+                                                                }
+                                                                onChange={(
+                                                                    e
+                                                                ) => {
+                                                                    const value =
+                                                                        e.target
+                                                                            .value;
 
                                                                     // ✅ Allow only numbers and limit to 11 digits
-                                                                    if (/^\d{0,11}$/.test(value)) {
-                                                                        handleMemberChange(fIndex, mIndex, "contactNumber", value);
+                                                                    if (
+                                                                        /^\d{0,11}$/.test(
+                                                                            value
+                                                                        )
+                                                                    ) {
+                                                                        handleMemberChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            "contactNumber",
+                                                                            value
+                                                                        );
                                                                     }
                                                                 }}
                                                                 placeholder="09XX XXXX XXX"
                                                             />
 
-                                                            {errors?.[`families.${fIndex}.members.${mIndex}.contactNumber`] && (
+                                                            {errors?.[
+                                                                `families.${fIndex}.members.${mIndex}.contactNumber`
+                                                            ] && (
                                                                 <p className="text-red-500 text-sm">
-                                                                    {errors[`families.${fIndex}.members.${mIndex}.contactNumber`]}
+                                                                    {
+                                                                        errors[
+                                                                            `families.${fIndex}.members.${mIndex}.contactNumber`
+                                                                        ]
+                                                                    }
                                                                 </p>
                                                             )}
-
 
                                                             <InputField
                                                                 label="Email"
                                                                 name="email"
-                                                                value={member.email}
+                                                                value={
+                                                                    member.email
+                                                                }
                                                                 onChange={(e) =>
-                                                                    handleMemberChange(fIndex, mIndex, "email", e.target.value)
+                                                                    handleMemberChange(
+                                                                        fIndex,
+                                                                        mIndex,
+                                                                        "email",
+                                                                        e.target
+                                                                            .value
+                                                                    )
                                                                 }
                                                                 placeholder="your@email.com"
                                                             />
-                                                            {errors?.[`families.${fIndex}.members.${mIndex}.email`] && (
+                                                            {errors?.[
+                                                                `families.${fIndex}.members.${mIndex}.email`
+                                                            ] && (
                                                                 <p className="text-red-500 text-sm">
-                                                                    {errors[`families.${fIndex}.members.${mIndex}.email`]}
+                                                                    {
+                                                                        errors[
+                                                                            `families.${fIndex}.members.${mIndex}.email`
+                                                                        ]
+                                                                    }
                                                                 </p>
                                                             )}
                                                         </div>
@@ -826,21 +1211,43 @@ const HouseholdPersonalInfo = ({ barangays }) => {
 
                                                     {/* Residency Info */}
                                                     <div className="bg-gray-50 p-3 rounded space-y-2">
-                                                        <h3 className="text-md font-medium text-gray-700">Residency Info</h3>
+                                                        <h3 className="text-md font-medium text-gray-700">
+                                                            Residency Info
+                                                        </h3>
                                                         <div className="space-y-4">
                                                             {/* First row (3 fields) */}
                                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                                 <DropdownInputField
                                                                     label="Residency Type"
                                                                     name="residency_type"
-                                                                    value={member.residency_type}
+                                                                    value={
+                                                                        member.residency_type
+                                                                    }
                                                                     items={[
-                                                                        { label: "Permanent", value: "permanent" },
-                                                                        { label: "Temporary", value: "temporary" },
-                                                                        { label: "Immigrant", value: "immigrant" },
+                                                                        {
+                                                                            label: "Permanent",
+                                                                            value: "permanent",
+                                                                        },
+                                                                        {
+                                                                            label: "Temporary",
+                                                                            value: "temporary",
+                                                                        },
+                                                                        {
+                                                                            label: "Immigrant",
+                                                                            value: "immigrant",
+                                                                        },
                                                                     ]}
-                                                                    onChange={(e) =>
-                                                                        handleMemberChange(fIndex, mIndex, "residency_type", e.target.value)
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleMemberChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            "residency_type",
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
                                                                     }
                                                                     placeholder="Select type"
                                                                     required
@@ -848,9 +1255,20 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 <YearDropdown
                                                                     label="Residency Date"
                                                                     name="residency_date"
-                                                                    value={member.residency_date}
-                                                                    onChange={(e) =>
-                                                                        handleMemberChange(fIndex, mIndex, "residency_date", e.target.value)
+                                                                    value={
+                                                                        member.residency_date
+                                                                    }
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleMemberChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            "residency_date",
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
                                                                     }
                                                                     placeholder="Select year"
                                                                     required
@@ -858,14 +1276,34 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 <DropdownInputField
                                                                     label="Household Position"
                                                                     name="household_position"
-                                                                    value={member.household_position}
+                                                                    value={
+                                                                        member.household_position
+                                                                    }
                                                                     items={[
-                                                                        { label: "Primary/Nuclear", value: "primary" },
-                                                                        { label: "Extended", value: "extended" },
-                                                                        { label: "Boarder", value: "boarder" },
+                                                                        {
+                                                                            label: "Primary/Nuclear",
+                                                                            value: "primary",
+                                                                        },
+                                                                        {
+                                                                            label: "Extended",
+                                                                            value: "extended",
+                                                                        },
+                                                                        {
+                                                                            label: "Boarder",
+                                                                            value: "boarder",
+                                                                        },
                                                                     ]}
-                                                                    onChange={(e) =>
-                                                                        handleMemberChange(fIndex, mIndex, "household_position", e.target.value)
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleMemberChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            "household_position",
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
                                                                     }
                                                                     placeholder="Select type"
                                                                     required
@@ -877,54 +1315,148 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 <RadioGroup
                                                                     label="Household Head?"
                                                                     name="is_household_head"
-                                                                    selectedValue={parseInt(member.is_household_head)}
+                                                                    selectedValue={
+                                                                        household.families.some(
+                                                                            (
+                                                                                family
+                                                                            ) =>
+                                                                                family.members.some(
+                                                                                    (
+                                                                                        m
+                                                                                    ) =>
+                                                                                        m.is_household_head ===
+                                                                                            1 &&
+                                                                                        m !==
+                                                                                            member
+                                                                                )
+                                                                        )
+                                                                            ? 0
+                                                                            : parseInt(
+                                                                                  member.is_household_head
+                                                                              )
+                                                                    }
                                                                     options={[
-                                                                        { label: "Yes", value: 1 },
-                                                                        { label: "No", value: 0 },
+                                                                        {
+                                                                            label: "Yes",
+                                                                            value: 1,
+                                                                        },
+                                                                        {
+                                                                            label: "No",
+                                                                            value: 0,
+                                                                        },
                                                                     ]}
-                                                                    onChange={(e) => {
-                                                                        const value = parseInt(e.target.value);
-                                                                        handleMemberChange(fIndex, mIndex, "is_household_head", value);
+                                                                    onChange={(
+                                                                        e
+                                                                    ) => {
+                                                                        const value =
+                                                                            parseInt(
+                                                                                e
+                                                                                    .target
+                                                                                    .value
+                                                                            );
+                                                                        handleMemberChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            "is_household_head",
+                                                                            value
+                                                                        );
 
                                                                         // 👇 If YES, auto set relation_to_household_head = "self"
-                                                                        if (value === 1) {
-                                                                            handleMemberChange(fIndex, mIndex, "relation_to_household_head", "self");
+                                                                        if (
+                                                                            value ===
+                                                                            1
+                                                                        ) {
+                                                                            handleMemberChange(
+                                                                                fIndex,
+                                                                                mIndex,
+                                                                                "relation_to_household_head",
+                                                                                "self"
+                                                                            );
                                                                         } else {
                                                                             // 👇 Reset when "No" is selected
-                                                                            handleMemberChange(fIndex, mIndex, "relation_to_household_head", "");
+                                                                            handleMemberChange(
+                                                                                fIndex,
+                                                                                mIndex,
+                                                                                "relation_to_household_head",
+                                                                                ""
+                                                                            );
                                                                         }
                                                                     }}
                                                                     required
-                                                                    disabled={household.families.some(family =>
-                                                                        family.members.some(m => m.is_household_head === 1 && m !== member)
+                                                                    disabled={household.families.some(
+                                                                        (
+                                                                            family
+                                                                        ) =>
+                                                                            family.members.some(
+                                                                                (
+                                                                                    m
+                                                                                ) =>
+                                                                                    m.is_household_head ===
+                                                                                        1 &&
+                                                                                    m !==
+                                                                                        member
+                                                                            )
                                                                     )}
                                                                 />
 
                                                                 <SelectField
                                                                     label="Relation to Head"
                                                                     name="relation_to_household_head"
-                                                                    value={member.relation_to_household_head}
+                                                                    value={
+                                                                        member.relation_to_household_head
+                                                                    }
                                                                     items={[
-                                                                        { label: "Self/Head", value: "self" },
-                                                                        { label: "Spouse", value: "spouse" },
-                                                                        { label: "Child", value: "child" },
-                                                                        { label: "Sibling", value: "sibling" },
-                                                                        { label: "Parent", value: "parent" },
-                                                                        { label: "Parent-in-law", value: "parent_in_law" },
-                                                                        { label: "Grandparent", value: "grandparent" },
+                                                                        {
+                                                                            label: "Self/Head",
+                                                                            value: "self",
+                                                                        },
+                                                                        {
+                                                                            label: "Spouse",
+                                                                            value: "spouse",
+                                                                        },
+                                                                        {
+                                                                            label: "Child",
+                                                                            value: "child",
+                                                                        },
+                                                                        {
+                                                                            label: "Sibling",
+                                                                            value: "sibling",
+                                                                        },
+                                                                        {
+                                                                            label: "Parent",
+                                                                            value: "parent",
+                                                                        },
+                                                                        {
+                                                                            label: "Parent-in-law",
+                                                                            value: "parent_in_law",
+                                                                        },
+                                                                        {
+                                                                            label: "Grandparent",
+                                                                            value: "grandparent",
+                                                                        },
                                                                     ]}
-                                                                    onChange={(e) =>
-                                                                        handleMemberChange(fIndex, mIndex, "relation_to_household_head", e.target.value)
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleMemberChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            "relation_to_household_head",
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
                                                                     }
                                                                     placeholder="Select type"
                                                                     required
-                                                                    disabled={member.is_household_head === 1}
+                                                                    disabled={
+                                                                        member.is_household_head ===
+                                                                        1
+                                                                    }
                                                                 />
                                                             </div>
-
                                                         </div>
                                                     </div>
-
                                                 </div>
 
                                                 {/* GOVERNMENT PROGRAMS */}
@@ -941,10 +1473,19 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 // make name unique per member to avoid cross-member grouping
                                                                 name={`is_4ps_benificiary_${fIndex}_${mIndex}`}
                                                                 // don't use || — allow 0; use ?? to keep 0
-                                                                selectedValue={member.is_4ps_benificiary ?? ""}
+                                                                selectedValue={
+                                                                    member.is_4ps_benificiary ??
+                                                                    ""
+                                                                }
                                                                 options={[
-                                                                    { label: "Yes", value: 1 },
-                                                                    { label: "No", value: 0 },
+                                                                    {
+                                                                        label: "Yes",
+                                                                        value: 1,
+                                                                    },
+                                                                    {
+                                                                        label: "No",
+                                                                        value: 0,
+                                                                    },
                                                                 ]}
                                                                 onChange={(e) =>
                                                                     handleMemberChange(
@@ -952,14 +1493,25 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                         mIndex,
                                                                         "is_4ps_benificiary",
                                                                         // keep stored type as number
-                                                                        parseInt(e.target.value, 10)
+                                                                        parseInt(
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                            10
+                                                                        )
                                                                     )
                                                                 }
                                                                 required
                                                             />
-                                                            {errors?.[`families.${fIndex}.members.${mIndex}.is_4ps_benificiary`] && (
+                                                            {errors?.[
+                                                                `families.${fIndex}.members.${mIndex}.is_4ps_benificiary`
+                                                            ] && (
                                                                 <p className="text-red-500 text-xs">
-                                                                    {errors[`families.${fIndex}.members.${mIndex}.is_4ps_benificiary`]}
+                                                                    {
+                                                                        errors[
+                                                                            `families.${fIndex}.members.${mIndex}.is_4ps_benificiary`
+                                                                        ]
+                                                                    }
                                                                 </p>
                                                             )}
                                                         </div>
@@ -969,43 +1521,83 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                             <RadioGroup
                                                                 label="Solo Parent?"
                                                                 name={`is_solo_parent_${fIndex}_${mIndex}`}
-                                                                selectedValue={member.is_solo_parent ?? ""}
+                                                                selectedValue={
+                                                                    member.is_solo_parent ??
+                                                                    ""
+                                                                }
                                                                 options={[
-                                                                    { label: "Yes", value: 1 },
-                                                                    { label: "No", value: 0 },
+                                                                    {
+                                                                        label: "Yes",
+                                                                        value: 1,
+                                                                    },
+                                                                    {
+                                                                        label: "No",
+                                                                        value: 0,
+                                                                    },
                                                                 ]}
                                                                 onChange={(e) =>
                                                                     handleMemberChange(
                                                                         fIndex,
                                                                         mIndex,
                                                                         "is_solo_parent",
-                                                                        parseInt(e.target.value, 10)
+                                                                        parseInt(
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                            10
+                                                                        )
                                                                     )
                                                                 }
                                                                 required
                                                             />
-                                                            {errors?.[`families.${fIndex}.members.${mIndex}.is_solo_parent`] && (
+                                                            {errors?.[
+                                                                `families.${fIndex}.members.${mIndex}.is_solo_parent`
+                                                            ] && (
                                                                 <p className="text-red-500 text-xs">
-                                                                    {errors[`families.${fIndex}.members.${mIndex}.is_solo_parent`]}
+                                                                    {
+                                                                        errors[
+                                                                            `families.${fIndex}.members.${mIndex}.is_solo_parent`
+                                                                        ]
+                                                                    }
                                                                 </p>
                                                             )}
                                                         </div>
 
                                                         {/* Solo Parent ID (conditional) */}
-                                                        {Number(member.is_solo_parent) === 1 && (
+                                                        {Number(
+                                                            member.is_solo_parent
+                                                        ) === 1 && (
                                                             <div>
                                                                 <InputField
                                                                     label="Solo Parent ID"
                                                                     name="solo_parent_id_number"
-                                                                    value={member.solo_parent_id_number ?? ""}
-                                                                    onChange={(e) =>
-                                                                        handleMemberChange(fIndex, mIndex, "solo_parent_id_number", e.target.value)
+                                                                    value={
+                                                                        member.solo_parent_id_number ??
+                                                                        ""
+                                                                    }
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleMemberChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            "solo_parent_id_number",
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
                                                                     }
                                                                     placeholder="ID number"
                                                                 />
-                                                                {errors?.[`families.${fIndex}.members.${mIndex}.solo_parent_id_number`] && (
+                                                                {errors?.[
+                                                                    `families.${fIndex}.members.${mIndex}.solo_parent_id_number`
+                                                                ] && (
                                                                     <p className="text-red-500 text-xs">
-                                                                        {errors[`families.${fIndex}.members.${mIndex}.solo_parent_id_number`]}
+                                                                        {
+                                                                            errors[
+                                                                                `families.${fIndex}.members.${mIndex}.solo_parent_id_number`
+                                                                            ]
+                                                                        }
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -1016,44 +1608,84 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                             <RadioGroup
                                                                 label="Registered Voter?"
                                                                 name={`registered_voter_${fIndex}_${mIndex}`}
-                                                                selectedValue={member.registered_voter ?? ""}
+                                                                selectedValue={
+                                                                    member.registered_voter ??
+                                                                    ""
+                                                                }
                                                                 options={[
-                                                                    { label: "Yes", value: 1 },
-                                                                    { label: "No", value: 0 },
+                                                                    {
+                                                                        label: "Yes",
+                                                                        value: 1,
+                                                                    },
+                                                                    {
+                                                                        label: "No",
+                                                                        value: 0,
+                                                                    },
                                                                 ]}
                                                                 onChange={(e) =>
                                                                     handleMemberChange(
                                                                         fIndex,
                                                                         mIndex,
                                                                         "registered_voter",
-                                                                        parseInt(e.target.value, 10)
+                                                                        parseInt(
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                            10
+                                                                        )
                                                                     )
                                                                 }
                                                                 required
                                                             />
-                                                            {errors?.[`families.${fIndex}.members.${mIndex}.registered_voter`] && (
+                                                            {errors?.[
+                                                                `families.${fIndex}.members.${mIndex}.registered_voter`
+                                                            ] && (
                                                                 <p className="text-red-500 text-xs">
-                                                                    {errors[`families.${fIndex}.members.${mIndex}.registered_voter`]}
+                                                                    {
+                                                                        errors[
+                                                                            `families.${fIndex}.members.${mIndex}.registered_voter`
+                                                                        ]
+                                                                    }
                                                                 </p>
                                                             )}
                                                         </div>
 
                                                         {/* Conditional Voter Details */}
-                                                        {Number(member.registered_voter) === 1 && (
+                                                        {Number(
+                                                            member.registered_voter
+                                                        ) === 1 && (
                                                             <>
                                                                 <div>
                                                                     <InputField
                                                                         label="Voter ID"
                                                                         name="voter_id_number"
-                                                                        value={member.voter_id_number ?? ""}
-                                                                        onChange={(e) =>
-                                                                            handleMemberChange(fIndex, mIndex, "voter_id_number", e.target.value)
+                                                                        value={
+                                                                            member.voter_id_number ??
+                                                                            ""
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleMemberChange(
+                                                                                fIndex,
+                                                                                mIndex,
+                                                                                "voter_id_number",
+                                                                                e
+                                                                                    .target
+                                                                                    .value
+                                                                            )
                                                                         }
                                                                         placeholder="Voter ID number"
                                                                     />
-                                                                    {errors?.[`families.${fIndex}.members.${mIndex}.voter_id_number`] && (
+                                                                    {errors?.[
+                                                                        `families.${fIndex}.members.${mIndex}.voter_id_number`
+                                                                    ] && (
                                                                         <p className="text-red-500 text-xs">
-                                                                            {errors[`families.${fIndex}.members.${mIndex}.voter_id_number`]}
+                                                                            {
+                                                                                errors[
+                                                                                    `families.${fIndex}.members.${mIndex}.voter_id_number`
+                                                                                ]
+                                                                            }
                                                                         </p>
                                                                     )}
                                                                 </div>
@@ -1062,24 +1694,63 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                     <DropdownInputField
                                                                         label="Voting Status"
                                                                         name="voting_status"
-                                                                        value={member.voting_status ?? ""}
+                                                                        value={
+                                                                            member.voting_status ??
+                                                                            ""
+                                                                        }
                                                                         items={[
-                                                                            { label: "Active", value: "active" },
-                                                                            { label: "Inactive", value: "inactive" },
-                                                                            { label: "Disqualified", value: "disqualified" },
-                                                                            { label: "Medical", value: "medical" },
-                                                                            { label: "Overseas", value: "overseas" },
-                                                                            { label: "Detained", value: "detained" },
-                                                                            { label: "Deceased", value: "deceased" },
+                                                                            {
+                                                                                label: "Active",
+                                                                                value: "active",
+                                                                            },
+                                                                            {
+                                                                                label: "Inactive",
+                                                                                value: "inactive",
+                                                                            },
+                                                                            {
+                                                                                label: "Disqualified",
+                                                                                value: "disqualified",
+                                                                            },
+                                                                            {
+                                                                                label: "Medical",
+                                                                                value: "medical",
+                                                                            },
+                                                                            {
+                                                                                label: "Overseas",
+                                                                                value: "overseas",
+                                                                            },
+                                                                            {
+                                                                                label: "Detained",
+                                                                                value: "detained",
+                                                                            },
+                                                                            {
+                                                                                label: "Deceased",
+                                                                                value: "deceased",
+                                                                            },
                                                                         ]}
-                                                                        onChange={(e) =>
-                                                                            handleMemberChange(fIndex, mIndex, "voting_status", e.target.value)
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleMemberChange(
+                                                                                fIndex,
+                                                                                mIndex,
+                                                                                "voting_status",
+                                                                                e
+                                                                                    .target
+                                                                                    .value
+                                                                            )
                                                                         }
                                                                         placeholder="Select status"
                                                                     />
-                                                                    {errors?.[`families.${fIndex}.members.${mIndex}.voting_status`] && (
+                                                                    {errors?.[
+                                                                        `families.${fIndex}.members.${mIndex}.voting_status`
+                                                                    ] && (
                                                                         <p className="text-red-500 text-xs">
-                                                                            {errors[`families.${fIndex}.members.${mIndex}.voting_status`]}
+                                                                            {
+                                                                                errors[
+                                                                                    `families.${fIndex}.members.${mIndex}.voting_status`
+                                                                                ]
+                                                                            }
                                                                         </p>
                                                                     )}
                                                                 </div>
@@ -1088,16 +1759,36 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                     <DropdownInputField
                                                                         label="Votes In?"
                                                                         name="registered_barangay"
-                                                                        value={member.registered_barangay ?? ""}
-                                                                        items={barangayList}
-                                                                        onChange={(e) =>
-                                                                            handleMemberChange(fIndex, mIndex, "registered_barangay", e.target.value)
+                                                                        value={
+                                                                            member.registered_barangay ??
+                                                                            ""
+                                                                        }
+                                                                        items={
+                                                                            barangayList
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleMemberChange(
+                                                                                fIndex,
+                                                                                mIndex,
+                                                                                "registered_barangay",
+                                                                                e
+                                                                                    .target
+                                                                                    .value
+                                                                            )
                                                                         }
                                                                         placeholder="Select registered barangay"
                                                                     />
-                                                                    {errors?.[`families.${fIndex}.members.${mIndex}.registered_barangay`] && (
+                                                                    {errors?.[
+                                                                        `families.${fIndex}.members.${mIndex}.registered_barangay`
+                                                                    ] && (
                                                                         <p className="text-red-500 text-xs">
-                                                                            {errors[`families.${fIndex}.members.${mIndex}.registered_barangay`]}
+                                                                            {
+                                                                                errors[
+                                                                                    `families.${fIndex}.members.${mIndex}.registered_barangay`
+                                                                                ]
+                                                                            }
                                                                         </p>
                                                                     )}
                                                                 </div>
@@ -1119,40 +1810,86 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 <RadioGroup
                                                                     label="Pensioner?"
                                                                     name="is_pensioner"
-                                                                    selectedValue={member.is_pensioner || ""}
+                                                                    selectedValue={
+                                                                        member.is_pensioner ||
+                                                                        ""
+                                                                    }
                                                                     options={[
-                                                                        { label: "Yes", value: "yes" },
-                                                                        { label: "No", value: "no" },
-                                                                        { label: "Pending", value: "pending" },
+                                                                        {
+                                                                            label: "Yes",
+                                                                            value: "yes",
+                                                                        },
+                                                                        {
+                                                                            label: "No",
+                                                                            value: "no",
+                                                                        },
+                                                                        {
+                                                                            label: "Pending",
+                                                                            value: "pending",
+                                                                        },
                                                                     ]}
-                                                                    onChange={(e) =>
-                                                                        handleMemberChange(fIndex, mIndex, "is_pensioner", e.target.value)
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleMemberChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            "is_pensioner",
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        )
                                                                     }
                                                                 />
-                                                                {errors?.[`families.${fIndex}.members.${mIndex}.is_pensioner`] && (
+                                                                {errors?.[
+                                                                    `families.${fIndex}.members.${mIndex}.is_pensioner`
+                                                                ] && (
                                                                     <p className="text-red-500 text-xs">
-                                                                        {errors[`families.${fIndex}.members.${mIndex}.is_pensioner`]}
+                                                                        {
+                                                                            errors[
+                                                                                `families.${fIndex}.members.${mIndex}.is_pensioner`
+                                                                            ]
+                                                                        }
                                                                     </p>
                                                                 )}
                                                             </div>
 
                                                             {/* OSCA ID & Pension Type (conditional if pensioner = yes) */}
-                                                            {member.is_pensioner === "yes" && (
+                                                            {member.is_pensioner ===
+                                                                "yes" && (
                                                                 <div className="flex flex-col sm:flex-row col-span-2 gap-4">
                                                                     <div className="w-full">
                                                                         <InputField
                                                                             label="OSCA ID"
                                                                             name="osca_id_number"
                                                                             type="number"
-                                                                            value={member.osca_id_number || ""}
-                                                                            onChange={(e) =>
-                                                                                handleMemberChange(fIndex, mIndex, "osca_id_number", e.target.value)
+                                                                            value={
+                                                                                member.osca_id_number ||
+                                                                                ""
+                                                                            }
+                                                                            onChange={(
+                                                                                e
+                                                                            ) =>
+                                                                                handleMemberChange(
+                                                                                    fIndex,
+                                                                                    mIndex,
+                                                                                    "osca_id_number",
+                                                                                    e
+                                                                                        .target
+                                                                                        .value
+                                                                                )
                                                                             }
                                                                             placeholder="OSCA ID number"
                                                                         />
-                                                                        {errors?.[`families.${fIndex}.members.${mIndex}.osca_id_number`] && (
+                                                                        {errors?.[
+                                                                            `families.${fIndex}.members.${mIndex}.osca_id_number`
+                                                                        ] && (
                                                                             <p className="text-red-500 text-xs">
-                                                                                {errors[`families.${fIndex}.members.${mIndex}.osca_id_number`]}
+                                                                                {
+                                                                                    errors[
+                                                                                        `families.${fIndex}.members.${mIndex}.osca_id_number`
+                                                                                    ]
+                                                                                }
                                                                             </p>
                                                                         )}
                                                                     </div>
@@ -1160,16 +1897,40 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                         <DropdownInputField
                                                                             label="Pension Type"
                                                                             name="pension_type"
-                                                                            value={member.pension_type || ""}
-                                                                            items={["SSS", "DSWD", "GSIS", "Private", "None"]}
-                                                                            onChange={(e) =>
-                                                                                handleMemberChange(fIndex, mIndex, "pension_type", e.target.value)
+                                                                            value={
+                                                                                member.pension_type ||
+                                                                                ""
+                                                                            }
+                                                                            items={[
+                                                                                "SSS",
+                                                                                "DSWD",
+                                                                                "GSIS",
+                                                                                "Private",
+                                                                                "None",
+                                                                            ]}
+                                                                            onChange={(
+                                                                                e
+                                                                            ) =>
+                                                                                handleMemberChange(
+                                                                                    fIndex,
+                                                                                    mIndex,
+                                                                                    "pension_type",
+                                                                                    e
+                                                                                        .target
+                                                                                        .value
+                                                                                )
                                                                             }
                                                                             placeholder="Select type"
                                                                         />
-                                                                        {errors?.[`families.${fIndex}.members.${mIndex}.pension_type`] && (
+                                                                        {errors?.[
+                                                                            `families.${fIndex}.members.${mIndex}.pension_type`
+                                                                        ] && (
                                                                             <p className="text-red-500 text-xs">
-                                                                                {errors[`families.${fIndex}.members.${mIndex}.pension_type`]}
+                                                                                {
+                                                                                    errors[
+                                                                                        `families.${fIndex}.members.${mIndex}.pension_type`
+                                                                                    ]
+                                                                                }
                                                                             </p>
                                                                         )}
                                                                     </div>
@@ -1181,18 +1942,43 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                 <RadioGroup
                                                                     label="Living Alone?"
                                                                     name="living_alone"
-                                                                    selectedValue={member.living_alone}
+                                                                    selectedValue={
+                                                                        member.living_alone
+                                                                    }
                                                                     options={[
-                                                                        { label: "Yes", value: 1 },
-                                                                        { label: "No", value: 0 },
+                                                                        {
+                                                                            label: "Yes",
+                                                                            value: 1,
+                                                                        },
+                                                                        {
+                                                                            label: "No",
+                                                                            value: 0,
+                                                                        },
                                                                     ]}
-                                                                    onChange={(e) =>
-                                                                        handleMemberChange(fIndex, mIndex, "living_alone", parseInt(e.target.value))
+                                                                    onChange={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleMemberChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            "living_alone",
+                                                                            parseInt(
+                                                                                e
+                                                                                    .target
+                                                                                    .value
+                                                                            )
+                                                                        )
                                                                     }
                                                                 />
-                                                                {errors?.[`families.${fIndex}.members.${mIndex}.living_alone`] && (
+                                                                {errors?.[
+                                                                    `families.${fIndex}.members.${mIndex}.living_alone`
+                                                                ] && (
                                                                     <p className="text-red-500 text-xs">
-                                                                        {errors[`families.${fIndex}.members.${mIndex}.living_alone`]}
+                                                                        {
+                                                                            errors[
+                                                                                `families.${fIndex}.members.${mIndex}.living_alone`
+                                                                            ]
+                                                                        }
                                                                     </p>
                                                                 )}
                                                             </div>
@@ -1210,135 +1996,252 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                         <RadioGroup
                                                             label="Owns Vehicle(s)?"
                                                             name="has_vehicle"
-                                                            selectedValue={member.has_vehicle}
+                                                            selectedValue={
+                                                                member.has_vehicle
+                                                            }
                                                             options={[
-                                                                { label: "Yes", value: 1 },
-                                                                { label: "No", value: 0 },
+                                                                {
+                                                                    label: "Yes",
+                                                                    value: 1,
+                                                                },
+                                                                {
+                                                                    label: "No",
+                                                                    value: 0,
+                                                                },
                                                             ]}
                                                             onChange={(e) =>
-                                                                handleMemberChange(fIndex, mIndex, "has_vehicle", parseInt(e.target.value))
+                                                                handleMemberChange(
+                                                                    fIndex,
+                                                                    mIndex,
+                                                                    "has_vehicle",
+                                                                    parseInt(
+                                                                        e.target
+                                                                            .value
+                                                                    )
+                                                                )
                                                             }
                                                             required
                                                         />
-                                                        {errors?.[`families.${fIndex}.members.${mIndex}.has_vehicle`] && (
+                                                        {errors?.[
+                                                            `families.${fIndex}.members.${mIndex}.has_vehicle`
+                                                        ] && (
                                                             <p className="text-red-500 text-xs">
-                                                                {errors[`families.${fIndex}.members.${mIndex}.has_vehicle`]}
+                                                                {
+                                                                    errors[
+                                                                        `families.${fIndex}.members.${mIndex}.has_vehicle`
+                                                                    ]
+                                                                }
                                                             </p>
                                                         )}
                                                     </div>
 
                                                     {/* Vehicle Details (conditional) */}
-                                                    {member.has_vehicle === 1 && (
+                                                    {member.has_vehicle ===
+                                                        1 && (
                                                         <div className="space-y-4 mt-4">
-                                                            {(member.vehicles || []).map((vehicle, vecIndex) => (
-                                                                <div
-                                                                    key={vecIndex}
-                                                                    className="border p-4 rounded-md relative bg-gray-50"
-                                                                >
-                                                                    {/* Vehicle Fields */}
-                                                                    <div className="grid md:grid-cols-4 gap-4">
-                                                                        <DropdownInputField
-                                                                            label="Vehicle Type"
-                                                                            name="vehicle_type"
-                                                                            value={vehicle.vehicle_type || ""}
-                                                                            items={["Motorcycle", "Tricycle", "Car", "Jeep", "Truck", "Bicycle"]}
-                                                                            onChange={(e) =>
-                                                                                handleVehicleChange(fIndex, mIndex, vecIndex, "vehicle_type", e.target.value)
-                                                                            }
-                                                                            placeholder="Select type"
-                                                                        />
-                                                                        <DropdownInputField
-                                                                            label="Classification"
-                                                                            name="vehicle_class"
-                                                                            value={vehicle.vehicle_class || ""}
-                                                                            items={[
-                                                                                { label: "Private", value: "private" },
-                                                                                { label: "Public", value: "public" },
-                                                                            ]}
-                                                                            onChange={(e) =>
-                                                                                handleVehicleChange(fIndex, mIndex, vecIndex, "vehicle_class", e.target.value)
-                                                                            }
-                                                                            placeholder="Select class"
-                                                                        />
-                                                                        <DropdownInputField
-                                                                            label="Usage Purpose"
-                                                                            name="usage_status"
-                                                                            value={vehicle.usage_status || ""}
-                                                                            items={[
-                                                                                { label: "Personal", value: "personal" },
-                                                                                { label: "Public Transport", value: "public_transport" },
-                                                                                { label: "Business Use", value: "business_use" },
-                                                                            ]}
-                                                                            onChange={(e) =>
-                                                                                handleVehicleChange(fIndex, mIndex, vecIndex, "usage_status", e.target.value)
-                                                                            }
-                                                                            placeholder="Select usage"
-                                                                        />
-                                                                        <RadioGroup
-                                                                            label="Is Registered?"
-                                                                            name="is_registered"
-                                                                            selectedValue={
-                                                                                vehicle.is_registered === 0 || vehicle.is_registered === 1
-                                                                                    ? vehicle.is_registered
-                                                                                    : ""
-                                                                            }
-                                                                            options={[
-                                                                                { label: "Yes", value: 1 },
-                                                                                { label: "No", value: 0 },
-                                                                            ]}
-                                                                            onChange={(e) =>
-                                                                                handleVehicleChange(
+                                                            {(
+                                                                member.vehicles ||
+                                                                []
+                                                            ).map(
+                                                                (
+                                                                    vehicle,
+                                                                    vecIndex
+                                                                ) => (
+                                                                    <div
+                                                                        key={
+                                                                            vecIndex
+                                                                        }
+                                                                        className="border p-4 rounded-md relative bg-gray-50"
+                                                                    >
+                                                                        {/* Vehicle Fields */}
+                                                                        <div className="grid md:grid-cols-4 gap-4">
+                                                                            <DropdownInputField
+                                                                                label="Vehicle Type"
+                                                                                name="vehicle_type"
+                                                                                value={
+                                                                                    vehicle.vehicle_type ||
+                                                                                    ""
+                                                                                }
+                                                                                items={[
+                                                                                    "Motorcycle",
+                                                                                    "Tricycle",
+                                                                                    "Car",
+                                                                                    "Jeep",
+                                                                                    "Truck",
+                                                                                    "Bicycle",
+                                                                                ]}
+                                                                                onChange={(
+                                                                                    e
+                                                                                ) =>
+                                                                                    handleVehicleChange(
+                                                                                        fIndex,
+                                                                                        mIndex,
+                                                                                        vecIndex,
+                                                                                        "vehicle_type",
+                                                                                        e
+                                                                                            .target
+                                                                                            .value
+                                                                                    )
+                                                                                }
+                                                                                placeholder="Select type"
+                                                                            />
+                                                                            <DropdownInputField
+                                                                                label="Classification"
+                                                                                name="vehicle_class"
+                                                                                value={
+                                                                                    vehicle.vehicle_class ||
+                                                                                    ""
+                                                                                }
+                                                                                items={[
+                                                                                    {
+                                                                                        label: "Private",
+                                                                                        value: "private",
+                                                                                    },
+                                                                                    {
+                                                                                        label: "Public",
+                                                                                        value: "public",
+                                                                                    },
+                                                                                ]}
+                                                                                onChange={(
+                                                                                    e
+                                                                                ) =>
+                                                                                    handleVehicleChange(
+                                                                                        fIndex,
+                                                                                        mIndex,
+                                                                                        vecIndex,
+                                                                                        "vehicle_class",
+                                                                                        e
+                                                                                            .target
+                                                                                            .value
+                                                                                    )
+                                                                                }
+                                                                                placeholder="Select class"
+                                                                            />
+                                                                            <DropdownInputField
+                                                                                label="Usage Purpose"
+                                                                                name="usage_status"
+                                                                                value={
+                                                                                    vehicle.usage_status ||
+                                                                                    ""
+                                                                                }
+                                                                                items={[
+                                                                                    {
+                                                                                        label: "Personal",
+                                                                                        value: "personal",
+                                                                                    },
+                                                                                    {
+                                                                                        label: "Public Transport",
+                                                                                        value: "public_transport",
+                                                                                    },
+                                                                                    {
+                                                                                        label: "Business Use",
+                                                                                        value: "business_use",
+                                                                                    },
+                                                                                ]}
+                                                                                onChange={(
+                                                                                    e
+                                                                                ) =>
+                                                                                    handleVehicleChange(
+                                                                                        fIndex,
+                                                                                        mIndex,
+                                                                                        vecIndex,
+                                                                                        "usage_status",
+                                                                                        e
+                                                                                            .target
+                                                                                            .value
+                                                                                    )
+                                                                                }
+                                                                                placeholder="Select usage"
+                                                                            />
+                                                                            <RadioGroup
+                                                                                label="Is Registered?"
+                                                                                name="is_registered"
+                                                                                selectedValue={
+                                                                                    vehicle.is_registered ===
+                                                                                        0 ||
+                                                                                    vehicle.is_registered ===
+                                                                                        1
+                                                                                        ? vehicle.is_registered
+                                                                                        : ""
+                                                                                }
+                                                                                options={[
+                                                                                    {
+                                                                                        label: "Yes",
+                                                                                        value: 1,
+                                                                                    },
+                                                                                    {
+                                                                                        label: "No",
+                                                                                        value: 0,
+                                                                                    },
+                                                                                ]}
+                                                                                onChange={(
+                                                                                    e
+                                                                                ) =>
+                                                                                    handleVehicleChange(
+                                                                                        fIndex,
+                                                                                        mIndex,
+                                                                                        vecIndex,
+                                                                                        "is_registered",
+                                                                                        parseInt(
+                                                                                            e
+                                                                                                .target
+                                                                                                .value
+                                                                                        )
+                                                                                    )
+                                                                                }
+                                                                            />
+                                                                        </div>
+
+                                                                        {/* Remove Vehicle Button */}
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() =>
+                                                                                removeVehicle(
                                                                                     fIndex,
                                                                                     mIndex,
-                                                                                    vecIndex,
-                                                                                    "is_registered",
-                                                                                    parseInt(e.target.value)
+                                                                                    vecIndex
                                                                                 )
                                                                             }
-                                                                        />
-
+                                                                            className="absolute top-1 right-2 flex items-center gap-1 text-2xl text-red-400 hover:text-red-800 transition-colors duration-200"
+                                                                            title="Remove Vehicle"
+                                                                        >
+                                                                            <IoIosCloseCircleOutline />
+                                                                        </button>
                                                                     </div>
-
-                                                                    {/* Remove Vehicle Button */}
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => removeVehicle(fIndex, mIndex, vecIndex)}
-                                                                        className="absolute top-1 right-2 flex items-center gap-1 text-2xl text-red-400 hover:text-red-800 transition-colors duration-200"
-                                                                        title="Remove Vehicle"
-                                                                    >
-                                                                        <IoIosCloseCircleOutline />
-                                                                    </button>
-                                                                </div>
-                                                            ))}
+                                                                )
+                                                            )}
 
                                                             {/* Add Vehicle Button */}
                                                             <button
                                                                 type="button"
-                                                                onClick={() => addVehicle(fIndex, mIndex)}
+                                                                onClick={() =>
+                                                                    addVehicle(
+                                                                        fIndex,
+                                                                        mIndex
+                                                                    )
+                                                                }
                                                                 className="flex items-center text-blue-600 hover:text-blue-800 text-sm mt-2"
                                                                 title="Add Vehicle"
                                                             >
                                                                 <IoIosAddCircleOutline className="text-4xl" />
-                                                                <span className="ml-1">Add Vehicle</span>
+                                                                <span className="ml-1">
+                                                                    Add Vehicle
+                                                                </span>
                                                             </button>
                                                         </div>
                                                     )}
                                                 </div>
-
                                             </div>
-                                        )
-                                        }
+                                        )}
                                     </div>
                                 );
                             })}
                         </div>
                     )}
                 </div>
-            ))
-            }
-        </div >
+            ))}
+        </div>
     );
 };
 
 export default HouseholdPersonalInfo;
-

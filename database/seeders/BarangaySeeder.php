@@ -41,6 +41,8 @@ class BarangaySeeder extends Seeder
         ];
 
         foreach ($barangays as $name) {
+            $emailName = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($name));
+            $email = $emailName . '@example.com';
             Barangay::factory()->create([
                 'barangay_name' => $name,
                 'city' => 'City of Ilagan',
@@ -51,7 +53,7 @@ class BarangaySeeder extends Seeder
                 'barangay_type' => fake()->randomElement(['rural', 'urban']),
                 'contact_number' => fake()->numerify('09#########'),
                 'area_sq_km' => fake()->randomFloat(2, 1, 20),
-                'email' => strtolower(str_replace(' ', '', $name)) . '@example.com',
+                'email' => $email,
                 'logo_path' => null,
             ]);
         }

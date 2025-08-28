@@ -420,6 +420,41 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                     className="mt-2"
                                 />
                             </div>
+                            <div>
+                                <RadioGroup
+                                    label="Is Main Livelihood"
+                                    name="is_main_livelihood"
+                                    selectedValue={
+                                        occupation?.is_main_livelihood?.toString() ||
+                                        ""
+                                    }
+                                    options={[
+                                        {
+                                            label: "Yes",
+                                            value: 1,
+                                        },
+                                        {
+                                            label: "No",
+                                            value: 0,
+                                        },
+                                    ]}
+                                    onChange={(e) =>
+                                        handleOccupationFieldChange(
+                                            e,
+                                            occIndex,
+                                            "is_main_livelihood"
+                                        )
+                                    }
+                                />
+                                <InputError
+                                    message={
+                                        errors[
+                                            `occupations.${occIndex}.is_main_livelihood`
+                                        ]
+                                    }
+                                    className="mt-2"
+                                />
+                            </div>
                         </div>
 
                         <button

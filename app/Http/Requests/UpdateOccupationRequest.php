@@ -39,6 +39,7 @@ class UpdateOccupationRequest extends FormRequest
             'occupations.*.income' => ['nullable', 'numeric', 'min:0'],
             'occupations.*.income_frequency' => ['nullable', 'in:daily,bi_weekly,weekly,monthly,annually'],
             'occupations.*.is_ofw' => ['required', 'boolean'],
+            'occupations.*.is_main_livelihood' => ['required', 'boolean'],
         ];
     }
 
@@ -75,6 +76,9 @@ class UpdateOccupationRequest extends FormRequest
 
             'occupations.*.is_ofw.required' => 'OFW status is required.',
             'occupations.*.is_ofw.boolean' => 'OFW status must be true or false.',
+
+            'occupations.*.is_main_livelihood.required' => 'Is Main Livelihood status is required.',
+            'occupations.*.is_main_livelihood.boolean' => 'Is Main Livelihood status must be true or false.',
         ];
     }
 }

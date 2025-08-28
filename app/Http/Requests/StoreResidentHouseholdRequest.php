@@ -23,21 +23,22 @@ class StoreResidentHouseholdRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // Household Info
+            //Household Info
             'housenumber' => ['required', 'string', 'max:55'],
             'subdivision' => ['nullable', 'string', 'max:100'],
             'street' => ['required', 'integer', 'min:1'],
             'purok' => ['required', 'integer', 'min:1'],
-            'householdCount' => ['required', 'integer', 'min:1'],
+            'household.household_count' => ['required', 'integer', 'min:1'],
+            'household.household_type' => ['required', Rule::in(['nuclear', 'extended', 'single_parent', 'stepfamilies', 'grandparent', 'childless', 'cohabiting_partners', 'one_person_household', 'roommates'])],
 
-            // Family Info
-            'family_name' => ['required', 'string', 'max:100'],
-            'family_type' => ['required', Rule::in(['nuclear', 'extended', 'single_parent', 'stepfamilies', 'grandparent', 'childless', 'cohabiting_partners', 'one_person_household', 'roommates'])],
-            'family_monthly_income' => ['required', 'numeric', 'min:0'],
-            'income_bracket' => ['required', 'string', 'max:155'],
-            'income_category' => ['required', 'string', 'max:155'],
+            //Family Info
+            //'household.family_name' => ['required', 'string', 'max:100'],
+            'household.families.*.family_type' => ['required', Rule::in(['nuclear', 'extended', 'single_parent', 'stepfamilies', 'grandparent', 'childless', 'cohabiting_partners', 'one_person_household', 'roommates'])],
+            'household.family_monthly_income' => ['required', 'numeric', 'min:0'],
+            'household.income_bracket' => ['required', 'string', 'max:155'],
+            'household.income_category' => ['required', 'string', 'max:155'],
 
-            // Housing Structure
+            //Housing Structure
             'ownership_type' => ['required', 'string', 'max:100'],
             'housing_condition' => ['required', Rule::in(['good', 'needs_repair', 'dilapidated'])],
             'house_structure' => ['required', Rule::in(['concrete', 'semi_concrete', 'wood', 'makeshift'])],
@@ -78,107 +79,108 @@ class StoreResidentHouseholdRequest extends FormRequest
             'verified' => ['required', Rule::in([0, 1])],
 
             // Members (residents of the household)
-            'members' => ['required', 'array', 'min:1'],
-            'members.*.resident_image' => ['nullable', 'image', 'max:5120'],
-            'members.*.lastname' => ['required', 'string', 'max:55'],
-            'members.*.firstname' => ['required', 'string', 'max:55'],
-            'members.*.middlename' => ['nullable', 'string', 'max:55'],
-            'members.*.suffix' => ['nullable', Rule::in(['Jr.', 'Sr.', 'I', 'II', 'III', 'IV'])],
-            'members.*.birthdate' => ['required', 'date', 'before:today'],
-            'members.*.birthplace' => ['required', 'string', 'max:150'],
-            'members.*.civil_status' => ['required', Rule::in(['single', 'married', 'widowed', 'divorced', 'separated', 'annulled'])],
-            'members.*.sex' => ['required', Rule::in(['male', 'female'])],
-            'members.*.gender' => ['required', 'string', 'max:55'],
-            'members.*.maiden_middle_name' => ['nullable', 'string', 'max:100'],
-            'members.*.citizenship' => ['required', 'string', 'max:55'],
-            'members.*.religion' => ['required', 'string', 'max:55'],
-            'members.*.ethnicity' => ['nullable', 'string', 'max:55'],
-            'members.*.contactNumber' => ['nullable', 'string', 'max:15'],
-            'members.*.email' => ['nullable', 'email', 'min:10', 'max:55', 'unique:residents,email'],
-            'members.*.is_pensioner' => ['nullable', Rule::in(['yes', 'no'])],
-            'members.*.osca_id_number' => ['nullable', 'string', 'max:55'],
-            'members.*.pension_type' => ['nullable', Rule::in(['SSS', 'GSIS', 'DSWD', 'private', 'none'])],
-            'members.*.living_alone' => ['nullable', Rule::in([0, 1])],
-            'members.*.residency_type' => ['required', Rule::in(['permanent', 'temporary', 'immigrant'])],
-            'members.*.residency_date' => ['required', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
-            'members.*.relation_to_household_head' => ['required', Rule::in(['self', 'spouse', 'child', 'sibling', 'parent', 'parent_in_law','grandparent'])],
-            'members.*.registered_voter' => ['required', Rule::in([0, 1])],
-            'members.*.registered_barangay' => ['required_if:members.*.registered_voter,1'],
-            'members.*.voter_id_number' => ['nullable', 'string', 'max:55'],
-            'members.*.voting_status' => ['nullable', Rule::in(['active', 'inactive', 'disqualified', 'medical', 'overseas', 'detained', 'deceased'])],
-            'members.*.is_household_head' => ['required', Rule::in([0, 1])],
-            'members.*.household_position' => ['required', 'string', 'max:55'],
-            'members.*.is_4ps_benificiary' => ['required', Rule::in([0, 1])],
-            'members.*.is_solo_parent' => ['required', Rule::in([0, 1])],
-            'members.*.solo_parent_id_number' => ['nullable', 'string', 'max:55'],
-            'members.*.has_vehicle' => ['required', Rule::in([0, 1])],
-            'members.*.vehicles.*.vehicle_type' => ['required', 'string', 'max:55'],
-            'members.*.vehicles.*.vehicle_class' => ['required', 'string', 'max:55'],
-            'members.*.vehicles.*.usage_status' => ['required', 'string', 'max:55'],
-            'members.*.vehicles.*.is_registered' => ['required', Rule::in([1, 0])],
+            'household.families.*.members' => ['required', 'array', 'min:1'],
+            'household.families.*.members.*.resident_image' => ['nullable', 'image', 'max:5120'],
+            'household.families.*.members.*.lastname' => ['required', 'string', 'max:55'],
+            'household.families.*.members.*.firstname' => ['required', 'string', 'max:55'],
+            'household.families.*.members.*.middlename' => ['nullable', 'string', 'max:55'],
+            'household.families.*.members.*.suffix' => ['nullable', Rule::in(['Jr.', 'Sr.', 'I', 'II', 'III', 'IV'])],
+            'household.families.*.members.*.birthdate' => ['required', 'date', 'before:today'],
+            'household.families.*.members.*.birthplace' => ['required', 'string', 'max:150'],
+            'household.families.*.members.*.civil_status' => ['required', Rule::in(['single', 'married', 'widowed', 'divorced', 'separated', 'annulled'])],
+            'household.families.*.members.*.sex' => ['required', Rule::in(['male', 'female'])],
+            'household.families.*.members.*.gender' => ['required', 'string', 'max:55'],
+            'household.families.*.members.*.maiden_middle_name' => ['nullable', 'string', 'max:100'],
+            'household.families.*.members.*.citizenship' => ['required', 'string', 'max:55'],
+            'household.families.*.members.*.religion' => ['required', 'string', 'max:55'],
+            'household.families.*.members.*.ethnicity' => ['nullable', 'string', 'max:55'],
+            'household.families.*.members.*.contactNumber' => ['nullable', 'string', 'max:15'],
+            'household.families.*.members.*.email' => ['nullable','email','min:10','max:55','unique:residents,email'],
+            'household.families.*.members.*.is_pensioner' => ['nullable', Rule::in(['yes', 'no'])],
+            'household.families.*.members.*.osca_id_number' => ['nullable', 'string', 'max:55'],
+            'household.families.*.members.*.pension_type' => ['nullable', Rule::in(['SSS', 'GSIS', 'DSWD', 'private', 'none'])],
+            'household.families.*.members.*.living_alone' => ['nullable', Rule::in([0, 1])],
+            'household.families.*.members.*.residency_type' => ['required', Rule::in(['permanent', 'temporary', 'immigrant'])],
+            'household.families.*.members.*.residency_date' => ['required', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
+            'household.families.*.members.*.relation_to_household_head' => ['required', Rule::in(['self', 'spouse', 'child', 'sibling', 'parent', 'parent_in_law','grandparent'])],
+            'household.families.*.members.*.registered_voter' => ['required', Rule::in([0, 1])],
+            'household.families.*.members.*.registered_barangay' => ['required_if:members.*.registered_voter,1'],
+            'household.families.*.members.*.voter_id_number' => ['nullable', 'string', 'max:55'],
+            'household.families.*.members.*.voting_status' => ['nullable', Rule::in(['active', 'inactive', 'disqualified', 'medical', 'overseas', 'detained', 'deceased'])],
+            'household.families.*.members.*.is_household_head' => ['required', Rule::in([0, 1])],
+            'household.families.*.members.*.household_position' => ['required', 'string', 'max:55'],
+            'household.families.*.members.*.is_4ps_benificiary' => ['required', Rule::in([0, 1])],
+            'household.families.*.members.*.is_solo_parent' => ['required', Rule::in([0, 1])],
+            'household.families.*.members.*.solo_parent_id_number' => ['nullable', 'string', 'max:55'],
+            'household.families.*.members.*.has_vehicle' => ['required', Rule::in([0, 1])],
+            'household.families.*.members.*.vehicles.*.vehicle_type' => ['required', 'string', 'max:55'],
+            'household.families.*.members.*.vehicles.*.vehicle_class' => ['required', 'string', 'max:55'],
+            'household.families.*.members.*.vehicles.*.usage_status' => ['required', 'string', 'max:55'],
+            'household.families.*.members.*.vehicles.*.is_registered' => ['required', Rule::in([1, 0])],
 
             // educaiton
-            'members.*.educations' => ['nullable', 'array'],
-            'members.*.educations.*.education' => ['required', Rule::in(['no_education_yet','no_formal_education','prep_school','kindergarten','elementary',
+            'household.families.*.members.*.educations' => ['nullable', 'array'],
+            'household.families.*.members.*.educations.*.education' => ['required', Rule::in(['no_education_yet','no_formal_education','prep_school','kindergarten','elementary',
                 'high_school','senior_high_school','college','als','tesda','vocational','post_graduate',])],
-            'members.*.educations.*.educational_status' => ['nullable', Rule::in(['graduated', 'incomplete', 'enrolled', 'dropped_out'])],
-            'members.*.educations.*.school_name' => ['nullable', 'string', 'max:150'],
-            'members.*.educations.*.school_type' => ['nullable', Rule::in(['public', 'private'])],
-            'members.*.educations.*.year_started' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
-            'members.*.educations.*.year_ended' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
-            'members.*.educations.*.program' => ['nullable', 'string', 'max:150'],
+            'household.families.*.members.*.educations.*.educational_status' => ['nullable', Rule::in(['graduated', 'incomplete', 'enrolled', 'dropped_out'])],
+            'household.families.*.members.*.educations.*.school_name' => ['nullable', 'string', 'max:150'],
+            'household.families.*.members.*.educations.*.school_type' => ['nullable', Rule::in(['public', 'private'])],
+            'household.families.*.members.*.educations.*.year_started' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
+            'household.families.*.members.*.educations.*.year_ended' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
+            'household.families.*.members.*.educations.*.program' => ['nullable', 'string', 'max:150'],
 
             // occupations
-            'members.*.occupations' => ['nullable', 'array'],
-            'members.*.occupations.*.employment_status' => ['required', Rule::in(['employed', 'unemployed', 'under_employed', 'retired'])],
-            'members.*.occupations.*.occupation' => ['nullable', 'string', 'max:100'],
-            'members.*.occupations.*.employment_type' => ['nullable', Rule::in(['full_time', 'part_time', 'seasonal', 'contractual', 'self_employed'])],
-            'members.*.occupations.*.occupation_status' => ['nullable', Rule::in(['active', 'inactive', 'ended', 'retired','terminated', 'resigned'])],
-            'members.*.occupations.*.work_arrangement' => ['nullable', Rule::in(['remote', 'on_site', 'hybrid'])],
-            'members.*.occupations.*.employer' => ['nullable', 'string', 'max:100'],
-            'members.*.occupations.*.started_at' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
-            'members.*.occupations.*.ended_at' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
-            'members.*.occupations.*.frequency' => ['nullable', Rule::in(['daily', 'weekly', 'bi-weekly', 'monthly'])],
-            'members.*.occupations.*.income' => ['nullable', 'numeric', 'min:0'],
-            'members.*.occupations.*.monthly_income' => ['nullable', 'numeric', 'min:0'],
-            'members.*.occupations.*.is_ofw' => ['required', Rule::in([0, 1])],
-            'members.*.weight_kg' => ['required', 'numeric', 'min:0', 'max:300'],
-            'members.*.height_cm' => ['required', 'numeric', 'min:0', 'max:300'],
-            'members.*.bmi' => ['required', 'numeric', 'min:0', 'max:300'],
-            'members.*.nutrition_status' => ['required', 'string', 'max:100'],
-            'members.*.emergency_contact_number' => ['required', 'string', 'max:11'],
-            'members.*.emergency_contact_name' => ['required', 'string', 'max:255'],
-            'members.*.emergency_contact_relationship' => ['required', 'string', 'max:100'],
-            'members.*.blood_type' => ['nullable', Rule::in(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])],
-            'members.*.has_philhealth' => ['required', Rule::in([0, 1])],
-            'members.*.philhealth_id_number' => ['nullable', 'string', 'max:50'],
-            'members.*.is_alcohol_user' => ['required', Rule::in([0, 1])],
-            'members.*.is_smoker' => ['required', Rule::in([0, 1])],
-            'members.*.is_pwd' => ['required', Rule::in([0, 1])],
-            'members.*.pwd_id_number' => ['required_if:is_pwd,1', 'nullable', 'string', 'max:15'],
-            'members.*.disabilities' => ['required_if:is_pwd,1', 'array'],
-            'members.*.disabilities.*.disability_type' => ['required_with:disabilities', 'string', 'max:100'],
+            'household.families.*.members.*.occupations' => ['nullable', 'array'],
+            'household.families.*.members.*.occupations.*.employment_status' => ['required', Rule::in(['employed', 'unemployed', 'under_employed', 'retired'])],
+            'household.families.*.members.*.occupations.*.occupation' => ['nullable', 'string', 'max:100'],
+            'household.families.*.members.*.occupations.*.employment_type' => ['nullable', Rule::in(['full_time', 'part_time', 'seasonal', 'contractual', 'self_employed'])],
+            'household.families.*.members.*.occupations.*.occupation_status' => ['nullable', Rule::in(['active', 'inactive', 'ended', 'retired','terminated', 'resigned'])],
+            'household.families.*.members.*.occupations.*.work_arrangement' => ['nullable', Rule::in(['remote', 'on_site', 'hybrid'])],
+            'household.families.*.members.*.occupations.*.employer' => ['nullable', 'string', 'max:100'],
+            'household.families.*.members.*.occupations.*.started_at' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
+            'household.families.*.members.*.occupations.*.ended_at' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
+            'household.families.*.members.*.occupations.*.frequency' => ['nullable', Rule::in(['daily', 'weekly', 'bi-weekly', 'monthly'])],
+            'household.families.*.members.*.occupations.*.income' => ['nullable', 'numeric', 'min:0'],
+            'household.families.*.members.*.occupations.*.monthly_income' => ['nullable', 'numeric', 'min:0'],
+            'household.families.*.members.*.occupations.*.is_ofw' => ['nullable', Rule::in([0, 1])],
+            'household.families.*.members.*.occupations.*.is_main_source' => ['nullable', Rule::in([0, 1])],
+            'household.families.*.members.*.weight_kg' => ['required', 'numeric', 'min:0', 'max:300'],
+            'household.families.*.members.*.height_cm' => ['required', 'numeric', 'min:0', 'max:300'],
+            'household.families.*.members.*.bmi' => ['required', 'numeric', 'min:0', 'max:300'],
+            'household.families.*.members.*.nutrition_status' => ['required', 'string', 'max:100'],
+            'household.families.*.members.*.emergency_contact_number' => ['required', 'string', 'max:11'],
+            'household.families.*.members.*.emergency_contact_name' => ['required', 'string', 'max:255'],
+            'household.families.*.members.*.emergency_contact_relationship' => ['required', 'string', 'max:100'],
+            'household.families.*.members.*.blood_type' => ['nullable', Rule::in(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])],
+            'household.families.*.members.*.has_philhealth' => ['required', Rule::in([0, 1])],
+            'household.families.*.members.*.philhealth_id_number' => ['nullable', 'string', 'max:50'],
+            'household.families.*.members.*.is_alcohol_user' => ['required', Rule::in([0, 1])],
+            'household.families.*.members.*.is_smoker' => ['required', Rule::in([0, 1])],
+            'household.families.*.members.*.is_pwd' => ['required', Rule::in([0, 1])],
+            'household.families.*.members.*.pwd_id_number' => ['required_if:is_pwd,1', 'nullable', 'string', 'max:15'],
+            'household.families.*.members.*.disabilities' => ['required_if:is_pwd,1', 'array'],
+            'household.families.*.members.*.disabilities.*.disability_type' => ['required_with:disabilities', 'string', 'max:100'],
 
 
             // SECTION 6: Livelihoods
-            'members.*.livelihoods' => ['nullable', 'array'],
-            'members.*.livelihoods.*.livelihood_type' => ['nullable', 'string', 'max:155'],
-            'members.*.livelihoods.*.description' => ['nullable', 'string', 'max:255'],
+            // 'household.families.*.members.*.livelihoods' => ['nullable', 'array'],
+            // 'household.families.*.members.*.livelihoods.*.livelihood_type' => ['nullable', 'string', 'max:155'],
+            // 'household.families.*.members.*.livelihoods.*.description' => ['nullable', 'string', 'max:255'],
 
-            'members.*.livelihoods.*.status' => [
-                'nullable',
-                Rule::in(['active', 'inactive', 'seasonal', 'ended']),
-            ],
+            // 'household.families.*.members.*.livelihoods.*.status' => [
+            //     'nullable',
+            //     Rule::in(['active', 'inactive', 'seasonal', 'ended']),
+            // ],
 
-            'members.*.livelihoods.*.is_main_livelihood' => ['nullable', 'boolean'],
+            // 'household.families.*.members.*.livelihoods.*.is_main_livelihood' => ['nullable', 'boolean'],
 
-            'members.*.livelihoods.*.started_at' => ['nullable', 'date', 'before_or_equal:today'],
-            'members.*.livelihoods.*.ended_at' => ['nullable', 'date', 'after:started_at'],
+            // 'household.families.*.members.*.livelihoods.*.started_at' => ['nullable', 'date', 'before_or_equal:today'],
+            // 'household.families.*.members.*.livelihoods.*.ended_at' => ['nullable', 'date', 'after:started_at'],
 
-            'members.*.livelihoods.*.income' => ['nullable', 'numeric', 'min:0'],
-            'members.*.livelihoods.*.income_frequency' => [
-                'nullable',
-                Rule::in(['daily', 'bi_weekly', 'weekly', 'monthly', 'annually'])]
+            // 'household.families.*.members.*.livelihoods.*.income' => ['nullable', 'numeric', 'min:0'],
+            // 'household.families.*.members.*.livelihoods.*.income_frequency' => [
+            //     'nullable',
+            //     Rule::in(['daily', 'bi_weekly', 'weekly', 'monthly', 'annually'])]
         ];
     }
 
@@ -186,89 +188,97 @@ class StoreResidentHouseholdRequest extends FormRequest
     {
         $attributes = [];
 
-        // Members
-        foreach ((array) $this->input('members', []) as $index => $member) {
-            $n = $index + 1;
-            $attributes["members.$index.lastname"] = "Last name of household member #$n";
-            $attributes["members.$index.firstname"] = "First name of household member #$n";
-            $attributes["members.$index.middlename"] = "Middle name of household member #$n";
-            $attributes["members.$index.suffix"] = "Suffix of household member #$n";
-            $attributes["members.$index.birthdate"] = "Birthdate of household member #$n";
-            $attributes["members.$index.birthplace"] = "Birthplace of household member #$n";
-            $attributes["members.$index.civil_status"] = "Civil status of household member #$n";
-            $attributes["members.$index.gender"] = "Gender of household member #$n";
-            $attributes["members.$index.maiden_middle_name"] = "Maiden middle name of household member #$n";
-            $attributes["members.$index.citizenship"] = "Citizenship of household member #$n";
-            $attributes["members.$index.religion"] = "Religion of household member #$n";
-            $attributes["members.$index.ethnicity"] = "Ethnicity of household member #$n";
-            $attributes["members.$index.contactNumber"] = "Contact number of household member #$n";
-            $attributes["members.$index.email"] = "Email of household member #$n";
-            $attributes["members.$index.residency_type"] = "Residency type of household member #$n";
-            $attributes["members.$index.residency_date"] = "Residency year of household member #$n";
-            $attributes["members.$index.relation_to_household_head"] = "Relation to the Head of household member #$n";
-            $attributes["members.$index.registered_voter"] = "Voter registration of household member #$n";
-            $attributes["members.$index.registered_barangay"] = "Voter Status of household member #$n";
-            $attributes["members.$index.voter_id_number"] = "Voter ID number of household member #$n";
-            $attributes["members.$index.voting_status"] = "Voting status of household member #$n";
-            $attributes["members.$index.is_household_head"] = "Is household head for household member #$n";
-            $attributes["members.$index.household_position"] = "Household position for household member #$n";
-            $attributes["members.$index.is_4ps_benificiary"] = "4Ps beneficiary of household member #$n";
-            $attributes["members.$index.is_solo_parent"] = "Solo parent status of household member #$n";
-            $attributes["members.$index.solo_parent_id_number"] = "Solo parent ID of household member #$n";
-            $attributes["members.$index.has_vehicle"] = "Has vehicle status for household member #$n";
-            $attributes["members.$index.resident_image"] = "Profile photo of household member #$n";
-            $attributes["members.$index.weight_kg"] = "Weight of household member #$n";
-            $attributes["members.$index.height_cm"] = "Height of household member #$n";
-            $attributes["members.$index.bmi"] = "BMI of household member #$n";
-            $attributes["members.$index.nutrition_status"] = "Nutrition status of household member #$n";
-            $attributes["members.$index.emergency_contact_number"] = "Emergency number of household member #$n";
-            $attributes["members.$index.emergency_contact_name"] = "Contact name of household member #$n";
-            $attributes["members.$index.emergency_contact_relationship"] = "Contact relationship of household member #$n";
-            $attributes["members.$index.blood_type"] = "Blood type of household member #$n";
-            $attributes["members.$index.has_philhealth"] = "PhilHealth status of household member #$n";
-            $attributes["members.$index.philhealth_id_number"] = "PhilHealth ID Number of household member #$n";
-            $attributes["members.$index.is_alcohol_user"] = "Alcohol usage status of household member #$n";
-            $attributes["members.$index.is_smoker"] = "Smoking status of household member #$n";
-            $attributes["members.$index.is_pwd"] = "Disability status of household member #$n";
-            $attributes["members.$index.pwd_id_number"] = "PWD ID of household member #$n";
+        // Families & Members
+        foreach ((array) $this->input('household.families', []) as $fIndex => $family) {
+            $fNum = $fIndex + 1;
 
-            // Member Vehicles
-            foreach ((array) ($member['vehicles'] ?? []) as $vIndex => $vehicle) {
-                $attributes["members.$index.vehicles.$vIndex.vehicle_type"] = "Vehicle type of member #$n (vehicle #".($vIndex + 1).")";
-                $attributes["members.$index.vehicles.$vIndex.vehicle_class"] = "Vehicle class of member #$n (vehicle #".($vIndex + 1).")";
-                $attributes["members.$index.vehicles.$vIndex.usage_status"] = "Vehicle usage status of member #$n (vehicle #".($vIndex + 1).")";
-                $attributes["members.$index.vehicles.$vIndex.quantity"] = "Vehicle quantity of member #$n (vehicle #".($vIndex + 1).")";
-            }
+            foreach ((array) ($family['members'] ?? []) as $mIndex => $member) {
+                $n = $mIndex + 1;
+                $base = "household.families.$fIndex.members.$mIndex";
 
-            // Member Educations
-            foreach ((array) ($member['educations'] ?? []) as $eduIndex => $edu) {
-                $attributes["members.$index.educations.$eduIndex.education"] = "Educational attainment of member #$n (education #" . ($eduIndex + 1) . ")";
-                $attributes["members.$index.educations.$eduIndex.educational_status"] = "Educational status of member #$n (education #" . ($eduIndex + 1) . ")";
-                $attributes["members.$index.educations.$eduIndex.school_name"] = "School name of member #$n (education #" . ($eduIndex + 1) . ")";
-                $attributes["members.$index.educations.$eduIndex.school_type"] = "School type of member #$n (education #" . ($eduIndex + 1) . ")";
-                $attributes["members.$index.educations.$eduIndex.year_started"] = "Year started of member #$n (education #" . ($eduIndex + 1) . ")";
-                $attributes["members.$index.educations.$eduIndex.year_ended"] = "Year ended of member #$n (education #" . ($eduIndex + 1) . ")";
-                $attributes["members.$index.educations.$eduIndex.program"] = "Finished course of member #$n (education #" . ($eduIndex + 1) . ")";
-            }
+                $attributes["$base.lastname"] = "Last name of household member #$n (family #$fNum)";
+                $attributes["$base.firstname"] = "First name of household member #$n (family #$fNum)";
+                $attributes["$base.middlename"] = "Middle name of household member #$n (family #$fNum)";
+                $attributes["$base.suffix"] = "Suffix of household member #$n (family #$fNum)";
+                $attributes["$base.birthdate"] = "Birthdate of household member #$n (family #$fNum)";
+                $attributes["$base.birthplace"] = "Birthplace of household member #$n (family #$fNum)";
+                $attributes["$base.civil_status"] = "Civil status of household member #$n (family #$fNum)";
+                $attributes["$base.gender"] = "Gender of household member #$n (family #$fNum)";
+                $attributes["$base.maiden_middle_name"] = "Maiden middle name of household member #$n (family #$fNum)";
+                $attributes["$base.citizenship"] = "Citizenship of household member #$n (family #$fNum)";
+                $attributes["$base.religion"] = "Religion of household member #$n (family #$fNum)";
+                $attributes["$base.ethnicity"] = "Ethnicity of household member #$n (family #$fNum)";
+                $attributes["$base.contactNumber"] = "Contact number of household member #$n (family #$fNum)";
+                $attributes["$base.email"] = "Email of household member #$n (family #$fNum)";
+                $attributes["$base.residency_type"] = "Residency type of household member #$n (family #$fNum)";
+                $attributes["$base.residency_date"] = "Residency year of household member #$n (family #$fNum)";
+                $attributes["$base.relation_to_household_head"] = "Relation to head of household member #$n (family #$fNum)";
+                $attributes["$base.registered_voter"] = "Voter registration of household member #$n (family #$fNum)";
+                $attributes["$base.registered_barangay"] = "Voter status of household member #$n (family #$fNum)";
+                $attributes["$base.voter_id_number"] = "Voter ID number of household member #$n (family #$fNum)";
+                $attributes["$base.voting_status"] = "Voting status of household member #$n (family #$fNum)";
+                $attributes["$base.is_household_head"] = "Is household head for household member #$n (family #$fNum)";
+                $attributes["$base.household_position"] = "Household position for household member #$n (family #$fNum)";
+                $attributes["$base.is_4ps_benificiary"] = "4Ps beneficiary of household member #$n (family #$fNum)";
+                $attributes["$base.is_solo_parent"] = "Solo parent status of household member #$n (family #$fNum)";
+                $attributes["$base.solo_parent_id_number"] = "Solo parent ID of household member #$n (family #$fNum)";
+                $attributes["$base.has_vehicle"] = "Has vehicle status for household member #$n (family #$fNum)";
+                $attributes["$base.resident_image"] = "Profile photo of household member #$n (family #$fNum)";
+                $attributes["$base.weight_kg"] = "Weight of household member #$n (family #$fNum)";
+                $attributes["$base.height_cm"] = "Height of household member #$n (family #$fNum)";
+                $attributes["$base.bmi"] = "BMI of household member #$n (family #$fNum)";
+                $attributes["$base.nutrition_status"] = "Nutrition status of household member #$n (family #$fNum)";
+                $attributes["$base.emergency_contact_number"] = "Emergency number of household member #$n (family #$fNum)";
+                $attributes["$base.emergency_contact_name"] = "Contact name of household member #$n (family #$fNum)";
+                $attributes["$base.emergency_contact_relationship"] = "Contact relationship of household member #$n (family #$fNum)";
+                $attributes["$base.blood_type"] = "Blood type of household member #$n (family #$fNum)";
+                $attributes["$base.has_philhealth"] = "PhilHealth status of household member #$n (family #$fNum)";
+                $attributes["$base.philhealth_id_number"] = "PhilHealth ID Number of household member #$n (family #$fNum)";
+                $attributes["$base.is_alcohol_user"] = "Alcohol usage status of household member #$n (family #$fNum)";
+                $attributes["$base.is_smoker"] = "Smoking status of household member #$n (family #$fNum)";
+                $attributes["$base.is_pwd"] = "Disability status of household member #$n (family #$fNum)";
+                $attributes["$base.pwd_id_number"] = "PWD ID of household member #$n (family #$fNum)";
 
-            // Member Occupations
-            foreach ((array) ($member['occupations'] ?? []) as $oIndex => $occupation) {
-                $attributes["members.$index.occupations.$oIndex.employment_status"] = "Employment status of member #$n (occupation #" . ($oIndex + 1) . ")";
-                $attributes["members.$index.occupations.$oIndex.occupation"] = "Occupation of member #$n (occupation #" . ($oIndex + 1) . ")";
-                $attributes["members.$index.occupations.$oIndex.employment_type"] = "Employment type of member #$n (occupation #" . ($oIndex + 1) . ")";
-                $attributes["members.$index.occupations.$oIndex.occupation_status"] = "Occupation status of member #$n (occupation #" . ($oIndex + 1) . ")";
-                $attributes["members.$index.occupations.$oIndex.work_arrangement"] = "Work arrangement of member #$n (occupation #" . ($oIndex + 1) . ")";
-                $attributes["members.$index.occupations.$oIndex.employer"] = "Employer of member #$n (occupation #" . ($oIndex + 1) . ")";
-                $attributes["members.$index.occupations.$oIndex.started_at"] = "Start year of member #$n (occupation #" . ($oIndex + 1) . ")";
-                $attributes["members.$index.occupations.$oIndex.ended_at"] = "End year of member #$n (occupation #" . ($oIndex + 1) . ")";
-                $attributes["members.$index.occupations.$oIndex.frequency"] = "Income frequency of member #$n (occupation #" . ($oIndex + 1) . ")";
-                $attributes["members.$index.occupations.$oIndex.income"] = "Income of member #$n (occupation #" . ($oIndex + 1) . ")";
-                $attributes["members.$index.occupations.$oIndex.monthly_income"] = "Monthly income of member #$n (occupation #" . ($oIndex + 1) . ")";
-                $attributes["members.$index.occupations.$oIndex.is_ofw"] = "OFW status of member #$n (occupation #" . ($oIndex + 1) . ")";
-            }
+                // Member Vehicles
+                foreach ((array) ($member['vehicles'] ?? []) as $vIndex => $vehicle) {
+                    $attributes["$base.vehicles.$vIndex.vehicle_type"] = "Vehicle type of member #$n (family #$fNum, vehicle #".($vIndex + 1).")";
+                    $attributes["$base.vehicles.$vIndex.vehicle_class"] = "Vehicle class of member #$n (family #$fNum, vehicle #".($vIndex + 1).")";
+                    $attributes["$base.vehicles.$vIndex.usage_status"] = "Vehicle usage status of member #$n (family #$fNum, vehicle #".($vIndex + 1).")";
+                    $attributes["$base.vehicles.$vIndex.quantity"] = "Vehicle quantity of member #$n (family #$fNum, vehicle #".($vIndex + 1).")";
+                }
 
-            foreach ((array) ($member['disabilities'] ?? []) as $dIndex => $disability) {
-                $attributes["members.$index.disabilities.$dIndex.disability_type"] = "Disability type of household member #$n (disability #".($dIndex + 1).")";
+                // Member Educations
+                foreach ((array) ($member['educations'] ?? []) as $eduIndex => $edu) {
+                    $attributes["$base.educations.$eduIndex.education"] = "Educational attainment of member #$n (family #$fNum, education #" . ($eduIndex + 1) . ")";
+                    $attributes["$base.educations.$eduIndex.educational_status"] = "Educational status of member #$n (family #$fNum, education #" . ($eduIndex + 1) . ")";
+                    $attributes["$base.educations.$eduIndex.school_name"] = "School name of member #$n (family #$fNum, education #" . ($eduIndex + 1) . ")";
+                    $attributes["$base.educations.$eduIndex.school_type"] = "School type of member #$n (family #$fNum, education #" . ($eduIndex + 1) . ")";
+                    $attributes["$base.educations.$eduIndex.year_started"] = "Year started of member #$n (family #$fNum, education #" . ($eduIndex + 1) . ")";
+                    $attributes["$base.educations.$eduIndex.year_ended"] = "Year ended of member #$n (family #$fNum, education #" . ($eduIndex + 1) . ")";
+                    $attributes["$base.educations.$eduIndex.program"] = "Finished course of member #$n (family #$fNum, education #" . ($eduIndex + 1) . ")";
+                }
+
+                // Member Occupations
+                foreach ((array) ($member['occupations'] ?? []) as $oIndex => $occupation) {
+                    $attributes["$base.occupations.$oIndex.employment_status"] = "Employment status of member #$n (family #$fNum, occupation #" . ($oIndex + 1) . ")";
+                    $attributes["$base.occupations.$oIndex.occupation"] = "Occupation of member #$n (family #$fNum, occupation #" . ($oIndex + 1) . ")";
+                    $attributes["$base.occupations.$oIndex.employment_type"] = "Employment type of member #$n (family #$fNum, occupation #" . ($oIndex + 1) . ")";
+                    $attributes["$base.occupations.$oIndex.occupation_status"] = "Occupation status of member #$n (family #$fNum, occupation #" . ($oIndex + 1) . ")";
+                    $attributes["$base.occupations.$oIndex.work_arrangement"] = "Work arrangement of member #$n (family #$fNum, occupation #" . ($oIndex + 1) . ")";
+                    $attributes["$base.occupations.$oIndex.employer"] = "Employer of member #$n (family #$fNum, occupation #" . ($oIndex + 1) . ")";
+                    $attributes["$base.occupations.$oIndex.started_at"] = "Start year of member #$n (family #$fNum, occupation #" . ($oIndex + 1) . ")";
+                    $attributes["$base.occupations.$oIndex.ended_at"] = "End year of member #$n (family #$fNum, occupation #" . ($oIndex + 1) . ")";
+                    $attributes["$base.occupations.$oIndex.frequency"] = "Income frequency of member #$n (family #$fNum, occupation #" . ($oIndex + 1) . ")";
+                    $attributes["$base.occupations.$oIndex.income"] = "Income of member #$n (family #$fNum, occupation #" . ($oIndex + 1) . ")";
+                    $attributes["$base.occupations.$oIndex.monthly_income"] = "Monthly income of member #$n (family #$fNum, occupation #" . ($oIndex + 1) . ")";
+                    $attributes["$base.occupations.$oIndex.is_ofw"] = "OFW status of member #$n (family #$fNum, occupation #" . ($oIndex + 1) . ")";
+                    $attributes["$base.occupations.$oIndex.is_main_source"] = "OFW status of member #$n (family #$fNum, occupation #" . ($oIndex + 1) . ")";
+                }
+
+                // Member Disabilities
+                foreach ((array) ($member['disabilities'] ?? []) as $dIndex => $disability) {
+                    $attributes["$base.disabilities.$dIndex.disability_type"] = "Disability type of household member #$n (family #$fNum, disability #".($dIndex + 1).")";
+                }
             }
         }
 
@@ -298,6 +308,7 @@ class StoreResidentHouseholdRequest extends FormRequest
             $attributes["pets.$index.is_vaccinated"] = "Vaccination status of pet #".($index + 1);
         }
 
+        // Livestocks
         foreach ((array) $this->input('livestocks', []) as $index => $livestock) {
             $n = $index + 1;
             $attributes["livestocks.$index.livestock_type"] = "Livestock type #$n";
@@ -308,7 +319,7 @@ class StoreResidentHouseholdRequest extends FormRequest
         return $attributes;
     }
 
-    public function messages()
+   public function messages()
     {
         $messages = [
             'housenumber.required' => 'The house number is required.',
@@ -316,46 +327,56 @@ class StoreResidentHouseholdRequest extends FormRequest
             'purok.required' => 'Please select a purok.',
             'family_name.required' => 'The family name is required.',
             'members.required' => 'At least one household member is required.',
+
+            // Basic member rules
             'members.*.lastname.required' => 'Last name is required for all members.',
             'members.*.firstname.required' => 'First name is required for all members.',
+            'members.*.middlename.required' => 'Middle name is required for all members.',
+            'members.*.suffix.max' => 'The suffix must not exceed :max characters.',
+            'members.*.gender.required' => 'Gender is required for all members.',
+            'members.*.birthdate.required' => 'Birthdate is required for all members.',
             'members.*.birthdate.before' => 'Birthdate must be before today.',
             'members.*.email.email' => 'The email address must be valid.',
             'members.*.email.unique' => 'The email has already been taken.',
+            'members.*.contact_number.regex' => 'The contact number must be a valid format.',
+            'members.*.relation_to_household_head.required' => 'Relation to household head is required.',
+
+            // Nested rules
             'members.*.educations.*.education.required' => 'The education level is required for all education entries.',
+            'members.*.educations.*.school_name.required' => 'The school name is required for each education entry.',
+            'members.*.educations.*.year_level.required' => 'The year level is required for each education entry.',
+
             'members.*.occupations.*.employment_status.required' => 'Employment status is required for all occupations.',
+            'members.*.occupations.*.occupation_name.required' => 'Occupation name is required for each occupation.',
+            'members.*.occupations.*.monthly_income.required' => 'Monthly income is required for each occupation.',
+
             'members.*.vehicles.*.vehicle_type.required' => 'Each vehicle must have a type.',
+            'members.*.vehicles.*.plate_number.required' => 'Each vehicle must have a plate number.',
+
             'members.*.disabilities.*.disability_type.required_with' => 'Each disability must have a type when present.',
+            'members.*.disabilities.*.severity.required' => 'Each disability must have a severity level.',
         ];
 
-        // Optional: Custom dynamic messages (more advanced)
+        // Dynamic custom messages for nested arrays
         foreach ((array) $this->input('members', []) as $index => $member) {
-            $n = $index + 1;
+            $memberNum = $index + 1;
 
-            if (!empty($member['educations'])) {
-                foreach ($member['educations'] as $eIndex => $edu) {
-                    $messages["members.$index.educations.$eIndex.education.required"] =
-                        "Education level is required for member #$n (education #" . ($eIndex + 1) . ")";
-                }
-            }
+            $nestedRules = [
+                'educations'   => ['education', 'school_name', 'year_level'],
+                'occupations'  => ['employment_status', 'occupation_name', 'monthly_income'],
+                'vehicles'     => ['vehicle_type', 'plate_number'],
+                'disabilities' => ['disability_type', 'severity'],
+            ];
 
-            if (!empty($member['occupations'])) {
-                foreach ($member['occupations'] as $oIndex => $occ) {
-                    $messages["members.$index.occupations.$oIndex.employment_status.required"] =
-                        "Employment status is required for member #$n (occupation #" . ($oIndex + 1) . ")";
-                }
-            }
-
-            if (!empty($member['vehicles'])) {
-                foreach ($member['vehicles'] as $vIndex => $veh) {
-                    $messages["members.$index.vehicles.$vIndex.vehicle_type.required"] =
-                        "Vehicle type is required for member #$n (vehicle #" . ($vIndex + 1) . ")";
-                }
-            }
-
-            if (!empty($member['disabilities'])) {
-                foreach ($member['disabilities'] as $dIndex => $dis) {
-                    $messages["members.$index.disabilities.$dIndex.disability_type.required_with"] =
-                        "Disability type is required for member #$n (disability #" . ($dIndex + 1) . ")";
+            foreach ($nestedRules as $relation => $fields) {
+                if (!empty($member[$relation])) {
+                    foreach ($member[$relation] as $subIndex => $sub) {
+                        foreach ($fields as $field) {
+                            $messages["members.$index.$relation.$subIndex.$field.required"] =
+                                ucfirst(str_replace('_', ' ', $field)) .
+                                " is required for member #$memberNum ($relation #" . ($subIndex + 1) . ")";
+                        }
+                    }
                 }
             }
         }

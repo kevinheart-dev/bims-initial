@@ -33,6 +33,7 @@ class OccupationFactory extends Factory
             'employer' => $this->faker->company(),
             'occupation_status' => $this->faker->randomElement($occupationStatuses),
             'is_ofw' => $this->faker->boolean(),
+            'is_main_livelihood' => $this->faker->boolean(50),
             'started_at' => $startYear,
             'ended_at' => $isEnded ? $this->faker->numberBetween($startYear + 1, now()->year) : null,
             'monthly_income' => $this->faker->randomFloat(2, 5000, 100000),

@@ -104,6 +104,8 @@ class StoreResidentRequest extends FormRequest
             'occupations.*.ended_at' => ['nullable', 'integer', 'min:1900', 'max:' . now()->year],
             'occupations.*.income' => ['nullable', 'numeric', 'min:0'],
             'occupations.*.income_frequency' => ['nullable',  Rule::in(['weekly', 'monthly', 'annually', 'daily', 'bi_weekly'])],
+            'occupations.*.is_main_livelihood' => ['nullable', 'boolean'],
+            'occupations.*.is_ofw' => ['nullable', 'boolean'],
 
             // SECTION 4: Health Information
             'weight_kg' => ['required', 'numeric', 'min:0', 'max:300'],
@@ -138,27 +140,6 @@ class StoreResidentRequest extends FormRequest
             'subdivision' => ['nullable', 'string', 'max:100'],
             'relationship_to_head' => ['nullable', 'string', 'max:100'],
             'household_position' => ['nullable', 'string', 'max:100'],
-
-            // SECTION 6: Livelihoods
-            'livelihoods' => ['nullable', 'array'],
-            'livelihoods.*.livelihood_type' => ['nullable', 'string', 'max:155'],
-            'livelihoods.*.description' => ['nullable', 'string', 'max:255'],
-
-            'livelihoods.*.status' => [
-                'required',
-                Rule::in(['active', 'inactive', 'seasonal', 'ended']),
-            ],
-
-            'livelihoods.*.is_main_livelihood' => ['nullable', 'boolean'],
-
-            'livelihoods.*.started_at' => ['nullable', 'date', 'before_or_equal:today'],
-            'livelihoods.*.ended_at' => ['nullable', 'date', 'after:started_at'],
-
-            'livelihoods.*.income' => ['nullable', 'numeric', 'min:0'],
-            'livelihoods.*.income_frequency' => [
-                'nullable',
-                Rule::in(['daily', 'bi_weekly', 'weekly', 'monthly', 'annually']),
-            ],
         ];
         return $rules;
     }

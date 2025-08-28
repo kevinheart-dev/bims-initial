@@ -115,15 +115,15 @@ const items = [
                 icon: GraduationCap,
             },
             {
-                title: "Occupation",
+                title: "Occupation/Livelihood",
                 url: "/barangay_officer/occupation",
                 icon: BriefcaseBusiness,
             },
-            {
-                title: "Livelihood",
-                url: "/barangay_officer/livelihood",
-                icon: Tractor,
-            },
+            // {
+            //     title: "Livelihood",
+            //     url: "/barangay_officer/livelihood",
+            //     icon: Tractor,
+            // },
         ],
     },
     {

@@ -116,15 +116,16 @@ export default function Index({
     }, [hasActiveFilter]);
 
     const allColumns = [
-        { key: "id", label: "Occupation ID" },
+        { key: "id", label: "ID" },
         { key: "name", label: "Name" },
-        { key: "occupation", label: "Occupation" },
+        { key: "occupation", label: "Occupation / Livelihood" },
         { key: "employment_type", label: "Employment Type" },
         { key: "work_arrangement", label: "Work Arrangement" },
         { key: "occupation_status", label: "Status" },
         { key: "started_at", label: "Year Started" },
         { key: "ended_at", label: "Year Ended" },
         { key: "is_ofw", label: "Is OFW?" },
+        { key: "is_main", label: "Is Main Livelihood?" },
         { key: "purok_number", label: "Purok" },
         { key: "actions", label: "Actions" },
     ];
@@ -219,6 +220,17 @@ export default function Index({
                 }`}
             >
                 {row.is_ofw ? "Yes" : "No"}
+            </span>
+        ),
+        is_main: (row) => (
+            <span
+                className={`px-2 py-0.5 rounded-md text-xs font-medium ${
+                    row.is_main_livelihood
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-700"
+                }`}
+            >
+                {row.is_main_livelihood ? "Yes" : "No"}
             </span>
         ),
 
@@ -341,7 +353,10 @@ export default function Index({
                         employment_type: occupation.employment_type || "",
                         is_ofw: occupation.is_ofw
                             ? occupation.is_ofw.toString()
-                            : "",
+                            : "0",
+                        is_main_livelihood: occupation.is_main_livelihood
+                            ? occupation.is_main_livelihood.toString()
+                            : "0",
                         work_arrangement: occupation.work_arrangement || "",
                         income: occupation.monthly_income || 0,
                         income_frequency: "monthly",
@@ -882,7 +897,6 @@ export default function Index({
                                                     className="mt-2"
                                                 />
                                             </div>
-
                                             <div>
                                                 <YearDropdown
                                                     label="Year Started"
@@ -937,7 +951,6 @@ export default function Index({
                                                     className="mt-2"
                                                 />
                                             </div>
-
                                             <div>
                                                 <InputField
                                                     type="number"
@@ -1040,6 +1053,41 @@ export default function Index({
                                                     message={
                                                         errors[
                                                             `occupations.${occIndex}.is_ofw`
+                                                        ]
+                                                    }
+                                                    className="mt-2"
+                                                />
+                                            </div>
+                                            <div>
+                                                <RadioGroup
+                                                    label="Is Main Livelihood"
+                                                    name="is_main_livelihood"
+                                                    selectedValue={
+                                                        occupation.is_main_livelihood ||
+                                                        ""
+                                                    }
+                                                    options={[
+                                                        {
+                                                            label: "Yes",
+                                                            value: 1,
+                                                        },
+                                                        {
+                                                            label: "No",
+                                                            value: 0,
+                                                        },
+                                                    ]}
+                                                    onChange={(e) =>
+                                                        handleOccupationFieldChange(
+                                                            e,
+                                                            occIndex,
+                                                            "is_main_livelihood"
+                                                        )
+                                                    }
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `occupations.${occIndex}.is_main_livelihood`
                                                         ]
                                                     }
                                                     className="mt-2"

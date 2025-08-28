@@ -190,8 +190,8 @@ class DatabaseSeeder extends Seeder
         }
 
         Street::factory(12)->create();      // just 2 streets
-        Household::factory(50)->create();   // only 5 households
-        Family::factory(50)->create();
+        Household::factory(5)->create();   // only 5 households
+        Family::factory(5)->create();
 
         $term = BarangayOfficialTerm::factory()->create([
             'barangay_id' => 1,
@@ -252,24 +252,24 @@ class DatabaseSeeder extends Seeder
         //     ]);
         //     $user->assignRole($resRole);
         // }
-        LivelihoodType::factory(50)->create();
+        //LivelihoodType::factory(50)->create();
 
-        $residents = Resident::factory()->count(63)->create(); // ✅ very minimal
+        $residents = Resident::factory()->count(20)->create(); // ✅ very minimal
 
         // Related sample data (scaled down)
-        InternetAccessibility::factory(20)->create();
-        Occupation::factory(30)->create();
-        EducationalHistory::factory(50)->create();
-        Vehicle::factory(15)->create();
-        Livestock::factory(20)->create();
-        ResidentVoterInformation::factory(50)->create();
-        SocialWelfareProfile::factory(25)->create();
-        SeniorCitizen::factory(20)->create();
-        HouseholdToilet::factory(25)->create();
-        HouseholdElectricitySource::factory(25)->create();
-        HouseholdWasteManagement::factory(25)->create();
-        HouseholdWaterSource::factory(25)->create();
-        Livelihood::factory(35)->create();
+        InternetAccessibility::factory(5)->create();
+        Occupation::factory(20)->create();
+        EducationalHistory::factory(20)->create();
+        Vehicle::factory(10)->create();
+        Livestock::factory(10)->create();
+        ResidentVoterInformation::factory(15)->create();
+        SocialWelfareProfile::factory(15)->create();
+        SeniorCitizen::factory(10)->create();
+        HouseholdToilet::factory(5)->create();
+        HouseholdElectricitySource::factory(5)->create();
+        HouseholdWasteManagement::factory(5)->create();
+        HouseholdWaterSource::factory(5)->create();
+        Livelihood::factory(15)->create();
 
         // Mark household heads
         $residents->groupBy('household_id')->each(function ($group) {
@@ -301,10 +301,133 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         });
-        ResidentMedicalCondition::factory(30)->create();
-        ResidentMedication::factory(30)->create();
-        ResidentVaccination::factory(30)->create();
-        Allergy::factory(30)->create();
-        PregnancyRecords::factory(15)->create();
+        ResidentMedicalCondition::factory(20)->create();
+        ResidentMedication::factory(20)->create();
+        ResidentVaccination::factory(20)->create();
+        Allergy::factory(20)->create();
+        PregnancyRecords::factory(5)->create();
     }
+
+    // public function run(): void
+    // {
+    //     $faker = \Faker\Factory::create();
+
+    //     // 1. Seed barangays first (if not already seeded)
+    //     $this->call([
+    //         BarangaySeeder::class, // make sure this seeds ALL barangays
+    //     ]);
+
+    //     // 2. Loop through all barangays
+    //     Barangay::all()->each(function ($barangay) use ($faker) {
+
+    //         // Seed puroks
+    //         for ($i = 1; $i <= 7; $i++) {
+    //             $purok = Purok::factory()->create([
+    //                 'barangay_id' => $barangay->id,
+    //                 'purok_number' => $i,
+    //             ]);
+
+    //             // Seed streets under this purok
+    //             Street::factory(3)->create([  // adjust number per purok
+    //                 'purok_id' => $purok->id,
+    //             ]);
+    //         }
+
+
+    //         // Seed households & families
+    //         Household::factory(10)->create([
+    //             'barangay_id' => $barangay->id,
+    //         ])->each(function ($household) {
+    //             Family::factory(1)->create([
+    //                 'household_id' => $household->id,
+    //             ]);
+    //         });
+
+    //         // Active term
+    //         $term = BarangayOfficialTerm::factory()->create([
+    //             'barangay_id' => $barangay->id,
+    //             'term_start' => 2022,
+    //             'term_end' => 2025,
+    //             'status' => 'active',
+    //         ]);
+
+    //         // Roles
+    //         $barangayOfficer = Role::firstOrCreate(['name' => 'barangay_officer']);
+    //         $residentRole   = Role::firstOrCreate(['name' => 'resident']);
+
+    //         // Barangay officer user
+    //         $officerUser = User::factory()->create([
+    //             'resident_id' => Resident::factory(),
+    //             'barangay_id' => $barangay->id,
+    //             'username' => $faker->name,
+    //             'email' => $barangay->email,
+    //             'password' => bcrypt('admin123'),
+    //             'email_verified_at' => now(),
+    //             'role' => 'admin',
+    //             'status' => 'active'
+    //         ]);
+    //         $officerUser->assignRole($barangayOfficer);
+
+    //         BarangayOfficial::factory()->create([
+    //             'resident_id' => $officerUser->resident->id,
+    //             'term_id'     => $term->id,
+    //             'position'    => 'barangay_secretary',
+    //             'status'      => 'active',
+    //             'appointment_type' => 'appointed',
+    //         ]);
+
+    //         // Seed residents
+    //         $residents = Resident::factory()->count(20)->create([
+    //             'barangay_id' => $barangay->id,
+    //         ]);
+
+    //         // Mark household heads
+    //         $residents->groupBy('household_id')->each(function ($group) {
+    //             $group->first()->update(['is_household_head' => true]);
+    //         });
+
+    //         // Related data
+    //         InternetAccessibility::factory(5)->create();
+    //         Occupation::factory(20)->create();
+    //         EducationalHistory::factory(20)->create();
+    //         Vehicle::factory(10)->create();
+    //         Livestock::factory(10)->create();
+    //         ResidentVoterInformation::factory(15)->create();
+    //         SocialWelfareProfile::factory(15)->create();
+    //         SeniorCitizen::factory(10)->create();
+    //         HouseholdToilet::factory(5)->create();
+    //         HouseholdElectricitySource::factory(5)->create();
+    //         HouseholdWasteManagement::factory(5)->create();
+    //         HouseholdWaterSource::factory(5)->create();
+    //         Livelihood::factory(15)->create();
+
+    //         // Medical info + disabilities
+    //         $residents->each(function ($resident) {
+    //             $medical = MedicalInformation::factory()->create([
+    //                 'resident_id' => $resident->id,
+    //             ]);
+
+    //             if (!empty($medical->pwd_id_number)) {
+    //                 Disability::factory()->create([
+    //                     'resident_id' => $resident->id,
+    //                 ]);
+    //                 $resident->update(['is_pwd' => 1]);
+    //             }
+    //         });
+
+    //         ResidentMedicalCondition::factory(20)->create();
+    //         ResidentMedication::factory(20)->create();
+    //         ResidentVaccination::factory(20)->create();
+    //         Allergy::factory(20)->create();
+    //         PregnancyRecords::factory(5)->create();
+    //     });
+
+    //     // Call essentials AFTER barangays are seeded
+    //     $this->call([
+    //         OccupationTypeSeeder::class,
+    //         FixHouseholdResidentSeeder::class,
+    //         FamilyRelationSeeder::class,
+    //         BarangayInformationSeeder::class,
+    //     ]);
+    // }
 }
