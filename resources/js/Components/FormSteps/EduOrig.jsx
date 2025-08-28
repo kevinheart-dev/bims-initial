@@ -1719,5 +1719,243 @@ function EducationandOccupation({ occupationTypes }) {
         </div>
     );
 }
+const handleLivelihoodChange = (familyIndex, memberIndex, livelihoodIndex, e) => {
+    const { name, value } = e.target;
+    const updatedFamilies = [...families];
+    const member = updatedFamilies[familyIndex].members[memberIndex];
+    const livelihoods = [...(member.livelihoods || [])];
+
+    livelihoods[livelihoodIndex] = {
+        ...livelihoods[livelihoodIndex],
+        [name]: value,
+    };
+
+    member.livelihoods = livelihoods;
+    updateHousehold(updatedFamilies);
+};
+
+
+const addLivelihood = (familyIndex, memberIndex) => {
+    const updatedFamilies = [...families];
+    const member = updatedFamilies[familyIndex].members[memberIndex];
+    const livelihoods = [...(member.livelihoods || [])];
+    livelihoods.push({});
+    member.livelihoods = livelihoods;
+    updateHousehold(updatedFamilies);
+};
+
+const removeLivelihood = (familyIndex, memberIndex, livelihoodIndex) => {
+    const updatedFamilies = [...families];
+    const member = updatedFamilies[familyIndex].members[memberIndex];
+    const livelihoods = [...(member.livelihoods || [])];
+    livelihoods.splice(livelihoodIndex, 1);
+    member.livelihoods = livelihoods;
+    updateHousehold(updatedFamilies);
+    toast.success("Livelihood removed.");
+};
 
 export default EducationandOccupation;
+
+{/* <hr className="h-px bg-sky-500 border-0 transform scale-y-100 origin-center" />
+                                                <p className="font-bold">
+                                                    Livelihood Background
+                                                </p> */}
+{
+    Array.isArray(member.livelihoods) &&
+        member.livelihoods.map((livelihood, lvlhdIdx) => (
+            <div
+                key={lvlhdIdx}
+                className="border p-4 mb-4 rounded-md relative bg-gray-50"
+            >
+                <div className="grid md:grid-cols-4 gap-4">
+                    {/* Livelihood Type */}
+                    <div>
+                        <DropdownInputField
+                            label="Livelihood"
+                            name="livelihood_type"
+                            value={livelihood.livelihood_type || ""}
+                            onChange={(e) =>
+                                handleLivelihoodChange(fIndex, mIndex, lvlhdIdx, e)
+                            }
+                            placeholder="Select or Enter Livelihood"
+                        />
+                        {errors?.[`members.${mIndex}.livelihoods.${lvlhdIdx}.livelihood_type`] && (
+                            <p className="text-red-500 text-xs">
+                                {errors[`members.${mIndex}.livelihoods.${lvlhdIdx}.livelihood_type`]}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Status */}
+                    <SelectField
+                        label="Livelihood Status"
+                        name="livelihood_status"
+                        value={livelihood.livelihood_status || ""}
+                        onChange={(e) =>
+                            handleLivelihoodChange(fIndex, mIndex, lvlhdIdx, e)
+                        }
+                        items={[
+                            { label: "Active", value: "active" },
+                            { label: "Inactive", value: "inactive" },
+                            { label: "Seasonal", value: "seasonal" },
+                            { label: "Ended", value: "ended" },
+                        ]}
+                    />
+                    {errors?.[`members.${mIndex}.livelihoods.${lvlhdIdx}.livelihood_status`] && (
+                        <p className="text-red-500 text-xs">
+                            {errors[`members.${mIndex}.livelihoods.${lvlhdIdx}.livelihood_status`]}
+                        </p>
+                    )}
+
+                    {/* Is Main Livelihood */}
+                    <div>
+                        <RadioGroup
+                            label="Is Main Livelihood"
+                            name="is_main_livelihood"
+                            selectedValue={
+                                livelihood?.is_main_livelihood?.toString() ?? ""
+                            }
+                            options={[
+                                { label: "Yes", value: 1 },
+                                { label: "No", value: 0 },
+                            ]}
+                            onChange={(e) =>
+                                handleLivelihoodChange(fIndex, mIndex, lvlhdIdx, e)
+                            }
+                        />
+                        <InputError
+                            message={
+                                errors?.[`members.${mIndex}.livelihoods.${lvlhdIdx}.is_main_livelihood`]
+                            }
+                            className="mt-2"
+                        />
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                        <InputField
+                            label="Description"
+                            name="description"
+                            type="text"
+                            value={livelihood.description || ""}
+                            onChange={(e) =>
+                                handleLivelihoodChange(fIndex, mIndex, lvlhdIdx, e)
+                            }
+                            placeholder="Enter livelihood description"
+                        />
+                        <InputError
+                            message={
+                                errors?.[`members.${mIndex}.livelihoods.${lvlhdIdx}.description`]
+                            }
+                            className="mt-2"
+                        />
+                    </div>
+
+                    {/* Dates */}
+                    <div>
+                        <InputField
+                            label="Date Started"
+                            name="started_at"
+                            type="date"
+                            value={livelihood.started_at || ""}
+                            onChange={(e) =>
+                                handleLivelihoodChange(fIndex, mIndex, lvlhdIdx, e)
+                            }
+                        />
+                        <InputError
+                            message={
+                                errors?.[`members.${mIndex}.livelihoods.${lvlhdIdx}.started_at`]
+                            }
+                            className="mt-2"
+                        />
+                    </div>
+
+                    <div>
+                        <InputField
+                            label="Date Ended"
+                            name="ended_at"
+                            type="date"
+                            value={livelihood.ended_at || ""}
+                            onChange={(e) =>
+                                handleLivelihoodChange(fIndex, mIndex, lvlhdIdx, e)
+                            }
+                            disabled={livelihood.livelihood_status === "active"}
+                        />
+                        <InputError
+                            message={
+                                errors?.[`members.${mIndex}.livelihoods.${lvlhdIdx}.ended_at`]
+                            }
+                            className="mt-2"
+                        />
+                    </div>
+
+                    {/* Income */}
+                    <div>
+                        <InputField
+                            type="number"
+                            label="Income"
+                            name="monthly_income"
+                            value={livelihood.monthly_income || ""}
+                            onChange={(e) =>
+                                handleLivelihoodChange(fIndex, mIndex, lvlhdIdx, e)
+                            }
+                            placeholder="Enter Income"
+                        />
+                        <InputError
+                            message={
+                                errors?.[`members.${mIndex}.livelihoods.${lvlhdIdx}.monthly_income`]
+                            }
+                            className="mt-2"
+                        />
+                    </div>
+
+                    {/* Income Frequency */}
+                    <div>
+                        <SelectField
+                            label="Income Frequency"
+                            name="income_frequency"
+                            value={livelihood.income_frequency || ""}
+                            onChange={(e) =>
+                                handleLivelihoodChange(fIndex, mIndex, lvlhdIdx, e)
+                            }
+                            items={[
+                                { label: "Daily", value: "daily" },
+                                { label: "Bi-weekly", value: "bi_weekly" },
+                                { label: "Weekly", value: "weekly" },
+                                { label: "Monthly", value: "monthly" },
+                                { label: "Annually", value: "annually" },
+                            ]}
+                        />
+                        <InputError
+                            message={
+                                errors?.[`members.${mIndex}.livelihoods.${lvlhdIdx}.income_frequency`]
+                            }
+                            className="mt-2"
+                        />
+                    </div>
+                </div>
+
+                {/* Remove button */}
+                <button
+                    type="button"
+                    onClick={() => removeLivelihood(fIndex, mIndex, lvlhdIdx)}
+                    className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
+                >
+                    <IoIosCloseCircleOutline className="text-2xl" />
+                </button>
+            </div>
+        ))
+}
+
+
+{/* Add button */ }
+<button
+    type="button"
+    onClick={() => addLivelihood(fIndex, mIndex)}
+    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
+>
+    <IoIosAddCircleOutline className="text-4xl" />
+    <span>Add Livelihood</span>
+</button>
+
+
