@@ -35,7 +35,7 @@ const SelectField = ({
                     }
                     `}
             >
-                <option value="" className="text-gray-500">
+                <option value="" className="text-gray-400">
                     {placeholder}
                 </option>
                 {items.map((item) => (
