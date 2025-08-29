@@ -32,6 +32,7 @@ import {
     Heart,
     Stethoscope,
     Tablets,
+    PersonStanding,
 } from "lucide-react";
 
 import {
@@ -166,6 +167,11 @@ const items = [
                 url: "/barangay_officer/vaccination",
                 icon: Syringe,
             },
+            {
+                title: "Deaths",
+                url: "#",
+                icon: PersonStanding,
+            },
         ],
     },
     {
@@ -190,10 +196,16 @@ const items = [
         title: "Reports",
         url: "#",
         icon: Flag,
+        submenu: [],
+    },
+    {
+        title: "CRA 2025",
+        url: "#",
+        icon: Flag,
         submenu: [
             {
-                title: "CRA 2025",
-                url: "/barangay_officer/report",
+                title: "Create",
+                url: "/barangay_officer/cra/create",
                 icon: FileText,
             },
         ],

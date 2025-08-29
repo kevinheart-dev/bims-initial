@@ -10,6 +10,7 @@ use App\Http\Controllers\BarangayProjectController;
 use App\Http\Controllers\BarangayRoadController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CRAController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DisabilityController;
 use App\Http\Controllers\DocumentController;
@@ -107,6 +108,10 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     // pregnancy
     Route::get('pregnancy/details/{id}', [PregnancyRecordController::class, 'pregnancyDetails'])->name('pregnancy.details');
 
+    // cra
+    Route::get('cra/index', [CRAController::class, 'index'])->name('cra.index');
+    Route::get('cra/create', [CRAController::class, 'create'])->name('cra.create');
+
     // residents
     Route::resource('user', UserController::class);
     Route::resource('resident', ResidentController::class);
@@ -135,7 +140,6 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('barangay_facility', BarangayFacilityController::class);
     Route::resource('barangay_road', BarangayRoadController::class);
     Route::resource('barangay_institution', BarangayInstitutionController::class);
-
 });
 
 // Resident-only routes

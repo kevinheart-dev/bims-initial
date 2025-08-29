@@ -37,7 +37,7 @@ const defaultMember = {
     voter_id_number: "",
     voting_status: "",
     resident_image: "",
-    is_household_head: "",
+    is_household_head: 0,
     is_4ps_benificiary: "",
     is_solo_parent: "",
     solo_parent_id_number: "",
@@ -1314,26 +1314,11 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                                 <RadioGroup
                                                                     label="Household Head?"
-                                                                    name="is_household_head"
+                                                                    name={`is_household_head_${member.id}`}
                                                                     selectedValue={
-                                                                        household.families.some(
-                                                                            (
-                                                                                family
-                                                                            ) =>
-                                                                                family.members.some(
-                                                                                    (
-                                                                                        m
-                                                                                    ) =>
-                                                                                        m.is_household_head ===
-                                                                                            1 &&
-                                                                                        m !==
-                                                                                            member
-                                                                                )
-                                                                        )
-                                                                            ? 0
-                                                                            : parseInt(
-                                                                                  member.is_household_head
-                                                                              )
+                                                                        parseInt(
+                                                                            member.is_household_head
+                                                                        ) ?? 0
                                                                     }
                                                                     options={[
                                                                         {
@@ -1361,7 +1346,6 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                             value
                                                                         );
 
-                                                                        // 👇 If YES, auto set relation_to_household_head = "self"
                                                                         if (
                                                                             value ===
                                                                             1
@@ -1373,7 +1357,6 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                                 "self"
                                                                             );
                                                                         } else {
-                                                                            // 👇 Reset when "No" is selected
                                                                             handleMemberChange(
                                                                                 fIndex,
                                                                                 mIndex,
@@ -1383,20 +1366,24 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                         }
                                                                     }}
                                                                     required
-                                                                    disabled={household.families.some(
-                                                                        (
-                                                                            family
-                                                                        ) =>
-                                                                            family.members.some(
-                                                                                (
-                                                                                    m
-                                                                                ) =>
-                                                                                    m.is_household_head ===
-                                                                                        1 &&
-                                                                                    m !==
-                                                                                        member
-                                                                            )
-                                                                    )}
+                                                                    disabled={
+                                                                        household.families.some(
+                                                                            (
+                                                                                family
+                                                                            ) =>
+                                                                                family.members.some(
+                                                                                    (
+                                                                                        m
+                                                                                    ) =>
+                                                                                        m.is_household_head ===
+                                                                                            1 &&
+                                                                                        m !==
+                                                                                            member
+                                                                                )
+                                                                        ) &&
+                                                                        member.is_household_head !==
+                                                                            1
+                                                                    }
                                                                 />
 
                                                                 <SelectField
