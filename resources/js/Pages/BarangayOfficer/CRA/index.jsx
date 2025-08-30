@@ -1,93 +1,83 @@
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, usePage } from "@inertiajs/react";
+import { Head, usePage, router } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 import Stepper from "@/Components/Stepper";
 import StepperController from "@/Components/StepperControler";
-import Address from "@/Components/FormSteps/Address";
-import HouseholdPersonalInfo from "@/Components/FormSteps/HouseholdPersonalInfo";
 import { StepperContext } from "@/context/StepperContext";
-import Summary from "@/Components/FormSteps/Summary";
-import EducationandOccupation from "@/Components/FormSteps/EducationandOccupation";
-import HouseInformation from "@/Components/FormSteps/HouseInformation";
-import MedicalInfo from "@/Components/FormSteps/MedicalInfo";
-import { router } from "@inertiajs/react";
-import { Toaster, toast } from "sonner";
-import useAppUrl from "@/hooks/useAppUrl";
 import Population from "@/Components/CRAsteps/Population";
-export default function Index({ puroks, streets, barangays, occupationTypes }) {
+import { Toaster, toast } from "sonner";
+
+export default function Index() {
     const breadcrumbs = [
-        { label: "Residents Information", showOnMobile: false },
-        {
-            label: "Residents Table",
-            href: route("resident.index"),
-            showOnMobile: false,
-        },
-        { label: "Add Household", showOnMobile: true },
+        { label: "Community Risk Assessment (CRA)", showOnMobile: false },
     ];
 
     const [currentStep, setCurrentStep] = useState(1);
-    const [userData, setUserData] = useState({
-        toilets: [{ toilet_type: "" }],
-        electricity_types: [{ electricity_type: "" }],
-        water_source_types: [{ water_source_type: "" }],
-        waste_management_types: [{ waste_management_type: "" }],
+
+    // initial CRA data object
+    const [craData, setCraData] = useState({
+        population: {},
+        livelihood: {},
+        infrastructure: {},
+        institutions: {},
+        hazards: {},
+        evacuation: {},
     });
+
     const [finalData, setFinalData] = useState([]);
     const [errors, setErrors] = useState({});
 
     const steps = [
-        "Address Information",
-        "Household Information",
-        "Education & Occupation",
-        "Medical Information",
-        "House Information",
-        "Summary",
         "Population & Residence",
+        "Livelihood",
+        "Infrastructure & Services",
+        "Institutions & Human Resources",
+        "Hazards & Disasters",
+        "Evacuation & Response",
+        "Summary",
     ];
 
+    // display CRA step forms
     const displayStep = (step) => {
         switch (step) {
             case 1:
-                return <Address puroks={puroks} streets={streets} />;
-            case 2:
-                return <HouseholdPersonalInfo barangays={barangays} />;
-            case 3:
-                return (
-                    <EducationandOccupation occupationTypes={occupationTypes} />
-                );
-            case 4:
-                return <MedicalInfo />;
-            case 5:
-                return <HouseInformation />;
-            case 6:
-                return <Summary streets={streets} />;
-            case 7:
                 return <Population />;
+            // case 2:
+            //     return <Livelihood />;
+            // case 3:
+            //     return <Infrastructure />;
+            // ... add more steps
+            case 7:
+                return <div>Summary Review Here</div>;
             default:
         }
     };
 
+    //  handle step navigation & submission
     const handleClick = (direction) => {
         let newStep = currentStep;
 
         if (direction === "next") {
             if (currentStep === steps.length) {
-                router.post(route("resident.storehousehold"), userData, {
+                // Submit CRA data to backend
+                router.post(route("cra.store"), craData, {
                     onError: (errors) => {
                         setErrors(errors);
-
                         const allErrors = Object.values(errors).join("<br />");
-
                         toast.error("Validation Errors", {
                             description: (
                                 <div
-                                    dangerouslySetInnerHTML={{
-                                        __html: allErrors,
-                                    }}
+                                    dangerouslySetInnerHTML={{ __html: allErrors }}
                                 />
                             ),
                             duration: 5000,
+                            closeButton: true,
+                        });
+                    },
+                    onSuccess: () => {
+                        toast.success("CRA submitted successfully!", {
+                            duration: 3000,
                             closeButton: true,
                         });
                     },
@@ -95,7 +85,6 @@ export default function Index({ puroks, streets, barangays, occupationTypes }) {
 
                 return;
             }
-
             newStep++;
         } else {
             newStep--;
@@ -106,38 +95,12 @@ export default function Index({ puroks, streets, barangays, occupationTypes }) {
         }
     };
 
-    const props = usePage().props;
-    const success = props?.success ?? null;
-    const error = props?.error ?? null;
-    const APP_URL = useAppUrl();
-
-    useEffect(() => {
-        if (success) {
-            toast.success(success, {
-                description: "Operation successful!",
-                duration: 3000,
-                closeButton: true,
-            });
-        }
-        props.success = null;
-    }, [success]);
-
-    useEffect(() => {
-        if (error) {
-            toast.error(error, {
-                description: "Operation failed!",
-                duration: 3000,
-                closeButton: true,
-            });
-        }
-        props.error = null;
-    }, [error]);
-
     return (
         <AdminLayout>
             <Toaster richColors />
-            <Head title="Resident Dashboard" />
+            <Head title="CRA" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
+
             <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 mt-6">
                 <div className="bg-blue-100 rounded-t-xl px-2 sm:px-6 lg:px-8 py-2 border-gray-200 shadow-lg">
                     <Stepper steps={steps} currentStep={currentStep} />
@@ -147,8 +110,8 @@ export default function Index({ puroks, streets, barangays, occupationTypes }) {
                     <div className="my-2 pb-5 pr-5 pl-5 pt-0">
                         <StepperContext.Provider
                             value={{
-                                userData,
-                                setUserData,
+                                craData,
+                                setCraData,
                                 finalData,
                                 setFinalData,
                                 errors,
@@ -165,7 +128,7 @@ export default function Index({ puroks, streets, barangays, occupationTypes }) {
                         handleClick={handleClick}
                         currentStep={currentStep}
                         steps={steps}
-                        userData={userData}
+                        craData={craData}
                     />
                 </div>
             </div>

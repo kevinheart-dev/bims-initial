@@ -189,7 +189,7 @@ const ResidentCharts = ({ residents, isLoading }) => {
                 <div className="lg:col-span-3 flex flex-col gap-2">
                     {/* PUROK DISTRIBUTION */}
                     <div className="bg-white shadow-lg rounded-2xl p-6">
-                        <h2 className="text-xl font-semibold mb-4 text-gray-700">Purok Distribution</h2>
+                        <h2 className="text-xl font-semibold mb-4 text-gray-700">Population Demographics by Purok</h2>
                         <ResponsiveContainer width="100%" height={140}>
                             <BarChart data={purokData} margin={{ top: 10, right: 20, left: -20, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -206,7 +206,7 @@ const ResidentCharts = ({ residents, isLoading }) => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                         {/* Voter Registration */}
                         <div className="bg-white shadow-lg rounded-2xl p-6">
-                            <h2 className="text-xl font-semibold mb-4 text-gray-700">Voter Registration by Purok</h2>
+                            <h2 className="text-xl font-semibold mb-4 text-gray-700">Registered Voter by Purok</h2>
                             <ResponsiveContainer width="100%" height={140}>
                                 <BarChart data={voterData} layout="vertical" margin={{ top: -10, right: 20, left: -40, bottom: 10 }}>
                                     <CartesianGrid strokeDasharray="3 3" horizontal={false} />
