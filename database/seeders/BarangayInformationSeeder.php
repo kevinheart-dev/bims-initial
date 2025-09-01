@@ -123,7 +123,18 @@ class BarangayInformationSeeder extends Seeder
         BarangayRoad::factory(10)->create();
         BarangayFacility::factory(10)->create();
 
+        BarangayInstitution::all()->each(function ($institution) {
+            // Create random members (5–10)
+            $members = BarangayInstitutionMember::factory()
+                ->count(rand(8, 16))
+                ->create([
+                    'institution_id' => $institution->id,
+                ]);
 
+            // Randomly pick one of them as head
+            $head = $members->random();
+            $head->update(['is_head' => true]);
+        });
     }
 
 }

@@ -23,10 +23,10 @@ class BarangayInstitutionMemberFactory extends Factory
         {
             return [
                 'institution_id' => BarangayInstitution::inRandomOrder()->value('id') ?? BarangayInstitution::factory(),
-                'resident_id' => Resident::inRandomOrder()->value('id') ?? Resident::factory(),
-                'is_head' => false, // default; will override later if needed
-                'member_since' => $this->faker->date(),
-                'status' => $this->faker->randomElement(['active', 'inactive', 'active', 'active']),
+                'resident_id'    => Resident::inRandomOrder()->value('id') ?? Resident::factory(),
+                'is_head'        => false, // default, overridden later
+                'member_since'   => $this->faker->date(),
+                'status'         => $this->faker->randomElement(['active', 'inactive', 'active', 'active']), // bias to active
             ];
         }
 
@@ -35,11 +35,7 @@ class BarangayInstitutionMemberFactory extends Factory
          */
         public function head()
         {
-            return $this->state(function () {
-                return [
-                    'is_head' => true,
-                ];
-            });
+            return $this->state(fn () => ['is_head' => true]);
         }
 
 }

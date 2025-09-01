@@ -5,7 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\BarangayInstitution;
 use App\Http\Requests\StoreBarangayInstitutionRequest;
 use App\Http\Requests\UpdateBarangayInstitutionRequest;
+use App\Models\BarangayInstitutionMember;
+use App\Models\Purok;
+use App\Models\Resident;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class BarangayInstitutionController extends Controller
 {
@@ -15,8 +19,10 @@ class BarangayInstitutionController extends Controller
     public function index()
     {
         $brgy_id = Auth()->user()->barangay_id;
-        $query = BarangayInstitution::query()->where('barangay_id', $brgy_id)->distinct();
-
+        $query = BarangayInstitution::query()
+        ->where('barangay_id', $brgy_id)
+        ->with(['head.resident:id,firstname,lastname,middlename,suffix']) // 👈 eager load head and its resident
+        ->distinct();
 
 
         if (request()->filled('institution') && request('institution') !== 'All') {
@@ -84,7 +90,28 @@ class BarangayInstitutionController extends Controller
      */
     public function show(BarangayInstitution $barangayInstitution)
     {
-        //
+        $brgy_id = Auth()->user()->barangay_id;
+        // Load all members for this institution with their resident info
+        $members = $barangayInstitution->members()->with('resident:id,firstname,lastname,middlename,suffix,sex,gender,birthdate,purok_number,contact_number')->get();
+
+        $puroks = Purok::where('barangay_id', $brgy_id)
+            ->orderBy('purok_number', 'asc')
+            ->pluck('purok_number');
+
+        $residents = Resident::where('barangay_id', $brgy_id)
+            ->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'birthdate')
+            ->get();
+
+        return Inertia::render(
+            "BarangayOfficer/BarangayProfile/BarangayInstitution/Members",
+            [
+                'institution' => $barangayInstitution,
+                'members' => $members,
+                'puroks' => $puroks,
+                'residents' => $residents,
+                'queryParams' => request()->query() ?: null,
+            ]
+        );
     }
 
     /**
@@ -155,4 +182,5 @@ class BarangayInstitutionController extends Controller
             'institution' => $institution,
         ]);
     }
+
 }

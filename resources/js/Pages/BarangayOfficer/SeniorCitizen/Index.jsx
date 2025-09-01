@@ -340,6 +340,21 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         post(route("senior_citizen.store"), {
             onError: (errors) => {
                 console.error("Validation Errors:", errors);
+                const errorList = Object.values(errors).map(
+                    (msg, i) => `<div key=${i}> ${msg}</div>`
+                );
+
+                toast.error("Validation Error", {
+                    description: (
+                        <div
+                            dangerouslySetInnerHTML={{
+                                __html: errorList.join(""),
+                            }}
+                        />
+                    ),
+                    duration: 4000,
+                    closeButton: true,
+                });
             },
         });
     };
@@ -349,6 +364,21 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
         post(route("senior_citizen.update", data.senior_id), {
             onError: (errors) => {
                 console.error("Validation Errors:", errors);
+                const errorList = Object.values(errors).map(
+                    (msg, i) => `<div key=${i}> ${msg}</div>`
+                );
+
+                toast.error("Validation Error", {
+                    description: (
+                        <div
+                            dangerouslySetInnerHTML={{
+                                __html: errorList.join(""),
+                            }}
+                        />
+                    ),
+                    duration: 4000,
+                    closeButton: true,
+                });
             },
         });
     };

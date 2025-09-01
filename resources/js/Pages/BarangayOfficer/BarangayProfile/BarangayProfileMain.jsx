@@ -12,6 +12,8 @@ import useAppUrl from "@/hooks/useAppUrl";
 import axios from "axios";
 import { Skeleton } from "@/Components/ui/skeleton";
 import { Toaster, toast } from "sonner";
+import InventoryIndex from "./BarangayInventory/InventoryIndex";
+import BarangayOfficials from "./BarangayOfficials/BarangayOfficials";
 
 const BarangayProfileMain = () => {
     const props = usePage().props;
@@ -90,6 +92,7 @@ const BarangayProfileMain = () => {
                                 "institutions",
                                 "facilities",
                                 "projects",
+                                "inventories",
                                 "roads",
                                 "officials",
                                 "disaster",
@@ -117,10 +120,9 @@ const BarangayProfileMain = () => {
                         {activeTab === "institutions" && <InstitutionIndex />}
                         {activeTab === "facilities" && <FacilityIndex />}
                         {activeTab === "projects" && <ProjectIndex />}
+                        {activeTab === "inventories" && <InventoryIndex />}
                         {activeTab === "roads" && <RoadIndex />}
-                        {activeTab === "officials" && (
-                            <p>Officials content goes here.</p>
-                        )}
+                        {activeTab === "officials" && <BarangayOfficials />}
                         {activeTab === "disaster" && (
                             <p>Disaster content goes here.</p>
                         )}

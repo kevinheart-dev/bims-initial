@@ -23,4 +23,15 @@ class BarangayInstitution extends Model
     {
         return $this->belongsTo(Barangay::class);
     }
+    public function members()
+    {
+        return $this->hasMany(BarangayInstitutionMember::class, 'institution_id');
+    }
+    public function head()
+    {
+        return $this->hasOne(BarangayInstitutionMember::class, 'institution_id')
+                    ->where('is_head', true);
+    }
+
+
 }

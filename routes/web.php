@@ -12,6 +12,7 @@ use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CRAController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DeathController;
 use App\Http\Controllers\DisabilityController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentGenerationController;
@@ -19,6 +20,8 @@ use App\Http\Controllers\EducationController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyRelationController;
 use App\Http\Controllers\HouseholdController;
+use App\Http\Controllers\InstitutionMemberController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LivelihoodController;
 use App\Http\Controllers\MedicalInformationController;
 use App\Http\Controllers\OccupationController;
@@ -78,6 +81,8 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::get('barangay_facility/details/{id}', [BarangayFacilityController::class, 'facilityDetails'])->name('barangay_facility.details');
     Route::get('barangay_project/details/{id}', [BarangayProjectController::class, 'projectDetails'])->name('barangay_project.details');
     Route::get('barangay_road/details/{id}', [BarangayRoadController::class, 'roadDetails'])->name('barangay_road.details');
+    Route::get('inventory/details/{id}', [InventoryController::class, 'itemDetails'])->name('inventory.details');
+    Route::get('institution_member/details/{id}', [InstitutionMemberController::class, 'memberDetails'])->name('institution_member.details');
 
     // household
     Route::get('household/getlatesthead/{id}', [HouseholdController::class, 'getLatestHead'])->name('household.latesthead');
@@ -112,6 +117,12 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::get('cra/index', [CRAController::class, 'index'])->name('cra.index');
     Route::get('cra/create', [CRAController::class, 'create'])->name('cra.create');
 
+     // death
+    Route::get('death/index', [DeathController::class, 'index'])->name('death.index');
+    Route::get('death/details/{id}', [DeathController::class, 'deathDetails'])->name('death.details');
+    Route::post('death/store', [DeathController::class, 'store'])->name('death.store');
+    Route::put('death/update/{id}', [DeathController::class, 'update'])->name('death.update');
+    Route::delete('death/destroy/{id}', [DeathController::class, 'destroy'])->name('death.destroy');
     // residents
     Route::resource('user', UserController::class);
     Route::resource('resident', ResidentController::class);
@@ -140,6 +151,8 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('barangay_facility', BarangayFacilityController::class);
     Route::resource('barangay_road', BarangayRoadController::class);
     Route::resource('barangay_institution', BarangayInstitutionController::class);
+    Route::resource('inventory', InventoryController::class);
+    Route::resource('institution_member', InstitutionMemberController::class);
 });
 
 // Resident-only routes

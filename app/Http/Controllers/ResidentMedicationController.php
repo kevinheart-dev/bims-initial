@@ -121,12 +121,12 @@ class ResidentMedicationController extends Controller
             }
         }
 
-        if ($medStart = request('med_start')) {
-            $query->whereDate('start_date', '>=', $medStart);
+        if ($startDate = request('start_date')) {
+            $query->whereDate('start_date', '>=', $startDate);
         }
 
-        if ($medEnd = request('med_end')) {
-            $query->whereDate('end_date', '<=', $medEnd);
+        if ($endDate = request('end_date')) {
+            $query->whereDate('end_date', '<=', $endDate);
         }
 
         $medications = $query->paginate(10)->withQueryString();

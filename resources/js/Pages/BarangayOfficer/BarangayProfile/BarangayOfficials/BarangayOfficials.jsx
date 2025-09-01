@@ -23,8 +23,9 @@ import TextInput from "@/Components/TextInput";
 import { Toaster, toast } from "sonner";
 import InputError from "@/Components/InputError";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
+import { useQuery } from "@tanstack/react-query";
 
-const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
+const BarangayOfficials = () => {
     const breadcrumbs = [{ label: "Barangay Officials", showOnMobile: false }];
     const [isModalOpen, setIsModalOpen] = useState(false); // Resident detail modal
     const [isAddModalOpen, setIsAddModalOpen] = useState(false); // Add modal
@@ -36,6 +37,28 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
     const success = props?.success ?? null;
     const error = props?.error ?? null;
     const propsErrors = props.errors ?? {};
+
+    const {
+        data: getData,
+        isLoading,
+        isError,
+        refetch,
+    } = useQuery({
+        queryKey: ["barangay_officials"],
+        queryFn: async () => {
+            const { data } = await axios.get(
+                `${APP_URL}/barangay_officer/barangay_official`
+            );
+            return data;
+        },
+        keepPreviousData: true,
+        staleTime: 1000 * 60 * 5,
+    });
+
+    const officials = getData?.officials ?? [];
+    const residents = getData?.residents ?? [];
+    const puroks = getData?.puroks ?? [];
+    const activeterms = getData?.activeterms ?? [];
 
     const { data, setData, post, errors, processing, reset, clearErrors } =
         useForm({
@@ -256,11 +279,8 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
         });
     };
     return (
-        <AdminLayout>
+        <div className="p-2 md:px-2 md:py-2">
             <Toaster richColors />
-            <Head title="Barangay Officials" />
-            <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-            {/* <pre>{JSON.stringify(officials, undefined, 3)}</pre> */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 p-4">
                 {officials.map((official) => (
                     <OfficialCard
@@ -722,7 +742,7 @@ const BarangayOfficials = ({ residents, officials, puroks, activeterms }) => {
             >
                 {selectedOfficial && <EditOfficialForm />}
             </Modal>
-        </AdminLayout>
+        </div>
     );
 };
 
