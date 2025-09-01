@@ -1464,16 +1464,17 @@ const FilterToggle = ({
                         }
                         onChange={(date) => {
                             const formatted = date
-                                ? date.toLocaleDateString("en-CA")
+                                ? date.toLocaleDateString("en-CA") // YYYY-MM-DD
                                 : "";
                             searchFieldName("start_date", formatted);
                         }}
                         dateFormat="yyyy-MM-dd"
-                        className="border border-gray-300 rounded-md shadow-sm px-2 py-1 w-[180px]"
+                        className="border border-gray-300 rounded-md shadow-sm p-2 w-[180px] text-sm focus:ring focus:ring-indigo-200 focus:border-indigo-400"
                         placeholderText="Date Started"
                         popperContainer={({ children }) => (
                             <div className="z-[9999]">{children}</div>
                         )}
+                        isClearable
                     />
                 </div>
             )}
@@ -1492,11 +1493,12 @@ const FilterToggle = ({
                             searchFieldName("end_date", formatted);
                         }}
                         dateFormat="yyyy-MM-dd"
-                        className="border border-gray-300 rounded-md shadow-sm px-2 py-1 w-[180px]"
+                        className="border border-gray-300 rounded-md shadow-sm p-2 w-[180px] text-sm focus:ring focus:ring-indigo-200 focus:border-indigo-400"
                         placeholderText="Date Ended"
                         popperContainer={({ children }) => (
                             <div className="z-[9999]">{children}</div>
                         )}
+                        isClearable
                     />
                 </div>
             )}
@@ -1553,16 +1555,17 @@ const FilterToggle = ({
                         }
                         onChange={(date) => {
                             const formatted = date
-                                ? date.toLocaleDateString("en-CA")
+                                ? date.toLocaleDateString("en-CA") // YYYY-MM-DD format
                                 : "";
                             searchFieldName("vaccination_date", formatted);
                         }}
                         dateFormat="yyyy-MM-dd"
-                        className="border border-gray-300 rounded-md shadow-sm px-2 py-1 w-[180px]"
+                        className="border border-gray-300 rounded-md shadow-sm px-2 py-2 w-[180px] text-sm focus:ring focus:ring-indigo-200 focus:border-indigo-400"
                         placeholderText="Vaccination Date"
                         popperContainer={({ children }) => (
                             <div className="z-[9999]">{children}</div>
                         )}
+                        isClearable
                     />
                 </div>
             )}
@@ -1626,16 +1629,17 @@ const FilterToggle = ({
                         }
                         onChange={(date) => {
                             const formatted = date
-                                ? date.toLocaleDateString("en-CA")
+                                ? date.toLocaleDateString("en-CA") // YYYY-MM-DD format
                                 : "";
                             searchFieldName("expected_due_date", formatted);
                         }}
                         dateFormat="yyyy-MM-dd"
-                        className="border border-gray-300 rounded-md shadow-sm px-2 py-1 w-[180px]"
+                        className="border border-gray-300 rounded-md shadow-sm p-2 w-[180px] text-sm focus:ring focus:ring-indigo-200 focus:border-indigo-400"
                         placeholderText="Expected Due Date"
                         popperContainer={({ children }) => (
                             <div className="z-[9999]">{children}</div>
                         )}
+                        isClearable
                     />
                 </div>
             )}
@@ -1649,16 +1653,109 @@ const FilterToggle = ({
                         }
                         onChange={(date) => {
                             const formatted = date
-                                ? date.toLocaleDateString("en-CA")
+                                ? date.toLocaleDateString("en-CA") // YYYY-MM-DD format
                                 : "";
                             searchFieldName("delivery_date", formatted);
                         }}
                         dateFormat="yyyy-MM-dd"
-                        className="border border-gray-300 rounded-md shadow-sm px-2 py-1 w-[180px]"
+                        className="border border-gray-300 rounded-md shadow-sm p-2 w-[180px] text-sm focus:ring focus:ring-indigo-200 focus:border-indigo-400"
                         placeholderText="Delivery Date"
                         popperContainer={({ children }) => (
                             <div className="z-[9999]">{children}</div>
                         )}
+                        isClearable
+                    />
+                </div>
+            )}
+
+            {/* DEATH */}
+            {isVisible("date_of_death") && (
+                <div className="flex items-center gap-2">
+                    <DatePicker
+                        selected={
+                            queryParams.date_of_death
+                                ? new Date(queryParams.date_of_death)
+                                : null
+                        }
+                        onChange={(date) => {
+                            const formatted = date
+                                ? date.toLocaleDateString("en-CA") // YYYY-MM-DD format
+                                : "";
+                            searchFieldName("date_of_death", formatted);
+                        }}
+                        dateFormat="yyyy-MM-dd"
+                        className="border border-gray-300 rounded-md shadow-sm p-2 w-[180px] text-sm focus:ring focus:ring-indigo-200 focus:border-indigo-400"
+                        placeholderText="Date of Death"
+                        popperContainer={({ children }) => (
+                            <div className="z-[9999]">{children}</div>
+                        )}
+                        isClearable
+                    />
+                </div>
+            )}
+
+            {/* INVENTORIES */}
+            {isVisible("inventory_status") && (
+                <Select
+                    onValueChange={(status) =>
+                        searchFieldName("status", status)
+                    }
+                    value={queryParams.status}
+                >
+                    <SelectTrigger className="w-[100px]">
+                        <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="available">Available</SelectItem>
+                        <SelectItem value="low_stock">Low Stock</SelectItem>
+                        <SelectItem value="out_of_stock">
+                            Out of Stock
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("item_category") && (
+                <Select
+                    onValueChange={(inv) =>
+                        searchFieldName("item_category", inv)
+                    }
+                    value={queryParams?.item_category ?? ""}
+                >
+                    <SelectTrigger className="w-[160px]">
+                        <SelectValue placeholder="Item Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {types.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {option}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("date_recieved") && (
+                <div className="flex items-center gap-2">
+                    <DatePicker
+                        selected={
+                            queryParams.date_recieved
+                                ? new Date(queryParams.date_recieved)
+                                : null
+                        }
+                        onChange={(date) => {
+                            const formatted = date
+                                ? date.toLocaleDateString("en-CA") // YYYY-MM-DD format
+                                : "";
+                            searchFieldName("date_recieved", formatted);
+                        }}
+                        dateFormat="yyyy-MM-dd"
+                        className="border border-gray-300 rounded-md shadow-sm p-2 w-[180px] text-sm focus:ring focus:ring-indigo-200 focus:border-indigo-400"
+                        placeholderText="Date Recieved "
+                        popperContainer={({ children }) => (
+                            <div className="z-[9999]">{children}</div>
+                        )}
+                        isClearable
                     />
                 </div>
             )}

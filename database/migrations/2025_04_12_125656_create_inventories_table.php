@@ -16,11 +16,11 @@ return new class extends Migration
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->string('item_name', 100);
             $table->string('item_category', 55);
-            $table->integer('quantity');
+            $table->decimal('quantity');
             $table->string('unit', 15);
-            $table->date('received_date');
-            $table->string('supplier', 55);
-            $table->enum('status', ['available', 'low stock', 'out of stock']);
+            $table->date('received_date')->nullable();
+            $table->string('supplier', 55)->nullable();
+            $table->enum('status', ['available', 'low_stock', 'out_of_stock']);
             $table->timestamps();
         });
     }

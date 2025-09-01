@@ -33,6 +33,7 @@ import {
     Stethoscope,
     Tablets,
     PersonStanding,
+    Cloudy,
 } from "lucide-react";
 
 import {
@@ -66,11 +67,6 @@ const items = [
             {
                 title: "Barangay Profile",
                 url: "/barangay_officer/barangay_profile",
-                icon: FileText,
-            },
-            {
-                title: "Barangay Officials",
-                url: "/barangay_officer/barangay_official",
                 icon: FileText,
             },
             {
@@ -169,7 +165,7 @@ const items = [
             },
             {
                 title: "Deaths",
-                url: "#",
+                url: "/barangay_officer/death/index",
                 icon: PersonStanding,
             },
         ],
@@ -201,7 +197,7 @@ const items = [
     {
         title: "CRA 2025",
         url: "#",
-        icon: Flag,
+        icon: Cloudy,
         submenu: [
             {
                 title: "Create",

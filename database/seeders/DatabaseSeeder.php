@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Allergy;
 use App\Models\Barangay;
+use App\Models\BarangayInstitution;
+use App\Models\BarangayInstitutionMember;
 use App\Models\BarangayOfficial;
 use App\Models\BarangayOfficialTerm;
 use App\Models\Designation;
@@ -20,6 +22,7 @@ use App\Models\HouseholdToilet;
 use App\Models\HouseholdWasteManagement;
 use App\Models\HouseholdWaterSource;
 use App\Models\InternetAccessibility;
+use App\Models\Inventory;
 use App\Models\Livelihood;
 use App\Models\LivelihoodType;
 use App\Models\Livestock;
@@ -188,6 +191,7 @@ class DatabaseSeeder extends Seeder
                 'purok_number' => $i,
             ]);
         }
+        Inventory::factory(50)->create();
 
         Street::factory(12)->create();      // just 2 streets
         Household::factory(5)->create();   // only 5 households
@@ -254,7 +258,7 @@ class DatabaseSeeder extends Seeder
         // }
         //LivelihoodType::factory(50)->create();
 
-        $residents = Resident::factory()->count(20)->create(); // ✅ very minimal
+        $residents = Resident::factory()->count(40)->create(); // ✅ very minimal
 
         // Related sample data (scaled down)
         InternetAccessibility::factory(5)->create();

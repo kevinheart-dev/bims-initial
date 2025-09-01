@@ -41,11 +41,11 @@ class BarangayOfficialController extends Controller
 
         $activeterms = BarangayOfficialTerm::query()->where('barangay_id', $brgy_id)->where("status", 'active')->get();
         //dd($officials);
-        return Inertia::render("BarangayOfficer/BarangayInfo/BarangayOfficials", [
-            'officials' => $officials,
-            'residents' => $residents,
-            'puroks' => $puroks,
-            'activeterms' => $activeterms
+        return response()->json([
+            'officials'   => $officials,
+            'residents'   => $residents,
+            'puroks'      => $puroks,
+            'activeterms' => $activeterms,
         ]);
     }
 
@@ -93,7 +93,12 @@ class BarangayOfficialController extends Controller
                 }
             }
             DB::commit();
-            return back()->with('success', 'Barangay Official successfully added.');
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success' => 'Barangay Official successfully added.',
+                    'activeTab' => 'officials'
+                ]);
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Barangay Official could not be added: ' . $e->getMessage());
@@ -145,8 +150,12 @@ class BarangayOfficialController extends Controller
             if (!empty($data['designations'])) {
                 $barangayOfficial->designation()->sync($data['designations']);
             }
-
-            return back()->with('success', 'Barangay Official updated successfully.');
+            return redirect()
+                ->route('barangay_profile.index')
+                ->with([
+                    'success' => 'Barangay Official successfully updated.',
+                    'activeTab' => 'officials'
+                ]);
 
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to update Barangay Official: ' . $e->getMessage());

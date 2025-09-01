@@ -87,7 +87,9 @@ export default function Index() {
                         toast.error("Validation Errors", {
                             description: (
                                 <div
-                                    dangerouslySetInnerHTML={{ __html: allErrors }}
+                                    dangerouslySetInnerHTML={{
+                                        __html: allErrors,
+                                    }}
                                 />
                             ),
                             duration: 5000,

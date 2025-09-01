@@ -19,7 +19,6 @@ import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
 import { Link, router, useForm, usePage } from "@inertiajs/react";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
-import { INSTITUTION_STATUS_TEXT, INSTITUTION_TYPE_TEXT } from "@/constants";
 import InputField from "@/Components/InputField";
 import InputError from "@/Components/InputError";
 import DropdownInputField from "@/Components/DropdownInputField";
@@ -35,58 +34,65 @@ import { Toaster, toast } from "sonner";
 import SelectField from "@/Components/SelectField";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 
-const InstitutionIndex = () => {
+const InventoryIndex = () => {
     const APP_URL = useAppUrl();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalState, setModalState] = useState("");
-    const [institutionDetails, setInstitutionDetails] = useState(null);
+    const [itemDetails, setItemDetails] = useState(null);
     const props = usePage().props;
     const Toasterror = props?.error ?? null;
     const [queryParams, setQueryParams] = useState({});
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
-    const [institutionToDelete, setInstitutionToDelete] = useState(null); //delete
+    const [itemToDelete, setItemToDelete] = useState(null); //delete
 
     const {
-        data: institutions,
+        data: getData,
         isLoading,
         isError,
         error,
         refetch,
     } = useQuery({
-        queryKey: ["institutions", queryParams],
+        queryKey: ["inventory_items", queryParams],
         queryFn: async () => {
             const { data } = await axios.get(
-                `${APP_URL}/barangay_officer/barangay_institution`,
+                `${APP_URL}/barangay_officer/inventory`,
                 { params: queryParams }
             );
-            return data.institutions;
+            return data;
         },
         keepPreviousData: true,
         staleTime: 1000 * 60 * 5,
     });
 
+    const inventory_items = getData?.inventory_items;
+    const categories = getData?.categories;
+
     const allColumns = [
         { key: "id", label: "ID" },
-        { key: "name", label: "Name" },
-        { key: "type", label: "Institution Type" },
-        { key: "head", label: "Head of Institution" },
-        { key: "description", label: "Description" },
-        { key: "year_established", label: "Year Established" },
+        { key: "item_name", label: "Item" },
+        { key: "item_category", label: "Category" },
+        { key: "quantity", label: "Quantity" },
+        { key: "unit", label: "Unit" },
         { key: "status", label: "Status" },
-        { key: "created_at", label: "Created At" },
-        { key: "updated_at", label: "Updated At" },
+        { key: "received_date", label: "Date Recieved" },
+        { key: "supplier", label: "Supplier" },
         { key: "actions", label: "Actions" },
     ];
 
     const defaultVisibleCols = allColumns.map((col) => col.key);
     const [visibleColumns, setVisibleColumns] = useState(() => {
-        const saved = localStorage.getItem("instutions_visible_columns");
+        const saved = localStorage.getItem("inventory_visible_columns");
         return saved ? JSON.parse(saved) : defaultVisibleCols;
     });
 
     const hasActiveFilter = Object.entries(queryParams || {}).some(
-        ([key, value]) => ["institution"].includes(key) && value && value !== ""
+        ([key, value]) =>
+            ["inventory_status", "item_category", "date_recieved"].includes(
+                key
+            ) &&
+            value &&
+            value !== ""
     );
 
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
@@ -98,7 +104,7 @@ const InstitutionIndex = () => {
     }, [hasActiveFilter]);
     useEffect(() => {
         localStorage.setItem(
-            "instutions_visible_columns",
+            "inventory_visible_columns",
             JSON.stringify(visibleColumns)
         );
     }, [visibleColumns]);
@@ -132,33 +138,20 @@ const InstitutionIndex = () => {
     const columnRenderers = {
         id: (row) => row.id,
 
-        name: (row) => (
-            <Link href={route("barangay_institution.show", row.id)}>
-                <span className="font-medium text-gray-900 hover:text-blue-500 hover:underline">
-                    {row.name || "—"}
-                </span>
-            </Link>
+        item_name: (row) => (
+            <span className="font-medium text-gray-900">
+                {row.item_name || "—"}
+            </span>
         ),
 
-        type: (row) => (
+        item_category: (row) => (
             <span className="text-sm text-gray-700">
-                {INSTITUTION_TYPE_TEXT[row.type] || "—"}
+                {row.item_category || "—"}
             </span>
         ),
-        head: (row) => {
-            const res = row?.head?.resident;
-            return (
-                <span className="font-medium text-gray-800">
-                    {res.firstname} {res.middlename ?? ""} {res.lastname}{" "}
-                    <span className="text-gray-500">{res.suffix ?? ""}</span>
-                </span>
-            );
-        },
 
-        description: (row) => (
-            <span className="text-sm text-gray-500 line-clamp-2">
-                {row.description || "—"}
-            </span>
+        quantity: (row) => (
+            <span className="text-sm text-gray-700">{row.quantity ?? "—"}</span>
         ),
 
         year_established: (row) => (
@@ -167,49 +160,42 @@ const InstitutionIndex = () => {
             </span>
         ),
 
+        unit: (row) => (
+            <span className="text-sm text-gray-700">{row.unit || "—"}</span>
+        ),
+
         status: (row) => {
             const statusColors = {
-                active: "bg-green-100 text-green-800",
-                inactive: "bg-yellow-100 text-yellow-800",
-                dissolved: "bg-red-100 text-red-800",
+                available: "bg-green-100 text-green-800",
+                low_stock: "bg-yellow-100 text-yellow-800",
+                out_of_stock: "bg-red-100 text-red-800",
             };
+
             return (
                 <span
                     className={`px-2 py-1 text-xs font-semibold rounded-full ${
                         statusColors[row.status] || "bg-gray-100 text-gray-800"
                     }`}
                 >
-                    {INSTITUTION_STATUS_TEXT[row.status] || "—"}
+                    {row.status || "—"}
                 </span>
             );
         },
 
-        created_at: (row) => (
+        received_date: (row) => (
             <span className="text-sm text-gray-500">
-                {row.created_at
-                    ? new Date(row.created_at).toLocaleDateString("en-US", {
+                {row.received_date
+                    ? new Date(row.received_date).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
                       })
                     : "—"}
             </span>
         ),
 
-        updated_at: (row) => (
-            <span className="text-sm text-gray-500">
-                {row.updated_at
-                    ? new Date(row.updated_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                      })
-                    : "—"}
-            </span>
+        supplier: (row) => (
+            <span className="text-sm text-gray-700">{row.supplier || "—"}</span>
         ),
 
         actions: (row) => (
@@ -237,33 +223,33 @@ const InstitutionIndex = () => {
     };
 
     const { data, setData, post, errors, reset, clearErrors } = useForm({
-        institutions: [[]],
+        inventory_items: [[]],
         _method: undefined,
-        institution_id: null,
+        item_id: null,
     });
 
-    const addInstitution = () => {
-        setData("institutions", [...(data.institutions || []), {}]);
+    const addItem = () => {
+        setData("inventory_items", [...(data.inventory_items || []), {}]);
     };
-    const removeInstitution = (instiIdx) => {
-        const updated = [...(data.institutions || [])];
+    const removeItem = (instiIdx) => {
+        const updated = [...(data.inventory_items || [])];
         updated.splice(instiIdx, 1);
-        setData("institutions", updated);
-        toast.warning("Institution removed.", {
+        setData("inventory_items", updated);
+        toast.warning("Item removed.", {
             duration: 2000,
         });
     };
     const handleModalClose = () => {
         setIsModalOpen(false);
         setModalState("");
-        setInstitutionDetails(null);
+        setItemDetails(null);
         reset();
         clearErrors();
     };
 
-    const handleInstitutionFieldChange = (value, instIdx, field) => {
+    const handleInventoryFieldChange = (value, instIdx, field) => {
         setData((prevData) => {
-            const updated = [...prevData.institutions];
+            const updated = [...prevData.inventory_items];
 
             // make sure the institution entry exists
             if (!updated[instIdx]) {
@@ -275,12 +261,12 @@ const InstitutionIndex = () => {
                 [field]: value,
             };
 
-            return { ...prevData, institutions: updated };
+            return { ...prevData, inventory_items: updated };
         });
     };
-    const handleSubmitInstitution = (e) => {
+    const handleSubmitInventory = (e) => {
         e.preventDefault();
-        post(route("barangay_institution.store"), {
+        post(route("inventory.store"), {
             onError: (errors) => {
                 console.error("Validation Errors:", errors);
 
@@ -306,33 +292,37 @@ const InstitutionIndex = () => {
 
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/barangay_institution/details/${id}`
+                `${APP_URL}/barangay_officer/inventory/details/${id}`
             );
-            const institution = response.data.institution;
-            console.log(institution);
-            setInstitutionDetails(institution);
+
+            const inventory = response.data.item;
+            //console.log(inventory);
+
+            setItemDetails(inventory);
             setData({
-                institutions: [
+                inventory_items: [
                     {
-                        name: institution.name || "",
-                        type: institution.type || "",
-                        status: institution.status || "",
-                        description: institution.description || "",
-                        year_established: institution.year_established || "",
+                        item_name: inventory.item_name || "",
+                        item_category: inventory.item_category || "",
+                        quantity: inventory.quantity || "",
+                        unit: inventory.unit || "",
+                        received_date: inventory.received_date || "",
+                        supplier: inventory.supplier || "",
+                        status: inventory.status || "",
                     },
                 ],
                 _method: "PUT",
-                institution_id: institution.id,
+                item_id: inventory.id,
             });
 
             setIsModalOpen(true);
         } catch (error) {
-            console.error("Error fetching institution details:", error);
+            console.error("Error fetching inventory details:", error);
         }
     };
-    const handleUpdateInstitution = (e) => {
+    const handleUpdateInventory = (e) => {
         e.preventDefault();
-        post(route("barangay_institution.update", data.institution_id), {
+        post(route("inventory.update", data.item_id), {
             onError: (errors) => {
                 //console.error("Validation Errors:", errors);
 
@@ -354,34 +344,29 @@ const InstitutionIndex = () => {
 
     // delete
     const handleDeleteClick = (id) => {
-        setInstitutionToDelete(id);
+        setItemToDelete(id);
         setIsDeleteModalOpen(true);
     };
 
     const confirmDelete = () => {
-        router.delete(
-            route("barangay_institution.destroy", institutionToDelete),
-            {
-                onError: (errors) => {
-                    console.error("Validation Errors:", errors);
+        router.delete(route("inventory.destroy", itemToDelete), {
+            onError: (errors) => {
+                console.error("Validation Errors:", errors);
 
-                    const allErrors = Object.values(errors).join("<br />");
-                    toast.error("Validation Error", {
-                        description: (
-                            <span
-                                dangerouslySetInnerHTML={{ __html: allErrors }}
-                            />
-                        ),
-                        duration: 3000,
-                        closeButton: true,
-                    });
-                },
-                onSuccess: () => {
-                    refetch();
-                    handleModalClose();
-                },
-            }
-        );
+                const allErrors = Object.values(errors).join("<br />");
+                toast.error("Validation Error", {
+                    description: (
+                        <span dangerouslySetInnerHTML={{ __html: allErrors }} />
+                    ),
+                    duration: 3000,
+                    closeButton: true,
+                });
+            },
+            onSuccess: () => {
+                refetch();
+                handleModalClose();
+            },
+        });
         setIsDeleteModalOpen(false);
     };
 
@@ -415,7 +400,7 @@ const InstitutionIndex = () => {
         <div className="p-2 md:px-2 md:py-2">
             <Toaster richColors />
             <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                {/* <pre>{JSON.stringify(institutions, undefined, 3)}</pre> */}
+                {/* <pre>{JSON.stringify(inventory_items, undefined, 3)}</pre> */}
                 <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                     <div className="flex items-center gap-2 flex-wrap">
                         <DynamicTableControls
@@ -436,7 +421,7 @@ const InstitutionIndex = () => {
                         >
                             <Input
                                 type="text"
-                                placeholder="Search institutions"
+                                placeholder="Search Inventory Items"
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
                                 onKeyDown={(e) =>
@@ -475,16 +460,21 @@ const InstitutionIndex = () => {
                         <FilterToggle
                             queryParams={queryParams}
                             searchFieldName={searchFieldName}
-                            visibleFilters={["institution"]}
+                            visibleFilters={[
+                                "inventory_status",
+                                "item_category",
+                                "date_recieved",
+                            ]}
                             showFilters={true}
-                            institutions={institutions.data}
+                            inventory_items={inventory_items.data}
                             setQueryParams={setQueryParams}
                             setQuery={setQuery}
                             clearRouteAxios={true}
+                            types={categories}
                         />
                     )}
                     <DynamicTable
-                        passedData={institutions}
+                        passedData={inventory_items}
                         allColumns={allColumns}
                         columnRenderers={columnRenderers}
                         visibleColumns={visibleColumns}
@@ -497,192 +487,240 @@ const InstitutionIndex = () => {
                 onClose={() => {
                     handleModalClose();
                 }}
-                title={
-                    modalState == "add" ? "Add Institution" : "Edit Institution"
-                }
+                title={modalState == "add" ? "Add Item/s" : "Edit Item"}
             >
                 <form
                     className="bg-gray-50 p-4 rounded-lg"
                     onSubmit={
-                        institutionDetails
-                            ? handleUpdateInstitution
-                            : handleSubmitInstitution
+                        itemDetails
+                            ? handleUpdateInventory
+                            : handleSubmitInventory
                     }
                 >
                     <h3 className="text-2xl font-medium text-gray-700">
-                        Barangay Institutions / Groups
+                        Barangay Inventory
                     </h3>
                     <p className="text-sm text-gray-500 mb-8">
-                        Please provide details about existing institutions,
-                        organizations, or groups within the barangay.
+                        Please provide details about the barangay’s inventory
+                        items.
                     </p>
 
-                    {Array.isArray(data.institutions) &&
-                        data.institutions.map((institution, instIdx) => (
+                    {Array.isArray(data.inventory_items) &&
+                        data.inventory_items.map((inventory, invIdx) => (
                             <div
-                                key={instIdx}
+                                key={invIdx}
                                 className="border p-4 mb-4 rounded-md relative bg-gray-50"
                             >
                                 <div className="grid grid-cols-1 md:grid-cols-6 mb-6 gap-4">
-                                    {/* Institution Name */}
+                                    {/* Item Name */}
                                     <div className="md:col-span-3">
                                         <InputField
-                                            label="Institution Name"
-                                            name="name"
-                                            value={institution.name || ""}
+                                            label="Item Name"
+                                            name="item_name"
+                                            value={inventory.item_name || ""}
                                             onChange={(e) =>
-                                                handleInstitutionFieldChange(
+                                                handleInventoryFieldChange(
                                                     e.target.value,
-                                                    instIdx,
-                                                    "name"
+                                                    invIdx,
+                                                    "item_name"
                                                 )
                                             }
-                                            placeholder="e.g. Fisherfolk Association"
+                                            placeholder="e.g. Rice, Medicine, Generator"
                                         />
                                         <InputError
                                             message={
                                                 errors[
-                                                    `institutions.${instIdx}.name`
+                                                    `inventory_items.${invIdx}.item_name`
                                                 ]
                                             }
                                             className="mt-1"
                                         />
                                     </div>
 
-                                    {/* Type */}
+                                    {/* Item Category */}
                                     <div className="md:col-span-3">
                                         <DropdownInputField
-                                            label="Institution Type"
-                                            name="type"
-                                            value={institution.type || ""}
+                                            label="Category"
+                                            name="item_category"
+                                            value={
+                                                inventory.item_category || ""
+                                            }
                                             onChange={(e) =>
-                                                handleInstitutionFieldChange(
+                                                handleInventoryFieldChange(
                                                     e.target.value,
-                                                    instIdx,
-                                                    "type"
+                                                    invIdx,
+                                                    "item_category"
                                                 )
                                             }
-                                            placeholder="Select or enter type"
+                                            placeholder="Select category"
                                             items={[
                                                 {
-                                                    label: "Youth Organization",
-                                                    value: "youth_org",
+                                                    label: "Food",
+                                                    value: "food",
                                                 },
                                                 {
-                                                    label: "Cooperative",
-                                                    value: "coop",
+                                                    label: "Medicine",
+                                                    value: "medicine",
                                                 },
                                                 {
-                                                    label: "Religious Group",
-                                                    value: "religious",
+                                                    label: "Equipment",
+                                                    value: "equipment",
                                                 },
                                                 {
-                                                    label: "Farmers Association",
-                                                    value: "farmers",
+                                                    label: "Relief Goods",
+                                                    value: "relief_goods",
                                                 },
                                                 {
-                                                    label: "Transport Group",
-                                                    value: "transport",
+                                                    label: "Other",
+                                                    value: "other",
                                                 },
                                             ]}
                                         />
                                         <InputError
                                             message={
                                                 errors[
-                                                    `institutions.${instIdx}.type`
+                                                    `inventory_items.${invIdx}.item_category`
                                                 ]
                                             }
                                             className="mt-1"
                                         />
                                     </div>
 
-                                    {/* Description */}
-                                    <div className="md:col-span-6">
-                                        <Textarea
-                                            label="Description"
-                                            name="description"
-                                            value={
-                                                institution.description || ""
-                                            }
+                                    {/* Quantity */}
+                                    <div className="md:col-span-2">
+                                        <InputField
+                                            label="Quantity"
+                                            name="quantity"
+                                            type="number"
+                                            value={inventory.quantity || ""}
                                             onChange={(e) =>
-                                                handleInstitutionFieldChange(
+                                                handleInventoryFieldChange(
                                                     e.target.value,
-                                                    instIdx,
-                                                    "description"
+                                                    invIdx,
+                                                    "quantity"
                                                 )
                                             }
-                                            className={"text-gray-600"}
-                                            placeholder="Brief description of the institution..."
+                                            placeholder="Enter quantity"
                                         />
                                         <InputError
                                             message={
                                                 errors[
-                                                    `institutions.${instIdx}.description`
+                                                    `inventory_items.${invIdx}.quantity`
                                                 ]
                                             }
                                             className="mt-1"
                                         />
                                     </div>
 
-                                    {/* Year & Status */}
-                                    <div className="md:col-span-3">
-                                        <YearDropdown
-                                            label="Year Established"
-                                            name="year_established"
-                                            value={
-                                                institution.year_established ||
-                                                ""
-                                            }
+                                    {/* Unit */}
+                                    <div className="md:col-span-2">
+                                        <InputField
+                                            label="Unit"
+                                            name="unit"
+                                            value={inventory.unit || ""}
                                             onChange={(e) =>
-                                                handleInstitutionFieldChange(
+                                                handleInventoryFieldChange(
                                                     e.target.value,
-                                                    instIdx,
-                                                    "year_established"
+                                                    invIdx,
+                                                    "unit"
                                                 )
                                             }
-                                            placeholder="YYYY"
+                                            placeholder="e.g. kg, pcs, box"
                                         />
                                         <InputError
                                             message={
                                                 errors[
-                                                    `institutions.${instIdx}.year_established`
+                                                    `inventory_items.${invIdx}.unit`
                                                 ]
                                             }
                                             className="mt-1"
                                         />
                                     </div>
 
-                                    <div className="md:col-span-3">
+                                    {/* Status */}
+                                    <div className="md:col-span-2">
                                         <SelectField
                                             label="Status"
                                             name="status"
-                                            value={institution.status || ""}
+                                            value={inventory.status || ""}
                                             onChange={(e) =>
-                                                handleInstitutionFieldChange(
+                                                handleInventoryFieldChange(
                                                     e.target.value,
-                                                    instIdx,
+                                                    invIdx,
                                                     "status"
                                                 )
                                             }
                                             items={[
                                                 {
-                                                    label: "Active",
-                                                    value: "active",
+                                                    label: "Available",
+                                                    value: "available",
                                                 },
                                                 {
-                                                    label: "Inactive",
-                                                    value: "inactive",
+                                                    label: "Low Stock",
+                                                    value: "low_stock",
                                                 },
                                                 {
-                                                    label: "Dissolved",
-                                                    value: "dissolved",
+                                                    label: "Out of Stock",
+                                                    value: "out_of_stock",
                                                 },
                                             ]}
                                         />
                                         <InputError
                                             message={
                                                 errors[
-                                                    `institutions.${instIdx}.status`
+                                                    `inventory_items.${invIdx}.status`
+                                                ]
+                                            }
+                                            className="mt-1"
+                                        />
+                                    </div>
+
+                                    {/* Received Date */}
+                                    <div className="md:col-span-3">
+                                        <InputField
+                                            label="Date Received"
+                                            name="received_date"
+                                            type="date"
+                                            value={
+                                                inventory.received_date || ""
+                                            }
+                                            onChange={(e) =>
+                                                handleInventoryFieldChange(
+                                                    e.target.value,
+                                                    invIdx,
+                                                    "received_date"
+                                                )
+                                            }
+                                        />
+                                        <InputError
+                                            message={
+                                                errors[
+                                                    `inventory_items.${invIdx}.received_date`
+                                                ]
+                                            }
+                                            className="mt-1"
+                                        />
+                                    </div>
+
+                                    {/* Supplier */}
+                                    <div className="md:col-span-3">
+                                        <InputField
+                                            label="Supplier"
+                                            name="supplier"
+                                            value={inventory.supplier || ""}
+                                            onChange={(e) =>
+                                                handleInventoryFieldChange(
+                                                    e.target.value,
+                                                    invIdx,
+                                                    "supplier"
+                                                )
+                                            }
+                                            placeholder="e.g. Local Distributor, DOH"
+                                        />
+                                        <InputError
+                                            message={
+                                                errors[
+                                                    `inventory_items.${invIdx}.supplier`
                                                 ]
                                             }
                                             className="mt-1"
@@ -691,12 +729,10 @@ const InstitutionIndex = () => {
                                 </div>
 
                                 {/* Remove button */}
-                                {institutionDetails === null && (
+                                {itemDetails === null && (
                                     <button
                                         type="button"
-                                        onClick={() =>
-                                            removeInstitution(instIdx)
-                                        }
+                                        onClick={() => removeItem(invIdx)}
                                         className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
                                     >
                                         <IoIosCloseCircleOutline className="text-2xl" />
@@ -705,22 +741,23 @@ const InstitutionIndex = () => {
                             </div>
                         ))}
 
+                    {/* Footer */}
                     <div className="flex justify-between items-center p-3">
-                        {institutionDetails === null ? (
+                        {itemDetails === null ? (
                             <button
                                 type="button"
-                                onClick={addInstitution}
+                                onClick={addItem}
                                 className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
                             >
                                 <IoIosAddCircleOutline className="text-2xl" />
-                                <span>Add Institution</span>
+                                <span>Add Item</span>
                             </button>
                         ) : (
                             <div></div>
                         )}
 
                         <div className="flex justify-end items-center text-end mt-5 gap-4">
-                            {institutionDetails == null && (
+                            {itemDetails == null && (
                                 <Button type="button" onClick={() => reset()}>
                                     <RotateCcw /> Reset
                                 </Button>
@@ -730,7 +767,7 @@ const InstitutionIndex = () => {
                                 className="bg-blue-700 hover:bg-blue-400"
                                 type={"submit"}
                             >
-                                {institutionDetails ? "Update" : "Add"}{" "}
+                                {itemDetails ? "Update" : "Add"}{" "}
                                 <IoIosArrowForward />
                             </Button>
                         </div>
@@ -743,10 +780,10 @@ const InstitutionIndex = () => {
                     setIsDeleteModalOpen(false);
                 }}
                 onConfirm={confirmDelete}
-                residentId={institutionToDelete}
+                residentId={itemToDelete}
             />
         </div>
     );
 };
 
-export default InstitutionIndex;
+export default InventoryIndex;
