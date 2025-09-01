@@ -43,7 +43,6 @@ export default function Index({ puroks, streets, barangays, occupationTypes }) {
         "Medical Information",
         "House Information",
         "Summary",
-        "Population & Residence",
     ];
 
     const displayStep = (step) => {
@@ -62,8 +61,6 @@ export default function Index({ puroks, streets, barangays, occupationTypes }) {
                 return <HouseInformation />;
             case 6:
                 return <Summary streets={streets} />;
-            case 7:
-                return <Population />;
             default:
         }
     };
