@@ -6,6 +6,7 @@ import Stepper from "@/Components/Stepper";
 import StepperController from "@/Components/StepperControler";
 import { StepperContext } from "@/context/StepperContext";
 import Population from "@/Components/CRAsteps/Population";
+import Livelihood from "@/Components/CRAsteps/Livelihood";
 import { Toaster, toast } from "sonner";
 
 export default function Index() {
@@ -15,52 +16,70 @@ export default function Index() {
 
     const [currentStep, setCurrentStep] = useState(1);
 
-    // initial CRA data object
-    const [craData, setCraData] = useState({
-        population: {},
-        livelihood: {},
-        infrastructure: {},
-        institutions: {},
-        hazards: {},
-        evacuation: {},
+    // ✅ Load from localStorage first
+    const [craData, setCraData] = useState(() => {
+        try {
+            const saved = localStorage.getItem("craDataDraft");
+            return saved
+                ? JSON.parse(saved)
+                : {
+                    population: [],
+                    livelihood: [],
+                    infrastructure: [],
+                    institutions: {},
+                    hazards: {},
+                    evacuation: {},
+                };
+        } catch (err) {
+            console.error("Error loading draft:", err);
+            return {
+                population: [],
+                livelihood: [],
+                infrastructure: [],
+                institutions: {},
+                hazards: {},
+                evacuation: {},
+            };
+        }
     });
+
+    // ✅ Auto-save whenever craData changes
+    useEffect(() => {
+        localStorage.setItem("craDataDraft", JSON.stringify(craData));
+    }, [craData]);
 
     const [finalData, setFinalData] = useState([]);
     const [errors, setErrors] = useState({});
 
     const steps = [
         "Population & Residence",
-        "Livelihood",
-        "Infrastructure & Services",
+        "Livelihood & Infrastructure",
+        "Services",
         "Institutions & Human Resources",
         "Hazards & Disasters",
         "Evacuation & Response",
         "Summary",
     ];
 
-    // display CRA step forms
+    // Display CRA step forms
     const displayStep = (step) => {
         switch (step) {
             case 1:
                 return <Population />;
-            // case 2:
-            //     return <Livelihood />;
-            // case 3:
-            //     return <Infrastructure />;
-            // ... add more steps
+            case 2:
+                return <Livelihood />;
             case 7:
                 return <div>Summary Review Here</div>;
             default:
         }
     };
 
-    //  handle step navigation & submission
     const handleClick = (direction) => {
         let newStep = currentStep;
 
         if (direction === "next") {
             if (currentStep === steps.length) {
-                // Submit CRA data to backend
+                // ✅ submit to backend
                 router.post(route("cra.store"), craData, {
                     onError: (errors) => {
                         setErrors(errors);
@@ -80,6 +99,8 @@ export default function Index() {
                             duration: 3000,
                             closeButton: true,
                         });
+                        // ✅ Clear draft after successful submit
+                        localStorage.removeItem("craDataDraft");
                     },
                 });
 

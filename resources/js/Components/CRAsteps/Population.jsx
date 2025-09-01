@@ -1,8 +1,25 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { StepperContext } from "@/context/StepperContext";
-import { useState, useEffect } from "react";
+import InputField from "@/Components/InputField";
 
 export default function Population() {
+    const { craData, setCraData } = useContext(StepperContext);
+
+    const Ownership = [
+        "Owned (Land and House)",
+        "Rented",
+        "Shared with Owner",
+        "Shared with Renter",
+        "Owned (House)",
+        "Informal Settler Families",
+    ];
+
+    const houseTypes = [
+        "Concrete",
+        "Semi-Concrete",
+        "Made of wood and light materials",
+        "Salvaged/Makeshift House",
+    ];
 
     const ageGroups = [
         "0-6 months",
@@ -11,103 +28,195 @@ export default function Population() {
         "6-12 yrs",
         "13-17 yrs",
         "18-59 yrs",
-        "60+ yrs"
+        "60+ yrs",
     ];
 
-    const initialPopulation = ageGroups.reduce((acc, group) => {
-        acc[group] = {
-            male_no_dis: 0,
-            male_dis: 0,
-            female_no_dis: 0,
-            female_dis: 0,
-            lgbtq_no_dis: 0,
-            lgbtq_dis: 0,
-        };
-        return acc;
-    }, {});
+    // Initialize CRA data
+    useEffect(() => {
+        console.log("CRA Data:", craData);
 
-    const [craData, setCraData] = useState({
-        population: initialPopulation
-    });
+        if (!craData.population || craData.population.length === 0) {
+            setCraData((prev) => ({
+                ...prev,
+                population: ageGroups.map((group) => ({
+                    ageGroup: group,
+                    male_no_dis: "",
+                    male_dis: "",
+                    female_no_dis: "",
+                    female_dis: "",
+                    lgbtq_no_dis: "",
+                    lgbtq_dis: "",
+                })),
 
+            }));
+        }
 
-    const updatePopulation = (group, field, value) => {
-        setCraData(prev => ({
-            ...prev,
-            population: {
-                ...prev.population,
-                [group]: {
-                    ...prev.population[group],
-                    [field]: Number(value) || 0
-                }
-            }
-        }));
+        if (!craData.houses) {
+            setCraData((prev) => ({
+                ...prev,
+                houses: houseTypes.reduce((acc, type) => {
+                    acc[type] = { oneFloor: "", multiFloor: "" };
+                    return acc;
+                }, {}),
+            }));
+        }
+    }, [craData, setCraData]);
+
+    // Update population values
+    const updatePopulation = (index, field, value) => {
+        setCraData((prev) => {
+            const newPopulation = [...prev.population];
+            newPopulation[index][field] = value === "" ? "" : Number(value);
+            return { ...prev, population: newPopulation };
+        });
     };
 
-
-    const getRowTotal = (group) => {
-        const fields = craData.population[group];
-        return Object.values(fields).reduce((a, b) => a + b, 0);
+    const getRowTotal = (index) => {
+        const fields = craData.population?.[index] || {};
+        return Object.entries(fields)
+            .filter(([key]) => key !== "ageGroup")
+            .reduce((a, [, b]) => a + (b || 0), 0);
     };
 
     const getColumnTotal = (field) => {
-        return ageGroups.reduce((sum, group) => sum + craData.population[group][field], 0);
+        return craData.population?.reduce(
+            (sum, group) => sum + (group[field] || 0),
+            0
+        );
     };
 
     const getGrandTotal = () => {
-        return ageGroups.reduce((sum, group) => sum + getRowTotal(group), 0);
+        return craData.population?.reduce(
+            (sum, _, index) => sum + getRowTotal(index),
+            0
+        );
     };
+
+    // House functions
+    const updateHouse = (type, field, value) => {
+        setCraData((prev) => ({
+            ...prev,
+            houses: {
+                ...prev.houses,
+                [type]: {
+                    ...prev.houses[type],
+                    [field]: value === "" ? "" : Number(value),
+                },
+            },
+        }));
+    };
+
+    const getHouseColumnTotal = (field) => {
+        return houseTypes.reduce((sum, type) => {
+            const val = craData.houses?.[type]?.[field];
+            return sum + (val || 0);
+        }, 0);
+    };
+
+    const getHouseGrandTotal = () => {
+        return houseTypes.reduce((sum, type) => {
+            const one = craData.houses?.[type]?.oneFloor || 0;
+            const multi = craData.houses?.[type]?.multiFloor || 0;
+            return sum + one + multi;
+        }, 0);
+    };
+
+    useEffect(() => {
+        if (!craData.populationGender || craData.populationGender.length === 0) {
+            setCraData((prev) => ({
+                ...prev,
+                populationGender: [
+                    { gender: "male", value: prev.malePopulation ?? "" },
+                    { gender: "female", value: prev.femalePopulation ?? "" },
+                    { gender: "lgbtq", value: prev.lgbtqPopulation ?? "" },
+                ],
+            }));
+        }
+    }, []); // run only once
+
 
 
     return (
         <div className="space-y-8">
-            {/* General Population */}
-            <section>
-                <h2 className="text-lg font-semibold mb-3">General Population</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input
-                        type="number"
-                        placeholder="Total Population"
-                        className="border p-2 rounded w-full"
-                    />
-                    <input
-                        type="number"
-                        placeholder="Total Households"
-                        className="border p-2 rounded w-full"
-                    />
-                    <input
-                        type="number"
-                        placeholder="Total Families"
-                        className="border p-2 rounded w-full"
-                    />
-                </div>
-            </section>
+            <h1 className="text-lg font-semibold mb-3">A. Information on Population and Resident</h1>
 
-            {/* Gender/Sex */}
-            <section>
-                <h2 className="text-lg font-semibold mb-3">Population by Gender/Sex</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input
-                        type="number"
-                        placeholder="Female"
-                        className="border p-2 rounded w-full"
-                    />
-                    <input
-                        type="number"
-                        placeholder="Male"
-                        className="border p-2 rounded w-full"
-                    />
-                    <input
-                        type="number"
-                        placeholder="LGBTQ+"
-                        className="border p-2 rounded w-full"
-                    />
-                </div>
-            </section>
+            {/* General Population */}
+            <div className="flex flex-col md:flex-row gap-8">
+                <section className="flex-1">
+                    <h2 className="text-lg font-semibold mb-0">General Population</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <InputField
+                            type="number"
+                            name="barangayPopulation"
+                            label="Barangay Population"
+                            placeholder="Total Population"
+                            value={craData.barangayPopulation ?? ""}
+                            onChange={(e) =>
+                                setCraData((prev) => ({
+                                    ...prev,
+                                    barangayPopulation: e.target.value === "" ? "" : Number(e.target.value),
+                                }))
+                            }
+                        />
+                        <InputField
+                            type="number"
+                            name="householdsPopulation"
+                            label="Households Population"
+                            placeholder="Total Households"
+                            value={craData.householdsPopulation ?? ""}
+                            onChange={(e) =>
+                                setCraData((prev) => ({
+                                    ...prev,
+                                    householdsPopulation: e.target.value === "" ? "" : Number(e.target.value),
+                                }))
+                            }
+                        />
+                        <InputField
+                            type="number"
+                            name="familiesPopulation"
+                            label="Families Population"
+                            placeholder="Total Families"
+                            value={craData.familiesPopulation ?? ""}
+                            onChange={(e) =>
+                                setCraData((prev) => ({
+                                    ...prev,
+                                    familiesPopulation: e.target.value === "" ? "" : Number(e.target.value),
+                                }))
+                            }
+                        />
+                    </div>
+                </section>
+                {/* Gender/Sex */}
+                <section className="flex-1">
+                    <h2 className="text-lg font-semibold mb-0">Population Based on Gender/Sex</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {["female", "male", "lgbtq"].map((gender, idx) => (
+                            <InputField
+                                key={gender}
+                                type="number"
+                                name={`${gender}Population`}
+                                label={`${gender.charAt(0).toUpperCase() + gender.slice(1)} Population`}
+                                placeholder={gender.charAt(0).toUpperCase() + gender.slice(1)}
+                                value={craData.populationGender?.[idx]?.value ?? ""}
+                                onChange={(e) => {
+                                    const value = e.target.value === "" ? "" : Number(e.target.value);
+                                    setCraData((prev) => {
+                                        const updatedGender = [...(prev.populationGender || [])];
+                                        updatedGender[idx] = { gender, value };
+                                        return { ...prev, populationGender: updatedGender };
+                                    });
+                                }}
+                            />
+                        ))}
+                    </div>
+                </section>
+
+
+            </div>
 
             {/* Age Group Table */}
             <section>
-                <h2 className="text-lg font-semibold mb-3">Population by Age Group</h2>
+                <h2 className="text-lg font-semibold mb-3">Population according to Age</h2>
                 <table className="w-full border text-sm">
                     <thead className="bg-gray-100">
                         <tr>
@@ -127,30 +236,27 @@ export default function Population() {
                         </tr>
                     </thead>
                     <tbody>
-                        {ageGroups.map((group, idx) => (
+                        {craData.population?.map((groupObj, idx) => (
                             <tr key={idx}>
-                                <td className="border px-2 py-1">{group}</td>
-
-                                {Object.keys(craData.population[group]).map((field, i) => (
-                                    <td key={i} className="border px-2 py-1">
-                                        <input
-                                            type="number"
-                                            className="w-full border p-1"
-                                            value={craData.population[group][field]}
-                                            onChange={e => updatePopulation(group, field, e.target.value)}
-                                        />
-                                    </td>
-                                ))}
-
-                                {/* Row Total */}
+                                <td className="border px-2 py-1">{groupObj.ageGroup}</td>
+                                {Object.keys(groupObj)
+                                    .filter((key) => key !== "ageGroup")
+                                    .map((field, i) => (
+                                        <td key={i} className="border px-2 py-1">
+                                            <input
+                                                type="number"
+                                                className="w-full border p-1"
+                                                value={groupObj[field] ?? ""}
+                                                onChange={(e) => updatePopulation(idx, field, e.target.value)}
+                                            />
+                                        </td>
+                                    ))}
                                 <td className="border px-2 py-1 font-semibold text-center bg-gray-50">
-                                    {getRowTotal(group)}
+                                    {getRowTotal(idx)}
                                 </td>
                             </tr>
                         ))}
                     </tbody>
-
-                    {/* Column Totals */}
                     <tfoot>
                         <tr className="bg-gray-100 font-semibold">
                             <td className="border px-2 py-1 text-center">Total</td>
@@ -164,90 +270,129 @@ export default function Population() {
                         </tr>
                     </tfoot>
                 </table>
-
-
-
             </section>
 
-            {/* Houses by Material */}
-            <section>
-                <h2 className="text-lg font-semibold mb-3">
-                    Houses by Materials (and Floors)
-                </h2>
-                <table className="w-full border text-sm">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <th className="border px-2 py-1">TYPES OF HOUSES</th>
-                            <th className="border px-2 py-1">Number of Houses with 1 Floor</th>
-                            <th className="border px-2 py-1">Number of Houses with 2 or more Floors</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {[
-                            "Concrete",
-                            "Semi-Concrete",
-                            "Made of wood and light materials",
-                            "Salvaged/Makeshift House",
-                        ].map((group, idx) => (
-                            <tr key={idx}>
-                                <td className="border px-2 py-1">{group}</td>
-                                <td className="border px-2 py-1">
-                                    <input
-                                        type="number"
+            {/* Houses Section (Side by Side, Same Height) */}
+            <div className="flex flex-col md:flex-row gap-8">
+                {/* Houses by Material */}
+                <section className="flex-1 flex flex-col">
+                    <h2 className="text-lg font-semibold mb-3">
+                        Number of Houses according to Build (Materials Used)
+                    </h2>
+                    <div className="flex-1">
+                        <table className="w-full border text-sm h-full">
+                            <thead className="bg-gray-100">
+                                <tr>
+                                    <th className="border px-2 py-1">TYPES OF HOUSES</th>
+                                    <th className="border px-2 py-1">Number of Houses with 1 Floor</th>
+                                    <th className="border px-2 py-1">Number of Houses with 2 or more Floors</th>
+                                    <th className="border px-2 py-1">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {houseTypes.map((type, idx) => (
+                                    <tr key={idx}>
+                                        <td className="border px-2 py-1">{type}</td>
+                                        <td className="border px-2 py-1">
+                                            <input
+                                                type="number"
+                                                className="w-full border p-1"
+                                                value={craData.houses?.[type]?.oneFloor ?? ""}
+                                                onChange={(e) =>
+                                                    updateHouse(type, "oneFloor", e.target.value)
+                                                }
+                                            />
+                                        </td>
+                                        <td className="border px-2 py-1">
+                                            <input
+                                                type="number"
+                                                className="w-full border p-1"
+                                                value={craData.houses?.[type]?.multiFloor ?? ""}
+                                                onChange={(e) =>
+                                                    updateHouse(type, "multiFloor", e.target.value)
+                                                }
+                                            />
+                                        </td>
+                                        <td className="border px-2 py-1 font-semibold text-center bg-gray-50">
+                                            {(craData.houses?.[type]?.oneFloor || 0) +
+                                                (craData.houses?.[type]?.multiFloor || 0)}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                            <tfoot>
+                                <tr className="bg-gray-100 font-semibold">
+                                    <td className="border px-2 py-1 text-center">Total</td>
+                                    <td className="border px-2 py-1 text-center">
+                                        {getHouseColumnTotal("oneFloor")}
+                                    </td>
+                                    <td className="border px-2 py-1 text-center">
+                                        {getHouseColumnTotal("multiFloor")}
+                                    </td>
+                                    <td className="border px-2 py-1 text-center">
+                                        {getHouseGrandTotal()}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </section>
 
-                                        className="w-full border p-1"
-                                    />
-                                </td>
-                                <td className="border px-2 py-1">
-                                    <input
-                                        type="number"
+                {/* Houses by Ownership */}
+                <section className="flex-1 flex flex-col">
+                    <h2 className="text-lg font-semibold mb-3">
+                        Number of Houses according to Type of Ownership
+                    </h2>
+                    <div className="flex-1">
+                        <table className="w-full border text-sm h-full">
+                            <thead className="bg-gray-100">
+                                <tr>
+                                    <th className="border px-2 py-1">Type of Ownership</th>
+                                    <th className="border px-2 py-1">Quantity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {Ownership.map((own, idx) => (
+                                    <tr key={idx}>
+                                        <td className="border px-2 py-1">{own}</td>
+                                        <td className="border px-2 py-1">
+                                            <input
+                                                type="number"
+                                                className="w-full border p-1"
+                                                value={craData.ownership?.[own] ?? ""}
+                                                onChange={(e) =>
+                                                    setCraData((prev) => ({
+                                                        ...prev,
+                                                        ownership: {
+                                                            ...prev.ownership,
+                                                            [own]:
+                                                                e.target.value === ""
+                                                                    ? ""
+                                                                    : Number(e.target.value),
+                                                        },
+                                                    }))
+                                                }
+                                            />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                            <tfoot>
+                                <tr className="bg-gray-100 font-semibold">
+                                    <td className="border px-2 py-1 text-center">Total</td>
+                                    <td className="border px-2 py-1 text-center">
+                                        {Object.values(craData.ownership || {}).reduce(
+                                            (sum, val) => sum + (val || 0),
+                                            0
+                                        )}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </section>
+            </div>
 
-                                        className="w-full border p-1"
-                                    />
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </section>
-
-            {/* Houses by Ownership */}
-            <section>
-                <h2 className="text-lg font-semibold mb-3">House Ownership</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input
-                        type="number"
-                        placeholder="Owned (Land + House)"
-                        className="border p-2 rounded w-full"
-                    />
-                    <input
-                        type="number"
-                        placeholder="Rented"
-                        className="border p-2 rounded w-full"
-                    />
-                    <input
-                        type="number"
-                        placeholder="Shared with Owner"
-                        className="border p-2 rounded w-full"
-                    />
-                    <input
-                        type="number"
-                        placeholder="Shared with Renter"
-                        className="border p-2 rounded w-full"
-                    />
-                    <input
-                        type="number"
-                        placeholder="Owned (House)"
-                        className="border p-2 rounded w-full"
-                    />
-                    <input
-                        type="number"
-                        placeholder="Informal Settler Families"
-                        className="border p-2 rounded w-full"
-                    />
-                    {/* Repeat for Shared with Renter, Owned (House only), Informal Settler */}
-                </div>
-            </section>
         </div>
     );
 }
