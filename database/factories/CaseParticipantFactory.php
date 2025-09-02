@@ -19,15 +19,31 @@ class CaseParticipantFactory extends Factory
      */
     public function definition(): array
     {
+        // realistic role distribution
+        $role = $this->faker->randomElement(['Complainant', 'Respondent', 'Witness']);
+
+        // optional realistic notes
+        $notesOptions = [
+            'Alleged involvement in domestic dispute',
+            'Reported theft of personal property',
+            'Observed the incident',
+            'Provided statement to barangay',
+            'Neighbor involved in noise complaint',
+            'Dispute over property boundary'
+        ];
+
+        // pick a random resident or leave null for outsider
+        $residentId = $this->faker->optional(0.8)->randomElement(\App\Models\Resident::pluck('id')->toArray());
+
+        // fallback name if no resident_id
+        $name = $residentId ? null : $this->faker->name();
+
         return [
-            'incident_id' => IncidentReport::inRandomOrder()->first()?->id,
-            'blotter_id' => BlotterReport::inRandomOrder()->first()?->id,
-            'resident_id' => Resident::inRandomOrder()->first()?->id,
-            'name' => $this->faker->name,
-            'role_type' => $this->faker->randomElement(['complainant', 'respondent', 'witness', 'victim', 'reporter', 'accomplice']),
-            'notes' => $this->faker->paragraph,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'blotter_id' => \App\Models\BlotterReport::inRandomOrder()->first()?->blotter_id ?? 1,
+            'resident_id' => $residentId,
+            'name' => $name,
+            'role_type' => $role,
+            'notes' => $this->faker->optional()->randomElement($notesOptions),
         ];
     }
 }

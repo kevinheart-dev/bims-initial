@@ -13,13 +13,11 @@ return new class extends Migration
     {
         Schema::create('case_participants', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('incident_id')->nullable()->constrained('incident_reports')->onDelete('cascade');
-            $table->foreignId('blotter_id')->nullable()->constrained('blotter_reports')->onDelete('cascade');
-            $table->foreignId('summon_id')->nullable()->constrained('summons')->onDelete('cascade');
-            $table->foreignId('resident_id')->nullable()->constrained('residents')->onDelete('cascade');
-            $table->string('name', 255);
-            $table->enum('role_type', ['complainant', 'respondent', 'witness', 'officer']);
-            $table->text('notes');
+            $table->foreignId('blotter_id')->constrained('blotter_reports')->onDelete('cascade');
+            $table->foreignId('resident_id')->nullable()->constrained('residents')->onDelete('set null');
+            $table->string('name', 255)->nullable(); // fallback if not a resident
+            $table->enum('role_type', ['Complainant', 'Respondent', 'Witness', 'Other']);
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

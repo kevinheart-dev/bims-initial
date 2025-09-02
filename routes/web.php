@@ -8,6 +8,8 @@ use App\Http\Controllers\BarangayOfficialController;
 use App\Http\Controllers\BarangayProfileController;
 use App\Http\Controllers\BarangayProjectController;
 use App\Http\Controllers\BarangayRoadController;
+use App\Http\Controllers\BlotterController;
+use App\Http\Controllers\CaseParticipantController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CRAController;
@@ -33,6 +35,7 @@ use App\Http\Controllers\ResidentMedicalConditionController;
 use App\Http\Controllers\ResidentMedicationController;
 use App\Http\Controllers\ResidentVaccinationController;
 use App\Http\Controllers\SeniorCitizenController;
+use App\Http\Controllers\SummonController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Models\BarangayInfrastructure;
@@ -143,6 +146,11 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('allergy', AllergyController::class);
     Route::resource('pregnancy', PregnancyRecordController::class);
 
+    // Katarungnang Pambarangay
+    Route::resource('blotter_report', BlotterController::class);
+    Route::resource('case_participant', CaseParticipantController::class);
+    Route::resource('summon', SummonController::class);
+
     // barangay
     Route::resource('barangay_official', BarangayOfficialController::class);
     Route::resource('barangay_profile', BarangayProfileController::class);
@@ -153,6 +161,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('barangay_institution', BarangayInstitutionController::class);
     Route::resource('inventory', InventoryController::class);
     Route::resource('institution_member', InstitutionMemberController::class);
+
 });
 
 // Resident-only routes

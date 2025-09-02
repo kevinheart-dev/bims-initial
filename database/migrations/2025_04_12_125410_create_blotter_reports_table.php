@@ -13,15 +13,17 @@ return new class extends Migration
     {
         Schema::create('blotter_reports', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('incident_id')->nullable()->constrained('incident_reports')->onDelete('cascade');
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->enum('report_type', ['summon', 'complaint']);
-            $table->text('narrative_details');
-            $table->text('actions_taken');
-            $table->enum('report_status', ['pending', 'under mediation', 'resolved', 'dismissed']);
-            $table->text('location');
-            $table->text('resolution');
-            $table->foreignId('recorded_by')->constrained('barangay_officials')->onDelete('cascade');
+            $table->string('report_type', 100)->nullable(); // Written / Verbal
+            $table->string('type_of_incident', 255)->nullable();
+            $table->text('narrative_details')->nullable();
+            $table->text('actions_taken')->nullable();
+            $table->enum('report_status', ['Pending', 'On-going', 'Resolved', 'Elevated'])->default('Pending');
+            $table->string('location', 255)->nullable();
+            $table->text('resolution')->nullable();
+            $table->text('recommendations')->nullable();
+            $table->foreignId('recorded_by')->nullable()->constrained('barangay_officials')->onDelete('set null');
+            $table->date('incident_date')->nullable();
             $table->timestamps();
         });
     }

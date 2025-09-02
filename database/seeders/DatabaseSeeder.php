@@ -8,6 +8,8 @@ use App\Models\BarangayInstitution;
 use App\Models\BarangayInstitutionMember;
 use App\Models\BarangayOfficial;
 use App\Models\BarangayOfficialTerm;
+use App\Models\BlotterReport;
+use App\Models\CaseParticipant;
 use App\Models\Designation;
 use App\Models\Disability;
 use App\Models\DisasterRisk;
@@ -42,6 +44,7 @@ use App\Models\SocialAssistance;
 use App\Models\SocialWelfare;
 use App\Models\SocialWelfareProfile;
 use App\Models\Street;
+use App\Models\Summon;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Vaccination;
@@ -180,8 +183,6 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $faker = Faker::create();
-        // User::factory(10)->create();
-        // Barangay::factory(2)->create();
         $this->call([
             BarangaySeeder::class,
         ]);
@@ -192,7 +193,6 @@ class DatabaseSeeder extends Seeder
             ]);
         }
         Inventory::factory(50)->create();
-
         Street::factory(12)->create();      // just 2 streets
         Household::factory(5)->create();   // only 5 households
         Family::factory(5)->create();
@@ -204,44 +204,42 @@ class DatabaseSeeder extends Seeder
             'status' => 'active',
         ]);
 
-        $barangayOfficer = Role::firstOrCreate(['name' => 'barangay_officer']);
+        $barangayOfficerRole = Role::firstOrCreate(['name' => 'barangay_officer']);
+        $barangays = Barangay::all(); // Assuming you already have 91 barangays in DB
 
-        $user = User::factory()->create([
-            'resident_id' => Resident::factory(),
-            'barangay_id' => 1,
-            'username' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => bcrypt('admin123'),
-            'email_verified_at' => now(),
-            'role' => 'admin',
-            'status' => 'active'
-        ]);
+        foreach ($barangays as $barangay) {
+            // Create a resident first
+            $resident = Resident::factory()->create([
+                'barangay_id' => $barangay->id,
+            ]);
 
-        $user->assignRole($barangayOfficer);
+            // Create a user for this barangay
+            $user = User::factory()->create([
+                'resident_id' => $resident->id,
+                'barangay_id' => $barangay->id,
+                'username' => $barangay->name . ' Admin', // e.g., "Barangay 1 Admin"
+                'email' => $barangay->email ?? 'barangay'.$barangay->id.'@example.com', // fallback email if not present
+                'password' => bcrypt('admin123'),
+                'email_verified_at' => now(),
+                'role' => 'admin',
+                'status' => 'active',
+            ]);
 
-        BarangayOfficial::factory()->create([
-            'resident_id' => $user->resident->id,
-            'term_id' => 1,
-            'position' => 'barangay_secretary',
-            'status' => 'active',
-            'appointment_type' => 'appointed',
-            'appointted_by' => null,
-            'appointment_reason' => null,
-            'remarks' => null,
-        ]);
+            // Assign role
+            $user->assignRole($barangayOfficerRole);
 
-        $barangayOfficer = Role::firstOrCreate(['name' => 'barangay_officer']);
-        $user = User::factory()->create([
-            'resident_id' => Resident::factory(),
-            'barangay_id' => 2,
-            'username' => 'Test User 2',
-            'email' => 'testtest@example.com',
-            'password' => bcrypt('admin123'),
-            'email_verified_at' => now(),
-            'role' => 'admin',
-            'status' => 'active'
-        ]);
-        $user->assignRole($barangayOfficer);
+            // Create BarangayOfficial linked to the resident
+            BarangayOfficial::factory()->create([
+                'resident_id' => $resident->id,
+                'term_id' => 1, // default term
+                'position' => 'barangay_secretary', // or adjust if needed
+                'status' => 'active',
+                'appointment_type' => 'appointed',
+                'appointted_by' => null,
+                'appointment_reason' => null,
+                'remarks' => null,
+            ]);
+        }
 
         // $resRole = Role::firstOrCreate(['name' => 'resident']);
         // for($i = 0; $i <= 20; $i++){
@@ -310,6 +308,9 @@ class DatabaseSeeder extends Seeder
         ResidentVaccination::factory(20)->create();
         Allergy::factory(20)->create();
         PregnancyRecords::factory(5)->create();
+        BlotterReport::factory(10)->create();
+        CaseParticipant::factory(10)->create();
+        Summon::factory(7)->create();
     }
 
     // public function run(): void
