@@ -6,8 +6,8 @@ import Stepper from "@/Components/Stepper";
 import StepperController from "@/Components/StepperControler";
 import { StepperContext } from "@/context/StepperContext";
 import Population from "@/Components/CRAsteps/Population";
-import Livelihood from "@/Components/CRAsteps/Livelihood";
 import { Toaster, toast } from "sonner";
+import Hazard from "@/Components/CRAsteps/Step3/Hazard";
 
 export default function Index() {
     const breadcrumbs = [
@@ -26,9 +26,9 @@ export default function Index() {
                     population: [],
                     livelihood: [],
                     infrastructure: [],
-                    institutions: {},
-                    hazards: {},
-                    evacuation: {},
+                    institutions: [],
+                    hazards: [],
+                    evacuation: [],
                 };
         } catch (err) {
             console.error("Error loading draft:", err);
@@ -36,9 +36,9 @@ export default function Index() {
                 population: [],
                 livelihood: [],
                 infrastructure: [],
-                institutions: {},
-                hazards: {},
-                evacuation: {},
+                institutions: [],
+                hazards: [],
+                evacuation: [],
             };
         }
     });
@@ -52,10 +52,10 @@ export default function Index() {
     const [errors, setErrors] = useState({});
 
     const steps = [
-        "Population & Residence",
-        "Livelihood & Infrastructure",
-        "Services",
-        "Institutions & Human Resources",
+        "Barangay Resource Profile ",
+        "Community Disaster History",
+        "Barangay Risk Assessment",
+        "Exposure Database",
         "Hazards & Disasters",
         "Evacuation & Response",
         "Summary",
@@ -67,7 +67,10 @@ export default function Index() {
             case 1:
                 return <Population />;
             case 2:
-                return <Livelihood />;
+                return;
+            case 3:
+                return <Hazard />
+
             case 7:
                 return <div>Summary Review Here</div>;
             default:
