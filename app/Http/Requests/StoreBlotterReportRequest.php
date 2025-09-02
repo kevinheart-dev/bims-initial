@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreBlotterReportRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StoreBlotterReportRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -19,10 +20,39 @@ class StoreBlotterReportRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    public function rules()
     {
         return [
-            //
+            // Top-level fields
+            'report_type'       => ['required', 'string', 'max:50'],
+            'type_of_incident'  => ['required', 'string', 'max:100'],
+            'incident_date'     => ['required', 'date'],
+            'location'          => ['nullable', 'string', 'max:255'],
+            'narrative_details' => ['nullable', 'string', 'min:10'],
+            'report_status'     => ['required', 'string', Rule::in(['pending', 'on_going', 'resolved', 'elevated'])],
+
+            'complainants' => ['required', 'array', 'min:1'],
+            'complainants.*.resident_id'   => ['nullable', 'exists:residents,id'],
+            'complainants.*.resident_name' => ['required_without:complainants.*.resident_id', 'string', 'max:255'],
+
+
+            // Respondents array (can be empty or unknown)
+            'respondents' => ['nullable', 'array'],
+            'respondents.*.resident_id'   => ['nullable', 'exists:residents,id'],
+            'respondents.*.resident_name' => ['nullable', 'string', 'max:255'],
+
+            // Witnesses array (can be empty or unknown)
+            'witnesses' => ['nullable', 'array'],
+            'witnesses.*.resident_id'   => ['nullable', 'exists:residents,id'],
+            'witnesses.*.resident_name' => ['nullable', 'string', 'max:255'],
+
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'complainants.*.resident_name.required_without' => 'Please provide the name of the complainant if no resident is selected.',
         ];
     }
 }

@@ -126,7 +126,7 @@ export const VEHICLE_USAGE_TEXT = {
 export const VEHICLE_IS_REGISTERED_TEXT = {
     1: "Yes",
     0: "No",
-}
+};
 
 export const VEHICLE_USAGE_STYLES = {
     personal: "bg-blue-100 text-blue-700",
@@ -518,4 +518,11 @@ export const PREGNANCY_STATUS_STYLES = {
     miscarried: "bg-red-100 text-red-800 px-2 py-1 rounded",
     aborted: "bg-purple-100 text-purple-800 px-2 py-1 rounded",
     default: "bg-gray-100 text-gray-800 px-2 py-1 rounded",
+};
+
+export const BLOTTER_REPORT_STATUS = {
+    pending: "Pending",
+    on_going: "On Going",
+    resolved: "Resolved",
+    elevated: "Elevated",
 };

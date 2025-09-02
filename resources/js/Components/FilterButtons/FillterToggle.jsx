@@ -1760,6 +1760,69 @@ const FilterToggle = ({
                 </div>
             )}
 
+            {/* Blotter Reports */}
+            {isVisible("incident_type") && (
+                <Select
+                    onValueChange={(incident) =>
+                        searchFieldName("incident_type", incident)
+                    }
+                    value={queryParams?.incident_type ?? ""}
+                >
+                    <SelectTrigger className="w-[160px]">
+                        <SelectValue placeholder="Incident Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {types.map((type) => (
+                            <SelectItem key={type} value={type}>
+                                {type}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("report_type") && (
+                <Select
+                    onValueChange={(incident) =>
+                        searchFieldName("report_type", incident)
+                    }
+                    value={queryParams?.report_type ?? ""}
+                >
+                    <SelectTrigger className="w-[160px]">
+                        <SelectValue placeholder="Report Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="written">Written</SelectItem>
+                        <SelectItem value="verbal">Verbal</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("incident_date") && (
+                <div className="flex items-center gap-2">
+                    <DatePicker
+                        selected={
+                            queryParams.incident_date
+                                ? new Date(queryParams.incident_date)
+                                : null
+                        }
+                        onChange={(date) => {
+                            const formatted = date
+                                ? date.toLocaleDateString("en-CA") // YYYY-MM-DD format
+                                : "";
+                            searchFieldName("incident_date", formatted);
+                        }}
+                        dateFormat="yyyy-MM-dd"
+                        className="border border-gray-300 rounded-md shadow-sm p-2 w-[180px] text-sm focus:ring focus:ring-indigo-200 focus:border-indigo-400"
+                        placeholderText="Date Recieved "
+                        popperContainer={({ children }) => (
+                            <div className="z-[9999]">{children}</div>
+                        )}
+                        isClearable
+                    />
+                </div>
+            )}
+
             {isVisible("created_at") && (
                 <div className="flex items-center gap-2">
                     <DatePicker

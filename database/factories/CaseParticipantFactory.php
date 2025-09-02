@@ -20,7 +20,7 @@ class CaseParticipantFactory extends Factory
     public function definition(): array
     {
         // realistic role distribution
-        $role = $this->faker->randomElement(['Complainant', 'Respondent', 'Witness']);
+        $role = $this->faker->randomElement(['complainant', 'respondent', 'witness']);
 
         // optional realistic notes
         $notesOptions = [
@@ -39,7 +39,7 @@ class CaseParticipantFactory extends Factory
         $name = $residentId ? null : $this->faker->name();
 
         return [
-            'blotter_id' => \App\Models\BlotterReport::inRandomOrder()->first()?->blotter_id ?? 1,
+            'blotter_id' => BlotterReport::inRandomOrder()->first()?->id ?? 1,
             'resident_id' => $residentId,
             'name' => $name,
             'role_type' => $role,

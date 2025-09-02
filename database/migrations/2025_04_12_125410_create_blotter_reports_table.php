@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('type_of_incident', 255)->nullable();
             $table->text('narrative_details')->nullable();
             $table->text('actions_taken')->nullable();
-            $table->enum('report_status', ['Pending', 'On-going', 'Resolved', 'Elevated'])->default('Pending');
+            $table->enum('report_status', ['pending', 'on_going', 'resolved', 'elevated'])->default('pending');
             $table->string('location', 255)->nullable();
             $table->text('resolution')->nullable();
             $table->text('recommendations')->nullable();

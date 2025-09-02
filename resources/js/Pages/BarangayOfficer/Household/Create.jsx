@@ -73,7 +73,7 @@ export default function Create({
         e.preventDefault();
 
         post(route("household.store"), {
-            onFinish: () => reset(),
+            onSuccess: () => reset(),
             onError: (errors) => {
                 console.error("Validation Errors:", errors);
             },

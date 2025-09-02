@@ -309,7 +309,7 @@ class DatabaseSeeder extends Seeder
         Allergy::factory(20)->create();
         PregnancyRecords::factory(5)->create();
         BlotterReport::factory(10)->create();
-        CaseParticipant::factory(10)->create();
+        CaseParticipant::factory(30)->create();
         Summon::factory(7)->create();
     }
 

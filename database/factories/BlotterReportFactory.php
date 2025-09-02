@@ -57,7 +57,7 @@ class BlotterReportFactory extends Factory
             'type_of_incident' => $this->faker->randomElement($incidents),
             'narrative_details' => $this->faker->paragraphs(2, true),
             'actions_taken' => $this->faker->randomElement($actions),
-            'report_status' => $this->faker->randomElement(['Pending', 'On-going', 'Resolved', 'Elevated']),
+            'report_status' => $this->faker->randomElement(['pending', 'on_going', 'resolved', 'elevated']),
             'location' => $this->faker->streetName() . ', ' . $this->faker->city(), // realistic barangay streets
             'resolution' => $this->faker->optional()->randomElement($resolutions),
             'recommendations' => $this->faker->optional()->sentence(),

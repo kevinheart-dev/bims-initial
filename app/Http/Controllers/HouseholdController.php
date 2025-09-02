@@ -138,7 +138,7 @@ class HouseholdController extends Controller
             ->with(['purok:id,purok_number'])
             ->get(['id', 'street_name', 'purok_id']);
         $barangays = Barangay::all()->pluck('barangay_name', 'id')->toArray();
-        $residents = Resident::where('barangay_id', $brgy_id)->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'gender', 'birthdate', 'residency_type', 'residency_date')->get();
+        $residents = Resident::where('barangay_id', $brgy_id)->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'sex', 'birthdate', 'residency_type', 'residency_date')->get();
 
         return Inertia::render("BarangayOfficer/Household/Create", [
             'puroks' => $puroks,
