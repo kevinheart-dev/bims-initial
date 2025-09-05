@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('blotter_reports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->string('report_type', 100)->nullable(); // Written / Verbal
             $table->string('type_of_incident', 255)->nullable();
             $table->text('narrative_details')->nullable();
             $table->text('actions_taken')->nullable();

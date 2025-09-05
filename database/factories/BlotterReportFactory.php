@@ -53,7 +53,6 @@ class BlotterReportFactory extends Factory
 
         return [
             'barangay_id' => 1, // assuming 91 barangays
-            'report_type' => $this->faker->randomElement(['Written', 'Verbal']),
             'type_of_incident' => $this->faker->randomElement($incidents),
             'narrative_details' => $this->faker->paragraphs(2, true),
             'actions_taken' => $this->faker->randomElement($actions),

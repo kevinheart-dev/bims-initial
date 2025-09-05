@@ -18,6 +18,7 @@ import useResidentChangeHandler from "@/hooks/handleResidentChange";
 import { RotateCcw } from "lucide-react";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import SelectField from "@/Components/SelectField";
+import { Textarea } from "@/Components/ui/textarea";
 
 export default function Create({ residents }) {
     const breadcrumbs = [
@@ -31,7 +32,6 @@ export default function Create({ residents }) {
     ];
     const { error } = usePage().props.errors;
     const { data, setData, post, errors, reset } = useForm({
-        report_type: "",
         type_of_incident: "",
         narrative_details: "",
         actions_taken: "",
@@ -134,23 +134,7 @@ export default function Create({ residents }) {
 
                                     {/* Report Details */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                                        <InputField
-                                            label="Report Type"
-                                            name="report_type"
-                                            value={data.report_type}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "report_type",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Written / Verbal"
-                                        />
-                                        <InputError
-                                            message={errors.report_type}
-                                            className="mt-1"
-                                        />
-
+                                        {/* Type of Incident */}
                                         <InputField
                                             label="Type of Incident"
                                             name="type_of_incident"
@@ -167,7 +151,9 @@ export default function Create({ residents }) {
                                             message={errors.type_of_incident}
                                             className="mt-1"
                                         />
+
                                         <div className="grid col-span-2 grid-cols-1 md:grid-cols-3 gap-4">
+                                            {/* Incident Date */}
                                             <div>
                                                 <InputField
                                                     type="date"
@@ -188,8 +174,9 @@ export default function Create({ residents }) {
                                                     className="mt-1"
                                                 />
                                             </div>
+
+                                            {/* Location */}
                                             <div>
-                                                {" "}
                                                 <InputField
                                                     label="Location"
                                                     name="location"
@@ -207,9 +194,9 @@ export default function Create({ residents }) {
                                                     className="mt-1"
                                                 />
                                             </div>
-                                            <div>
-                                                {/* Report Status */}
 
+                                            {/* Report Status */}
+                                            <div>
                                                 <SelectField
                                                     label="Report Status"
                                                     name="report_status"
@@ -252,6 +239,7 @@ export default function Create({ residents }) {
                                         </div>
                                     </div>
 
+                                    {/* Narrative */}
                                     <div className="mb-6">
                                         <InputLabel value="Narrative Details" />
                                         <textarea
@@ -263,12 +251,86 @@ export default function Create({ residents }) {
                                                     e.target.value
                                                 )
                                             }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-sm"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm
+                   focus:border-indigo-500 focus:ring focus:ring-indigo-200
+                   focus:ring-opacity-50 text-sm"
                                             rows="4"
                                             placeholder="Describe what happened..."
                                         />
                                         <InputError
                                             message={errors.narrative_details}
+                                            className="mt-1"
+                                        />
+                                    </div>
+
+                                    {/* Actions Taken */}
+                                    <div className="mb-6">
+                                        <InputLabel value="Actions Taken" />
+                                        <textarea
+                                            name="actions_taken"
+                                            value={data.actions_taken}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "actions_taken",
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="w-full rounded-lg border-gray-300 shadow-sm
+                   focus:border-indigo-500 focus:ring focus:ring-indigo-200
+                   focus:ring-opacity-50 text-sm"
+                                            rows="3"
+                                            placeholder="What actions were taken?"
+                                        />
+                                        <InputError
+                                            message={errors.actions_taken}
+                                            className="mt-1"
+                                        />
+                                    </div>
+
+                                    {/* Resolution */}
+                                    <div className="mb-6">
+                                        <InputLabel value="Resolution" />
+                                        <textarea
+                                            name="resolution"
+                                            value={data.resolution}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "resolution",
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="w-full rounded-lg border-gray-300 shadow-sm
+                   focus:border-indigo-500 focus:ring focus:ring-indigo-200
+                   focus:ring-opacity-50 text-sm"
+                                            rows="3"
+                                            placeholder="Resolution or settlement details..."
+                                        />
+                                        <InputError
+                                            message={errors.resolution}
+                                            className="mt-1"
+                                        />
+                                    </div>
+
+                                    {/* Recommendations */}
+                                    <div className="mb-6">
+                                        <InputLabel value="Recommendations" />
+                                        <textarea
+                                            name="recommendations"
+                                            value={data.recommendations}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "recommendations",
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="w-full rounded-lg border-gray-300 shadow-sm
+                   focus:border-indigo-500 focus:ring focus:ring-indigo-200
+                   focus:ring-opacity-50 text-sm"
+                                            rows="3"
+                                            placeholder="Any recommendations for next steps..."
+                                        />
+                                        <InputError
+                                            message={errors.recommendations}
                                             className="mt-1"
                                         />
                                     </div>
@@ -393,6 +455,32 @@ export default function Create({ residents }) {
                                                         </div>
                                                     </div>
                                                 )}
+
+                                                <div className="mt-6">
+                                                    <InputLabel value="Notes" />
+                                                    <Textarea
+                                                        name="notes"
+                                                        value={
+                                                            complainant.notes
+                                                        }
+                                                        onChange={(e) =>
+                                                            handleResidentArrayChange(
+                                                                e.target.value,
+                                                                index,
+                                                                "notes"
+                                                            )
+                                                        }
+                                                        className="w-full rounded-lg border-gray-300 shadow-sm
+                   focus:border-indigo-500 focus:ring focus:ring-indigo-200
+                   focus:ring-opacity-50 text-sm"
+                                                        rows="3"
+                                                        placeholder="Notes for the Complainant..."
+                                                    />
+                                                    <InputError
+                                                        message={errors.notes}
+                                                        className="mt-1"
+                                                    />
+                                                </div>
 
                                                 {data.complainants.length >
                                                     1 && (
@@ -547,6 +635,30 @@ export default function Create({ residents }) {
                                                     </div>
                                                 )}
 
+                                                <div className="mt-6">
+                                                    <InputLabel value="Notes" />
+                                                    <Textarea
+                                                        name="notes"
+                                                        value={respondent.notes}
+                                                        onChange={(e) =>
+                                                            handleResidentArrayChange(
+                                                                e.target.value,
+                                                                index,
+                                                                "notes"
+                                                            )
+                                                        }
+                                                        className="w-full rounded-lg border-gray-300 shadow-sm
+                   focus:border-indigo-500 focus:ring focus:ring-indigo-200
+                   focus:ring-opacity-50 text-sm"
+                                                        rows="3"
+                                                        placeholder="Notes for the Respondent..."
+                                                    />
+                                                    <InputError
+                                                        message={errors.notes}
+                                                        className="mt-1"
+                                                    />
+                                                </div>
+
                                                 {data.respondents.length >
                                                     1 && (
                                                     <button
@@ -692,6 +804,30 @@ export default function Create({ residents }) {
                                                     </div>
                                                 </div>
                                             )}
+
+                                            <div className="mt-6">
+                                                <InputLabel value="Notes" />
+                                                <Textarea
+                                                    name="notes"
+                                                    value={witness.notes}
+                                                    onChange={(e) =>
+                                                        handleResidentArrayChange(
+                                                            e.target.value,
+                                                            index,
+                                                            "notes"
+                                                        )
+                                                    }
+                                                    className="w-full rounded-lg border-gray-300 shadow-sm
+                   focus:border-indigo-500 focus:ring focus:ring-indigo-200
+                   focus:ring-opacity-50 text-sm"
+                                                    rows="3"
+                                                    placeholder="Notes for the Witness..."
+                                                />
+                                                <InputError
+                                                    message={errors.notes}
+                                                    className="mt-1"
+                                                />
+                                            </div>
 
                                             {data.witnesses.length > 1 && (
                                                 <button

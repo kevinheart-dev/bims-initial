@@ -1781,23 +1781,6 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
-            {isVisible("report_type") && (
-                <Select
-                    onValueChange={(incident) =>
-                        searchFieldName("report_type", incident)
-                    }
-                    value={queryParams?.report_type ?? ""}
-                >
-                    <SelectTrigger className="w-[160px]">
-                        <SelectValue placeholder="Report Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="All">All</SelectItem>
-                        <SelectItem value="written">Written</SelectItem>
-                        <SelectItem value="verbal">Verbal</SelectItem>
-                    </SelectContent>
-                </Select>
-            )}
             {isVisible("incident_date") && (
                 <div className="flex items-center gap-2">
                     <DatePicker
@@ -1814,7 +1797,7 @@ const FilterToggle = ({
                         }}
                         dateFormat="yyyy-MM-dd"
                         className="border border-gray-300 rounded-md shadow-sm p-2 w-[180px] text-sm focus:ring focus:ring-indigo-200 focus:border-indigo-400"
-                        placeholderText="Date Recieved "
+                        placeholderText="Date of Incident "
                         popperContainer={({ children }) => (
                             <div className="z-[9999]">{children}</div>
                         )}

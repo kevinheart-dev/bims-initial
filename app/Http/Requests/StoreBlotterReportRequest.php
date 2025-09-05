@@ -23,36 +23,39 @@ class StoreBlotterReportRequest extends FormRequest
     public function rules()
     {
         return [
-            // Top-level fields
-            'report_type'       => ['required', 'string', 'max:50'],
-            'type_of_incident'  => ['required', 'string', 'max:100'],
+            // Core report fields
+            'type_of_incident'  => ['required', 'string', 'max:255'],
             'incident_date'     => ['required', 'date'],
             'location'          => ['nullable', 'string', 'max:255'],
             'narrative_details' => ['nullable', 'string', 'min:10'],
-            'report_status'     => ['required', 'string', Rule::in(['pending', 'on_going', 'resolved', 'elevated'])],
+            'actions_taken'     => ['nullable', 'string'],
+            'report_status'     => ['required', Rule::in(['pending', 'on_going', 'resolved', 'elevated'])],
+            'resolution'        => ['nullable', 'string'],
+            'recommendations'   => ['nullable', 'string'],
 
+            // Participants
             'complainants' => ['required', 'array', 'min:1'],
             'complainants.*.resident_id'   => ['nullable', 'exists:residents,id'],
             'complainants.*.resident_name' => ['required_without:complainants.*.resident_id', 'string', 'max:255'],
+            'complainants.*.notes'   => ['nullable', 'string'],
 
-
-            // Respondents array (can be empty or unknown)
             'respondents' => ['nullable', 'array'],
             'respondents.*.resident_id'   => ['nullable', 'exists:residents,id'],
             'respondents.*.resident_name' => ['nullable', 'string', 'max:255'],
+            'respondents.*.notes'   => ['nullable', 'string'],
 
-            // Witnesses array (can be empty or unknown)
             'witnesses' => ['nullable', 'array'],
             'witnesses.*.resident_id'   => ['nullable', 'exists:residents,id'],
             'witnesses.*.resident_name' => ['nullable', 'string', 'max:255'],
-
+            'witnesses.*.notes'   => ['nullable', 'string'],
         ];
     }
 
     public function messages()
     {
         return [
-            'complainants.*.resident_name.required_without' => 'Please provide the name of the complainant if no resident is selected.',
+            'complainants.*.resident_name.required_without' =>
+                'Please provide the name of the complainant if no resident is selected.',
         ];
     }
 }

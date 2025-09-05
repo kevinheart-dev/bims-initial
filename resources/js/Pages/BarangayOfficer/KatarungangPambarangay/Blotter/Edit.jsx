@@ -9,6 +9,7 @@ import { Head, router, usePage, useForm } from "@inertiajs/react";
 import { RotateCcw } from "lucide-react";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import SelectField from "@/Components/SelectField";
+import { Textarea } from "@/Components/ui/textarea";
 
 export default function Create({ residents, blotter_details }) {
     const breadcrumbs = [
@@ -21,63 +22,52 @@ export default function Create({ residents, blotter_details }) {
         { label: "Edit Blotter Report", showOnMobile: true },
     ];
     const { error } = usePage().props.errors;
+    const mapParticipants = (participants, role) => {
+        return (
+            participants
+                ?.filter((p) => p.role_type === role)
+                .map((p) => ({
+                    resident_id: p.resident_id || "",
+                    resident_name: p.name || p.display_name || "",
+                    birthdate: p.resident?.birthdate || "",
+                    gender: p.resident?.gender || "",
+                    purok_number: p.resident?.purok_number || "",
+                    email: p.resident?.email || "",
+                    contact_number: p.resident?.contact_number || "",
+                    notes: p.notes || "",
+                })) || [{ resident_id: "" }]
+        );
+    };
+
     const { data, setData, post, errors, reset } = useForm({
-        report_type: blotter_details.report_type || "",
-        type_of_incident: blotter_details.type_of_incident || "",
-        narrative_details: blotter_details.narrative_details || "",
-        actions_taken: blotter_details.actions_taken || "",
-        report_status: blotter_details.report_status || "",
-        location: blotter_details.location || "",
-        resolution: blotter_details.resolution || "",
-        recommendations: blotter_details.recommendations || "",
-        incident_date: blotter_details.incident_date || "",
-        recorded_by: blotter_details.recorded_by || null,
+        // 📝 Main report details
+        type_of_incident: blotter_details?.type_of_incident ?? "",
+        narrative_details: blotter_details?.narrative_details ?? "",
+        actions_taken: blotter_details?.actions_taken ?? "",
+        report_status: blotter_details?.report_status ?? "pending",
+        location: blotter_details?.location ?? "",
+        resolution: blotter_details?.resolution ?? "",
+        recommendations: blotter_details?.recommendations ?? "",
+        incident_date: blotter_details?.incident_date ?? "",
+        recorded_by: blotter_details?.recorded_by ?? null,
 
-        complainants: blotter_details.participants
-            ?.filter((p) => p.role_type === "complainant")
-            .map((p) => ({
-                resident_id: p.resident_id || "",
-                resident_name: p.name || p.display_name || "",
-                birthdate: p.resident?.birthdate || "",
-                gender: p.resident?.gender || "",
-                purok_number: p.resident?.purok_number || "",
-                email: p.resident?.email || "",
-                contact_number: p.resident?.contact_number || "",
-                notes: p.notes || "",
-            })) || [{ resident_id: "" }],
-
-        respondents: blotter_details.participants
-            ?.filter((p) => p.role_type === "respondent")
-            .map((p) => ({
-                resident_id: p.resident_id || "",
-                resident_name: p.name || p.display_name || "",
-                birthdate: p.resident?.birthdate || "",
-                gender: p.resident?.gender || "",
-                purok_number: p.resident?.purok_number || "",
-                email: p.resident?.email || "",
-                contact_number: p.resident?.contact_number || "",
-                notes: p.notes || "",
-            })) || [{ resident_id: "" }],
-
-        witnesses: blotter_details.participants
-            ?.filter((p) => p.role_type === "witness")
-            .map((p) => ({
-                resident_id: p.resident_id || "",
-                resident_name: p.name || p.display_name || "",
-                birthdate: p.resident?.birthdate || "",
-                gender: p.resident?.gender || "",
-                purok_number: p.resident?.purok_number || "",
-                email: p.resident?.email || "",
-                contact_number: p.resident?.contact_number || "",
-                notes: p.notes || "",
-            })) || [{ resident_id: "" }],
-
-        attachments: blotter_details.attachments || [],
+        // 👥 Participants
+        complainants: mapParticipants(
+            blotter_details?.participants,
+            "complainant"
+        ),
+        respondents: mapParticipants(
+            blotter_details?.participants,
+            "respondent"
+        ),
+        witnesses: mapParticipants(blotter_details?.participants, "witness"),
+        blotter_id: blotter_details.id,
+        _method: "PUT",
     });
     const onSubmit = (e) => {
         e.preventDefault();
 
-        post(route("blotter_report.store"), {
+        post(route("blotter_report.update", data.blotter_id), {
             onError: (errors) => {
                 console.error("Validation Errors:", errors);
             },
@@ -93,6 +83,7 @@ export default function Create({ residents, blotter_details }) {
                 ...updated[index],
                 resident_id: "",
                 resident_name: "",
+                notes: "",
             };
             setData(arrayKey, updated);
             return;
@@ -140,7 +131,7 @@ export default function Create({ residents, blotter_details }) {
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-                    <pre>{JSON.stringify(blotter_details, undefined, 2)}</pre>
+                    {/* <pre>{JSON.stringify(blotter_details, undefined, 2)}</pre> */}
                     <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 my-8">
                         <div className=" my-2 p-5">
                             {error && (
@@ -160,23 +151,7 @@ export default function Create({ residents, blotter_details }) {
 
                                     {/* Report Details */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                                        <InputField
-                                            label="Report Type"
-                                            name="report_type"
-                                            value={data.report_type}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "report_type",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Written / Verbal"
-                                        />
-                                        <InputError
-                                            message={errors.report_type}
-                                            className="mt-1"
-                                        />
-
+                                        {/* Type of Incident */}
                                         <InputField
                                             label="Type of Incident"
                                             name="type_of_incident"
@@ -193,7 +168,9 @@ export default function Create({ residents, blotter_details }) {
                                             message={errors.type_of_incident}
                                             className="mt-1"
                                         />
+
                                         <div className="grid col-span-2 grid-cols-1 md:grid-cols-3 gap-4">
+                                            {/* Incident Date */}
                                             <div>
                                                 <InputField
                                                     type="date"
@@ -214,8 +191,9 @@ export default function Create({ residents, blotter_details }) {
                                                     className="mt-1"
                                                 />
                                             </div>
+
+                                            {/* Location */}
                                             <div>
-                                                {" "}
                                                 <InputField
                                                     label="Location"
                                                     name="location"
@@ -233,9 +211,9 @@ export default function Create({ residents, blotter_details }) {
                                                     className="mt-1"
                                                 />
                                             </div>
-                                            <div>
-                                                {/* Report Status */}
 
+                                            {/* Report Status */}
+                                            <div>
                                                 <SelectField
                                                     label="Report Status"
                                                     name="report_status"
@@ -245,7 +223,7 @@ export default function Create({ residents, blotter_details }) {
                                                     onChange={(value) =>
                                                         setData(
                                                             "report_status",
-                                                            value
+                                                            value.target.value
                                                         )
                                                     }
                                                     items={[
@@ -278,6 +256,7 @@ export default function Create({ residents, blotter_details }) {
                                         </div>
                                     </div>
 
+                                    {/* Narrative */}
                                     <div className="mb-6">
                                         <InputLabel value="Narrative Details" />
                                         <textarea
@@ -289,12 +268,86 @@ export default function Create({ residents, blotter_details }) {
                                                     e.target.value
                                                 )
                                             }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-sm"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm
+                                                       focus:border-indigo-500 focus:ring focus:ring-indigo-200
+                                                       focus:ring-opacity-50 text-sm"
                                             rows="4"
                                             placeholder="Describe what happened..."
                                         />
                                         <InputError
                                             message={errors.narrative_details}
+                                            className="mt-1"
+                                        />
+                                    </div>
+
+                                    {/* Actions Taken */}
+                                    <div className="mb-6">
+                                        <InputLabel value="Actions Taken" />
+                                        <textarea
+                                            name="actions_taken"
+                                            value={data.actions_taken}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "actions_taken",
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="w-full rounded-lg border-gray-300 shadow-sm
+                                                       focus:border-indigo-500 focus:ring focus:ring-indigo-200
+                                                       focus:ring-opacity-50 text-sm"
+                                            rows="3"
+                                            placeholder="What actions were taken?"
+                                        />
+                                        <InputError
+                                            message={errors.actions_taken}
+                                            className="mt-1"
+                                        />
+                                    </div>
+
+                                    {/* Resolution */}
+                                    <div className="mb-6">
+                                        <InputLabel value="Resolution" />
+                                        <textarea
+                                            name="resolution"
+                                            value={data.resolution}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "resolution",
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="w-full rounded-lg border-gray-300 shadow-sm
+                                                       focus:border-indigo-500 focus:ring focus:ring-indigo-200
+                                                       focus:ring-opacity-50 text-sm"
+                                            rows="3"
+                                            placeholder="Resolution or settlement details..."
+                                        />
+                                        <InputError
+                                            message={errors.resolution}
+                                            className="mt-1"
+                                        />
+                                    </div>
+
+                                    {/* Recommendations */}
+                                    <div className="mb-6">
+                                        <InputLabel value="Recommendations" />
+                                        <textarea
+                                            name="recommendations"
+                                            value={data.recommendations}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "recommendations",
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="w-full rounded-lg border-gray-300 shadow-sm
+                                                       focus:border-indigo-500 focus:ring focus:ring-indigo-200
+                                                       focus:ring-opacity-50 text-sm"
+                                            rows="3"
+                                            placeholder="Any recommendations for next steps..."
+                                        />
+                                        <InputError
+                                            message={errors.recommendations}
                                             className="mt-1"
                                         />
                                     </div>
@@ -327,7 +380,7 @@ export default function Create({ residents, blotter_details }) {
                                                         handleResidentArrayChange(
                                                             e.target.value,
                                                             index,
-                                                            "complainants"
+                                                            "notes"
                                                         )
                                                     }
                                                     items={residentsList}
@@ -419,6 +472,32 @@ export default function Create({ residents, blotter_details }) {
                                                         </div>
                                                     </div>
                                                 )}
+
+                                                <div className="mt-6">
+                                                    <InputLabel value="Notes" />
+                                                    <Textarea
+                                                        name="notes"
+                                                        value={
+                                                            complainant.notes
+                                                        }
+                                                        onChange={(e) =>
+                                                            handleResidentArrayChange(
+                                                                e.target.value,
+                                                                index,
+                                                                "notes"
+                                                            )
+                                                        }
+                                                        className="w-full rounded-lg border-gray-300 shadow-sm
+                                                                   focus:border-indigo-500 focus:ring focus:ring-indigo-200
+                                                                   focus:ring-opacity-50 text-sm"
+                                                        rows="3"
+                                                        placeholder="Notes for the Complainant..."
+                                                    />
+                                                    <InputError
+                                                        message={errors.notes}
+                                                        className="mt-1"
+                                                    />
+                                                </div>
 
                                                 {data.complainants.length >
                                                     1 && (
@@ -573,6 +652,30 @@ export default function Create({ residents, blotter_details }) {
                                                     </div>
                                                 )}
 
+                                                <div className="mt-6">
+                                                    <InputLabel value="Notes" />
+                                                    <Textarea
+                                                        name="notes"
+                                                        value={respondent.notes}
+                                                        onChange={(e) =>
+                                                            handleResidentArrayChange(
+                                                                e.target.value,
+                                                                index,
+                                                                "notes"
+                                                            )
+                                                        }
+                                                        className="w-full rounded-lg border-gray-300 shadow-sm
+                                                                   focus:border-indigo-500 focus:ring focus:ring-indigo-200
+                                                                   focus:ring-opacity-50 text-sm"
+                                                        rows="3"
+                                                        placeholder="Notes for the Respondent..."
+                                                    />
+                                                    <InputError
+                                                        message={errors.notes}
+                                                        className="mt-1"
+                                                    />
+                                                </div>
+
                                                 {data.respondents.length >
                                                     1 && (
                                                     <button
@@ -718,6 +821,29 @@ export default function Create({ residents, blotter_details }) {
                                                     </div>
                                                 </div>
                                             )}
+
+                                            <div className="mt-6">
+                                                <InputLabel value="Notes" />
+                                                <Textarea
+                                                    name="notes"
+                                                    value={witness.notes}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            "notes",
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    className="w-full rounded-lg border-gray-300 shadow-sm
+                                                                   focus:border-indigo-500 focus:ring focus:ring-indigo-200
+                                                                   focus:ring-opacity-50 text-sm"
+                                                    rows="3"
+                                                    placeholder="Notes for the Witness..."
+                                                />
+                                                <InputError
+                                                    message={errors.notes}
+                                                    className="mt-1"
+                                                />
+                                            </div>
 
                                             {data.witnesses.length > 1 && (
                                                 <button

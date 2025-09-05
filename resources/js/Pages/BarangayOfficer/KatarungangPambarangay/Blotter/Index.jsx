@@ -37,7 +37,7 @@ export default function Index({ blotters, queryParams, incident_types }) {
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
-    const [houseToDelete, setHouseToDelete] = useState(null); //delete
+    const [recordToDelete, setRecordToDelete] = useState(null); //delete
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -68,12 +68,12 @@ export default function Index({ blotters, queryParams, incident_types }) {
     const allColumns = [
         { key: "id", label: "ID" },
         { key: "type_of_incident", label: "Type of Incident" },
-        { key: "latest_complainant", label: "Latest Complainant" },
-        { key: "report_type", label: "Report Type" },
-        { key: "narrative_details", label: "Narrative Details" },
-        { key: "actions_taken", label: "Actions Taken" },
+        { key: "latest_complainant", label: "Complainant" },
         { key: "report_status", label: "Status" },
         { key: "incident_date", label: "Incident Date" },
+        { key: "narrative_details", label: "Narrative Details" },
+        { key: "actions_taken", label: "Actions Taken" },
+        { key: "recommendations", label: "Recommendations" },
         { key: "recorded_by", label: "Recorded By" },
         { key: "actions", label: "Actions" },
     ];
@@ -93,7 +93,7 @@ export default function Index({ blotters, queryParams, incident_types }) {
 
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
-            ["incident_type", "report_type", "incident_date"].includes(key) &&
+            ["incident_type", "incident_date"].includes(key) &&
             value &&
             value !== ""
     );
@@ -113,9 +113,6 @@ export default function Index({ blotters, queryParams, incident_types }) {
 
     const columnRenderers = {
         id: (blotter) => blotter.id,
-
-        report_type: (blotter) => blotter.report_type,
-
         type_of_incident: (blotter) => (
             <span className="font-medium text-gray-800">
                 {blotter.type_of_incident}
@@ -125,6 +122,11 @@ export default function Index({ blotters, queryParams, incident_types }) {
         narrative_details: (blotter) => (
             <span className="line-clamp-2 text-gray-600">
                 {blotter.narrative_details}
+            </span>
+        ),
+        recommendations: (blotter) => (
+            <span className="line-clamp-2 text-gray-600">
+                {blotter.recommendations}
             </span>
         ),
 
@@ -205,11 +207,11 @@ export default function Index({ blotters, queryParams, incident_types }) {
 
     // delete
     const handleDeleteClick = (id) => {
-        setHouseToDelete(id);
+        setRecordToDelete(id);
         setIsDeleteModalOpen(true);
     };
     const confirmDelete = () => {
-        router.delete(route("blotter_report.destroy", houseToDelete));
+        router.delete(route("blotter_report.destroy", recordToDelete));
         setIsDeleteModalOpen(false);
     };
 
@@ -313,7 +315,6 @@ export default function Index({ blotters, queryParams, incident_types }) {
                                 searchFieldName={searchFieldName}
                                 visibleFilters={[
                                     "incident_type",
-                                    "report_type",
                                     "incident_date",
                                 ]}
                                 showFilters={true}
@@ -332,6 +333,14 @@ export default function Index({ blotters, queryParams, incident_types }) {
                             visibleColumns={visibleColumns}
                             setVisibleColumns={setVisibleColumns}
                         ></DynamicTable>
+                        <DeleteConfirmationModal
+                            isOpen={isDeleteModalOpen}
+                            onClose={() => {
+                                setIsDeleteModalOpen(false);
+                            }}
+                            onConfirm={confirmDelete}
+                            residentId={recordToDelete}
+                        />
                     </div>
                 </div>
             </div>
