@@ -21,7 +21,7 @@ class BlotterController extends Controller
         $brgy_id = auth()->user()->barangay_id;
 
         $query = BlotterReport::with([
-                'latestComplainant.resident:id,firstname,lastname,middlename,suffix',
+                'complainants.resident:id,firstname,lastname,middlename,suffix',
                 'recordedBy.resident:id,firstname,lastname,middlename,suffix'
             ])
             ->where('barangay_id', $brgy_id)

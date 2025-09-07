@@ -75,8 +75,8 @@ class DatabaseSeeder extends Seeder
     //         ]);
     //     }
     //     Street::factory(15)->create();
-    //     Household::factory(1259)->create();
-    //     Family::factory(1258)->create();
+    //     Household::factory(3562)->create();
+    //     Family::factory(4236)->create();
 
     //     $term = BarangayOfficialTerm::factory()->create([
     //         'barangay_id' => 1,
@@ -139,19 +139,19 @@ class DatabaseSeeder extends Seeder
     //     // }
     //     LivelihoodType::factory(5)->create();
 
-    //     $residents = Resident::factory()->count(1890)->create();
+    //     $residents = Resident::factory()->count(15210)->create();
 
     //     //MedicalInformation::factory(30)->create();
     //     InternetAccessibility::factory(1259)->create();
-    //     Disability::factory(160)->create();
+    //     Disability::factory(500)->create();
     //     //Livelihood::factory(60)->create();
-    //     Occupation::factory(1400)->create();
-    //     EducationalHistory::factory(1890)->create();
+    //     Occupation::factory(2300)->create();
+    //     EducationalHistory::factory(5090)->create();
     //     Vehicle::factory(598)->create();
     //     Livestock::factory(989)->create();
-    //     ResidentVoterInformation::factory(1890)->create();
-    //     SocialWelfareProfile::factory(1259)->create();
-    //     SeniorCitizen::factory(456)->create();
+    //     ResidentVoterInformation::factory(5090)->create();
+    //     SocialWelfareProfile::factory(5090)->create();
+    //     SeniorCitizen::factory(1800)->create();
     //     HouseholdToilet::factory(1259)->create();
     //     HouseholdElectricitySource::factory(1259)->create();
     //     HouseholdWasteManagement::factory(1259)->create();

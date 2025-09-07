@@ -61,6 +61,7 @@ class BlotterReport extends Model
         return $this->hasMany(CaseParticipant::class, 'blotter_id');
     }
 
+
     public function latestComplainant()
     {
         return $this->hasOne(CaseParticipant::class, 'blotter_id')

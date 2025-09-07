@@ -12,6 +12,7 @@ import {
     Network,
     User,
     ListPlus,
+    FileUp,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -20,10 +21,13 @@ import ResidentTable from "@/Components/ResidentTable";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
 import * as CONSTANTS from "@/constants";
-
+import axios from "axios";
+import useAppUrl from "@/hooks/useAppUrl";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
+import SidebarModal from "@/Components/SidebarModal";
+import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
 
 export default function Index({ blotters, queryParams, incident_types }) {
     const breadcrumbs = [
@@ -34,14 +38,28 @@ export default function Index({ blotters, queryParams, incident_types }) {
     const props = usePage().props;
     const success = props?.success ?? null;
     const error = props?.error ?? null;
-
+    const APP_URL = useAppUrl();
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
     const [recordToDelete, setRecordToDelete] = useState(null); //delete
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedResident, setSelectedResident] = useState(null);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         searchFieldName("name", query);
+    };
+
+    const handleView = async (resident) => {
+        try {
+            const response = await axios.get(
+                `${APP_URL}/barangay_officer/resident/showresident/${resident}`
+            );
+            setSelectedResident(response.data.resident);
+        } catch (error) {
+            console.error("Error fetching placeholders:", error);
+        }
+        setIsModalOpen(true);
     };
 
     const searchFieldName = (field, value) => {
@@ -68,7 +86,7 @@ export default function Index({ blotters, queryParams, incident_types }) {
     const allColumns = [
         { key: "id", label: "ID" },
         { key: "type_of_incident", label: "Type of Incident" },
-        { key: "latest_complainant", label: "Complainant" },
+        { key: "latest_complainant", label: "Complainant(s)" },
         { key: "report_status", label: "Status" },
         { key: "incident_date", label: "Incident Date" },
         { key: "narrative_details", label: "Narrative Details" },
@@ -169,14 +187,25 @@ export default function Index({ blotters, queryParams, incident_types }) {
         },
 
         latest_complainant: (blotter) => {
-            const c = blotter.latest_complainant;
-            if (!c) return "—";
-            return (
-                `${c.resident?.firstname ?? ""} ${
-                    c.resident?.middlename ?? ""
-                } ${c.resident?.lastname ?? ""} ${c.resident?.suffix ?? ""}` ??
-                "—"
-            );
+            const complainants = blotter.complainants || [];
+
+            if (complainants.length === 0) return "—";
+
+            return complainants.map((c, idx) => (
+                <span key={c.id}>
+                    <span
+                        className="text-blue-600 hover:underline hover:cursor-pointer"
+                        onClick={() => handleView(c.resident?.id)}
+                    >
+                        {`${c.resident?.firstname ?? ""} ${
+                            c.resident?.middlename ?? ""
+                        } ${c.resident?.lastname ?? ""} ${
+                            c.resident?.suffix ?? ""
+                        }`.trim()}
+                    </span>
+                    {idx < complainants.length - 1 && ", "}
+                </span>
+            ));
         },
 
         actions: (blotter) => (
@@ -199,6 +228,10 @@ export default function Index({ blotters, queryParams, incident_types }) {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
                         onClick: () => handleDeleteClick(blotter.id),
+                    },
+                    {
+                        label: "Elevate to Summon",
+                        icon: <FileUp className="w-4 h-4 text-red-900" />,
                     },
                 ]}
             />
@@ -333,6 +366,17 @@ export default function Index({ blotters, queryParams, incident_types }) {
                             visibleColumns={visibleColumns}
                             setVisibleColumns={setVisibleColumns}
                         ></DynamicTable>
+                        <SidebarModal
+                            isOpen={isModalOpen}
+                            onClose={() => setIsModalOpen(false)}
+                            title="Resident Details"
+                        >
+                            {selectedResident && (
+                                <PersonDetailContent
+                                    person={selectedResident}
+                                />
+                            )}
+                        </SidebarModal>
                         <DeleteConfirmationModal
                             isOpen={isDeleteModalOpen}
                             onClose={() => {

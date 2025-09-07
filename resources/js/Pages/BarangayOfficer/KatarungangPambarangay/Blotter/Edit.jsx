@@ -107,6 +107,15 @@ export default function Create({ residents, blotter_details }) {
         setData(arrayKey, updated);
     };
 
+    const handleParticipantFieldChange = (index, arrayKey, field, value) => {
+        const updated = [...(data[arrayKey] || [])];
+        updated[index] = {
+            ...updated[index],
+            [field]: value,
+        };
+        setData(arrayKey, updated);
+    };
+
     const addArrayItem = (field, newItem) => {
         setData(field, [...data[field], newItem]);
     };
@@ -380,7 +389,7 @@ export default function Create({ residents, blotter_details }) {
                                                         handleResidentArrayChange(
                                                             e.target.value,
                                                             index,
-                                                            "notes"
+                                                            "complainants"
                                                         )
                                                     }
                                                     items={residentsList}
@@ -481,10 +490,11 @@ export default function Create({ residents, blotter_details }) {
                                                             complainant.notes
                                                         }
                                                         onChange={(e) =>
-                                                            handleResidentArrayChange(
-                                                                e.target.value,
+                                                            handleParticipantFieldChange(
                                                                 index,
-                                                                "notes"
+                                                                "complainants",
+                                                                "notes",
+                                                                e.target.value
                                                             )
                                                         }
                                                         className="w-full rounded-lg border-gray-300 shadow-sm
@@ -658,10 +668,11 @@ export default function Create({ residents, blotter_details }) {
                                                         name="notes"
                                                         value={respondent.notes}
                                                         onChange={(e) =>
-                                                            handleResidentArrayChange(
-                                                                e.target.value,
+                                                            handleParticipantFieldChange(
                                                                 index,
-                                                                "notes"
+                                                                "respondents",
+                                                                "notes",
+                                                                e.target.value
                                                             )
                                                         }
                                                         className="w-full rounded-lg border-gray-300 shadow-sm
@@ -828,7 +839,9 @@ export default function Create({ residents, blotter_details }) {
                                                     name="notes"
                                                     value={witness.notes}
                                                     onChange={(e) =>
-                                                        setData(
+                                                        handleParticipantFieldChange(
+                                                            index,
+                                                            "witnesses",
                                                             "notes",
                                                             e.target.value
                                                         )
