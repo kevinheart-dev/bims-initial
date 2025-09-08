@@ -11,6 +11,7 @@ use App\Http\Controllers\BarangayRoadController;
 use App\Http\Controllers\BlotterController;
 use App\Http\Controllers\CaseParticipantController;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\ChildHealthMonitoringController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CRAController;
 use App\Http\Controllers\DashboardController;
@@ -145,6 +146,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('disability', DisabilityController::class);
     Route::resource('allergy', AllergyController::class);
     Route::resource('pregnancy', PregnancyRecordController::class);
+    Route::resource('child_record', ChildHealthMonitoringController::class);
 
     // Katarungnang Pambarangay
     Route::resource('blotter_report', BlotterController::class);

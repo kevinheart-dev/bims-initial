@@ -29,21 +29,32 @@ function MedicalInfo() {
 
     /** 🔹 BMI calculator */
     const calculateBMIAndStatus = (weightKg, heightCm, age, gender) => {
-        if (!weightKg || !heightCm || !age) return { bmi: null, status: "" };
+        if (!weightKg || !heightCm || age == null)
+            return { bmi: null, status: "" };
+
         const heightM = heightCm / 100;
         const bmi = weightKg / (heightM * heightM);
         let status = "";
 
         if (age >= 20) {
-            if (bmi < 18.5) status = "Underweight";
-            else if (bmi <= 24.9) status = "Normal weight";
-            else if (bmi <= 29.9) status = "Overweight";
-            else status = "Obese";
+            // WHO adult BMI cutoffs
+            if (bmi < 18.5) status = BMI_STATUS.underweight;
+            else if (bmi <= 24.9) status = BMI_STATUS.normal;
+            else if (bmi <= 29.9) status = BMI_STATUS.overweight;
+            else status = BMI_STATUS.obese;
+        } else if (age >= 5) {
+            // School-aged children & adolescents
+            if (bmi < 15) status = BMI_STATUS.severely_underweight;
+            else if (bmi < 19) status = BMI_STATUS.normal;
+            else if (bmi < 23) status = BMI_STATUS.overweight;
+            else status = BMI_STATUS.obese;
         } else {
-            if (bmi < 14) status = "Underweight";
-            else if (bmi < 18) status = "Normal weight";
-            else if (bmi < 20) status = "Overweight";
-            else status = "Obese";
+            // Under 5 years old (Barangay Health Worker focus)
+            if (bmi < 13) status = BMI_STATUS.severely_underweight;
+            else if (bmi < 14) status = BMI_STATUS.underweight;
+            else if (bmi <= 18) status = BMI_STATUS.normal;
+            else if (bmi <= 20) status = BMI_STATUS.overweight;
+            else status = BMI_STATUS.obese;
         }
 
         return { bmi: parseFloat(bmi.toFixed(2)), status };

@@ -1,5 +1,4 @@
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
-import DropdownInputField from "@/Components/DropdownInputField";
 import InputError from "@/Components/InputError";
 import InputField from "@/Components/InputField";
 import InputLabel from "@/Components/InputLabel";
@@ -7,9 +6,11 @@ import { Button } from "@/Components/ui/button";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router, usePage, useForm } from "@inertiajs/react";
 import { RotateCcw } from "lucide-react";
-import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import SelectField from "@/Components/SelectField";
 import { Textarea } from "@/Components/ui/textarea";
+import { ParticipantSection } from "@/Components/ParticipantSection";
+import { Toaster, toast } from "sonner";
+import { useEffect } from "react";
 
 export default function Create({ residents, blotter_details }) {
     const breadcrumbs = [
@@ -21,7 +22,11 @@ export default function Create({ residents, blotter_details }) {
         },
         { label: "Edit Blotter Report", showOnMobile: true },
     ];
-    const { error } = usePage().props.errors;
+
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
+
     const mapParticipants = (participants, role) => {
         return (
             participants
@@ -69,62 +74,23 @@ export default function Create({ residents, blotter_details }) {
 
         post(route("blotter_report.update", data.blotter_id), {
             onError: (errors) => {
-                console.error("Validation Errors:", errors);
+                const errorList = Object.values(errors).map(
+                    (msg, i) => `<div key=${i}> ${msg}</div>`
+                );
+
+                toast.error("Validation Error", {
+                    description: (
+                        <div
+                            dangerouslySetInnerHTML={{
+                                __html: errorList.join(""),
+                            }}
+                        />
+                    ),
+                    duration: 4000,
+                    closeButton: true,
+                });
             },
         });
-    };
-
-    const handleResidentArrayChange = (residentId, index, arrayKey) => {
-        const resident = residents.find((r) => r.id === Number(residentId));
-
-        if (!resident) {
-            const updated = [...(data[arrayKey] || [])];
-            updated[index] = {
-                ...updated[index],
-                resident_id: "",
-                resident_name: "",
-                notes: "",
-            };
-            setData(arrayKey, updated);
-            return;
-        }
-
-        const updated = [...(data[arrayKey] || [])];
-        updated[index] = {
-            ...updated[index],
-            resident_id: resident.id,
-            resident_name: `${resident.firstname} ${resident.middlename} ${
-                resident.lastname
-            } ${resident.suffix ?? ""}`.trim(),
-            purok_number: resident.purok_number,
-            birthdate: resident.birthdate,
-            resident_image: resident.resident_picture_path,
-            sex: resident.sex,
-            contact_number: resident.contact_number,
-            email: resident.email,
-        };
-
-        setData(arrayKey, updated);
-    };
-
-    const handleParticipantFieldChange = (index, arrayKey, field, value) => {
-        const updated = [...(data[arrayKey] || [])];
-        updated[index] = {
-            ...updated[index],
-            [field]: value,
-        };
-        setData(arrayKey, updated);
-    };
-
-    const addArrayItem = (field, newItem) => {
-        setData(field, [...data[field], newItem]);
-    };
-
-    const removeArrayItem = (field, index) => {
-        setData(
-            field,
-            data[field].filter((_, i) => i !== index)
-        );
     };
 
     const residentsList = residents.map((res) => ({
@@ -134,8 +100,32 @@ export default function Create({ residents, blotter_details }) {
         value: res.id.toString(),
     }));
 
+    useEffect(() => {
+        if (success) {
+            handleModalClose();
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.success = null;
+    }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
+
     return (
         <AdminLayout>
+            <Toaster richColors />
             <Head title="Resident Dashboard" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div>
@@ -150,125 +140,123 @@ export default function Create({ residents, blotter_details }) {
                             )}
                             <div>
                                 <form onSubmit={onSubmit}>
-                                    <h2 className="text-3xl font-semibold text-gray-800 mb-1">
-                                        Blotter Report
-                                    </h2>
-                                    <p className="text-sm text-gray-600 mb-3">
-                                        Please provide details about the
-                                        incident and its participants.
-                                    </p>
+                                    {/* Form Title & Description */}
+                                    <div className="mb-6">
+                                        <h2 className="text-3xl font-semibold text-gray-800 mb-1">
+                                            Blotter Report Form
+                                        </h2>
+                                        <p className="text-sm text-gray-600">
+                                            Fill out the details of the
+                                            incident, including participants,
+                                            actions, and recommendations. Ensure
+                                            all required fields are completed
+                                            before submitting.
+                                        </p>
+                                    </div>
 
-                                    {/* Report Details */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                                        {/* Type of Incident */}
-                                        <InputField
-                                            label="Type of Incident"
-                                            name="type_of_incident"
-                                            value={data.type_of_incident}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "type_of_incident",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Ex: Theft, Violence"
-                                        />
-                                        <InputError
-                                            message={errors.type_of_incident}
-                                            className="mt-1"
-                                        />
+                                    {/* Basic Report Fields in One Row */}
+                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                                        <div>
+                                            <InputField
+                                                label="Type of Incident"
+                                                name="type_of_incident"
+                                                value={data.type_of_incident}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "type_of_incident",
+                                                        e.target.value
+                                                    )
+                                                }
+                                                placeholder="Ex: Theft, Violence"
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors.type_of_incident
+                                                }
+                                                className="mt-1"
+                                            />
+                                        </div>
 
-                                        <div className="grid col-span-2 grid-cols-1 md:grid-cols-3 gap-4">
-                                            {/* Incident Date */}
-                                            <div>
-                                                <InputField
-                                                    type="date"
-                                                    label="Incident Date"
-                                                    name="incident_date"
-                                                    value={data.incident_date}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            "incident_date",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                />
-                                                <InputError
-                                                    message={
-                                                        errors.incident_date
-                                                    }
-                                                    className="mt-1"
-                                                />
-                                            </div>
+                                        <div>
+                                            <InputField
+                                                type="date"
+                                                label="Incident Date"
+                                                name="incident_date"
+                                                value={data.incident_date}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "incident_date",
+                                                        e.target.value
+                                                    )
+                                                }
+                                            />
+                                            <InputError
+                                                message={errors.incident_date}
+                                                className="mt-1"
+                                            />
+                                        </div>
 
-                                            {/* Location */}
-                                            <div>
-                                                <InputField
-                                                    label="Location"
-                                                    name="location"
-                                                    value={data.location}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            "location",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    placeholder="Incident Location"
-                                                />
-                                                <InputError
-                                                    message={errors.location}
-                                                    className="mt-1"
-                                                />
-                                            </div>
+                                        <div>
+                                            <InputField
+                                                label="Location"
+                                                name="location"
+                                                value={data.location}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "location",
+                                                        e.target.value
+                                                    )
+                                                }
+                                                placeholder="Incident Location"
+                                            />
+                                            <InputError
+                                                message={errors.location}
+                                                className="mt-1"
+                                            />
+                                        </div>
 
-                                            {/* Report Status */}
-                                            <div>
-                                                <SelectField
-                                                    label="Report Status"
-                                                    name="report_status"
-                                                    value={
-                                                        data.report_status || ""
-                                                    }
-                                                    onChange={(value) =>
-                                                        setData(
-                                                            "report_status",
-                                                            value.target.value
-                                                        )
-                                                    }
-                                                    items={[
-                                                        {
-                                                            label: "Pending",
-                                                            value: "pending",
-                                                        },
-                                                        {
-                                                            label: "On Going",
-                                                            value: "on_going",
-                                                        },
-                                                        {
-                                                            label: "Resolved",
-                                                            value: "resolved",
-                                                        },
-                                                        {
-                                                            label: "Elevated",
-                                                            value: "elevated",
-                                                        },
-                                                    ]}
-                                                    placeholder="Select Status"
-                                                />
-                                                <InputError
-                                                    message={
-                                                        errors.report_status
-                                                    }
-                                                    className="mt-1"
-                                                />
-                                            </div>
+                                        <div>
+                                            <SelectField
+                                                label="Report Status"
+                                                name="report_status"
+                                                value={data.report_status || ""}
+                                                onChange={(value) =>
+                                                    setData(
+                                                        "report_status",
+                                                        value
+                                                    )
+                                                }
+                                                items={[
+                                                    {
+                                                        label: "Pending",
+                                                        value: "pending",
+                                                    },
+                                                    {
+                                                        label: "On Going",
+                                                        value: "on_going",
+                                                    },
+                                                    {
+                                                        label: "Resolved",
+                                                        value: "resolved",
+                                                    },
+                                                    {
+                                                        label: "Elevated",
+                                                        value: "elevated",
+                                                    },
+                                                ]}
+                                                placeholder="Select Status"
+                                            />
+                                            <InputError
+                                                message={errors.report_status}
+                                                className="mt-1"
+                                            />
                                         </div>
                                     </div>
 
-                                    {/* Narrative */}
+                                    {/* Narrative Details */}
                                     <div className="mb-6">
                                         <InputLabel value="Narrative Details" />
-                                        <textarea
+                                        <Textarea
                                             name="narrative_details"
                                             value={data.narrative_details}
                                             onChange={(e) =>
@@ -277,11 +265,8 @@ export default function Create({ residents, blotter_details }) {
                                                     e.target.value
                                                 )
                                             }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm
-                                                       focus:border-indigo-500 focus:ring focus:ring-indigo-200
-                                                       focus:ring-opacity-50 text-sm"
-                                            rows="4"
                                             placeholder="Describe what happened..."
+                                            rows={4}
                                         />
                                         <InputError
                                             message={errors.narrative_details}
@@ -289,10 +274,10 @@ export default function Create({ residents, blotter_details }) {
                                         />
                                     </div>
 
-                                    {/* Actions Taken */}
+                                    {/* Actions Taken / Resolution / Recommendations */}
                                     <div className="mb-6">
                                         <InputLabel value="Actions Taken" />
-                                        <textarea
+                                        <Textarea
                                             name="actions_taken"
                                             value={data.actions_taken}
                                             onChange={(e) =>
@@ -301,11 +286,8 @@ export default function Create({ residents, blotter_details }) {
                                                     e.target.value
                                                 )
                                             }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm
-                                                       focus:border-indigo-500 focus:ring focus:ring-indigo-200
-                                                       focus:ring-opacity-50 text-sm"
-                                            rows="3"
                                             placeholder="What actions were taken?"
+                                            rows={3}
                                         />
                                         <InputError
                                             message={errors.actions_taken}
@@ -313,10 +295,9 @@ export default function Create({ residents, blotter_details }) {
                                         />
                                     </div>
 
-                                    {/* Resolution */}
                                     <div className="mb-6">
                                         <InputLabel value="Resolution" />
-                                        <textarea
+                                        <Textarea
                                             name="resolution"
                                             value={data.resolution}
                                             onChange={(e) =>
@@ -325,11 +306,8 @@ export default function Create({ residents, blotter_details }) {
                                                     e.target.value
                                                 )
                                             }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm
-                                                       focus:border-indigo-500 focus:ring focus:ring-indigo-200
-                                                       focus:ring-opacity-50 text-sm"
-                                            rows="3"
                                             placeholder="Resolution or settlement details..."
+                                            rows={3}
                                         />
                                         <InputError
                                             message={errors.resolution}
@@ -337,10 +315,9 @@ export default function Create({ residents, blotter_details }) {
                                         />
                                     </div>
 
-                                    {/* Recommendations */}
                                     <div className="mb-6">
                                         <InputLabel value="Recommendations" />
-                                        <textarea
+                                        <Textarea
                                             name="recommendations"
                                             value={data.recommendations}
                                             onChange={(e) =>
@@ -349,11 +326,8 @@ export default function Create({ residents, blotter_details }) {
                                                     e.target.value
                                                 )
                                             }
-                                            className="w-full rounded-lg border-gray-300 shadow-sm
-                                                       focus:border-indigo-500 focus:ring focus:ring-indigo-200
-                                                       focus:ring-opacity-50 text-sm"
-                                            rows="3"
                                             placeholder="Any recommendations for next steps..."
+                                            rows={3}
                                         />
                                         <InputError
                                             message={errors.recommendations}
@@ -361,531 +335,34 @@ export default function Create({ residents, blotter_details }) {
                                         />
                                     </div>
 
-                                    {/* Participants: Complainants */}
-                                    <h3 className="text-xl font-bold text-gray-800 mb-1">
-                                        Complainants
-                                    </h3>
-                                    <p className="text-sm text-gray-600 mb-3">
-                                        Select the complainants involved in this
-                                        incident. You may choose from existing
-                                        residents or enter names manually if not
-                                        registered.
-                                    </p>
-                                    {data.complainants.map(
-                                        (complainant, index) => (
-                                            <div
-                                                key={index}
-                                                className="border p-4 mb-4 rounded-md relative bg-gray-50"
-                                            >
-                                                <DropdownInputField
-                                                    label="Complainant"
-                                                    name={`complainants.${index}.resident_id`}
-                                                    value={
-                                                        complainant.resident_name ||
-                                                        ""
-                                                    } // dropdown expects {label, value}
-                                                    placeholder="Select a resident"
-                                                    onChange={(e) =>
-                                                        handleResidentArrayChange(
-                                                            e.target.value,
-                                                            index,
-                                                            "complainants"
-                                                        )
-                                                    }
-                                                    items={residentsList}
-                                                />
-
-                                                <InputError
-                                                    message={
-                                                        errors[
-                                                            `complainants.${index}.resident_id`
-                                                        ]
-                                                    }
-                                                    className="mt-2"
-                                                />
-
-                                                {complainant.resident_name && (
-                                                    <div className="mt-3 rounded-lg border bg-white shadow-sm p-4">
-                                                        <h4 className="text-sm font-semibold text-gray-800 mb-3">
-                                                            Complainant Details
-                                                        </h4>
-                                                        <div className="grid grid-cols-3 gap-6">
-                                                            {/* Resident Picture */}
-                                                            <div className="flex flex-col items-center">
-                                                                <InputLabel
-                                                                    htmlFor="complainant_resident_image"
-                                                                    value="Profile Photo"
-                                                                />
-                                                                <img
-                                                                    src={
-                                                                        complainant.resident_image
-                                                                            ? `/storage/${complainant.resident_image}`
-                                                                            : "/images/default-avatar.jpg"
-                                                                    }
-                                                                    alt="Resident"
-                                                                    className="w-24 h-24 object-cover rounded-full border border-gray-200 mt-2"
-                                                                />
-                                                            </div>
-
-                                                            {/* Details */}
-                                                            <div className="col-span-2 grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-gray-700">
-                                                                <div>
-                                                                    <span className="font-medium">
-                                                                        Name:
-                                                                    </span>{" "}
-                                                                    {
-                                                                        complainant.resident_name
-                                                                    }
-                                                                </div>
-                                                                <div>
-                                                                    <span className="font-medium">
-                                                                        Purok:
-                                                                    </span>{" "}
-                                                                    {
-                                                                        complainant.purok_number
-                                                                    }
-                                                                </div>
-                                                                <div>
-                                                                    <span className="font-medium">
-                                                                        Birthdate:
-                                                                    </span>{" "}
-                                                                    {
-                                                                        complainant.birthdate
-                                                                    }
-                                                                </div>
-                                                                <div>
-                                                                    <span className="font-medium">
-                                                                        Gender:
-                                                                    </span>{" "}
-                                                                    {
-                                                                        complainant.gender
-                                                                    }
-                                                                </div>
-                                                                <div>
-                                                                    <span className="font-medium">
-                                                                        Contact:
-                                                                    </span>{" "}
-                                                                    {
-                                                                        complainant.contact_number
-                                                                    }
-                                                                </div>
-                                                                <div className="col-span-2">
-                                                                    <span className="font-medium">
-                                                                        Email:
-                                                                    </span>{" "}
-                                                                    {
-                                                                        complainant.email
-                                                                    }
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                <div className="mt-6">
-                                                    <InputLabel value="Notes" />
-                                                    <Textarea
-                                                        name="notes"
-                                                        value={
-                                                            complainant.notes
-                                                        }
-                                                        onChange={(e) =>
-                                                            handleParticipantFieldChange(
-                                                                index,
-                                                                "complainants",
-                                                                "notes",
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                        className="w-full rounded-lg border-gray-300 shadow-sm
-                                                                   focus:border-indigo-500 focus:ring focus:ring-indigo-200
-                                                                   focus:ring-opacity-50 text-sm"
-                                                        rows="3"
-                                                        placeholder="Notes for the Complainant..."
-                                                    />
-                                                    <InputError
-                                                        message={errors.notes}
-                                                        className="mt-1"
-                                                    />
-                                                </div>
-
-                                                {data.complainants.length >
-                                                    1 && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            removeArrayItem(
-                                                                "complainants",
-                                                                index
-                                                            )
-                                                        }
-                                                        className="absolute top-1 right-2 text-sm text-red-500 hover:text-red-800"
-                                                    >
-                                                        <IoIosCloseCircleOutline className="text-2xl" />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        )
-                                    )}
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            addArrayItem("complainants", {
-                                                resident_id: null,
-                                            })
+                                    {/* Participants */}
+                                    <ParticipantSection
+                                        title="Complainants"
+                                        dataArray={data.complainants}
+                                        setDataArray={(arr) =>
+                                            setData("complainants", arr)
                                         }
-                                        className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 mb-6"
-                                    >
-                                        <IoIosAddCircleOutline className="text-2xl" />
-                                        <span>Add Complainant</span>
-                                    </button>
-
-                                    {/* Participants: Respondents */}
-                                    <h3 className="text-xl font-bold text-gray-800 mb-1">
-                                        Respondents
-                                    </h3>
-                                    <p className="text-sm text-gray-600 mb-3">
-                                        Select the respondents involved in this
-                                        incident. You may choose from existing
-                                        residents or enter names manually if not
-                                        registered.
-                                    </p>
-
-                                    {data.respondents.map(
-                                        (respondent, index) => (
-                                            <div
-                                                key={index}
-                                                className="border p-4 mb-4 rounded-md relative bg-gray-50"
-                                            >
-                                                <DropdownInputField
-                                                    label="Respondent"
-                                                    name={`respondents.${index}.resident_id`}
-                                                    value={
-                                                        respondent.resident_name ||
-                                                        ""
-                                                    }
-                                                    placeholder="Select a resident"
-                                                    onChange={(e) =>
-                                                        handleResidentArrayChange(
-                                                            e.target.value,
-                                                            index,
-                                                            "respondents"
-                                                        )
-                                                    }
-                                                    items={residentsList}
-                                                />
-
-                                                <InputError
-                                                    message={
-                                                        errors[
-                                                            `respondents.${index}.resident_id`
-                                                        ]
-                                                    }
-                                                    className="mt-2"
-                                                />
-
-                                                {respondent.resident_name && (
-                                                    <div className="mt-3 rounded-lg border bg-white shadow-sm p-4">
-                                                        <h4 className="text-sm font-semibold text-gray-800 mb-3">
-                                                            Respondent Details
-                                                        </h4>
-                                                        <div className="grid grid-cols-3 gap-6">
-                                                            {/* Resident Picture */}
-                                                            <div className="flex flex-col items-center">
-                                                                <InputLabel
-                                                                    htmlFor="respondent_resident_image"
-                                                                    value="Profile Photo"
-                                                                />
-                                                                <img
-                                                                    src={
-                                                                        respondent.resident_image
-                                                                            ? `/storage/${respondent.resident_image}`
-                                                                            : "/images/default-avatar.jpg"
-                                                                    }
-                                                                    alt="Resident"
-                                                                    className="w-24 h-24 object-cover rounded-full border border-gray-200 mt-2"
-                                                                />
-                                                            </div>
-
-                                                            {/* Details */}
-                                                            <div className="col-span-2 grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-gray-700">
-                                                                <div>
-                                                                    <span className="font-medium">
-                                                                        Name:
-                                                                    </span>{" "}
-                                                                    {
-                                                                        respondent.resident_name
-                                                                    }
-                                                                </div>
-                                                                <div>
-                                                                    <span className="font-medium">
-                                                                        Purok:
-                                                                    </span>{" "}
-                                                                    {
-                                                                        respondent.purok_number
-                                                                    }
-                                                                </div>
-                                                                <div>
-                                                                    <span className="font-medium">
-                                                                        Birthdate:
-                                                                    </span>{" "}
-                                                                    {
-                                                                        respondent.birthdate
-                                                                    }
-                                                                </div>
-                                                                <div>
-                                                                    <span className="font-medium">
-                                                                        Gender:
-                                                                    </span>{" "}
-                                                                    {
-                                                                        respondent.gender
-                                                                    }
-                                                                </div>
-                                                                <div>
-                                                                    <span className="font-medium">
-                                                                        Contact:
-                                                                    </span>{" "}
-                                                                    {
-                                                                        respondent.contact_number
-                                                                    }
-                                                                </div>
-                                                                <div className="col-span-2">
-                                                                    <span className="font-medium">
-                                                                        Email:
-                                                                    </span>{" "}
-                                                                    {
-                                                                        respondent.email
-                                                                    }
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                <div className="mt-6">
-                                                    <InputLabel value="Notes" />
-                                                    <Textarea
-                                                        name="notes"
-                                                        value={respondent.notes}
-                                                        onChange={(e) =>
-                                                            handleParticipantFieldChange(
-                                                                index,
-                                                                "respondents",
-                                                                "notes",
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                        className="w-full rounded-lg border-gray-300 shadow-sm
-                                                                   focus:border-indigo-500 focus:ring focus:ring-indigo-200
-                                                                   focus:ring-opacity-50 text-sm"
-                                                        rows="3"
-                                                        placeholder="Notes for the Respondent..."
-                                                    />
-                                                    <InputError
-                                                        message={errors.notes}
-                                                        className="mt-1"
-                                                    />
-                                                </div>
-
-                                                {data.respondents.length >
-                                                    1 && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() =>
-                                                            removeArrayItem(
-                                                                "respondents",
-                                                                index
-                                                            )
-                                                        }
-                                                        className="absolute top-1 right-2 text-sm text-red-500 hover:text-red-800"
-                                                    >
-                                                        <IoIosCloseCircleOutline className="text-2xl" />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        )
-                                    )}
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            addArrayItem("respondents", {
-                                                resident_id: null,
-                                            })
+                                        errors={errors}
+                                        residentsList={residentsList}
+                                    />
+                                    <ParticipantSection
+                                        title="Respondents"
+                                        dataArray={data.respondents}
+                                        setDataArray={(arr) =>
+                                            setData("respondents", arr)
                                         }
-                                        className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 mb-6"
-                                    >
-                                        <IoIosAddCircleOutline className="text-2xl" />
-                                        <span>Add Respondent</span>
-                                    </button>
-
-                                    {/* Participants: Witnesses */}
-                                    <h3 className="text-xl font-bold text-gray-800 mb-1">
-                                        Witnesses
-                                    </h3>
-                                    <p className="text-sm text-gray-600 mb-3">
-                                        Select the witnesses for this incident.
-                                        You may choose from existing residents
-                                        or enter names manually if not
-                                        registered.
-                                    </p>
-                                    {data.witnesses.map((witness, index) => (
-                                        <div
-                                            key={index}
-                                            className="border p-4 mb-4 rounded-md relative bg-gray-50"
-                                        >
-                                            <DropdownInputField
-                                                label="Witness"
-                                                name={`witnesses.${index}.resident_id`}
-                                                value={
-                                                    witness.resident_name || ""
-                                                }
-                                                placeholder="Select a resident"
-                                                onChange={(e) =>
-                                                    handleResidentArrayChange(
-                                                        e.target.value,
-                                                        index,
-                                                        "witnesses"
-                                                    )
-                                                }
-                                                items={residentsList}
-                                            />
-
-                                            <InputError
-                                                message={
-                                                    errors[
-                                                        `witnesses.${index}.resident_id`
-                                                    ]
-                                                }
-                                                className="mt-2"
-                                            />
-
-                                            {witness.resident_name && (
-                                                <div className="mt-3 rounded-lg border bg-white shadow-sm p-4">
-                                                    <h4 className="text-sm font-semibold text-gray-800 mb-3">
-                                                        Witness Details
-                                                    </h4>
-                                                    <div className="grid grid-cols-3 gap-6">
-                                                        {/* Resident Picture */}
-                                                        <div className="flex flex-col items-center">
-                                                            <InputLabel
-                                                                htmlFor="witness_resident_image"
-                                                                value="Profile Photo"
-                                                            />
-                                                            <img
-                                                                src={
-                                                                    witness.resident_image
-                                                                        ? `/storage/${witness.resident_image}`
-                                                                        : "/images/default-avatar.jpg"
-                                                                }
-                                                                alt="Resident"
-                                                                className="w-24 h-24 object-cover rounded-full border border-gray-200 mt-2"
-                                                            />
-                                                        </div>
-
-                                                        {/* Details */}
-                                                        <div className="col-span-2 grid grid-cols-2 gap-x-6 gap-y-3 text-sm text-gray-700">
-                                                            <div>
-                                                                <span className="font-medium">
-                                                                    Name:
-                                                                </span>{" "}
-                                                                {
-                                                                    witness.resident_name
-                                                                }
-                                                            </div>
-                                                            <div>
-                                                                <span className="font-medium">
-                                                                    Purok:
-                                                                </span>{" "}
-                                                                {
-                                                                    witness.purok_number
-                                                                }
-                                                            </div>
-                                                            <div>
-                                                                <span className="font-medium">
-                                                                    Birthdate:
-                                                                </span>{" "}
-                                                                {
-                                                                    witness.birthdate
-                                                                }
-                                                            </div>
-                                                            <div>
-                                                                <span className="font-medium">
-                                                                    Gender:
-                                                                </span>{" "}
-                                                                {witness.gender}
-                                                            </div>
-                                                            <div>
-                                                                <span className="font-medium">
-                                                                    Contact:
-                                                                </span>{" "}
-                                                                {
-                                                                    witness.contact_number
-                                                                }
-                                                            </div>
-                                                            <div className="col-span-2">
-                                                                <span className="font-medium">
-                                                                    Email:
-                                                                </span>{" "}
-                                                                {witness.email}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            <div className="mt-6">
-                                                <InputLabel value="Notes" />
-                                                <Textarea
-                                                    name="notes"
-                                                    value={witness.notes}
-                                                    onChange={(e) =>
-                                                        handleParticipantFieldChange(
-                                                            index,
-                                                            "witnesses",
-                                                            "notes",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    className="w-full rounded-lg border-gray-300 shadow-sm
-                                                                   focus:border-indigo-500 focus:ring focus:ring-indigo-200
-                                                                   focus:ring-opacity-50 text-sm"
-                                                    rows="3"
-                                                    placeholder="Notes for the Witness..."
-                                                />
-                                                <InputError
-                                                    message={errors.notes}
-                                                    className="mt-1"
-                                                />
-                                            </div>
-
-                                            {data.witnesses.length > 1 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        removeArrayItem(
-                                                            "witnesses",
-                                                            index
-                                                        )
-                                                    }
-                                                    className="absolute top-1 right-2 text-sm text-red-500 hover:text-red-800"
-                                                >
-                                                    <IoIosCloseCircleOutline className="text-2xl" />
-                                                </button>
-                                            )}
-                                        </div>
-                                    ))}
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            addArrayItem("witnesses", {
-                                                resident_id: null,
-                                            })
+                                        errors={errors}
+                                        residentsList={residentsList}
+                                    />
+                                    <ParticipantSection
+                                        title="Witnesses"
+                                        dataArray={data.witnesses}
+                                        setDataArray={(arr) =>
+                                            setData("witnesses", arr)
                                         }
-                                        className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 mb-6"
-                                    >
-                                        <IoIosAddCircleOutline className="text-2xl" />
-                                        <span>Add Witness</span>
-                                    </button>
+                                        errors={errors}
+                                        residentsList={residentsList}
+                                    />
 
                                     {/* Submit Buttons */}
                                     <div className="flex w-full justify-end items-center mt-7 gap-4">
@@ -896,8 +373,8 @@ export default function Create({ residents, blotter_details }) {
                                             <RotateCcw /> Reset
                                         </Button>
                                         <Button
-                                            className="w-40 bg-blue-700 hover:bg-blue-400"
                                             type="submit"
+                                            className="w-40 bg-blue-700 hover:bg-blue-400"
                                         >
                                             Submit
                                         </Button>

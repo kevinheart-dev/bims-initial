@@ -240,6 +240,30 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
+            {isVisible("birthdate") && (
+                <div className="flex items-center gap-2">
+                    <DatePicker
+                        selected={
+                            queryParams.birthdate
+                                ? new Date(queryParams.birthdate)
+                                : null
+                        }
+                        onChange={(date) => {
+                            const formatted = date
+                                ? date.toLocaleDateString("en-CA") // YYYY-MM-DD format
+                                : "";
+                            searchFieldName("birthdate", formatted);
+                        }}
+                        dateFormat="yyyy-MM-dd"
+                        className="border border-gray-300 rounded-md shadow-sm p-2 w-[180px] text-sm focus:ring focus:ring-indigo-200 focus:border-indigo-400"
+                        placeholderText="Date of Birth "
+                        popperContainer={({ children }) => (
+                            <div className="z-[9999]">{children}</div>
+                        )}
+                        isClearable
+                    />
+                </div>
+            )}
             {/* ==== INDEX FILLTER ====*/}
             {isVisible("street") && (
                 <Select
@@ -1804,6 +1828,25 @@ const FilterToggle = ({
                         isClearable
                     />
                 </div>
+            )}
+
+            {/* CHILD HEALTH */}
+            {isVisible("immunization") && (
+                <Select
+                    onValueChange={(immunization) =>
+                        searchFieldName("immunization", immunization)
+                    }
+                    value={queryParams?.immunization ?? ""}
+                >
+                    <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Immunization Updated?" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="1">Yes</SelectItem>
+                        <SelectItem value="0">No</SelectItem>
+                    </SelectContent>
+                </Select>
             )}
 
             {isVisible("created_at") && (

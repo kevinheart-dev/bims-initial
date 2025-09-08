@@ -10,6 +10,7 @@ use App\Models\BarangayOfficial;
 use App\Models\BarangayOfficialTerm;
 use App\Models\BlotterReport;
 use App\Models\CaseParticipant;
+use App\Models\ChildHealthMonitoringRecord;
 use App\Models\Designation;
 use App\Models\Disability;
 use App\Models\DisasterRisk;
@@ -63,20 +64,21 @@ class DatabaseSeeder extends Seeder
     // public function run(): void
     // {
     //     $faker = Faker::create();
-    //     // User::factory(10)->create();
-    //     // Barangay::factory(2)->create();
     //     $this->call([
     //         BarangaySeeder::class,
     //     ]);
+
     //     for ($i = 1; $i <= 7; $i++) {
     //         Purok::factory()->create([
     //             'barangay_id' => 1,
     //             'purok_number' => $i,
     //         ]);
     //     }
-    //     Street::factory(15)->create();
-    //     Household::factory(3562)->create();
-    //     Family::factory(4236)->create();
+
+    //     Inventory::factory(1000)->create();
+    //     Street::factory(12)->create();
+    //     Household::factory(6500)->create();
+    //     Family::factory(7500)->create();
 
     //     $term = BarangayOfficialTerm::factory()->create([
     //         'barangay_id' => 1,
@@ -85,101 +87,94 @@ class DatabaseSeeder extends Seeder
     //         'status' => 'active',
     //     ]);
 
-    //     $barangayOfficer = Role::firstOrCreate(['name' => 'barangay_officer']);
+    //     $barangayOfficerRole = Role::firstOrCreate(['name' => 'barangay_officer']);
+    //     $barangays = Barangay::all();
 
-    //     $user = User::factory()->create([
-    //         'resident_id' => Resident::factory(),
-    //         'barangay_id' => 1,
-    //         'username' => 'Test User',
-    //         'email' => 'test@example.com',
-    //         'password' => bcrypt('admin123'),
-    //         'email_verified_at' => now(),
-    //         'role' => 'admin',
-    //         'status' => 'active'
-    //     ]);
+    //     foreach ($barangays as $barangay) {
+    //         $resident = Resident::factory()->create([
+    //             'barangay_id' => $barangay->id,
+    //         ]);
 
-    //     $user->assignRole($barangayOfficer);
+    //         $user = User::factory()->create([
+    //             'resident_id' => $resident->id,
+    //             'barangay_id' => $barangay->id,
+    //             'username' => $barangay->name . ' Admin',
+    //             'email' => $barangay->email ?? 'barangay'.$barangay->id.'@example.com',
+    //             'password' => bcrypt('admin123'),
+    //             'email_verified_at' => now(),
+    //             'role' => 'admin',
+    //             'status' => 'active',
+    //         ]);
 
-    //     BarangayOfficial::factory()->create([
-    //         'resident_id' => $user->resident->id,
-    //         'term_id' => 1,
-    //         'position' => 'barangay_secretary',
-    //         'status' => 'active',
-    //         'appointment_type' => 'appointed',
-    //         'appointted_by' => null,
-    //         'appointment_reason' => null,
-    //         'remarks' => null,
-    //     ]);
+    //         $user->assignRole($barangayOfficerRole);
 
-    //     $barangayOfficer = Role::firstOrCreate(['name' => 'barangay_officer']);
-    //     $user = User::factory()->create([
-    //         'resident_id' => Resident::factory(),
-    //         'barangay_id' => 2,
-    //         'username' => 'Test User 2',
-    //         'email' => 'testtest@example.com',
-    //         'password' => bcrypt('admin123'),
-    //         'email_verified_at' => now(),
-    //         'role' => 'admin',
-    //         'status' => 'active'
-    //     ]);
-    //     $user->assignRole($barangayOfficer);
+    //         BarangayOfficial::factory()->create([
+    //             'resident_id' => $resident->id,
+    //             'term_id' => 1,
+    //             'position' => 'barangay_secretary',
+    //             'status' => 'active',
+    //             'appointment_type' => 'appointed',
+    //             'appointted_by' => null,
+    //             'appointment_reason' => null,
+    //             'remarks' => null,
+    //         ]);
+    //     }
 
-    //     // $resRole = Role::firstOrCreate(['name' => 'resident']);
-    //     // for($i = 0; $i <= 20; $i++){
-    //     //     $user = User::factory()->create([
-    //     //         'resident_id' => Resident::factory(),
-    //     //         'username' => 'Sample Resident Account',
-    //     //         'email' => 'user'. "$i" .'@example.com',
-    //     //         'password' => bcrypt('user123'),
-    //     //         'email_verified_at' => now(),
-    //     //         'role' => 'resident',
-    //     //         'status' => 'active'
-    //     //     ]);
-    //     //     $user->assignRole($resRole);
-    //     // }
-    //     LivelihoodType::factory(5)->create();
+    //     $residents = Resident::factory()->count(10000)->create();
 
-    //     $residents = Resident::factory()->count(15210)->create();
+    //     InternetAccessibility::factory(3500)->create();
+    //     Occupation::factory(7000)->create();
+    //     EducationalHistory::factory(10000)->create();
+    //     Vehicle::factory(4000)->create();
+    //     Livestock::factory(1800)->create();
+    //     ResidentVoterInformation::factory(2500)->create();
+    //     SocialWelfareProfile::factory(2000)->create();
+    //     SeniorCitizen::factory(4000)->create();
+    //     HouseholdToilet::factory(6500)->create();
+    //     HouseholdElectricitySource::factory(6500)->create();
+    //     HouseholdWasteManagement::factory(6500)->create();
+    //     HouseholdWaterSource::factory(6500)->create();
+    //     Livelihood::factory(10000)->create();
 
-    //     //MedicalInformation::factory(30)->create();
-    //     InternetAccessibility::factory(1259)->create();
-    //     Disability::factory(500)->create();
-    //     //Livelihood::factory(60)->create();
-    //     Occupation::factory(2300)->create();
-    //     EducationalHistory::factory(5090)->create();
-    //     Vehicle::factory(598)->create();
-    //     Livestock::factory(989)->create();
-    //     ResidentVoterInformation::factory(5090)->create();
-    //     SocialWelfareProfile::factory(5090)->create();
-    //     SeniorCitizen::factory(1800)->create();
-    //     HouseholdToilet::factory(1259)->create();
-    //     HouseholdElectricitySource::factory(1259)->create();
-    //     HouseholdWasteManagement::factory(1259)->create();
-    //     HouseholdWaterSource::factory(1259)->create();
     //     $residents->groupBy('household_id')->each(function ($group) {
     //         $group->first()->update(['is_household_head' => true]);
     //     });
+
     //     $this->call([
     //         OccupationTypeSeeder::class,
     //         FixHouseholdResidentSeeder::class,
     //         FamilyRelationSeeder::class,
-    //         BarangayInformationSeeder::class
+    //         BarangayInformationSeeder::class,
     //     ]);
+
     //     Resident::all()->each(function ($resident) {
     //         $medical = MedicalInformation::factory()->create([
     //             'resident_id' => $resident->id,
     //         ]);
 
-    //         // ✅ Only create Disability if pwd_id_number is filled
     //         if (!empty($medical->pwd_id_number)) {
     //             Disability::factory()->create([
     //                 'resident_id' => $resident->id,
     //             ]);
+
+    //             $resident->update([
+    //                 'is_pwd' => 1,
+    //             ]);
     //         }
     //     });
+
+    //     ResidentMedicalCondition::factory(2000)->create();
+    //     ResidentMedication::factory(2000)->create();
+    //     ResidentVaccination::factory(10000)->create();
+    //     Allergy::factory(2000)->create();
+    //     PregnancyRecords::factory(1500)->create();
+    //     BlotterReport::factory(1000)->create();
+    //     CaseParticipant::factory(3000)->create();
+    //     Summon::factory(700)->create();
+    //     ChildHealthMonitoringRecord::factory(2000)->create();
     // }
 
-    // light data
+    //light data
     public function run(): void
     {
         $faker = Faker::create();
@@ -194,8 +189,8 @@ class DatabaseSeeder extends Seeder
         }
         Inventory::factory(50)->create();
         Street::factory(12)->create();      // just 2 streets
-        Household::factory(5)->create();   // only 5 households
-        Family::factory(5)->create();
+        Household::factory(50)->create();   // only 5 households
+        Family::factory(65)->create();
 
         $term = BarangayOfficialTerm::factory()->create([
             'barangay_id' => 1,
@@ -256,22 +251,21 @@ class DatabaseSeeder extends Seeder
         // }
         //LivelihoodType::factory(50)->create();
 
-        $residents = Resident::factory()->count(40)->create(); // ✅ very minimal
+        $residents = Resident::factory()->count(500)->create(); // ✅ very minimal
 
         // Related sample data (scaled down)
-        InternetAccessibility::factory(5)->create();
-        Occupation::factory(20)->create();
-        EducationalHistory::factory(20)->create();
-        Vehicle::factory(10)->create();
-        Livestock::factory(10)->create();
-        ResidentVoterInformation::factory(15)->create();
-        SocialWelfareProfile::factory(15)->create();
-        SeniorCitizen::factory(10)->create();
-        HouseholdToilet::factory(5)->create();
-        HouseholdElectricitySource::factory(5)->create();
-        HouseholdWasteManagement::factory(5)->create();
-        HouseholdWaterSource::factory(5)->create();
-        Livelihood::factory(15)->create();
+        InternetAccessibility::factory(50)->create();
+        Occupation::factory(500)->create();
+        EducationalHistory::factory(700)->create();
+        Vehicle::factory(150)->create();
+        Livestock::factory(55)->create();
+        ResidentVoterInformation::factory( 500)->create();
+        SocialWelfareProfile::factory(500)->create();
+        SeniorCitizen::factory(190)->create();
+        HouseholdToilet::factory(54)->create();
+        HouseholdElectricitySource::factory(55)->create();
+        HouseholdWasteManagement::factory(55)->create();
+        HouseholdWaterSource::factory(55)->create();
 
         // Mark household heads
         $residents->groupBy('household_id')->each(function ($group) {
@@ -303,14 +297,15 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         });
-        ResidentMedicalCondition::factory(20)->create();
-        ResidentMedication::factory(20)->create();
-        ResidentVaccination::factory(20)->create();
-        Allergy::factory(20)->create();
-        PregnancyRecords::factory(5)->create();
-        BlotterReport::factory(10)->create();
-        CaseParticipant::factory(30)->create();
-        Summon::factory(7)->create();
+        ResidentMedicalCondition::factory(500)->create();
+        ResidentMedication::factory(500)->create();
+        ResidentVaccination::factory(500)->create();
+        Allergy::factory(100)->create();
+        PregnancyRecords::factory(75)->create();
+        BlotterReport::factory(55)->create();
+        CaseParticipant::factory(95)->create();
+        Summon::factory(98)->create();
+        ChildHealthMonitoringRecord::factory(100)->create();
     }
 
     // public function run(): void

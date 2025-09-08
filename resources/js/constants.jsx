@@ -443,7 +443,7 @@ export const BARANGAY_OFFICIAL_POSITIONS_CLASS = {
 export const BMI_STATUS = {
     normal: "Normal",
     underweight: "Underweight",
-    severly_underweight: "Severly Underweight",
+    severely_underweight: "Severly Underweight",
     overweight: "Overweight",
     obese: "Obese",
 };

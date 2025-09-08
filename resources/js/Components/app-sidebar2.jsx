@@ -35,6 +35,7 @@ import {
     PersonStanding,
     Cloudy,
     ScrollText,
+    Baby,
 } from "lucide-react";
 
 import {
@@ -138,6 +139,11 @@ const items = [
                 title: "Allergies",
                 url: "/barangay_officer/allergy",
                 icon: Tablets,
+            },
+            {
+                title: "Child Health Records",
+                url: "/barangay_officer/child_record",
+                icon: Baby,
             },
             {
                 title: "Medical Condition",
