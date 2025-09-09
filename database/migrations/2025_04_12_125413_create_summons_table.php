@@ -13,22 +13,14 @@ return new class extends Migration
     {
         Schema::create('summons', function (Blueprint $table) {
             $table->id();
-
             $table->foreignId('blotter_id')
                 ->constrained('blotter_reports')
                 ->cascadeOnDelete();
 
-            $table->foreignId('case_participant_id')
-                ->constrained('case_participants')
-                ->cascadeOnDelete();
-
-            $table->unsignedTinyInteger('hearing_number')->default(1); // new column
-
-            $table->enum('status', ['Pending', 'Attended', 'Ignored', 'Resolved'])
-                ->default('Pending');
+            $table->enum('status', ['on_going', 'closed'])
+                ->default('on_going'); // overall case status
 
             $table->text('remarks')->nullable();
-            $table->dateTime('hearing_date')->nullable();
 
             $table->foreignId('issued_by')
                 ->nullable()

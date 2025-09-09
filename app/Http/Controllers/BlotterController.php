@@ -158,7 +158,21 @@ class BlotterController extends Controller
      */
     public function show(BlotterReport $blotterReport)
     {
-        //
+        $brgy_id = auth()->user()->barangay_id;
+
+        // Ensure it's scoped to the authenticated user's barangay
+        $report = BlotterReport::with([
+                'complainants.resident:id,firstname,lastname,middlename,suffix',
+                'respondents.resident:id,firstname,lastname,middlename,suffix',
+                'witnesses.resident:id,firstname,lastname,middlename,suffix',
+                'recordedBy.resident:id,firstname,lastname,middlename,suffix',
+            ])
+            ->where('barangay_id', $brgy_id)
+            ->findOrFail($blotterReport->id);
+
+        return Inertia::render("BarangayOfficer/KatarungangPambarangay/Blotter/Show", [
+            'blotter_details' => $report,
+        ]);
     }
 
     /**

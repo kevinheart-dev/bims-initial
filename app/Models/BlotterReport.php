@@ -37,7 +37,7 @@ class BlotterReport extends Model
 
     public function summons()
     {
-        return $this->hasMany(Summon::class);
+        return $this->hasMany(Summon::class, 'blotter_id'); // <- specify correct foreign key
     }
 
     // Convenience scopes

@@ -1849,6 +1849,65 @@ const FilterToggle = ({
                 </Select>
             )}
 
+            {/* SUMMON */}
+            {isVisible("summon_status") && (
+                <Select
+                    onValueChange={(summon_status) =>
+                        searchFieldName("summon_status", summon_status)
+                    }
+                    value={queryParams.summon_status}
+                >
+                    <SelectTrigger className="w-[150px]">
+                        <SelectValue placeholder="Summon Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="on_going">On Going</SelectItem>
+                        <SelectItem value="closed">Closed</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("hearing_number") && (
+                <Select
+                    onValueChange={(hearing_number) =>
+                        searchFieldName("hearing_number", hearing_number)
+                    }
+                    value={queryParams.hearing_number}
+                >
+                    <SelectTrigger className="w-[120px]">
+                        <SelectValue placeholder="Hearing No." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="1">Hearing 1</SelectItem>
+                        <SelectItem value="2">Hearing 2</SelectItem>
+                        <SelectItem value="3">Hearing 3</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+
+            {isVisible("hearing_status") && (
+                <Select
+                    onValueChange={(hearing_status) =>
+                        searchFieldName("hearing_status", hearing_status)
+                    }
+                    value={queryParams.hearing_status}
+                >
+                    <SelectTrigger className="w-[150px]">
+                        <SelectValue placeholder="Hearing Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="scheduled">Scheduled</SelectItem>
+                        <SelectItem value="in_progress">In Progress</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="adjourned">Adjourned</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                        <SelectItem value="no_show">No Show</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+
             {isVisible("created_at") && (
                 <div className="flex items-center gap-2">
                     <DatePicker

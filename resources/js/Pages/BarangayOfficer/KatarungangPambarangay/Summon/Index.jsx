@@ -29,10 +29,10 @@ import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import SidebarModal from "@/Components/SidebarModal";
 import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
 
-export default function Index({ blotters, queryParams, incident_types }) {
+export default function Index({ summons, queryParams, incident_types }) {
     const breadcrumbs = [
         { label: "Katarungang Pambarangay", showOnMobile: false },
-        { label: "Blotter Reports", showOnMobile: true },
+        { label: "Summons", showOnMobile: true },
     ];
     queryParams = queryParams || {};
     const props = usePage().props;
@@ -72,7 +72,7 @@ export default function Index({ blotters, queryParams, incident_types }) {
         if (queryParams.page) {
             delete queryParams.page;
         }
-        router.get(route("blotter_report.index", queryParams));
+        router.get(route("summon.index", queryParams));
     };
 
     const onKeyPressed = (field, e) => {
@@ -86,13 +86,13 @@ export default function Index({ blotters, queryParams, incident_types }) {
     const allColumns = [
         { key: "id", label: "ID" },
         { key: "type_of_incident", label: "Type of Incident" },
-        { key: "latest_complainant", label: "Complainant(s)" },
-        { key: "report_status", label: "Status" },
+        { key: "complainants", label: "Complainant(s)" },
+        { key: "respondents", label: "Respondent(s)" },
+        { key: "status", label: "Summon Status" },
         { key: "incident_date", label: "Incident Date" },
-        { key: "narrative_details", label: "Narrative Details" },
-        { key: "actions_taken", label: "Actions Taken" },
-        { key: "recommendations", label: "Recommendations" },
-        { key: "recorded_by", label: "Recorded By" },
+        { key: "hearing_info", label: "Hearing Details" }, // <-- combined number + date
+        { key: "remarks", label: "Remarks" },
+        { key: "issued_by", label: "Issued By" },
         { key: "actions", label: "Actions" },
     ];
 
@@ -111,7 +111,13 @@ export default function Index({ blotters, queryParams, incident_types }) {
 
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
-            ["incident_type", "incident_date"].includes(key) &&
+            [
+                "incident_type",
+                "incident_date",
+                "summon_status",
+                "hearing_number",
+                "hearing_status",
+            ].includes(key) &&
             value &&
             value !== ""
     );
@@ -130,116 +136,178 @@ export default function Index({ blotters, queryParams, incident_types }) {
     };
 
     const columnRenderers = {
-        id: (blotter) => blotter.id,
-        type_of_incident: (blotter) => (
-            <span className="font-medium text-gray-800">
-                {blotter.type_of_incident}
+        id: (summon) => summon.id,
+
+        type_of_incident: (summon) => (
+            <span
+                className="font-medium text-blue-600 hover:underline hover:cursor-pointer  text-wrap"
+                onClick={() =>
+                    router.visit(
+                        route("blotter_report.show", summon.blotter.id)
+                    )
+                }
+            >
+                {summon.blotter?.type_of_incident ?? "—"}
             </span>
         ),
+        complainants: (summon) => {
+            const complainants =
+                summon.blotter?.participants?.filter(
+                    (p) => p.role_type === "complainant"
+                ) || [];
+            if (complainants.length === 0) return "—";
 
-        narrative_details: (blotter) => (
-            <span className="line-clamp-2 text-gray-600">
-                {blotter.narrative_details}
-            </span>
-        ),
-        recommendations: (blotter) => (
-            <span className="line-clamp-2 text-gray-600">
-                {blotter.recommendations}
-            </span>
-        ),
+            return (
+                <div className="flex flex-wrap gap-x-1 text-sm">
+                    {complainants.map((c, idx) => {
+                        // Use resident name if available, otherwise use name/display_name
+                        const fullName = c.resident
+                            ? `${c.resident.firstname ?? ""} ${
+                                  c.resident.middlename ?? ""
+                              } ${c.resident.lastname ?? ""} ${
+                                  c.resident.suffix ?? ""
+                              }`.trim()
+                            : c.name ?? c.display_name ?? "—";
 
-        actions_taken: (blotter) => blotter.actions_taken ?? "—",
+                        return (
+                            <span
+                                key={c.id}
+                                className="text-blue-600 hover:underline hover:cursor-pointer"
+                                onClick={() => handleView(c.resident?.id)}
+                            >
+                                {fullName}
+                                {idx < complainants.length - 1 && ","}
+                            </span>
+                        );
+                    })}
+                </div>
+            );
+        },
 
-        report_status: (blotter) => {
-            const statusClasses = {
-                pending: "bg-yellow-100 text-yellow-700",
-                on_going: "bg-blue-100 text-blue-700",
-                resolved: "bg-green-100 text-green-700",
-                elevated: "bg-red-100 text-red-700",
-            };
+        respondents: (summon) => {
+            const respondents =
+                summon.blotter?.participants?.filter(
+                    (p) => p.role_type === "respondent"
+                ) || [];
+            if (respondents.length === 0) return "—";
 
+            return (
+                <div className="flex flex-wrap gap-x-1 text-sm">
+                    {respondents.map((r, idx) => {
+                        const fullName = r.resident
+                            ? `${r.resident.firstname ?? ""} ${
+                                  r.resident.middlename ?? ""
+                              } ${r.resident.lastname ?? ""} ${
+                                  r.resident.suffix ?? ""
+                              }`.trim()
+                            : r.name ?? r.display_name ?? "—";
+
+                        return (
+                            <span
+                                key={r.id}
+                                className="text-red-600 hover:underline hover:cursor-pointer"
+                                onClick={() => handleView(r.resident?.id)}
+                            >
+                                {fullName}
+                                {idx < respondents.length - 1 && ","}
+                            </span>
+                        );
+                    })}
+                </div>
+            );
+        },
+
+        status: (summon) => {
             return (
                 <span
                     className={`px-2 py-1 text-sm rounded-lg ${
-                        statusClasses[blotter.report_status] ??
+                        CONSTANTS.SUMMON_STATUS_CLASS[summon.status] ??
                         "bg-gray-100 text-gray-700"
                     }`}
                 >
-                    {CONSTANTS.BLOTTER_REPORT_STATUS[blotter.report_status]}
+                    {CONSTANTS.SUMMON_STATUS_TEXT[summon.status]}
                 </span>
             );
         },
 
-        incident_date: (blotter) =>
-            blotter.incident_date
-                ? new Date(blotter.incident_date).toLocaleDateString()
+        incident_date: (summon) =>
+            summon.blotter?.incident_date
+                ? new Date(summon.blotter.incident_date).toLocaleDateString()
                 : "—",
 
-        recorded_by: (blotter) => {
-            const c = blotter.recorded_by;
-            if (!c) return "—";
+        hearing_info: (summon) => {
+            const latestTake = summon.latest_take;
+            if (!latestTake) return "—";
+
             return (
-                `${c.resident?.firstname ?? ""} ${
-                    c.resident?.middlename ?? ""
-                } ${c.resident?.lastname ?? ""} ${c.resident?.suffix ?? ""}` ??
-                "—"
+                <div className="flex flex-col gap-0.5">
+                    <span className="font-semibold text-gray-900">
+                        Hearing {latestTake.session_number}
+                    </span>
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600">
+                            {latestTake.hearing_date
+                                ? new Date(
+                                      latestTake.hearing_date
+                                  ).toLocaleDateString()
+                                : "No Date Set"}
+                        </span>
+                        <span
+                            className={`text-xs ${
+                                CONSTANTS.SESSION_STATUS_CLASS[
+                                    latestTake.session_status
+                                ]
+                            }`}
+                        >
+                            {
+                                CONSTANTS.SESSION_STATUS_TEXT[
+                                    latestTake.session_status
+                                ]
+                            }
+                        </span>
+                    </div>
+                </div>
             );
         },
 
-        latest_complainant: (blotter) => {
-            const complainants = blotter.complainants || [];
-
-            if (complainants.length === 0) return "—";
-
-            return complainants.map((c, idx) => (
-                <span key={c.id}>
-                    <span
-                        className="text-blue-600 hover:underline hover:cursor-pointer"
-                        onClick={() => handleView(c.resident?.id)}
-                    >
-                        {`${c.resident?.firstname ?? ""} ${
-                            c.resident?.middlename ?? ""
-                        } ${c.resident?.lastname ?? ""} ${
-                            c.resident?.suffix ?? ""
-                        }`.trim()}
-                    </span>
-                    {idx < complainants.length - 1 && ", "}
-                </span>
-            ));
+        issued_by: (summon) => {
+            const o = summon.issued_by?.resident;
+            if (!o) return "—";
+            const res = `${o.firstname ?? ""} ${o.middlename ?? ""} ${
+                o.lastname ?? ""
+            } ${o.suffix ?? ""}`.trim();
+            return <span className="text-wrap text-gray-600">{res}</span>;
         },
 
-        actions: (blotter) => (
+        remarks: (summon) => (
+            <span className="line-clamp-2 text-gray-600 text-wrap">
+                {summon.latest_take.session_remarks ?? "—"}
+            </span>
+        ),
+
+        actions: (summon) => (
             <ActionMenu
                 actions={[
                     {
                         label: "View",
                         icon: <Eye className="w-4 h-4 text-indigo-600" />,
                         onClick: () =>
-                            router.visit(
-                                route("blotter_report.show", blotter.id)
-                            ),
+                            router.visit(route("summons.show", summon.id)),
                     },
                     {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
-                        onClick: () => handleEdit(blotter.id),
+                        onClick: () => handleEdit(summon.id),
                     },
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDeleteClick(blotter.id),
-                    },
-                    {
-                        label: "Elevate to Summon",
-                        icon: <FileUp className="w-4 h-4 text-red-900" />,
-                        onClick: () =>
-                            router.visit(route("summon.elevate", blotter.id)),
+                        onClick: () => handleDeleteClick(summon.id),
                     },
                 ]}
             />
         ),
     };
-
     // delete
     const handleDeleteClick = (id) => {
         setRecordToDelete(id);
@@ -281,7 +349,7 @@ export default function Index({ blotters, queryParams, incident_types }) {
             <Head title="Blotter Reports Dashboard" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <Toaster richColors />
-            {/* <pre>{JSON.stringify(blotters, undefined, 2)}</pre> */}
+            {/* <pre>{JSON.stringify(summons, undefined, 2)}</pre> */}
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
@@ -351,15 +419,18 @@ export default function Index({ blotters, queryParams, incident_types }) {
                                 visibleFilters={[
                                     "incident_type",
                                     "incident_date",
+                                    "summon_status",
+                                    "hearing_number",
+                                    "hearing_status",
                                 ]}
                                 showFilters={true}
                                 types={incident_types}
-                                clearRouteName="blotter_report.index"
+                                clearRouteName="summon.index"
                                 clearRouteParams={{}}
                             />
                         )}
                         <DynamicTable
-                            passedData={blotters}
+                            passedData={summons}
                             columnRenderers={columnRenderers}
                             allColumns={allColumns}
                             is_paginated={isPaginated}
@@ -382,14 +453,6 @@ export default function Index({ blotters, queryParams, incident_types }) {
                                 />
                             )}
                         </SidebarModal>
-                        <DeleteConfirmationModal
-                            isOpen={isDeleteModalOpen}
-                            onClose={() => {
-                                setIsDeleteModalOpen(false);
-                            }}
-                            onConfirm={confirmDelete}
-                            residentId={recordToDelete}
-                        />
                     </div>
                 </div>
             </div>

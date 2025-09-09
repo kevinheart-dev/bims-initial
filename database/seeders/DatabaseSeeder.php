@@ -46,6 +46,8 @@ use App\Models\SocialWelfare;
 use App\Models\SocialWelfareProfile;
 use App\Models\Street;
 use App\Models\Summon;
+use App\Models\SummonParticipantAttendance;
+use App\Models\SummonTake;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\Vaccination;
@@ -304,7 +306,67 @@ class DatabaseSeeder extends Seeder
         PregnancyRecords::factory(75)->create();
         BlotterReport::factory(55)->create();
         CaseParticipant::factory(95)->create();
-        Summon::factory(98)->create();
+        BlotterReport::factory(120)->create()->each(function ($blotter) {
+            // Add participants (complainants, respondents, witnesses)
+            $participants = CaseParticipant::factory()
+                ->count(rand(2, 5)) // at least 1 complainant + 1 respondent + maybe witnesses
+                ->state(['blotter_id' => $blotter->id])
+                ->create();
+
+            // Create a summon for the blotter
+            $summon = Summon::factory()
+                ->state(['blotter_id' => $blotter->id])
+                ->create();
+
+            // Decide how many sessions to create (1–3)
+            $maxSessions = rand(1, 3);
+            $previousDate = null;
+
+            for ($i = 1; $i <= $maxSessions; $i++) {
+                $hearingDate = $i === 1
+                    ? fake()->dateTimeBetween('-2 months', '+1 month')
+                    : fake()->dateTimeBetween($previousDate, (clone $previousDate)->modify('+1 month'));
+
+                // Decide realistic status
+                if ($hearingDate > now()) {
+                    $status = fake()->randomElement(['scheduled', 'cancelled']);
+                } elseif ($hearingDate->format('Y-m-d') === now()->format('Y-m-d')) {
+                    $status = fake()->randomElement(['in_progress', 'adjourned', 'no_show']);
+                } else {
+                    $status = fake()->randomElement(['completed', 'adjourned', 'no_show']);
+                }
+
+                // Remarks: mandatory for sessions #2 or #3
+                $remarksOptions = [
+                    'Initial summons issued',
+                    'Case still under mediation',
+                    'Escalated to higher authority',
+                    'Case resolved after mediation',
+                    'Dismissed due to lack of evidence',
+                ];
+                $remarks = $i > 1 ? fake()->randomElement($remarksOptions) : fake()->optional()->randomElement($remarksOptions);
+
+                $take = SummonTake::factory()->create([
+                    'summon_id'       => $summon->id,
+                    'session_number'  => $i,
+                    'hearing_date'    => $hearingDate->format('Y-m-d'),
+                    'session_status'  => $status,
+                    'session_remarks' => $remarks,
+                ]);
+
+                // Mark attendance for participants
+                foreach ($participants as $participant) {
+                    SummonParticipantAttendance::factory()
+                        ->state([
+                            'take_id' => $take->id,
+                            'participant_id' => $participant->id,
+                        ])
+                        ->create();
+                }
+
+                $previousDate = $hearingDate;
+            }
+        });
         ChildHealthMonitoringRecord::factory(100)->create();
     }
 

@@ -9,6 +9,7 @@ class Street extends Model
 {
     /** @use HasFactory<\Database\Factories\StreetFactory> */
     use HasFactory;
+    public $timestamps = true;
 
     public function households()
     {

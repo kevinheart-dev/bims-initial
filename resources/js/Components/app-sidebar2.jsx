@@ -36,6 +36,7 @@ import {
     Cloudy,
     ScrollText,
     Baby,
+    MessageSquareWarning,
 } from "lucide-react";
 
 import {
@@ -198,6 +199,11 @@ const items = [
                 title: "Blotter Reports",
                 url: "/barangay_officer/blotter_report",
                 icon: ScrollText,
+            },
+            {
+                title: "Summon",
+                url: "/barangay_officer/summon",
+                icon: MessageSquareWarning,
             },
         ],
     },

@@ -526,3 +526,54 @@ export const BLOTTER_REPORT_STATUS = {
     resolved: "Resolved",
     elevated: "Elevated",
 };
+
+export const TAKE_STATUS_CLASS = {
+    pending:
+        "bg-yellow-100 px-2 py-1 rounded-lg text-yellow-800 text-xs font-medium",
+    attended:
+        "bg-green-100 px-2 py-1 rounded-lg text-green-800 text-xs font-medium",
+    missed: "bg-red-100 px-2 py-1 rounded-lg text-red-800 text-xs font-medium",
+    rescheduled:
+        "bg-purple-100 px-2 py-1 rounded-lg text-purple-800 text-xs font-medium",
+};
+
+export const TAKE_STATUS_TEXT = {
+    pending: "Pending",
+    attended: "Attended",
+    missed: "Missed",
+    rescheduled: "Rescheduled",
+};
+
+// Summon overall status
+export const SUMMON_STATUS_CLASS = {
+    on_going:
+        "bg-blue-100 px-2 py-1 rounded-lg text-blue-800 text-xs font-medium",
+    closed: "bg-green-100 px-2 py-1 rounded-lg text-green-800 text-xs font-medium",
+};
+
+export const SUMMON_STATUS_TEXT = {
+    on_going: "On-going",
+    closed: "Closed",
+};
+export const SESSION_STATUS_CLASS = {
+    scheduled:
+        "bg-blue-100 px-2 py-1 rounded-lg text-blue-800 text-xs font-medium",
+    in_progress:
+        "bg-yellow-100 px-2 py-1 rounded-lg text-yellow-800 text-xs font-medium",
+    completed:
+        "bg-green-100 px-2 py-1 rounded-lg text-green-800 text-xs font-medium",
+    adjourned:
+        "bg-purple-100 px-2 py-1 rounded-lg text-purple-800 text-xs font-medium",
+    cancelled:
+        "bg-gray-100 px-2 py-1 rounded-lg text-gray-800 text-xs font-medium",
+    no_show: "bg-red-100 px-2 py-1 rounded-lg text-red-800 text-xs font-medium",
+};
+
+export const SESSION_STATUS_TEXT = {
+    scheduled: "Scheduled",
+    in_progress: "In Progress",
+    completed: "Completed",
+    adjourned: "Adjourned",
+    cancelled: "Cancelled",
+    no_show: "No Show",
+};

@@ -9,6 +9,7 @@ class CaseParticipant extends Model
 {
     /** @use HasFactory<\Database\Factories\CaseParticipantFactory> */
     use HasFactory;
+    protected $table = 'case_participants';
     protected $fillable = [
         'blotter_id',
         'resident_id',
@@ -31,6 +32,17 @@ class CaseParticipant extends Model
 
     public function getDisplayNameAttribute(): string
     {
-        return $this->resident?->full_name ?? $this->name ?? '';
+        // 1. If linked to a resident, use full_name
+        if ($this->resident) {
+            return $this->resident->full_name;
+        }
+
+        // 2. If name column is filled, use it
+        if (!empty($this->name)) {
+            return $this->name;
+        }
+
+        // 3. If display_name is filled, use it
+        return $this->attributes['display_name'] ?? '';
     }
 }

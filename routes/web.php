@@ -149,6 +149,7 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('child_record', ChildHealthMonitoringController::class);
 
     // Katarungnang Pambarangay
+    Route::get('summon/elevate/{id}', [SummonController::class, 'elevate'])->name('summon.elevate');
     Route::resource('blotter_report', BlotterController::class);
     Route::resource('case_participant', CaseParticipantController::class);
     Route::resource('summon', SummonController::class);

@@ -19,42 +19,18 @@ class SummonFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition(): array
+        public function definition(): array
     {
-        // Pick a random participant
-        $participant = CaseParticipant::inRandomOrder()->first();
+        // Pick a random blotter case
+        $blotterId = BlotterReport::inRandomOrder()->first()?->id ?? 1;
 
-        // Determine the blotter ID
-        $blotterId = $participant?->blotter_id ?? BlotterReport::first()?->blotter_id ?? 1;
-
-        // Determine the hearing number for this participant (1 to 3)
-        $lastHearingNumber = Summon::where('case_participant_id', $participant?->participant_id)
-            ->max('hearing_number') ?? 0;
-
-        $hearingNumber = min($lastHearingNumber + 1, 3); // max 3 hearings
-
-        // realistic status based on hearing number
-        $status = $hearingNumber < 3
-            ? $this->faker->randomElement(['Pending', 'Attended', 'Ignored'])
-            : 'Resolved';
-
-        // realistic remarks
-        $remarksOptions = [
-            'Respondent attended the hearing',
-            'No appearance from respondent',
-            'Case postponed due to absence',
-            'Mediated by barangay official',
-            'Warning issued'
-        ];
+        // Status is simpler now (case-level)
+        $status = $this->faker->randomElement(['on_going', 'closed']);
 
         return [
             'blotter_id' => $blotterId,
-            'case_participant_id' => $participant?->participant_id ?? 1,
-            'hearing_number' => $hearingNumber,
-            'status' => $status,
-            'remarks' => $this->faker->optional()->randomElement($remarksOptions),
-            'hearing_date' => $this->faker->dateTimeBetween('-2 months', '+1 month'),
-            'issued_by' => BarangayOfficial::inRandomOrder()->first()?->id ?? 1,
+            'status'     => $status,
+            'issued_by'  => BarangayOfficial::inRandomOrder()->first()?->id ?? 1,
         ];
     }
 
