@@ -4,7 +4,15 @@ import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import { Skeleton } from "@/Components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { Eye, Plus, RotateCcw, Search, SquarePen, Trash2 } from "lucide-react";
+import {
+    Eye,
+    ListPlus,
+    Plus,
+    RotateCcw,
+    Search,
+    SquarePen,
+    Trash2,
+} from "lucide-react";
 import ActionMenu from "@/Components/ActionMenu";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import { Input } from "@/Components/ui/input";
@@ -483,7 +491,7 @@ const ProjectIndex = () => {
                                 className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
                                 onClick={handleAddProject}
                             >
-                                <Plus className="w-4 h-4" />
+                                <ListPlus className="w-4 h-4" />
                             </Button>
                             <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                                 Add a Project

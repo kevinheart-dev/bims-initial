@@ -29,7 +29,8 @@ class CertificateController extends Controller
         ->select('id', 'resident_id', 'document_id', 'barangay_id', 'request_status', 'purpose', 'issued_at', 'issued_by', 'docx_path', 'pdf_path', 'control_number');
 
         // Filter by certificate_type (assuming it's on the documents table)
-        if ($type = request('certificate_type') && request('certificate_type') !== 'All') {
+        if (request('certificate_type') && request('certificate_type') !== 'All') {
+            $type = request('certificate_type');
             $query->whereHas('document', function ($q) use ($type) {
                 $q->where('name', $type);
             });
@@ -230,105 +231,198 @@ class CertificateController extends Controller
 
     public function store(Document $template, Resident $resident, array $data)
     {
-        $barangay_id = auth()->user()->resident->barangay_id;
-        $officer = BarangayOfficial::findOrFail(auth()->user()->resident->id);
-        $barangay_name = auth()->user()->resident->barangay->barangay_name;
+        $this->validateInput($data);
 
-        if (!isset($data['purpose'])) {
-            throw new \InvalidArgumentException('Purpose is required.');
-        }
+        $user         = auth()->user()->resident;
+        $barangayId   = $user->barangay_id;
+        $barangayName = $user->barangay->barangay_name;
+        $officer      = BarangayOfficial::where('resident_id', $user->id)->firstOrFail();
 
         DB::beginTransaction();
 
         try {
-            $templatePath = storage_path("app/public/{$template->file_path}");
-            if (!file_exists($templatePath)) {
-                throw new \Exception('Template file not found.');
+            // Prepare template processor
+            $templateProcessor = $this->loadTemplate($template->file_path);
+
+            // --- Handle primary resident values ---
+            $values = $this->prepareValues($resident, $data);
+            $secondResident = null;
+
+            // --- Handle dual resident placeholders ---
+            if (isset($data['resident_id_2'])) {
+                $resident2 = Resident::findOrFail($data['resident_id_2']);
+                $values    = $values->merge($this->prepareSecondResidentValues($resident2, $data));
+                $secondResident = $resident2;
             }
 
-            $templateProcessor = new TemplateProcessor($templatePath);
-            $placeholders = $templateProcessor->getVariables();
-
-            $fullName = trim("{$resident->firstname} {$resident->middlename} {$resident->lastname} {$resident->suffix}");
-            $ctrlNo = 'CSA-' . now()->format('YmdHis');
-
-            $systemValues = collect([
-                'fullname' => $fullName,
-                'day' => now()->format('j'),
-                'month' => now()->format('F'),
-                'year' => now()->format('Y'),
-                'civil_status' => $resident->civil_status,
-                'gender' => $resident->gender,
-                'purpose' => $data['purpose'],
-                'ctrl_no' => $ctrlNo,
-                'purok' => $resident->purok_number,
-            ]);
-
-            $customValues = collect($data)->except(['document_id', 'resident_id', 'purpose']);
-            $values = $systemValues->merge($customValues);
-
-            foreach ($placeholders as $placeholder) {
+            // Fill placeholders
+            foreach ($templateProcessor->getVariables() as $placeholder) {
                 $templateProcessor->setValue($placeholder, $values->get($placeholder, ''));
             }
 
-            // File names and temp paths
-            $baseName = 'certificate_' . Str::slug($fullName) . '_' . now()->format('Ymd_His');
-            $docxFilename = "{$baseName}.docx";
-            $pdfFilename  = "{$baseName}.pdf";
+            // Generate file names & paths
+            $baseName = $this->generateBaseName(
+                                $resident,
+                                $template->name,
+                                $secondResident ?? null
+                            );
+            [$docxFilename, $pdfFilename] = ["{$baseName}.docx", "{$baseName}.pdf"];
+            [$tempDocx, $tempPdf]         = [
+                storage_path("app/temp/{$docxFilename}"),
+                storage_path("app/temp/{$pdfFilename}")
+            ];
 
-            $tempDocxPath = storage_path("app/temp/{$docxFilename}");
-            $tempPdfPath  = storage_path("app/temp/{$pdfFilename}");
+            $this->ensureTempDirectory(dirname($tempDocx));
 
-            if (!is_dir(dirname($tempDocxPath))) {
-                mkdir(dirname($tempDocxPath), 0755, true);
-            }
+            // Save as DOCX
+            $templateProcessor->saveAs($tempDocx);
 
-            // Save DOCX to temp
-            $templateProcessor->saveAs($tempDocxPath);
-
-            // Convert to PDF
-            if (!$this->convertDocxToPdf($tempDocxPath, $tempPdfPath)) {
+            // Convert DOCX → PDF
+            if (!$this->convertDocxToPdf($tempDocx, $tempPdf)) {
                 throw new \Exception('Failed to convert certificate to PDF.');
             }
 
             // Store in public storage
-            $barangaySlug = Str::slug($barangay_name);
+            $barangaySlug = Str::slug($barangayName);
             $docxRelative = "certificates/{$barangaySlug}/docx/{$docxFilename}";
             $pdfRelative  = "certificates/{$barangaySlug}/pdf/{$pdfFilename}";
 
-            Storage::disk('public')->putFileAs("certificates/{$barangaySlug}/docx", new File($tempDocxPath), $docxFilename);
-            Storage::disk('public')->putFileAs("certificates/{$barangaySlug}/pdf", new File($tempPdfPath), $pdfFilename);
+            $this->storeFiles($tempDocx, $tempPdf, $docxRelative, $pdfRelative);
 
-            // Remove temp files
-            @unlink($tempDocxPath);
-            @unlink($tempPdfPath);
-
-            // Save record with both paths
+            // Save DB record (still tied to primary resident)
             $certificate = Certificate::create([
-                'resident_id' => $resident->id,
-                'document_id' => $template->id,
-                'barangay_id' => $barangay_id,
+                'resident_id'    => $resident->id,
+                'document_id'    => $template->id,
+                'barangay_id'    => $barangayId,
                 'request_status' => 'issued',
-                'purpose' => $data['purpose'],
-                'issued_at' => now(),
-                'issued_by' => $officer->id,
-                'docx_path' => $docxRelative,
-                'pdf_path' => $pdfRelative,
-                'control_number' => $ctrlNo,
+                'purpose'        => $data['purpose'],
+                'issued_at'      => now(),
+                'issued_by'      => $officer->id,
+                'docx_path'      => $docxRelative,
+                'pdf_path'       => $pdfRelative,
+                'control_number' => $values['ctrl_no'],
             ]);
 
             DB::commit();
 
-            // Return DOCX download (or PDF if you prefer)
             return Storage::disk('public')->download($docxRelative, $docxFilename);
 
         } catch (\Throwable $e) {
             DB::rollBack();
             return response()->json([
-                'error' => 'Certificate generation failed.',
+                'error'   => 'Certificate generation failed.',
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+/* ----------------- HELPER METHODS ----------------- */
+
+    protected function validateInput(array $data): void
+    {
+        // Primary purpose is always required
+        if (empty($data['purpose'])) {
+            throw new \InvalidArgumentException('Purpose is required.');
+        }
+
+        // Only validate second resident if provided
+        if (!empty($data['resident_id_2'])) {
+            if (empty($data['purpose_2'])) {
+                throw new \InvalidArgumentException('Purpose for second resident is required when resident 2 is provided.');
+            }
+        }
+    }
+
+    protected function loadTemplate(string $path): TemplateProcessor
+    {
+        $templatePath = storage_path("app/public/{$path}");
+        if (!file_exists($templatePath)) {
+            throw new \Exception('Template file not found.');
+        }
+
+        return new TemplateProcessor($templatePath);
+    }
+
+    protected function prepareValues(Resident $resident, array $data): \Illuminate\Support\Collection
+    {
+        $fullName = trim("{$resident->firstname} {$resident->middlename} {$resident->lastname} {$resident->suffix}");
+        $ctrlNo   = 'CSA-' . now()->format('YmdHis');
+
+        // Format day with suffix
+        $day = now()->day;
+        $dayWithSuffix = $day . $this->getDaySuffix($day);
+
+        $systemValues = collect([
+            'fullname'     => $fullName,
+            'day'          => $dayWithSuffix,
+            'month'        => now()->format('F'),
+            'year'         => now()->format('Y'),
+            'civil_status' => $resident->civil_status,
+            'gender'       => $resident->gender,
+            'purpose'      => $data['purpose'],
+            'ctrl_no'      => $ctrlNo,
+            'purok'        => $resident->purok_number,
+        ]);
+
+        return $systemValues->merge(
+            collect($data)->except(['document_id', 'resident_id', 'purpose', 'resident_id_2', 'purpose_2'])
+        );
+    }
+
+    protected function prepareSecondResidentValues(Resident $resident2, array $data): \Illuminate\Support\Collection
+    {
+        $fullName2 = trim("{$resident2->firstname} {$resident2->middlename} {$resident2->lastname} {$resident2->suffix}");
+
+        return collect([
+            'fullname_2'     => $fullName2,
+            'civil_status_2' => $resident2->civil_status,
+            'gender_2'       => $resident2->gender,
+            'purpose_2'      => $data['purpose_2'] ?? '',
+            'purok_2'        => $resident2->purok_number,
+        ]);
+    }
+
+    protected function getDaySuffix(int $day): string
+    {
+        if ($day % 100 >= 11 && $day % 100 <= 13) {
+            return 'ᵗʰ';
+        }
+
+        return match ($day % 10) {
+            1 => 'ˢᵗ',
+            2 => 'ⁿᵈ',
+            3 => 'ʳᵈ',
+            default => 'ᵗʰ',
+        };
+    }
+
+    protected function generateBaseName(Resident $resident, string $documentName, ?Resident $secondResident = null): string
+    {
+        // Always take the first name of the main resident
+        $namePart = Str::slug($resident->firstname);
+
+        // If there is a second resident, append their first name
+        if ($secondResident) {
+            $namePart .= '-' . Str::slug($secondResident->firstname);
+        }
+
+        return Str::slug($documentName) . '_' . $namePart . '_' . now()->format('Ymd_His');
+    }
+
+    protected function ensureTempDirectory(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+    }
+
+    protected function storeFiles(string $docxPath, string $pdfPath, string $docxRelative, string $pdfRelative): void
+    {
+        Storage::disk('public')->putFileAs(dirname($docxRelative), new File($docxPath), basename($docxRelative));
+        Storage::disk('public')->putFileAs(dirname($pdfRelative), new File($pdfPath), basename($pdfRelative));
+
+        @unlink($docxPath);
+        @unlink($pdfPath);
     }
 
     /**

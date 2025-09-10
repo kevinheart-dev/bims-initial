@@ -8,6 +8,7 @@ import ActionMenu from "@/Components/ActionMenu";
 import {
     Eye,
     HousePlus,
+    ListPlus,
     Plus,
     RotateCcw,
     Search,
@@ -462,7 +463,7 @@ const InstitutionIndex = () => {
                                 className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
                                 onClick={handleAddInstitution}
                             >
-                                <Plus className="w-4 h-4" />
+                                <ListPlus className="w-4 h-4" />
                             </Button>
                             <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                                 Add an Institution

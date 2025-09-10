@@ -74,14 +74,19 @@ export default function Elevate({ residents, blotter_details }) {
 
         // 📝 Summon details
         summons: blotter_details?.summons ?? [],
-        newSession: {
-            session_number: "",
-            hearing_date: "",
-            session_status: "pending",
-            session_remarks: "",
-        },
+        newSession:
+            {
+                session_number: "",
+                hearing_date: "",
+                session_status: "",
+                session_remarks: "",
+            } ?? {},
         summon_status: blotter_details?.summons?.length
             ? blotter_details.summons[blotter_details.summons.length - 1].status
+            : "",
+        summon_remarks: blotter_details?.summons?.length
+            ? blotter_details.summons[blotter_details.summons.length - 1]
+                  .remarks
             : "",
         blotter_id: blotter_details.id,
     });
@@ -95,14 +100,27 @@ export default function Elevate({ residents, blotter_details }) {
 
     const onSubmit = (e) => {
         e.preventDefault();
+
         post(route("summon.store"), {
-            onError: (err) => {
-                console.error("Validation Errors:", err); // log the errors
-                toast.error("Error creating summon");
-            },
-            onSuccess: (response) => {
-                console.log("Successfully created summon:", response);
-                toast.success("Summon created successfully");
+            onError: (errors) => {
+                console.error("Validation Errors:", errors);
+
+                const errorList = Object.values(errors).map(
+                    (msg, i) => `<div key=${i} class="mb-1">• ${msg}</div>`
+                );
+
+                toast.error("Validation Error", {
+                    description: (
+                        <div
+                            className="text-sm text-red-700 space-y-1"
+                            dangerouslySetInnerHTML={{
+                                __html: errorList.join(""),
+                            }}
+                        />
+                    ),
+                    duration: 5000,
+                    closeButton: true,
+                });
             },
         });
     };
@@ -152,7 +170,7 @@ export default function Elevate({ residents, blotter_details }) {
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-                    <pre>{JSON.stringify(blotter_details, undefined, 2)}</pre>
+                    {/* <pre>{JSON.stringify(blotter_details, undefined, 2)}</pre> */}
                     <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 my-8">
                         <div className=" my-2 p-5">
                             {error && (
@@ -165,28 +183,65 @@ export default function Elevate({ residents, blotter_details }) {
                                     {/* Form Title & Description */}
                                     <div className="mb-6">
                                         <h2 className="text-3xl font-bold text-blue-800 mb-2">
-                                            Create Summon Schedule
+                                            {data.summon_status === "closed"
+                                                ? "Summon Details (Closed)"
+                                                : data.summons?.length > 0 &&
+                                                  data.summons[0]?.takes
+                                                      ?.length > 0
+                                                ? "Update Summon Details"
+                                                : "Create Summon Schedule"}
                                         </h2>
                                         <p className="text-sm text-gray-600">
-                                            This form allows you to create a{" "}
-                                            <span className="font-semibold text-gray-800">
-                                                summon
-                                            </span>{" "}
-                                            for the selected{" "}
-                                            <span className="font-semibold text-gray-800">
-                                                blotter report
-                                            </span>
-                                            . Review the blotter details, update
-                                            fields like{" "}
-                                            <span className="font-semibold">
-                                                actions taken
-                                            </span>
-                                            ,{" "}
-                                            <span className="font-semibold">
-                                                recommendations
-                                            </span>
-                                            , status, and participants, and
-                                            schedule the new hearing session.
+                                            {data.summon_status === "closed" ? (
+                                                <>
+                                                    This summon has been{" "}
+                                                    <span className="font-semibold text-red-600">
+                                                        closed
+                                                    </span>
+                                                    . You can review the blotter
+                                                    details, participants, and
+                                                    hearing history, but no new
+                                                    sessions can be scheduled.
+                                                </>
+                                            ) : data.summons?.length > 0 &&
+                                              data.summons[0]?.takes?.length >
+                                                  0 ? (
+                                                <>
+                                                    You can{" "}
+                                                    <span className="font-semibold text-gray-800">
+                                                        update summon details
+                                                    </span>{" "}
+                                                    for this blotter report.
+                                                    Review past sessions, adjust
+                                                    status or remarks, and make
+                                                    necessary updates to the
+                                                    summon information.
+                                                </>
+                                            ) : (
+                                                <>
+                                                    This form allows you to
+                                                    create a{" "}
+                                                    <span className="font-semibold text-gray-800">
+                                                        summon
+                                                    </span>{" "}
+                                                    for the selected{" "}
+                                                    <span className="font-semibold text-gray-800">
+                                                        blotter report
+                                                    </span>
+                                                    . Review the blotter
+                                                    details, update fields like{" "}
+                                                    <span className="font-semibold">
+                                                        actions taken
+                                                    </span>
+                                                    ,{" "}
+                                                    <span className="font-semibold">
+                                                        recommendations
+                                                    </span>
+                                                    , status, and participants,
+                                                    and schedule the new hearing
+                                                    session.
+                                                </>
+                                            )}
                                         </p>
                                     </div>
                                     {/* Blotter Details (Read-only) */}
@@ -226,7 +281,7 @@ export default function Elevate({ residents, blotter_details }) {
                                         <div>
                                             <InputLabel value="Actions Taken" />
                                             <Textarea
-                                                value={data.actions_taken}
+                                                value={data.actions_taken || ""}
                                                 onChange={(e) =>
                                                     setData(
                                                         "actions_taken",
@@ -245,7 +300,9 @@ export default function Elevate({ residents, blotter_details }) {
                                         <div>
                                             <InputLabel value="Recommendations" />
                                             <Textarea
-                                                value={data.recommendations}
+                                                value={
+                                                    data.recommendations || ""
+                                                }
                                                 onChange={(e) =>
                                                     setData(
                                                         "recommendations",
@@ -321,6 +378,25 @@ export default function Elevate({ residents, blotter_details }) {
                                             />
                                         </div>
                                     </div>
+                                    <div>
+                                        <InputLabel value="Summon Remarks" />
+                                        <Textarea
+                                            value={data.summon_remarks || ""}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "summon_remarks",
+                                                    e.target.value
+                                                )
+                                            }
+                                            placeholder="Enter summon remarks"
+                                            rows={3}
+                                            className="mb-4 border-blue-300 focus:ring-blue-400 focus:border-blue-400"
+                                        />
+                                        <InputError
+                                            message={errors.summon_remarks}
+                                            className="mt-1"
+                                        />
+                                    </div>
                                     {/* Participants */}
                                     <div className="space-y-6">
                                         <ParticipantSection
@@ -332,6 +408,9 @@ export default function Elevate({ residents, blotter_details }) {
                                             errors={errors}
                                             residentsList={residentsList}
                                             className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg"
+                                            disableAdd={
+                                                data.summon_status == "closed"
+                                            }
                                         />
                                         <ParticipantSection
                                             title="Respondents"
@@ -342,6 +421,9 @@ export default function Elevate({ residents, blotter_details }) {
                                             errors={errors}
                                             residentsList={residentsList}
                                             className="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg"
+                                            disableAdd={
+                                                data.summon_status == "closed"
+                                            }
                                         />
                                         <ParticipantSection
                                             title="Witnesses"
@@ -352,10 +434,12 @@ export default function Elevate({ residents, blotter_details }) {
                                             errors={errors}
                                             residentsList={residentsList}
                                             className="bg-green-50 border-l-4 border-green-400 p-4 rounded-lg"
+                                            disableAdd={
+                                                data.summon_status == "closed"
+                                            }
                                         />
                                     </div>
-                                    {/* Existing Summon History */}
-                                    {/* Existing Summon History */}
+
                                     {data.summons &&
                                         data.summons.length > 0 && (
                                             <div className="mt-8 p-6 bg-gray-50 border-l-4 border-gray-400 rounded-xl space-y-4 shadow-sm">
@@ -374,7 +458,6 @@ export default function Elevate({ residents, blotter_details }) {
                                                                     session,
                                                                     tIndex
                                                                 ) => {
-                                                                    // Initialize originallyScheduled on first render
                                                                     if (
                                                                         session.originallyScheduled ===
                                                                         undefined
@@ -587,161 +670,172 @@ export default function Elevate({ residents, blotter_details }) {
                                             </div>
                                         )}
 
-                                    {showNewSessionForm && (
-                                        <div className="mt-8 p-6 bg-gray-50 border-l-4 border-blue-600 rounded-xl space-y-4 shadow-sm">
-                                            <h3 className="text-2xl font-bold text-gray-700 mb-4">
-                                                New Summon Session
-                                            </h3>
-                                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                                {/* Session # */}
-                                                <div>
-                                                    <InputLabel value="Session #" />
-                                                    <InputField
-                                                        type="number"
-                                                        value={
-                                                            data.newSession
-                                                                ?.session_number ||
-                                                            ""
-                                                        }
-                                                        onChange={(e) =>
-                                                            setData(
-                                                                "newSession",
-                                                                {
-                                                                    ...data.newSession,
-                                                                    session_number:
-                                                                        e.target
-                                                                            .value,
-                                                                }
-                                                            )
-                                                        }
-                                                        className="border-gray-300 focus:ring-gray-400 focus:border-gray-400 rounded-lg p-2 w-full font-semibold text-gray-800"
-                                                    />
-                                                </div>
-                                                {/* Hearing Date */}
-                                                <div>
-                                                    <InputLabel value="Hearing Date" />
-                                                    <InputField
-                                                        type="date"
-                                                        value={
-                                                            data.newSession
-                                                                ?.hearing_date ||
-                                                            ""
-                                                        }
-                                                        onChange={(e) =>
-                                                            setData(
-                                                                "newSession",
-                                                                {
-                                                                    ...data.newSession,
-                                                                    hearing_date:
-                                                                        e.target
-                                                                            .value,
-                                                                }
-                                                            )
-                                                        }
-                                                        className="border-gray-300 focus:ring-gray-400 focus:border-gray-400 rounded-lg p-2 w-full font-semibold text-gray-800"
-                                                    />
-                                                </div>
-                                                {/* Session Status */}
-                                                <div>
-                                                    <InputLabel value="Session Status" />
-                                                    <SelectField
-                                                        value={
-                                                            data.newSession
-                                                                ?.session_status ||
-                                                            "scheduled"
-                                                        }
-                                                        onChange={(
-                                                            valueOrEvent
-                                                        ) => {
-                                                            const value =
+                                    {/* Show "New Summon Session" form only if NOT closed */}
+                                    {data.summon_status !== "closed" &&
+                                        showNewSessionForm && (
+                                            <div className="mt-8 p-6 bg-gray-50 border-l-4 border-blue-600 rounded-xl space-y-4 shadow-sm">
+                                                <h3 className="text-2xl font-bold text-gray-700 mb-4">
+                                                    New Summon Session
+                                                </h3>
+                                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                                    {/* Session # */}
+                                                    <div>
+                                                        <InputLabel value="Session #" />
+                                                        <InputField
+                                                            type="number"
+                                                            value={
+                                                                data.newSession
+                                                                    ?.session_number ||
+                                                                ""
+                                                            }
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    "newSession",
+                                                                    {
+                                                                        ...data.newSession,
+                                                                        session_number:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    }
+                                                                )
+                                                            }
+                                                            className="border-gray-300 focus:ring-gray-400 focus:border-gray-400 rounded-lg p-2 w-full font-semibold text-gray-800"
+                                                        />
+                                                    </div>
+                                                    {/* Hearing Date */}
+                                                    <div>
+                                                        <InputLabel value="Hearing Date" />
+                                                        <InputField
+                                                            type="date"
+                                                            value={
+                                                                data.newSession
+                                                                    ?.hearing_date ||
+                                                                ""
+                                                            }
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    "newSession",
+                                                                    {
+                                                                        ...data.newSession,
+                                                                        hearing_date:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    }
+                                                                )
+                                                            }
+                                                            className="border-gray-300 focus:ring-gray-400 focus:border-gray-400 rounded-lg p-2 w-full font-semibold text-gray-800"
+                                                        />
+                                                    </div>
+                                                    {/* Session Status */}
+                                                    <div>
+                                                        <InputLabel value="Session Status" />
+                                                        <SelectField
+                                                            value={
+                                                                data.newSession
+                                                                    ?.session_status ||
+                                                                "scheduled"
+                                                            }
+                                                            onChange={(
                                                                 valueOrEvent
-                                                                    ?.target
-                                                                    ?.value ??
-                                                                valueOrEvent;
-                                                            setData(
-                                                                "newSession",
+                                                            ) => {
+                                                                const value =
+                                                                    valueOrEvent
+                                                                        ?.target
+                                                                        ?.value ??
+                                                                    valueOrEvent;
+                                                                setData(
+                                                                    "newSession",
+                                                                    {
+                                                                        ...data.newSession,
+                                                                        session_status:
+                                                                            value,
+                                                                    }
+                                                                );
+                                                            }}
+                                                            items={[
                                                                 {
-                                                                    ...data.newSession,
-                                                                    session_status:
-                                                                        value,
-                                                                }
-                                                            );
-                                                        }}
-                                                        items={[
-                                                            {
-                                                                label: "Scheduled",
-                                                                value: "scheduled",
-                                                            },
-                                                            {
-                                                                label: "In Progress",
-                                                                value: "in_progress",
-                                                            },
-                                                            {
-                                                                label: "Completed",
-                                                                value: "completed",
-                                                            },
-                                                            {
-                                                                label: "Adjourned",
-                                                                value: "adjourned",
-                                                            },
-                                                            {
-                                                                label: "Cancelled",
-                                                                value: "cancelled",
-                                                            },
-                                                            {
-                                                                label: "No Show",
-                                                                value: "no_show",
-                                                            },
-                                                        ]}
-                                                        className="border-gray-300 focus:ring-gray-400 focus:border-gray-400 rounded-lg p-2 w-full font-semibold text-gray-800"
-                                                    />
-                                                </div>
-                                                {/* Remarks */}
-                                                <div>
-                                                    <InputLabel value="Remarks" />
-                                                    <InputField
-                                                        value={
-                                                            data.newSession
-                                                                ?.session_remarks ||
-                                                            ""
-                                                        }
-                                                        onChange={(e) =>
-                                                            setData(
-                                                                "newSession",
+                                                                    label: "Scheduled",
+                                                                    value: "scheduled",
+                                                                },
                                                                 {
-                                                                    ...data.newSession,
-                                                                    session_remarks:
-                                                                        e.target
-                                                                            .value,
-                                                                }
-                                                            )
-                                                        }
-                                                        placeholder="Optional remarks"
-                                                        className="border-gray-300 focus:ring-gray-400 focus:border-gray-400 rounded-lg p-2 w-full font-medium text-gray-700"
-                                                    />
+                                                                    label: "In Progress",
+                                                                    value: "in_progress",
+                                                                },
+                                                                {
+                                                                    label: "Completed",
+                                                                    value: "completed",
+                                                                },
+                                                                {
+                                                                    label: "Adjourned",
+                                                                    value: "adjourned",
+                                                                },
+                                                                {
+                                                                    label: "Cancelled",
+                                                                    value: "cancelled",
+                                                                },
+                                                                {
+                                                                    label: "No Show",
+                                                                    value: "no_show",
+                                                                },
+                                                            ]}
+                                                            className="border-gray-300 focus:ring-gray-400 focus:border-gray-400 rounded-lg p-2 w-full font-semibold text-gray-800"
+                                                        />
+                                                    </div>
+                                                    {/* Remarks */}
+                                                    <div>
+                                                        <InputLabel value="Remarks" />
+                                                        <InputField
+                                                            value={
+                                                                data.newSession
+                                                                    ?.session_remarks ||
+                                                                ""
+                                                            }
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    "newSession",
+                                                                    {
+                                                                        ...data.newSession,
+                                                                        session_remarks:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    }
+                                                                )
+                                                            }
+                                                            placeholder="Optional remarks"
+                                                            className="border-gray-300 focus:ring-gray-400 focus:border-gray-400 rounded-lg p-2 w-full font-medium text-gray-700"
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
+
                                     {/* Submit Buttons */}
-                                    {showNewSessionForm && (
-                                        <div className="flex w-full justify-end items-center mt-7 gap-4">
-                                            <Button
-                                                type="button"
-                                                onClick={() => reset()}
-                                                className="bg-gray-200 hover:bg-gray-300 text-gray-800"
-                                            >
-                                                <RotateCcw /> Reset
-                                            </Button>
-                                            <Button
-                                                type="submit"
-                                                className="w-60 bg-blue-700 hover:bg-blue-600 text-white"
-                                            >
-                                                <CalendarCheck className="w-4 h-4 mr-1" />
-                                                Create Summon Schedule
-                                            </Button>
-                                        </div>
-                                    )}
+
+                                    <div className="flex w-full justify-end items-center mt-7 gap-4">
+                                        <Button
+                                            type="button"
+                                            onClick={() => reset()}
+                                            className="bg-gray-200 hover:bg-gray-300 text-gray-800"
+                                        >
+                                            <RotateCcw /> Reset
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            className={`w-60 ${
+                                                data.summon_status === "closed"
+                                                    ? "bg-red-700 hover:bg-red-600"
+                                                    : "bg-blue-700 hover:bg-blue-600"
+                                            } text-white`}
+                                        >
+                                            <CalendarCheck className="w-4 h-4 mr-1" />
+                                            {data.summon_status === "closed"
+                                                ? "Update Summon Details"
+                                                : "Create Summon Schedule"}
+                                        </Button>
+                                    </div>
                                 </form>
                             </div>
                         </div>

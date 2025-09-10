@@ -2,7 +2,14 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, SquarePen, Trash2, SquarePlus, Eye } from "lucide-react";
+import {
+    Search,
+    SquarePen,
+    Trash2,
+    SquarePlus,
+    Eye,
+    ListPlus,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import { Toaster, toast } from "sonner";
@@ -328,10 +335,11 @@ export default function Index({ medications, puroks, queryParams }) {
                                                 href={route("medical.create")}
                                             >
                                                 <Button
-                                                    className="bg-blue-700 hover:bg-blue-400 "
+                                                    variant="outline"
+                                                    className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
                                                     type={"button"}
                                                 >
-                                                    <SquarePlus />
+                                                    <ListPlus />
                                                 </Button>
                                                 <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                                                     Add Medical Information

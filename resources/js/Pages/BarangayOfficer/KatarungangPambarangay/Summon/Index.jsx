@@ -292,12 +292,14 @@ export default function Index({ summons, queryParams, incident_types }) {
                         label: "View",
                         icon: <Eye className="w-4 h-4 text-indigo-600" />,
                         onClick: () =>
-                            router.visit(route("summons.show", summon.id)),
+                            router.visit(
+                                route("summon.show", summon.blotter_id)
+                            ),
                     },
                     {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
-                        onClick: () => handleEdit(summon.id),
+                        onClick: () => handleEdit(summon.blotter_id),
                     },
                     {
                         label: "Delete",
@@ -314,7 +316,7 @@ export default function Index({ summons, queryParams, incident_types }) {
         setIsDeleteModalOpen(true);
     };
     const confirmDelete = () => {
-        router.delete(route("blotter_report.destroy", recordToDelete));
+        router.delete(route("summon.destroy", recordToDelete));
         setIsDeleteModalOpen(false);
     };
 
@@ -453,6 +455,14 @@ export default function Index({ summons, queryParams, incident_types }) {
                                 />
                             )}
                         </SidebarModal>
+                        <DeleteConfirmationModal
+                            isOpen={isDeleteModalOpen}
+                            onClose={() => {
+                                setIsDeleteModalOpen(false);
+                            }}
+                            onConfirm={confirmDelete}
+                            residentId={recordToDelete}
+                        />
                     </div>
                 </div>
             </div>

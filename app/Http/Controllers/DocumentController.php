@@ -67,7 +67,7 @@ class DocumentController extends Controller
             return response()->json(['error' => 'Template file not found.'], 404);
         }
 
-        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($templatePath);
+        $templateProcessor = new TemplateProcessor($templatePath);
         $placeholders = $templateProcessor->getVariables();
 
         return response()->json([

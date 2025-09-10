@@ -10,6 +10,7 @@ import {
     Eye,
     MoveRight,
     RotateCcw,
+    ListPlus,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -587,7 +588,7 @@ export default function Members({
                                                 type={"button"}
                                                 onClick={handleAddMember}
                                             >
-                                                <SquarePlus />
+                                                <ListPlus />
                                             </Button>
                                             <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                                                 Add Institution Member

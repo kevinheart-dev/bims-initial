@@ -24,23 +24,64 @@ class StoreSummonRequest extends FormRequest
     {
         return [
             // Editable fields
+            'blotter_id'      => ['required', 'exists:blotter_reports,id'],
             'actions_taken'   => ['nullable', 'string', 'max:2000'],
             'recommendations' => ['nullable', 'string', 'max:2000'],
             'report_status'   => ['required', 'in:pending,on_going,resolved,elevated'],
             'summon_status'   => ['required', 'in:on_going,closed'],
+            'summon_remarks'  => ['nullable', 'string', 'max:2000'],
 
             // Participants
-            'complainants'              => ['required', 'array', 'min:1'],
-            'complainants.*.resident_id'=> ['required', 'integer', 'exists:residents,id'],
-            'complainants.*.role'       => ['nullable', 'string', 'max:100'],
+            'complainants' => ['required', 'array', 'min:1'],
 
-            'respondents'               => ['required', 'array', 'min:1'],
-            'respondents.*.resident_id' => ['required', 'integer', 'exists:residents,id'],
-            'respondents.*.role'        => ['nullable', 'string', 'max:100'],
+            'complainants.*.resident_id' => [
+                'nullable',
+                'integer',
+                'exists:residents,id',
+                'required_without:complainants.*.resident_name',
+            ],
 
-            'witnesses'                 => ['nullable', 'array'],
-            'witnesses.*.resident_id'   => ['required_with:witnesses', 'integer', 'exists:residents,id'],
-            'witnesses.*.role'          => ['nullable', 'string', 'max:100'],
+            'complainants.*.resident_name' => [
+                'nullable',
+                'string',
+                'max:255',
+                'required_without:complainants.*.resident_id',
+            ],
+            'complainants.*.notes' => ['nullable', 'string', 'max:2000'],
+
+            'respondents' => ['required', 'array', 'min:1'],
+
+            'respondents.*.resident_id' => [
+                'nullable',
+                'integer',
+                'exists:residents,id',
+                'required_without:respondents.*.resident_name',
+            ],
+
+            'respondents.*.resident_name' => [
+                'nullable',
+                'string',
+                'max:255',
+                'required_without:respondents.*.resident_id',
+            ],
+            'respondents.*.notes' => ['nullable', 'string', 'max:2000'],
+
+
+            'witnesses' => ['nullable', 'array'],
+            'witnesses.*.resident_id' => [
+                'nullable',
+                'integer',
+                'exists:residents,id',
+                'required_without:witnesses.*.resident_name',
+            ],
+            'witnesses.*.resident_name' => [
+                'nullable',
+                'string',
+                'max:255',
+                'required_without:witnesses.*.resident_id',
+            ],
+            'witnesses.*.notes' => ['nullable', 'string', 'max:2000'],
+
 
             // Existing summon sessions
             'summons'                   => ['nullable', 'array'],
@@ -52,11 +93,11 @@ class StoreSummonRequest extends FormRequest
             'summons.*.takes.*.session_remarks' => ['nullable', 'string', 'max:1000'],
 
             // New summon session
-            'newSession'                        => ['nullable', 'array'],
-            'newSession.session_number'         => ['nullable', 'integer', 'min:1'],
-            'newSession.hearing_date'           => ['nullable', 'date'],
-            'newSession.session_status'         => ['nullable', 'in:scheduled,in_progress,completed,adjourned,cancelled,no_show'],
-            'newSession.session_remarks'        => ['nullable', 'string', 'max:1000'],
+            'newSession'               => ['nullable', 'array'],
+            'newSession.session_number'=> ['nullable', 'integer', 'min:1'],
+            'newSession.hearing_date'  => ['nullable', 'date'],
+            'newSession.session_status'=> ['nullable', Rule::in(['scheduled','in_progress','completed','adjourned','cancelled','no_show'])],
+            'newSession.session_remarks'=> ['nullable', 'string', 'max:1000'],
         ];
     }
 

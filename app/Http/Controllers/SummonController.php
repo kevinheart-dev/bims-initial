@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BarangayOfficial;
 use App\Models\BlotterReport;
+use App\Models\CaseParticipant;
 use App\Models\Resident;
 use App\Models\Summon;
 use App\Http\Requests\StoreSummonRequest;
 use App\Http\Requests\UpdateSummonRequest;
+use App\Models\SummonTake;
+use DB;
 use Inertia\Inertia;
 
 class SummonController extends Controller
@@ -103,25 +107,133 @@ class SummonController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreSummonRequest $request)
     {
-        dd($request->all());
+        //dd($request->all());
+        DB::beginTransaction();
+
+        try {
+            $data = $request->validated();
+            //dd($data);
+
+            // 🔎 Find the related blotter
+            $blotter = BlotterReport::findOrFail($data['blotter_id']);
+
+            // 1️⃣ Update Blotter fields
+            $blotter->update([
+                'actions_taken'   => $data['actions_taken'] ?? $blotter->actions_taken,
+                'recommendations' => $data['recommendations'] ?? $blotter->recommendations,
+                'report_status'   => $data['report_status'] ?? $blotter->report_status,
+            ]);
+
+            // 2️⃣ Create or Update Summon
+            $summon = Summon::updateOrCreate(
+                ['blotter_id' => $blotter->id], // unique constraint
+                [
+                    'issued_by' => BarangayOfficial::where('resident_id', auth()->user()->resident_id)->value('id'),
+                    'status'    => $data['summon_status'],
+                    'remarks'   => $data['summon_remarks'] ?? null,
+                ]
+            );
+
+
+            // 3️⃣ Save Participants (sync with updateOrCreate)
+            $saveParticipants = function (array $participants, string $role) use ($blotter) {
+                foreach ($participants as $p) {
+                    // Skip if both resident_id and resident_name are missing
+                    if (empty($p['resident_id']) && empty($p['resident_name'])) {
+                        continue;
+                    }
+
+                    CaseParticipant::updateOrCreate(
+                        [
+                            'blotter_id'  => $blotter->id,
+                            'resident_id' => $p['resident_id'] ?? null,
+                            'role_type'   => $role,
+                        ],
+                        [
+                            'name'  => $p['resident_name'] ?? null, // ✅ adjusted
+                            'notes' => $p['notes'] ?? null,
+                        ]
+                    );
+                }
+            };
+
+            $saveParticipants($data['complainants'] ?? [], 'complainant');
+            $saveParticipants($data['respondents'] ?? [], 'respondent');
+            $saveParticipants($data['witnesses'] ?? [], 'witness');
+
+            // 4️⃣ Existing summon sessions (update or create)
+
+            if (!empty($data['summons'])) {
+                foreach ($data['summons'] as $s) {
+                    if (!empty($s['takes'])) {
+                        foreach ($s['takes'] as $take) {
+                            SummonTake::updateOrCreate(
+                                [
+                                    'summon_id'      => $summon->id,
+                                    'session_number' => $take['session_number'],
+                                ],
+                                [
+                                    'hearing_date'   => $take['hearing_date'] ?? null,
+                                    'session_status' => $take['session_status'] ?? null,
+                                    'session_remarks'=> $take['session_remarks'] ?? null,
+                                ]
+                            );
+                        }
+                    }
+                }
+            }
+
+            // 5️⃣ New summon session
+            if (!empty($data['newSession']['session_number'])) {
+                $newsessoin = SummonTake::updateOrCreate(
+                    [
+                        'summon_id'      => $summon->id,
+                        'session_number' => $data['newSession']['session_number'],
+                    ],
+                    [
+                        'hearing_date'   => $data['newSession']['hearing_date'] ?? null,
+                        'session_status' => $data['newSession']['session_status'] ?? null,
+                        'session_remarks'=> $data['newSession']['session_remarks'] ?? null,
+                    ]
+                );
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('summon.index')
+                ->with('success', 'Summon saved successfully!');
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            \Log::error("Summon Store Failed", [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->with('error', 'Failed to save summon. Please try again.' .  $e->getMessage());
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Summon $summon)
+    public function show($id)
     {
-        //
+        $blotter_details = BlotterReport::with([
+            'participants.resident:id,firstname,lastname,middlename,suffix,resident_picture_path,gender,birthdate,purok_number,contact_number,email',
+            'recordedBy.resident:id,firstname,lastname,middlename,suffix',
+            'summons.takes'
+        ])
+        ->where('id', $id)
+        ->firstOrFail();
+
+        return Inertia::render("BarangayOfficer/KatarungangPambarangay/Summon/Show", [
+            'blotter_details' => $blotter_details
+        ]);
     }
 
     /**
@@ -143,9 +255,23 @@ class SummonController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Summon $summon)
+    public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+
+        try {
+            $summon = Summon::findOrFail($id);
+            $summon->delete();
+
+            DB::commit();
+
+            return redirect()
+                ->route('summon.index') // ✅ adjust if needed
+                ->with('success', 'Summon and its related records deleted successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Summon could not be deleted: ' . $e->getMessage());
+        }
     }
 
     public function elevate($id)

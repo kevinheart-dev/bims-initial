@@ -12,6 +12,7 @@ export const ParticipantSection = ({
     residentsList,
     fieldKey = "resident_id",
     notesKey = "notes",
+    disableAdd = false,
 }) => {
     // Update selected resident
     const handleResidentArrayChange = (residentId, index) => {
@@ -191,15 +192,16 @@ export const ParticipantSection = ({
                     )}
                 </div>
             ))}
-
-            <button
-                type="button"
-                onClick={addItem}
-                className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
-            >
-                <IoIosAddCircleOutline className="text-2xl" />
-                <span>Add {title.slice(0, -1)}</span>
-            </button>
+            {!disableAdd && (
+                <button
+                    type="button"
+                    onClick={addItem}
+                    className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                >
+                    <IoIosAddCircleOutline className="text-2xl" />
+                    <span>Add {title.slice(0, -1)}</span>
+                </button>
+            )}
         </div>
     );
 };

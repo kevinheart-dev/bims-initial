@@ -6,6 +6,7 @@ import {
     FileCheck2,
     FilePlus2,
     FileUp,
+    ListPlus,
     Search,
     SquarePen,
     SquarePlus,
@@ -202,19 +203,27 @@ export default function Index({ documents, queryParams }) {
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="overflow-hidden bg-gray-50 shadow-sm rounded-xl sm:rounded-lg p-4 my-8 ">
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                            <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                                <h2 className="text-lg font-semibold">
-                                    List of Documents
-                                </h2>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full mb-4">
+                                {/* Title + Description */}
+                                <div className="flex flex-col">
+                                    <h2 className="text-xl font-semibold text-gray-800">
+                                        List of Documents
+                                    </h2>
+                                    <p className="text-sm text-gray-500">
+                                        Manage, search, and upload documents
+                                        within the system.
+                                    </p>
+                                </div>
 
+                                {/* Search & Add Button */}
                                 <div className="flex items-center gap-2 flex-wrap justify-end">
                                     <form
                                         onSubmit={handleSubmit}
-                                        className="flex w-[300px] max-w-lg items-center space-x-1"
+                                        className="flex w-[280px] max-w-lg items-center space-x-1"
                                     >
                                         <Input
                                             type="text"
-                                            placeholder="Search Name"
+                                            placeholder="Search by name"
                                             value={query}
                                             onChange={(e) =>
                                                 setQuery(e.target.value)
@@ -224,10 +233,10 @@ export default function Index({ documents, queryParams }) {
                                             }
                                             className="w-full"
                                         />
-                                        <div className="relative group z-50">
+                                        <div className="relative group">
                                             <Button
                                                 type="submit"
-                                                className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
+                                                className="border border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white active:bg-blue-900 flex items-center gap-2 bg-transparent"
                                                 variant="outline"
                                             >
                                                 <Search />
@@ -237,13 +246,14 @@ export default function Index({ documents, queryParams }) {
                                             </div>
                                         </div>
                                     </form>
-                                    <div className="relative group z-50">
+
+                                    <div className="relative group">
                                         <Button
                                             variant="outline"
                                             className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
                                             onClick={handleAddDocument}
                                         >
-                                            <SquarePlus className="w-4 h-4" />
+                                            <ListPlus className="w-4 h-4" />
                                         </Button>
                                         <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                                             Add a Document
@@ -266,146 +276,186 @@ export default function Index({ documents, queryParams }) {
                 </div>
                 <SidebarModal
                     isOpen={isModalOpen}
-                    onClose={() => {
-                        handleModalClose();
-                    }}
-                    title={"Add Document"}
+                    onClose={handleModalClose}
+                    title="Add Document"
                 >
-                    <div className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg text-sm text-black p-4 space-y-4">
-                        <form onSubmit={handleSubmitDocument}>
-                            <h3 className="text-xl font-medium text-gray-700 mb-8">
-                                Document Details
-                            </h3>
-
-                            <div className="grid grid-cols-1 md:grid-cols-6 gap-y-2 md:gap-x-4 mb-5 w-full">
-                                <div className="md:row-span-2 md:col-span-2 flex flex-col space-y-2">
-                                    <label
-                                        htmlFor="file"
-                                        className="text-sm font-medium"
-                                    >
-                                        File
-                                    </label>
-
-                                    <input
-                                        id="file"
-                                        type="file"
-                                        ref={fileInputRef}
-                                        onChange={(e) => {
-                                            setData(
-                                                "file",
-                                                e.target.files?.[0] || null
-                                            );
-                                        }}
-                                        className="w-full text-sm hidden"
-                                    />
-                                    <div
-                                        className={`flex items-center justify-center h-full border-2 border-blue-300 border-dashed rounded-md cursor-pointer${
-                                            data.file
-                                                ? " bg-blue-300"
-                                                : " bg-gray-50"
-                                        }`}
-                                        onClick={handleDivClick}
-                                        type="button"
-                                    >
-                                        <div className="flex flex-col items-center">
-                                            {data.file ? (
-                                                <FileCheck2 className="h-10 w-10 text-blue-500" />
-                                            ) : (
-                                                <FilePlus2 className="h-10 w-10 text-blue-500" />
-                                            )}
-                                            <p className="text-lg text-gray-600 mt-1 block">
-                                                {data.file
-                                                    ? data.file.name
-                                                    : "No file selected"}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    {data.file && (
-                                        <p className="text-sm text-gray-600 mt-1">
-                                            Selected: {data.file.name}
-                                        </p>
-                                    )}
-                                    {errors.file && (
-                                        <p className="text-xs text-red-600 mt-1">
-                                            {errors.file}
-                                        </p>
-                                    )}
-                                </div>
-
-                                {/* Name & Description */}
-                                <div className="md:col-span-4 flex flex-col space-y-4">
-                                    <div>
-                                        <label
-                                            htmlFor="name"
-                                            className="block text-sm font-medium"
-                                        >
-                                            Name
-                                        </label>
-                                        <InputField
-                                            id="name"
-                                            type="text"
-                                            name="name"
-                                            value={data.name}
-                                            onChange={(e) =>
-                                                setData("name", e.target.value)
-                                            }
-                                            placeholder="Document Name"
-                                            className="mt-1 w-full"
-                                        />
-                                        {errors.name && (
-                                            <p className="text-xs text-red-600 mt-1">
-                                                {errors.name}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            htmlFor="description"
-                                            className="block text-sm font-medium"
-                                        >
-                                            Description
-                                        </label>
-                                        <Textarea
-                                            id="description"
-                                            name="description"
-                                            value={data.description}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "description",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Enter description"
-                                            rows={4}
-                                            className="mt-1 w-full border border-gray-400 rounded-md shadow-sm "
-                                        />
-                                        {errors.description && (
-                                            <p className="text-xs text-red-600 mt-1">
-                                                {errors.description}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
+                    <div className="w-full p-4 bg-gray-50 rounded-md">
+                        <form
+                            onSubmit={handleSubmitDocument}
+                            className="space-y-6"
+                        >
+                            {/* Section Header */}
+                            <div>
+                                <h3 className="text-xl font-semibold text-gray-800">
+                                    Document Details
+                                </h3>
+                                <p className="text-sm text-gray-500">
+                                    Fill out the form below to upload a new
+                                    document.
+                                </p>
                             </div>
 
-                            <div className="flex justify-end items-center gap-2">
+                            {/* File Upload */}
+                            <div className="space-y-2">
+                                <label
+                                    htmlFor="file"
+                                    className="text-sm font-medium text-gray-700"
+                                >
+                                    Upload File
+                                </label>
+                                <input
+                                    id="file"
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={(e) =>
+                                        setData(
+                                            "file",
+                                            e.target.files?.[0] || null
+                                        )
+                                    }
+                                    className="hidden"
+                                />
+                                <div
+                                    onClick={handleDivClick}
+                                    onDragOver={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        e.currentTarget.classList.add(
+                                            "border-blue-400",
+                                            "bg-blue-50"
+                                        );
+                                    }}
+                                    onDragLeave={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        e.currentTarget.classList.remove(
+                                            "border-blue-400",
+                                            "bg-blue-50"
+                                        );
+                                    }}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        e.currentTarget.classList.remove(
+                                            "border-blue-400",
+                                            "bg-blue-50"
+                                        );
+
+                                        if (
+                                            e.dataTransfer.files &&
+                                            e.dataTransfer.files.length > 0
+                                        ) {
+                                            const file =
+                                                e.dataTransfer.files[0];
+                                            setData("file", file);
+
+                                            if (fileInputRef.current) {
+                                                fileInputRef.current.files =
+                                                    e.dataTransfer.files;
+                                            }
+
+                                            e.dataTransfer.clearData();
+                                        }
+                                    }}
+                                    className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg cursor-pointer transition ${
+                                        data.file
+                                            ? "border-blue-400 bg-blue-50"
+                                            : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50"
+                                    }`}
+                                >
+                                    {data.file ? (
+                                        <>
+                                            <FileCheck2 className="h-10 w-10 text-blue-500" />
+                                            <p className="mt-2 text-sm text-gray-700">
+                                                {data.file.name}
+                                            </p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FilePlus2 className="h-10 w-10 text-blue-400" />
+                                            <p className="mt-2 text-sm text-gray-500">
+                                                Click or drag & drop to upload
+                                            </p>
+                                        </>
+                                    )}
+                                </div>
+
+                                {errors.file && (
+                                    <p className="text-xs text-red-600">
+                                        {errors.file}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Document Name */}
+                            <div className="space-y-2">
+                                <label
+                                    htmlFor="name"
+                                    className="text-sm font-medium text-gray-700"
+                                >
+                                    Document Name
+                                </label>
+                                <InputField
+                                    id="name"
+                                    type="text"
+                                    name="name"
+                                    value={data.name}
+                                    onChange={(e) =>
+                                        setData("name", e.target.value)
+                                    }
+                                    placeholder="e.g., Barangay Clearance"
+                                    className="w-full"
+                                />
+                                {errors.name && (
+                                    <p className="text-xs text-red-600">
+                                        {errors.name}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Description */}
+                            <div className="space-y-2">
+                                <label
+                                    htmlFor="description"
+                                    className="text-sm font-medium text-gray-700"
+                                >
+                                    Description
+                                </label>
+                                <Textarea
+                                    id="description"
+                                    name="description"
+                                    value={data.description}
+                                    onChange={(e) =>
+                                        setData("description", e.target.value)
+                                    }
+                                    placeholder="Brief description of the document"
+                                    rows={4}
+                                    className="w-full text-gray-600"
+                                />
+                                {errors.description && (
+                                    <p className="text-xs text-red-600">
+                                        {errors.description}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex items-center justify-end gap-3 pt-6 border-t">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={handleModalClose}
+                                    className="px-4 py-2 rounded-lg text-gray-500 hover:text-black"
+                                >
+                                    Cancel
+                                </Button>
                                 <Button
                                     type="submit"
                                     disabled={processing}
-                                    className="bg-blue-700 hover:bg-blue-400"
+                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {processing ? "Submitting..." : "Submit"}
                                 </Button>
-                                {/* <Button
-                                    type="button"
-                                    variant="secondary"
-                                    onClick={() =>
-                                        reset("name", "description", "file")
-                                    }
-                                >
-                                    Reset
-                                </Button> */}
                             </div>
                         </form>
                     </div>

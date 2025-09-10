@@ -43,26 +43,44 @@ export default function Index({
     ];
     const APP_URL = useAppUrl();
     const [disableSubmit, setDisableSubmit] = useState(false);
+    const defaultPlacehodlers = [
+        "fullname",
+        "fullname_2",
+        "day",
+        "month",
+        "year",
+        "ctrl_no",
+        "civil_status",
+        "civil_status_2",
+        "purpose",
+        "purpose_2",
+        "purok",
+    ];
 
-    const { data, setData, post, errors, setError, reset, clearErrors } =
-        useForm({
-            resident_id: null,
-            resident_name: "",
-            document_id: null,
-            document_name: "",
-            birthdate: null,
-            age: null,
-            civil_status: "",
-            resident_image: "",
-            ethnicity: "",
-            purok_number: null,
-            street_name: "",
-            housenumber: "",
-            residency_date: "",
-            residency_type: "",
-            purpose: "",
-            placeholders: null,
-        });
+    const toPascalCase = (str) =>
+        str
+            .toLowerCase()
+            .replace(/(?:^|_)([a-z])/g, (_, char) => char.toUpperCase());
+
+    const { data, setData, errors, setError, reset, clearErrors } = useForm({
+        resident_id: null,
+        resident_name: "",
+        document_id: null,
+        document_name: "",
+        birthdate: null,
+        age: null,
+        civil_status: "",
+        resident_image: "",
+        purpose: "",
+        placeholders: null,
+
+        // second resident support
+        resident_id_2: null,
+        resident_name_2: "",
+        civil_status_2: "",
+        resident_image_2: "",
+        purpose_2: "",
+    });
 
     const months = [
         { label: "January", value: "1" },
@@ -81,7 +99,6 @@ export default function Index({
 
     const handleDocumentChange = async (e) => {
         const cert = documents.find((c) => c.id == e);
-
         if (cert) {
             setData("document_name", cert.name);
             setData("document_id", cert.id);
@@ -89,9 +106,6 @@ export default function Index({
                 const response = await axios.get(
                     `${APP_URL}/barangay_officer/document/fetchplaceholders/${e}`
                 );
-                console.log("Placeholders:", response.data);
-
-                // Optionally store the placeholders in state
                 setData("placeholders", response.data.placeholders);
             } catch (error) {
                 console.error("Error fetching placeholders:", error);
@@ -106,20 +120,37 @@ export default function Index({
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename} ${resident.lastname
+                `${resident.firstname} ${resident.middlename} ${
+                    resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("gender", resident.gender);
             setData("birthdate", resident.birthdate);
-            setData("housenumber", resident.latest_household.house_number);
             setData("civil_status", resident.civil_status);
             setData("resident_image", resident.resident_picture_path);
         }
     };
 
+    const handleSecondResidentChange = (e) => {
+        const resident_id = Number(e.target.value);
+        const resident = residents.find((r) => r.id == resident_id);
+        if (resident) {
+            setData("resident_id_2", resident.id);
+            setData(
+                "resident_name_2",
+                `${resident.firstname} ${resident.middlename} ${
+                    resident.lastname
+                } ${resident.suffix ?? ""}`
+            );
+            setData("civil_status_2", resident.civil_status);
+            setData("resident_image_2", resident.resident_picture_path);
+        }
+    };
+
     const residentsList = residents.map((resident) => ({
-        label: `${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname
-            }${resident.suffix ? ", " + resident.suffix : ""}`
+        label: `${resident.firstname} ${resident.middlename ?? ""} ${
+            resident.lastname
+        }${resident.suffix ? ", " + resident.suffix : ""}`
             .replace(/\s+/g, " ")
             .trim(),
         value: resident.id,
@@ -130,13 +161,16 @@ export default function Index({
         value: document.id.toString(),
     }));
 
+    const isDualTemplate = (data.placeholders || []).some((ph) =>
+        ph.endsWith("_2")
+    );
+
     // handles document issuance
     const handleIssue = async () => {
         setError({});
         setDisableSubmit(true);
         const newErrors = {};
 
-        // Basic required fields
         if (!data.resident_id)
             newErrors.resident_id = "Please select a resident.";
         if (!data.document_id)
@@ -144,21 +178,15 @@ export default function Index({
         if (!data.purpose || data.purpose.trim() === "")
             newErrors.purpose = "Purpose is required.";
 
-        // Validate dynamic placeholders
+        if (isDualTemplate) {
+            if (!data.resident_id_2)
+                newErrors.resident_id_2 = "Please select a second resident.";
+            if (!data.purpose_2 || data.purpose_2.trim() === "")
+                newErrors.purpose_2 = "Purpose for 2nd resident is required.";
+        }
+
         (data.placeholders || [])
-            .filter(
-                (placeholder) =>
-                    ![
-                        "fullname",
-                        "day",
-                        "month",
-                        "year",
-                        "ctrl_no",
-                        "civil_status",
-                        "purpose",
-                        "purok",
-                    ].includes(placeholder)
-            )
+            .filter((placeholder) => !defaultPlacehodlers.includes(placeholder))
             .forEach((placeholder) => {
                 if (!data[placeholder] || data[placeholder].trim() === "") {
                     newErrors[placeholder] = `${placeholder
@@ -169,7 +197,6 @@ export default function Index({
                 }
             });
 
-        // Set errors and stop if any
         if (Object.keys(newErrors).length > 0) {
             setError(newErrors);
             toast.error("Validation failed", {
@@ -181,25 +208,21 @@ export default function Index({
             return;
         }
 
-        // Prepare payload
         const payload = {
             document_id: data.document_id,
             resident_id: data.resident_id,
             purpose: data.purpose,
+            ...(isDualTemplate
+                ? {
+                      resident_id_2: data.resident_id_2,
+                      purpose_2: data.purpose_2,
+                  }
+                : {}),
             ...Object.fromEntries(
                 (data.placeholders || [])
                     .filter(
                         (placeholder) =>
-                            ![
-                                "fullname",
-                                "day",
-                                "month",
-                                "year",
-                                "ctrl_no",
-                                "civil_status",
-                                "purpose",
-                                "purok",
-                            ].includes(placeholder)
+                            !defaultPlacehodlers.includes(placeholder)
                     )
                     .map((placeholder) => [
                         placeholder,
@@ -238,10 +261,8 @@ export default function Index({
             router.get(route("certificate.index", { success: true }));
         } catch (error) {
             console.error("Issuance failed", error);
-
             const serverMessage =
                 error?.response?.data?.message || "Unknown error occurred.";
-
             toast.error("Failed to issue document", {
                 description: serverMessage,
                 duration: 5000,
@@ -336,8 +357,9 @@ export default function Index({
 
         name: (row) => {
             const r = row.resident ?? {};
-            const fullName = `${r.firstname ?? ""} ${r.middlename ?? ""} ${r.lastname ?? ""
-                } ${r.suffix ?? ""}`.trim();
+            const fullName = `${r.firstname ?? ""} ${r.middlename ?? ""} ${
+                r.lastname ?? ""
+            } ${r.suffix ?? ""}`.trim();
             return (
                 <span className="text-sm font-medium text-gray-800">
                     {fullName || "—"}
@@ -356,10 +378,11 @@ export default function Index({
         ),
         request_status: (row) => (
             <span
-                className={`text-xs font-medium ${CONSTANTS.CERTIFICATE_REQUEST_STATUS_CLASS[
-                    row.request_status
-                ]
-                    }`}
+                className={`text-xs font-medium ${
+                    CONSTANTS.CERTIFICATE_REQUEST_STATUS_CLASS[
+                        row.request_status
+                    ]
+                }`}
             >
                 {CONSTANTS.CERTIFICATE_REQUEST_STATUS_TEXT[
                     row.request_status
@@ -649,23 +672,23 @@ export default function Index({
                         }
                     >
                         {modalState === "add" && (
-                            <div className="flex justify-between overflow-hidden shadow-sm rounded-xl sm:rounded-lg p-4 my-8 bg-gray-100">
-                                <div className="w-full">
-                                    <p className="text-4xl font-bold text-center text-gray-800 mb-4">
-                                        Certificate Issuance
+                            <div className="bg-white shadow-xl rounded-2xl p-8 my-10 space-y-10 border border-gray-100">
+                                {/* Certificate & Resident Selection */}
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-800 mb-2">
+                                        Certificate & Resident Selection
+                                    </h2>
+                                    <p className="text-sm text-gray-500 mb-6">
+                                        Choose the type of certificate to issue
+                                        and select the resident(s) for whom it
+                                        will be generated.
                                     </p>
 
-                                    <h2 className="text-xl font-semibold text-gray-800 mb-1">
-                                        Certificate Information
-                                    </h2>
-                                    <p className="text-xs text-gray-600">
-                                        Kindly check the provided personal
-                                        information of the resident required.
-                                    </p>
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-full">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {/* Certificate */}
+                                        <div>
                                             <DropdownInputField
-                                                label={"Select a Certificate"}
+                                                label="Select a Certificate"
                                                 items={documentsList}
                                                 value={data.document_name || ""}
                                                 onChange={(e) =>
@@ -676,175 +699,202 @@ export default function Index({
                                             />
                                             <InputError
                                                 message={errors.document_id}
-                                                className="mt-2"
+                                                className="mt-1"
                                             />
+                                            <p className="text-xs text-gray-400 mt-1">
+                                                Example: Certificate of
+                                                Indigency, Residency, etc.
+                                            </p>
                                         </div>
-                                        <div className="w-full">
+
+                                        {/* Resident */}
+                                        <div>
                                             <DropdownInputField
-                                                label={"Select a Resident"}
+                                                label="Select a Resident"
                                                 items={residentsList}
                                                 value={data.resident_name || ""}
-                                                onChange={(e) =>
-                                                    handleResidentChange(e)
-                                                }
+                                                onChange={handleResidentChange}
                                             />
                                             <InputError
                                                 message={errors.resident_id}
-                                                className="mt-2"
+                                                className="mt-1"
                                             />
+                                            <p className="text-xs text-gray-400 mt-1">
+                                                The resident for whom this
+                                                certificate will be issued.
+                                            </p>
                                         </div>
-                                    </div>
 
-                                    <div className="flex flex-col mt-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-6 gap-y-2 md:gap-x-4 mb-5">
-                                            <div className="md:row-span-2 md:col-span-2 flex flex-col items-center space-y-2">
-                                                <InputLabel
-                                                    htmlFor={`resident_image`}
-                                                    value="Profile Photo"
-                                                />
-                                                <img
-                                                    src={
-                                                        data.resident_image
-                                                            ? `/storage/${data.resident_image}`
-                                                            : "/images/default-avatar.jpg"
+                                        {/* Dual Resident */}
+                                        {isDualTemplate && (
+                                            <div className="md:col-span-2">
+                                                <DropdownInputField
+                                                    label="Select Second Resident"
+                                                    items={residentsList}
+                                                    value={
+                                                        data.resident_name_2 ||
+                                                        ""
                                                     }
-                                                    alt={`Resident Image`}
-                                                    className="w-32 h-32 object-cover rounded-full border border-gray-200"
+                                                    onChange={
+                                                        handleSecondResidentChange
+                                                    }
                                                 />
+                                                <InputError
+                                                    message={
+                                                        errors.resident_id_2
+                                                    }
+                                                    className="mt-1"
+                                                />
+                                                <p className="text-xs text-gray-400 mt-1">
+                                                    Some certificates require
+                                                    two residents (e.g., joint
+                                                    certification).
+                                                </p>
                                             </div>
-                                            <div className="md:col-span-4 space-y-2">
-                                                <div className="w-full">
-                                                    <DropdownInputField
-                                                        label="Purpose"
-                                                        value={
-                                                            data.purpose || ""
-                                                        }
-                                                        name="purpose"
-                                                        placeholder="Enter the purpose of the certificate"
-                                                        onChange={(e) =>
-                                                            setData(
-                                                                "purpose",
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                    />
-                                                    <InputError
-                                                        message={errors.purpose}
-                                                        className="mt-2"
-                                                    />
-                                                </div>
+                                        )}
+                                    </div>
+                                </div>
 
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                                    <div>
-                                                        <InputField
-                                                            label="Birthdate"
-                                                            name="birthdate"
-                                                            value={
-                                                                data.birthdate
-                                                            }
-                                                            placeholder="Select a resident"
-                                                            readOnly={true}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <InputField
-                                                            label="Gender"
-                                                            name="gender"
-                                                            value={data.gender}
-                                                            placeholder="Select a resident"
-                                                            readOnly={true}
-                                                        />
-                                                    </div>{" "}
-                                                    <InputField
-                                                        label="Civil Status"
-                                                        name="civil_status"
-                                                        value={
-                                                            CONSTANTS
-                                                                .RESIDENT_CIVIL_STATUS_TEXT[
-                                                            data
-                                                                .civil_status
-                                                            ] || ""
-                                                        }
-                                                        readOnly
-                                                    />
-                                                    <InputField
-                                                        label="House Number"
-                                                        name="housenumber"
-                                                        value={
-                                                            data.housenumber ||
-                                                            ""
-                                                        }
-                                                        readOnly
-                                                    />
-                                                </div>
-                                            </div>
+                                {/* Purpose Section */}
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-800 mb-2">
+                                        Purpose
+                                    </h2>
+                                    <p className="text-sm text-gray-500 mb-6">
+                                        Provide the purpose of the certificate.
+                                        This will appear in the certification
+                                        document.
+                                    </p>
+
+                                    <div className="space-y-5">
+                                        <div>
+                                            <InputField
+                                                label="Purpose"
+                                                value={data.purpose || ""}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "purpose",
+                                                        e.target.value
+                                                    )
+                                                }
+                                            />
+                                            <InputError
+                                                message={errors.purpose}
+                                                className="mt-1"
+                                            />
+                                            <p className="text-xs text-gray-400 mt-1">
+                                                Example: Scholarship
+                                                requirement, job application,
+                                                financial assistance.
+                                            </p>
                                         </div>
-                                        <div className="grid-cols-1 sm:grid-cols-3 gap-4">
+
+                                        {isDualTemplate && (
+                                            <div>
+                                                <InputField
+                                                    label="Purpose (Second Resident)"
+                                                    value={data.purpose_2 || ""}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            "purpose_2",
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                />
+                                                <InputError
+                                                    message={errors.purpose_2}
+                                                    className="mt-1"
+                                                />
+                                                <p className="text-xs text-gray-400 mt-1">
+                                                    Provide a separate purpose
+                                                    if the second resident
+                                                    requires one.
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Dynamic Placeholders */}
+                                {data.placeholders?.length > 0 && (
+                                    <div>
+                                        <h2 className="text-xl font-bold text-gray-800 mb-2">
+                                            Additional Information
+                                        </h2>
+                                        <p className="text-sm text-gray-500 mb-6">
+                                            Some templates require extra
+                                            details. Fill out the fields below
+                                            if they are present in the template.
+                                        </p>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             {data.placeholders
-                                                ?.filter(
-                                                    (placeholder) =>
-                                                        ![
-                                                            "fullname",
-                                                            "day",
-                                                            "month",
-                                                            "year",
-                                                            "ctrl_no",
-                                                            "civil_status",
-                                                            "purpose",
-                                                            "purok",
-                                                        ].includes(placeholder)
+                                                .filter(
+                                                    (p) =>
+                                                        !defaultPlacehodlers.includes(
+                                                            p
+                                                        )
                                                 )
-                                                .map((placeholder, index) => (
-                                                    <div>
+                                                .map((placeholder, i) => (
+                                                    <div key={i}>
                                                         <InputField
-                                                            key={index}
-                                                            label={placeholder}
-                                                            name={placeholder}
+                                                            label={toPascalCase(
+                                                                placeholder
+                                                            )}
                                                             value={
                                                                 data[
-                                                                placeholder
+                                                                    placeholder
                                                                 ] || ""
                                                             }
                                                             onChange={(e) =>
                                                                 setData(
-                                                                    (prev) => ({
-                                                                        ...prev,
-                                                                        [placeholder]:
-                                                                            e
-                                                                                .target
-                                                                                .value,
-                                                                    })
+                                                                    placeholder,
+                                                                    e.target
+                                                                        .value
                                                                 )
                                                             }
                                                         />
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                placeholder
+                                                                    placeholder
                                                                 ]
                                                             }
-                                                            className="mt-2"
+                                                            className="mt-1"
                                                         />
+                                                        <p className="text-xs text-gray-400 mt-1">
+                                                            Provide information
+                                                            for{" "}
+                                                            <span className="font-medium">
+                                                                {toPascalCase(
+                                                                    placeholder
+                                                                )}
+                                                            </span>
+                                                            .
+                                                        </p>
                                                     </div>
                                                 ))}
                                         </div>
-                                        <div className="flex w-full justify-between items-center mt-7">
-                                            <Button
-                                                type="button"
-                                                onClick={() => reset()}
-                                            >
-                                                <RotateCcw /> Reset
-                                            </Button>
-
-                                            <Button
-                                                onClick={handleIssue}
-                                                className="bg-blue-700 hover:bg-blue-400"
-                                                disabled={disableSubmit}
-                                            >
-                                                Issue Certificate
-                                            </Button>
-                                        </div>
                                     </div>
+                                )}
+
+                                {/* Actions */}
+                                <div className="flex justify-between items-center border-t pt-6">
+                                    <Button
+                                        type="button"
+                                        onClick={() => reset()}
+                                        variant="outline"
+                                        className="flex items-center gap-2 text-gray-500"
+                                    >
+                                        <RotateCcw className="w-4 h-4" /> Reset
+                                    </Button>
+                                    <Button
+                                        onClick={handleIssue}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl shadow-md"
+                                        disabled={disableSubmit}
+                                    >
+                                        Issue Certificate
+                                    </Button>
                                 </div>
                             </div>
                         )}
