@@ -1,9 +1,8 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useCallback, useMemo } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import toast from "react-hot-toast";
 import Accordion from "../Accordion";
-
-// optimize na toh teh
+import React from "react";
 
 // ------------------------------------------------------
 // Constants
@@ -70,10 +69,11 @@ const defaultInfra = [
 ];
 
 // ------------------------------------------------------
-// Utility helpers
+// Utility helpers (memoized)
+const fields = ["male_no_dis", "male_dis", "female_no_dis", "female_dis", "lgbtq_no_dis", "lgbtq_dis"];
+
 const sumRow = (row) =>
-    ["male_no_dis", "male_dis", "female_no_dis", "female_dis", "lgbtq_no_dis", "lgbtq_dis"]
-        .reduce((s, f) => s + (Number(row[f]) || 0), 0);
+    fields.reduce((s, f) => s + (Number(row[f]) || 0), 0);
 
 const sumColumn = (data, field) =>
     data?.reduce((s, r) => s + (Number(r[field]) || 0), 0) || "";
@@ -83,9 +83,7 @@ const sumGrand = (data) =>
 
 // ------------------------------------------------------
 // Livelihood Table Component
-function LivelihoodTable({ data, updateRow, updateType, removeRow, addRow }) {
-    const fields = ["male_no_dis", "male_dis", "female_no_dis", "female_dis", "lgbtq_no_dis", "lgbtq_dis"];
-
+const LivelihoodTable = React.memo(function LivelihoodTable({ data, updateRow, updateType, removeRow, addRow }) {
     return (
         <section>
             <h2 className="text-lg font-semibold mb-3">Primary Livelihood of Residents</h2>
@@ -153,11 +151,11 @@ function LivelihoodTable({ data, updateRow, updateType, removeRow, addRow }) {
             <button className="mt-3 text-blue-600 hover:underline" onClick={addRow}>+ Add new row</button>
         </section>
     );
-}
+});
 
 // ------------------------------------------------------
 // Infrastructure Table Component
-function InfraTable({ category, catIdx, updateRow, removeRow, addRow }) {
+const InfraTable = React.memo(function InfraTable({ category, catIdx, updateRow, removeRow, addRow }) {
     return (
         <div className="flex flex-col border rounded">
             <h3 className="font-semibold text-md mb-2 p-2">{category.category}</h3>
@@ -208,72 +206,104 @@ function InfraTable({ category, catIdx, updateRow, removeRow, addRow }) {
             </div>
         </div>
     );
-}
+});
 
 // ------------------------------------------------------
 // Main Component
 export default function Livelihood() {
     const { craData, setCraData } = useContext(StepperContext);
 
-    // Initialize data if empty
+    // Initialize data only once (lazy)
     useEffect(() => {
-        if (!craData.livelihood?.length) {
-            setCraData((prev) => ({
-                ...prev,
-                livelihood: defaultLivelihoods.map((type) => ({
+        setCraData((prev) => ({
+            ...prev,
+            livelihood: prev.livelihood?.length
+                ? prev.livelihood
+                : defaultLivelihoods.map((type) => ({
                     type,
                     male_no_dis: "", male_dis: "", female_no_dis: "", female_dis: "", lgbtq_no_dis: "", lgbtq_dis: "",
                 })),
-            }));
-        }
-        if (!craData.infrastructure?.length) {
-            setCraData((prev) => ({ ...prev, infrastructure: defaultInfra }));
-        }
-    }, [craData, setCraData]);
+            infrastructure: prev.infrastructure?.length ? prev.infrastructure : defaultInfra,
+        }));
+    }, [setCraData]);
 
-    // Livelihood row updates
-    const updateRow = (i, field, val) => {
-        const updated = [...craData.livelihood];
-        updated[i][field] = val === "" ? "" : Number(val);
-        setCraData((prev) => ({ ...prev, livelihood: updated }));
-    };
-    const updateType = (i, val) => {
-        const updated = [...craData.livelihood];
-        updated[i].type = val;
-        setCraData((prev) => ({ ...prev, livelihood: updated }));
-    };
-    const addRow = () => {
+    // Handlers memoized
+    const updateRow = useCallback((i, field, val) => {
+        setCraData((prev) => {
+            const updated = [...prev.livelihood];
+            updated[i] = { ...updated[i], [field]: val === "" ? "" : Number(val) };
+            return { ...prev, livelihood: updated };
+        });
+    }, [setCraData]);
+
+    const updateType = useCallback((i, val) => {
+        setCraData((prev) => {
+            const updated = [...prev.livelihood];
+            updated[i] = { ...updated[i], type: val };
+            return { ...prev, livelihood: updated };
+        });
+    }, [setCraData]);
+
+    const addRow = useCallback(() => {
         setCraData((prev) => ({
             ...prev,
             livelihood: [...prev.livelihood, { type: "", male_no_dis: "", male_dis: "", female_no_dis: "", female_dis: "", lgbtq_no_dis: "", lgbtq_dis: "" }],
         }));
         toast.success("Row added!");
-    };
-    const removeRow = (i) => {
-        const removed = craData.livelihood[i]?.type || "Row";
-        setCraData((prev) => ({ ...prev, livelihood: prev.livelihood.filter((_, idx) => idx !== i) }));
-        toast.error(`${removed} removed!`);
-    };
+    }, [setCraData]);
 
-    // Infra row updates
-    const updateInfraRow = (catIdx, rowIdx, field, value) => {
-        const updated = [...craData.infrastructure];
-        updated[catIdx].rows[rowIdx][field] = field === "households" ? (value === "" ? "" : Number(value)) : value;
-        setCraData((prev) => ({ ...prev, infrastructure: updated }));
-    };
-    const addInfraRow = (catIdx) => {
-        const updated = [...craData.infrastructure];
-        updated[catIdx].rows.push({ type: "", households: "" });
-        setCraData((prev) => ({ ...prev, infrastructure: updated }));
-        toast.success(`New row added to "${updated[catIdx].category}"`);
-    };
-    const removeInfraRow = (catIdx, rowIdx) => {
-        const updated = [...craData.infrastructure];
-        const removed = updated[catIdx].rows[rowIdx]?.type || "row";
-        updated[catIdx].rows = updated[catIdx].rows.filter((_, i) => i !== rowIdx);
-        setCraData((prev) => ({ ...prev, infrastructure: updated }));
-        toast.error(`Removed "${removed}" from "${updated[catIdx].category}"`);
-    };
+    const removeRow = useCallback((i) => {
+        setCraData((prev) => ({
+            ...prev,
+            livelihood: prev.livelihood.filter((_, idx) => idx !== i),
+        }));
+        toast.error("Row removed!");
+    }, [setCraData]);
+
+    const updateInfraRow = useCallback((catIdx, rowIdx, field, value) => {
+        setCraData((prev) => {
+            const updated = prev.infrastructure.map((cat, i) =>
+                i === catIdx
+                    ? {
+                        ...cat,
+                        rows: cat.rows.map((row, j) =>
+                            j === rowIdx
+                                ? {
+                                    ...row,
+                                    [field]: field === "households" ? (value === "" ? "" : Number(value)) : value,
+                                }
+                                : row
+                        ),
+                    }
+                    : cat
+            );
+            return { ...prev, infrastructure: updated };
+        });
+    }, [setCraData]);
+
+    const addInfraRow = useCallback((catIdx) => {
+        setCraData((prev) => {
+            const updated = prev.infrastructure.map((cat, i) =>
+                i === catIdx
+                    ? { ...cat, rows: [...cat.rows, { type: "", households: "" }] }
+                    : cat
+            );
+            return { ...prev, infrastructure: updated };
+        });
+        toast.success("New row added!");
+    }, [setCraData]);
+
+    const removeInfraRow = useCallback((catIdx, rowIdx) => {
+        setCraData((prev) => {
+            const updated = prev.infrastructure.map((cat, i) =>
+                i === catIdx
+                    ? { ...cat, rows: cat.rows.filter((_, j) => j !== rowIdx) }
+                    : cat
+            );
+            return { ...prev, infrastructure: updated };
+        });
+        toast.error("Row removed!");
+    }, [setCraData]);
 
     return (
         <div className="space-y-4">
@@ -289,7 +319,6 @@ export default function Livelihood() {
 
             <Accordion title="C. Infrastructures and Institutions that provide services to the Barangay">
                 <div className="grid gap-4">
-                    {/* First row → 3 cols */}
                     <div className="grid grid-cols-3 gap-4">
                         {craData.infrastructure?.slice(0, 3).map((cat, idx) => (
                             <InfraTable
@@ -302,7 +331,6 @@ export default function Livelihood() {
                             />
                         ))}
                     </div>
-                    {/* Second row → 2 cols */}
                     <div className="grid grid-cols-2 gap-4">
                         {craData.infrastructure?.slice(3).map((cat, idx) => (
                             <InfraTable
