@@ -8,6 +8,7 @@ import { StepperContext } from "@/context/StepperContext";
 import Population from "@/Components/CRAsteps/Population";
 import { Toaster, toast } from "sonner";
 import Hazard from "@/Components/CRAsteps/Step3/Hazard";
+import Calamities from "@/Components/CRAsteps/Step2/Calamities";
 
 export default function Index() {
     const breadcrumbs = [
@@ -67,7 +68,7 @@ export default function Index() {
             case 1:
                 return <Population />;
             case 2:
-                return;
+                return <Calamities />;
             case 3:
                 return <Hazard />
 

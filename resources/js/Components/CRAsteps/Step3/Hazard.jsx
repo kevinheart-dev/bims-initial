@@ -4,7 +4,8 @@ import Accordion from "@/Components/Accordion";
 import toast from "react-hot-toast";
 import Risk from "./Risk";
 import ExposureDatabase from "./ExposureDatabase";
-
+import EffectDisaster from "./EffectDisaster";
+import Inventory from "./Inventory";
 const computeAverage = (h) => {
     if (h.probability === "" || h.effect === "" || h.management === "") return "";
     const avg = (Number(h.probability) + Number(h.effect) + Number(h.management)) / 3;
@@ -189,8 +190,16 @@ const Hazard = () => {
                 <Risk />
             </Accordion>
 
-            <Accordion title="3. Development an exposure database og those that can be directly affected by risks and hazards" >
+            <Accordion title="3. Development an exposure database of those that can be directly affected by risks and hazards" >
                 <ExposureDatabase />
+            </Accordion>
+            <Accordion title="4. Effects of Hazards or Disasters" >
+                <EffectDisaster />
+                <Inventory />
+            </Accordion>
+            <Accordion title="5. List of Designated Center and Temporary Isolation Facilities in the
+            Barangay and City (whether owned by the goverment or private)" >
+
             </Accordion>
         </div>
     );
