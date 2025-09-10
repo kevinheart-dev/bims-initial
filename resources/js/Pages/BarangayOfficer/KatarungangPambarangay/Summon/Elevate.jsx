@@ -80,7 +80,9 @@ export default function Elevate({ residents, blotter_details }) {
             session_status: "pending",
             session_remarks: "",
         },
-        summon_status: "pending", // status for the new summon
+        summon_status: blotter_details?.summons?.length
+            ? blotter_details.summons[blotter_details.summons.length - 1].status
+            : "",
         blotter_id: blotter_details.id,
     });
 
@@ -150,7 +152,7 @@ export default function Elevate({ residents, blotter_details }) {
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-                    {/* <pre>{JSON.stringify(blotter_details, undefined, 2)}</pre> */}
+                    <pre>{JSON.stringify(blotter_details, undefined, 2)}</pre>
                     <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 my-8">
                         <div className=" my-2 p-5">
                             {error && (
@@ -296,7 +298,7 @@ export default function Elevate({ residents, blotter_details }) {
                                         </div>
                                         <div>
                                             <SelectField
-                                                value={data.summon_status}
+                                                value={data.summon_status || ""}
                                                 label="Summon Status"
                                                 onChange={(value) =>
                                                     setData(

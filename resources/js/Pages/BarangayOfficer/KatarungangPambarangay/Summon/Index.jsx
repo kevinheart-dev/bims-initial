@@ -319,7 +319,7 @@ export default function Index({ summons, queryParams, incident_types }) {
     };
 
     const handleEdit = (id) => {
-        router.get(route("blotter_report.edit", id));
+        router.get(route("summon.elevate", id));
     };
 
     // feedback
