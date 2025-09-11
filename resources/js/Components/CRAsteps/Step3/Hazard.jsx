@@ -6,6 +6,7 @@ import Risk from "./Risk";
 import ExposureDatabase from "./ExposureDatabase";
 import EffectDisaster from "./EffectDisaster";
 import Inventory from "./Inventory";
+import Evacuation from "./Evacuation";
 const computeAverage = (h) => {
     if (h.probability === "" || h.effect === "" || h.management === "") return "";
     const avg = (Number(h.probability) + Number(h.effect) + Number(h.management)) / 3;
@@ -199,7 +200,7 @@ const Hazard = () => {
             </Accordion>
             <Accordion title="5. List of Designated Center and Temporary Isolation Facilities in the
             Barangay and City (whether owned by the goverment or private)" >
-
+                <Evacuation />
             </Accordion>
         </div>
     );
