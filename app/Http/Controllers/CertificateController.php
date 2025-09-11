@@ -251,8 +251,23 @@ class CertificateController extends Controller
             // --- Handle dual resident placeholders ---
             if (isset($data['resident_id_2'])) {
                 $resident2 = Resident::findOrFail($data['resident_id_2']);
-                $values    = $values->merge($this->prepareSecondResidentValues($resident2, $data));
+                if($resident2){
+                    $values = $values->merge($this->prepareSecondResidentValues($resident2, $data));
+                }
                 $secondResident = $resident2;
+            }else{
+                $val = collect([
+                    'fullname_2'     => str_repeat("\u{00A0}", 40),
+                    'civil_status_2' => str_repeat("\u{00A0}", 10),
+                    'gender_2'       => str_repeat("\u{00A0}", 8),
+                    'purpose_2'      => str_repeat("\u{00A0}", 50),
+                    'purok_2'        => str_repeat("\u{00A0}", 3),
+                    'day_2'          => str_repeat("\u{00A0}", 5),
+                    'month_2'        => str_repeat("\u{00A0}", 12),
+                    'year_2'         => str_repeat("\u{00A0}", 8),
+                    'issued_on'      => str_repeat("\u{00A0}", 30),
+                ]);
+                $values = $values->merge($val);
             }
 
             // Fill placeholders
@@ -372,6 +387,9 @@ class CertificateController extends Controller
     protected function prepareSecondResidentValues(Resident $resident2, array $data): \Illuminate\Support\Collection
     {
         $fullName2 = trim("{$resident2->firstname} {$resident2->middlename} {$resident2->lastname} {$resident2->suffix}");
+                // Format day with suffix
+        $day = now()->day;
+        $dayWithSuffix = $day . $this->getDaySuffix($day);
 
         return collect([
             'fullname_2'     => $fullName2,
@@ -379,6 +397,10 @@ class CertificateController extends Controller
             'gender_2'       => $resident2->gender,
             'purpose_2'      => $data['purpose_2'] ?? '',
             'purok_2'        => $resident2->purok_number,
+            'day_2'          => $dayWithSuffix,
+            'month_2'        => now()->format('F'),
+            'year_2'         => now()->format('Y'),
+            'issued_on'      =>now()->format('F') . " $dayWithSuffix, " . now()->format('Y'),
         ]);
     }
 

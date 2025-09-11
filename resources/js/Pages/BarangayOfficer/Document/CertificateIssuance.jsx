@@ -55,6 +55,10 @@ export default function Index({
         "purpose",
         "purpose_2",
         "purok",
+        "day_2",
+        "month_2",
+        "year_2",
+        "issued_on",
     ];
 
     const toPascalCase = (str) =>
@@ -178,12 +182,12 @@ export default function Index({
         if (!data.purpose || data.purpose.trim() === "")
             newErrors.purpose = "Purpose is required.";
 
-        if (isDualTemplate) {
-            if (!data.resident_id_2)
-                newErrors.resident_id_2 = "Please select a second resident.";
-            if (!data.purpose_2 || data.purpose_2.trim() === "")
-                newErrors.purpose_2 = "Purpose for 2nd resident is required.";
-        }
+        // if (isDualTemplate) {
+        //     if (!data.resident_id_2)
+        //         newErrors.resident_id_2 = "Please select a second resident.";
+        //     if (!data.purpose_2 || data.purpose_2.trim() === "")
+        //         newErrors.purpose_2 = "Purpose for 2nd resident is required.";
+        // }
 
         (data.placeholders || [])
             .filter((placeholder) => !defaultPlacehodlers.includes(placeholder))
