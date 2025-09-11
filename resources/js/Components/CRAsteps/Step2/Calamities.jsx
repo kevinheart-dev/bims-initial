@@ -3,6 +3,7 @@ import { StepperContext } from "@/context/StepperContext";
 import toast from "react-hot-toast";
 import React from "react";
 import { Plus, Minus } from "lucide-react";
+import Accordion from "@/Components/Accordion";
 
 // Fixed categories
 const populationCategories = [
@@ -724,38 +725,36 @@ export default function Calamities() {
 
     return (
         <div>
-            <p className="font-bold text-md">
-                1. Identify Calamities or Disasters in the Past Years and their Impact to the Community
-            </p>
+            <Accordion title="1. Identify Calamities or Disasters in the Past Years and their Impact to the Community">
+                <div className="flex justify-end mt-0 gap-2">
+                    {/* Add Calamity */}
+                    <button
+                        onClick={addCalamity}
+                        className="group relative flex items-center justify-center w-8 h-8 bg-blue-300 text-white rounded-full shadow hover:bg-blue-700 transition"
+                    >
+                        <Plus className="w-4 h-4" />
+                        <span className="absolute top-12 opacity-0 group-hover:opacity-100 transition bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                            Add Calamity
+                        </span>
+                    </button>
 
-            <div className="flex justify-end mt-0 gap-2">
-                {/* Add Calamity */}
-                <button
-                    onClick={addCalamity}
-                    className="group relative flex items-center justify-center w-8 h-8 bg-blue-300 text-white rounded-full shadow hover:bg-blue-700 transition"
-                >
-                    <Plus className="w-4 h-4" />
-                    <span className="absolute top-12 opacity-0 group-hover:opacity-100 transition bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-                        Add Calamity
-                    </span>
-                </button>
+                    {/* Remove Calamity */}
+                    <button
+                        onClick={removeCalamity}
+                        className="group relative flex items-center justify-center w-8 h-8 bg-red-300 text-white rounded-full shadow hover:bg-red-700 transition"
+                    >
+                        <Minus className="w-4 h-4" />
+                        <span className="absolute top-12 opacity-0 group-hover:opacity-100 transition bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
+                            Remove Calamity
+                        </span>
+                    </button>
+                </div>
 
-                {/* Remove Calamity */}
-                <button
-                    onClick={removeCalamity}
-                    className="group relative flex items-center justify-center w-8 h-8 bg-red-300 text-white rounded-full shadow hover:bg-red-700 transition"
-                >
-                    <Minus className="w-4 h-4" />
-                    <span className="absolute top-12 opacity-0 group-hover:opacity-100 transition bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
-                        Remove Calamity
-                    </span>
-                </button>
-            </div>
-
-            <CalamityTable
-                calamities={craData.calamities || []}
-                updateCell={updateCell}
-            />
+                <CalamityTable
+                    calamities={craData.calamities || []}
+                    updateCell={updateCell}
+                />
+            </Accordion>
         </div>
     );
 }

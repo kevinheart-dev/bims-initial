@@ -9,7 +9,8 @@ import Population from "@/Components/CRAsteps/Population";
 import { Toaster, toast } from "sonner";
 import Hazard from "@/Components/CRAsteps/Step3/Hazard";
 import Calamities from "@/Components/CRAsteps/Step2/Calamities";
-
+import InventoryEvacuation from "@/Components/CRAsteps/Step4/InventoryEvacuation";
+import DisasterReadiness from "@/Components/CRAsteps/Step5/DisasterReadiness";
 export default function Index() {
     const breadcrumbs = [
         { label: "Community Risk Assessment (CRA)", showOnMobile: false },
@@ -56,10 +57,8 @@ export default function Index() {
         "Barangay Resource Profile ",
         "Community Disaster History",
         "Barangay Risk Assessment",
-        "Exposure Database",
-        "Hazards & Disasters",
-        "Evacuation & Response",
-        "Summary",
+        "Inventory & Evacuations",
+        "Disaster Readiness",
     ];
 
     // Display CRA step forms
@@ -71,9 +70,10 @@ export default function Index() {
                 return <Calamities />;
             case 3:
                 return <Hazard />
-
-            case 7:
-                return <div>Summary Review Here</div>;
+            case 4:
+                return <InventoryEvacuation />
+            case 5:
+                return <DisasterReadiness />
             default:
         }
     };
