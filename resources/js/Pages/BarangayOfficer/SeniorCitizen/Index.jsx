@@ -325,8 +325,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename} ${
-                    resident.lastname
+                `${resident.firstname} ${resident.middlename} ${resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("purok_number", resident.purok_number);
@@ -407,8 +406,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename} ${
-                    resident.lastname
+                `${resident.firstname} ${resident.middlename} ${resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("purok_number", resident.purok_number);
@@ -559,10 +557,10 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
                     registerSenior
                         ? "Register Senior Citizen"
                         : seniorDetails
-                        ? "Edit Senior Citizen Details"
-                        : selectedResident
-                        ? "Resident Details"
-                        : ""
+                            ? "Edit Senior Citizen Details"
+                            : selectedResident
+                                ? "Resident Details"
+                                : ""
                 }
             >
                 {selectedResident && (

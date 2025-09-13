@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import DynamicTable from "@/Components/DynamicTable";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import { Skeleton } from "@/Components/ui/skeleton";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     Eye,
     ListPlus,
@@ -32,18 +32,33 @@ import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import { Toaster, toast } from "sonner";
 import InputLabel from "@/Components/InputLabel";
 
+// Reusable Skeleton Component for better readability
+const TableSkeleton = ({ rows, columns }) => (
+    <div className="space-y-3">
+        {Array.from({ length: rows }).map((_, rowIndex) => (
+            <div key={rowIndex} className="flex space-x-4">
+                {Array.from({ length: columns }).map((_, colIndex) => (
+                    <Skeleton key={colIndex} className="h-8 w-full" />
+                ))}
+            </div>
+        ))}
+    </div>
+);
+
 const FacilityIndex = () => {
     const APP_URL = useAppUrl();
+    const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalState, setModalState] = useState("");
-    const [facilityDetails, setFacilityDetails] = useState(null);
-    const props = usePage().props;
+    const [modalState, setModalState] = useState(""); // 'add' or 'edit'
+    const [facilityDetails, setFacilityDetails] = useState(null); // Used for pre-filling edit form
+    const { props } = usePage();
     const Toasterror = props?.error ?? null;
     const [queryParams, setQueryParams] = useState({});
-    const [query, setQuery] = useState(queryParams["name"] ?? "");
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
-    const [facilityToDelete, setFacilityToDelete] = useState(null); //delete
+    const [query, setQuery] = useState(queryParams["name"] ?? ""); // Search input state
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [facilityToDelete, setFacilityToDelete] = useState(null);
 
+    // Fetch facilities data using React Query
     const {
         data: getData,
         isLoading,
@@ -59,43 +74,57 @@ const FacilityIndex = () => {
             return data;
         },
         keepPreviousData: true,
-        staleTime: 1000 * 60 * 5,
+        staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
     const facilities = getData?.facilities;
-    const types = getData?.types;
-    const names = getData?.names;
+    const types = getData?.types; // Assuming these are static or fetched once
+    const names = getData?.names; // Assuming these are static or fetched once
 
-    const allColumns = [
-        { key: "id", label: "ID" },
-        { key: "image", label: "Image" },
-        { key: "name", label: "Name" },
-        { key: "facility_type", label: "Facilitiy Type" },
-        { key: "quantity", label: "Quantity" },
-        { key: "created_at", label: "Created At" },
-        { key: "updated_at", label: "Updated At" },
-        { key: "actions", label: "Actions" },
-    ];
+    const allColumns = useMemo(
+        () => [
+            { key: "id", label: "ID" },
+            { key: "image", label: "Image" },
+            { key: "name", label: "Name" },
+            { key: "facility_type", label: "Facility Type" },
+            { key: "quantity", label: "Quantity" },
+            { key: "created_at", label: "Created At" },
+            { key: "updated_at", label: "Updated At" },
+            { key: "actions", label: "Actions" },
+        ],
+        []
+    );
 
-    const defaultVisibleCols = allColumns.map((col) => col.key);
+    const defaultVisibleCols = useMemo(
+        () => allColumns.map((col) => col.key),
+        [allColumns]
+    );
     const [visibleColumns, setVisibleColumns] = useState(() => {
         const saved = localStorage.getItem("facilities_visible_columns");
         return saved ? JSON.parse(saved) : defaultVisibleCols;
     });
 
-    const hasActiveFilter = Object.entries(queryParams || {}).some(
-        ([key, value]) =>
-            ["faci_name", "faci_type"].includes(key) && value && value !== ""
+    // Check if any filters are active for initial `showFilters` state
+    const hasActiveFilter = useMemo(
+        () =>
+            Object.entries(queryParams || {}).some(
+                ([key, value]) =>
+                    ["faci_name", "faci_type"].includes(key) &&
+                    value &&
+                    value !== ""
+            ),
+        [queryParams]
     );
-
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
 
+    // Sync `showFilters` with `hasActiveFilter`
     useEffect(() => {
         if (hasActiveFilter) {
             setShowFilters(true);
         }
     }, [hasActiveFilter]);
 
+    // Save visible columns to local storage
     useEffect(() => {
         localStorage.setItem(
             "facilities_visible_columns",
@@ -103,269 +132,284 @@ const FacilityIndex = () => {
         );
     }, [visibleColumns]);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        searchFieldName("name", query);
-    };
+    // Inertia.js form handling
+    const { data, setData, post, errors, reset, clearErrors } = useForm({
+        facilities: [{}], // Initialize with one empty facility for "add" mode
+        _method: undefined,
+        facility_id: null,
+    });
 
-    const searchFieldName = (field, value) => {
+    // --- Handlers for filtering and searching ---
+    const searchFieldName = useCallback((field, value) => {
         setQueryParams((prev) => {
             const updated = { ...prev };
 
             if (value && value.trim() !== "" && value !== "All") {
                 updated[field] = value;
             } else {
-                delete updated[field]; // remove filter if blank or "All"
+                delete updated[field]; // Remove filter if blank or "All"
             }
 
-            // reset pagination when searching
-            delete updated.page;
-
-            return updated; // React Query will refetch automatically
+            delete updated.page; // Reset pagination when searching/filtering
+            return updated;
         });
-    };
+    }, []);
 
-    const onKeyPressed = (field, e) => {
-        if (e.key === "Enter") {
-            searchFieldName(field, e.target.value);
-        }
-    };
+    const handleSubmitSearch = useCallback(
+        (e) => {
+            e.preventDefault();
+            searchFieldName("name", query);
+        },
+        [searchFieldName, query]
+    );
 
-    const columnRenderers = {
-        id: (row) => row.id,
-        image: (row) => (
-            <img
-                src={
-                    row.facility_image
-                        ? `/storage/${row.facility_image}`
-                        : "/images/default-avatar.jpg"
-                }
-                onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = "/images/default-avatar.jpg";
-                }}
-                alt="Resident"
-                className="w-16 h-16 min-w-16 min-h-16 object-cover rounded-sm border"
-            />
-        ),
+    const onKeyPressed = useCallback(
+        (field, e) => {
+            if (e.key === "Enter") {
+                searchFieldName(field, e.target.value);
+            }
+        },
+        [searchFieldName]
+    );
 
-        name: (row) => (
-            <span className="font-medium text-gray-900">{row.name || "—"}</span>
-        ),
+    // --- Table Column Renderers ---
+    const columnRenderers = useMemo(
+        () => ({
+            id: (row) => row.id,
+            image: (row) => (
+                <img
+                    src={
+                        row.facility_image
+                            ? `/storage/${row.facility_image}`
+                            : "/images/default-avatar.jpg"
+                    }
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/images/default-avatar.jpg";
+                    }}
+                    alt="Facility"
+                    className="w-16 h-16 min-w-16 min-h-16 object-cover rounded-sm border"
+                />
+            ),
+            name: (row) => (
+                <span className="font-medium text-gray-900">
+                    {row.name || "—"}
+                </span>
+            ),
+            facility_type: (row) => (
+                <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-md text-xs font-medium capitalize">
+                    {row.facility_type || "—"}
+                </span>
+            ),
+            quantity: (row) => (
+                <span className="text-sm text-gray-700">
+                    {row.quantity ?? "—"}
+                </span>
+            ),
+            created_at: (row) => (
+                <span className="text-sm text-gray-500">
+                    {row.created_at
+                        ? new Date(row.created_at).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        })
+                        : "—"}
+                </span>
+            ),
+            updated_at: (row) => (
+                <span className="text-sm text-gray-500">
+                    {row.updated_at
+                        ? new Date(row.updated_at).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        })
+                        : "—"}
+                </span>
+            ),
+            actions: (row) => (
+                <ActionMenu
+                    actions={[
+                        {
+                            label: "Edit",
+                            icon: <SquarePen className="w-4 h-4 text-green-500" />,
+                            onClick: () => handleEdit(row.id),
+                        },
+                        {
+                            label: "Delete",
+                            icon: <Trash2 className="w-4 h-4 text-red-600" />,
+                            onClick: () => handleDeleteClick(row.id),
+                        },
+                    ]}
+                />
+            ),
+        }),
+        []
+    ); // Dependencies can be empty if `handleEdit` and `handleDeleteClick` are stable
 
-        facility_type: (row) => (
-            <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-md text-xs font-medium capitalize">
-                {row.facility_type || "—"}
-            </span>
-        ),
-
-        quantity: (row) => (
-            <span className="text-sm text-gray-700">{row.quantity ?? "—"}</span>
-        ),
-        created_at: (row) => (
-            <span className="text-sm text-gray-500">
-                {row.created_at
-                    ? new Date(row.created_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                      })
-                    : "—"}
-            </span>
-        ),
-
-        updated_at: (row) => (
-            <span className="text-sm text-gray-500">
-                {row.updated_at
-                    ? new Date(row.updated_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                      })
-                    : "—"}
-            </span>
-        ),
-
-        actions: (row) => (
-            <ActionMenu
-                actions={[
-                    {
-                        label: "Edit",
-                        icon: <SquarePen className="w-4 h-4 text-green-500" />,
-                        onClick: () => handleEdit(row.id),
-                    },
-                    {
-                        label: "Delete",
-                        icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDeleteClick(row.id),
-                    },
-                ]}
-            />
-        ),
-    };
-    // add
-    const handleAddFacility = () => {
-        setModalState("add");
-        setIsModalOpen(true);
-    };
-
-    const { data, setData, post, errors, reset, clearErrors } = useForm({
-        facilities: [[]],
-        _method: undefined,
-        facility_id: null,
-    });
-
-    const addFacility = () => {
-        setData("facilities", [...(data.facilities || []), {}]);
-    };
-
-    const removeFacility = (facIdx) => {
-        const updated = [...(data.facilities || [])];
-        updated.splice(facIdx, 1);
-        setData("facilities", updated);
-        toast.warning("Facility removed.", {
-            duration: 2000,
-        });
-    };
-    const handleModalClose = () => {
+    // --- Modal and Form Handlers ---
+    const handleModalClose = useCallback(() => {
         setIsModalOpen(false);
         setModalState("");
         setFacilityDetails(null);
-        reset();
+        reset(); // Reset Inertia form
         clearErrors();
-    };
+    }, [reset, clearErrors]);
 
-    const handlePrint = () => {
-        window.print();
-    };
-    const handleFacilityFieldChange = (value, facIdx, field) => {
-        setData((prevData) => {
-            const updated = [...prevData.facilities];
+    const handleAddFacility = useCallback(() => {
+        setModalState("add");
+        setIsModalOpen(true);
+        setData("facilities", [{}]); // Ensure a fresh, empty form
+    }, [setData]);
 
-            // if updating file input
-            if (field === "facility_image" && value instanceof File) {
-                updated[facIdx] = {
-                    ...updated[facIdx],
-                    facility_image: value, // store file for submission
-                    previewImage: URL.createObjectURL(value), // generate preview URL
-                };
-            } else {
-                // for other fields or preview assignment
-                updated[facIdx] = {
-                    ...updated[facIdx],
-                    [field]: value,
-                };
-            }
 
-            return { ...prevData, facilities: updated };
-        });
-    };
+    const addFacility = useCallback(() => {
+        setData("facilities", [...(data.facilities || []), {}]);
+    }, [data.facilities, setData]);
 
-    const handleSubmitFacility = (e) => {
-        e.preventDefault();
-        post(route("barangay_facility.store"), {
-            onError: (errors) => {
-                console.error("Validation Errors:", errors);
+    const removeFacility = useCallback(
+        (facIdx) => {
+            const updated = [...(data.facilities || [])];
+            updated.splice(facIdx, 1);
+            setData("facilities", updated);
+            toast.warning("Facility removed.", { duration: 2000 });
+        },
+        [data.facilities, setData]
+    );
 
-                const allErrors = Object.values(errors).join("<br />");
-                toast.error("Validation Error", {
-                    description: (
-                        <span dangerouslySetInnerHTML={{ __html: allErrors }} />
-                    ),
-                    duration: 3000,
-                    closeButton: true,
-                });
-            },
-            onSuccess: () => {
-                refetch();
-                handleModalClose();
-            },
-        });
-    };
-    // edit
-    const handleEdit = async (id) => {
-        setModalState("edit");
+    const handleFacilityFieldChange = useCallback(
+        (value, facIdx, field) => {
+            setData((prevData) => {
+                const updated = [...prevData.facilities];
 
-        try {
-            const response = await axios.get(
-                `${APP_URL}/barangay_facility/details/${id}`
-            );
-            const facility = response.data.facility;
-            setFacilityDetails(facility);
-            setData({
-                facilities: [
-                    {
-                        facility_image: facility.facility_image || null, // keep original DB filename
-                        previewImage: null, // no preview yet
-                        name: facility.name || "",
-                        facility_type: facility.facility_type || "",
-                        quantity: facility.quantity || 1,
-                    },
-                ],
-                _method: "PUT",
-                facility_id: facility.id,
+                if (field === "facility_image" && value instanceof File) {
+                    updated[facIdx] = {
+                        ...updated[facIdx],
+                        facility_image: value, // Store File object
+                        previewImage: URL.createObjectURL(value), // Generate URL for preview
+                    };
+                } else {
+                    updated[facIdx] = {
+                        ...updated[facIdx],
+                        [field]: value,
+                    };
+                }
+                return { ...prevData, facilities: updated };
             });
+        },
+        [setData]
+    );
 
-            setIsModalOpen(true);
-        } catch (error) {
-            console.error("Error fetching facility details:", error);
-        }
-    };
-
-    const handleUpdateFacility = (e) => {
-        e.preventDefault();
-        post(route("barangay_facility.update", data.facility_id), {
-            onError: (errors) => {
-                console.error("Validation Errors:", errors);
-
-                const allErrors = Object.values(errors).join("<br />");
-                toast.error("Validation Error", {
-                    description: (
-                        <span dangerouslySetInnerHTML={{ __html: allErrors }} />
-                    ),
-                    duration: 3000,
-                    closeButton: true,
-                });
-            },
-            onSuccess: () => {
-                refetch(); // refresh the list
-                handleModalClose();
-            },
+    const showToastError = useCallback((errors) => {
+        const allErrors = Object.values(errors).join("<br />");
+        toast.error("Validation Error", {
+            description: (
+                <span dangerouslySetInnerHTML={{ __html: allErrors }} />
+            ),
+            duration: 3000,
+            closeButton: true,
         });
-    };
+    }, []);
 
-    // delete
-    const handleDeleteClick = (id) => {
+    // Mutation for adding a facility
+    const addFacilityMutation = useMutation({
+        mutationFn: (formData) =>
+            post(route("barangay_facility.store"), formData),
+        onError: showToastError,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["facilities"]); // Invalidate and refetch
+            handleModalClose();
+            toast.success("Facility added successfully!");
+        },
+    });
+
+    const handleSubmitFacility = useCallback(
+        (e) => {
+            e.preventDefault();
+            addFacilityMutation.mutate(data);
+        },
+        [addFacilityMutation, data]
+    );
+
+    // Mutation for updating a facility
+    const updateFacilityMutation = useMutation({
+        mutationFn: (formData) =>
+            post(route("barangay_facility.update", data.facility_id), formData),
+        onError: showToastError,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["facilities"]);
+            handleModalClose();
+            toast.success("Facility updated successfully!");
+        },
+    });
+
+    const handleEdit = useCallback(
+        async (id) => {
+            setModalState("edit");
+            try {
+                const response = await axios.get(
+                    `${APP_URL}/barangay_facility/details/${id}`
+                );
+                const facility = response.data.facility;
+                setFacilityDetails(facility);
+                setData({
+                    facilities: [
+                        {
+                            facility_image: facility.facility_image || null,
+                            previewImage: null,
+                            name: facility.name || "",
+                            facility_type: facility.facility_type || "",
+                            quantity: facility.quantity || 1,
+                        },
+                    ],
+                    _method: "PUT", // Important for Inertia to recognize as PUT
+                    facility_id: facility.id,
+                });
+                setIsModalOpen(true);
+            } catch (error) {
+                console.error("Error fetching facility details:", error);
+                toast.error("Failed to load facility for editing.");
+            }
+        },
+        [APP_URL, setData]
+    );
+
+    const handleUpdateFacility = useCallback(
+        (e) => {
+            e.preventDefault();
+            updateFacilityMutation.mutate(data);
+        },
+        [updateFacilityMutation, data]
+    );
+
+    // Mutation for deleting a facility
+    const deleteFacilityMutation = useMutation({
+        mutationFn: (id) =>
+            router.delete(route("barangay_facility.destroy", id)),
+        onError: showToastError,
+        onSuccess: () => {
+            queryClient.invalidateQueries(["facilities"]);
+            handleModalClose();
+            setIsDeleteModalOpen(false);
+            toast.success("Facility deleted successfully!");
+        },
+    });
+
+    const handleDeleteClick = useCallback((id) => {
         setFacilityToDelete(id);
         setIsDeleteModalOpen(true);
-    };
+    }, []);
 
-    const confirmDelete = () => {
-        router.delete(route("barangay_facility.destroy", facilityToDelete), {
-            onError: (errors) => {
-                console.error("Validation Errors:", errors);
+    const confirmDelete = useCallback(() => {
+        deleteFacilityMutation.mutate(facilityToDelete);
+    }, [deleteFacilityMutation, facilityToDelete]);
 
-                const allErrors = Object.values(errors).join("<br />");
-                toast.error("Validation Error", {
-                    description: (
-                        <span dangerouslySetInnerHTML={{ __html: allErrors }} />
-                    ),
-                    duration: 3000,
-                    closeButton: true,
-                });
-            },
-            onSuccess: () => {
-                refetch();
-                handleModalClose();
-            },
-        });
-        setIsDeleteModalOpen(false);
-    };
-
+    // Effect to show backend errors
     useEffect(() => {
         if (Toasterror) {
             toast.error(Toasterror, {
@@ -373,9 +417,14 @@ const FacilityIndex = () => {
                 duration: 3000,
                 closeButton: true,
             });
+            // Clear the error from props after displaying
+            props.error = null;
         }
-        props.error = null;
-    }, [Toasterror]);
+    }, [Toasterror, props]);
+
+    const handlePrint = useCallback(() => {
+        window.print();
+    }, []);
 
     if (isLoading) {
         return (
@@ -385,14 +434,15 @@ const FacilityIndex = () => {
             </div>
         );
     }
+
     if (isError) {
         return <div className="text-red-500">Error: {error.message}</div>;
     }
+
     return (
         <div className="p-2 md:px-2 md:py-2">
             <Toaster richColors />
             <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                {/* <pre>{JSON.stringify(facilities, undefined, 3)}</pre> */}
                 <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                     <div className="flex items-center gap-2 flex-wrap">
                         <DynamicTableControls
@@ -408,7 +458,7 @@ const FacilityIndex = () => {
                     </div>
                     <div className="flex items-center gap-2 flex-wrap justify-end">
                         <form
-                            onSubmit={handleSubmit}
+                            onSubmit={handleSubmitSearch}
                             className="flex w-[300px] max-w-lg items-center space-x-1"
                         >
                             <Input
@@ -428,9 +478,6 @@ const FacilityIndex = () => {
                             >
                                 <Search />
                             </Button>
-                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                Search
-                            </div>
                         </form>
                         <div className="relative group z-50">
                             <Button
@@ -457,7 +504,7 @@ const FacilityIndex = () => {
                             names={names}
                             setQueryParams={setQueryParams}
                             setQuery={setQuery}
-                            clearRouteAxios={true}
+                            clearRouteAxios={true} // Consider if this is truly needed or can be handled by setQueryParams
                         />
                     )}
                     <DynamicTable
@@ -471,15 +518,13 @@ const FacilityIndex = () => {
             </div>
             <SidebarModal
                 isOpen={isModalOpen}
-                onClose={() => {
-                    handleModalClose();
-                }}
-                title={modalState == "add" ? "Add Facility" : "Edit Facility"}
+                onClose={handleModalClose}
+                title={modalState === "add" ? "Add Facility" : "Edit Facility"}
             >
                 <form
                     className="bg-gray-50 p-4 rounded-lg"
                     onSubmit={
-                        facilityDetails
+                        modalState === "edit"
                             ? handleUpdateFacility
                             : handleSubmitFacility
                     }
@@ -499,25 +544,22 @@ const FacilityIndex = () => {
                                 className="border p-4 mb-4 rounded-md relative bg-gray-50"
                             >
                                 <div className="grid grid-cols-1 md:grid-cols-6 mb-6">
-                                    {/* Facility Details */}
                                     <div className="md:col-span-2 flex flex-col items-center space-y-2">
                                         <InputLabel
                                             htmlFor={`facility_image_${facIdx}`}
                                             value="Facility Photo"
                                         />
-
                                         <img
                                             src={
                                                 facility.previewImage
-                                                    ? facility.previewImage // If user selected new file (preview)
+                                                    ? facility.previewImage
                                                     : facility.facility_image
-                                                    ? `/storage/${facility.facility_image}` // If existing image in DB
-                                                    : "/images/default-avatar.jpg" // Fallback placeholder
+                                                        ? `/storage/${facility.facility_image}`
+                                                        : "/images/default-avatar.jpg"
                                             }
                                             alt="Facility Image"
                                             className="w-32 h-32 object-cover rounded-sm border border-gray-200"
                                         />
-
                                         <input
                                             id={`facility_image_${facIdx}`}
                                             type="file"
@@ -532,24 +574,18 @@ const FacilityIndex = () => {
                                                     );
                                                 }
                                             }}
-                                            className="block w-full text-sm text-gray-500
-                                                                                            file:mr-2 file:py-1 file:px-3
-                                                                                            file:rounded file:border-0
-                                                                                            file:text-xs file:font-semibold
-                                                                                            file:bg-blue-50 file:text-blue-700
-                                                                                            hover:file:bg-blue-100"
+                                            className="block w-full text-sm text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                         />
                                         <InputError
                                             message={
                                                 errors[
-                                                    `facilities.${facIdx}.facility_image`
+                                                `facilities.${facIdx}.facility_image`
                                                 ]
                                             }
                                             className="mt-2"
                                         />
                                     </div>
                                     <div className="md:col-span-4 space-y-4">
-                                        {/* Facility Name */}
                                         <InputField
                                             label="Facility Name"
                                             type="text"
@@ -567,13 +603,12 @@ const FacilityIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `facilities.${facIdx}.name`
+                                                `facilities.${facIdx}.name`
                                                 ]
                                             }
                                             className="mt-1"
                                         />
 
-                                        {/* Facility Type + Quantity */}
                                         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                                             <div className="sm:col-span-2">
                                                 <DropdownInputField
@@ -621,7 +656,7 @@ const FacilityIndex = () => {
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `facilities.${facIdx}.facility_type`
+                                                        `facilities.${facIdx}.facility_type`
                                                         ]
                                                     }
                                                     className="mt-1"
@@ -648,7 +683,7 @@ const FacilityIndex = () => {
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `facilities.${facIdx}.quantity`
+                                                        `facilities.${facIdx}.quantity`
                                                         ]
                                                     }
                                                     className="mt-1"
@@ -657,8 +692,7 @@ const FacilityIndex = () => {
                                         </div>
                                     </div>
                                 </div>
-
-                                {facilityDetails === null && (
+                                {modalState === "add" && (
                                     <button
                                         type="button"
                                         onClick={() => removeFacility(facIdx)}
@@ -670,9 +704,8 @@ const FacilityIndex = () => {
                             </div>
                         ))}
 
-                    {/* Footer Buttons */}
                     <div className="flex justify-between items-center p-3">
-                        {facilityDetails === null ? (
+                        {modalState === "add" ? (
                             <button
                                 type="button"
                                 onClick={addFacility}
@@ -686,17 +719,20 @@ const FacilityIndex = () => {
                         )}
 
                         <div className="flex justify-end items-center text-end mt-5 gap-4">
-                            {facilityDetails == null && (
+                            {modalState === "add" && (
                                 <Button type="button" onClick={() => reset()}>
                                     <RotateCcw /> Reset
                                 </Button>
                             )}
-
                             <Button
-                                className="bg-blue-700 hover:bg-blue-400 "
-                                type={"submit"}
+                                className="bg-blue-700 hover:bg-blue-400"
+                                type="submit"
+                                disabled={
+                                    addFacilityMutation.isLoading ||
+                                    updateFacilityMutation.isLoading
+                                }
                             >
-                                {facilityDetails ? "Update" : "Add"}{" "}
+                                {modalState === "edit" ? "Update" : "Add"}{" "}
                                 <IoIosArrowForward />
                             </Button>
                         </div>
@@ -705,11 +741,9 @@ const FacilityIndex = () => {
             </SidebarModal>
             <DeleteConfirmationModal
                 isOpen={isDeleteModalOpen}
-                onClose={() => {
-                    setIsDeleteModalOpen(false);
-                }}
+                onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={confirmDelete}
-                residentId={facilityToDelete}
+                residentId={facilityToDelete} // Renamed prop for clarity if used
             />
         </div>
     );

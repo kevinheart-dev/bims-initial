@@ -1,3 +1,4 @@
+import React, { useMemo } from "react";
 import { Skeleton } from "@/Components/ui/skeleton";
 import {
     PieChart,
@@ -17,23 +18,16 @@ import { FileChartPie } from 'lucide-react';
 
 // --- Color constants and data processing logic ---
 
-// Shades of blue for Gender
-const COLORS_GENDER = ["#2563EB", "#60A5FA", "#1E40AF"]; // Male, Female, LGBTQ
-// Shades of green for Social Welfare
-const COLORS_WELFARE = ["#2563EB", "#60A5FA", "#1E40AF"]; // PWD, 4Ps, Solo Parent
-// Colors for Puroks
+const COLORS_GENDER = ["#2563EB", "#60A5FA", "#1E40AF"];
+const COLORS_WELFARE = ["#2563EB", "#60A5FA", "#1E40AF"];
 const COLORS_PUROK = ["#1E40AF"];
-// Colors for Voters
-const COLORS_VOTERS = ["#2563EB", "#60A5FA"]; // Registered, Unregistered
-// Colors for Employment Status
+const COLORS_VOTERS = ["#2563EB", "#60A5FA"];
 const COLORS_EMPLOYMENT = [
     "#1E3A8A", "#1D4ED8", "#2563EB", "#3B82F6", "#60A5FA"
 ];
-// Colors for Age
 const COLORS_AGE = [
     "#1E3A8A", "#1D4ED8", "#2563EB", "#3B82F6", "#60A5FA", "#93C5FD", "#BFDBFE"
 ];
-// Colors for Civil Status
 const COLORS_CIVIL = [
     "#1E3A8A", "#2563EB", "#3B82F6", "#60A5FA", "#93C5FD", "#BFDBFE", "#DBEAFE"
 ];
@@ -48,18 +42,123 @@ const AGE_GROUPS = [
     { label: "60+y", min: 60, max: Infinity },
 ];
 
-const ResidentCharts = ({ residents, isLoading }) => {
-    const residentArray = Array.isArray(residents) ? residents : residents?.data || [];
-
-    const ChartSkeleton = ({ height }) => (
-        <div className="bg-white shadow-lg rounded-2xl p-6">
-            <div className="h-5 w-32 bg-gray-200 rounded mb-4 animate-pulse"></div>
-            <div className="w-full" style={{ height }}>
-                <div className="w-full h-full bg-gray-100 rounded animate-pulse"></div>
-            </div>
+const ChartSkeleton = React.memo(({ height }) => (
+    <div className="bg-white shadow-lg rounded-2xl p-6">
+        <div className="h-5 w-32 bg-gray-200 rounded mb-4 animate-pulse"></div>
+        <div className="w-full" style={{ height }}>
+            <div className="w-full h-full bg-gray-100 rounded animate-pulse"></div>
         </div>
-    );
+    </div>
+));
 
+const getAge = (birthdate) => {
+    if (!birthdate) return null;
+    const birthDateObj = new Date(birthdate);
+    if (isNaN(birthDateObj.getTime())) return null;
+    const now = new Date();
+    return (now - birthDateObj) / 31557600000; // Milliseconds in a year
+};
+
+const getAgeGroup = (age) => {
+    if (age === null) return null;
+    return AGE_GROUPS.find(g => age >= g.min && age < g.max)?.label || null;
+};
+
+
+const ResidentCharts = ({ residents, isLoading }) => {
+    // --- ALL HOOKS MUST BE CALLED UNCONDITIONALLY AT THE TOP LEVEL ---
+
+    // 1. Memoize residentArray first
+    const residentArray = useMemo(() => Array.isArray(residents) ? residents : residents?.data || [], [residents]);
+
+    // 2. Memoize all derived data calculations. These MUST be called regardless of isLoading or residentArray.length.
+    const { genderData, totalGender } = useMemo(() => {
+        const counts = residentArray.reduce((acc, r) => {
+            let g = (r.gender || "Unknown").toLowerCase().trim();
+            g = (g === "male" || g === "m") ? "Male" : (g === "female" || g === "f") ? "Female" : "LGBTQ";
+            acc[g] = (acc[g] || 0) + 1;
+            return acc;
+        }, { Male: 0, Female: 0, LGBTQ: 0 });
+        const data = Object.entries(counts).map(([name, value]) => ({ name, value }));
+        const total = data.reduce((sum, item) => sum + item.value, 0);
+        return { genderData: data, totalGender: total };
+    }, [residentArray]);
+
+    const { welfareData, totalWelfare } = useMemo(() => {
+        const counts = residentArray.reduce((acc, r) => {
+            acc.PWD = (acc.PWD || 0) + (r.is_pwd ? 1 : 0);
+            acc.FourPs = (acc.FourPs || 0) + (r.is4ps ? 1 : 0);
+            acc.SoloParent = (acc.SoloParent || 0) + (r.isSoloParent ? 1 : 0);
+            return acc;
+        }, { PWD: 0, FourPs: 0, SoloParent: 0 });
+        const data = Object.entries(counts).map(([name, value]) => ({ name, value }));
+        const total = data.reduce((sum, item) => sum + item.value, 0);
+        return { welfareData: data, totalWelfare: total };
+    }, [residentArray]);
+
+    const purokData = useMemo(() => {
+        const counts = residentArray.reduce((acc, r) => {
+            const p = r.purok_number || "Unknown";
+            acc[p] = (acc[p] || 0) + 1;
+            return acc;
+        }, {});
+        return Object.entries(counts).map(([name, value]) => ({ name, value }));
+    }, [residentArray]);
+
+    const voterData = useMemo(() => {
+        const counts = residentArray.reduce((acc, r) => {
+            const p = r.purok_number || "Unknown";
+            if (!acc[p]) acc[p] = { registered: 0, unregistered: 0 };
+            acc[p][r.registered_voter === 1 ? 'registered' : 'unregistered'] += 1;
+            return acc;
+        }, {});
+        return Object.entries(counts).map(([name, counts]) => ({ name, ...counts }));
+    }, [residentArray]);
+
+    const civilData = useMemo(() => {
+        const counts = residentArray.reduce((acc, r) => {
+            const status = (r.civil_status || "Unknown").toLowerCase().trim();
+            acc[status] = (acc[status] || 0) + 1;
+            return acc;
+        }, {});
+        return Object.entries(counts).map(([key, value]) => ({
+            name: key.charAt(0).toUpperCase() + key.slice(1),
+            value,
+        }));
+    }, [residentArray]);
+
+    const employmentData = useMemo(() => {
+        const counts = residentArray.reduce((acc, r) => {
+            const status = (r.employment_status || "unemployed").toLowerCase().trim();
+            const mapping = {
+                student: "Student",
+                employed: "Employed",
+                self_employed: "Self-Employed",
+                under_employed: "Under-Employed",
+                unemployed: "Unemployed",
+            };
+            const key = mapping[status] || "Unemployed";
+            acc[key] = (acc[key] || 0) + 1;
+            return acc;
+        }, {});
+        return Object.entries(counts).map(([name, value]) => ({ name, value }));
+    }, [residentArray]);
+
+    const ageCountsData = useMemo(() => {
+        const counts = residentArray.reduce((acc, r) => {
+            const group = getAgeGroup(getAge(r.birthdate));
+            if (group) acc[group] = (acc[group] || 0) + 1;
+            return acc;
+        }, {});
+        return counts;
+    }, [residentArray]);
+
+    const ageData = useMemo(() => {
+        return AGE_GROUPS.map(g => ({ name: g.label, value: ageCountsData[g.label] || 0 }));
+    }, [ageCountsData]);
+
+
+    // --- CONDITIONAL RENDERING AFTER ALL HOOKS HAVE BEEN CALLED ---
     if (isLoading) {
         return (
             <div className="pb-6">
@@ -87,7 +186,7 @@ const ResidentCharts = ({ residents, isLoading }) => {
             </div>
         );
     }
-    if (!residentArray || residentArray.length === 0) {
+    if (residentArray.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center p-6 text-gray-500">
                 <img
@@ -103,85 +202,7 @@ const ResidentCharts = ({ residents, isLoading }) => {
         );
     }
 
-
-
-
-
-    const genderCounts = residentArray.reduce((acc, r) => {
-        let g = (r.gender || "Unknown").toLowerCase().trim();
-        g = (g === "male" || g === "m") ? "Male" : (g === "female" || g === "f") ? "Female" : "LGBTQ";
-        acc[g] = (acc[g] || 0) + 1;
-        return acc;
-    }, { Male: 0, Female: 0, LGBTQ: 0 });
-    const genderData = Object.entries(genderCounts).map(([name, value]) => ({ name, value }));
-    const totalGender = genderData.reduce((sum, item) => sum + item.value, 0);
-
-    const welfareCounts = residentArray.reduce((acc, r) => {
-        acc.PWD = (acc.PWD || 0) + (r.is_pwd ? 1 : 0);
-        acc.FourPs = (acc.FourPs || 0) + (r.is4ps ? 1 : 0);
-        acc.SoloParent = (acc.SoloParent || 0) + (r.isSoloParent ? 1 : 0);
-        return acc;
-    }, { PWD: 0, FourPs: 0, SoloParent: 0 });
-    const welfareData = Object.entries(welfareCounts).map(([name, value]) => ({ name, value }));
-    const totalWelfare = welfareData.reduce((sum, item) => sum + item.value, 0);
-
-    const purokCounts = residentArray.reduce((acc, r) => {
-        const p = r.purok_number || "Unknown";
-        acc[p] = (acc[p] || 0) + 1;
-        return acc;
-    }, {});
-    const purokData = Object.entries(purokCounts).map(([name, value]) => ({ name, value }));
-
-    const voterCounts = residentArray.reduce((acc, r) => {
-        const p = r.purok_number || "Unknown";
-        if (!acc[p]) acc[p] = { registered: 0, unregistered: 0 };
-        acc[p][r.registered_voter === 1 ? 'registered' : 'unregistered'] += 1;
-        return acc;
-    }, {});
-    const voterData = Object.entries(voterCounts).map(([name, counts]) => ({ name, ...counts }));
-
-    const civilCounts = residentArray.reduce((acc, r) => {
-        const status = (r.civil_status || "Unknown").toLowerCase().trim();
-        acc[status] = (acc[status] || 0) + 1;
-        return acc;
-    }, {});
-    const civilData = Object.entries(civilCounts).map(([key, value]) => ({
-        name: key.charAt(0).toUpperCase() + key.slice(1),
-        value,
-    }));
-
-    const employmentCounts = residentArray.reduce((acc, r) => {
-        const status = (r.employment_status || "unemployed").toLowerCase().trim();
-        const mapping = {
-            student: "Student",
-            employed: "Employed",
-            self_employed: "Self-Employed",
-            under_employed: "Under-Employed",
-            unemployed: "Unemployed",
-        };
-        const key = mapping[status] || "Unemployed";
-        acc[key] = (acc[key] || 0) + 1;
-        return acc;
-    }, {});
-    const employmentData = Object.entries(employmentCounts).map(([name, value]) => ({ name, value }));
-
-    const getAge = (birthdate) => {
-        if (!birthdate) return null;
-        const birthDateObj = new Date(birthdate);
-        return isNaN(birthDateObj) ? null : (new Date() - birthDateObj) / 31557600000; // Milliseconds in a year
-    };
-    const getAgeGroup = (age) => {
-        if (age === null) return null;
-        return AGE_GROUPS.find(g => age >= g.min && age < g.max)?.label || null;
-    };
-    const ageCounts = residentArray.reduce((acc, r) => {
-        const group = getAgeGroup(getAge(r.birthdate));
-        if (group) acc[group] = (acc[group] || 0) + 1;
-        return acc;
-    }, {});
-    const ageData = AGE_GROUPS.map(g => ({ name: g.label, value: ageCounts[g.label] || 0 }));
-
-    console.log(residentArray);
+    // Now render the actual charts, as all data is ready and hooks are called
     return (
         <div className="pb-6">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
