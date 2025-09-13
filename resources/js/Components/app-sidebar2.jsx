@@ -1,42 +1,30 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom"; // For accessing the current route
+import { useLocation } from "react-router-dom";
 import {
     Home,
-    Users,
+    FileStack,
     FileText,
-    Search,
-    Settings,
-    FileCog,
-    UserPlus,
-    ChevronDown,
-    ChevronUp,
     Table,
     UsersRound,
-    FileUser,
-    Scale,
-    FileStack,
-    Warehouse,
     SquareUserRound,
     House,
     CarFront,
-    PiggyBank,
-    Flag,
     GraduationCap,
     BriefcaseBusiness,
     SquareActivity,
-    Tractor,
     HeartPulse,
     Accessibility,
     Pill,
     Syringe,
-    Heart,
+    PersonStanding,
     Stethoscope,
     Tablets,
-    PersonStanding,
-    Cloudy,
     ScrollText,
     Baby,
     MessageSquareWarning,
+    Flag,
+    ChevronDown,
+    ChevronUp,
 } from "lucide-react";
 
 import {
@@ -54,204 +42,199 @@ import { NavUser } from "@/components/nav-user";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 
-// Menu items with submenus
+// Sidebar structure
 const items = [
     {
-        title: "Dashboard",
+        title: "Admin Dashboard",
         url: "/barangay_officer/dashboard",
         icon: Home,
-        submenu: [],
+        roles: ["barangay_officer"],
+    },
+    {
+        title: "CDRRMO Dashboard",
+        url: "/cdrrmo_admin/dashboard",
+        icon: Home,
+        roles: ["cdrrmo_admin"],
     },
     {
         title: "Barangay",
-        url: "#",
         icon: FileStack,
+        roles: ["barangay_officer"],
         submenu: [
             {
                 title: "Barangay Profile",
-                url: "/barangay_officer/barangay_profile",
+                url: "/barangay_profile",
                 icon: FileText,
+                roles: ["barangay_officer"],
             },
             {
                 title: "Barangay Documents",
-                url: "/barangay_officer/document",
+                url: "/document",
                 icon: FileText,
+                roles: ["barangay_officer"],
+            },
+        ],
+    },
+    {
+        title: "Community Risk Assessment",
+        icon: FileStack,
+        roles: ["cdrrmo_admin"],
+        submenu: [
+            {
+                title: "Information Table",
+                url: "#",
+                icon: Table,
+                roles: ["cdrrmo_admin"],
             },
         ],
     },
     {
         title: "Residents Information",
-        url: "#",
-        icon: FileUser,
+        icon: FileStack,
+        roles: ["barangay_officer"],
         submenu: [
             {
                 title: "Information Table",
-                url: "/barangay_officer/resident",
+                url: "/resident",
                 icon: Table,
+                roles: ["barangay_officer"],
             },
             {
                 title: "Senior Citizen",
-                url: "/barangay_officer/senior_citizen",
+                url: "/senior_citizen",
                 icon: UsersRound,
+                roles: ["barangay_officer"],
             },
             {
                 title: "Families",
-                url: "/barangay_officer/family",
+                url: "/family",
                 icon: SquareUserRound,
+                roles: ["barangay_officer"],
             },
             {
                 title: "Households",
-                url: "/barangay_officer/household",
+                url: "/household",
                 icon: House,
+                roles: ["barangay_officer"],
             },
             {
                 title: "Vehicles",
-                url: "/barangay_officer/vehicle",
+                url: "/vehicle",
                 icon: CarFront,
+                roles: ["barangay_officer"],
             },
             {
                 title: "Education",
-                url: "/barangay_officer/education",
+                url: "/education",
                 icon: GraduationCap,
+                roles: ["barangay_officer"],
             },
             {
                 title: "Occupation/Livelihood",
-                url: "/barangay_officer/occupation",
+                url: "/occupation",
                 icon: BriefcaseBusiness,
+                roles: ["barangay_officer"],
             },
-            // {
-            //     title: "Livelihood",
-            //     url: "/barangay_officer/livelihood",
-            //     icon: Tractor,
-            // },
         ],
     },
     {
         title: "Medical Information",
-        url: "#",
         icon: HeartPulse,
+        roles: ["barangay_officer"],
         submenu: [
             {
                 title: "Information Table",
-                url: "/barangay_officer/medical",
+                url: "/medical",
                 icon: Table,
+                roles: ["barangay_officer"],
             },
             {
                 title: "Allergies",
-                url: "/barangay_officer/allergy",
+                url: "/allergy",
                 icon: Tablets,
+                roles: ["barangay_officer"],
             },
             {
                 title: "Child Health Records",
-                url: "/barangay_officer/child_record",
+                url: "/child_record",
                 icon: Baby,
+                roles: ["barangay_officer"],
             },
             {
                 title: "Medical Condition",
-                url: "/barangay_officer/medical_condition",
+                url: "/medical_condition",
                 icon: Stethoscope,
+                roles: ["barangay_officer"],
             },
             {
                 title: "Disabilities",
-                url: "/barangay_officer/disability",
+                url: "/disability",
                 icon: Accessibility,
+                roles: ["barangay_officer"],
             },
             {
                 title: "Medications",
-                url: "/barangay_officer/medication",
+                url: "/medication",
                 icon: Pill,
+                roles: ["barangay_officer"],
             },
             {
                 title: "Pregnancy Records",
-                url: "/barangay_officer/pregnancy",
+                url: "/pregnancy",
                 icon: SquareActivity,
+                roles: ["barangay_officer"],
             },
             {
                 title: "Vaccinations",
-                url: "/barangay_officer/vaccination",
+                url: "/vaccination",
                 icon: Syringe,
+                roles: ["barangay_officer"],
             },
             {
                 title: "Deaths",
-                url: "/barangay_officer/death/index",
+                url: "/death/index",
                 icon: PersonStanding,
-            },
-        ],
-    },
-    {
-        title: "Issuance",
-        url: "#",
-        icon: FileStack,
-        submenu: [
-            {
-                title: "Certificate Issuance",
-                url: "/barangay_officer/certificate/index",
-                icon: FileText,
-            },
-        ],
-    },
-    {
-        title: "Katarungang Pambarangay",
-        url: "#",
-        icon: Scale,
-        submenu: [
-            {
-                title: "Blotter Reports",
-                url: "/barangay_officer/blotter_report",
-                icon: ScrollText,
-            },
-            {
-                title: "Summon",
-                url: "/barangay_officer/summon",
-                icon: MessageSquareWarning,
-            },
-        ],
-    },
-    {
-        title: "Reports",
-        url: "#",
-        icon: Flag,
-        submenu: [],
-    },
-    {
-        title: "CRA 2025",
-        url: "#",
-        icon: Cloudy,
-        submenu: [
-            {
-                title: "Create",
-                url: "/barangay_officer/cra/create",
-                icon: FileText,
+                roles: ["barangay_officer"],
             },
         ],
     },
 ];
 
 export function AppSidebar({ auth }) {
-    const location = useLocation(); // Get current location
+    const location = useLocation();
     const [collapsed, setCollapsed] = useState({});
     const [barangay, setBarangay] = useState(null);
+    const APP_URL = useAppUrl();
+    const user = auth.user;
+
+    // Flatten user roles as string array
+    const userRoles = user.roles.map((r) => r.name);
+
+    useEffect(() => {
+        const fetchBarangayDetails = async () => {
+            try {
+                const res = await axios.get(
+                    `${APP_URL}/barangay_profile/barangaydetails`
+                );
+                setBarangay(res.data.data);
+            } catch (err) {
+                console.error("Error fetching barangay details:", err);
+            }
+        };
+
+        if (userRoles.includes("barangay_officer")) fetchBarangayDetails();
+    }, []);
 
     const toggleCollapse = (index) => {
         setCollapsed((prev) => ({ ...prev, [index]: !prev[index] }));
     };
 
-    const user = auth.user;
-    const APP_URL = useAppUrl();
-    useEffect(() => {
-        const fetchBarangayDetails = async () => {
-            try {
-                const response = await axios.get(
-                    `${APP_URL}/barangay_officer/barangay_profile/barangaydetails`
-                );
-                setBarangay(response.data.data);
-            } catch (error) {
-                console.error("Error fetching barangay details:", error);
-            }
-        };
+    // Filter items dynamically based on roles
+    const filteredItems = items.filter((item) =>
+        item.roles.some((role) => userRoles.includes(role))
+    );
 
-        fetchBarangayDetails();
-    }, []);
+    const isActive = (url) => location.pathname.startsWith(url);
 
     return (
         <Sidebar>
@@ -267,18 +250,25 @@ export function AppSidebar({ auth }) {
                             iBIMS
                         </p>
                         <p className="font-light text-sm text-white font-montserrat m-0 p-0 leading-none">
-                            {barangay ? barangay.barangay_name : "Loading..."}
+                            {userRoles.includes("super_admin")
+                                ? "Super Admin"
+                                : userRoles.includes("cdrrmo_admin")
+                                ? "CDRRMO Admin"
+                                : barangay
+                                ? barangay.barangay_name
+                                : "Loading..."}
                         </p>
                     </div>
                 </div>
                 <hr className="border-t-2 border-white opacity-30 mx-3 my-0" />
+
                 <SidebarGroup>
                     <SidebarGroupLabel className="text-gray-100 m-0">
                         Main Menu
                     </SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {items.map((item, index) => (
+                            {filteredItems.map((item, index) => (
                                 <div key={item.title}>
                                     <SidebarMenuItem>
                                         <SidebarMenuButton
@@ -288,11 +278,10 @@ export function AppSidebar({ auth }) {
                                             }
                                         >
                                             <a
-                                                href={item.url}
+                                                href={item.url || "#"}
                                                 className={`flex items-center justify-between w-full my-1 ${
-                                                    location.pathname ===
-                                                    item.url
-                                                        ? "bg-gray-200 text-primary" // Active item styles
+                                                    isActive(item.url)
+                                                        ? "bg-gray-200 text-primary"
                                                         : "text-white"
                                                 }`}
                                             >
@@ -300,70 +289,86 @@ export function AppSidebar({ auth }) {
                                                     <item.icon className="mr-2" />
                                                     <span>{item.title}</span>
                                                 </div>
-                                                {item.submenu.length > 0 && (
-                                                    <span className="ml-2">
-                                                        {collapsed[index] ? (
-                                                            <ChevronDown className="w-4 h-4" />
-                                                        ) : (
-                                                            <ChevronUp className="w-4 h-4" />
-                                                        )}
-                                                    </span>
-                                                )}
+                                                {item.submenu &&
+                                                    item.submenu.length > 0 && (
+                                                        <span className="ml-2">
+                                                            {collapsed[
+                                                                index
+                                                            ] ? (
+                                                                <ChevronDown className="w-4 h-4" />
+                                                            ) : (
+                                                                <ChevronUp className="w-4 h-4" />
+                                                            )}
+                                                        </span>
+                                                    )}
                                             </a>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
 
-                                    {item.submenu.length > 0 && (
-                                        <SidebarGroupContent
-                                            className={`overflow-hidden transition-all duration-300 ease-in-out transform ${
-                                                collapsed[index]
-                                                    ? "max-h-0 opacity-0 translate-x-[-10px]"
-                                                    : "max-h-[1000px] opacity-100 translate-x-0"
-                                            }`}
-                                            style={{
-                                                transitionProperty:
-                                                    "max-height, opacity, transform",
-                                            }}
-                                        >
-                                            {item.submenu.map((submenuItem) => (
-                                                <SidebarMenuItem
-                                                    key={submenuItem.title}
-                                                >
-                                                    <SidebarMenuButton asChild>
-                                                        <a
-                                                            href={
-                                                                submenuItem.url
-                                                            }
-                                                            className={`flex items-center pl-6 my-1 ${
-                                                                location.pathname ===
-                                                                submenuItem.url
-                                                                    ? "bg-gray-200 text-primary"
-                                                                    : "text-gray-200"
-                                                            }`}
-                                                            style={{
-                                                                maxWidth:
-                                                                    "calc(100% - 2rem)", // Adjust width
-                                                                width: "auto",
-                                                            }}
+                                    {item.submenu &&
+                                        item.submenu.length > 0 && (
+                                            <SidebarGroupContent
+                                                className={`overflow-hidden transition-all duration-300 ease-in-out transform ${
+                                                    collapsed[index]
+                                                        ? "max-h-0 opacity-0 translate-x-[-10px]"
+                                                        : "max-h-[1000px] opacity-100 translate-x-0"
+                                                }`}
+                                                style={{
+                                                    transitionProperty:
+                                                        "max-height, opacity, transform",
+                                                }}
+                                            >
+                                                {item.submenu
+                                                    .filter((sub) =>
+                                                        sub.roles.some((role) =>
+                                                            userRoles.includes(
+                                                                role
+                                                            )
+                                                        )
+                                                    )
+                                                    .map((sub) => (
+                                                        <SidebarMenuItem
+                                                            key={sub.title}
                                                         >
-                                                            <submenuItem.icon className="mr-2" />
-                                                            <span>
-                                                                {
-                                                                    submenuItem.title
-                                                                }
-                                                            </span>
-                                                        </a>
-                                                    </SidebarMenuButton>
-                                                </SidebarMenuItem>
-                                            ))}
-                                        </SidebarGroupContent>
-                                    )}
+                                                            <SidebarMenuButton
+                                                                asChild
+                                                            >
+                                                                <a
+                                                                    href={
+                                                                        sub.url
+                                                                    }
+                                                                    className={`flex items-center pl-6 my-1 ${
+                                                                        isActive(
+                                                                            sub.url
+                                                                        )
+                                                                            ? "bg-gray-200 text-primary"
+                                                                            : "text-gray-200"
+                                                                    }`}
+                                                                    style={{
+                                                                        maxWidth:
+                                                                            "calc(100% - 2rem)",
+                                                                        width: "auto",
+                                                                    }}
+                                                                >
+                                                                    <sub.icon className="mr-2" />
+                                                                    <span>
+                                                                        {
+                                                                            sub.title
+                                                                        }
+                                                                    </span>
+                                                                </a>
+                                                            </SidebarMenuButton>
+                                                        </SidebarMenuItem>
+                                                    ))}
+                                            </SidebarGroupContent>
+                                        )}
                                 </div>
                             ))}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
+
             <SidebarFooter className="bg-sky-600">
                 <NavUser user={user} />
             </SidebarFooter>

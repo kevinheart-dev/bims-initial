@@ -241,7 +241,7 @@ export default function Index({
         setModalState("add");
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/vehicle/details/${id}`
+                `${APP_URL}/vehicle/details/${id}`
             );
             const vehicle = response.data.vehicle;
             setVehicleDetails(vehicle);

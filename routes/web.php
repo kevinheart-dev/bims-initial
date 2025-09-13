@@ -10,6 +10,8 @@ use App\Http\Controllers\BarangayProjectController;
 use App\Http\Controllers\BarangayRoadController;
 use App\Http\Controllers\BlotterController;
 use App\Http\Controllers\CaseParticipantController;
+use App\Http\Controllers\CDRRMOAdminController;
+use App\Http\Controllers\CDRRMOSuperAdminController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\ChildHealthMonitoringController;
 use App\Http\Controllers\Controller;
@@ -46,9 +48,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // Admin-only routes
-Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')->group(function () {
-    Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('barangay_officer.dashboard');
-
+Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(function () {
     Route::get('/document/fill/{resident}/{template}', [DocumentGenerationController::class, 'generateFilledDocument'])
         ->name('document.fill');
 
@@ -166,6 +166,16 @@ Route::middleware(['auth', 'role:barangay_officer'])->prefix('barangay_officer')
     Route::resource('institution_member', InstitutionMemberController::class);
 
 });
+Route::middleware(['auth', 'role:barangay_officer'])->group(function () {
+    Route::get('barangay_officer/dashboard', [DashboardController::class, 'dashboard'])->name('barangay_officer.dashboard');
+});
+
+Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(function () {
+    Route::get('cdrrmo_admin/dashboard', [CDRRMOAdminController::class, 'index'])
+        ->name('cdrrmo_admin.dashboard');
+});
+
+
 
 // Resident-only routes
 Route::middleware(['auth', 'role:resident'])->group(function () {

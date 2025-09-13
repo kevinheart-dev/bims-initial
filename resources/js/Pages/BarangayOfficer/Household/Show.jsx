@@ -57,7 +57,7 @@ export default function Index({
         queryKey: ["head", household_details.id], // reactive to household ID
         queryFn: async () => {
             const { data } = await axios.get(
-                `${APP_URL}/barangay_officer/household/getlatesthead/${household_details.id}`
+                `${APP_URL}/household/getlatesthead/${household_details.id}`
             );
             return data?.head || null; // return null if no head
         },
@@ -116,7 +116,7 @@ export default function Index({
     const handleView = async (resident) => {
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/resident/showresident/${resident}`
+                `${APP_URL}/resident/showresident/${resident}`
             );
             setSelectedResident(response.data.resident);
         } catch (error) {

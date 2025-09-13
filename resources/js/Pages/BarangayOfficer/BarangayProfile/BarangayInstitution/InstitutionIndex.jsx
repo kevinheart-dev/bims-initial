@@ -58,7 +58,7 @@ const InstitutionIndex = () => {
         queryKey: ["institutions", queryParams],
         queryFn: async () => {
             const { data } = await axios.get(
-                `${APP_URL}/barangay_officer/barangay_institution`,
+                `${APP_URL}/barangay_institution`,
                 { params: queryParams }
             );
             return data.institutions;
@@ -307,7 +307,7 @@ const InstitutionIndex = () => {
 
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/barangay_institution/details/${id}`
+                `${APP_URL}/barangay_institution/details/${id}`
             );
             const institution = response.data.institution;
             console.log(institution);

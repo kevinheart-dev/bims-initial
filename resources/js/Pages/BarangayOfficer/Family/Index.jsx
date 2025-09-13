@@ -365,7 +365,7 @@ export default function Index({
     const handleEdit = async (id) => {
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/family/getfamilydetails/${id}`
+                `${APP_URL}/family/getfamilydetails/${id}`
             );
 
             const details = response.data.family_details;

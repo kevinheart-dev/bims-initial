@@ -55,10 +55,9 @@ const BarangayRoads = () => {
     } = useQuery({
         queryKey: ["roads", queryParams],
         queryFn: async () => {
-            const { data } = await axios.get(
-                `${APP_URL}/barangay_officer/barangay_road`,
-                { params: queryParams }
-            );
+            const { data } = await axios.get(`${APP_URL}/barangay_road`, {
+                params: queryParams,
+            });
             return data;
         },
         keepPreviousData: true,
@@ -333,7 +332,7 @@ const BarangayRoads = () => {
 
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/barangay_road/details/${id}`
+                `${APP_URL}/barangay_road/details/${id}`
             );
             const road = response.data.road;
             console.log(road);

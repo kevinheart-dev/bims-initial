@@ -28,7 +28,7 @@ const BarangayProfileMain = () => {
         queryKey: ["details"],
         queryFn: async () => {
             const { data } = await axios.get(
-                `${APP_URL}/barangay_officer/barangay_profile/barangaydetails`
+                `${APP_URL}/barangay_profile/barangaydetails`
             );
             return data.data; // only API data
         },

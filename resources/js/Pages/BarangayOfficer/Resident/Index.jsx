@@ -62,7 +62,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
         queryKey: ["residents", queryParams],
         queryFn: async ({ signal }) => {
             const { data } = await axios.get(
-                `${APP_URL}/barangay_officer/resident/chartdata`,
+                `${APP_URL}/resident/chartdata`,
                 { params: queryParams, signal } // cancel old requests
             );
             return data.residents;
@@ -143,7 +143,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
     const handleView = async (resident) => {
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/resident/showresident/${resident}`
+                `${APP_URL}/resident/showresident/${resident}`
             );
             setSelectedResident(response.data.resident);
         } catch (error) {

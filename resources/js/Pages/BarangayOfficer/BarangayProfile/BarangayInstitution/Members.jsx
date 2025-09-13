@@ -400,7 +400,7 @@ export default function Members({
 
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/institution_member/details/${id}`
+                `${APP_URL}/institution_member/details/${id}`
             );
 
             const details = response.data.member;
@@ -495,7 +495,7 @@ export default function Members({
         setModalState("view");
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/resident/showresident/${resident}`
+                `${APP_URL}/resident/showresident/${resident}`
             );
             setSelectedResident(response.data.resident);
         } catch (error) {

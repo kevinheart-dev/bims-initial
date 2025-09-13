@@ -269,7 +269,7 @@ export default function Index({
         setSelectedResident(null);
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/resident/showresident/${resident}`
+                `${APP_URL}/resident/showresident/${resident}`
             );
             setSelectedResident(response.data.resident);
         } catch (error) {
@@ -332,7 +332,7 @@ export default function Index({
 
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/occupation/details/${id}`
+                `${APP_URL}/occupation/details/${id}`
             );
             const occupation = response.data.occupation;
             console.log(occupation);

@@ -56,6 +56,16 @@ class User extends Authenticatable
         return $this->hasRole('barangay_officer');
     }
 
+    public function isSuperAdmin()
+    {
+        return $this->hasRole('super_admin');
+    }
+
+    public function isCdrrmo()
+    {
+        return $this->hasRole('cdrrmo_admin');
+    }
+
     public function isResident()
     {
         return $this->hasRole('resident');
