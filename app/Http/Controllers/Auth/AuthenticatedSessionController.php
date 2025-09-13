@@ -34,8 +34,15 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
         $user = Auth::user();
 
-        if ($user->isBarangayOfficer()) {
+        if ($user->isSuperAdmin()) {
+            return redirect()->intended(route('super_admin.dashboard', [], false));
+        }
 
+        if ($user->isCdrrmo()) {
+            return redirect()->intended(route('cdrrmo_admin.dashboard', [], false));
+        }
+
+        if ($user->isBarangayOfficer()) {
             return redirect()->intended(route('barangay_officer.dashboard', [], false));
         }
 

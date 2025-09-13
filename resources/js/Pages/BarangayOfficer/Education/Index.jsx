@@ -162,7 +162,7 @@ export default function Index({
         setSelectedResident(null);
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/resident/showresident/${resident}`
+                `${APP_URL}/resident/showresident/${resident}`
             );
             setSelectedResident(response.data.resident);
         } catch (error) {
@@ -347,7 +347,7 @@ export default function Index({
         setEducationHistory(null);
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/education/history/${id}`
+                `${APP_URL}/education/history/${id}`
             );
             const history = response.data.history;
             setEducationHistory(history);

@@ -305,9 +305,7 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
         setModalState("add");
         setDeathDetails(null);
         try {
-            const response = await axios.get(
-                `${APP_URL}/barangay_officer/death/details/${id}`
-            );
+            const response = await axios.get(`${APP_URL}/death/details/${id}`);
             const details = response.data.details;
             setDeathDetails(details);
             setData("resident_id", details.id);
@@ -393,7 +391,7 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
         setModalState("view");
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/resident/showresident/${resident}`
+                `${APP_URL}/resident/showresident/${resident}`
             );
             setSelectedResident(response.data.resident);
         } catch (error) {

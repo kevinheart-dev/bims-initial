@@ -46,9 +46,7 @@ const BarangayOfficials = () => {
     } = useQuery({
         queryKey: ["barangay_officials"],
         queryFn: async () => {
-            const { data } = await axios.get(
-                `${APP_URL}/barangay_officer/barangay_official`
-            );
+            const { data } = await axios.get(`${APP_URL}/barangay_official`);
             return data;
         },
         keepPreviousData: true,
@@ -85,7 +83,7 @@ const BarangayOfficials = () => {
     const handleView = async (residentId) => {
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/resident/showresident/${residentId}`
+                `${APP_URL}/resident/showresident/${residentId}`
             );
             setSelectedResident(response.data.resident);
             setIsModalOpen(true);
@@ -124,7 +122,7 @@ const BarangayOfficials = () => {
     const handleEdit = async (id) => {
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/barangay_official/officialsinfo/${id}`
+                `${APP_URL}/barangay_official/officialsinfo/${id}`
             );
             const official = response.data.official;
 

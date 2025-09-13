@@ -56,10 +56,9 @@ const ProjectIndex = () => {
     } = useQuery({
         queryKey: ["projects", queryParams],
         queryFn: async () => {
-            const { data } = await axios.get(
-                `${APP_URL}/barangay_officer/barangay_project`,
-                { params: queryParams }
-            );
+            const { data } = await axios.get(`${APP_URL}/barangay_project`, {
+                params: queryParams,
+            });
             return data; // should already include "institution"
         },
         keepPreviousData: true,
@@ -334,7 +333,7 @@ const ProjectIndex = () => {
 
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/barangay_project/details/${id}`
+                `${APP_URL}/barangay_project/details/${id}`
             );
 
             const project = response.data.project;

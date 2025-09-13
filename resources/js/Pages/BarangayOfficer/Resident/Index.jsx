@@ -85,8 +85,8 @@ export default function Index({ residents, queryParams = null, puroks }) {
         queryKey: ["residents-chart", currentQueryParams], // Key reflects chart data
         queryFn: async ({ signal }) => {
             const { data } = await axios.get(
-                `${APP_URL}/barangay_officer/resident/chartdata`,
-                { params: currentQueryParams, signal }
+                `${APP_URL}/resident/chartdata`,
+                { params: queryParams, signal } // cancel old requests
             );
             return data.residents;
         },

@@ -240,7 +240,7 @@ export default function Index({ vaccinations, puroks, queryParams }) {
     const handleView = async (resident) => {
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/resident/showresident/${resident}`
+                `${APP_URL}/resident/showresident/${resident}`
             );
             setSelectedResident(response.data.resident);
         } catch (error) {

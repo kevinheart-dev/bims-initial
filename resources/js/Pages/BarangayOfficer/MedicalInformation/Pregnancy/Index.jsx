@@ -311,7 +311,7 @@ export default function Index({
         try {
             // Fetch pregnancy record details
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/pregnancy/details/${id}`
+                `${APP_URL}/pregnancy/details/${id}`
             );
 
             const record = response.data.record;
@@ -394,7 +394,7 @@ export default function Index({
     const handleView = async (resident) => {
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/resident/showresident/${resident}`
+                `${APP_URL}/resident/showresident/${resident}`
             );
             setSelectedResident(response.data.resident);
         } catch (error) {

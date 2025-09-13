@@ -204,6 +204,28 @@ class DatabaseSeeder extends Seeder
         $barangayOfficerRole = Role::firstOrCreate(['name' => 'barangay_officer']);
         $barangays = Barangay::all(); // Assuming you already have 91 barangays in DB
 
+        $superAdmin = Role::firstOrCreate(['name' => 'super_admin']);
+        $userper = User::factory()->create([
+            'username' => "Super Admin", // e.g., "Barangay 1 Admin"
+            'email' => 'superadmin@example.com', // fallback email if not present
+            'password' => bcrypt('admin123'),
+            'email_verified_at' => now(),
+            'role' => 'super_admin',
+            'status' => 'active',
+        ]);
+        $userper->assignRole($superAdmin);
+
+        $superAdmin = Role::firstOrCreate(['name' => 'cdrrmo_admin']);
+        $cdrrmo = User::factory()->create([
+            'username' => "CDRRMO Admin", // e.g., "Barangay 1 Admin"
+            'email' => 'cdrrmo@example.com', // fallback email if not present
+            'password' => bcrypt('admin123'),
+            'email_verified_at' => now(),
+            'role' => 'super_admin',
+            'status' => 'active',
+        ]);
+        $cdrrmo->assignRole($superAdmin);
+
         foreach ($barangays as $barangay) {
             // Create a resident first
             $resident = Resident::factory()->create([

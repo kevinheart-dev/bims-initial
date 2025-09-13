@@ -104,7 +104,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
     const handleView = async (resident) => {
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/resident/showresident/${resident}`
+                `${APP_URL}/resident/showresident/${resident}`
             );
             setSelectedResident(response.data.resident);
         } catch (error) {
@@ -398,7 +398,7 @@ export default function Index({ seniorCitizens, puroks, queryParams = null }) {
     const handleEdit = async (senior) => {
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/senior_citizen/seniordetails/${senior}`
+                `${APP_URL}/senior_citizen/seniordetails/${senior}`
             );
             const resident = response.data.seniordetails;
             setSeniorDetails(resident);

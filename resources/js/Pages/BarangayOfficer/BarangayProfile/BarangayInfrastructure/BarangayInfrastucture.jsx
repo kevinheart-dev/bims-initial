@@ -57,7 +57,7 @@ const BarangayInfrastucture = () => {
         queryKey: ["infrastructure", queryParams],
         queryFn: async () => {
             const { data } = await axios.get(
-                `${APP_URL}/barangay_officer/barangay_infrastructure`,
+                `${APP_URL}/barangay_infrastructure`,
                 { params: queryParams }
             );
             return data;
@@ -357,7 +357,7 @@ const BarangayInfrastucture = () => {
 
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/barangay_infrastructure/details/${id}`
+                `${APP_URL}/barangay_infrastructure/details/${id}`
             );
             const infrastructure = response.data.infra;
             console.log(infrastructure);

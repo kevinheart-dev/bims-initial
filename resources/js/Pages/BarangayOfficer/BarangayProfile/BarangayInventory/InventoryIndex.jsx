@@ -56,10 +56,9 @@ const InventoryIndex = () => {
     } = useQuery({
         queryKey: ["inventory_items", queryParams],
         queryFn: async () => {
-            const { data } = await axios.get(
-                `${APP_URL}/barangay_officer/inventory`,
-                { params: queryParams }
-            );
+            const { data } = await axios.get(`${APP_URL}/inventory`, {
+                params: queryParams,
+            });
             return data;
         },
         keepPreviousData: true,
@@ -293,7 +292,7 @@ const InventoryIndex = () => {
 
         try {
             const response = await axios.get(
-                `${APP_URL}/barangay_officer/inventory/details/${id}`
+                `${APP_URL}/inventory/details/${id}`
             );
 
             const inventory = response.data.item;

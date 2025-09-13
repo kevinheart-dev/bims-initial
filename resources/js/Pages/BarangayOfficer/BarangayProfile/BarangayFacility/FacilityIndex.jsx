@@ -68,10 +68,9 @@ const FacilityIndex = () => {
     } = useQuery({
         queryKey: ["facilities", queryParams],
         queryFn: async () => {
-            const { data } = await axios.get(
-                `${APP_URL}/barangay_officer/barangay_facility`,
-                { params: queryParams }
-            );
+            const { data } = await axios.get(`${APP_URL}/barangay_facility`, {
+                params: queryParams,
+            });
             return data;
         },
         keepPreviousData: true,
@@ -268,6 +267,7 @@ const FacilityIndex = () => {
         setData("facilities", [{}]); // Ensure a fresh, empty form
     }, [setData]);
 
+
     const addFacility = useCallback(() => {
         setData("facilities", [...(data.facilities || []), {}]);
     }, [data.facilities, setData]);
@@ -353,7 +353,7 @@ const FacilityIndex = () => {
             setModalState("edit");
             try {
                 const response = await axios.get(
-                    `${APP_URL}/barangay_officer/barangay_facility/details/${id}`
+                    `${APP_URL}/barangay_facility/details/${id}`
                 );
                 const facility = response.data.facility;
                 setFacilityDetails(facility);

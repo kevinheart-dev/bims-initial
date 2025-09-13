@@ -108,7 +108,7 @@ export default function Index({
             setData("document_id", cert.id);
             try {
                 const response = await axios.get(
-                    `${APP_URL}/barangay_officer/document/fetchplaceholders/${e}`
+                    `${APP_URL}/document/fetchplaceholders/${e}`
                 );
                 setData("placeholders", response.data.placeholders);
             } catch (error) {
