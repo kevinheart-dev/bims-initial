@@ -6,10 +6,22 @@ import { StepperContext } from "@/context/StepperContext";
 const DEFAULT_ROWS = [
     { value: "Number of Informal Settler Families", count: "" },
     { value: "Number of Employed Individuals", count: "" },
-    { value: "Number of Families Aware of the Effects of Risks and Hazards", count: "" },
-    { value: "Number of Families with Access to Information (radio/TV/newspaper/social media, etc.)", count: "" },
-    { value: "Number of Families who received Financial Assistance", count: "" },
-    { value: "Number of Families with Access to Early Warning System", count: "" },
+    {
+        value: "Number of Families Aware of the Effects of Risks and Hazards",
+        count: "",
+    },
+    {
+        value: "Number of Families with Access to Information (radio/TV/newspaper/social media, etc.)",
+        count: "",
+    },
+    {
+        value: "Number of Families who received Financial Assistance",
+        count: "",
+    },
+    {
+        value: "Number of Families with Access to Early Warning System",
+        count: "",
+    },
 ];
 
 const DisasterPerPurok = () => {
@@ -17,12 +29,18 @@ const DisasterPerPurok = () => {
 
     // Initialize disaster_per_purok
     useEffect(() => {
-        if (!craData.disaster_per_purok || craData.disaster_per_purok.length === 0) {
+        if (
+            !craData.disaster_per_purok ||
+            craData.disaster_per_purok.length === 0
+        ) {
             const defaultPuroks = Array.from({ length: 7 }, (_, i) => ({
                 purok: `${i + 1}`,
-                rowsValue: DEFAULT_ROWS.map(row => ({ ...row })),
+                rowsValue: DEFAULT_ROWS.map((row) => ({ ...row })),
             }));
-            setCraData(prev => ({ ...prev, disaster_per_purok: defaultPuroks }));
+            setCraData((prev) => ({
+                ...prev,
+                disaster_per_purok: defaultPuroks,
+            }));
         }
     }, [craData, setCraData]);
 
@@ -32,32 +50,46 @@ const DisasterPerPurok = () => {
             if (rowIdx !== null) {
                 // Update count
                 const rowsValue = p.rowsValue.map((row, rIdx) =>
-                    rIdx === rowIdx ? { ...row, count: value.replace(/\D/g, "") } : row
+                    rIdx === rowIdx
+                        ? { ...row, count: value.replace(/\D/g, "") }
+                        : row
                 );
                 return { ...p, rowsValue };
             }
             // Update purok name
             return { ...p, [key]: value };
         });
-        setCraData(prev => ({ ...prev, disaster_per_purok: updated }));
+        setCraData((prev) => ({ ...prev, disaster_per_purok: updated }));
     };
 
     const addPurok = () => {
-        const newPurok = { purok: "", rowsValue: DEFAULT_ROWS.map(row => ({ ...row })) };
-        setCraData(prev => ({ ...prev, disaster_per_purok: [...prev.disaster_per_purok, newPurok] }));
+        const newPurok = {
+            purok: "",
+            rowsValue: DEFAULT_ROWS.map((row) => ({ ...row })),
+        };
+        setCraData((prev) => ({
+            ...prev,
+            disaster_per_purok: [...prev.disaster_per_purok, newPurok],
+        }));
         toast.success("Purok added successfully!");
     };
 
     const removePurok = (index) => {
-        const updated = craData.disaster_per_purok.filter((_, i) => i !== index);
-        setCraData(prev => ({ ...prev, disaster_per_purok: updated }));
+        const updated = craData.disaster_per_purok.filter(
+            (_, i) => i !== index
+        );
+        setCraData((prev) => ({ ...prev, disaster_per_purok: updated }));
         toast.error("Purok removed!");
     };
 
     // Compute totals
-    const totals = craData.disaster_per_purok?.[0]?.rowsValue.map((_, idx) =>
-        craData.disaster_per_purok.reduce((sum, p) => sum + Number(p.rowsValue[idx].count || 0), 0)
-    ) || [];
+    const totals =
+        craData.disaster_per_purok?.[0]?.rowsValue.map((_, idx) =>
+            craData.disaster_per_purok.reduce(
+                (sum, p) => sum + Number(p.rowsValue[idx].count || 0),
+                0
+            )
+        ) || [];
 
     return (
         <div className="p-4">
@@ -67,9 +99,16 @@ const DisasterPerPurok = () => {
                     <thead>
                         <tr className="bg-gray-100">
                             <th className="border p-1 text-center">Purok</th>
-                            {craData.disaster_per_purok?.[0]?.rowsValue.map((row, idx) => (
-                                <th key={idx} className="border p-1 text-center">{row.value}</th>
-                            ))}
+                            {craData.disaster_per_purok?.[0]?.rowsValue.map(
+                                (row, idx) => (
+                                    <th
+                                        key={idx}
+                                        className="border p-1 text-center"
+                                    >
+                                        {row.value}
+                                    </th>
+                                )
+                            )}
                             <th className="border p-1 text-center">Actions</th>
                         </tr>
                     </thead>
@@ -80,7 +119,13 @@ const DisasterPerPurok = () => {
                                     <input
                                         type="text"
                                         value={purok.purok}
-                                        onChange={(e) => updatePurok(pIdx, "purok", e.target.value)}
+                                        onChange={(e) =>
+                                            updatePurok(
+                                                pIdx,
+                                                "purok",
+                                                e.target.value
+                                            )
+                                        }
                                         className="w-full text-center text-xs p-1 border rounded"
                                     />
                                 </td>
@@ -89,7 +134,14 @@ const DisasterPerPurok = () => {
                                         <input
                                             type="text"
                                             value={row.count}
-                                            onChange={(e) => updatePurok(pIdx, "count", e.target.value, rIdx)}
+                                            onChange={(e) =>
+                                                updatePurok(
+                                                    pIdx,
+                                                    "count",
+                                                    e.target.value,
+                                                    rIdx
+                                                )
+                                            }
                                             className="w-full text-center text-xs p-1 border rounded"
                                         />
                                     </td>
@@ -107,7 +159,12 @@ const DisasterPerPurok = () => {
                         <tr className="bg-gray-200 font-bold">
                             <td className="border p-1 text-center">Total</td>
                             {totals.map((total, idx) => (
-                                <td key={idx} className="border p-1 text-center">{total}</td>
+                                <td
+                                    key={idx}
+                                    className="border p-1 text-center"
+                                >
+                                    {total}
+                                </td>
                             ))}
                             <td className="border p-1"></td>
                         </tr>

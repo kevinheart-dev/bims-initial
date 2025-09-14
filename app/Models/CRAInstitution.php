@@ -9,4 +9,21 @@ class CRAInstitution extends Model
 {
     /** @use HasFactory<\Database\Factories\CRAInstitutionFactory> */
     use HasFactory;
+    public $timestamps = true;
+    protected $fillable = [
+        'barangay_id',
+        'name',
+        'male_members',
+        'female_members',
+        'barangay_id',
+        'lgbtq_members',
+        'head_name',
+        'contact_no',
+        'registered',
+        'programs_services',
+    ];
+
+    public function barangay(){
+        return $this->belongsTo(Barangay::class);
+    }
 }

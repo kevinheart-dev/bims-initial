@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('c_r_a_household_services', function (Blueprint $table) {
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->foreignId('category_id')->constrained('c_r_a_service_categories')->onDelete('cascade');
+            $table->string('category', 55);
             $table->string('service_name', 100);
             $table->integer('households_quantity')->default(0);;
             $table->timestamps();

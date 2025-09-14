@@ -20,6 +20,7 @@ return new class extends Migration
 
             $table->string('disaster_name', 55);
             $table->year('year');
+            $table->timestamps();
         });
     }
 

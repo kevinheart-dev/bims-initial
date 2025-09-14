@@ -20,7 +20,7 @@ return new class extends Migration
 
             $table->string('item_name', 150);
             $table->string('quantity', 100)->nullable(); // kept as string in case reports use text like "few", "all used"
-            $table->string('remarks', 200)->nullable();
+            $table->text('remarks')->nullable();
             $table->timestamps();
         });
     }

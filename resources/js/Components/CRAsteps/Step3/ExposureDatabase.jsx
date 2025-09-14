@@ -11,14 +11,33 @@ import IllinessesTable from "./IllinessesTable";
 const createEmptyPurokRow = (purokNum = "") => {
     const baseRow = { purok: purokNum };
     const allCategories = [
-        "families", "individualsM", "individualsF", "lgbtq",
-        "age0_6M", "age0_6F", "age7m_2yM", "age7m_2yF", "age3_5M", "age3_5F",
-        "age6_12M", "age6_12F", "age13_17M", "age13_17F",
-        "age18_59M", "age18_59F", "age60upM", "age60upF",
-        "pwdM", "pwdF", "diseasesM", "diseasesF",
+        "families",
+        "individualsM",
+        "individualsF",
+        "lgbtq",
+        "age0_6M",
+        "age0_6F",
+        "age7m_2yM",
+        "age7m_2yF",
+        "age3_5M",
+        "age3_5F",
+        "age6_12M",
+        "age6_12F",
+        "age13_17M",
+        "age13_17F",
+        "age18_59M",
+        "age18_59F",
+        "age60upM",
+        "age60upF",
+        "pwdM",
+        "pwdF",
+        "diseasesM",
+        "diseasesF",
         "pregnantWomen",
     ];
-    allCategories.forEach(cat => { baseRow[cat] = ""; });
+    allCategories.forEach((cat) => {
+        baseRow[cat] = "";
+    });
     return baseRow;
 };
 
@@ -34,11 +53,29 @@ function ExposureTable({
     tableIndex,
 }) {
     const categories = [
-        "families", "individualsM", "individualsF", "lgbtq",
-        "age0_6M", "age0_6F", "age7m_2yM", "age7m_2yF", "age3_5M", "age3_5F",
-        "age6_12M", "age6_12F", "age13_17M", "age13_17F",
-        "age18_59M", "age18_59F", "age60upM", "age60upF",
-        "pwdM", "pwdF", "diseasesM", "diseasesF", "pregnantWomen",
+        "families",
+        "individualsM",
+        "individualsF",
+        "lgbtq",
+        "age0_6M",
+        "age0_6F",
+        "age7m_2yM",
+        "age7m_2yF",
+        "age3_5M",
+        "age3_5F",
+        "age6_12M",
+        "age6_12F",
+        "age13_17M",
+        "age13_17F",
+        "age18_59M",
+        "age18_59F",
+        "age60upM",
+        "age60upF",
+        "pwdM",
+        "pwdF",
+        "diseasesM",
+        "diseasesF",
+        "pregnantWomen",
     ];
 
     return (
@@ -66,62 +103,232 @@ function ExposureTable({
             </div>
 
             <h3 className="text-sm font-semibold mb-2 text-gray-800">
-                3.1.{tableIndex + 1} Number of Families and Individuals according to Age and Health Condition who are at Risk from{" "}
-                <span className="underline">{riskType || "[Kind of Risk]"}</span>
+                3.1.{tableIndex + 1} Number of Families and Individuals
+                according to Age and Health Condition who are at Risk from{" "}
+                <span className="underline">
+                    {riskType || "[Kind of Risk]"}
+                </span>
             </h3>
 
             <table className="w-full border text-[0.6rem] table-fixed">
-                <colgroup><col style={{ width: '60px' }} /><col style={{ width: '60px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '45px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '40px' }} /><col style={{ width: '60px' }} /><col style={{ width: '24px' }} /></colgroup>
+                <colgroup>
+                    <col style={{ width: "60px" }} />
+                    <col style={{ width: "60px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "45px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "40px" }} />
+                    <col style={{ width: "60px" }} />
+                    <col style={{ width: "24px" }} />
+                </colgroup>
 
                 <thead className="bg-gray-100">
                     <tr>
-                        <th className="border p-0.5 rotate-90 whitespace-nowrap" rowSpan="3">Purok</th>
-                        <th className="border p-0.5 rotate-90 whitespace-nowrap" rowSpan="3">Families</th>
+                        <th
+                            className="border p-0.5 rotate-90 whitespace-nowrap"
+                            rowSpan="3"
+                        >
+                            Purok
+                        </th>
+                        <th
+                            className="border p-0.5 rotate-90 whitespace-nowrap"
+                            rowSpan="3"
+                        >
+                            Families
+                        </th>
 
-                        <th colSpan="3" className="border p-0.5 text-center whitespace-nowrap">Individuals</th>
-                        <th colSpan="10" className="border p-0.5 text-center whitespace-nowrap">Children</th>
-                        <th colSpan="4" className="border p-0.5 text-center whitespace-nowrap">Adult</th>
-                        <th colSpan="2" className="border p-0.5 text-center whitespace-nowrap">PWD</th>
-                        <th colSpan="2" className="border p-0.5 text-center whitespace-nowrap">Diseases</th>
+                        <th
+                            colSpan="3"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            Individuals
+                        </th>
+                        <th
+                            colSpan="10"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            Children
+                        </th>
+                        <th
+                            colSpan="4"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            Adult
+                        </th>
+                        <th
+                            colSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            PWD
+                        </th>
+                        <th
+                            colSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            Diseases
+                        </th>
 
-                        <th className="border p-0.5 rotate-90 whitespace-nowrap" rowSpan="3">Pregnant</th>
-                        <th className="border p-0.5 whitespace-nowrap" rowSpan="3"></th>
+                        <th
+                            className="border p-0.5 rotate-90 whitespace-nowrap"
+                            rowSpan="3"
+                        >
+                            Pregnant
+                        </th>
+                        <th
+                            className="border p-0.5 whitespace-nowrap"
+                            rowSpan="3"
+                        ></th>
                     </tr>
                     <tr>
-                        <th rowSpan="2" className="border p-0.5 text-center whitespace-nowrap">M</th>
-                        <th rowSpan="2" className="border p-0.5 text-center whitespace-nowrap">F</th>
-                        <th rowSpan="2" className="border p-0.5 text-center whitespace-nowrap">LGBTQ</th>
+                        <th
+                            rowSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            M
+                        </th>
+                        <th
+                            rowSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            F
+                        </th>
+                        <th
+                            rowSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            LGBTQ
+                        </th>
 
-                        <th colSpan="2" className="border p-0.5 text-center whitespace-nowrap">0-6Y</th>
-                        <th colSpan="2" className="border p-0.5 text-center whitespace-nowrap">7M-2Y</th>
-                        <th colSpan="2" className="border p-0.5 text-center whitespace-nowrap">3-5Y</th>
-                        <th colSpan="2" className="border p-0.5 text-center whitespace-nowrap">6-12Y</th>
-                        <th colSpan="2" className="border p-0.5 text-center whitespace-nowrap">13-17Y</th>
+                        <th
+                            colSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            0-6Y
+                        </th>
+                        <th
+                            colSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            7M-2Y
+                        </th>
+                        <th
+                            colSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            3-5Y
+                        </th>
+                        <th
+                            colSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            6-12Y
+                        </th>
+                        <th
+                            colSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            13-17Y
+                        </th>
 
-                        <th colSpan="2" className="border p-0.5 text-center whitespace-nowrap">18-59Y</th>
-                        <th colSpan="2" className="border p-0.5 text-center whitespace-nowrap">60Y+</th>
+                        <th
+                            colSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            18-59Y
+                        </th>
+                        <th
+                            colSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            60Y+
+                        </th>
 
-                        <th rowSpan="2" className="border p-0.5 text-center whitespace-nowrap">M</th>
-                        <th rowSpan="2" className="border p-0.5 text-center whitespace-nowrap">F</th>
+                        <th
+                            rowSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            M
+                        </th>
+                        <th
+                            rowSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            F
+                        </th>
 
-                        <th rowSpan="2" className="border p-0.5 text-center whitespace-nowrap">M</th>
-                        <th rowSpan="2" className="border p-0.5 text-center whitespace-nowrap">F</th>
+                        <th
+                            rowSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            M
+                        </th>
+                        <th
+                            rowSpan="2"
+                            className="border p-0.5 text-center whitespace-nowrap"
+                        >
+                            F
+                        </th>
                     </tr>
                     <tr>
-                        <th className="border p-0.5 text-center whitespace-nowrap">M</th>
-                        <th className="border p-0.5 text-center whitespace-nowrap">F</th>
-                        <th className="border p-0.5 text-center whitespace-nowrap">M</th>
-                        <th className="border p-0.5 text-center whitespace-nowrap">F</th>
-                        <th className="border p-0.5 text-center whitespace-nowrap">M</th>
-                        <th className="border p-0.5 text-center whitespace-nowrap">F</th>
-                        <th className="border p-0.5 text-center whitespace-nowrap">M</th>
-                        <th className="border p-0.5 text-center whitespace-nowrap">F</th>
-                        <th className="border p-0.5 text-center whitespace-nowrap">M</th>
-                        <th className="border p-0.5 text-center whitespace-nowrap">F</th>
-                        <th className="border p-0.5 text-center whitespace-nowrap">M</th>
-                        <th className="border p-0.5 text-center whitespace-nowrap">F</th>
-                        <th className="border p-0.5 text-center whitespace-nowrap">M</th>
-                        <th className="border p-0.5 text-center whitespace-nowrap">F</th>
+                        <th className="border p-0.5 text-center whitespace-nowrap">
+                            M
+                        </th>
+                        <th className="border p-0.5 text-center whitespace-nowrap">
+                            F
+                        </th>
+                        <th className="border p-0.5 text-center whitespace-nowrap">
+                            M
+                        </th>
+                        <th className="border p-0.5 text-center whitespace-nowrap">
+                            F
+                        </th>
+                        <th className="border p-0.5 text-center whitespace-nowrap">
+                            M
+                        </th>
+                        <th className="border p-0.5 text-center whitespace-nowrap">
+                            F
+                        </th>
+                        <th className="border p-0.5 text-center whitespace-nowrap">
+                            M
+                        </th>
+                        <th className="border p-0.5 text-center whitespace-nowrap">
+                            F
+                        </th>
+                        <th className="border p-0.5 text-center whitespace-nowrap">
+                            M
+                        </th>
+                        <th className="border p-0.5 text-center whitespace-nowrap">
+                            F
+                        </th>
+                        <th className="border p-0.5 text-center whitespace-nowrap">
+                            M
+                        </th>
+                        <th className="border p-0.5 text-center whitespace-nowrap">
+                            F
+                        </th>
+                        <th className="border p-0.5 text-center whitespace-nowrap">
+                            M
+                        </th>
+                        <th className="border p-0.5 text-center whitespace-nowrap">
+                            F
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -132,7 +339,14 @@ function ExposureTable({
                                     type="text"
                                     className="border p-0.5 w-full text-[0.6rem] text-center"
                                     value={row.purok}
-                                    onChange={(e) => updatePurokField(tableId, idx, "purok", e.target.value)}
+                                    onChange={(e) =>
+                                        updatePurokField(
+                                            tableId,
+                                            idx,
+                                            "purok",
+                                            e.target.value
+                                        )
+                                    }
                                     placeholder="1"
                                 />
                             </td>
@@ -142,7 +356,14 @@ function ExposureTable({
                                         type="number"
                                         className="border p-0.5 w-full text-[0.6rem] text-center"
                                         value={row[field] ?? ""}
-                                        onChange={(e) => updatePurokField(tableId, idx, field, e.target.value)}
+                                        onChange={(e) =>
+                                            updatePurokField(
+                                                tableId,
+                                                idx,
+                                                field,
+                                                e.target.value
+                                            )
+                                        }
                                         min="0"
                                     />
                                 </td>
@@ -161,8 +382,15 @@ function ExposureTable({
                     <tr>
                         <td className="border p-0.5 font-bold">TOTAL</td>
                         {categories.map((field) => (
-                            <td key={`total-${field}`} className="border p-0.5 font-bold text-center">
-                                {(purokData || []).reduce((sum, row) => sum + (Number(row[field]) || 0), 0)}
+                            <td
+                                key={`total-${field}`}
+                                className="border p-0.5 font-bold text-center"
+                            >
+                                {(purokData || []).reduce(
+                                    (sum, row) =>
+                                        sum + (Number(row[field]) || 0),
+                                    0
+                                )}
                             </td>
                         ))}
                         <td className="p-0.5 !border-0" />
@@ -187,7 +415,7 @@ const ExposureDatabase = () => {
     // use craData.exposure instead of exposureTables
     const [tables, setTables] = useState(
         craData.exposure || [
-            { riskType: "", purokData: [createEmptyPurokRow("1")] }
+            { riskType: "", purokData: [createEmptyPurokRow("1")] },
         ]
     );
 
@@ -195,39 +423,51 @@ const ExposureDatabase = () => {
     useEffect(() => {
         setCraData((prev) => ({
             ...prev,
-            exposure: tables,  // ✅ renamed to exposure
+            exposure: tables, // ✅ renamed to exposure
         }));
     }, [tables, setCraData]);
 
     const updateRiskType = (tableIdx, newRiskType) => {
-        setTables(prev =>
-            prev.map((t, idx) => (idx === tableIdx ? { ...t, riskType: newRiskType } : t))
+        setTables((prev) =>
+            prev.map((t, idx) =>
+                idx === tableIdx ? { ...t, riskType: newRiskType } : t
+            )
         );
     };
 
     const updatePurokField = (tableIdx, purokIdx, field, val) => {
-        setTables(prev =>
+        setTables((prev) =>
             prev.map((t, idx) =>
                 idx === tableIdx
                     ? {
-                        ...t,
-                        purokData: t.purokData.map((row, rIdx) =>
-                            rIdx === purokIdx ? { ...row, [field]: val === "" ? "" : Number(val) } : row
-                        ),
-                    }
+                          ...t,
+                          purokData: t.purokData.map((row, rIdx) =>
+                              rIdx === purokIdx
+                                  ? {
+                                        ...row,
+                                        [field]: val === "" ? "" : Number(val),
+                                    }
+                                  : row
+                          ),
+                      }
                     : t
             )
         );
     };
 
     const addPurokRow = (tableIdx) => {
-        setTables(prev =>
+        setTables((prev) =>
             prev.map((t, idx) =>
                 idx === tableIdx
                     ? {
-                        ...t,
-                        purokData: [...t.purokData, createEmptyPurokRow((t.purokData.length + 1).toString())],
-                    }
+                          ...t,
+                          purokData: [
+                              ...t.purokData,
+                              createEmptyPurokRow(
+                                  (t.purokData.length + 1).toString()
+                              ),
+                          ],
+                      }
                     : t
             )
         );
@@ -235,10 +475,15 @@ const ExposureDatabase = () => {
     };
 
     const removePurokRow = (tableIdx, purokIdx) => {
-        setTables(prev =>
+        setTables((prev) =>
             prev.map((t, idx) =>
                 idx === tableIdx
-                    ? { ...t, purokData: t.purokData.filter((_, rIdx) => rIdx !== purokIdx) }
+                    ? {
+                          ...t,
+                          purokData: t.purokData.filter(
+                              (_, rIdx) => rIdx !== purokIdx
+                          ),
+                      }
                     : t
             )
         );
@@ -246,15 +491,15 @@ const ExposureDatabase = () => {
     };
 
     const addTable = () => {
-        setTables(prev => [
+        setTables((prev) => [
             ...prev,
-            { riskType: "", purokData: [createEmptyPurokRow("1")] }
+            { riskType: "", purokData: [createEmptyPurokRow("1")] },
         ]);
         toast.success("New risk table added!");
     };
 
     const removeTable = (tableIdx) => {
-        setTables(prev => prev.filter((_, idx) => idx !== tableIdx));
+        setTables((prev) => prev.filter((_, idx) => idx !== tableIdx));
         toast.error("Table removed!");
     };
 
@@ -290,16 +535,20 @@ const ExposureDatabase = () => {
                 </React.Fragment>
             ))}
 
-
-            <p className="text-md font-bold">3.2 Deatailed Number of Persons with Disabilities</p>
+            <p className="text-md font-bold">
+                3.2 Deatailed Number of Persons with Disabilities
+            </p>
             <PwdTable />
-            <p className="text-md font-bold">3.3 Number of Families at Risk of Hazards and Disaster per Purok</p>
+            <p className="text-md font-bold">
+                3.3 Number of Families at Risk of Hazards and Disaster per Purok
+            </p>
             <DisasterPerPurok />
-            <p className="text-md font-bold">3.4 Number of Persons with Illnesses or Communicable Diseases</p>
+            <p className="text-md font-bold">
+                3.4 Number of Persons with Illnesses or Communicable Diseases
+            </p>
             <IllinessesTable />
         </div>
     );
 };
-
 
 export default ExposureDatabase;

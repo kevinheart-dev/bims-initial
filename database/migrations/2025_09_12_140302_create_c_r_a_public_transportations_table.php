@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->string('transpo_type', 55);
-            $table->integer('quantity')->default(0);;
+            $table->integer('quantity')->default(0);
             $table->timestamps();
         });
     }

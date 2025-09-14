@@ -9,4 +9,16 @@ class CRALivelihoodEvacuationSite extends Model
 {
     /** @use HasFactory<\Database\Factories\CRALivelihoodEvacuationSiteFactory> */
     use HasFactory;
+    public $timestamps = true;
+    protected $fillable = [
+        'barangay_id',
+        'livelihood_type',
+        'evacuation_site',
+        'place_of_origin',
+        'capacity_description',
+    ];
+
+    public function barangay(){
+        return $this->belongsTo(Barangay::class);
+    }
 }

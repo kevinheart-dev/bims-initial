@@ -5,20 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CRAAssessmentMatrix extends Model
+class CRAAffectedPlaces extends Model
 {
-    /** @use HasFactory<\Database\Factories\CRAAssessmentMatrixFactory> */
+    /** @use HasFactory<\Database\Factories\CRAAffectedPlacesFactory> */
     use HasFactory;
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
         'hazard_id',
-        'matrix_type',
-        'people',
-        'properties',
-        'services',
-        'environment',
-        'livelihood',
+        'risk_level',
+        'purok_number',
+        'total_families',
+        'total_individuals',
+        'at_risk_families',
+        'at_risk_individuals',
+        'safe_evacuation_area',
     ];
 
     public function barangay(){
@@ -28,4 +29,3 @@ class CRAAssessmentMatrix extends Model
         return $this->belongsTo(CRAHazard::class);
     }
 }
-

@@ -21,10 +21,10 @@ return new class extends Migration
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            $table->string('category', 100); // e.g. "Food", "Medicine", "Shelter Equipment"
-            $table->string('item_name', 150); // actual item, e.g. "Rice sacks", "Tents"
-            $table->string('total_in_barangay', 100)->nullable(); // total stock available
-            $table->string('at_risk', 100)->nullable(); // portion exposed/at risk
+            $table->string('category', 100);
+            $table->string('item_name', 150);
+            $table->string('total_in_barangay', 100)->nullable();
+            $table->string('percetage_at_risk', 100)->nullable();
             $table->string('location', 150)->nullable();
             $table->timestamps();
         });

@@ -3,14 +3,25 @@ import { StepperContext } from "@/context/StepperContext";
 import Accordion from "@/Components/Accordion";
 import toast from "react-hot-toast";
 
-function MatrixTable({ data, updateField, handleBlur, addRow, removeRow, label }) {
+function MatrixTable({
+    data,
+    updateField,
+    handleBlur,
+    addRow,
+    removeRow,
+    label,
+}) {
     return (
         <div className="overflow-x-auto border rounded-lg shadow-sm mb-4">
             <table className="w-full border text-sm">
                 <thead className="bg-gray-100">
                     <tr>
-                        <th rowSpan="2" className="border px-2 py-1">Priority Hazards</th>
-                        <th colSpan="5" className="border px-2 py-1">{label}</th>
+                        <th rowSpan="2" className="border px-2 py-1">
+                            Priority Hazards
+                        </th>
+                        <th colSpan="5" className="border px-2 py-1">
+                            {label}
+                        </th>
                         <th className="border px-2 py-1"></th>
                     </tr>
                     <tr>
@@ -29,8 +40,20 @@ function MatrixTable({ data, updateField, handleBlur, addRow, removeRow, label }
                                     type="text"
                                     className="w-full border p-1"
                                     value={r.hazard === "None" ? "" : r.hazard}
-                                    onChange={(e) => updateField(idx, "hazard", e.target.value)}
-                                    onBlur={(e) => handleBlur(idx, "hazard", e.target.value)}
+                                    onChange={(e) =>
+                                        updateField(
+                                            idx,
+                                            "hazard",
+                                            e.target.value
+                                        )
+                                    }
+                                    onBlur={(e) =>
+                                        handleBlur(
+                                            idx,
+                                            "hazard",
+                                            e.target.value
+                                        )
+                                    }
                                     placeholder="e.g., Typhoon"
                                 />
                             </td>
@@ -40,19 +63,34 @@ function MatrixTable({ data, updateField, handleBlur, addRow, removeRow, label }
                                     type="number"
                                     className="w-full border p-1"
                                     value={r.people}
-                                    onChange={(e) => updateField(idx, "people", e.target.value)}
+                                    onChange={(e) =>
+                                        updateField(
+                                            idx,
+                                            "people",
+                                            e.target.value
+                                        )
+                                    }
                                     placeholder="e.g., 5142"
                                     min="0"
                                 />
                             </td>
 
-                            {["properties", "services", "environment", "livelihood"].map((f) => (
+                            {[
+                                "properties",
+                                "services",
+                                "environment",
+                                "livelihood",
+                            ].map((f) => (
                                 <td key={f} className="border px-2 py-1">
                                     <textarea
                                         className="w-full border p-1"
                                         value={r[f] === "None" ? "" : r[f]}
-                                        onChange={(e) => updateField(idx, f, e.target.value)}
-                                        onBlur={(e) => handleBlur(idx, f, e.target.value)}
+                                        onChange={(e) =>
+                                            updateField(idx, f, e.target.value)
+                                        }
+                                        onBlur={(e) =>
+                                            handleBlur(idx, f, e.target.value)
+                                        }
                                         placeholder={`Enter ${f}`}
                                     />
                                 </td>
@@ -146,7 +184,9 @@ const Risk = () => {
                 livelihood: "",
             });
             setCraData((prev) => ({ ...prev, [key]: updated }));
-            toast.success(`${key === "risks" ? "Risk" : "Vulnerability"} row added!`);
+            toast.success(
+                `${key === "risks" ? "Risk" : "Vulnerability"} row added!`
+            );
         };
 
         const removeRow = (idx) => {
@@ -165,14 +205,18 @@ const Risk = () => {
 
     return (
         <div className="space-y-4">
-            <p className="mt-8 pt-6 font-bold text-md">2.1 Public Health - Risk Assessment Matrix</p>
+            <p className="mt-8 pt-6 font-bold text-md">
+                2.1 Public Health - Risk Assessment Matrix
+            </p>
             <MatrixTable
                 data={craData.risks || []}
                 label="RISK TO THE COMMUNITY"
                 {...riskHandlers}
             />
 
-            <p className="mt-8 pt-6 font-bold text-md">2.2 Public Health - Vulnerability Assessment Matrix</p>
+            <p className="mt-8 pt-6 font-bold text-md">
+                2.2 Public Health - Vulnerability Assessment Matrix
+            </p>
             <MatrixTable
                 data={craData.vulnerabilities || []}
                 label="VULNERABILITY TO THE COMMUNITY"

@@ -9,4 +9,18 @@ class CRAReliefDistribution extends Model
 {
     /** @use HasFactory<\Database\Factories\CRAReliefDistributionFactory> */
     use HasFactory;
+    public $timestamps = true;
+    protected $fillable = [
+        'barangay_id',
+        'evacuation_center',
+        'relief_good',
+        'quantity',
+        'unit',
+        'beneficiaries',
+        'address',
+    ];
+
+    public function barangay(){
+        return $this->belongsTo(Barangay::class);
+    }
 }

@@ -25,13 +25,13 @@ export default function Index() {
             return saved
                 ? JSON.parse(saved)
                 : {
-                    population: [],
-                    livelihood: [],
-                    infrastructure: [],
-                    institutions: [],
-                    hazards: [],
-                    evacuation: [],
-                };
+                      population: [],
+                      livelihood: [],
+                      infrastructure: [],
+                      institutions: [],
+                      hazards: [],
+                      evacuation: [],
+                  };
         } catch (err) {
             console.error("Error loading draft:", err);
             return {
@@ -69,11 +69,11 @@ export default function Index() {
             case 2:
                 return <Calamities />;
             case 3:
-                return <Hazard />
+                return <Hazard />;
             case 4:
-                return <InventoryEvacuation />
+                return <InventoryEvacuation />;
             case 5:
-                return <DisasterReadiness />
+                return <DisasterReadiness />;
             default:
         }
     };

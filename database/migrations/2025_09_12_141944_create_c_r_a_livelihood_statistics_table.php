@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->string('livelihood_type', 55);
-
             $table->integer('male_without_disability')->default(0);
             $table->integer('male_with_disability')->default(0);
             $table->integer('female_without_disability')->default(0);

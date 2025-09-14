@@ -101,10 +101,15 @@ const ResponsiveEuipInventory = () => {
                         <tr className="bg-gray-100">
                             <th className="border px-2 py-1">Equipment</th>
                             <th className="border px-2 py-1 w-[150px]">
-                                Put a check (✓) if the items are found in the barangay and cross (x) if they are not
+                                Put a check (✓) if the items are found in the
+                                barangay and cross (x) if they are not
                             </th>
-                            <th className="border px-2 py-1 text-center">Quantity</th>
-                            <th className="border px-2 py-1">Location of the equipment</th>
+                            <th className="border px-2 py-1 text-center">
+                                Quantity
+                            </th>
+                            <th className="border px-2 py-1">
+                                Location of the equipment
+                            </th>
                             <th className="border px-2 py-1">Remarks</th>
                             <th className="border px-2 py-1 w-[40px]"></th>
                         </tr>
@@ -115,11 +120,17 @@ const ResponsiveEuipInventory = () => {
                                 {/* Item */}
                                 <td className="border px-2 py-1">
                                     <textarea
-                                        ref={(el) => (textareaRefs.current[idx * 5] = el)}
+                                        ref={(el) =>
+                                            (textareaRefs.current[idx * 5] = el)
+                                        }
                                         rows={1}
                                         value={row.item}
                                         onChange={(e) => {
-                                            updateCell(idx, "item", e.target.value);
+                                            updateCell(
+                                                idx,
+                                                "item",
+                                                e.target.value
+                                            );
                                             autoResize(e);
                                         }}
                                         className="border w-full px-2 py-1 text-left resize-none overflow-hidden"
@@ -130,20 +141,26 @@ const ResponsiveEuipInventory = () => {
                                 <td className="border px-2 py-1 w-[80px]">
                                     <div className="flex justify-center gap-1">
                                         <button
-                                            onClick={() => updateCell(idx, "status", "✓")}
-                                            className={`p-1 rounded-full ${row.status === "✓"
-                                                ? "bg-green-500 text-white"
-                                                : "bg-gray-200 text-gray-500"
-                                                }`}
+                                            onClick={() =>
+                                                updateCell(idx, "status", "yes")
+                                            }
+                                            className={`p-1 rounded-full ${
+                                                row.status === "yes"
+                                                    ? "bg-green-500 text-white"
+                                                    : "bg-gray-200 text-gray-500"
+                                            }`}
                                         >
                                             <Check size={14} />
                                         </button>
                                         <button
-                                            onClick={() => updateCell(idx, "status", "x")}
-                                            className={`p-1 rounded-full ${row.status === "x"
-                                                ? "bg-red-500 text-white"
-                                                : "bg-gray-200 text-gray-500"
-                                                }`}
+                                            onClick={() =>
+                                                updateCell(idx, "status", "no")
+                                            }
+                                            className={`p-1 rounded-full ${
+                                                row.status === "no"
+                                                    ? "bg-red-500 text-white"
+                                                    : "bg-gray-200 text-gray-500"
+                                            }`}
                                         >
                                             <X size={14} />
                                         </button>
@@ -151,23 +168,39 @@ const ResponsiveEuipInventory = () => {
                                 </td>
 
                                 {/* Quantity, Location, Remarks */}
-                                {["quantity", "location", "remarks"].map((field, fIdx) => (
-                                    <td key={field} className="border px-2 py-1">
-                                        <textarea
-                                            ref={(el) =>
-                                                (textareaRefs.current[idx * 5 + (fIdx + 1)] = el)
-                                            }
-                                            rows={1}
-                                            value={row[field]}
-                                            onChange={(e) => {
-                                                updateCell(idx, field, e.target.value);
-                                                autoResize(e);
-                                            }}
-                                            className="border w-full px-2 py-1 text-center resize-none overflow-hidden"
-                                            placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                                        />
-                                    </td>
-                                ))}
+                                {["quantity", "location", "remarks"].map(
+                                    (field, fIdx) => (
+                                        <td
+                                            key={field}
+                                            className="border px-2 py-1"
+                                        >
+                                            <textarea
+                                                ref={(el) =>
+                                                    (textareaRefs.current[
+                                                        idx * 5 + (fIdx + 1)
+                                                    ] = el)
+                                                }
+                                                rows={1}
+                                                value={row[field]}
+                                                onChange={(e) => {
+                                                    updateCell(
+                                                        idx,
+                                                        field,
+                                                        e.target.value
+                                                    );
+                                                    autoResize(e);
+                                                }}
+                                                className="border w-full px-2 py-1 text-center resize-none overflow-hidden"
+                                                placeholder={
+                                                    field
+                                                        .charAt(0)
+                                                        .toUpperCase() +
+                                                    field.slice(1)
+                                                }
+                                            />
+                                        </td>
+                                    )
+                                )}
 
                                 {/* Remove Row */}
                                 <td className="px-2 py-1 text-center !border-0">

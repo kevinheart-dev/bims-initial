@@ -29,22 +29,20 @@ const disasterEffectImpact = [
     "Missing",
 ];
 
-
-
 // 🔹 Define property categories
 const propertyCategories = [
     {
         category: "Agriculture",
         defaultDescriptions: [
-            "Farming (extent of damage in land area or worth of damage)"
-        ]
+            "Farming (extent of damage in land area or worth of damage)",
+        ],
     },
     {
         category: "Fishing",
         defaultDescriptions: [
             "Fishing Equipment (quantity or worth of damage)",
-            "Fishing Boats (damaged or lost)"
-        ]
+            "Fishing Boats (damaged or lost)",
+        ],
     },
 ];
 
@@ -91,14 +89,12 @@ const defaultLifelines = [
     },
 ];
 
-
 const defaultAgriculture = [
     "Livestock (quantity or value)",
     "Farm animals (quantity)",
     "Poultry and Fowl (quantity)",
     "Agriculture/Farm Inputs",
 ];
-
 
 const defaultDamageDescriptions = [
     "Totally Damaged (quantity or worth of damage)",
@@ -118,7 +114,6 @@ const defaultStructure = [
     category,
     defaultDescriptions: [...defaultDamageDescriptions],
 }));
-
 
 // Default calamity (fresh object)
 const defaultCalamity = () => ({
@@ -159,18 +154,19 @@ const defaultCalamity = () => ({
         category: life.category || life.defaultDescriptions,
         descriptions: Array.isArray(life.defaultDescriptions)
             ? life.defaultDescriptions.map((desc) => ({
-                description: desc,
-                value: "",
-                source: "",
-            }))
-            : [{
-                description: life.defaultDescriptions,
-                value: "",
-                source: "",
-            }],
+                  description: desc,
+                  value: "",
+                  source: "",
+              }))
+            : [
+                  {
+                      description: life.defaultDescriptions,
+                      value: "",
+                      source: "",
+                  },
+              ],
     })),
 });
-
 
 const CalamityTable = ({ calamities, updateCell }) => {
     return (
@@ -178,7 +174,9 @@ const CalamityTable = ({ calamities, updateCell }) => {
             <thead>
                 {/* Top header row */}
                 <tr>
-                    <th className="border px-2 py-1 w-[200px]">Calamity/Disaster</th>
+                    <th className="border px-2 py-1 w-[200px]">
+                        Calamity/Disaster
+                    </th>
                     {calamities.map((cal, idx) => (
                         <React.Fragment key={idx}>
                             <th className="border text-center">
@@ -188,11 +186,17 @@ const CalamityTable = ({ calamities, updateCell }) => {
                                     value={cal.disaster_name}
                                     className="border w-full text-center font-bold"
                                     onChange={(e) =>
-                                        updateCell(idx, "disaster_name", e.target.value)
+                                        updateCell(
+                                            idx,
+                                            "disaster_name",
+                                            e.target.value
+                                        )
                                     }
                                 />
                             </th>
-                            <th className="border text-center">Source of Information</th>
+                            <th className="border text-center">
+                                Source of Information
+                            </th>
                         </React.Fragment>
                     ))}
                 </tr>
@@ -227,7 +231,9 @@ const CalamityTable = ({ calamities, updateCell }) => {
                     </th>
                 </tr>
                 <tr>
-                    <th className="border text-center w-[200px]">Affected Population</th>
+                    <th className="border text-center w-[200px]">
+                        Affected Population
+                    </th>
                 </tr>
             </thead>
 
@@ -236,7 +242,10 @@ const CalamityTable = ({ calamities, updateCell }) => {
                     <tr key={rowIdx}>
                         <td className="border px-2 py-1">{cat}</td>
                         {calamities.map((cal, calIdx) => {
-                            const popRow = cal.population?.[rowIdx] || { value: "", source: "" };
+                            const popRow = cal.population?.[rowIdx] || {
+                                value: "",
+                                source: "",
+                            };
                             return (
                                 <React.Fragment key={calIdx}>
                                     <td className="border text-center px-2 py-1">
@@ -245,9 +254,15 @@ const CalamityTable = ({ calamities, updateCell }) => {
                                             className="w-full border text-center"
                                             value={popRow.value}
                                             onChange={(e) =>
-                                                updateCell(calIdx, "population", e.target.value, rowIdx, null, "value")
+                                                updateCell(
+                                                    calIdx,
+                                                    "population",
+                                                    e.target.value,
+                                                    rowIdx,
+                                                    null,
+                                                    "value"
+                                                )
                                             }
-
                                         />
                                     </td>
                                     <td className="border text-center px-2 py-1">
@@ -256,7 +271,14 @@ const CalamityTable = ({ calamities, updateCell }) => {
                                             className="w-full border text-center"
                                             value={popRow.source}
                                             onChange={(e) =>
-                                                updateCell(calIdx, "population", e.target.value, rowIdx, null, "source")
+                                                updateCell(
+                                                    calIdx,
+                                                    "population",
+                                                    e.target.value,
+                                                    rowIdx,
+                                                    null,
+                                                    "source"
+                                                )
                                             }
                                         />
                                     </td>
@@ -278,7 +300,10 @@ const CalamityTable = ({ calamities, updateCell }) => {
                     <tr key={`impact-${rowIdx}`}>
                         <td className="border px-2 py-1">{effect}</td>
                         {calamities.map((cal, calIdx) => {
-                            const impactRow = cal.impacts?.[rowIdx] || { value: "", source: "" };
+                            const impactRow = cal.impacts?.[rowIdx] || {
+                                value: "",
+                                source: "",
+                            };
                             return (
                                 <React.Fragment key={calIdx}>
                                     <td className="border text-center px-2 py-1">
@@ -287,7 +312,14 @@ const CalamityTable = ({ calamities, updateCell }) => {
                                             className="w-full border text-center"
                                             value={impactRow.value}
                                             onChange={(e) =>
-                                                updateCell(calIdx, "impacts", e.target.value, rowIdx, null, "value")
+                                                updateCell(
+                                                    calIdx,
+                                                    "impacts",
+                                                    e.target.value,
+                                                    rowIdx,
+                                                    null,
+                                                    "value"
+                                                )
                                             }
                                         />
                                     </td>
@@ -297,7 +329,14 @@ const CalamityTable = ({ calamities, updateCell }) => {
                                             className="w-full border text-center"
                                             value={impactRow.source}
                                             onChange={(e) =>
-                                                updateCell(calIdx, "impacts", e.target.value, rowIdx, null, "source")
+                                                updateCell(
+                                                    calIdx,
+                                                    "impacts",
+                                                    e.target.value,
+                                                    rowIdx,
+                                                    null,
+                                                    "source"
+                                                )
                                             }
                                         />
                                     </td>
@@ -334,14 +373,16 @@ const CalamityTable = ({ calamities, updateCell }) => {
                             <tr key={`desc-${rowIdx}-${descIdx}`}>
                                 <td className="border px-2 py-1">{desc}</td>
                                 {calamities.map((cal, calIdx) => {
-                                    const propRow =
-                                        cal.property?.[rowIdx]?.descriptions?.[descIdx] || {
-                                            value: "",
-                                            source: "",
-                                        };
+                                    const propRow = cal.property?.[rowIdx]
+                                        ?.descriptions?.[descIdx] || {
+                                        value: "",
+                                        source: "",
+                                    };
 
                                     return (
-                                        <React.Fragment key={`prop-${calIdx}-${rowIdx}-${descIdx}`}>
+                                        <React.Fragment
+                                            key={`prop-${calIdx}-${rowIdx}-${descIdx}`}
+                                        >
                                             {/* Value */}
                                             <td className="border text-center px-2 py-1">
                                                 <input
@@ -387,7 +428,6 @@ const CalamityTable = ({ calamities, updateCell }) => {
                     </React.Fragment>
                 ))}
 
-
                 {/* AGRICULTURE */}
                 <tr>
                     <th
@@ -402,7 +442,10 @@ const CalamityTable = ({ calamities, updateCell }) => {
                     <tr key={`agri-${rowIdx}`}>
                         <td className="border px-2 py-1">{agri}</td>
                         {calamities.map((cal, calIdx) => {
-                            const agriRow = cal.agriculture?.[rowIdx] || { value: "", source: "" };
+                            const agriRow = cal.agriculture?.[rowIdx] || {
+                                value: "",
+                                source: "",
+                            };
                             return (
                                 <React.Fragment key={calIdx}>
                                     <td className="border text-center px-2 py-1">
@@ -411,7 +454,14 @@ const CalamityTable = ({ calamities, updateCell }) => {
                                             className="w-full border text-center"
                                             value={agriRow.value}
                                             onChange={(e) =>
-                                                updateCell(calIdx, "agriculture", e.target.value, rowIdx, null, "value")
+                                                updateCell(
+                                                    calIdx,
+                                                    "agriculture",
+                                                    e.target.value,
+                                                    rowIdx,
+                                                    null,
+                                                    "value"
+                                                )
                                             }
                                         />
                                     </td>
@@ -421,7 +471,14 @@ const CalamityTable = ({ calamities, updateCell }) => {
                                             className="w-full border text-center"
                                             value={agriRow.source}
                                             onChange={(e) =>
-                                                updateCell(calIdx, "agriculture", e.target.value, rowIdx, null, "source")
+                                                updateCell(
+                                                    calIdx,
+                                                    "agriculture",
+                                                    e.target.value,
+                                                    rowIdx,
+                                                    null,
+                                                    "source"
+                                                )
                                             }
                                         />
                                     </td>
@@ -457,14 +514,16 @@ const CalamityTable = ({ calamities, updateCell }) => {
                             <tr key={`structure-${rowIdx}-${descIdx}`}>
                                 <td className="border px-2 py-1">{desc}</td>
                                 {calamities.map((cal, calIdx) => {
-                                    const structRow =
-                                        cal.structure?.[rowIdx]?.descriptions?.[descIdx] || {
-                                            value: "",
-                                            source: "",
-                                        };
+                                    const structRow = cal.structure?.[rowIdx]
+                                        ?.descriptions?.[descIdx] || {
+                                        value: "",
+                                        source: "",
+                                    };
 
                                     return (
-                                        <React.Fragment key={`struct-${calIdx}-${rowIdx}-${descIdx}`}>
+                                        <React.Fragment
+                                            key={`struct-${calIdx}-${rowIdx}-${descIdx}`}
+                                        >
                                             {/* Value */}
                                             <td className="border text-center px-2 py-1">
                                                 <input
@@ -535,14 +594,16 @@ const CalamityTable = ({ calamities, updateCell }) => {
                             <tr key={`life-${rowIdx}-${descIdx}`}>
                                 <td className="border px-2 py-1">{desc}</td>
                                 {calamities.map((cal, calIdx) => {
-                                    const lifeRow =
-                                        cal.lifelines?.[rowIdx]?.descriptions?.[descIdx] || {
-                                            value: "",
-                                            source: "",
-                                        };
+                                    const lifeRow = cal.lifelines?.[rowIdx]
+                                        ?.descriptions?.[descIdx] || {
+                                        value: "",
+                                        source: "",
+                                    };
 
                                     return (
-                                        <React.Fragment key={`life-${calIdx}-${rowIdx}-${descIdx}`}>
+                                        <React.Fragment
+                                            key={`life-${calIdx}-${rowIdx}-${descIdx}`}
+                                        >
                                             {/* Value */}
                                             <td className="border text-center px-2 py-1">
                                                 <input
@@ -599,67 +660,71 @@ export default function Calamities() {
             ...prev,
             calamities: prev.calamities?.length
                 ? prev.calamities.map((cal) => ({
-                    ...cal,
-                    population: cal.population?.length
-                        ? cal.population
-                        : populationCategories.map((cat) => ({
-                            category: cat,
-                            value: "",
-                            source: "",
-                        })),
-                    impacts: cal.impacts?.length
-                        ? cal.impacts
-                        : disasterEffectImpact.map((effect) => ({
-                            effect_type: effect,
-                            value: "",
-                            source: "",
-                        })),
-                    property: cal.property?.length
-                        ? cal.property
-                        : propertyCategories.map((prop) => ({
-                            category: prop.category,
-                            descriptions: prop.defaultDescriptions.map((desc) => ({
-                                description: desc,
+                      ...cal,
+                      population: cal.population?.length
+                          ? cal.population
+                          : populationCategories.map((cat) => ({
+                                category: cat,
                                 value: "",
                                 source: "",
                             })),
-                        })),
-                    structure: cal.structure?.length
-                        ? cal.structure
-                        : defaultStructure.map((str) => ({
-                            category: str.category,
-                            descriptions: str.defaultDescriptions.map((desc) => ({
-                                description: desc,
+                      impacts: cal.impacts?.length
+                          ? cal.impacts
+                          : disasterEffectImpact.map((effect) => ({
+                                effect_type: effect,
                                 value: "",
                                 source: "",
                             })),
-                        })),
-                    agriculture: cal.agriculture?.length
-                        ? cal.agriculture
-                        : defaultAgriculture.map((agri) => ({
-                            description: agri,
-                            value: "",
-                            source: "",
-                        })),
-                    lifelines: cal.lifelines?.length
-                        ? cal.lifelines
-                        : defaultLifelines.map((life) => ({
-                            category: life.category || "General",
-                            descriptions: (Array.isArray(life.defaultDescriptions)
-                                ? life.defaultDescriptions
-                                : [life.defaultDescriptions]
-                            ).map((desc) => ({
-                                description: desc,
+                      property: cal.property?.length
+                          ? cal.property
+                          : propertyCategories.map((prop) => ({
+                                category: prop.category,
+                                descriptions: prop.defaultDescriptions.map(
+                                    (desc) => ({
+                                        description: desc,
+                                        value: "",
+                                        source: "",
+                                    })
+                                ),
+                            })),
+                      structure: cal.structure?.length
+                          ? cal.structure
+                          : defaultStructure.map((str) => ({
+                                category: str.category,
+                                descriptions: str.defaultDescriptions.map(
+                                    (desc) => ({
+                                        description: desc,
+                                        value: "",
+                                        source: "",
+                                    })
+                                ),
+                            })),
+                      agriculture: cal.agriculture?.length
+                          ? cal.agriculture
+                          : defaultAgriculture.map((agri) => ({
+                                description: agri,
                                 value: "",
                                 source: "",
                             })),
-                        })),
-
-                }))
+                      lifelines: cal.lifelines?.length
+                          ? cal.lifelines
+                          : defaultLifelines.map((life) => ({
+                                category: life.category || "General",
+                                descriptions: (Array.isArray(
+                                    life.defaultDescriptions
+                                )
+                                    ? life.defaultDescriptions
+                                    : [life.defaultDescriptions]
+                                ).map((desc) => ({
+                                    description: desc,
+                                    value: "",
+                                    source: "",
+                                })),
+                            })),
+                  }))
                 : [defaultCalamity()],
         }));
     }, [setCraData]);
-
 
     const addCalamity = useCallback(() => {
         setCraData((prev) => ({
@@ -678,7 +743,14 @@ export default function Calamities() {
     }, [setCraData]);
 
     const updateCell = useCallback(
-        (calIdx, field, value, rowIdx = null, descIdx = null, subField = null) => {
+        (
+            calIdx,
+            field,
+            value,
+            rowIdx = null,
+            descIdx = null,
+            subField = null
+        ) => {
             setCraData((prev) => {
                 const updated = [...prev.calamities]; // shallow copy of calamities
 
@@ -687,22 +759,32 @@ export default function Calamities() {
                         updated[calIdx] = {
                             ...updated[calIdx],
                             [field]: updated[calIdx][field].map((item, i) =>
-                                i === rowIdx ? { ...item, [subField]: value } : item
+                                i === rowIdx
+                                    ? { ...item, [subField]: value }
+                                    : item
                             ),
                         };
                     }
-                } else if (["property", "structure", "lifelines"].includes(field)) {
+                } else if (
+                    ["property", "structure", "lifelines"].includes(field)
+                ) {
                     if (rowIdx !== null && descIdx !== null && subField) {
                         updated[calIdx] = {
                             ...updated[calIdx],
                             [field]: updated[calIdx][field].map((cat, i) =>
                                 i === rowIdx
                                     ? {
-                                        ...cat,
-                                        descriptions: cat.descriptions.map((desc, j) =>
-                                            j === descIdx ? { ...desc, [subField]: value } : desc
-                                        ),
-                                    }
+                                          ...cat,
+                                          descriptions: cat.descriptions.map(
+                                              (desc, j) =>
+                                                  j === descIdx
+                                                      ? {
+                                                            ...desc,
+                                                            [subField]: value,
+                                                        }
+                                                      : desc
+                                          ),
+                                      }
                                     : cat
                             ),
                         };
@@ -719,9 +801,6 @@ export default function Calamities() {
         },
         [setCraData]
     );
-
-
-
 
     return (
         <div>

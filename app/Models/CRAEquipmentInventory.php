@@ -5,15 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CRAHouseOwnership extends Model
+class CRAEquipmentInventory extends Model
 {
-    /** @use HasFactory<\Database\Factories\CRAHouseOwnershipFactory> */
+    /** @use HasFactory<\Database\Factories\CRAEquipmentInventoryFactory> */
     use HasFactory;
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
-        'ownership_type',
+        'item',
+        'availability',
         'quantity',
+        'location',
+        'remarks',
     ];
 
     public function barangay(){
