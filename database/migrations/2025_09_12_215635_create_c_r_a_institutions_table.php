@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('head_name', 150)->nullable();
             $table->string('contact_no', 50)->nullable();
 
-            $table->enum('status', ['active', 'inactive', 'pending'])->default('active');
+            $table->enum('registered', ['YES', 'NO'])->default('NO');
             $table->text('programs_services')->nullable();
             $table->timestamps();
         });

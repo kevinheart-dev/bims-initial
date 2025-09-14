@@ -9,4 +9,8 @@ class CRAHazard extends Model
 {
     /** @use HasFactory<\Database\Factories\CRAHazardFactory> */
     use HasFactory;
+    public $timestamps = true;
+    protected $fillable = [
+        'hazard_name',
+    ];
 }

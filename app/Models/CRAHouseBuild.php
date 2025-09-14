@@ -9,4 +9,15 @@ class CRAHouseBuild extends Model
 {
     /** @use HasFactory<\Database\Factories\CRAHouseBuildFactory> */
     use HasFactory;
+    public $timestamps = true;
+    protected $fillable = [
+        'barangay_id',
+        'house_type',
+        'one_floor',
+        'two_or_more_floors',
+    ];
+
+    public function barangay(){
+        return $this->belongsTo(Barangay::class);
+    }
 }

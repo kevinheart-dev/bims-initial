@@ -18,14 +18,10 @@ return new class extends Migration
                 ->constrained('c_r_a_disaster_occurances')
                 ->onDelete('cascade');
 
-            $table->foreignId('category_id')
-                ->constrained('c_r_a_damage_categories')
-                ->onDelete('cascade');
-
             $table->foreignId('barangay_id')
                 ->constrained('barangays')
                 ->onDelete('cascade');
-
+            $table->string('category', 55);
             $table->text('description')->nullable(); // details of the damage
             $table->integer('value')->default(0);    // numeric value (cost/quantity)
             $table->string('source', 150)->nullable();

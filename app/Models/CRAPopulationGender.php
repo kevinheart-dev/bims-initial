@@ -9,4 +9,14 @@ class CRAPopulationGender extends Model
 {
     /** @use HasFactory<\Database\Factories\CRAPopulationGenderFactory> */
     use HasFactory;
+    public $timestamps = true;
+    protected $fillable = [
+        'barangay_id',
+        'gender',
+        'quantity'
+    ];
+
+    public function barangay(){
+        return $this->belongsTo(Barangay::class);
+    }
 }

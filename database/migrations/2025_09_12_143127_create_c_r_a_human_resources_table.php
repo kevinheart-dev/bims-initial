@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->foreignId('category_id')->constrained('c_r_a_h_r_categories')->onDelete('cascade');
+            $table->string('category', 55);
 
             $table->string('resource_name', 55); // e.g., Doctors, Nurses, Rescue Volunteers
 
@@ -23,7 +23,8 @@ return new class extends Migration
             $table->integer('male_with_disability')->default(0);
             $table->integer('female_without_disability')->default(0);
             $table->integer('female_with_disability')->default(0);
-            $table->integer('lgbtq')->default(0);
+            $table->integer('lgbtq_without_disability')->default(0);
+            $table->integer('lgbtq_with_disability')->default(0);
 
             $table->timestamps();
         });

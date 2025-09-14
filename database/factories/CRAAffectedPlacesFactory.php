@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\CRADisasterResponseEquipment>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\CRAAffectedPlaces>
  */
-class CRADisasterResponseEquipmentFactory extends Factory
+class CRAAffectedPlacesFactory extends Factory
 {
     /**
      * Define the model's default state.

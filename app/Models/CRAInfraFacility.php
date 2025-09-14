@@ -9,4 +9,15 @@ class CRAInfraFacility extends Model
 {
     /** @use HasFactory<\Database\Factories\CRAInfraFacilityFactory> */
     use HasFactory;
+    public $timestamps = true;
+    protected $fillable = [
+        'barangay_id',
+        'category',
+        'infrastructure_name',
+        'quantity',
+    ];
+
+    public function barangay(){
+        return $this->belongsTo(Barangay::class);
+    }
 }

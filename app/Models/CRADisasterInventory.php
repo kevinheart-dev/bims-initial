@@ -9,4 +9,21 @@ class CRADisasterInventory extends Model
 {
     /** @use HasFactory<\Database\Factories\CRADisasterInventoryFactory> */
     use HasFactory;
+    public $timestamps = true;
+    protected $fillable = [
+        'barangay_id',
+        'hazard_id',
+        'category',
+        'item_name',
+        'total_in_barangay',
+        'percetage_at_risk',
+        'location',
+    ];
+
+    public function barangay(){
+        return $this->belongsTo(Barangay::class);
+    }
+    public function hazard(){
+        return $this->belongsTo(CRAHazard::class);
+    }
 }

@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('c_r_a_primary_facilities', function (Blueprint $table) {
             $table->id();
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->string('facility_name', 55);
-            $table->integer('quantity')->default(0);;
+            $table->string('facility_name', 100);
+            $table->integer('quantity')->default(0);
             $table->timestamps();
         });
     }

@@ -9,4 +9,20 @@ class CRAHumanResource extends Model
 {
     /** @use HasFactory<\Database\Factories\CRAHumanResourceFactory> */
     use HasFactory;
+    public $timestamps = true;
+    protected $fillable = [
+        'barangay_id',
+        'category',
+        'resource_name',
+        'male_without_disability',
+        'male_with_disability',
+        'female_without_disability',
+        'female_with_disability',
+        'lgbtq_without_disability',
+        'lgbtq_with_disability',
+    ];
+
+    public function barangay(){
+        return $this->belongsTo(Barangay::class);
+    }
 }

@@ -19,7 +19,8 @@ return new class extends Migration
             $table->integer('male_with_disability')->default(0);
             $table->integer('female_without_disability')->default(0);
             $table->integer('female_with_disability')->default(0);
-            $table->integer('lgbtq')->default(0);
+            $table->integer('lgbtq_without_disability')->default(0);
+            $table->integer('lgbtq_with_disability')->default(0);
             $table->timestamps();
         });
     }

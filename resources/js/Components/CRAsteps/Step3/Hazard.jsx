@@ -8,8 +8,10 @@ import EffectDisaster from "./EffectDisaster";
 import Inventory from "./Inventory";
 import Evacuation from "./Evacuation";
 const computeAverage = (h) => {
-    if (h.probability === "" || h.effect === "" || h.management === "") return "";
-    const avg = (Number(h.probability) + Number(h.effect) + Number(h.management)) / 3;
+    if (h.probability === "" || h.effect === "" || h.management === "")
+        return "";
+    const avg =
+        (Number(h.probability) + Number(h.effect) + Number(h.management)) / 3;
     return parseFloat(avg.toFixed(3));
 };
 
@@ -75,34 +77,65 @@ function HazardTable({ hazards, updateField, addHazard, removeHazard }) {
                                     type="text"
                                     className="w-full border p-1"
                                     value={h.hazard}
-                                    onChange={(e) => updateField(h.index, "hazard", e.target.value)}
+                                    onChange={(e) =>
+                                        updateField(
+                                            h.index,
+                                            "hazard",
+                                            e.target.value
+                                        )
+                                    }
                                 />
                             </td>
-                            {["probability", "effect", "management"].map((f) => (
-                                <td key={f} className="border px-2 py-1">
-                                    <select
-                                        className="w-full border p-1"
-                                        value={h[f]}
-                                        onChange={(e) => updateField(h.index, f, e.target.value)}
-                                    >
-                                        <option value="">Select</option>
-                                        {[1, 2, 3, 4, 5].map((num) => (
-                                            <option key={num} value={num}>
-                                                {num}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </td>
-                            ))}
+                            {["probability", "effect", "management"].map(
+                                (f) => (
+                                    <td key={f} className="border px-2 py-1">
+                                        <select
+                                            className="w-full border p-1"
+                                            value={h[f]}
+                                            onChange={(e) =>
+                                                updateField(
+                                                    h.index,
+                                                    f,
+                                                    e.target.value
+                                                )
+                                            }
+                                        >
+                                            <option value="">Select</option>
+                                            {[1, 2, 3, 4, 5].map((num) => (
+                                                <option key={num} value={num}>
+                                                    {num}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </td>
+                                )
+                            )}
                             <td className="border px-2 py-1">
                                 <textarea
                                     className="w-full border p-1"
                                     value={h.basis}
-                                    onChange={(e) => updateField(h.index, "basis", e.target.value)}
+                                    onChange={(e) =>
+                                        updateField(
+                                            h.index,
+                                            "basis",
+                                            e.target.value
+                                        )
+                                    }
                                 />
                             </td>
                             <td className="border px-2 py-1 text-center bg-gray-50 font-semibold">
-                                {h.average || ""}
+                                <input
+                                    type="text"
+                                    className="w-full border p-1"
+                                    value={h.average}
+                                    onChange={(e) =>
+                                        updateField(
+                                            h.index,
+                                            "average",
+                                            e.target.value
+                                        )
+                                    }
+                                />
                             </td>
                             <td className="border px-2 py-1 text-center">
                                 {h.rank}
@@ -152,8 +185,12 @@ const Hazard = () => {
     const updateField = (idx, field, val) => {
         const updated = [...craData.hazards];
         updated[idx][field] =
-            field === "probability" || field === "effect" || field === "management"
-                ? (val === "" ? "" : Number(val))
+            field === "probability" ||
+            field === "effect" ||
+            field === "management"
+                ? val === ""
+                    ? ""
+                    : Number(val)
                 : val;
         setCraData((prev) => ({ ...prev, hazards: updated }));
     };
@@ -191,15 +228,17 @@ const Hazard = () => {
                 <Risk />
             </Accordion>
 
-            <Accordion title="3. Development an exposure database of those that can be directly affected by risks and hazards" >
+            <Accordion title="3. Development an exposure database of those that can be directly affected by risks and hazards">
                 <ExposureDatabase />
             </Accordion>
-            <Accordion title="4. Effects of Hazards or Disasters" >
+            <Accordion title="4. Effects of Hazards or Disasters">
                 <EffectDisaster />
                 <Inventory />
             </Accordion>
-            <Accordion title="5. List of Designated Center and Temporary Isolation Facilities in the
-            Barangay and City (whether owned by the goverment or private)" >
+            <Accordion
+                title="5. List of Designated Center and Temporary Isolation Facilities in the
+            Barangay and City (whether owned by the goverment or private)"
+            >
                 <Evacuation />
             </Accordion>
         </div>

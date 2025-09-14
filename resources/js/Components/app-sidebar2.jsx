@@ -25,6 +25,7 @@ import {
     Flag,
     ChevronDown,
     ChevronUp,
+    Scale,
 } from "lucide-react";
 
 import {
@@ -72,19 +73,6 @@ const items = [
                 url: "/document",
                 icon: FileText,
                 roles: ["barangay_officer"],
-            },
-        ],
-    },
-    {
-        title: "Community Risk Assessment",
-        icon: FileStack,
-        roles: ["cdrrmo_admin"],
-        submenu: [
-            {
-                title: "Information Table",
-                url: "#",
-                icon: Table,
-                roles: ["cdrrmo_admin"],
             },
         ],
     },
@@ -195,6 +183,62 @@ const items = [
                 url: "/death/index",
                 icon: PersonStanding,
                 roles: ["barangay_officer"],
+            },
+        ],
+    },
+    {
+        title: "Issuance",
+        icon: FileStack,
+        roles: ["barangay_officer"],
+        submenu: [
+            {
+                title: "Certificate Issuance",
+                url: "certificate/index",
+                icon: FileText,
+                roles: ["barangay_officer"],
+            },
+        ],
+    },
+    {
+        title: "Katarungang Pambarangay",
+        icon: Scale,
+        roles: ["barangay_officer"],
+        submenu: [
+            {
+                title: "Blotter Reports",
+                url: "/blotter_report",
+                icon: ScrollText,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Summon",
+                url: "/summon",
+                icon: MessageSquareWarning,
+                roles: ["barangay_officer"],
+            },
+        ],
+    },
+    {
+        title: "Reports",
+        icon: Flag,
+        submenu: [],
+        roles: ["barangay_officer"],
+    },
+    {
+        title: "Community Risk Assessment",
+        icon: FileStack,
+        roles: ["cdrrmo_admin", "barangay_officer"],
+        submenu: [
+            {
+                title: "Information Table",
+                icon: Table,
+                roles: ["cdrrmo_admin"],
+            },
+            {
+                title: "Create",
+                url: "/cra/create",
+                icon: FileText,
+                roles: ["cdrrmo_admin", "barangay_officer"],
             },
         ],
     },

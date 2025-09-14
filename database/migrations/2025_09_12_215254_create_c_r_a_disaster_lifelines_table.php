@@ -16,15 +16,11 @@ return new class extends Migration
             $table->foreignId('disaster_id')
                 ->constrained('c_r_a_disaster_occurances')
                 ->onDelete('cascade');
-
-            $table->foreignId('category_id')
-                ->constrained('c_r_a_damage_categories') // or a separate lifeline_categories table if you want
-                ->onDelete('cascade');
-
             $table->foreignId('barangay_id')
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
+            $table->string('category', 100);
             $table->text('description')->nullable();   // e.g. "Power lines down in Purok 5"
             $table->string('value', 150)->nullable(); // can store status/value (e.g. "Partial outage", "5 transformers")
             $table->string('source', 150)->nullable();
