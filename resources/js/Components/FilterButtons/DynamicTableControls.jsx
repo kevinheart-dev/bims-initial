@@ -14,9 +14,6 @@ const DynamicTableControls = ({
     visibleColumns,
     setVisibleColumns,
     onPrint,
-    is_paginated,
-    toggleShowAll,
-    showAll,
     toggleShowFilters,
     showFilters,
 }) => {
@@ -85,7 +82,7 @@ const DynamicTableControls = ({
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Pagination toggle */}
+            {/* Pagination toggle
             {is_paginated && (
                 <Button
                     onClick={toggleShowAll}
@@ -95,7 +92,7 @@ const DynamicTableControls = ({
                     {showAll ? <Rows3 /> : <Rows4 />}
                     {showAll ? "Show Paginated" : "Show Full List"}
                 </Button>
-            )}
+            )} */}
 
             {/* Print */}
             <div className="relative group z-5">

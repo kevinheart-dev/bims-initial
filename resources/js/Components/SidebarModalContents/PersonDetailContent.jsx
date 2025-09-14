@@ -159,52 +159,47 @@ export default function PersonDetailContent({ person }) {
                 <div className="flex gap-6 text-sm font-medium">
                     <button
                         onClick={() => setActiveTab("education")}
-                        className={`py-2 px-1 border-b-2 ${
-                            activeTab === "education"
+                        className={`py-2 px-1 border-b-2 ${activeTab === "education"
                                 ? "border-blue-600 text-blue-700"
                                 : "border-transparent text-gray-500"
-                        }`}
+                            }`}
                     >
                         Education
                     </button>
                     <button
                         onClick={() => setActiveTab("occupation")}
-                        className={`py-2 px-1 border-b-2 ${
-                            activeTab === "occupation"
+                        className={`py-2 px-1 border-b-2 ${activeTab === "occupation"
                                 ? "border-blue-600 text-blue-700"
                                 : "border-transparent text-gray-500"
-                        }`}
+                            }`}
                     >
                         Occupation
                     </button>
                     <button
                         onClick={() => setActiveTab("medical")}
-                        className={`py-2 px-1 border-b-2 ${
-                            activeTab === "medical"
+                        className={`py-2 px-1 border-b-2 ${activeTab === "medical"
                                 ? "border-blue-600 text-blue-700"
                                 : "border-transparent text-gray-500"
-                        }`}
+                            }`}
                     >
                         Medical
                     </button>
                     <button
                         onClick={() => setActiveTab("social")}
-                        className={`py-2 px-1 border-b-2 ${
-                            activeTab === "social"
+                        className={`py-2 px-1 border-b-2 ${activeTab === "social"
                                 ? "border-blue-600 text-blue-700"
                                 : "border-transparent text-gray-500"
-                        }`}
+                            }`}
                     >
                         Social Welfare
                     </button>
                     {person.seniorcitizen && (
                         <button
                             onClick={() => setActiveTab("senior")}
-                            className={`py-2 px-1 border-b-2 ${
-                                activeTab === "senior"
+                            className={`py-2 px-1 border-b-2 ${activeTab === "senior"
                                     ? "border-blue-600 text-blue-700"
                                     : "border-transparent text-gray-500"
-                            }`}
+                                }`}
                         >
                             Senior Citizen
                         </button>
@@ -221,7 +216,7 @@ export default function PersonDetailContent({ person }) {
                         </h3>
                         <hr className="mb-2 border-gray-400" />
                         {Array.isArray(person.educational_histories) &&
-                        person.educational_histories.length > 0 ? (
+                            person.educational_histories.length > 0 ? (
                             person.educational_histories.map((edu, index) => (
                                 <div
                                     key={index}
@@ -233,7 +228,7 @@ export default function PersonDetailContent({ person }) {
                                     <span className="text-left capitalize">
                                         {
                                             CONSTANTS.EDUCATION_LEVEL_TEXT[
-                                                edu.educational_attainment
+                                            edu.educational_attainment
                                             ]
                                         }
                                     </span>
@@ -295,7 +290,7 @@ export default function PersonDetailContent({ person }) {
                         </h3>
                         <hr className="mb-2 border-gray-400" />
                         {Array.isArray(person.occupations) &&
-                        person.occupations.length > 0 ? (
+                            person.occupations.length > 0 ? (
                             person.occupations.map((job, index) => (
                                 <div
                                     key={index}
@@ -328,7 +323,7 @@ export default function PersonDetailContent({ person }) {
                                     <span className="text-left capitalize">
                                         {
                                             CONSTANTS.EMPLOYMENT_TYPE_TEXT[
-                                                job.employment_type
+                                            job.employment_type
                                             ]
                                         }
                                     </span>
@@ -414,8 +409,8 @@ export default function PersonDetailContent({ person }) {
                                 <span className="text-left capitalize">
                                     {
                                         CONSTANTS.BMI_STATUS[
-                                            person.medical_information
-                                                .nutrition_status
+                                        person.medical_information
+                                            .nutrition_status
                                         ]
                                     }
                                 </span>
@@ -513,16 +508,16 @@ export default function PersonDetailContent({ person }) {
 
                                 {person.medical_information?.has_philhealth ===
                                     1 && (
-                                    <>
-                                        <span className="font-medium text-left">
-                                            PhilHealth ID:
-                                        </span>
-                                        <span className="text-left">
-                                            {person.medical_information
-                                                ?.philhealth_id_number || "N/A"}
-                                        </span>
-                                    </>
-                                )}
+                                        <>
+                                            <span className="font-medium text-left">
+                                                PhilHealth ID:
+                                            </span>
+                                            <span className="text-left">
+                                                {person.medical_information
+                                                    ?.philhealth_id_number || "N/A"}
+                                            </span>
+                                        </>
+                                    )}
 
                                 <span className="font-medium text-left">
                                     Is Solo Parent:
@@ -535,18 +530,18 @@ export default function PersonDetailContent({ person }) {
 
                                 {person.socialwelfareprofile.is_solo_parent ===
                                     1 && (
-                                    <>
-                                        <span className="font-medium text-left">
-                                            Solo Parent ID:
-                                        </span>
-                                        <span className="text-left">
-                                            {
-                                                person.socialwelfareprofile
-                                                    .solo_parent_id_number
-                                            }
-                                        </span>
-                                    </>
-                                )}
+                                        <>
+                                            <span className="font-medium text-left">
+                                                Solo Parent ID:
+                                            </span>
+                                            <span className="text-left">
+                                                {
+                                                    person.socialwelfareprofile
+                                                        .solo_parent_id_number
+                                                }
+                                            </span>
+                                        </>
+                                    )}
                             </div>
                         ) : (
                             <p className="text-sm text-gray-500 italic">
