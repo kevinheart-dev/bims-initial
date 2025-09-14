@@ -297,10 +297,10 @@ export function AppSidebar({ auth }) {
                             {userRoles.includes("super_admin")
                                 ? "Super Admin"
                                 : userRoles.includes("cdrrmo_admin")
-                                ? "CDRRMO Admin"
-                                : barangay
-                                ? barangay.barangay_name
-                                : "Loading..."}
+                                    ? "CDRRMO Admin"
+                                    : barangay
+                                        ? barangay.barangay_name
+                                        : "Loading..."}
                         </p>
                     </div>
                 </div>
@@ -323,11 +323,10 @@ export function AppSidebar({ auth }) {
                                         >
                                             <a
                                                 href={item.url || "#"}
-                                                className={`flex items-center justify-between w-full my-1 ${
-                                                    isActive(item.url)
-                                                        ? "bg-gray-200 text-primary"
-                                                        : "text-white"
-                                                }`}
+                                                className={`flex items-center justify-between w-full my-1 ${isActive(item.url)
+                                                    ? "bg-gray-200 text-primary"
+                                                    : "text-white"
+                                                    }`}
                                             >
                                                 <div className="flex items-center">
                                                     <item.icon className="mr-2" />
@@ -352,11 +351,10 @@ export function AppSidebar({ auth }) {
                                     {item.submenu &&
                                         item.submenu.length > 0 && (
                                             <SidebarGroupContent
-                                                className={`overflow-hidden transition-all duration-300 ease-in-out transform ${
-                                                    collapsed[index]
-                                                        ? "max-h-0 opacity-0 translate-x-[-10px]"
-                                                        : "max-h-[1000px] opacity-100 translate-x-0"
-                                                }`}
+                                                className={`overflow-hidden transition-all duration-300 ease-in-out transform ${collapsed[index]
+                                                    ? "max-h-0 opacity-0 translate-x-[-10px]"
+                                                    : "max-h-[1000px] opacity-100 translate-x-0"
+                                                    }`}
                                                 style={{
                                                     transitionProperty:
                                                         "max-height, opacity, transform",
@@ -381,13 +379,12 @@ export function AppSidebar({ auth }) {
                                                                     href={
                                                                         sub.url
                                                                     }
-                                                                    className={`flex items-center pl-6 my-1 ${
-                                                                        isActive(
-                                                                            sub.url
-                                                                        )
-                                                                            ? "bg-gray-200 text-primary"
-                                                                            : "text-gray-200"
-                                                                    }`}
+                                                                    className={`flex items-center pl-6 my-1 ${isActive(
+                                                                        sub.url
+                                                                    )
+                                                                        ? "bg-gray-200 text-primary"
+                                                                        : "text-gray-200"
+                                                                        }`}
                                                                     style={{
                                                                         maxWidth:
                                                                             "calc(100% - 2rem)",
