@@ -23,7 +23,7 @@ return new class extends Migration
                 ->onDelete('cascade');
             $table->string('category', 55);
             $table->text('description')->nullable(); // details of the damage
-            $table->integer('value')->default(0);    // numeric value (cost/quantity)
+            $table->string('value', 100);    // numeric value (cost/quantity)
             $table->string('source', 150)->nullable();
             $table->timestamps();
         });

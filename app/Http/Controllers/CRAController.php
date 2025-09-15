@@ -811,9 +811,10 @@ class CRAController extends Controller
             }
 
             //*================= Risk Assessment =================*//
-            if (!empty($data['hazards'])) {
-                $this->saveHazards($brgy_id, $data['hazards']);
-            }
+            //dd($data);
+
+            $this->saveHazards($brgy_id, $data);
+
             if (!empty($data['exposure'])) {
                 $this->saveExposure($brgy_id, $data['exposure']);
             }
@@ -1184,6 +1185,7 @@ class CRAController extends Controller
         }
     }
     private function saveDisasterHistory($brgy_id, $data) {
+        //dd($data);
         foreach ($data as $calamity) {
         // --- Disaster Occurrence (must be updateOrCreate to get ID)
         $disaster = CRADisasterOccurance::updateOrCreate(
@@ -1330,6 +1332,7 @@ class CRAController extends Controller
 
         // Cache hazards to avoid multiple DB hits
         $hazardCache = [];
+        //dd($data);
 
         $getHazard = function ($hazardName) use (&$hazardCache) {
             if (!isset($hazardCache[$hazardName])) {
@@ -1342,7 +1345,7 @@ class CRAController extends Controller
         };
 
         // --- Save Hazards ---
-        foreach ($data as $haz) {
+        foreach ($data['hazards'] as $haz) {
             $hazard = $getHazard($haz['hazard']);
 
             $average = round(array_sum([
@@ -1378,7 +1381,7 @@ class CRAController extends Controller
                         'matrix_type' => $type,
                     ],
                     [
-                        'people'      => $entry['people'] ?? null,
+                        'people'      => $entry['people'] ?? 0,
                         'properties'  => $entry['properties'] ?? null,
                         'services'    => $entry['services'] ?? null,
                         'environment' => $entry['environment'] ?? null,
