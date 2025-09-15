@@ -19,7 +19,7 @@ return new class extends Migration
                 ->onDelete('cascade');
 
             $table->string('disaster_name', 55);
-            $table->year('year');
+            $table->string('year', 35);
             $table->timestamps();
         });
     }
