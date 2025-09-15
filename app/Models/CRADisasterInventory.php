@@ -16,7 +16,7 @@ class CRADisasterInventory extends Model
         'category',
         'item_name',
         'total_in_barangay',
-        'percetage_at_risk',
+        'percentage_at_risk',
         'location',
     ];
 

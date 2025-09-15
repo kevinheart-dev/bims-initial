@@ -18,17 +18,45 @@ return new class extends Migration
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->integer('purok_number')->nullable();
 
-            $table->foreignId('category_id')->constrained('c_r_a_exposure_categories')->onDelete('cascade');
-
-            $table->integer('male')->default(0);
-            $table->integer('female')->default(0);
-            $table->integer('lgbtq')->default(0);
-
+            // Family & total counts
             $table->integer('total_families')->default(0);
             $table->integer('total_individuals')->default(0);
 
-            $table->string('data_source', 255)->nullable();
+            // Gender counts
+            $table->integer('individuals_male')->default(0);
+            $table->integer('individuals_female')->default(0);
+            $table->integer('individuals_lgbtq')->default(0);
 
+            // Age groups
+            $table->integer('age_0_6_male')->default(0);
+            $table->integer('age_0_6_female')->default(0);
+
+            $table->integer('age_7m_2y_male')->default(0);
+            $table->integer('age_7m_2y_female')->default(0);
+
+            $table->integer('age_3_5_male')->default(0);
+            $table->integer('age_3_5_female')->default(0);
+
+            $table->integer('age_6_12_male')->default(0);
+            $table->integer('age_6_12_female')->default(0);
+
+            $table->integer('age_13_17_male')->default(0);
+            $table->integer('age_13_17_female')->default(0);
+
+            $table->integer('age_18_59_male')->default(0);
+            $table->integer('age_18_59_female')->default(0);
+
+            $table->integer('age_60_up_male')->default(0);
+            $table->integer('age_60_up_female')->default(0);
+
+            // Special categories
+            $table->integer('pwd_male')->default(0);
+            $table->integer('pwd_female')->default(0);
+
+            $table->integer('diseases_male')->default(0);
+            $table->integer('diseases_female')->default(0);
+
+            $table->integer('pregnant_women')->default(0);
             $table->timestamps();
         });
     }

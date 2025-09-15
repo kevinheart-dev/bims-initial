@@ -11,22 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('c_r_a_disaster_inventories', function (Blueprint $table) {
+        Schema::create('c_r_a_illnesses_stats', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('hazard_id')
-                ->constrained('c_r_a_hazards')
-                ->onDelete('cascade');
 
             $table->foreignId('barangay_id')
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            $table->string('category', 100);
-            $table->string('item_name', 150);
-            $table->string('total_in_barangay', 100)->nullable();
-            $table->string('percentage_at_risk', 100)->nullable();
-            $table->string('location', 150)->nullable();
+            $table->string('illness', 150);
+            $table->integer('children')->default(0);
+            $table->integer('adults')->default(0);
+
             $table->timestamps();
+
+            $table->unique(['barangay_id', 'illness']); // to support upsert
         });
     }
 
@@ -35,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('c_r_a_disaster_inventories');
+        Schema::dropIfExists('c_r_a_illnesses_stats');
     }
 };
