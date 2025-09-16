@@ -390,6 +390,7 @@ class DatabaseSeeder extends Seeder
             }
         });
         ChildHealthMonitoringRecord::factory(100)->create();
+        $this->call(CRADataseeder::class);
     }
 
     // public function run(): void
@@ -514,4 +515,7 @@ class DatabaseSeeder extends Seeder
     //         BarangayInformationSeeder::class,
     //     ]);
     // }
+
+
+
 }

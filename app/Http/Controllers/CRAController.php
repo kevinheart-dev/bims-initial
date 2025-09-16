@@ -1722,7 +1722,6 @@ class CRAController extends Controller
                     'total_individuals'  => $row['totalIndividuals'] ?? 0,
                     'at_risk_families'   => $row['atRiskFamilies'] ?? 0,
                     'at_risk_individuals'=> $row['atRiskIndividuals'] ?? 0,
-                    'safe_evacuation_area' => $row['safeEvacuationArea'] ?? null,
 
                     'created_at' => now(),
                     'updated_at' => now(),
