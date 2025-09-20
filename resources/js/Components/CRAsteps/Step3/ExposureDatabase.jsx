@@ -440,16 +440,16 @@ const ExposureDatabase = () => {
             prev.map((t, idx) =>
                 idx === tableIdx
                     ? {
-                          ...t,
-                          purokData: t.purokData.map((row, rIdx) =>
-                              rIdx === purokIdx
-                                  ? {
-                                        ...row,
-                                        [field]: val === "" ? "" : Number(val),
-                                    }
-                                  : row
-                          ),
-                      }
+                        ...t,
+                        purokData: t.purokData.map((row, rIdx) =>
+                            rIdx === purokIdx
+                                ? {
+                                    ...row,
+                                    [field]: val === "" ? "" : Number(val),
+                                }
+                                : row
+                        ),
+                    }
                     : t
             )
         );
@@ -460,18 +460,15 @@ const ExposureDatabase = () => {
             prev.map((t, idx) =>
                 idx === tableIdx
                     ? {
-                          ...t,
-                          purokData: [
-                              ...t.purokData,
-                              createEmptyPurokRow(
-                                  (t.purokData.length + 1).toString()
-                              ),
-                          ],
-                      }
+                        ...t,
+                        purokData: [
+                            ...t.purokData,
+                            createEmptyPurokRow((t.purokData.length + 1).toString()),
+                        ],
+                    }
                     : t
             )
         );
-        toast.success("New Purok row added!");
     };
 
     const removePurokRow = (tableIdx, purokIdx) => {
@@ -479,15 +476,14 @@ const ExposureDatabase = () => {
             prev.map((t, idx) =>
                 idx === tableIdx
                     ? {
-                          ...t,
-                          purokData: t.purokData.filter(
-                              (_, rIdx) => rIdx !== purokIdx
-                          ),
-                      }
+                        ...t,
+                        purokData: t.purokData.filter(
+                            (_, rIdx) => rIdx !== purokIdx
+                        ),
+                    }
                     : t
             )
         );
-        toast.error("Purok row removed!");
     };
 
     const addTable = () => {
@@ -495,12 +491,10 @@ const ExposureDatabase = () => {
             ...prev,
             { riskType: "", purokData: [createEmptyPurokRow("1")] },
         ]);
-        toast.success("New risk table added!");
     };
 
     const removeTable = (tableIdx) => {
         setTables((prev) => prev.filter((_, idx) => idx !== tableIdx));
-        toast.error("Table removed!");
     };
 
     return (

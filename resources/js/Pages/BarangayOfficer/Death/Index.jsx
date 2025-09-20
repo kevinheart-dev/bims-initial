@@ -102,9 +102,8 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
         { key: "actions", label: "Actions" },
     ];
     const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
-            res.suffix ?? ""
-        }`,
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
+            }`,
         value: res.id.toString(),
     }));
     const [visibleColumns, setVisibleColumns] = useState(
@@ -311,8 +310,7 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
             setData("resident_id", details.id);
             setData(
                 "resident_name",
-                `${details.firstname} ${details.middlename} ${
-                    details.lastname
+                `${details.firstname} ${details.middlename} ${details.lastname
                 } ${details.suffix ?? ""}`
             );
             setData("purok_number", details.purok_number);
@@ -515,7 +513,7 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
                                 columnRenderers={columnRenderers}
                                 queryParams={queryParams}
                                 visibleColumns={visibleColumns}
-                                setVisibleColumns={setVisibleColumns}
+                                showTotal={true}
                             />
                         </div>
                     </div>

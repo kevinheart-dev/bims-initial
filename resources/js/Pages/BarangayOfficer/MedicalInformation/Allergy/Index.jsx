@@ -357,7 +357,7 @@ export default function Index({ allergies, puroks, queryParams }) {
                                 columnRenderers={columnRenderers}
                                 queryParams={queryParams}
                                 visibleColumns={visibleColumns}
-                                setVisibleColumns={setVisibleColumns}
+                                showTotal={true}
                             />
                         </div>
                     </div>

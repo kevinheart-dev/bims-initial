@@ -143,22 +143,21 @@ export default function Index({ households, puroks, streets, queryParams }) {
             <span>
                 {
                     CONSTANTS.HOUSEHOLD_OWNERSHIP_TEXT[
-                        house.household.ownership_type
+                    house.household.ownership_type
                     ]
                 }
             </span>
         ),
         housing_condition: (house) => (
             <span
-                className={`px-2 py-1 text-sm rounded-lg ${
-                    CONSTANTS.HOUSING_CONDITION_COLOR[
-                        house.household.housing_condition
+                className={`px-2 py-1 text-sm rounded-lg ${CONSTANTS.HOUSING_CONDITION_COLOR[
+                    house.household.housing_condition
                     ] ?? "bg-gray-100 text-gray-700"
-                }`}
+                    }`}
             >
                 {
                     CONSTANTS.HOUSEHOLD_CONDITION_TEXT[
-                        house.household.housing_condition
+                    house.household.housing_condition
                     ]
                 }
             </span>
@@ -169,7 +168,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
             <span>
                 {
                     CONSTANTS.HOUSEHOLD_STRUCTURE_TEXT[
-                        house.household.house_structure
+                    house.household.house_structure
                     ]
                 }
             </span>
@@ -352,14 +351,12 @@ export default function Index({ households, puroks, streets, queryParams }) {
                         )}
                         <DynamicTable
                             passedData={households}
-                            columnRenderers={columnRenderers}
                             allColumns={allColumns}
-                            is_paginated={isPaginated}
-                            toggleShowAll={() => setShowAll(!showAll)}
-                            showAll={showAll}
+                            columnRenderers={columnRenderers}
+                            queryParams={queryParams}
                             visibleColumns={visibleColumns}
-                            setVisibleColumns={setVisibleColumns}
-                        ></DynamicTable>
+                            showTotal={true}
+                        />
                         <DeleteConfirmationModal
                             isOpen={isDeleteModalOpen}
                             onClose={() => {

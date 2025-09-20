@@ -392,11 +392,8 @@ export default function Index({
                                 allColumns={allColumns}
                                 columnRenderers={columnRenderers}
                                 queryParams={queryParams}
-                                is_paginated={isPaginated}
-                                toggleShowAll={() => setShowAll(!showAll)}
-                                showAll={showAll}
                                 visibleColumns={visibleColumns}
-                                setVisibleColumns={setVisibleColumns}
+                                showTotal={true}
                             />
                             {/* Sidebar Modal */}
                             <SidebarModal

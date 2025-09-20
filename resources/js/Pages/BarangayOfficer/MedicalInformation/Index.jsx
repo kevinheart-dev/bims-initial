@@ -403,11 +403,8 @@ export default function Index({ medical_information, puroks, queryParams }) {
                                 allColumns={allColumns}
                                 columnRenderers={columnRenderers}
                                 queryParams={queryParams}
-                                is_paginated={isPaginated}
-                                toggleShowAll={() => setShowAll(!showAll)}
-                                showAll={showAll}
                                 visibleColumns={visibleColumns}
-                                setVisibleColumns={setVisibleColumns}
+                                showTotal={true}
                             />
                         </div>
                     </div>
