@@ -13,4 +13,17 @@ class CRAHazard extends Model
     protected $fillable = [
         'hazard_name',
     ];
+    public function disasterInventories()
+    {
+        return $this->hasMany(CRADisasterInventory::class, 'hazard_id');
+    }
+
+    public function disasterRiskPopulations()
+    {
+        return $this->hasMany(CRADisasterRiskPopulation::class, 'hazard_id');
+    }
+    public function populationExposures()
+    {
+        return $this->hasMany(CRAPopulationExposure::class);
+    }
 }

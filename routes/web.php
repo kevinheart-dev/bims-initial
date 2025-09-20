@@ -120,6 +120,8 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
     // cra
     Route::get('cra/index', [CRAController::class, 'index'])->name('cra.index');
     Route::get('cra/create', [CRAController::class, 'create'])->name('cra.create');
+    Route::get('cra/dashboard', [CRAController::class, 'dashboard'])->name('cra.dashboard');
+    Route::get('cra/datacollection', [CRAController::class, 'brgyDataCollection'])->name('cra.datacollection');
     Route::post('cra/store', [CRAController::class, 'store'])->name('cra.store');
 
      // death

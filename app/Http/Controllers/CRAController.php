@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Barangay;
 use App\Models\CRAAffectedPlaces;
 use App\Models\CRAAssessmentMatrix;
 use App\Models\CRABdrrmcDirectory;
@@ -1594,7 +1595,6 @@ class CRAController extends Controller
                 ];
             }
         }
-
         if (!empty($records)) {
             CRAFamilyAtRisk::upsert(
                 $records,
@@ -1722,7 +1722,7 @@ class CRAController extends Controller
                     'total_individuals'  => $row['totalIndividuals'] ?? 0,
                     'at_risk_families'   => $row['atRiskFamilies'] ?? 0,
                     'at_risk_individuals'=> $row['atRiskIndividuals'] ?? 0,
-
+                    'safe_evacuation_area' => $row['safeEvacuationArea'] ?? "",
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -1931,4 +1931,55 @@ class CRAController extends Controller
         }
     }
 
+    public function brgyDataCollection()
+    {
+        $brgy_id = auth()->user()->barangay_id;
+
+        $barangay = Barangay::with([
+            'generalPopulation',
+            'bdrrmcDirectories',
+            'bdrrmcTrainings',
+            'populationGenders',
+            'populationAgeGroups',
+            'populationExposures',
+            'disasterOccurances',
+            'disasterAgriDamages',
+            'disasterDamages',
+            'disasterEffectImpacts',
+            'disasterInventories',
+            'disasterLifelines',
+            'disasterPopulationImpacts',
+            'disasterRiskPopulations',
+            'primaryFacilities',
+            'infraFacilities',
+            'institutions',
+            'roadNetworks',
+            'publicTransportations',
+            'houseBuilds',
+            'houseOwnerships',
+            'householdServices',
+            'livelihoodStatistics',
+            'livelihoodEvacuationSites',
+            'reliefDistributions',
+            'reliefDistributionProcesses',
+            'equipmentInventories',
+            'evacuationCenters',
+            'evacuationInventories',
+            'evacuationPlans',
+            'familiesAtRisk',
+            'hazardRisks',
+            'illnessesStats',
+            'disabilityStatistics',
+            'humanResources',
+            'affectedPlaces',
+            'prepositionedInventories',
+        ])->findOrFail($brgy_id);
+
+        return response()->json($barangay->dataCollection()); // ✅ reuse model formatter
+    }
+
+
+    public function dashboard(){
+        return Inertia::render("BarangayOfficer/CRA/Dashboard");
+    }
 }

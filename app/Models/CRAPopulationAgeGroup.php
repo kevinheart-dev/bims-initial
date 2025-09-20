@@ -18,8 +18,8 @@ class CRAPopulationAgeGroup extends Model
         'male_with_disability',
         'female_without_disability',
         'female_with_disability',
-        'lgbtq_no_dis',
-        'lgbtq_dis'
+        'lgbtq_without_disability',
+        'lgbtq_with_disability'
     ];
 
     public function barangay(){

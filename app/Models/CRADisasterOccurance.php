@@ -19,4 +19,29 @@ class CRADisasterOccurance extends Model
     public function barangay(){
         return $this->belongsTo(Barangay::class);
     }
+    public function agriDamages()
+    {
+        return $this->hasMany(CRADisasterAgriDamage::class, 'disaster_id');
+    }
+
+    public function damages()
+    {
+        return $this->hasMany(CRADisasterDamage::class, 'disaster_id');
+    }
+
+    public function effectImpacts()
+    {
+        return $this->hasMany(CRADisasterEffectImpact::class, 'disaster_id');
+    }
+
+    public function lifelines()
+    {
+        return $this->hasMany(CRADisasterLifeline::class, 'disaster_id');
+    }
+
+    public function populationImpacts()
+    {
+        return $this->hasMany(CRADisasterPopulationImpact::class, 'disaster_id');
+    }
+
 }

@@ -15,7 +15,6 @@ class CRAInstitution extends Model
         'name',
         'male_members',
         'female_members',
-        'barangay_id',
         'lgbtq_members',
         'head_name',
         'contact_no',
