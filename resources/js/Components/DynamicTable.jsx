@@ -1,22 +1,16 @@
 import { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import Pagination from "./Pagination";
-import { ClipboardX } from 'lucide-react';
+import { ClipboardX } from "lucide-react";
 
 const DynamicTable = ({
     passedData,
     allColumns,
     columnRenderers,
     children,
-    // is_paginated = false,
-    // toggleShowAll = null,
-    // showAll = null,
     queryParams = null,
-    // searchFieldName = null,
-    // householdId = null,
     showTotal = false,
     visibleColumns = [],
-    // setVisibleColumns = () => { },
 }) => {
     const contentRef = useRef();
     const reactToPrintFn = useReactToPrint({
@@ -61,17 +55,6 @@ const DynamicTable = ({
 
     return (
         <>
-            {/* <div className="flex justify-between items-center">
-                {showTotal && (
-                    <h2 className="text-xl font-bold text-gray-800 my-2 p-2 border bg-gray-50 rounded-lg flex items-center gap-2">
-                        <span>Total Records:</span>
-                        <span className="text-white bg-blue-600 px-3 py-1 rounded-full shadow-md">
-                            {cleanData.length}
-                        </span>
-                    </h2>
-                )}
-            </div> */}
-
             <div className="mb-2">{children}</div>
 
             {/* Table */}
@@ -94,7 +77,6 @@ const DynamicTable = ({
                                             >
                                                 {col.label}
                                             </th>
-
                                         )
                                 )}
                             </tr>
@@ -130,7 +112,9 @@ const DynamicTable = ({
                                     >
                                         <div className="flex flex-col items-center justify-center space-y-2">
                                             <ClipboardX className="w-20 h-20 text-gray-400" />
-                                            <span className="text-md font-medium">No records found</span>
+                                            <span className="text-md font-medium">
+                                                No records found
+                                            </span>
                                         </div>
                                     </td>
                                 </tr>
@@ -144,7 +128,15 @@ const DynamicTable = ({
                         All columns are hidden.
                     </div>
                 ) : (
-                    <div className="my-2 mr-4 flex justify-end">
+                    <div className="my-2 px-4 flex items-center justify-between">
+                        {/* Show totals */}
+                        {showTotal && (
+                            <span className="text-sm text-gray-700 bg-gray-100 px-2 mt-4 py-1 rounded-md">
+                                Showing {cleanData.length} / {passedData?.total ?? cleanData.length} records
+                            </span>
+                        )}
+
+                        {/* Pagination */}
                         {Array.isArray(passedData?.links) &&
                             passedData.links.length > 0 && (
                                 <Pagination
@@ -154,6 +146,7 @@ const DynamicTable = ({
                             )}
                     </div>
                 )}
+
             </div>
         </>
     );

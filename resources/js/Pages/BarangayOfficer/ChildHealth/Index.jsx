@@ -134,9 +134,8 @@ export default function Index({ children, queryParams, puroks }) {
         resident_name: (child) => {
             const r = child.resident;
             if (!r) return "—";
-            return `${r.firstname ?? ""} ${r.middlename ?? ""} ${
-                r.lastname ?? ""
-            } ${r.suffix ?? ""}`.trim();
+            return `${r.firstname ?? ""} ${r.middlename ?? ""} ${r.lastname ?? ""
+                } ${r.suffix ?? ""}`.trim();
         },
 
         birthdate: (child) =>
@@ -175,15 +174,14 @@ export default function Index({ children, queryParams, puroks }) {
         sex: (child) => {
             return (
                 <span
-                    className={`px-2 py-1 text-sm rounded-lg ${
-                        CONSTANTS.RESIDENT_GENDER_COLOR_CLASS[
-                            child.resident.sex
+                    className={`px-2 py-1 text-sm rounded-lg ${CONSTANTS.RESIDENT_GENDER_COLOR_CLASS[
+                        child.resident.sex
                         ] ?? "bg-gray-100 text-gray-700"
-                    }`}
+                        }`}
                 >
                     {
                         CONSTANTS.RESIDENT_GENDER_TEXT2[
-                            child.resident.sex.replace("_", " ")
+                        child.resident.sex.replace("_", " ")
                         ]
                     }
                 </span>
@@ -204,9 +202,8 @@ export default function Index({ children, queryParams, puroks }) {
                 child.resident?.medical_information?.nutrition_status;
             return (
                 <span
-                    className={`px-2 py-1 text-sm rounded-lg ${
-                        statusColors[status] ?? "bg-gray-100 text-gray-700"
-                    }`}
+                    className={`px-2 py-1 text-sm rounded-lg ${statusColors[status] ?? "bg-gray-100 text-gray-700"
+                        }`}
                 >
                     {CONSTANTS.BMI_STATUS[status]}
                 </span>
@@ -221,7 +218,7 @@ export default function Index({ children, queryParams, puroks }) {
             // Assuming array is sorted (latest last), otherwise sort by date
             const latest = vax.reduce((latest, current) =>
                 new Date(current.vaccination_date) >
-                new Date(latest.vaccination_date)
+                    new Date(latest.vaccination_date)
                     ? current
                     : latest
             );
@@ -380,13 +377,11 @@ export default function Index({ children, queryParams, puroks }) {
                         )}
                         <DynamicTable
                             passedData={children}
-                            columnRenderers={columnRenderers}
                             allColumns={allColumns}
-                            is_paginated={isPaginated}
-                            toggleShowAll={() => setShowAll(!showAll)}
-                            showAll={showAll}
+                            columnRenderers={columnRenderers}
+                            queryParams={queryParams}
                             visibleColumns={visibleColumns}
-                            setVisibleColumns={setVisibleColumns}
+                            showTotal={true}
                         ></DynamicTable>
                         <DeleteConfirmationModal
                             isOpen={isDeleteModalOpen}

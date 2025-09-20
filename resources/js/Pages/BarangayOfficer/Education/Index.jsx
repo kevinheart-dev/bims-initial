@@ -151,9 +151,8 @@ export default function Index({
 
     // list of residents for dropdown
     const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
-            res.suffix ?? ""
-        }`,
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
+            }`,
         value: res.id.toString(),
     }));
 
@@ -177,9 +176,8 @@ export default function Index({
         name: (row) => {
             const r = row?.resident;
             if (!r) return "Unknown";
-            return `${r.firstname ?? ""} ${r.middlename ?? ""} ${
-                r.lastname ?? ""
-            } ${r.suffix ?? ""}`.trim();
+            return `${r.firstname ?? ""} ${r.middlename ?? ""} ${r.lastname ?? ""
+                } ${r.suffix ?? ""}`.trim();
         },
 
         educational_attainment: (row) =>
@@ -211,11 +209,10 @@ export default function Index({
 
         school_type: (row) => (
             <span
-                className={`px-2 py-1 text-xs rounded ${
-                    row.school_type === "private"
+                className={`px-2 py-1 text-xs rounded ${row.school_type === "private"
                         ? "bg-purple-100 text-purple-800"
                         : "bg-green-100 text-green-800"
-                }`}
+                    }`}
             >
                 {EDUCATION_SCHOOL_TYPE[row.school_type] ?? "—"}
             </span>
@@ -354,8 +351,7 @@ export default function Index({
             setData("resident_id", history.resident.id);
             setData(
                 "resident_name",
-                `${history.resident.firstname} ${history.resident.middlename} ${
-                    history.resident.lastname
+                `${history.resident.firstname} ${history.resident.middlename} ${history.resident.lastname
                 } ${history.resident.suffix ?? ""}`
             );
             setData("purok_number", history.resident.purok_number);
@@ -480,11 +476,8 @@ export default function Index({
                             allColumns={allColumns}
                             columnRenderers={columnRenderers}
                             queryParams={queryParams}
-                            is_paginated={isPaginated}
-                            toggleShowAll={() => setShowAll(!showAll)}
-                            showAll={showAll}
                             visibleColumns={visibleColumns}
-                            setVisibleColumns={setVisibleColumns}
+                            showTotal={true}
                         />
                     </div>
                 </div>
@@ -650,7 +643,7 @@ export default function Index({
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    `educational_histories.${edIndex}.education`
+                                                                `educational_histories.${edIndex}.education`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -692,15 +685,15 @@ export default function Index({
                                                             }
                                                             disabled={
                                                                 edu_history.education ===
-                                                                    "no_formal_education" ||
+                                                                "no_formal_education" ||
                                                                 edu_history.education ===
-                                                                    "no_education_yet"
+                                                                "no_education_yet"
                                                             }
                                                         />
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    `educational_histories.${edIndex}.education_status`
+                                                                `educational_histories.${edIndex}.education_status`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -726,15 +719,15 @@ export default function Index({
                                                             placeholder="Enter school name"
                                                             disabled={
                                                                 edu_history.education ===
-                                                                    "no_formal_education" ||
+                                                                "no_formal_education" ||
                                                                 edu_history.education ===
-                                                                    "no_education_yet"
+                                                                "no_education_yet"
                                                             }
                                                         />
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    `educational_histories.${edIndex}.school_name`
+                                                                `educational_histories.${edIndex}.school_name`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -770,15 +763,15 @@ export default function Index({
                                                             }
                                                             disabled={
                                                                 edu_history.education ===
-                                                                    "no_formal_education" ||
+                                                                "no_formal_education" ||
                                                                 edu_history.education ===
-                                                                    "no_education_yet"
+                                                                "no_education_yet"
                                                             }
                                                         />
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    `educational_histories.${edIndex}.school_type`
+                                                                `educational_histories.${edIndex}.school_type`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -802,15 +795,15 @@ export default function Index({
                                                             }
                                                             disabled={
                                                                 edu_history.education ===
-                                                                    "no_formal_education" ||
+                                                                "no_formal_education" ||
                                                                 edu_history.education ===
-                                                                    "no_education_yet"
+                                                                "no_education_yet"
                                                             }
                                                         />
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    `educational_histories.${edIndex}.year_started`
+                                                                `educational_histories.${edIndex}.year_started`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -834,15 +827,15 @@ export default function Index({
                                                             }
                                                             disabled={
                                                                 edu_history.education ===
-                                                                    "no_formal_education" ||
+                                                                "no_formal_education" ||
                                                                 edu_history.education ===
-                                                                    "no_education_yet"
+                                                                "no_education_yet"
                                                             }
                                                         />
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    `educational_histories.${edIndex}.year_ended`
+                                                                `educational_histories.${edIndex}.year_ended`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -850,44 +843,44 @@ export default function Index({
                                                     </div>
                                                     {edu_history.education ===
                                                         "college" && (
-                                                        <div>
-                                                            <InputField
-                                                                label={
-                                                                    edu_history.education_status ===
-                                                                    "graduated"
-                                                                        ? "Finished Course"
-                                                                        : "Current Course"
-                                                                }
-                                                                name="program"
-                                                                type="text"
-                                                                value={
-                                                                    edu_history.program ||
-                                                                    ""
-                                                                }
-                                                                onChange={(e) =>
-                                                                    handleArrayValues(
-                                                                        e,
-                                                                        edIndex,
-                                                                        "program",
-                                                                        "educational_histories"
-                                                                    )
-                                                                }
-                                                                placeholder="Enter your course"
-                                                                disabled={
-                                                                    edu_history.education ===
-                                                                    "no_formal_education"
-                                                                }
-                                                            />
-                                                            <InputError
-                                                                message={
-                                                                    errors[
+                                                            <div>
+                                                                <InputField
+                                                                    label={
+                                                                        edu_history.education_status ===
+                                                                            "graduated"
+                                                                            ? "Finished Course"
+                                                                            : "Current Course"
+                                                                    }
+                                                                    name="program"
+                                                                    type="text"
+                                                                    value={
+                                                                        edu_history.program ||
+                                                                        ""
+                                                                    }
+                                                                    onChange={(e) =>
+                                                                        handleArrayValues(
+                                                                            e,
+                                                                            edIndex,
+                                                                            "program",
+                                                                            "educational_histories"
+                                                                        )
+                                                                    }
+                                                                    placeholder="Enter your course"
+                                                                    disabled={
+                                                                        edu_history.education ===
+                                                                        "no_formal_education"
+                                                                    }
+                                                                />
+                                                                <InputError
+                                                                    message={
+                                                                        errors[
                                                                         `educational_histories.${edIndex}.program`
-                                                                    ]
-                                                                }
-                                                                className="mt-2"
-                                                            />
-                                                        </div>
-                                                    )}
+                                                                        ]
+                                                                    }
+                                                                    className="mt-2"
+                                                                />
+                                                            </div>
+                                                        )}
                                                 </div>
                                                 {educationHistory === null && (
                                                     <button

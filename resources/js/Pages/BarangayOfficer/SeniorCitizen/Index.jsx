@@ -410,6 +410,7 @@ export default function Index({ seniorCitizens: initialSeniors, puroks, queryPar
                             columnRenderers={columnRenderers}
                             allColumns={allColumns}
                             visibleColumns={visibleColumns}
+                            showTotal={true}
                         />
                     </div>
                 </div>

@@ -404,6 +404,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                         columnRenderers={columnRenderers}
                                         showAll={showAll}
                                         visibleColumns={visibleColumns}
+                                        showTotal={true}
                                     />
                                 </Suspense>
                             </div>

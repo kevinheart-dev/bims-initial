@@ -383,7 +383,7 @@ export default function Index({ medicalConditions, puroks, queryParams }) {
                                 columnRenderers={columnRenderers}
                                 queryParams={queryParams}
                                 visibleColumns={visibleColumns}
-                                setVisibleColumns={setVisibleColumns}
+                                showTotal={true}
                             />
                         </div>
                     </div>

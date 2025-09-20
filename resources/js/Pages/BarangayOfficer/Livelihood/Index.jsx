@@ -151,9 +151,8 @@ export default function Index({
         name: (row) => {
             const { firstname, middlename, lastname, suffix } =
                 row.resident ?? {};
-            const fullName = `${firstname ?? ""} ${middlename ?? ""} ${
-                lastname ?? ""
-            } ${suffix ?? ""}`.trim();
+            const fullName = `${firstname ?? ""} ${middlename ?? ""} ${lastname ?? ""
+                } ${suffix ?? ""}`.trim();
             return fullName || "—";
         },
 
@@ -175,12 +174,12 @@ export default function Index({
                 value === "active"
                     ? "bg-green-100 text-green-800"
                     : value === "inactive"
-                    ? "bg-red-100 text-red-800"
-                    : value === "seasonal"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : value === "ended"
-                    ? "bg-gray-100 text-gray-700"
-                    : "bg-gray-100 text-gray-700";
+                        ? "bg-red-100 text-red-800"
+                        : value === "seasonal"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : value === "ended"
+                                ? "bg-gray-100 text-gray-700"
+                                : "bg-gray-100 text-gray-700";
 
             return (
                 <span
@@ -211,11 +210,10 @@ export default function Index({
 
         is_main_livelihood: (row) => (
             <span
-                className={`px-2 py-0.5 rounded-md text-xs font-medium ${
-                    row.is_main_livelihood
+                className={`px-2 py-0.5 rounded-md text-xs font-medium ${row.is_main_livelihood
                         ? "bg-blue-100 text-blue-800"
                         : "bg-gray-100 text-gray-700"
-                }`}
+                    }`}
             >
                 {row.is_main_livelihood ? "Yes" : "No"}
             </span>
@@ -266,9 +264,8 @@ export default function Index({
 
     // list of residents for dropdown
     const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
-            res.suffix ?? ""
-        }`,
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
+            }`,
         value: res.id.toString(),
     }));
 
@@ -330,9 +327,8 @@ export default function Index({
             setLivelihood(livelihood);
             setData({
                 resident_id: livelihood.resident.id,
-                resident_name: `${livelihood.resident.firstname} ${
-                    livelihood.resident.middlename ?? ""
-                } ${livelihood.resident.lastname}`,
+                resident_name: `${livelihood.resident.firstname} ${livelihood.resident.middlename ?? ""
+                    } ${livelihood.resident.lastname}`,
                 resident_image: livelihood.resident.image ?? null,
                 birthdate: livelihood.resident.birthdate ?? null,
                 purok_number: livelihood.resident.purok_number ?? null,
@@ -507,11 +503,8 @@ export default function Index({
                             allColumns={allColumns}
                             columnRenderers={columnRenderers}
                             queryParams={queryParams}
-                            is_paginated={isPaginated}
-                            toggleShowAll={() => setShowAll(!showAll)}
-                            showAll={showAll}
                             visibleColumns={visibleColumns}
-                            setVisibleColumns={setVisibleColumns}
+                            showTotal={true}
                         />
                     </div>
                 </div>
@@ -525,8 +518,8 @@ export default function Index({
                     modalState === "add" && livelihoodDetails
                         ? "Edit Livelihood"
                         : modalState === "add"
-                        ? "Add Livelihood"
-                        : "View Resident"
+                            ? "Add Livelihood"
+                            : "View Resident"
                 }
             >
                 {modalState === "add" && (
@@ -641,7 +634,7 @@ export default function Index({
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    `livelihoods.${lvlhdIdx}.livelihood_type`
+                                                                `livelihoods.${lvlhdIdx}.livelihood_type`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -684,7 +677,7 @@ export default function Index({
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    `livelihoods.${lvlhdIdx}.status`
+                                                                `livelihoods.${lvlhdIdx}.status`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -719,7 +712,7 @@ export default function Index({
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    `livelihoods.${lvlhdIdx}.is_main_livelihood`
+                                                                `livelihoods.${lvlhdIdx}.is_main_livelihood`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -746,7 +739,7 @@ export default function Index({
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    `livelihoods.${lvlhdIdx}.description`
+                                                                `livelihoods.${lvlhdIdx}.description`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -773,7 +766,7 @@ export default function Index({
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    `livelihoods.${lvlhdIdx}.started_at`
+                                                                `livelihoods.${lvlhdIdx}.started_at`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -803,7 +796,7 @@ export default function Index({
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    `livelihoods.${lvlhdIdx}.ended_at`
+                                                                `livelihoods.${lvlhdIdx}.ended_at`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -818,9 +811,9 @@ export default function Index({
                                                             value={
                                                                 livelihood.income
                                                                     ? livelihood.income ||
-                                                                      ""
+                                                                    ""
                                                                     : livelihood.monthly_income ||
-                                                                      ""
+                                                                    ""
                                                             }
                                                             onChange={(e) =>
                                                                 handleLivelihoodFieldChange(
@@ -834,7 +827,7 @@ export default function Index({
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    `livelihoods.${lvlhdIdx}.income`
+                                                                `livelihoods.${lvlhdIdx}.income`
                                                                 ]
                                                             }
                                                             className="mt-2"
@@ -880,7 +873,7 @@ export default function Index({
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    `livelihoods.${lvlhdIdx}.income_frequency`
+                                                                `livelihoods.${lvlhdIdx}.income_frequency`
                                                                 ]
                                                             }
                                                             className="mt-2"
