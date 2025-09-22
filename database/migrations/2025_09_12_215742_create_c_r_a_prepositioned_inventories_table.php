@@ -19,9 +19,12 @@ return new class extends Migration
                 ->onDelete('cascade');
 
             $table->string('item_name', 150);
-            $table->string('quantity', 100)->nullable(); // kept as string in case reports use text like "few", "all used"
+            $table->string('quantity', 100)->nullable(); // can include text like "few" or "all used"
             $table->text('remarks')->nullable();
             $table->timestamps();
+
+            // Unique constraint for upsert
+            $table->unique(['barangay_id', 'item_name'], 'cra_inventory_unique');
         });
     }
 

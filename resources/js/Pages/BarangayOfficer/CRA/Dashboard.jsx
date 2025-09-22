@@ -1,6 +1,6 @@
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 import { useEffect } from "react";
 import { Toaster, toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
@@ -12,6 +12,9 @@ export default function Dashboard() {
         { label: "Community Risk Assessment (CRA)", showOnMobile: false },
     ];
     const APP_URL = useAppUrl();
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
     const { data, isLoading, isError } = useQuery({
         queryKey: ["datacollection"],
         queryFn: async () => {
@@ -37,7 +40,16 @@ export default function Dashboard() {
             toast.success("Data loaded successfully!");
         }
     }, [isLoading, isError, data]);
-
+    useEffect(() => {
+        if (success) {
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.success = null;
+    }, [success]);
     return (
         <AdminLayout>
             <Toaster richColors />

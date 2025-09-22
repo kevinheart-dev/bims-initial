@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Barangay;
+use App\Models\CommunityRiskAssessment;
 use App\Models\CRAAffectedPlaces;
 use App\Models\CRAAssessmentMatrix;
 use App\Models\CRABdrrmcDirectory;
@@ -366,137 +367,176 @@ class CRADataseeder extends Seeder
         $damageTemplates = [
             // AGRICULTURE
             [
-                'category' => 'Agriculture',
+                'category'    => 'Agriculture',
+                'damage_type' => 'Property',
                 'description' => 'Farming (extent of damage in land area or worth of damage)',
-                'min' => 0, 'max' => 120, // hectares
-                'source' => 'Barangay Committee on Agriculture',
+                'min'         => 0,
+                'max'         => 120,
+                'source'      => 'Barangay Committee on Agriculture',
             ],
             // FISHING
             [
-                'category' => 'Fishing',
+                'category'    => 'Fishing',
+                'damage_type' => 'Property',
                 'description' => 'Fishpond (extent of damage in area or worth of damage)',
-                'min' => 0, 'max' => 10, // hectares
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 10,
+                'source'      => 'BDRRMC',
             ],
             [
-                'category' => 'Fishing',
+                'category'    => 'Fishing',
+                'damage_type' => 'Property',
                 'description' => 'Fishing Equipment (quantity or worth of damage)',
-                'min' => 0, 'max' => 50,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 50,
+                'source'      => 'BDRRMC',
             ],
 
             // HOUSES
             [
-                'category' => 'Houses',
+                'category'    => 'Houses',
+                'damage_type' => 'Structure',
                 'description' => 'Totally Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 200,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 200,
+                'source'      => 'BDRRMC',
             ],
             [
-                'category' => 'Houses',
+                'category'    => 'Houses',
+                'damage_type' => 'Structure',
                 'description' => 'Partially Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 500,
-                'source' => 'LGU-City of Ilagan',
+                'min'         => 0,
+                'max'         => 500,
+                'source'      => 'LGU-City of Ilagan',
             ],
 
             // SCHOOLS
             [
-                'category' => 'Schools',
+                'category'    => 'Schools',
+                'damage_type' => 'Structure',
                 'description' => 'Totally Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 20,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 20,
+                'source'      => 'BDRRMC',
             ],
             [
-                'category' => 'Schools',
+                'category'    => 'Schools',
+                'damage_type' => 'Structure',
                 'description' => 'Partially Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 50,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 50,
+                'source'      => 'BDRRMC',
             ],
 
             // HOSPITALS
             [
-                'category' => 'Hospitals',
+                'category'    => 'Hospitals',
+                'damage_type' => 'Structure',
                 'description' => 'Totally Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 10,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 10,
+                'source'      => 'BDRRMC',
             ],
             [
-                'category' => 'Hospitals',
+                'category'    => 'Hospitals',
+                'damage_type' => 'Structure',
                 'description' => 'Partially Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 20,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 20,
+                'source'      => 'BDRRMC',
             ],
 
             // HEALTH CENTER
             [
-                'category' => 'Health Center',
+                'category'    => 'Health Center',
+                'damage_type' => 'Structure',
                 'description' => 'Totally Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 10,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 10,
+                'source'      => 'BDRRMC',
             ],
             [
-                'category' => 'Health Center',
+                'category'    => 'Health Center',
+                'damage_type' => 'Structure',
                 'description' => 'Partially Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 20,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 20,
+                'source'      => 'BDRRMC',
             ],
 
             // GOVERNMENT OFFICES
             [
-                'category' => 'Government Offices',
+                'category'    => 'Government Offices',
+                'damage_type' => 'Structure',
                 'description' => 'Totally Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 10,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 10,
+                'source'      => 'BDRRMC',
             ],
             [
-                'category' => 'Government Offices',
+                'category'    => 'Government Offices',
+                'damage_type' => 'Structure',
                 'description' => 'Partially Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 20,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 20,
+                'source'      => 'BDRRMC',
             ],
 
             // PUBLIC MARKETS
             [
-                'category' => 'Public Markets',
+                'category'    => 'Public Markets',
+                'damage_type' => 'Structure',
                 'description' => 'Totally Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 10,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 10,
+                'source'      => 'BDRRMC',
             ],
             [
-                'category' => 'Public Markets',
+                'category'    => 'Public Markets',
+                'damage_type' => 'Structure',
                 'description' => 'Partially Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 20,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 20,
+                'source'      => 'BDRRMC',
             ],
 
             // FLOOD CONTROL
             [
-                'category' => 'Flood Control',
+                'category'    => 'Flood Control',
+                'damage_type' => 'Structure',
                 'description' => 'Totally Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 10,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 10,
+                'source'      => 'BDRRMC',
             ],
             [
-                'category' => 'Flood Control',
+                'category'    => 'Flood Control',
+                'damage_type' => 'Structure',
                 'description' => 'Partially Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 20,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 20,
+                'source'      => 'BDRRMC',
             ],
 
             // COMMERCIAL FACILITIES
             [
-                'category' => 'Commercial Facilities',
+                'category'    => 'Commercial Facilities',
+                'damage_type' => 'Structure',
                 'description' => 'Totally Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 20,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 20,
+                'source'      => 'BDRRMC',
             ],
             [
-                'category' => 'Commercial Facilities',
+                'category'    => 'Commercial Facilities',
+                'damage_type' => 'Structure',
                 'description' => 'Partially Damaged (quantity or worth of damage)',
-                'min' => 0, 'max' => 40,
-                'source' => 'BDRRMC',
+                'min'         => 0,
+                'max'         => 40,
+                'source'      => 'BDRRMC',
             ],
         ];
+
 
         $typhoonNames = [
             'Yolanda', 'Ondoy', 'Sendong', 'Pepeng', 'Rolly',
@@ -892,16 +932,20 @@ class CRADataseeder extends Seeder
                 $femaleDis = intval($female * fake()->randomFloat(2, 0.01, 0.05));
                 $lgbtqDis = intval($lgbtq * fake()->randomFloat(2, 0.01, 0.05));
 
-                CRAPopulationAgeGroup::create([
-                    'barangay_id'               => $barangay->id,
-                    'age_group'                 => $age,
-                    'male_without_disability'   => $male - $maleDis,
-                    'male_with_disability'      => $maleDis,
-                    'female_without_disability' => $female - $femaleDis,
-                    'female_with_disability'    => $femaleDis,
-                    'lgbtq_without_disability'  => $lgbtq - $lgbtqDis,
-                    'lgbtq_with_disability'     => $lgbtqDis,
-                ]);
+                CRAPopulationAgeGroup::updateOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'age_group'   => $age,
+                    ],
+                    [
+                        'male_without_disability'   => $male - $maleDis,
+                        'male_with_disability'      => $maleDis,
+                        'female_without_disability' => $female - $femaleDis,
+                        'female_with_disability'    => $femaleDis,
+                        'lgbtq_without_disability'  => $lgbtq - $lgbtqDis,
+                        'lgbtq_with_disability'     => $lgbtqDis,
+                    ]
+                );
             }
 
             //  House Builds
@@ -915,12 +959,16 @@ class CRADataseeder extends Seeder
                     $twoOrMore = fake()->numberBetween(0, 3);
                 }
 
-                CRAHouseBuild::create([
-                    'barangay_id' => $barangay->id,
-                    'house_type' => $type,
-                    'one_floor' => $oneFloor,
-                    'two_or_more_floors' => $twoOrMore,
-                ]);
+                CRAHouseBuild::updateOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'house_type'  => $type,
+                    ],
+                    [
+                        'one_floor'       => $oneFloor,
+                        'two_or_more_floors' => $twoOrMore,
+                    ]
+                );
             }
 
             //  House Ownership
@@ -935,11 +983,15 @@ class CRADataseeder extends Seeder
                     default => 0,
                 };
 
-                CRAHouseOwnership::create([
-                    'barangay_id' => $barangay->id,
-                    'ownership_type' => $ownership,
-                    'quantity' => $quantity ?? 0,
-                ]);
+                CRAHouseOwnership::updateOrCreate(
+                    [
+                        'barangay_id'    => $barangay->id,
+                        'ownership_type' => $ownership,
+                    ],
+                    [
+                        'quantity' => $quantity ?? 0,
+                    ]
+                );
             }
 
             foreach ($livelihoods as $type => [$min, $max]) {
@@ -955,104 +1007,111 @@ class CRADataseeder extends Seeder
                 $femaleWith = rand(0, (int)($femaleWithout * 0.05));
                 $lgbtqWith = rand(0, (int)($lgbtqWithout * 0.05));
 
-                CRALivelihoodStatistic::create([
-                    'barangay_id' => $barangay->id,
-                    'livelihood_type' => $type,
-                    'male_without_disability' => $maleWithout,
-                    'male_with_disability' => $maleWith,
-                    'female_without_disability' => $femaleWithout,
-                    'female_with_disability' => $femaleWith,
-                    'lgbtq_without_disability' => $lgbtqWithout,
-                    'lgbtq_with_disability' => $lgbtqWith,
-                ]);
+                CRALivelihoodStatistic::updateOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'livelihood_type' => $type,
+                    ],
+                    [
+                        'male_without_disability' => $maleWithout,
+                        'male_with_disability' => $maleWith,
+                        'female_without_disability' => $femaleWithout,
+                        'female_with_disability' => $femaleWith,
+                        'lgbtq_without_disability' => $lgbtqWithout,
+                        'lgbtq_with_disability' => $lgbtqWith,
+                    ]
+                );
             }
 
             foreach ($services as $category => $items) {
                 foreach ($items as $name => $qty) {
-                    CRAHouseholdService::create([
-                        'barangay_id' => $barangay->id,
-                        'category' => $category,
-                        'service_name' => $name,
-                        'households_quantity' => $qty,
-                    ]);
+                    CRAHouseholdService::updateOrCreate(
+                        [
+                            'barangay_id' => $barangay->id,
+                            'category' => $category,
+                            'service_name' => $name,
+                        ],
+                        [
+                            'households_quantity' => $qty,
+                        ]
+                    );
                 }
             }
 
             foreach ($infraData as $category => $items) {
                 foreach ($items as $name => [$min, $max]) {
-                    CRAInfraFacility::create([
-                        'barangay_id' => $barangay->id,
-                        'category' => $category,
-                        'infrastructure_name' => $name,
-                        'quantity' => rand($min, $max),
-                    ]);
+                    CRAInfraFacility::updateOrCreate(
+                        [
+                            'barangay_id' => $barangay->id,
+                            'category' => $category,
+                            'infrastructure_name' => $name,
+                        ],
+                        [
+                            'quantity' => rand($min, $max),
+                        ]
+                    );
                 }
             }
 
             foreach ($primaryFacilities as $facility => [$min, $max]) {
-                CRAPrimaryFacility::create([
-                    'barangay_id' => $barangay->id,
-                    'facility_name' => $facility,
-                    'quantity' => rand($min, $max),
-                ]);
+                CRAPrimaryFacility::updateOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'facility_name' => $facility,
+                    ],
+                    [
+                        'quantity' => rand($min, $max),
+                    ]
+                );
             }
 
             foreach ($transportTypes as $type => [$min, $max]) {
-                CRAPublicTransportation::create([
-                    'barangay_id' => $barangay->id,
-                    'transpo_type' => $type,
-                    'quantity' => rand($min, $max),
-                ]);
+                CRAPublicTransportation::updateOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'transpo_type' => $type,
+                    ],
+                    [
+                        'quantity' => rand($min, $max),
+                    ]
+                );
             }
 
             foreach ($roadTypes as $type => [$maintainer, $min, $max]) {
                 // Random road length (some barangays may not have certain types)
                 $length = rand($min * 10, $max * 10) / 10; // e.g., 0.0 to 15.0 km
-
-                CRARoadNetwork::create([
-                    'barangay_id' => $barangay->id,
-                    'road_type' => $type,
-                    'length_km' => $length,
-                    'maintained_by' => $length > 0 ? $maintainer : 'NONE',
-                ]);
+                CRARoadNetwork::updateOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'road_type' => $type,
+                    ],
+                    [
+                        'length_km' => $length,
+                        'maintained_by' => $length > 0 ? $maintainer : 'NONE',
+                    ]
+                );
             }
 
             foreach ($baseInstitutions as $name) {
-                CRAInstitution::create([
-                    'barangay_id' => $barangay->id,
-                    'name' => $name,
-                    'male_members' => rand(0, 200),
-                    'female_members' => rand(0, 200),
-                    'lgbtq_members' => rand(0, 50),
-                    'head_name' => $faker->name,
-                    'contact_no' => $faker->phoneNumber,
-                    'registered' => $faker->randomElement(['YES', 'NO']),
-                    'programs_services' => $faker->randomElement([
-                        'Tree Planting', 'Soap Making', 'Livelihood Program',
-                        'Vegetable Planting', 'Sports Clinic', 'Feeding Program',
-                        'Clean-up Drive', 'Scholarship Assistance', 'Job Placement',
-                    ]),
-                ]);
-            }
-            // Add 2–4 random extra institutions per barangay
-            $randomExtras = $faker->randomElements($extraInstitutions, rand(2, 4));
-            foreach ($randomExtras as $name) {
-                CRAInstitution::create([
-                    'barangay_id' => $barangay->id,
-                    'name' => $name,
-                    'male_members' => rand(0, 300),
-                    'female_members' => rand(0, 300),
-                    'lgbtq_members' => rand(0, 100),
-                    'head_name' => $faker->name,
-                    'contact_no' => $faker->phoneNumber,
-                    'registered' => $faker->randomElement(['YES', 'NO']),
-                    'programs_services' => $faker->randomElement([
-                        'Tree Planting', 'Soap Making', 'Livelihood Program',
-                        'Vegetable Planting', 'Sports Clinic', 'Feeding Program',
-                        'Clean-up Drive', 'Scholarship Assistance', 'Job Placement',
-                        'Disaster Preparedness Training', 'Blood Donation Drive',
-                    ]),
-                ]);
+                CRAInstitution::updateOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'name' => $name,
+                    ],
+                    [
+                        'male_members' => rand(0, 200),
+                        'female_members' => rand(0, 200),
+                        'lgbtq_members' => rand(0, 50),
+                        'head_name' => $faker->name,
+                        'contact_no' => $faker->phoneNumber,
+                        'registered' => $faker->randomElement(['YES', 'NO']),
+                        'programs_services' => $faker->randomElement([
+                            'Tree Planting', 'Soap Making', 'Livelihood Program',
+                            'Vegetable Planting', 'Sports Clinic', 'Feeding Program',
+                            'Clean-up Drive', 'Scholarship Assistance', 'Job Placement',
+                        ]),
+                    ]
+                );
             }
 
             foreach ($resources as $category => $items) {
@@ -1064,18 +1123,21 @@ class CRADataseeder extends Seeder
                     $femaleWith = $faker->boolean(5) ? $faker->numberBetween(1, 5) : 0;
                     $lgbtqWithout = $faker->numberBetween(0, 10);
                     $lgbtqWith = $faker->boolean(3) ? $faker->numberBetween(1, 3) : 0;
-
-                    CRAHumanResource::create([
-                        'barangay_id' => $barangay->id,
-                        'category' => $category,
-                        'resource_name' => $resource,
-                        'male_without_disability' => $maleWithout,
-                        'male_with_disability' => $maleWith,
-                        'female_without_disability' => $femaleWithout,
-                        'female_with_disability' => $femaleWith,
-                        'lgbtq_without_disability' => $lgbtqWithout,
-                        'lgbtq_with_disability' => $lgbtqWith,
-                    ]);
+                    CRAHumanResource::updateOrCreate(
+                        [
+                            'barangay_id' => $barangay->id,
+                            'category' => $category,
+                            'resource_name' => $resource,
+                        ],
+                        [
+                            'male_without_disability' => $maleWithout,
+                            'male_with_disability' => $maleWith,
+                            'female_without_disability' => $femaleWithout,
+                            'female_with_disability' => $femaleWith,
+                            'lgbtq_without_disability' => $lgbtqWithout,
+                            'lgbtq_with_disability' => $lgbtqWith,
+                        ]
+                    );
                 }
             }
 
@@ -1090,7 +1152,7 @@ class CRADataseeder extends Seeder
                     ? 'Typhoon ' . $faker->randomElement($typhoonNames)
                     : $faker->randomElement($otherDisasters);
 
-                CRADisasterOccurance::create([
+                CRADisasterOccurance::firstOrCreate([
                     'barangay_id'   => $barangay->id,
                     'disaster_name' => $disasterName,
                     'year'          => $faker->numberBetween(date('Y') - 5, date('Y')),
@@ -1144,6 +1206,7 @@ class CRADataseeder extends Seeder
                         'disaster_id' => $disaster->id,
                         'barangay_id' => $barangay->id,
                         'category'    => $template['category'],
+                        'damage_type' => $template['damage_type'], // added this line
                         'description' => $template['description'],
                         'value'       => rand($template['min'], $template['max']),
                         'source'      => $template['source'],
@@ -1152,29 +1215,28 @@ class CRADataseeder extends Seeder
             }
         }
 
-        foreach ($hazards as $hazardName) {
-            $hazard = CRAHazard::create([
-                'hazard_name' => $hazardName,
-            ]);
-        }
         foreach ($barangays as $barangay) {
-            $prob = rand(1, 5);
-            $effect = rand(1, 5);
-            $management = rand(1, 5);
+            foreach ($hazards as $hazardName) {
+                $hazard = CRAHazard::firstOrCreate(['hazard_name' => $hazardName]);
 
-            CRAHazardRisk::create([
-                'barangay_id'    => $barangay->id,
-                'hazard_id'      => $hazard->id,
-                'probability_no' => $prob,
-                'effect_no'      => $effect,
-                'management_no'  => $management,
-                'basis'          => $basisSamples[array_rand($basisSamples)],
-                'average_score'  => round(($prob + $effect + $management) / 3, 2),
-            ]);
+                $prob = rand(1, 5);
+                $effect = rand(1, 5);
+                $management = rand(1, 5);
+
+                CRAHazardRisk::create([
+                    'barangay_id'    => $barangay->id,
+                    'hazard_id'      => $hazard->id,
+                    'probability_no' => $prob,
+                    'effect_no'      => $effect,
+                    'management_no'  => $management,
+                    'basis'          => $basisSamples[array_rand($basisSamples)],
+                    'average_score'  => round(($prob + $effect + $management) / 3, 2),
+                ]);
+            }
         }
         foreach ($matrices as $matrixType => $hazardNames) {
             foreach ($hazardNames as $hazardName) {
-                $hazard = CraHazard::firstOrCreate(
+                $hazard = CRAHazard::firstOrCreate(
                     ['hazard_name' => $hazardName]
                 );
 
@@ -1213,108 +1275,93 @@ class CRADataseeder extends Seeder
                         ]),
                     ]);
                      foreach (range(1, 7) as $purok) {
-                        CRAPopulationExposure::create([
-                            'hazard_id' => $hazard->id,
-                            'barangay_id' => $barangay->id,
-                            'purok_number' => $purok,
-
-                            // Families & individuals
-                            'total_families' => rand(100, 400),
-                            'total_individuals' => rand(200, 700),
-
-                            // Gender counts
-                            'individuals_male' => rand(100, 500),
-                            'individuals_female' => rand(50, 400),
-                            'individuals_lgbtq' => rand(0, 20),
-
-                            // Age groups
-                            'age_0_6_male' => rand(0, 50),
-                            'age_0_6_female' => rand(0, 50),
-
-                            'age_7m_2y_male' => rand(0, 40),
-                            'age_7m_2y_female' => rand(0, 40),
-
-                            'age_3_5_male' => rand(0, 60),
-                            'age_3_5_female' => rand(0, 60),
-
-                            'age_6_12_male' => rand(0, 100),
-                            'age_6_12_female' => rand(0, 100),
-
-                            'age_13_17_male' => rand(0, 120),
-                            'age_13_17_female' => rand(0, 120),
-
-                            'age_18_59_male' => rand(100, 400),
-                            'age_18_59_female' => rand(100, 400),
-
-                            'age_60_up_male' => rand(10, 80),
-                            'age_60_up_female' => rand(10, 80),
-
-                            // Special categories
-                            'pwd_male' => rand(0, 20),
-                            'pwd_female' => rand(0, 20),
-
-                            'diseases_male' => rand(0, 30),
-                            'diseases_female' => rand(0, 30),
-
-                            'pregnant_women' => rand(0, 15),
-                        ]);
+                        CRAPopulationExposure::firstOrCreate(
+                            [
+                                'hazard_id'    => $hazard->id,
+                                'barangay_id'  => $barangay->id,
+                                'purok_number' => $purok,
+                            ],
+                            [
+                                'total_families'      => rand(100, 400),
+                                'total_individuals'   => rand(200, 700),
+                                'individuals_male'    => rand(100, 500),
+                                'individuals_female'  => rand(50, 400),
+                                'individuals_lgbtq'   => rand(0, 20),
+                                'age_0_6_male'        => rand(0, 50),
+                                'age_0_6_female'      => rand(0, 50),
+                                'age_7m_2y_male'      => rand(0, 40),
+                                'age_7m_2y_female'    => rand(0, 40),
+                                'age_3_5_male'        => rand(0, 60),
+                                'age_3_5_female'      => rand(0, 60),
+                                'age_6_12_male'       => rand(0, 100),
+                                'age_6_12_female'     => rand(0, 100),
+                                'age_13_17_male'      => rand(0, 120),
+                                'age_13_17_female'    => rand(0, 120),
+                                'age_18_59_male'      => rand(100, 400),
+                                'age_18_59_female'    => rand(100, 400),
+                                'age_60_up_male'      => rand(10, 80),
+                                'age_60_up_female'    => rand(10, 80),
+                                'pwd_male'            => rand(0, 20),
+                                'pwd_female'          => rand(0, 20),
+                                'diseases_male'       => rand(0, 30),
+                                'diseases_female'     => rand(0, 30),
+                                'pregnant_women'      => rand(0, 15),
+                            ]
+                        );
                     }
                 }
             }
         }
         foreach ($barangays as $barangay) {
             foreach ($disabilities as $type) {
-                CRADisabilityStatistic::create([
-                    'barangay_id' => $barangay->id,
-                    'disability_type' => $type,
-
-                    // Random values for each age group
-                    'age_0_6_male' => rand(0, 3),
-                    'age_0_6_female' => rand(0, 3),
-                    'age_0_6_lgbtq' => rand(0, 1),
-
-                    'age_7m_2y_male' => rand(0, 3),
-                    'age_7m_2y_female' => rand(0, 3),
-                    'age_7m_2y_lgbtq' => rand(0, 1),
-
-                    'age_3_5_male' => rand(0, 5),
-                    'age_3_5_female' => rand(0, 5),
-                    'age_3_5_lgbtq' => rand(0, 2),
-
-                    'age_6_12_male' => rand(0, 15),
-                    'age_6_12_female' => rand(0, 15),
-                    'age_6_12_lgbtq' => rand(0, 3),
-
-                    'age_13_17_male' => rand(0, 20),
-                    'age_13_17_female' => rand(0, 20),
-                    'age_13_17_lgbtq' => rand(0, 5),
-
-                    'age_18_59_male' => rand(0, 30),
-                    'age_18_59_female' => rand(0, 30),
-                    'age_18_59_lgbtq' => rand(0, 10),
-
-                    'age_60up_male' => rand(0, 15),
-                    'age_60up_female' => rand(0, 15),
-                    'age_60up_lgbtq' => rand(0, 3),
-                ]);
+                CRADisabilityStatistic::updateOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'disability_type' => $type,
+                    ],
+                    [
+                        'age_0_6_male'       => rand(0, 3),
+                        'age_0_6_female'     => rand(0, 3),
+                        'age_7m_2y_male'     => rand(0, 3),
+                        'age_7m_2y_female'   => rand(0, 3),
+                        'age_3_5_male'       => rand(0, 5),
+                        'age_3_5_female'     => rand(0, 5),
+                        'age_6_12_male'      => rand(0, 15),
+                        'age_6_12_female'    => rand(0, 15),
+                        'age_6_12_lgbtq'     => rand(0, 3),
+                        'age_13_17_male'     => rand(0, 20),
+                        'age_13_17_female'   => rand(0, 20),
+                        'age_13_17_lgbtq'    => rand(0, 5),
+                        'age_18_59_male'     => rand(0, 30),
+                        'age_18_59_female'   => rand(0, 30),
+                        'age_18_59_lgbtq'    => rand(0, 10),
+                        'age_60up_male'      => rand(0, 15),
+                        'age_60up_female'    => rand(0, 15),
+                        'age_60up_lgbtq'     => rand(0, 3),
+                    ]
+                );
             }
 
             for ($purok = 1; $purok <= 7; $purok++) {
                 foreach ($indicators as $indicator) {
-                    CRAFamilyAtRisk::create([
-                        'barangay_id' => $barangay->id,
-                        'purok_number' => $purok,
-                        'indicator' => $indicator,
-                        'count' => match ($indicator) {
-                            "Number of Informal Settler Families" => rand(0, 20),
-                            "Number of Employed Individuals" => rand(100, 400),
-                            "Number of Families Aware of the Effects of Risks and Hazards" => rand(80, 400),
-                            "Number of Families with Access to Information (radio/TV/ newspaper/ social media, etc.)" => rand(80, 400),
-                            "Number of Families who received Financial Assistance" => rand(0, 50),
-                            "Number of Families with Access to Early Warning System" => rand(80, 400),
-                            default => rand(0, 500),
-                        },
-                    ]);
+                    CRAFamilyAtRisk::updateOrCreate(
+                        [
+                            'barangay_id' => $barangay->id,
+                            'purok_number' => $purok,
+                            'indicator' => $indicator,
+                        ],
+                        [
+                            'count' => match ($indicator) {
+                                "Number of Informal Settler Families" => rand(0, 20),
+                                "Number of Employed Individuals" => rand(100, 400),
+                                "Number of Families Aware of the Effects of Risks and Hazards" => rand(80, 400),
+                                "Number of Families with Access to Information (radio/TV/ newspaper/ social media, etc.)" => rand(80, 400),
+                                "Number of Families who received Financial Assistance" => rand(0, 50),
+                                "Number of Families with Access to Early Warning System" => rand(80, 400),
+                                default => rand(0, 500),
+                            },
+                        ]
+                    );
                 }
             }
 
@@ -1388,15 +1435,21 @@ class CRADataseeder extends Seeder
                             $locations[] = rand(1,7);
                         }
 
-                        CRADisasterInventory::create([
-                            'barangay_id' => $barangay->id,
-                            'hazard_id' => $hazard->id,
-                            'category' => $category,
-                            'item_name' => $item,
-                            'total_in_barangay' => $total,
-                            'percentage_at_risk' => $percent,
-                            'location' => implode(', ', $locations),
-                        ]);
+                        CRADisasterRiskPopulation::updateOrCreate(
+                            [
+                                'barangay_id' => $barangay->id,
+                                'hazard_id' => $hazard->id,
+                                'purok_number' => $purok,
+                            ],
+                            [
+                                'low_families' => $lowFamilies,
+                                'low_individuals' => $lowIndividuals,
+                                'medium_families' => $mediumFamilies,
+                                'medium_individuals' => $mediumIndividuals,
+                                'high_families' => $highFamilies,
+                                'high_individuals' => $highIndividuals,
+                            ]
+                        );
                     }
                 }
             }
@@ -1406,15 +1459,19 @@ class CRADataseeder extends Seeder
             $centers = $faker->randomElements($sampleCenters, rand(3, 6));
 
             foreach ($centers as $center) {
-                CRAEvacuationCenter::create([
-                    'barangay_id' => $barangay->id,
-                    'name' => $center,
-                    'capacity_families' => rand(2, 60),
-                    'capacity_individuals' => rand(10, 200),
-                    'owner_type' => $faker->randomElement(['government', 'private']),
-                    'inspected_by_engineer' => $faker->boolean(70), // 70% chance yes
-                    'has_mou' => $faker->boolean(50), // 50% chance yes
-                ]);
+                CRAEvacuationCenter::firstOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'name' => $center,
+                    ],
+                    [
+                        'capacity_families' => rand(2, 60),
+                        'capacity_individuals' => rand(10, 200),
+                        'owner_type' => $faker->randomElement(['government', 'private']),
+                        'inspected_by_engineer' => $faker->boolean(70),
+                        'has_mou' => $faker->boolean(50),
+                    ]
+                );
             }
         }
         foreach ($barangays as $barangay) {
@@ -1444,23 +1501,27 @@ class CRADataseeder extends Seeder
                     ? 'Plan A to Plan B Evacuation centers can accommodate the number of evacuees at risk.'
                     : 'Do not need evacuation';
 
-                CRAEvacuationInventory::create([
-                    'barangay_id' => $barangay->id,
-                    'purok_number' => $purok,
-                    'total_families' => $totalFamilies,
-                    'total_individuals' => $totalIndividuals,
-                    'families_at_risk' => $familiesAtRisk,
-                    'individuals_at_risk' => $individualsAtRisk,
-                    'plan_a_center' => $planA,
-                    'plan_a_capacity_families' => $planACapacityFamilies,
-                    'plan_a_capacity_individuals' => $planACapacityIndividuals,
-                    'plan_a_unaccommodated_families' => $planAUnaccommodatedFamilies,
-                    'plan_a_unaccommodated_individuals' => $planAUnaccommodatedIndividuals,
-                    'plan_b_center' => $planB,
-                    'plan_b_unaccommodated_families' => $planBUnaccommodatedFamilies,
-                    'plan_b_unaccommodated_individuals' => $planBUnaccommodatedIndividuals,
-                    'remarks' => $remarks,
-                ]);
+                CRAEvacuationInventory::updateOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'purok_number' => $purok,
+                    ],
+                    [
+                        'total_families' => $totalFamilies,
+                        'total_individuals' => $totalIndividuals,
+                        'families_at_risk' => $familiesAtRisk,
+                        'individuals_at_risk' => $individualsAtRisk,
+                        'plan_a_center' => $planA,
+                        'plan_a_capacity_families' => $planACapacityFamilies,
+                        'plan_a_capacity_individuals' => $planACapacityIndividuals,
+                        'plan_a_unaccommodated_families' => $planAUnaccommodatedFamilies,
+                        'plan_a_unaccommodated_individuals' => $planAUnaccommodatedIndividuals,
+                        'plan_b_center' => $planB,
+                        'plan_b_unaccommodated_families' => $planBUnaccommodatedFamilies,
+                        'plan_b_unaccommodated_individuals' => $planBUnaccommodatedIndividuals,
+                        'remarks' => $remarks,
+                    ]
+                );
             }
         }
         foreach ($hazards as $hazardName) {
@@ -1499,33 +1560,41 @@ class CRADataseeder extends Seeder
                     // Pick a random safe area from the list
                     $safeArea = $faker->randomElement($safeAreas);
 
-                    CRAAffectedPlaces::create([
-                        'barangay_id' => $barangay->id,
-                        'hazard_id' => $hazard->id,
-                        'risk_level' => $riskLevel,
-                        'purok_number' => $purok,
-                        'total_families' => $totalFamilies,
-                        'total_individuals' => $totalIndividuals,
-                        'at_risk_families' => $atRiskFamilies,
-                        'at_risk_individuals' => $atRiskIndividuals,
-                        'safe_evacuation_area' => $safeArea,
-                    ]);
+                    CRAAffectedPlaces::updateOrCreate(
+                        [
+                            'barangay_id' => $barangay->id,
+                            'hazard_id' => $hazard->id,
+                            'purok_number' => $purok,
+                        ],
+                        [
+                            'risk_level' => $riskLevel,
+                            'total_families' => $totalFamilies,
+                            'total_individuals' => $totalIndividuals,
+                            'at_risk_families' => $atRiskFamilies,
+                            'at_risk_individuals' => $atRiskIndividuals,
+                            'safe_evacuation_area' => $safeArea,
+                        ]
+                    );
                 }
             }
         }
         foreach ($barangays as $barangay) {
             foreach ($livelihoodEvac as $livelihood) {
-                CRALivelihoodEvacuationSite::create([
-                    'barangay_id' => $barangay->id,
-                    'livelihood_type' => $livelihood['type'],
-                    'place_of_origin' => $livelihood['origin'],
-                    'evacuation_site' => $livelihood['evacuation_sites'][0],
-                    'capacity_description' => match($livelihood['type']) {
-                        'Rice/Palay' => rand(450, 550) . ' more or less',
-                        'Livestock' => rand(80, 120) . ' more or less',
-                        default => 'Unknown capacity'
-                    },
-                ]);
+                CRALivelihoodEvacuationSite::updateOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'livelihood_type' => $livelihood['type'],
+                        'evacuation_site' => $livelihood['evacuation_sites'][0],
+                    ],
+                    [
+                        'place_of_origin' => $livelihood['origin'],
+                        'capacity_description' => match($livelihood['type']) {
+                            'Rice/Palay' => rand(450, 550) . ' more or less',
+                            'Livestock' => rand(80, 120) . ' more or less',
+                            default => 'Unknown capacity'
+                        },
+                    ]
+                );
             }
         }
         foreach ($barangays as $barangay) {
@@ -1544,12 +1613,16 @@ class CRADataseeder extends Seeder
                     $remarks .= rand(0, 1) ? ' - still usable' : ' - needs checking';
                 }
 
-                CRAPrepositionedInventory::create([
-                    'barangay_id' => $barangay->id,
-                    'item_name' => $item['item_name'],
-                    'quantity' => (string)$quantity,
-                    'remarks' => $remarks,
-                ]);
+                CRAPrepositionedInventory::updateOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'item_name' => $item['item_name'],
+                    ],
+                    [
+                        'quantity' => (string)$quantity,
+                        'remarks' => $remarks,
+                    ]
+                );
             }
         }
         foreach ($barangays as $barangay) {
@@ -1577,42 +1650,53 @@ class CRADataseeder extends Seeder
                         default:
                             $quantity = rand(1, 10);
                     }
-
-                    CRAReliefDistribution::create([
-                        'barangay_id' => $barangay->id,
-                        'evacuation_center' => $evacuationCenters[array_rand($evacuationCenters)],
-                        'relief_good' => $good['name'],
-                        'quantity' => (string)$quantity,
-                        'unit' => $good['unit'],
-                        'beneficiaries' => $numFamilies . ' Families (' . $numIndividuals . ' Individuals)',
-                        'address' => 'Purok ' . $purok,
-                    ]);
+                    CRAReliefDistribution::updateOrCreate(
+                        [
+                            'barangay_id' => $barangay->id,
+                            'evacuation_center' => $evacuationCenters[array_rand($evacuationCenters)],
+                            'relief_good' => $good['name'],
+                        ],
+                        [
+                            'quantity' => (string)$quantity,
+                            'unit' => $good['unit'],
+                            'beneficiaries' => $numFamilies . ' Families (' . $numIndividuals . ' Individuals)',
+                            'address' => 'Purok ' . $purok,
+                        ]
+                    );
                 }
             }
         }
         foreach ($barangays as $barangay) {
             foreach ($distributionSteps as $index => $step) {
-                CRAReliefDistributionProcess::create([
-                    'barangay_id' => $barangay->id,
-                    'step_no' => $index + 1,
-                    'distribution_process' => $step,
-                    'origin_of_goods' => $origins[array_rand($origins)],
-                    'remarks' => $remarksOptions[array_rand($remarksOptions)],
-                ]);
+                CRAReliefDistributionProcess::updateOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'step_no' => $index + 1,
+                    ],
+                    [
+                        'distribution_process' => $step,
+                        'origin_of_goods' => $origins[array_rand($origins)],
+                        'remarks' => $remarksOptions[array_rand($remarksOptions)],
+                    ]
+                );
             }
         }
         foreach ($barangays as $barangay) {
             foreach ($trainings as $training) {
-                CRABdrrmcTraining::create([
-                    'barangay_id' => $barangay->id,
-                    'title' => $training['title'],
-                    'status' => rand(0,1) ? 'checked' : 'cross',
-                    'duration' => rand(1,5) . ' days',
-                    'agency' => 'Agency ' . rand(1,5),
-                    'inclusive_dates' => now()->subDays(rand(0, 365))->format('F d-Y'),
-                    'number_of_participants' => rand(5, 20),
-                    'participants' => 'Participant ' . rand(1, 20),
-                ]);
+                CRABdrrmcTraining::firstOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'title' => $training['title'],
+                    ],
+                    [
+                        'status' => rand(0,1) ? 'checked' : 'cross',
+                        'duration' => rand(1,5) . ' days',
+                        'agency' => 'Agency ' . rand(1,5),
+                        'inclusive_dates' => now()->subDays(rand(0, 365))->format('F d-Y'),
+                        'number_of_participants' => rand(5, 20),
+                        'participants' => 'Participant ' . rand(1, 20),
+                    ]
+                );
             }
         }
                 foreach ($barangays as $barangay) {
@@ -1628,39 +1712,54 @@ class CRADataseeder extends Seeder
                 // Random location (mostly Barangay Operation Center)
                 $location = ($availability === 'checked') ? 'Barangay Operation Center' : null;
 
-                CRAEquipmentInventory::create([
-                    'barangay_id' => $barangay->id,
-                    'item' => $item,
-                    'availability' => $availability,
-                    'quantity' => $quantity,
-                    'location' => $location,
-                    'remarks' => $remarks,
-                ]);
+                CRAEquipmentInventory::firstOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'item' => $item,
+                    ],
+                    [
+                        'availability' => $availability,
+                        'quantity' => $quantity,
+                        'location' => $location,
+                        'remarks' => $remarks,
+                    ]
+                );
             }
         }
         foreach ($barangays as $barangay) {
             foreach ($directories as $entry) {
-                CRABdrrmcDirectory::create([
-                    'barangay_id' => $barangay->id,
-                    'designation_team' => $entry['designation_team'],
-                    'name' => $entry['name'],
-                    'contact_no' => $entry['contact_no'],
-                ]);
+                CRABdrrmcDirectory::firstOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'name' => $entry['name'],
+                    ],
+                    [
+                        'designation_team' => $entry['designation_team'],
+                        'contact_no' => $entry['contact_no'],
+                    ]
+                );
             }
         }
         foreach ($barangays as $barangay) {
             foreach ($plans as $plan) {
-                CRAEvacuationPlan::create([
-                    'barangay_id' => $barangay->id,
-                    'activity_no' => $plan['activity_no'],
-                    'things_to_do' => $plan['things_to_do'],
-                    'responsible_person' => $plan['responsible_person'],
-                    'remarks' => $plan['remarks'],
-                ]);
+                CRAEvacuationPlan::firstOrCreate(
+                    [
+                        'barangay_id' => $barangay->id,
+                        'activity_no' => $plan['activity_no'],
+                    ],
+                    [
+                        'things_to_do' => $plan['things_to_do'],
+                        'responsible_person' => $plan['responsible_person'],
+                        'remarks' => $plan['remarks'],
+                    ]
+                );
             }
+
+            // ✅ Flag CRA as submitted for this barangay
+            CommunityRiskAssessment::updateOrCreate(
+                ['barangay_id' => $barangay->id],
+                ['submitted_at' => now()]
+            );
         }
-
-
-
     }
 }

@@ -24,7 +24,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['barangay_id', 'illness']); // to support upsert
+            $table->unique(['barangay_id', 'illness'], 'unique_illness_barangay');
         });
     }
 

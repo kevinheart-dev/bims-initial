@@ -51,8 +51,6 @@ class FamilyController extends Controller
                 $q->where('is_household_head', request('household_head'));
             });
         }
-        //dd( $query->get());
-        // $families = $query->get();
         $families = $query->paginate(10)->withQueryString();
 
 

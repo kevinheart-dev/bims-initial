@@ -37,6 +37,10 @@ return new class extends Migration
             $table->integer('high_individuals')->default(0);
 
             $table->timestamps();
+            $table->unique(
+    ['barangay_id', 'hazard_id', 'purok_number'],
+                'cra_dis_risk_pop_unique' // short & descriptive
+            );
         });
     }
 

@@ -260,20 +260,19 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // $resRole = Role::firstOrCreate(['name' => 'resident']);
-        // for($i = 0; $i <= 20; $i++){
-        //     $user = User::factory()->create([
-        //         'resident_id' => Resident::factory(),
-        //         'username' => 'Sample Resident Account',
-        //         'email' => 'user'. "$i" .'@example.com',
-        //         'password' => bcrypt('user123'),
-        //         'email_verified_at' => now(),
-        //         'role' => 'resident',
-        //         'status' => 'active'
-        //     ]);
-        //     $user->assignRole($resRole);
-        // }
-        //LivelihoodType::factory(50)->create();
+        $resRole = Role::firstOrCreate(['name' => 'resident']);
+        for($i = 0; $i <= 20; $i++){
+            $user = User::factory()->create([
+                'resident_id' => Resident::factory(),
+                'username' => 'Sample Resident Account',
+                'email' => 'user'. "$i" .'@example.com',
+                'password' => bcrypt('user123'),
+                'email_verified_at' => now(),
+                'role' => 'resident',
+                'status' => 'active'
+            ]);
+            $user->assignRole($resRole);
+        }
 
         $residents = Resident::factory()->count(500)->create(); // ✅ very minimal
 

@@ -412,13 +412,28 @@ const FilterToggle = ({
                     value={queryParams.is_pensioner}
                 >
                     <SelectTrigger className="w-[125px]">
-                        <SelectValue placeholder="Is Pensioner" />
+                        <SelectValue placeholder="Is Pensioner?" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="All">All</SelectItem>
                         <SelectItem value="yes">Yes</SelectItem>
                         <SelectItem value="no">No</SelectItem>
                         <SelectItem value="pending">Pending</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("is_registered") && (
+                <Select
+                    onValueChange={(v) => searchFieldName("is_registered", v)}
+                    value={queryParams.is_registered}
+                >
+                    <SelectTrigger className="w-[125px]">
+                        <SelectValue placeholder="Is Registered?" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
                     </SelectContent>
                 </Select>
             )}

@@ -87,6 +87,7 @@ export default function Index() {
                 router.post(route("cra.store"), craData, {
                     onError: (errors) => {
                         setErrors(errors);
+                        console.error("Validation Errors:", errors);
                         const allErrors = Object.values(errors).join("<br />");
                         toast.error("Validation Errors", {
                             description: (
@@ -100,14 +101,14 @@ export default function Index() {
                             closeButton: true,
                         });
                     },
-                    onSuccess: () => {
-                        toast.success("CRA submitted successfully!", {
-                            duration: 3000,
-                            closeButton: true,
-                        });
-                        // ✅ Clear draft after successful submit
-                        localStorage.removeItem("craDataDraft");
-                    },
+                    // onSuccess: () => {
+                    //     toast.success("CRA submitted successfully!", {
+                    //         duration: 3000,
+                    //         closeButton: true,
+                    //     });
+                    //     // ✅ Clear draft after successful submit
+                    //     localStorage.removeItem("craDataDraft");
+                    // },
                 });
 
                 return;

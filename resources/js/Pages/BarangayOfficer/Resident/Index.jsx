@@ -3,24 +3,41 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useMemo, lazy, Suspense } from "react";
 import { Toaster, toast } from "sonner";
-import { Search, UserRoundPlus, HousePlus, SquarePen, Trash2, Network, Eye } from "lucide-react";
+import {
+    Search,
+    UserRoundPlus,
+    HousePlus,
+    SquarePen,
+    Trash2,
+    Network,
+    Eye,
+    Table,
+} from "lucide-react";
 import * as CONSTANTS from "@/constants";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import { useQuery } from "@tanstack/react-query";
+import ExportButton from "@/Components/ExportButton";
 
 // Lazy load heavy components
 const AdminLayout = lazy(() => import("@/Layouts/AdminLayout"));
 const SidebarModal = lazy(() => import("@/Components/SidebarModal"));
-const PersonDetailContent = lazy(() => import("@/Components/SidebarModalContents/PersonDetailContent"));
+const PersonDetailContent = lazy(() =>
+    import("@/Components/SidebarModalContents/PersonDetailContent")
+);
 const BreadCrumbsHeader = lazy(() => import("@/Components/BreadcrumbsHeader"));
 const DynamicTable = lazy(() => import("@/Components/DynamicTable"));
 const ActionMenu = lazy(() => import("@/Components/ActionMenu"));
-const FilterToggle = lazy(() => import("@/Components/FilterButtons/FillterToggle"));
-const DynamicTableControls = lazy(() => import("@/Components/FilterButtons/DynamicTableControls"));
-const DeleteConfirmationModal = lazy(() => import("@/Components/DeleteConfirmationModal"));
+const FilterToggle = lazy(() =>
+    import("@/Components/FilterButtons/FillterToggle")
+);
+const DynamicTableControls = lazy(() =>
+    import("@/Components/FilterButtons/DynamicTableControls")
+);
+const DeleteConfirmationModal = lazy(() =>
+    import("@/Components/DeleteConfirmationModal")
+);
 const ResidentCharts = lazy(() => import("./ResidentCharts"));
-
 
 // Memoize expensive calculations or objects that don't change often
 const breadcrumbs = [
@@ -44,7 +61,6 @@ const allColumns = [
     { key: "purok_number", label: "Purok" },
     { key: "actions", label: "Actions" },
 ];
-
 
 export default function Index({ residents, queryParams = null, puroks }) {
     // Use useMemo for queryParams to ensure it's stable across renders if not explicitly updated
@@ -81,7 +97,11 @@ export default function Index({ residents, queryParams = null, puroks }) {
     const [query, setQuery] = useState(currentQueryParams["name"] ?? "");
 
     // Optimize useQuery to prevent unnecessary re-fetches and improve caching
-    const { data: chartData, isLoading: isChartLoading, isError: isChartError } = useQuery({
+    const {
+        data: chartData,
+        isLoading: isChartLoading,
+        isError: isChartError,
+    } = useQuery({
         queryKey: ["residents-chart", currentQueryParams], // Key reflects chart data
         queryFn: async ({ signal }) => {
             const { data } = await axios.get(
@@ -100,23 +120,26 @@ export default function Index({ residents, queryParams = null, puroks }) {
     });
 
     // Memoize search function to prevent it from recreating on every render
-    const searchFieldName = useMemo(() => (field, value) => {
-        let newQueryParams = { ...currentQueryParams };
+    const searchFieldName = useMemo(
+        () => (field, value) => {
+            let newQueryParams = { ...currentQueryParams };
 
-        if (value && value.trim() !== "") {
-            newQueryParams[field] = value;
-        } else {
-            delete newQueryParams[field];
-        }
+            if (value && value.trim() !== "") {
+                newQueryParams[field] = value;
+            } else {
+                delete newQueryParams[field];
+            }
 
-        // Always delete page when searching to reset pagination
-        delete newQueryParams.page;
+            // Always delete page when searching to reset pagination
+            delete newQueryParams.page;
 
-        router.get(route("resident.index", newQueryParams), {
-            preserveState: true, // Keep scroll position and form data
-            replace: true, // Replace history entry instead of pushing a new one
-        });
-    }, [currentQueryParams]); // Dependency on currentQueryParams
+            router.get(route("resident.index", newQueryParams), {
+                preserveState: true, // Keep scroll position and form data
+                replace: true, // Replace history entry instead of pushing a new one
+            });
+        },
+        [currentQueryParams]
+    ); // Dependency on currentQueryParams
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -130,17 +153,20 @@ export default function Index({ residents, queryParams = null, puroks }) {
     };
 
     // Memoize calculateAge to ensure it's only created once
-    const calculateAge = useMemo(() => (birthdate) => {
-        if (!birthdate) return "Unknown";
-        const birth = new Date(birthdate);
-        const today = new Date();
-        let age = today.getFullYear() - birth.getFullYear();
-        const m = today.getMonth() - birth.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-            age--;
-        }
-        return age;
-    }, []);
+    const calculateAge = useMemo(
+        () => (birthdate) => {
+            if (!birthdate) return "Unknown";
+            const birth = new Date(birthdate);
+            const today = new Date();
+            let age = today.getFullYear() - birth.getFullYear();
+            const m = today.getMonth() - birth.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            return age;
+        },
+        []
+    );
 
     const handleEdit = (id) => {
         router.get(route("resident.edit", id));
@@ -159,7 +185,9 @@ export default function Index({ residents, queryParams = null, puroks }) {
             setSelectedResident(response.data.resident);
         } catch (error) {
             console.error("Error fetching resident details:", error);
-            toast.error("Failed to load resident details.", { description: error.message });
+            toast.error("Failed to load resident details.", {
+                description: error.message,
+            });
         }
         setIsModalOpen(true);
     };
@@ -169,16 +197,26 @@ export default function Index({ residents, queryParams = null, puroks }) {
     );
 
     // Memoize the check for active filters
-    const hasActiveFilter = useMemo(() =>
-        Object.entries(currentQueryParams).some(
-            ([key, value]) =>
-                [
-                    "purok", "sex", "gender", "age_group", "estatus",
-                    "voter_status", "cstatus", "pwd", "fourps", "solo_parent",
-                ].includes(key) &&
-                value &&
-                value !== ""
-        ), [currentQueryParams]
+    const hasActiveFilter = useMemo(
+        () =>
+            Object.entries(currentQueryParams).some(
+                ([key, value]) =>
+                    [
+                        "purok",
+                        "sex",
+                        "gender",
+                        "age_group",
+                        "estatus",
+                        "voter_status",
+                        "cstatus",
+                        "pwd",
+                        "fourps",
+                        "solo_parent",
+                    ].includes(key) &&
+                    value &&
+                    value !== ""
+            ),
+        [currentQueryParams]
     );
 
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
@@ -199,97 +237,160 @@ export default function Index({ residents, queryParams = null, puroks }) {
     };
 
     // Memoize confirmDelete to ensure it's stable
-    const confirmDelete = useMemo(() => () => {
-        if (residentToDelete) {
-            router.delete(route("resident.destroy", residentToDelete), {
-                onSuccess: () => {
-                    toast.success("Resident deleted successfully!");
-                    setIsDeleteModalOpen(false);
-                    setResidentToDelete(null);
-                },
-                onError: (err) => {
-                    toast.error("Failed to delete resident.", { description: err.message });
-                    setIsDeleteModalOpen(false);
-                },
-            });
-        }
-    }, [residentToDelete]);
+    const confirmDelete = useMemo(
+        () => () => {
+            if (residentToDelete) {
+                router.delete(route("resident.destroy", residentToDelete), {
+                    onSuccess: () => {
+                        toast.success("Resident deleted successfully!");
+                        setIsDeleteModalOpen(false);
+                        setResidentToDelete(null);
+                    },
+                    onError: (err) => {
+                        toast.error("Failed to delete resident.", {
+                            description: err.message,
+                        });
+                        setIsDeleteModalOpen(false);
+                    },
+                });
+            }
+        },
+        [residentToDelete]
+    );
 
     // Memoize columnRenderers to prevent unnecessary re-creation on every render
-    const columnRenderers = useMemo(() => ({
-        resident_id: (resident) => resident.id,
-        resident_picture: (resident) => (
-            // Use an optimized image component or service if available.
-            // For now, ensure default-avatar.jpg is small and optimized.
-            <img
-                src={resident.resident_picture ? `/storage/${resident.resident_picture}` : "/images/default-avatar.jpg"}
-                onError={(e) => { e.target.onerror = null; e.target.src = "/images/default-avatar.jpg"; }}
-                alt="Resident"
-                className="w-16 h-16 min-w-16 min-h-16 object-cover rounded-full border"
-                loading="lazy" // Add lazy loading for images
-            />
-        ),
-        name: (resident) => (
-            <div className="text-sm break-words whitespace-normal leading-snug">
-                {`${resident.firstname} ${resident.middlename ? resident.middlename + ' ' : ''}${resident.lastname ?? ''} ${resident.suffix ? resident.suffix : ''}`}
-            </div>
-        ),
-        sex: (resident) => {
-            const genderKey = resident.sex;
-            const label = CONSTANTS.RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
-            const className = CONSTANTS.RESIDENT_GENDER_COLOR_CLASS[genderKey] ?? "bg-gray-300";
-            return (
-                <span className={`py-1 px-2 rounded-xl text-sm font-medium whitespace-nowrap ${className}`}>
-                    {label}
-                </span>
-            );
-        },
-        age: (resident) => {
-            const age = calculateAge(resident.birthdate);
-            if (typeof age !== "number") return "Unknown";
-            return (
-                <div className="flex flex-col text-sm">
-                    <span className="font-medium text-gray-800">{age}</span>
-                    {age > 60 && (
-                        <span className="text-xs text-rose-500 font-semibold">
-                            Senior Citizen
-                        </span>
-                    )}
+    const columnRenderers = useMemo(
+        () => ({
+            resident_id: (resident) => resident.id,
+            resident_picture: (resident) => (
+                // Use an optimized image component or service if available.
+                // For now, ensure default-avatar.jpg is small and optimized.
+                <img
+                    src={
+                        resident.resident_picture
+                            ? `/storage/${resident.resident_picture}`
+                            : "/images/default-avatar.jpg"
+                    }
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/images/default-avatar.jpg";
+                    }}
+                    alt="Resident"
+                    className="w-16 h-16 min-w-16 min-h-16 object-cover rounded-full border"
+                    loading="lazy" // Add lazy loading for images
+                />
+            ),
+            name: (resident) => (
+                <div className="text-sm break-words whitespace-normal leading-snug">
+                    {`${resident.firstname} ${
+                        resident.middlename ? resident.middlename + " " : ""
+                    }${resident.lastname ?? ""} ${
+                        resident.suffix ? resident.suffix : ""
+                    }`}
                 </div>
-            );
-        },
-        civil_status: (resident) => CONSTANTS.RESIDENT_CIVIL_STATUS_TEXT[resident.civil_status],
-        employment_status: (resident) => CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[resident.employment_status],
-        occupation: (resident) => {
-            const occ = resident.occupation;
-            return occ ? (
-                <span className="text-sm text-gray-700">{resident.occupation}</span>
-            ) : (
-                <span className="text-gray-400 text-[12px] italic">No occupation available</span>
-            );
-        },
-        ethnicity: (resident) => resident.ethnicity,
-        registered_voter: (resident) => (
-            <span className={`${CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[resident.registered_voter]} whitespace-nowrap`}>
-                {CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[resident.registered_voter]}
-            </span>
-        ),
-        contact_number: (resident) => (
-            <span className="whitespace-nowrap">{resident.contact_number}</span>
-        ),
-        purok_number: (resident) => resident.purok_number,
-        email: (resident) => resident.email,
-        actions: (resident) => (
-            <ActionMenu
-                actions={[
-                    { label: "View", icon: <Eye className="w-4 h-4 text-indigo-600" />, onClick: () => handleView(resident.id) },
-                    { label: "Edit", icon: <SquarePen className="w-4 h-4 text-green-500" />, onClick: () => handleEdit(resident.id) },
-                    { label: "Delete", icon: <Trash2 className="w-4 h-4 text-red-600" />, onClick: () => handleDeleteClick(resident.id) },
-                    { label: "Family Tree", icon: <Network className="w-4 h-4 text-blue-500" />, href: route("resident.familytree", resident.id), tooltip: "See Family Tree" },
-                ]}
-            />
-        ),
-    }), [calculateAge, handleView, handleDeleteClick, handleEdit]); // Dependencies for columnRenderers
+            ),
+            sex: (resident) => {
+                const genderKey = resident.sex;
+                const label =
+                    CONSTANTS.RESIDENT_GENDER_TEXT2[genderKey] ?? "Unknown";
+                const className =
+                    CONSTANTS.RESIDENT_GENDER_COLOR_CLASS[genderKey] ??
+                    "bg-gray-300";
+                return (
+                    <span
+                        className={`py-1 px-2 rounded-xl text-sm font-medium whitespace-nowrap ${className}`}
+                    >
+                        {label}
+                    </span>
+                );
+            },
+            age: (resident) => {
+                const age = calculateAge(resident.birthdate);
+                if (typeof age !== "number") return "Unknown";
+                return (
+                    <div className="flex flex-col text-sm">
+                        <span className="font-medium text-gray-800">{age}</span>
+                        {age > 60 && (
+                            <span className="text-xs text-rose-500 font-semibold">
+                                Senior Citizen
+                            </span>
+                        )}
+                    </div>
+                );
+            },
+            civil_status: (resident) =>
+                CONSTANTS.RESIDENT_CIVIL_STATUS_TEXT[resident.civil_status],
+            employment_status: (resident) =>
+                CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
+                    resident.employment_status
+                ],
+            occupation: (resident) => {
+                const occ = resident.occupation;
+                return occ ? (
+                    <span className="text-sm text-gray-700">
+                        {resident.occupation}
+                    </span>
+                ) : (
+                    <span className="text-gray-400 text-[12px] italic">
+                        No occupation available
+                    </span>
+                );
+            },
+            ethnicity: (resident) => resident.ethnicity,
+            registered_voter: (resident) => (
+                <span
+                    className={`${
+                        CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
+                            resident.registered_voter
+                        ]
+                    } whitespace-nowrap`}
+                >
+                    {
+                        CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[
+                            resident.registered_voter
+                        ]
+                    }
+                </span>
+            ),
+            contact_number: (resident) => (
+                <span className="whitespace-nowrap">
+                    {resident.contact_number}
+                </span>
+            ),
+            purok_number: (resident) => resident.purok_number,
+            email: (resident) => resident.email,
+            actions: (resident) => (
+                <ActionMenu
+                    actions={[
+                        {
+                            label: "View",
+                            icon: <Eye className="w-4 h-4 text-indigo-600" />,
+                            onClick: () => handleView(resident.id),
+                        },
+                        {
+                            label: "Edit",
+                            icon: (
+                                <SquarePen className="w-4 h-4 text-green-500" />
+                            ),
+                            onClick: () => handleEdit(resident.id),
+                        },
+                        {
+                            label: "Delete",
+                            icon: <Trash2 className="w-4 h-4 text-red-600" />,
+                            onClick: () => handleDeleteClick(resident.id),
+                        },
+                        {
+                            label: "Family Tree",
+                            icon: <Network className="w-4 h-4 text-blue-500" />,
+                            href: route("resident.familytree", resident.id),
+                            tooltip: "See Family Tree",
+                        },
+                    ]}
+                />
+            ),
+        }),
+        [calculateAge, handleView, handleDeleteClick, handleEdit]
+    ); // Dependencies for columnRenderers
 
     const [showAll, setShowAll] = useState(currentQueryParams.all === "true");
 
@@ -315,7 +416,9 @@ export default function Index({ residents, queryParams = null, puroks }) {
     };
 
     return (
-        <Suspense fallback={<div>Loading Page...</div>}> {/* Provide a fallback for the entire page */}
+        <Suspense fallback={<div>Loading Page...</div>}>
+            {" "}
+            {/* Provide a fallback for the entire page */}
             <AdminLayout>
                 <Head title="Resident" />
                 <div>
@@ -326,68 +429,121 @@ export default function Index({ residents, queryParams = null, puroks }) {
                     <div className="p-2 md:p-4">
                         <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-0">
                             <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                                <Suspense fallback={<div>Loading Charts...</div>}>
-                                    <ResidentCharts residents={chartData ?? []} isLoading={isChartLoading} />
+                                <Suspense
+                                    fallback={<div>Loading Charts...</div>}
+                                >
+                                    <ResidentCharts
+                                        residents={chartData ?? []}
+                                        isLoading={isChartLoading}
+                                    />
                                 </Suspense>
                                 <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        <Suspense fallback={<div>Loading Controls...</div>}>
+                                    <div className="flex items-start gap-2 flex-wrap">
+                                        <Suspense
+                                            fallback={
+                                                <div>Loading Controls...</div>
+                                            }
+                                        >
                                             <DynamicTableControls
                                                 allColumns={allColumns}
                                                 visibleColumns={visibleColumns}
-                                                setVisibleColumns={setVisibleColumns}
+                                                setVisibleColumns={
+                                                    setVisibleColumns
+                                                }
                                                 onPrint={handlePrint}
                                                 showFilters={showFilters}
-                                                toggleShowFilters={() => setShowFilters((prev) => !prev)}
+                                                toggleShowFilters={() =>
+                                                    setShowFilters(
+                                                        (prev) => !prev
+                                                    )
+                                                }
                                             />
                                         </Suspense>
+                                        <ExportButton
+                                            url="report/export-residents-excel"
+                                            queryParams={currentQueryParams}
+                                        />
                                     </div>
                                     <div className="flex items-center gap-2 flex-wrap justify-end">
-                                        <form onSubmit={handleSubmit} className="flex w-[300px] max-w-lg items-center space-x-1">
+                                        <form
+                                            onSubmit={handleSubmit}
+                                            className="flex w-[300px] max-w-lg items-center space-x-1"
+                                        >
                                             <Input
                                                 type="text"
                                                 placeholder="Search"
                                                 value={query}
-                                                onChange={(e) => setQuery(e.target.value)}
+                                                onChange={(e) =>
+                                                    setQuery(e.target.value)
+                                                }
                                                 onKeyDown={onKeyPressed} // Pass the event directly
                                                 className="ml-4"
                                             />
-                                            <Button
-                                                type="submit"
-                                                className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
-                                                variant="outline"
-                                            >
-                                                <Search />
-                                            </Button>
-                                            {/* Tooltip for search button - consider a separate, smaller component */}
-                                            {/* <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">Search</div> */}
+                                            <div className="relative group z-5">
+                                                <Button
+                                                    type="submit"
+                                                    className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
+                                                    variant="outline"
+                                                >
+                                                    <Search />
+                                                </Button>
+                                                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                                    Search
+                                                </div>
+                                            </div>
                                         </form>
                                         <Link href={route("resident.create")}>
                                             <div className="relative group z-50">
-                                                <Button variant="outline" className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white">
+                                                <Button
+                                                    variant="outline"
+                                                    className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                                >
                                                     <HousePlus className="w-4 h-4" />
                                                 </Button>
+                                                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                                    Add Household
+                                                </div>
                                                 {/* Tooltip */}
                                             </div>
                                         </Link>
-                                        <Link href={route("resident.createresident")}>
+                                        <Link
+                                            href={route(
+                                                "resident.createresident"
+                                            )}
+                                        >
                                             <div className="relative group z-50">
-                                                <Button variant="outline" className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white">
+                                                <Button
+                                                    variant="outline"
+                                                    className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                                >
                                                     <UserRoundPlus className="w-4 h-4" />
                                                 </Button>
+                                                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                                    Add Resident
+                                                </div>
                                                 {/* Tooltip */}
                                             </div>
                                         </Link>
                                     </div>
                                 </div>
                                 {showFilters && (
-                                    <Suspense fallback={<div>Loading Filters...</div>}>
+                                    <Suspense
+                                        fallback={<div>Loading Filters...</div>}
+                                    >
                                         <FilterToggle
                                             queryParams={currentQueryParams}
                                             searchFieldName={searchFieldName}
                                             visibleFilters={[
-                                                "purok", "sex", "gender", "age_group", "estatus",
-                                                "voter_status", "cstatus", "pwd", "fourps", "solo_parent",
+                                                "purok",
+                                                "sex",
+                                                "gender",
+                                                "age_group",
+                                                "estatus",
+                                                "voter_status",
+                                                "cstatus",
+                                                "pwd",
+                                                "fourps",
+                                                "solo_parent",
                                             ]}
                                             showFilters={true} // Always true when rendered here
                                             puroks={puroks}
@@ -397,7 +553,9 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                     </Suspense>
                                 )}
 
-                                <Suspense fallback={<div>Loading Table...</div>}>
+                                <Suspense
+                                    fallback={<div>Loading Table...</div>}
+                                >
                                     <DynamicTable
                                         passedData={residents}
                                         allColumns={allColumns}
@@ -411,7 +569,9 @@ export default function Index({ residents, queryParams = null, puroks }) {
                         </div>
                     </div>
                 </div>
-                <Suspense fallback={null}> {/* Render modals only when needed */}
+                <Suspense fallback={null}>
+                    {" "}
+                    {/* Render modals only when needed */}
                     <SidebarModal
                         isOpen={isModalOpen}
                         onClose={() => setIsModalOpen(false)}
@@ -421,7 +581,6 @@ export default function Index({ residents, queryParams = null, puroks }) {
                             <PersonDetailContent person={selectedResident} />
                         )}
                     </SidebarModal>
-
                     <DeleteConfirmationModal
                         isOpen={isDeleteModalOpen}
                         onClose={() => setIsDeleteModalOpen(false)}

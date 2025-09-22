@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('location', 200)->nullable(); // Storage location
             $table->string('remarks', 255)->nullable(); // Remarks (e.g., serviceable, needs repair)
             $table->timestamps();
+            $table->unique(['barangay_id', 'item'], 'cra_equipment_inventory_unique');
         });
     }
 

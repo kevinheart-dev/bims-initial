@@ -11,18 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('c_r_a_evacuation_plans', function (Blueprint $table) {
+        Schema::create('community_risk_assessments', function (Blueprint $table) {
             $table->id();
+
             $table->foreignId('barangay_id')
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            $table->integer('activity_no'); // Step/activity number
-            $table->text('things_to_do');   // Actions required
-            $table->text('responsible_person')->nullable(); // Person/team responsible
-            $table->text('remarks')->nullable(); // Additional notes
+            // make sure each barangay has only ONE CRA record at a time
+            $table->unique('barangay_id');
+
+            // track submission date
+            $table->timestamp('submitted_at')->nullable();
+
             $table->timestamps();
-            $table->unique(['barangay_id', 'activity_no'], 'cra_evacuation_plan_unique');
         });
     }
 
@@ -31,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('c_r_a_evacuation_plans');
+        Schema::dropIfExists('community_risk_assessments');
     }
 };

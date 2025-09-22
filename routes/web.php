@@ -1,5 +1,6 @@
 <?php
 
+use App\Exports\ResidentsExport;
 use App\Http\Controllers\AllergyController;
 use App\Http\Controllers\BarangayInfrastructureController;
 use App\Http\Controllers\BarangayFacilityController;
@@ -46,6 +47,7 @@ use App\Models\BarangayInstitution;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 // Admin-only routes
 Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(function () {
@@ -113,6 +115,12 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
 
     // reports
     Route::get('report', [ReportGenerationController::class, 'index'])->name('report.index');
+    Route::get('report/export-residents-excel', [ReportGenerationController::class, 'exportResidentWithFilters'])
+        ->name('report.resident');
+    Route::get('report/export-seniorcitizen-excel', [ReportGenerationController::class, 'exportSeniorWithFilters'])
+        ->name('report.seniorcitizen');
+    Route::get('report/export-family-excel', [ReportGenerationController::class, 'exportFamily'])
+        ->name('report.family');
 
     // pregnancy
     Route::get('pregnancy/details/{id}', [PregnancyRecordController::class, 'pregnancyDetails'])->name('pregnancy.details');
@@ -130,6 +138,8 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
     Route::post('death/store', [DeathController::class, 'store'])->name('death.store');
     Route::put('death/update/{id}', [DeathController::class, 'update'])->name('death.update');
     Route::delete('death/destroy/{id}', [DeathController::class, 'destroy'])->name('death.destroy');
+
+
     // residents
     Route::resource('user', UserController::class);
     Route::resource('resident', ResidentController::class);
@@ -175,6 +185,8 @@ Route::middleware(['auth', 'role:barangay_officer'])->group(function () {
 Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(function () {
     Route::get('dashboard', [CDRRMOAdminController::class, 'index'])
         ->name('cdrrmo_admin.dashboard');
+        Route::get('alldatacollection', [CDRRMOAdminController::class, 'allDataCollectionSummary'])
+        ->name('cdrrmo_admin.datacollection');
 });
 
 

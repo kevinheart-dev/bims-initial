@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('c_r_a_public_transportations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->string('transpo_type', 55);
+            $table->unsignedBigInteger('barangay_id');
+            $table->string('transpo_type');
             $table->integer('quantity')->default(0);
             $table->timestamps();
+            $table->unique(['barangay_id', 'transpo_type']); // 👈 required
+            $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('cascade');
         });
     }
 

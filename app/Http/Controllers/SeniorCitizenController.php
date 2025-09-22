@@ -18,8 +18,7 @@ class SeniorCitizenController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->barangay_id;
-        $today = Carbon::today();
+        $brgy_id = auth()->user()->barangay_id;
 
         $puroks = Purok::where('barangay_id', $brgy_id)
             ->orderBy('purok_number', 'asc')
@@ -27,22 +26,21 @@ class SeniorCitizenController extends Controller
 
         $query = Resident::query()
             ->select([
-                'residents.id',
-                'residents.firstname',
-                'residents.lastname',
-                'residents.middlename',
-                'residents.suffix',
-                'residents.birthdate',
-                'residents.purok_number',
+                'id',
+                'firstname',
+                'lastname',
+                'middlename',
+                'suffix',
+                'birthdate',
+                'purok_number',
                 'resident_picture_path',
-                'residents.sex',   // ✅ fixed here
+                'sex',
             ])
-            ->where('residents.barangay_id', $brgy_id)
-            ->whereDate('residents.birthdate', '<=', now()->subYears(60))
-            ->with(['seniorcitizen:id,resident_id,osca_id_number,is_pensioner,pension_type,living_alone'])
-            ->leftJoin('senior_citizens', 'residents.id', '=', 'senior_citizens.resident_id')
-            ->distinct();
+            ->where('barangay_id', $brgy_id)
+            ->whereDate('birthdate', '<=', now()->subYears(60))
+            ->with(['seniorcitizen:id,resident_id,osca_id_number,is_pensioner,pension_type,living_alone']);
 
+        // 🔎 Search filter
         if ($name = request('name')) {
             $query->where(function ($q) use ($name) {
                 $q->where('firstname', 'like', "%{$name}%")
@@ -55,28 +53,48 @@ class SeniorCitizenController extends Controller
             });
         }
 
-        // Filters
+        // 🔎 Registered filter
+        if (request()->filled('is_registered') && request('is_registered') !== 'All') {
+            if (request('is_registered') === 'yes') {
+                $query->whereHas('seniorcitizen');
+            } elseif (request('is_registered') === 'no') {
+                $query->whereDoesntHave('seniorcitizen');
+            }
+        }
+
+        // 🔎 Birth month filter
+        if (request()->filled('birth_month') && request('birth_month') !== 'All') {
+            $month = intval(request('birth_month')); // expects 1-12
+            $query->whereMonth('birthdate', $month);
+        }
+
+        // 🔎 Pensioner filter
         if (request()->filled('is_pensioner') && request('is_pensioner') !== 'All') {
-            $query->where('senior_citizens.is_pensioner', request('is_pensioner'));
+            $query->whereHas('seniorcitizen', function ($q) {
+                $q->where('is_pensioner', request('is_pensioner'));
+            });
         }
 
-        // ✅ fixed gender filter (use residents.gender)
-        if (request()->filled('gender') && request('gender') !== 'All') {
-            $query->where('residents.gender', request('gender'));
-        }
-
+        // 🔎 Sex filter
         if (request()->filled('sex') && request('sex') !== 'All') {
-            $query->where('residents.sex', request('sex'));
+            $query->where('sex', request('sex'));
         }
 
+        // 🔎 Pension type filter
         if (request()->filled('pension_type') && request('pension_type') !== 'All') {
-            $query->where('senior_citizens.pension_type', request('pension_type'));
+            $query->whereHas('seniorcitizen', function ($q) {
+                $q->where('pension_type', request('pension_type'));
+            });
         }
 
+        // 🔎 Living alone filter
         if (request()->filled('living_alone') && request('living_alone') !== 'All') {
-            $query->where('senior_citizens.living_alone', request('living_alone'));
+            $query->whereHas('seniorcitizen', function ($q) {
+                $q->where('living_alone', request('living_alone'));
+            });
         }
 
+        // 🔎 Purok filter
         if (request()->filled('purok') && request('purok') !== 'All') {
             $query->where('purok_number', request('purok'));
         }

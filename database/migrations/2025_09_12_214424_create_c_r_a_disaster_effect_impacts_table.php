@@ -25,6 +25,10 @@ return new class extends Migration
             $table->integer('value')->default(0);
             $table->string('source', 100)->nullable();
             $table->timestamps();
+            $table->unique(
+    ['barangay_id', 'disaster_id', 'effect_type'],
+                'cra_dis_eff_unique'
+            );
         });
     }
 

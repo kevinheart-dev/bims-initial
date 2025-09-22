@@ -23,15 +23,12 @@ return new class extends Migration
             // Fixed columns for counts by age and gender
             $table->integer('age_0_6_male')->default(0);
             $table->integer('age_0_6_female')->default(0);
-            $table->integer('age_0_6_lgbtq')->default(0);
 
             $table->integer('age_7m_2y_male')->default(0);
             $table->integer('age_7m_2y_female')->default(0);
-            $table->integer('age_7m_2y_lgbtq')->default(0);
 
             $table->integer('age_3_5_male')->default(0);
             $table->integer('age_3_5_female')->default(0);
-            $table->integer('age_3_5_lgbtq')->default(0);
 
             $table->integer('age_6_12_male')->default(0);
             $table->integer('age_6_12_female')->default(0);
@@ -50,6 +47,7 @@ return new class extends Migration
             $table->integer('age_60up_lgbtq')->default(0);
 
             $table->timestamps();
+            $table->unique(['barangay_id', 'disability_type'], 'cra_disability_unique');
         });
     }
 

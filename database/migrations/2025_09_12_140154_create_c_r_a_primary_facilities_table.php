@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('c_r_a_primary_facilities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->string('facility_name', 100);
+            $table->unsignedBigInteger('barangay_id');
+            $table->string('facility_name');
             $table->integer('quantity')->default(0);
             $table->timestamps();
+            $table->unique(['barangay_id', 'facility_name']); // 👈 required
+            $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('cascade');
         });
     }
 

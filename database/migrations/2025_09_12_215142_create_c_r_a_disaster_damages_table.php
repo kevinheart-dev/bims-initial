@@ -22,10 +22,15 @@ return new class extends Migration
                 ->constrained('barangays')
                 ->onDelete('cascade');
             $table->string('category', 55);
-            $table->text('description')->nullable(); // details of the damage
+            $table->string('description', 255)->nullable();
             $table->string('value', 100);    // numeric value (cost/quantity)
+            $table->string('damage_type', 50);
             $table->string('source', 150)->nullable();
             $table->timestamps();
+            $table->unique(
+    ['barangay_id', 'disaster_id', 'damage_type', 'category', 'description'],
+                'cra_dis_damages_unique'
+            );
         });
     }
 

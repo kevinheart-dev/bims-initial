@@ -35,6 +35,7 @@ return new class extends Migration
             $table->string('safe_evacuation_area')->nullable();
 
             $table->timestamps();
+            $table->unique(['barangay_id', 'hazard_id', 'purok_number'], 'unique_affected_places');
         });
     }
 

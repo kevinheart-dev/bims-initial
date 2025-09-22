@@ -21,10 +21,14 @@ return new class extends Migration
                 ->onDelete('cascade');
 
             $table->string('category', 100);
-            $table->text('description')->nullable();   // e.g. "Power lines down in Purok 5"
+            $table->string('description', 255)->nullable();
             $table->string('value', 150)->nullable(); // can store status/value (e.g. "Partial outage", "5 transformers")
             $table->string('source', 150)->nullable();
             $table->timestamps();
+            $table->unique(
+    ['barangay_id', 'disaster_id', 'category', 'description'],
+                'cra_dis_lifelines_unique'
+            );
         });
     }
 

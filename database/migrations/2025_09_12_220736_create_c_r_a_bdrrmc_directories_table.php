@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('name', 150); // member’s full name
             $table->string('contact_no', 50)->nullable(); // contact number
             $table->timestamps();
+            $table->unique(['barangay_id', 'designation_team'], 'cra_bdrrmc_directory_unique');
         });
     }
 

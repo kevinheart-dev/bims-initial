@@ -19,10 +19,14 @@ return new class extends Migration
             $table->foreignId('barangay_id')
                 ->constrained('barangays')
                 ->onDelete('cascade');
-            $table->text('description')->nullable(); // e.g. rice fields, livestock, crops affected
-            $table->integer('value')->default(0);    // cost or quantity of damage
+
+            $table->string('description', 255)->nullable();
+            $table->integer('value')->default(0);
             $table->string('source', 150)->nullable();
             $table->timestamps();
+
+            // Short unique index name
+            $table->unique(['barangay_id', 'disaster_id', 'description'], 'cra_dis_agri_unique');
         });
     }
 
