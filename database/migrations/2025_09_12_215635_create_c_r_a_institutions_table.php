@@ -13,21 +13,18 @@ return new class extends Migration
     {
         Schema::create('c_r_a_institutions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('barangay_id')
-                ->constrained('barangays')
-                ->onDelete('cascade');
-
-            $table->string('name', 150);
+            $table->unsignedBigInteger('barangay_id');
+            $table->string('name'); // unique per barangay
             $table->integer('male_members')->default(0);
             $table->integer('female_members')->default(0);
             $table->integer('lgbtq_members')->default(0);
-
-            $table->string('head_name', 150)->nullable();
-            $table->string('contact_no', 50)->nullable();
-
-            $table->enum('registered', ['YES', 'NO'])->default('NO');
+            $table->string('head_name')->nullable();
+            $table->string('contact_no')->nullable();
+            $table->string('registered')->default('NO');
             $table->text('programs_services')->nullable();
             $table->timestamps();
+            $table->unique(['barangay_id', 'name']); // 👈 required
+            $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('cascade');
         });
     }
 

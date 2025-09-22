@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('c_r_a_road_networks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->string('road_type', 55);
-            $table->decimal('length_km', 8, 2); // up to 999,999.99 km
-            $table->string('maintained_by', 255)->nullable();
+            $table->unsignedBigInteger('barangay_id');
+            $table->string('road_type');
+            $table->decimal('length_km', 8, 2)->default(0);
+            $table->string('maintained_by')->nullable();
             $table->timestamps();
+            $table->unique(['barangay_id', 'road_type']); // 👈 required
+            $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('cascade');
         });
     }
 

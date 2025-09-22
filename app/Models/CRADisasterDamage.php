@@ -15,6 +15,7 @@ class CRADisasterDamage extends Model
         'disaster_id',
         'category',
         'description',
+        'damage_type',
         'value',
         'source',
     ];

@@ -13,20 +13,15 @@ return new class extends Migration
     {
         Schema::create('c_r_a_disaster_population_impacts', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('disaster_id')
-                ->constrained('c_r_a_disaster_occurances')
-                ->onDelete('cascade');
-
-            $table->foreignId('barangay_id')
-                ->constrained('barangays')
-                ->onDelete('cascade');
-
-            $table->string('category', 100); // e.g. injured, missing, affected, etc.
+            $table->foreignId('disaster_id')->constrained('c_r_a_disaster_occurances')->onDelete('cascade');
+            $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
+            $table->string('category', 100);
             $table->integer('value')->default(0);
             $table->string('source', 150)->nullable();
-
             $table->timestamps();
+
+            // Short unique index name
+            $table->unique(['barangay_id', 'disaster_id', 'category'], 'cra_dis_pop_unique');
         });
     }
 

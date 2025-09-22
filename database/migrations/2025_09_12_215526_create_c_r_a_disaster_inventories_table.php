@@ -27,6 +27,10 @@ return new class extends Migration
             $table->string('percentage_at_risk', 100)->nullable();
             $table->string('location', 150)->nullable();
             $table->timestamps();
+            $table->unique(
+    ['barangay_id', 'hazard_id', 'category', 'item_name'],
+                'cra_dis_inventory_unique' // short & descriptive
+            );
         });
     }
 

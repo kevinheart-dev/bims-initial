@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('address', 200)->nullable();
 
             $table->timestamps();
+            $table->unique(['barangay_id', 'evacuation_center', 'relief_good', 'address'], 'cra_relief_unique');
         });
     }
 

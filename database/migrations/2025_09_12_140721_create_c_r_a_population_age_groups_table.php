@@ -13,15 +13,17 @@ return new class extends Migration
     {
         Schema::create('c_r_a_population_age_groups', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->string('age_group', 50); // e.g. '0-4', '5-9', '10-14', etc.
+            $table->unsignedBigInteger('barangay_id');
+            $table->string('age_group');
             $table->integer('male_without_disability')->default(0);
             $table->integer('male_with_disability')->default(0);
             $table->integer('female_without_disability')->default(0);
             $table->integer('female_with_disability')->default(0);
             $table->integer('lgbtq_without_disability')->default(0);
             $table->integer('lgbtq_with_disability')->default(0);
-            $table->timestamps();
+             $table->timestamps();
+            $table->unique(['barangay_id', 'age_group']); // 👈 required for upsert
+            $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('cascade');
         });
     }
 

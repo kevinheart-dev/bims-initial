@@ -39,6 +39,7 @@ return new class extends Migration
 
             $table->string('remarks', 255)->nullable();
             $table->timestamps();
+            $table->unique(['barangay_id', 'purok_number'], 'unique_barangay_purok_inventory');
         });
     }
 
