@@ -32,7 +32,7 @@ class DashboardController extends Controller
             ->groupBy('purok_number')
             ->pluck('count', 'purok_number');
 
-        // 🎯 Age group distribution
+
         $ageGroups = [
             '0-6 months' => [0, 0.5],
             '7 mos. to 2 years old' => [0.6, 2],

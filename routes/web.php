@@ -124,7 +124,7 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
     Route::get('cra/datacollection', [CRAController::class, 'brgyDataCollection'])->name('cra.datacollection');
     Route::post('cra/store', [CRAController::class, 'store'])->name('cra.store');
 
-     // death
+    // death
     Route::get('death/index', [DeathController::class, 'index'])->name('death.index');
     Route::get('death/details/{id}', [DeathController::class, 'deathDetails'])->name('death.details');
     Route::post('death/store', [DeathController::class, 'store'])->name('death.store');
@@ -167,14 +167,13 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
     Route::resource('barangay_institution', BarangayInstitutionController::class);
     Route::resource('inventory', InventoryController::class);
     Route::resource('institution_member', InstitutionMemberController::class);
-
 });
 Route::middleware(['auth', 'role:barangay_officer'])->group(function () {
     Route::get('barangay_officer/dashboard', [DashboardController::class, 'dashboard'])->name('barangay_officer.dashboard');
 });
 
 Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(function () {
-    Route::get('cdrrmo_admin/dashboard', [CDRRMOAdminController::class, 'index'])
+    Route::get('dashboard', [CDRRMOAdminController::class, 'index'])
         ->name('cdrrmo_admin.dashboard');
 });
 

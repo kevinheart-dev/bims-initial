@@ -16,10 +16,12 @@ export default function Dashboard() {
         queryKey: ["datacollection"],
         queryFn: async () => {
             const { data } = await axios.get(`${APP_URL}/cra/datacollection`);
-            return data; // <-- match your Laravel JSON key
+            return data;
         },
         staleTime: 1000 * 60 * 5,
     });
+
+
 
     useEffect(() => {
         if (isLoading) {

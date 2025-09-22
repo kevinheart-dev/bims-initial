@@ -11,8 +11,8 @@ function Counter({ end, duration = 900 }) {
         const timer = setInterval(() => {
             start += step;
             if (start >= end) {
-                setCount(end);
                 clearInterval(timer);
+                setCount(end); // final value
             } else {
                 setCount(start);
             }
@@ -21,7 +21,10 @@ function Counter({ end, duration = 900 }) {
         return () => clearInterval(timer);
     }, [end, duration]);
 
-    return <span>{count.toLocaleString()}</span>;
+    // ✅ Always format before displaying
+    const displayValue = Number(count).toLocaleString();
+
+    return <span>{displayValue}</span>;
 }
 
 export default Counter;
