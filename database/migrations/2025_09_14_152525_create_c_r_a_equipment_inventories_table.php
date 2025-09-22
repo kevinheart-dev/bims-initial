@@ -19,7 +19,7 @@ return new class extends Migration
 
             $table->string('item', 200); // Equipment item name
             $table->enum('availability', ['checked', 'cross'])->default('checked'); // ✓ or ✗
-            $table->integer('quantity')->default(0); // Quantity available
+            $table->string('quantity', 55)->nullable(); // Quantity available
             $table->string('location', 200)->nullable(); // Storage location
             $table->string('remarks', 255)->nullable(); // Remarks (e.g., serviceable, needs repair)
             $table->timestamps();

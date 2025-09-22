@@ -12,9 +12,9 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const BreadCrumbsHeader = ({ breadcrumbs }) => {
     return (
-        <header className="flex items-center p-4 bg-sky-600">
-            <SidebarTrigger className="text-white text-xl mr-2" />
-            <Separator orientation="vertical" className="mr-2 h-4 border-white/50" />
+        <header className="flex items-center p-4 bg-white border-b border-gray-200">
+            <SidebarTrigger className="text-gray-700 text-xl mr-2 hover:text-gray-900" />
+            <Separator orientation="vertical" className="mr-2 h-4 border-gray-300" />
             <Breadcrumb>
                 <BreadcrumbList>
                     {breadcrumbs.map((item, index) => {
@@ -27,18 +27,18 @@ const BreadCrumbsHeader = ({ breadcrumbs }) => {
                                     {isLink ? (
                                         <BreadcrumbLink
                                             href={item.href}
-                                            className="text-white text-sm hover:underline hover:text-gray-200"
+                                            className="text-gray-600 text-sm hover:text-gray-900"
                                         >
                                             {item.label}
                                         </BreadcrumbLink>
                                     ) : (
-                                        <BreadcrumbPage className="text-white text-sm">
+                                        <BreadcrumbPage className="text-gray-900 text-sm font-semibold">
                                             {item.label}
                                         </BreadcrumbPage>
                                     )}
                                 </BreadcrumbItem>
                                 {index < breadcrumbs.length - 1 && (
-                                    <BreadcrumbSeparator className={visibility + " text-white/50"} />
+                                    <BreadcrumbSeparator className={visibility + " text-gray-400"} />
                                 )}
                             </React.Fragment>
                         );

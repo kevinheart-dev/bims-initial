@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CRAPopulationGender;
+use App\Models\CRAGeneralPopulation;
+use App\Models\CRAPopulationAgeGroup;
+use App\Models\Barangay;
 use App\Models\Family;
 use App\Models\Household;
 use App\Models\Resident;
@@ -9,59 +13,82 @@ use App\Models\SeniorCitizen;
 use App\Models\Barangay;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
+use DB;
 
 class CDRRMOAdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $residentCount = Resident::query()->count();
-        $seniorCitizenCount = SeniorCitizen::whereHas('resident')->count();
-        $totalHouseholds = Household::query()->count();
-        $totalFamilies = Family::query()->count();
+        $barangayId = $request->query('barangay_id'); // ✅ optional filter
 
-        $genderDistribution = Resident::select('gender')
-            ->selectRaw('gender, COUNT(*) as count')
-            ->groupBy('gender')
-            ->pluck('count', 'gender');
+        if ($barangayId) {
+            // 📌 Filter by specific barangay
+            $totalPopulation = CRAGeneralPopulation::where('barangay_id', $barangayId)->sum('total_population');
+            $totalHouseholds = CRAGeneralPopulation::where('barangay_id', $barangayId)->sum('total_households');
+            $totalFamilies   = CRAGeneralPopulation::where('barangay_id', $barangayId)->sum('total_families');
 
-        $populationPerPurok = Resident::selectRaw('purok_number, COUNT(*) as count')
-            ->groupBy('purok_number')
-            ->pluck('count', 'purok_number');
+            $ageDistribution = CRAPopulationAgeGroup::select(
+                'age_group',
+                DB::raw('SUM(male_without_disability) as male_without_disability'),
+                DB::raw('SUM(male_with_disability) as male_with_disability'),
+                DB::raw('SUM(female_without_disability) as female_without_disability'),
+                DB::raw('SUM(female_with_disability) as female_with_disability'),
+                DB::raw('SUM(lgbtq_without_disability) as lgbtq_without_disability'),
+                DB::raw('SUM(lgbtq_with_disability) as lgbtq_with_disability')
+            )
+                ->where('barangay_id', $barangayId)
+                ->groupBy('age_group')
+                ->orderBy('age_group')
+                ->get();
 
-        // 🎯 Age group distribution
-        $ageGroups = [
-            '0-6 months' => [0, 0.5],
-            '7 mos. to 2 years old' => [0.6, 2],
-            '3-5 years old' => [3, 5],
-            '6-12 years old' => [6, 12],
-            '13-17 years old' => [13, 17],
-            '18-59 years old' => [18, 59],
-            '60 years old and above' => [60, 200],
-        ];
+            $genderData = CRAPopulationGender::select(
+                'gender',
+                DB::raw('SUM(quantity) as total_quantity')
+            )
+                ->where('barangay_id', $barangayId)
+                ->groupBy('gender')
+                ->get();
+        } else {
+            // 📌 Default → Ilagan City (sum of all barangays)
+            $totalPopulation = CRAGeneralPopulation::sum('total_population');
+            $totalHouseholds = CRAGeneralPopulation::sum('total_households');
+            $totalFamilies   = CRAGeneralPopulation::sum('total_families');
 
-        $ageDistribution = [];
+            $ageDistribution = CRAPopulationAgeGroup::select(
+                'age_group',
+                DB::raw('SUM(male_without_disability) as male_without_disability'),
+                DB::raw('SUM(male_with_disability) as male_with_disability'),
+                DB::raw('SUM(female_without_disability) as female_without_disability'),
+                DB::raw('SUM(female_with_disability) as female_with_disability'),
+                DB::raw('SUM(lgbtq_without_disability) as lgbtq_without_disability'),
+                DB::raw('SUM(lgbtq_with_disability) as lgbtq_with_disability')
+            )
+                ->groupBy('age_group')
+                ->orderBy('age_group')
+                ->get();
 
-        foreach ($ageGroups as $label => [$min, $max]) {
-            $ageDistribution[$label] = Resident::whereRaw(
-                "TIMESTAMPDIFF(YEAR, birthdate, CURDATE()) BETWEEN ? AND ?",
-                [$min, $max]
-            )->count();
+            $genderData = CRAPopulationGender::select(
+                'gender',
+                DB::raw('SUM(quantity) as total_quantity')
+            )
+                ->groupBy('gender')
+                ->get();
         }
 
-        $pwdDistribution = [
-            'PWD' => Resident::whereHas('disabilities')->count(),
-            'nonPWD' => Resident::whereDoesntHave('disabilities')->count(),
-        ];
+        // ✅ Barangays list for dropdown
+        $barangays = Barangay::select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
 
         return Inertia::render('CDRRMO/Dashboard', [
-            'residentCount' => $residentCount,
-            'seniorCitizenCount' => $seniorCitizenCount,
+            'totalPopulation' => $totalPopulation,
             'totalHouseholds' => $totalHouseholds,
-            'totalFamilies' => $totalFamilies,
-            'genderDistribution' => $genderDistribution,
-            'populationPerPurok' => $populationPerPurok,
+            'totalFamilies'   => $totalFamilies,
             'ageDistribution' => $ageDistribution,
-            'pwdDistribution' => $pwdDistribution,
+            'genderData'      => $genderData,
+            'barangays'       => $barangays,
+            'selectedBarangay' => $barangayId, // send selected
         ]);
     }
 
