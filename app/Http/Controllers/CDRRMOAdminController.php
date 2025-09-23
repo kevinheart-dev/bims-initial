@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\CRAPopulationGender;
 use App\Models\CRAGeneralPopulation;
 use App\Models\CRAPopulationAgeGroup;
-use App\Models\Barangay;
 use App\Models\Family;
 use App\Models\Household;
 use App\Models\Resident;
@@ -19,10 +18,9 @@ class CDRRMOAdminController extends Controller
 {
     public function index(Request $request)
     {
-        $barangayId = $request->query('barangay_id'); // ✅ optional filter
+        $barangayId = $request->query('barangay_id');
 
         if ($barangayId) {
-            // 📌 Filter by specific barangay
             $totalPopulation = CRAGeneralPopulation::where('barangay_id', $barangayId)->sum('total_population');
             $totalHouseholds = CRAGeneralPopulation::where('barangay_id', $barangayId)->sum('total_households');
             $totalFamilies   = CRAGeneralPopulation::where('barangay_id', $barangayId)->sum('total_families');
@@ -49,7 +47,6 @@ class CDRRMOAdminController extends Controller
                 ->groupBy('gender')
                 ->get();
         } else {
-            // 📌 Default → Ilagan City (sum of all barangays)
             $totalPopulation = CRAGeneralPopulation::sum('total_population');
             $totalHouseholds = CRAGeneralPopulation::sum('total_households');
             $totalFamilies   = CRAGeneralPopulation::sum('total_families');
@@ -75,7 +72,6 @@ class CDRRMOAdminController extends Controller
                 ->get();
         }
 
-        // ✅ Barangays list for dropdown
         $barangays = Barangay::select('id', 'barangay_name as name')
             ->orderBy('barangay_name')
             ->get();
@@ -87,7 +83,7 @@ class CDRRMOAdminController extends Controller
             'ageDistribution' => $ageDistribution,
             'genderData'      => $genderData,
             'barangays'       => $barangays,
-            'selectedBarangay' => $barangayId, // send selected
+            'selectedBarangay' => $barangayId,
         ]);
     }
 
@@ -239,8 +235,8 @@ class CDRRMOAdminController extends Controller
             foreach ($data['population_age_groups'] as $ageGroup) {
                 $label = $ageGroup['ageGroup'];
                 $total = $ageGroup['male_no_dis'] + $ageGroup['male_dis'] +
-                        $ageGroup['female_no_dis'] + $ageGroup['female_dis'] +
-                        $ageGroup['lgbtq_no_dis'] + $ageGroup['lgbtq_dis'];
+                    $ageGroup['female_no_dis'] + $ageGroup['female_dis'] +
+                    $ageGroup['lgbtq_no_dis'] + $ageGroup['lgbtq_dis'];
                 $summary['ageDistribution'][$label] = ($summary['ageDistribution'][$label] ?? 0) + $total;
             }
 
@@ -317,8 +313,8 @@ class CDRRMOAdminController extends Controller
             foreach ($data['population_age_groups'] as $ageGroup) {
                 $label = $ageGroup['ageGroup'];
                 $total = $ageGroup['male_no_dis'] + $ageGroup['male_dis'] +
-                        $ageGroup['female_no_dis'] + $ageGroup['female_dis'] +
-                        $ageGroup['lgbtq_no_dis'] + $ageGroup['lgbtq_dis'];
+                    $ageGroup['female_no_dis'] + $ageGroup['female_dis'] +
+                    $ageGroup['lgbtq_no_dis'] + $ageGroup['lgbtq_dis'];
                 $summary['ageDistribution'][$label] =
                     ($summary['ageDistribution'][$label] ?? 0) + $total;
             }
