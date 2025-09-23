@@ -1,12 +1,12 @@
 import React from "react";
 import { Button } from "@/components/ui/button"; // adjust import if needed
-import { Table } from "lucide-react"; // your icon
+import { FileOutput } from "lucide-react"; // your icon
 
 const ExportButton = ({
     url,
     queryParams = {},
     label = "Export as XLSX",
-    icon = <Table />,
+    icon = <FileOutput />,
 }) => {
     const handleClick = () => {
         const queryString =
