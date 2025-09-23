@@ -82,18 +82,6 @@ const DynamicTableControls = ({
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Pagination toggle
-            {is_paginated && (
-                <Button
-                    onClick={toggleShowAll}
-                    variant="outline"
-                    className="flex items-center gap-2"
-                >
-                    {showAll ? <Rows3 /> : <Rows4 />}
-                    {showAll ? "Show Paginated" : "Show Full List"}
-                </Button>
-            )} */}
-
             {/* Print */}
             <div className="relative group z-5">
                 <Button
