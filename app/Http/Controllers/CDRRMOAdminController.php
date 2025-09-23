@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Barangay;
 use App\Models\CRAPopulationGender;
 use App\Models\CRAGeneralPopulation;
 use App\Models\CRAPopulationAgeGroup;

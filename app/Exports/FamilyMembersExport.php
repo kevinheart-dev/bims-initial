@@ -151,28 +151,28 @@ public function registerEvents(): array
             for ($row = $headerRow + 1; $row <= $rowCount; $row++) {
                 $familyValue = $sheet->getCell("A{$row}")->getValue();
 
-if (!empty($familyValue)) {
-    // If a new family starts, merge the previous one (if any)
-    if ($currentFamily !== null && $startRow !== null && $row - 1 > $startRow) {
-        // Merge Family column
-        $sheet->mergeCells("A{$startRow}:A" . ($row - 1));
-        $sheet->getStyle("A{$startRow}")->getAlignment()
-            ->setVertical('center')
-            ->setHorizontal('center');
-        $sheet->getStyle("A{$startRow}")->getFont()->setBold(true);
+        if (!empty($familyValue)) {
+            // If a new family starts, merge the previous one (if any)
+            if ($currentFamily !== null && $startRow !== null && $row - 1 > $startRow) {
+                // Merge Family column
+                $sheet->mergeCells("A{$startRow}:A" . ($row - 1));
+                $sheet->getStyle("A{$startRow}")->getAlignment()
+                    ->setVertical('center')
+                    ->setHorizontal('center');
+                $sheet->getStyle("A{$startRow}")->getFont()->setBold(true);
 
-        // Merge Purok column
-        $sheet->mergeCells("{$lastColumn}{$startRow}:{$lastColumn}" . ($row - 1));
-        $sheet->getStyle("{$lastColumn}{$startRow}")->getAlignment()
-            ->setVertical('center')
-            ->setHorizontal('center');
-        $sheet->getStyle("{$lastColumn}{$startRow}")->getFont()->setBold(true);
-    }
+                // Merge Purok column
+                $sheet->mergeCells("{$lastColumn}{$startRow}:{$lastColumn}" . ($row - 1));
+                $sheet->getStyle("{$lastColumn}{$startRow}")->getAlignment()
+                    ->setVertical('center')
+                    ->setHorizontal('center');
+                $sheet->getStyle("{$lastColumn}{$startRow}")->getFont()->setBold(true);
+            }
 
-    // Track new family
-    $currentFamily = $familyValue;
-    $startRow = $row;
-}
+            // Track new family
+            $currentFamily = $familyValue;
+            $startRow = $row;
+        }
             }
 
             // Merge last family group at the end
