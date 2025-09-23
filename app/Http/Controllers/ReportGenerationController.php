@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\FamilyExport;
+use App\Exports\FamilyMembersExport;
 use App\Exports\SeniorCitizenExport;
 use App\Models\Barangay;
 use App\Models\Resident;
@@ -48,5 +49,10 @@ class ReportGenerationController extends Controller
     {
         $fileName = $this->setfilename("Family_Report");
         return Excel::download(new FamilyExport, $fileName);
+    }
+        public function exportFamilyMembers()
+    {
+        $fileName = $this->setfilename("Family_Members_Report");
+        return Excel::download(new FamilyMembersExport(), $fileName);
     }
 }

@@ -10,10 +10,9 @@ use App\Models\Family;
 use App\Models\Household;
 use App\Models\Resident;
 use App\Models\SeniorCitizen;
-use App\Models\Barangay;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Http\Request;
+
 use DB;
 
 class CDRRMOAdminController extends Controller

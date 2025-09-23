@@ -121,6 +121,8 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
         ->name('report.seniorcitizen');
     Route::get('report/export-family-excel', [ReportGenerationController::class, 'exportFamily'])
         ->name('report.family');
+    Route::get('report/export-familymembers-excel', [ReportGenerationController::class, 'exportFamilyMembers'])
+        ->name('report.familymembers');
 
     // pregnancy
     Route::get('pregnancy/details/{id}', [PregnancyRecordController::class, 'pregnancyDetails'])->name('pregnancy.details');
