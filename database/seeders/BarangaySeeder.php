@@ -54,7 +54,7 @@ class BarangaySeeder extends Seeder
                 'contact_number' => fake()->numerify('09#########'),
                 'area_sq_km' => fake()->randomFloat(2, 1, 20),
                 'email' => $email,
-                'logo_path' => 'storage/logos/csa-logo.png',
+                'logo_path' => 'logos/csa-logo.png',
             ]);
         }
 
