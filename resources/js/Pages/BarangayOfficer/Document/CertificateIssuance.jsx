@@ -28,6 +28,7 @@ import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
 import SidebarModal from "@/Components/SidebarModal";
+import ExportButton from "@/Components/ExportButton";
 
 export default function Index({
     documents,
@@ -578,7 +579,7 @@ export default function Index({
                         {/* <pre>{JSON.stringify(certificates, undefined, 3)}</pre> */}
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                                <div className="flex items-center gap-2 flex-wrap">
+                                <div className="flex items-start gap-2 flex-wrap">
                                     <DynamicTableControls
                                         allColumns={allColumns}
                                         visibleColumns={visibleColumns}
@@ -588,6 +589,11 @@ export default function Index({
                                         toggleShowFilters={() =>
                                             setShowFilters((prev) => !prev)
                                         }
+                                    />
+                                    <ExportButton
+                                        url="/certificate/export-certificates-excel"
+                                        queryParams={queryParams}
+                                        label="Export Certificates as XLSX"
                                     />
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap justify-end">

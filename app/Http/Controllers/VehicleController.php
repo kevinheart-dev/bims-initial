@@ -21,76 +21,67 @@ class VehicleController extends Controller
         $puroks = Purok::where('barangay_id', $brgy_id)->orderBy('purok_number', 'asc')->pluck('purok_number');
 
         $query = Resident::where('barangay_id', $brgy_id)
-            ->whereHas('vehicles')
-            ->with(['vehicles' => function ($query) {
-                $query->select('id', 'resident_id', 'vehicle_type', 'vehicle_class', 'usage_status', 'is_registered');
-
+            ->whereHas('vehicles', function ($q) {
                 if (request()->filled('v_type') && request('v_type') !== 'All') {
-                    $query->where('vehicle_type', request('v_type'));
+                    $q->where('vehicle_type', request('v_type'));
                 }
                 if (request()->filled('v_class') && request('v_class') !== 'All') {
-                    $query->where('vehicle_class', request('v_class'));
+                    $q->where('vehicle_class', request('v_class'));
                 }
                 if (request()->filled('usage') && request('usage') !== 'All') {
-                    $query->where('usage_status', request('usage'));
+                    $q->where('usage_status', request('usage'));
+                }
+            })
+            ->with(['vehicles' => function ($q) {
+                if (request()->filled('v_type') && request('v_type') !== 'All') {
+                    $q->where('vehicle_type', request('v_type'));
+                }
+                if (request()->filled('v_class') && request('v_class') !== 'All') {
+                    $q->where('vehicle_class', request('v_class'));
+                }
+                if (request()->filled('usage') && request('usage') !== 'All') {
+                    $q->where('usage_status', request('usage'));
                 }
             }])
             ->select('id', 'barangay_id', 'firstname', 'lastname', 'middlename', 'suffix', 'purok_number');
 
-        // handles purok filtering
+        // Purok filter
         if (request()->filled('purok') && request('purok') !== 'All') {
             $query->where('purok_number', request('purok'));
         }
 
-        // handle search bar
+        // Name search
         if (request('name')) {
-            $query->where(function ($q) {
-                $q->where('firstname', 'like', '%' . request('name') . '%')
-                    ->orWhere('lastname', 'like', '%' . request('name') . '%')
-                    ->orWhere('middlename', 'like', '%' . request('name') . '%')
-                    ->orWhere('suffix', 'like', '%' . request('name') . '%')
-                    ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
-                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
-                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, suffix) LIKE ?", ['%' . request('name') . '%']);
+            $name = request('name');
+            $query->where(function ($q) use ($name) {
+                $q->where('firstname', 'like', "%{$name}%")
+                ->orWhere('middlename', 'like', "%{$name}%")
+                ->orWhere('lastname', 'like', "%{$name}%")
+                ->orWhere('suffix', 'like', "%{$name}%")
+                ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%{$name}%"])
+                ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ["%{$name}%"])
+                ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', COALESCE(suffix,'')) LIKE ?", ["%{$name}%"]);
             });
         }
 
         $residentsWithVehicles = $query->paginate(10)->withQueryString();
-        // convert to single array
-        $vehicles = [];
-        $vehicle_types = [];
+        $vehicle_types = Vehicle::query()
+        ->distinct()
+        ->pluck('vehicle_type');
 
-        foreach ($residentsWithVehicles as $resident) {
-            foreach ($resident->vehicles as $vehicle) {
-                $vehicles[] = [
-                    'vehicle_id'    => $vehicle->id,
-                    'resident_id'   => $resident->id,
-                    'barangay_id'   => $resident->barangay_id,
-                    'firstname'     => $resident->firstname,
-                    'middlename'    => $resident->middlename,
-                    'lastname'      => $resident->lastname,
-                    'suffix'        => $resident->suffix,
-                    'purok_number'  => $resident->purok_number,
-                    'vehicle_type'  => $vehicle->vehicle_type,
-                    'vehicle_class' => $vehicle->vehicle_class,
-                    'usage_status'  => $vehicle->usage_status,
-                    'quantity'      => $vehicle->quantity,
-                ];
-                if (!in_array($vehicle->vehicle_type, $vehicle_types)) {
-                    $vehicle_types[] = $vehicle->vehicle_type;
-                }
-            }
-        }
+        $residents = Resident::where('barangay_id', $brgy_id)
+            ->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'birthdate')
+            ->get();
 
-        $residents = Resident::where('barangay_id', $brgy_id)->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'birthdate')->get();
         return Inertia::render("BarangayOfficer/Vehicle/Index", [
             'puroks' => $puroks,
-            'vehicles' => $vehicles,
+            'vehicles' => $residentsWithVehicles,
             'vehicle_types' => $vehicle_types,
             'queryParams' => request()->query() ?: null,
             'residents' => $residents,
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.

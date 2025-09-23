@@ -2,13 +2,7 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-    Search,
-    SquarePen,
-    Trash2,
-    ListPlus,
-    Filter
-} from "lucide-react";
+import { Search, SquarePen, Trash2, ListPlus, Filter } from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import { Toaster, toast } from "sonner";
@@ -27,6 +21,7 @@ import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import VehicleForm from "./VehicleForm";
+import ExportButton from "@/Components/ExportButton";
 
 export default function Index({
     vehicles,
@@ -153,7 +148,7 @@ export default function Index({
     };
 
     const columnRenderers = {
-        id: (row) => row.vehicle_id,
+        id: (row) => row.vehicles?.[0]?.id ?? "—",
 
         name: (row) => (
             <span>
@@ -163,47 +158,68 @@ export default function Index({
         ),
 
         vehicle_type: (row) => (
-            <span className="capitalize">{row.vehicle_type}</span>
+            <span className="capitalize">
+                {row.vehicles?.[0]?.vehicle_type ?? "—"}
+            </span>
         ),
 
-        vehicle_class: (row) => VEHICLE_CLASS_TEXT[row.vehicle_class],
+        vehicle_class: (row) =>
+            row.vehicles?.[0]
+                ? VEHICLE_CLASS_TEXT[row.vehicles[0].vehicle_class]
+                : "—",
 
         usage_status: (row) => {
-            const statusLabel = VEHICLE_USAGE_TEXT[row.usage_status];
+            const vehicle = row.vehicles?.[0];
+            if (!vehicle) return "—";
+
+            const statusLabel = VEHICLE_USAGE_TEXT[vehicle.usage_status];
             return (
                 <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${VEHICLE_USAGE_STYLES[row.usage_status]
-                        }`}
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        VEHICLE_USAGE_STYLES[vehicle.usage_status]
+                    }`}
                 >
                     {statusLabel}
                 </span>
             );
         },
 
-        is_registered: (row) =>
-            row.is_registered ? (
+        is_registered: (row) => {
+            const isRegistered = row.vehicles?.[0]?.is_registered;
+            if (isRegistered === undefined) return "—";
+
+            return isRegistered ? (
                 <span className="text-green-600 font-medium">Yes</span>
             ) : (
                 <span className="text-gray-500 font-medium">No</span>
-            ),
+            );
+        },
 
         purok_number: (row) => row.purok_number,
-        actions: (row) => (
-            <ActionMenu
-                actions={[
-                    {
-                        label: "Edit",
-                        icon: <SquarePen className="w-4 h-4 text-green-500" />,
-                        onClick: () => handleEdit(row.vehicle_id),
-                    },
-                    {
-                        label: "Delete",
-                        icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDeleteClick(row.vehicle_id),
-                    },
-                ]}
-            />
-        ),
+
+        actions: (row) => {
+            const vehicleId = row.vehicles?.[0]?.id;
+            if (!vehicleId) return null;
+
+            return (
+                <ActionMenu
+                    actions={[
+                        {
+                            label: "Edit",
+                            icon: (
+                                <SquarePen className="w-4 h-4 text-green-500" />
+                            ),
+                            onClick: () => handleEdit(vehicleId),
+                        },
+                        {
+                            label: "Delete",
+                            icon: <Trash2 className="w-4 h-4 text-red-600" />,
+                            onClick: () => handleDeleteClick(vehicleId),
+                        },
+                    ]}
+                />
+            );
+        },
     };
 
     const handleAddVehicle = () => {
@@ -212,8 +228,9 @@ export default function Index({
     };
 
     const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
-            }`,
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
+            res.suffix ?? ""
+        }`,
         value: res.id.toString(),
     }));
 
@@ -249,8 +266,9 @@ export default function Index({
             setVehicleDetails(vehicle);
             setData({
                 resident_id: vehicle.resident.id,
-                resident_name: `${vehicle.resident.firstname} ${vehicle.resident.middlename ?? ""
-                    } ${vehicle.resident.lastname}`,
+                resident_name: `${vehicle.resident.firstname} ${
+                    vehicle.resident.middlename ?? ""
+                } ${vehicle.resident.lastname}`,
                 resident_image: vehicle.resident.image ?? null,
                 birthdate: vehicle.resident.birthdate ?? null,
                 purok_number: vehicle.resident.purok_number ?? null,
@@ -317,7 +335,7 @@ export default function Index({
                     <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                                <div className="flex items-center gap-2 flex-wrap">
+                                <div className="flex items-start gap-2 flex-wrap">
                                     <DynamicTableControls
                                         allColumns={allColumns}
                                         visibleColumns={visibleColumns}
@@ -325,6 +343,11 @@ export default function Index({
                                         onPrint={handlePrint}
                                         showFilters={showFilters}
                                         toggleShowFilters={toggleShowFilters}
+                                    />
+                                    <ExportButton
+                                        url="report/export-vehicles-excel"
+                                        queryParams={queryParams}
+                                        label="Export Vehicles as XLSX"
                                     />
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap justify-end">
@@ -415,7 +438,9 @@ export default function Index({
                                             handleResidentChange={
                                                 handleResidentChange
                                             }
-                                            handleArrayValues={handleArrayValues}
+                                            handleArrayValues={
+                                                handleArrayValues
+                                            }
                                             addVehicle={addVehicle}
                                             removeVehicle={removeVehicle}
                                             reset={reset}

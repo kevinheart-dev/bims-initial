@@ -11,6 +11,7 @@ import {
     Trash2,
     Network,
     User,
+    FileUser,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -23,6 +24,7 @@ import * as CONSTANTS from "@/constants";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
+import ExportButton from "@/Components/ExportButton";
 
 export default function Index({ households, puroks, streets, queryParams }) {
     const breadcrumbs = [
@@ -273,7 +275,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                            <div className="flex items-center gap-2 flex-wrap">
+                            <div className="flex items-start gap-2 flex-wrap">
                                 <DynamicTableControls
                                     allColumns={allColumns}
                                     visibleColumns={visibleColumns}
@@ -283,6 +285,17 @@ export default function Index({ households, puroks, streets, queryParams }) {
                                     toggleShowFilters={() =>
                                         setShowFilters((prev) => !prev)
                                     }
+                                />
+                                <ExportButton
+                                    url="report/export-household-excel"
+                                    queryParams={queryParams}
+                                    label="Export Households as XLSX"
+                                />
+                                <ExportButton
+                                    url="report/export-householdmembers-excel"
+                                    queryParams={queryParams}
+                                    icon={<FileUser />}
+                                    label="Export Household Members as XLSX"
                                 />
                             </div>
 

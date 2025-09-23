@@ -64,7 +64,8 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
     Route::get('/certificate/{id}/print', [CertificateController::class, 'print'])->name('certificate.print');
     Route::get('/certificate/index', [CertificateController::class, 'index'])->name('certificate.index');
     Route::post('/certificate/store', [CertificateController::class, 'storeFromPost'])->name('certificate.store');
-
+    Route::get('/certificate/export-certificates-excel', [ReportGenerationController::class, 'exportCertificates'])
+        ->name('certificate.export');
 
     // family
     Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('resident.familytree');
@@ -123,6 +124,22 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
         ->name('report.family');
     Route::get('report/export-familymembers-excel', [ReportGenerationController::class, 'exportFamilyMembers'])
         ->name('report.familymembers');
+    Route::get('report/export-household-excel', [ReportGenerationController::class, 'exportHousehold'])
+        ->name('report.household');
+    Route::get('report/export-householdmembers-excel', [ReportGenerationController::class, 'exportHouseholdMembers'])
+        ->name('report.householdmembers');
+    Route::get('report/export-vehicles-excel', [ReportGenerationController::class, 'exportVehicles'])
+        ->name('report.vehicles');
+    Route::get('report/export-education-excel', [ReportGenerationController::class, 'exportEducations'])
+        ->name('report.education');
+    Route::get('report/export-occupations-excel', [ReportGenerationController::class, 'exportOccupations'])
+        ->name('report.occupations');
+    Route::get('report/export-blotter-reports-excel', [ReportGenerationController::class, 'exportBlotterReports'])
+        ->name('report.blotter');
+    Route::get('report/export-summon-excel', [ReportGenerationController::class, 'exportSummon'])
+        ->name('report.summon');
+    Route::get('report/export-medical-excel', [ReportGenerationController::class, 'exportMedical'])
+        ->name('report.medical');
 
     // pregnancy
     Route::get('pregnancy/details/{id}', [PregnancyRecordController::class, 'pregnancyDetails'])->name('pregnancy.details');

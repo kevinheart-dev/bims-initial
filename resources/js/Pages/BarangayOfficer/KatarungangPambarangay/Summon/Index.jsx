@@ -28,6 +28,7 @@ import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControl
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import SidebarModal from "@/Components/SidebarModal";
 import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
+import ExportButton from "@/Components/ExportButton";
 
 export default function Index({ summons, queryParams, incident_types }) {
     const breadcrumbs = [
@@ -356,7 +357,7 @@ export default function Index({ summons, queryParams, incident_types }) {
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                            <div className="flex items-center gap-2 flex-wrap">
+                            <div className="flex items-start gap-2 flex-wrap">
                                 <DynamicTableControls
                                     allColumns={allColumns}
                                     visibleColumns={visibleColumns}
@@ -366,6 +367,11 @@ export default function Index({ summons, queryParams, incident_types }) {
                                     toggleShowFilters={() =>
                                         setShowFilters((prev) => !prev)
                                     }
+                                />
+                                <ExportButton
+                                    url="report/export-summon-excel"
+                                    queryParams={queryParams}
+                                    label="Export Summon Records as XLSX"
                                 />
                             </div>
 
