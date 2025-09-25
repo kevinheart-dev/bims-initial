@@ -210,12 +210,12 @@ const FacilityIndex = () => {
                 <span className="text-sm text-gray-500">
                     {row.created_at
                         ? new Date(row.created_at).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                        })
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                          })
                         : "—"}
                 </span>
             ),
@@ -223,12 +223,12 @@ const FacilityIndex = () => {
                 <span className="text-sm text-gray-500">
                     {row.updated_at
                         ? new Date(row.updated_at).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                        })
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                          })
                         : "—"}
                 </span>
             ),
@@ -237,7 +237,9 @@ const FacilityIndex = () => {
                     actions={[
                         {
                             label: "Edit",
-                            icon: <SquarePen className="w-4 h-4 text-green-500" />,
+                            icon: (
+                                <SquarePen className="w-4 h-4 text-green-500" />
+                            ),
                             onClick: () => handleEdit(row.id),
                         },
                         {
@@ -266,7 +268,6 @@ const FacilityIndex = () => {
         setIsModalOpen(true);
         setData("facilities", [{}]); // Ensure a fresh, empty form
     }, [setData]);
-
 
     const addFacility = useCallback(() => {
         setData("facilities", [...(data.facilities || []), {}]);
@@ -554,8 +555,8 @@ const FacilityIndex = () => {
                                                 facility.previewImage
                                                     ? facility.previewImage
                                                     : facility.facility_image
-                                                        ? `/storage/${facility.facility_image}`
-                                                        : "/images/default-avatar.jpg"
+                                                    ? `/storage/${facility.facility_image}`
+                                                    : "/images/default-avatar.jpg"
                                             }
                                             alt="Facility Image"
                                             className="w-32 h-32 object-cover rounded-sm border border-gray-200"
@@ -579,7 +580,7 @@ const FacilityIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                `facilities.${facIdx}.facility_image`
+                                                    `facilities.${facIdx}.facility_image`
                                                 ]
                                             }
                                             className="mt-2"
@@ -603,7 +604,7 @@ const FacilityIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                `facilities.${facIdx}.name`
+                                                    `facilities.${facIdx}.name`
                                                 ]
                                             }
                                             className="mt-1"
@@ -656,7 +657,7 @@ const FacilityIndex = () => {
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `facilities.${facIdx}.facility_type`
+                                                            `facilities.${facIdx}.facility_type`
                                                         ]
                                                     }
                                                     className="mt-1"
@@ -683,7 +684,7 @@ const FacilityIndex = () => {
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `facilities.${facIdx}.quantity`
+                                                            `facilities.${facIdx}.quantity`
                                                         ]
                                                     }
                                                     className="mt-1"
