@@ -12,11 +12,12 @@ use App\Models\Resident;
 use App\Models\SeniorCitizen;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class CDRRMOAdminController extends Controller
 {
+
+
     public function index(Request $request)
     {
         $barangayId = $request->query('barangay_id');
@@ -73,9 +74,35 @@ class CDRRMOAdminController extends Controller
                 ->get();
         }
 
-        $barangays = Barangay::select('id', 'barangay_name as name')
+        // Fetch all barangays for dropdown
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
             ->orderBy('barangay_name')
             ->get();
+
+        $sort = $request->query('sort', 'desc'); // default is 'desc' for top barangays
+
+        $topBarangays = DB::table('barangays as b')
+            ->join('c_r_a_general_populations as g', 'g.barangay_id', '=', 'b.id')
+            ->select(
+                'b.id',
+                'b.barangay_name as barangay_name',
+                DB::raw('SUM(g.total_population) as population'),
+                DB::raw('SUM(g.total_households) as households'),
+                DB::raw('SUM(g.total_families) as families')
+            )
+            ->groupBy('b.id', 'b.barangay_name')
+            ->orderBy('population', $sort) // sort dynamically
+            ->get()
+            ->map(function ($row) {
+                return [
+                    'id' => $row->id,
+                    'barangay_name' => $row->barangay_name,
+                    'population' => (int) $row->population,
+                    'households' => (int) $row->households,
+                    'families' => (int) $row->families,
+                ];
+            });
 
         return Inertia::render('CDRRMO/Dashboard', [
             'totalPopulation' => $totalPopulation,
@@ -83,7 +110,8 @@ class CDRRMOAdminController extends Controller
             'totalFamilies'   => $totalFamilies,
             'ageDistribution' => $ageDistribution,
             'genderData'      => $genderData,
-            'barangays'       => $barangays,
+            'barangays'       => $allBarangays,
+            'topBarangays'    => $topBarangays,
             'selectedBarangay' => $barangayId,
         ]);
     }

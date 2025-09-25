@@ -11,7 +11,7 @@ import {
     LabelList
 } from "recharts";
 
-export default function AgeDistributionChart({ ageDistribution, height = 280 }) { // reduced default height
+export default function AgeDistributionChart({ ageDistribution, height = 280 }) {
     const [showGender, setShowGender] = useState(false);
     const [showDisability, setShowDisability] = useState(false);
 
@@ -72,14 +72,14 @@ export default function AgeDistributionChart({ ageDistribution, height = 280 }) 
     );
 
     return (
-        <div className="border rounded-xl p-4 mb-6 bg-white hover:shadow-lg">
+        <div className="border rounded-xl p-4 mb-6 bg-white hover:shadow-lg transition-shadow duration-300 z-50 relative">
             {/* Header and Filters */}
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-800">Population According to Age</h3>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 z-50 relative">
                     {/* Toggle Gender */}
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
                         <div className="relative">
                             <input
                                 type="checkbox"
@@ -87,14 +87,14 @@ export default function AgeDistributionChart({ ageDistribution, height = 280 }) 
                                 onChange={() => setShowGender(!showGender)}
                                 className="sr-only"
                             />
-                            <div className={`w-10 h-5 rounded-full transition-colors ${showGender ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
-                            <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${showGender ? 'translate-x-5' : 'translate-x-0'}`}></div>
+                            <div className={`w-10 h-5 rounded-full transition-colors duration-300 ${showGender ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+                            <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-300 ${showGender ? 'translate-x-5' : 'translate-x-0'}`}></div>
                         </div>
-                        <span className="text-gray-700 font-medium hover:text-blue-500 select-none transition">Gender</span>
+                        <span className={`text-gray-700 font-medium transition-colors duration-300 hover:text-blue-500`}>Gender</span>
                     </label>
 
                     {/* Toggle Disability */}
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
                         <div className="relative">
                             <input
                                 type="checkbox"
@@ -102,10 +102,10 @@ export default function AgeDistributionChart({ ageDistribution, height = 280 }) 
                                 onChange={() => setShowDisability(!showDisability)}
                                 className="sr-only"
                             />
-                            <div className={`w-10 h-5 rounded-full transition-colors ${showDisability ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                            <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${showDisability ? 'translate-x-5' : 'translate-x-0'}`}></div>
+                            <div className={`w-10 h-5 rounded-full transition-colors duration-300 ${showDisability ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                            <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform duration-300 ${showDisability ? 'translate-x-5' : 'translate-x-0'}`}></div>
                         </div>
-                        <span className="text-gray-700 font-medium hover:text-green-500 select-none transition">Disability</span>
+                        <span className={`text-gray-700 font-medium transition-colors duration-300 hover:text-green-500`}>Disability</span>
                     </label>
                 </div>
             </div>
@@ -114,11 +114,7 @@ export default function AgeDistributionChart({ ageDistribution, height = 280 }) 
             <ResponsiveContainer width="100%" height={height}>
                 <BarChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 30 }}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis
-                        dataKey="age_group"
-                        tick={{ fontSize: 12 }}
-                        tickFormatter={formatLabel}
-                    />
+                    <XAxis dataKey="age_group" tick={{ fontSize: 12 }} tickFormatter={formatLabel} />
                     <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip
                         formatter={(value) => new Intl.NumberFormat().format(value)}
@@ -135,7 +131,7 @@ export default function AgeDistributionChart({ ageDistribution, height = 280 }) 
                             dataKey={key}
                             fill={colors[key]}
                             radius={[5, 5, 0, 0]}
-                            barSize={22} // slightly smaller bars for compactness
+                            barSize={22}
                             isAnimationActive={true}
                         >
                             <LabelList dataKey={key} position="top" fontSize={11} formatter={formatLabel} />

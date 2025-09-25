@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
+    LayoutDashboard,
     Home,
     FileStack,
     FileText,
+    FileUser,
+    Files,
     Table,
     UsersRound,
     SquareUserRound,
@@ -27,7 +30,6 @@ import {
     ChevronUp,
     Scale,
 } from "lucide-react";
-
 import {
     Sidebar,
     SidebarContent,
@@ -44,11 +46,11 @@ import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 
 const items = [
-    { title: "Admin Dashboard", url: "/barangay_officer/dashboard", icon: Home, roles: ["barangay_officer"] },
-    { title: "CDRRMO Dashboard", url: "/cdrrmo_admin/dashboard", icon: Home, roles: ["cdrrmo_admin"] },
+    { title: "Admin Dashboard", url: "/barangay_officer/dashboard", icon: LayoutDashboard, roles: ["barangay_officer"] },
+    { title: "CDRRMO Dashboard", url: "/cdrrmo_admin/dashboard", icon: LayoutDashboard, roles: ["cdrrmo_admin"] },
     {
         title: "Barangay",
-        icon: FileStack,
+        icon: Home,
         roles: ["barangay_officer"],
         submenu: [
             { title: "Barangay Profile", url: "/barangay_profile", icon: FileText, roles: ["barangay_officer"] },
@@ -57,7 +59,7 @@ const items = [
     },
     {
         title: "Residents Information",
-        icon: FileStack,
+        icon: FileUser,
         roles: ["barangay_officer"],
         submenu: [
             { title: "Information Table", url: "/resident", icon: Table, roles: ["barangay_officer"] },
@@ -87,7 +89,7 @@ const items = [
     },
     {
         title: "Issuance",
-        icon: FileStack,
+        icon: Files,
         roles: ["barangay_officer"],
         submenu: [
             { title: "Certificate Issuance", url: "certificate/index", icon: FileText, roles: ["barangay_officer"] },

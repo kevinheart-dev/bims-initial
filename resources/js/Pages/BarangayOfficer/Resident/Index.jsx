@@ -96,6 +96,22 @@ export default function Index({ residents, queryParams = null, puroks }) {
 
     const [query, setQuery] = useState(currentQueryParams["name"] ?? "");
 
+    // *** NEW: Extract welfare filters from queryParams ***
+    const welfareFilters = useMemo(() => {
+        const activeFilters = [];
+        if (currentQueryParams.pwd === "1") {
+            activeFilters.push("PWD");
+        }
+        if (currentQueryParams.fourps === "1") {
+            activeFilters.push("FourPs");
+        }
+        if (currentQueryParams.solo_parent === "1") {
+            activeFilters.push("SoloParent");
+        }
+        return activeFilters;
+    }, [currentQueryParams.pwd, currentQueryParams.fourps, currentQueryParams.solo_parent]);
+
+
     // Optimize useQuery to prevent unnecessary re-fetches and improve caching
     const {
         data: chartData,
@@ -124,7 +140,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
         () => (field, value) => {
             let newQueryParams = { ...currentQueryParams };
 
-            if (value && value.trim() !== "") {
+            if (value && value.trim() !== "" && value !== "0") { // Added value !== "0" check for welfare filters
                 newQueryParams[field] = value;
             } else {
                 delete newQueryParams[field];
@@ -214,10 +230,12 @@ export default function Index({ residents, queryParams = null, puroks }) {
                         "solo_parent",
                     ].includes(key) &&
                     value &&
-                    value !== ""
+                    value !== "" && // Check for empty string
+                    value !== "0"   // Explicitly ignore "0" for welfare filters
             ),
         [currentQueryParams]
     );
+
 
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
     useEffect(() => {
@@ -282,11 +300,9 @@ export default function Index({ residents, queryParams = null, puroks }) {
             ),
             name: (resident) => (
                 <div className="text-sm break-words whitespace-normal leading-snug">
-                    {`${resident.firstname} ${
-                        resident.middlename ? resident.middlename + " " : ""
-                    }${resident.lastname ?? ""} ${
-                        resident.suffix ? resident.suffix : ""
-                    }`}
+                    {`${resident.firstname} ${resident.middlename ? resident.middlename + " " : ""
+                        }${resident.lastname ?? ""} ${resident.suffix ? resident.suffix : ""
+                        }`}
                 </div>
             ),
             sex: (resident) => {
@@ -322,7 +338,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                 CONSTANTS.RESIDENT_CIVIL_STATUS_TEXT[resident.civil_status],
             employment_status: (resident) =>
                 CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-                    resident.employment_status
+                resident.employment_status
                 ],
             occupation: (resident) => {
                 const occ = resident.occupation;
@@ -339,15 +355,14 @@ export default function Index({ residents, queryParams = null, puroks }) {
             ethnicity: (resident) => resident.ethnicity,
             registered_voter: (resident) => (
                 <span
-                    className={`${
-                        CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
-                            resident.registered_voter
-                        ]
-                    } whitespace-nowrap`}
+                    className={`${CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
+                        resident.registered_voter
+                    ]
+                        } whitespace-nowrap`}
                 >
                     {
                         CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[
-                            resident.registered_voter
+                        resident.registered_voter
                         ]
                     }
                 </span>
@@ -435,6 +450,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                     <ResidentCharts
                                         residents={chartData ?? []}
                                         isLoading={isChartLoading}
+                                        welfareFilters={welfareFilters}
                                     />
                                 </Suspense>
                                 <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">

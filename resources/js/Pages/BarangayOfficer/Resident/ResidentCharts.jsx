@@ -65,7 +65,8 @@ const getAgeGroup = (age) => {
 };
 
 
-const ResidentCharts = ({ residents, isLoading }) => {
+// Add welfareFilters prop here
+const ResidentCharts = ({ residents, isLoading, welfareFilters = [] }) => {
     // --- ALL HOOKS MUST BE CALLED UNCONDITIONALLY AT THE TOP LEVEL ---
 
     // 1. Memoize residentArray first
@@ -86,15 +87,37 @@ const ResidentCharts = ({ residents, isLoading }) => {
 
     const { welfareData, totalWelfare } = useMemo(() => {
         const counts = residentArray.reduce((acc, r) => {
-            acc.PWD = (acc.PWD || 0) + (r.is_pwd ? 1 : 0);
-            acc.FourPs = (acc.FourPs || 0) + (r.is4ps ? 1 : 0);
-            acc.SoloParent = (acc.SoloParent || 0) + (r.isSoloParent ? 1 : 0);
+            if (r.is_pwd) acc.PWD++;
+            else if (r.is4ps) acc.FourPs++;
+            else if (r.isSoloParent) acc.SoloParent++;
             return acc;
         }, { PWD: 0, FourPs: 0, SoloParent: 0 });
-        const data = Object.entries(counts).map(([name, value]) => ({ name, value }));
+
+
+        let data = [];
+        const allWelfareCategories = ["PWD", "FourPs", "SoloParent"];
+
+        // Determine which categories to display
+        const categoriesToDisplay = welfareFilters.length > 0 ? welfareFilters : allWelfareCategories;
+
+        if (categoriesToDisplay.includes("PWD")) {
+            data.push({ name: "PWD", value: counts.PWD });
+        }
+        if (categoriesToDisplay.includes("FourPs")) {
+            data.push({ name: "FourPs", value: counts.FourPs });
+        }
+        if (categoriesToDisplay.includes("SoloParent")) {
+            data.push({ name: "SoloParent", value: counts.SoloParent });
+        }
+
+        // Filter out categories with 0 values only if they are not explicitly selected
+        // Or if all are shown by default and a category has 0 value
+        data = data.filter(item => item.value > 0 || categoriesToDisplay.includes(item.name));
+
+
         const total = data.reduce((sum, item) => sum + item.value, 0);
         return { welfareData: data, totalWelfare: total };
-    }, [residentArray]);
+    }, [residentArray, welfareFilters]); // Add welfareFilters to dependency array
 
     const purokData = useMemo(() => {
         const counts = residentArray.reduce((acc, r) => {
