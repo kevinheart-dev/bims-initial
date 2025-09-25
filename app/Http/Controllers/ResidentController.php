@@ -122,13 +122,13 @@ class ResidentController extends Controller
         }
 
         if (
-            request('indigent') === '1' ||
+            // request('indigent') === '1' ||
             request('fourps') === '1' ||
             request('solo_parent') === '1' ||
             request('pwd') === '1'
         ) {
             $query->whereHas('socialwelfareprofile', function ($q) {
-                if (request('indigent') === '1') $q->where('is_indigent', 1);
+                // if (request('indigent') === '1') $q->where('is_indigent', 1);
                 if (request('fourps') === '1') $q->where('is_4ps_beneficiary', 1);
                 if (request('solo_parent') === '1') $q->where('is_solo_parent', 1);
                 if (request('pwd') === '1') $q->where('is_pwd', 1);
@@ -161,7 +161,7 @@ class ResidentController extends Controller
                 'email' => $resident->email,
                 'registered_voter' => $resident->registered_voter,
                 'employment_status' => $resident->employment_status,
-                'isIndigent' => $resident->socialwelfareprofile?->is_indigent,
+                // 'isIndigent' => $resident->socialwelfareprofile?->is_indigent,
                 'isSoloParent' => $resident->socialwelfareprofile?->is_solo_parent,
                 'is4ps' => $resident->socialwelfareprofile?->is_4ps_beneficiary,
                 'occupation' => $resident->occupations->first()?->occupation, // already ordered by latest
