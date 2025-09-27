@@ -12,6 +12,7 @@ import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
 import SidebarModal from "@/Components/SidebarModal";
 import {
+    Home,
     Eye,
     Share2,
     Network,
@@ -190,8 +191,7 @@ export default function Index({
     const columnRenderers = {
         resident_id: (member) => member.id,
         name: (member) =>
-            `${member.firstname} ${member.middlename ?? ""} ${
-                member.lastname ?? ""
+            `${member.firstname} ${member.middlename ?? ""} ${member.lastname ?? ""
             } ${member.suffix ?? ""}`,
         gender: (member) => {
             const genderKey = member.gender;
@@ -229,15 +229,15 @@ export default function Index({
         },
         relationship_to_head: (member) =>
             CONSTANTS.RELATIONSHIP_TO_HEAD_TEXT[
-                member.household_residents?.[0]?.relationship_to_head
+            member.household_residents?.[0]?.relationship_to_head
             ] || "",
         household_position: (member) =>
             CONSTANTS.HOUSEHOLD_POSITION_TEXT[
-                member.household_residents?.[0]?.household_position
+            member.household_residents?.[0]?.household_position
             ] || "",
         employment_status: (member) =>
             CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-                member?.employment_status
+            member?.employment_status
             ],
         registered_voter: (member) => {
             const status = member?.registered_voter ?? 0;
@@ -304,6 +304,22 @@ export default function Index({
                 {/* <pre>{JSON.stringify(family_details, undefined, 3)}</pre> */}
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                        <div className="mb-6">
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl shadow-sm">
+                                <div className="p-2 bg-green-100 rounded-full">
+                                    <Home className="w-6 h-6 text-green-600" />
+                                </div>
+                                <div>
+                                    <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+                                        Family Details
+                                    </h1>
+                                    <p className="text-sm text-gray-500">
+                                        View and manage the records of this specific family,
+                                        including members, relationships, and household links.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                             <div className="flex items-center gap-2 flex-wrap">
                                 <DynamicTableControls

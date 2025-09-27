@@ -9,6 +9,7 @@ import {
     SquarePlus,
     Eye,
     ListPlus,
+    Accessibility,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -275,6 +276,23 @@ export default function Index({ disabilities, puroks, queryParams }) {
                 <div className="p-2 md:p-4">
                     <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                            <div className="mb-6">
+                                <div className="flex items-center gap-3 p-3 bg-indigo-50 rounded-xl shadow-sm">
+                                    <div className="p-2 bg-indigo-100 rounded-full">
+                                        <Accessibility className="w-6 h-6 text-indigo-600" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+                                            Disability Records
+                                        </h1>
+                                        <p className="text-sm text-gray-500">
+                                            Keep track of residents with{" "}
+                                            <span className="font-medium">disabilities</span> for accurate profiling
+                                            and support programs. Use the tools below to search, filter, and export records.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <DynamicTableControls

@@ -15,6 +15,7 @@ import {
     SquarePen,
     Trash2,
     User,
+    Users,
     UserPlus,
     UserRoundPlus,
     UsersRound,
@@ -145,11 +146,9 @@ export default function Index({
         family_id: (row) => row.id,
         name: (row) =>
             row.latest_head
-                ? `${row.latest_head.firstname ?? ""} ${
-                      row.latest_head.middlename ?? ""
-                  } ${row.latest_head.lastname ?? ""} ${
-                      row.latest_head.suffix ?? ""
-                  }`
+                ? `${row.latest_head.firstname ?? ""} ${row.latest_head.middlename ?? ""
+                } ${row.latest_head.lastname ?? ""} ${row.latest_head.suffix ?? ""
+                }`
                 : "Unknown",
         is_household_head: (row) =>
             row.is_household_head ? (
@@ -183,9 +182,8 @@ export default function Index({
 
             return bracketText ? (
                 <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                        bracketMeta?.className ?? ""
-                    }`}
+                    className={`px-2 py-1 rounded text-xs font-medium ${bracketMeta?.className ?? ""
+                        }`}
                 >
                     {bracketText}
                 </span>
@@ -258,16 +256,14 @@ export default function Index({
     };
 
     const residentsList = residents.map((res) => ({
-        label: `${res.resident.firstname} ${res.resident.middlename} ${
-            res.resident.lastname
-        } ${res.resident.suffix ?? ""}`,
+        label: `${res.resident.firstname} ${res.resident.middlename} ${res.resident.lastname
+            } ${res.resident.suffix ?? ""}`,
         value: res.resident.id.toString(),
     }));
 
     const memberList = members.map((mem) => ({
-        label: `${mem.firstname} ${mem.middlename} ${mem.lastname} ${
-            mem.suffix ?? ""
-        }`,
+        label: `${mem.firstname} ${mem.middlename} ${mem.lastname} ${mem.suffix ?? ""
+            }`,
         value: mem.id.toString(),
     }));
 
@@ -309,8 +305,7 @@ export default function Index({
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename} ${
-                    resident.lastname
+                `${resident.firstname} ${resident.middlename} ${resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("purok_number", resident.purok_number);
@@ -328,9 +323,8 @@ export default function Index({
             updatedMembers[index] = {
                 ...updatedMembers[index],
                 resident_id: selected.id ?? "",
-                resident_name: `${selected.firstname ?? ""} ${
-                    selected.middlename ?? ""
-                } ${selected.lastname ?? ""} ${selected.suffix ?? ""}`,
+                resident_name: `${selected.firstname ?? ""} ${selected.middlename ?? ""
+                    } ${selected.lastname ?? ""} ${selected.suffix ?? ""}`,
                 purok_number: selected.purok_number ?? "",
                 birthdate: selected.birthdate ?? "",
                 resident_image: selected.image ?? null,
@@ -383,9 +377,8 @@ export default function Index({
 
             setData({
                 resident_id: latestHead?.id ?? null,
-                resident_name: `${latestHead?.firstname} ${
-                    latestHead?.middlename ? latestHead?.middlename + " " : ""
-                }${latestHead?.lastname} ${latestHead?.suffix}`.trim(),
+                resident_name: `${latestHead?.firstname} ${latestHead?.middlename ? latestHead?.middlename + " " : ""
+                    }${latestHead?.lastname} ${latestHead?.suffix}`.trim(),
                 resident_image: latestHead?.resident_picture_path,
                 birthdate: latestHead?.birthdate ?? null,
                 purok_number: latestHead?.purok_number ?? null,
@@ -399,9 +392,8 @@ export default function Index({
                             m.household_residents?.[0] || {};
                         return {
                             resident_id: m.id,
-                            resident_name: `${m.firstname} ${
-                                m.middlename ? m.middlename + " " : ""
-                            }${m.lastname} ${m.suffix}`.trim(),
+                            resident_name: `${m.firstname} ${m.middlename ? m.middlename + " " : ""
+                                }${m.lastname} ${m.suffix}`.trim(),
                             resident_image: m.resident_picture_path,
                             birthdate: m.birthdate,
                             purok_number: m.purok_number,
@@ -467,6 +459,21 @@ export default function Index({
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                        <div className="mb-6">
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl shadow-sm">
+                                <div className="p-2 bg-blue-100 rounded-full">
+                                    <Users className="w-6 h-6 text-blue-600" />
+                                </div>
+                                <div>
+                                    <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+                                        Family Records
+                                    </h1>
+                                    <p className="text-sm text-gray-500">
+                                        Manage and track families registered in the barangay.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                         {/* <pre>{JSON.stringify(residents, undefined, 3)}</pre> */}
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                             <div className="flex items-start gap-2 flex-wrap">
@@ -791,7 +798,7 @@ export default function Index({
                                                     <InputError
                                                         message={
                                                             errors[
-                                                                `members.${memberIndex}.relationship_to_head`
+                                                            `members.${memberIndex}.relationship_to_head`
                                                             ]
                                                         }
                                                         className="mt-1"
@@ -828,7 +835,7 @@ export default function Index({
                                                     <InputError
                                                         message={
                                                             errors[
-                                                                `members.${memberIndex}.household_position`
+                                                            `members.${memberIndex}.household_position`
                                                             ]
                                                         }
                                                         className="mt-1"

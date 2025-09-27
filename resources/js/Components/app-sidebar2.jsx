@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import {
     LayoutDashboard,
@@ -45,6 +45,7 @@ import { NavUser } from "@/components/nav-user";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 
+// Define the menu items outside the component to prevent re-creation on every render
 const items = [
     { title: "Admin Dashboard", url: "/barangay_officer/dashboard", icon: LayoutDashboard, roles: ["barangay_officer"] },
     { title: "CDRRMO Dashboard", url: "/cdrrmo_admin/dashboard", icon: LayoutDashboard, roles: ["cdrrmo_admin"] },
@@ -92,7 +93,7 @@ const items = [
         icon: Files,
         roles: ["barangay_officer"],
         submenu: [
-            { title: "Certificate Issuance", url: "certificate/index", icon: FileText, roles: ["barangay_officer"] },
+            { title: "Certificate Issuance", url: "/certificate/index", icon: FileText, roles: ["barangay_officer"] },
         ],
     },
     {
@@ -120,41 +121,52 @@ const items = [
 export function AppSidebar({ auth }) {
     const location = useLocation();
     const [openIndex, setOpenIndex] = useState(null);
-    const [barangay, setBarangay] = useState(null);
+    const [barangayName, setBarangayName] = useState(null); // Renamed for clarity
     const APP_URL = useAppUrl();
     const user = auth.user;
 
-    const userRoles = user.roles.map((r) => r.name);
+    const userRoles = useMemo(() => user.roles.map((r) => r.name), [user.roles]);
 
-    const normalize = (u) => {
+    // Memoize normalize function as it's used in isActive
+    const normalize = useCallback((u) => {
         if (!u) return "";
         let s = u.trim();
         if (!s.startsWith("/")) s = "/" + s;
         if (s.length > 1 && s.endsWith("/")) s = s.slice(0, -1);
         return s;
-    };
+    }, []); // No dependencies, so it's created once
 
-    const isActive = (url) => {
+    // Memoize isActive function
+    const isActive = useCallback((url) => {
         if (!url) return false;
         const n = normalize(url);
         return location.pathname === n || location.pathname.startsWith(n + "/");
-    };
+    }, [location.pathname, normalize]); // Re-create only if location.pathname or normalize changes
 
+    // Fetch barangay details only once and store the name
     useEffect(() => {
         const fetchBarangayDetails = async () => {
             try {
                 const res = await axios.get(`${APP_URL}/barangay_profile/barangaydetails`);
-                setBarangay(res.data.data);
+                setBarangayName(res.data.data.barangay_name); // Store only the name
             } catch (err) {
                 console.error("Error fetching barangay details:", err);
+                setBarangayName("Unknown Barangay"); // Fallback
             }
         };
-        if (userRoles.includes("barangay_officer")) fetchBarangayDetails();
-    }, [APP_URL, userRoles]);
+        // Only fetch if the user is a barangay_officer and barangayName hasn't been set yet
+        if (userRoles.includes("barangay_officer") && barangayName === null) {
+            fetchBarangayDetails();
+        }
+    }, [APP_URL, userRoles, barangayName]); // Add barangayName to dependencies to prevent re-fetching if already set
 
-    const filteredItems = items.filter((item) =>
-        item.roles.some((role) => userRoles.includes(role))
-    );
+    // Filter items using useMemo to avoid re-filtering on every render
+    const filteredItems = useMemo(() => {
+        return items.filter((item) =>
+            item.roles.some((role) => userRoles.includes(role))
+        );
+    }, [userRoles]);
+
 
     useEffect(() => {
         const matchedIndex = filteredItems.findIndex(
@@ -163,32 +175,34 @@ export function AppSidebar({ auth }) {
                 item.submenu.some((sub) => isActive(sub.url))
         );
         setOpenIndex(matchedIndex === -1 ? null : matchedIndex);
-    }, [location.pathname, JSON.stringify(filteredItems)]);
+    }, [location.pathname, filteredItems, isActive]);
 
-    const toggleCollapse = (index) => {
+    const toggleCollapse = useCallback((index) => {
         setOpenIndex((prev) => (prev === index ? null : index));
-    };
+    }, []);
+
+
+    const sidebarHeader = useMemo(() => (
+        <div className="bg-white px-4 py-[8px] flex items-center border-b border-gray-200">
+            <img src="/images/csa-logo.png" alt="CSA Logo" className="h-11 w-11 mr-3" />
+            <div className="flex flex-col leading-none space-y-0">
+                <p className="font-black text-[20px] text-sky-700 font-montserrat m-0 pb-1 leading-none">iBIMS</p>
+                <p className="font-light text-sm text-gray-500 font-montserrat m-0 p-0 leading-none">
+                    {userRoles.includes("super_admin")
+                        ? "Super Admin"
+                        : userRoles.includes("cdrrmo_admin")
+                            ? "CDRRMO Admin"
+                            : barangayName
+                                ? barangayName
+                                : "Loading..."}
+                </p>
+            </div>
+        </div>
+    ), [userRoles, barangayName]);
 
     return (
         <Sidebar>
-            {/* Header with blue branding */}
-            <div className="bg-white px-4 py-[8px] flex items-center border-b border-gray-200">
-                <img src="/images/csa-logo.png" alt="CSA Logo" className="h-11 w-11 mr-3" />
-                <div className="flex flex-col leading-none space-y-0">
-                    <p className="font-black text-[20px] text-sky-700 font-montserrat m-0 pb-1 leading-none">iBIMS</p>
-                    <p className="font-light text-sm text-gray-500 font-montserrat m-0 p-0 leading-none">
-                        {userRoles.includes("super_admin")
-                            ? "Super Admin"
-                            : userRoles.includes("cdrrmo_admin")
-                                ? "CDRRMO Admin"
-                                : barangay
-                                    ? barangay.barangay_name
-                                    : "Loading..."}
-                    </p>
-                </div>
-            </div>
-
-
+            {sidebarHeader}
             <SidebarContent className="bg-white shadow-lg">
                 <SidebarGroup>
                     <SidebarGroupLabel className="text-gray-500 mx-0 mr-4 text-sm">Main Menu</SidebarGroupLabel>
