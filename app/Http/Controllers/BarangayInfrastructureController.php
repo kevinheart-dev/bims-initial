@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Barangay;
 use App\Models\BarangayInfrastructure;
 use App\Http\Requests\StoreBarangayInfrastructureRequest;
 use App\Http\Requests\UpdateBarangayInfrastructureRequest;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Str;
 
@@ -77,17 +80,17 @@ class BarangayInfrastructureController extends Controller
     public function store(StoreBarangayInfrastructureRequest $request)
     {
         $brgy_id = auth()->user()->barangay_id;
+        $barangayName = Barangay::find($brgy_id)->barangay_name;
+        $barangaySlug = Str::slug($barangayName);
         $data = $request->validated();
-
         try {
             if (!empty($data['infrastructures']) && is_array($data['infrastructures'])) {
                 foreach ($data['infrastructures'] as $infra) {
-
                     $imagePath = $infra['infrastructure_image'] ?? null;
 
                     // If it's a file upload, store it
                     if ($imagePath instanceof \Illuminate\Http\UploadedFile) {
-                        $folder = 'infrastructure/' . Str::slug($infra['infrastructure_type']) . Str::random(10);
+                        $folder = 'infrastructure/' . $barangaySlug . '/' . Str::slug($infra['infrastructure_type']) . '-' . Str::random(10);
                         $imagePath = $imagePath->store($folder, 'public');
                     }
 
@@ -96,7 +99,7 @@ class BarangayInfrastructureController extends Controller
                         'infrastructure_image'    => $imagePath, // either stored file or existing string
                         'infrastructure_category' => $infra['infrastructure_category'],
                         'infrastructure_type'     => $infra['infrastructure_type'],
-                        'quantity'                => $infra['quantity'],
+                        'quantity'                => $infra['quantity'] ?? 0,
                     ]);
                 }
             }
@@ -137,12 +140,13 @@ class BarangayInfrastructureController extends Controller
     public function update(UpdateBarangayInfrastructureRequest $request, BarangayInfrastructure $barangayInfrastructure)
     {
         $brgy_id = auth()->user()->barangay_id;
+        $barangayName = Barangay::find($brgy_id)->barangay_name;
+        $barangaySlug = Str::slug($barangayName);
         $data = $request->validated();
 
         try {
             if (!empty($data['infrastructures']) && is_array($data['infrastructures'])) {
                 foreach ($data['infrastructures'] as $infra) {
-                    // Skip if no id is provided
                     if (empty($data['infrastructure_id'])) {
                         return back()->with(
                             'error',
@@ -157,9 +161,21 @@ class BarangayInfrastructureController extends Controller
                     if ($existingInfra) {
                         $imagePath = $infra['infrastructure_image'] ?? $existingInfra->infrastructure_image;
 
-                        // If it's a new file upload, store it
                         if ($imagePath instanceof \Illuminate\Http\UploadedFile) {
-                            $folder = 'infrastructure/' . Str::slug($infra['infrastructure_type']) . Str::random(10);
+                            // Delete old image if it exists
+                            if ($existingInfra->infrastructure_image && Storage::disk('public')->exists($existingInfra->infrastructure_image)) {
+                                // Delete the file
+                                Storage::disk('public')->delete($existingInfra->infrastructure_image);
+
+                                // Delete the folder if empty
+                                $folder = dirname($existingInfra->infrastructure_image);
+                                if (Storage::disk('public')->exists($folder) && empty(Storage::disk('public')->files($folder))) {
+                                    Storage::disk('public')->deleteDirectory($folder);
+                                }
+                            }
+
+                            // Store new file
+                            $folder = "infrastructure/{$barangaySlug}/" . Str::slug($infra['infrastructure_type']) . '-' . Str::random(10);
                             $imagePath = $imagePath->store($folder, 'public');
                         }
 
@@ -192,11 +208,21 @@ class BarangayInfrastructureController extends Controller
      */
     public function destroy(BarangayInfrastructure $barangayInfrastructure)
     {
-        DB::beginTransaction();
         try {
+            if ($barangayInfrastructure->infrastructure_image && Storage::disk('public')->exists($barangayInfrastructure->infrastructure_image)) {
+                // Delete the file
+                Storage::disk('public')->delete($barangayInfrastructure->infrastructure_image);
+
+                // Delete the folder if empty
+                $folder = dirname($barangayInfrastructure->infrastructure_image);
+                if (empty(Storage::disk('public')->files($folder))) {
+                    Storage::disk('public')->deleteDirectory($folder);
+                }
+            }
+
             $barangayInfrastructure->delete();
-            DB::commit();
-            return redirect()
+
+        return redirect()
                 ->route('barangay_profile.index')
                 ->with([
                     'success' => 'Infrastructure deleted successfully!',

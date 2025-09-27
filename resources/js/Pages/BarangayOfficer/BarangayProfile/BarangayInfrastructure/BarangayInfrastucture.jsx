@@ -361,13 +361,15 @@ const BarangayInfrastucture = () => {
             );
             const infrastructure = response.data.infra;
             console.log(infrastructure);
+
             setInfrastructureDetails(infrastructure);
             setData({
                 infrastructures: [
                     {
-                        infrastructure_image:
-                            infrastructure.infrastructure_image || null,
-                        previewImage: null,
+                        infrastructure_image: null, // do not pass existing image
+                        previewImage: infrastructure.infrastructure_image
+                            ? `/storage/${infrastructure.infrastructure_image}`
+                            : null, // show existing image in preview
                         infrastructure_type:
                             infrastructure.infrastructure_type || "",
                         infrastructure_category:
@@ -384,6 +386,7 @@ const BarangayInfrastucture = () => {
             console.error("Error fetching infrastructure details:", error);
         }
     };
+
     const handleUpdateInfrastruture = (e) => {
         e.preventDefault();
         post(route("barangay_infrastructure.update", data.infrastructure_id), {
@@ -581,14 +584,11 @@ const BarangayInfrastucture = () => {
                                             htmlFor={`infrastructure_image_${infraIdx}`}
                                             value="Infrastructure Photo"
                                         />
-
                                         <img
                                             src={
                                                 infrastructure.previewImage
-                                                    ? infrastructure.previewImage // If user selected new file (preview)
-                                                    : infrastructure.infrastructure_image
-                                                    ? `/storage/${infrastructure.infrastructure_image}` // If existing image in DB
-                                                    : "/images/default-avatar.jpg" // Fallback placeholder
+                                                    ? infrastructure.previewImage // user-selected file or preview of existing
+                                                    : "/images/default-avatar.jpg" // fallback placeholder
                                             }
                                             alt="Infrastructure Image"
                                             className="w-32 h-32 object-cover rounded-sm border border-gray-200"

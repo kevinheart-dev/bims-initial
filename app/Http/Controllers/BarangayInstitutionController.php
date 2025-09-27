@@ -36,7 +36,6 @@ class BarangayInstitutionController extends Controller
         }
 
         $institutions = $query->paginate(10)->withQueryString();
-
         return response()->json([
             'institutions' => $institutions,
         ]);
@@ -66,7 +65,7 @@ class BarangayInstitutionController extends Controller
                         'type'               => $insti['type'],
                         'year_established'   => $insti['year_established'],
                         'status'             => $insti['status'],
-                        'description'        => $insti['description'],
+                        'description'        => $insti['description'] ?? null,
                     ]);
                 }
             }

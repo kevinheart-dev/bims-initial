@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use App\Models\Resident;
+use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use PhpOffice\PhpWord\TemplateProcessor;
@@ -160,6 +162,23 @@ class DocumentController extends Controller
      */
     public function destroy(Document $document)
     {
-        //
+        DB::beginTransaction();
+        try {
+            // Delete the file if it exists
+            if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
+                Storage::disk('public')->delete($document->file_path);
+            }
+
+            // Delete the record
+            $document->delete();
+
+            DB::commit();
+
+            return redirect()->route('document.index')
+                ->with('success', "Document '{$document->name}' deleted successfully!");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Record could not be deleted: ' . $e->getMessage());
+        }
     }
 }

@@ -8,15 +8,7 @@ import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/Components/ui/skeleton";
-import {
-    Eye,
-    ListPlus,
-    Plus,
-    RotateCcw,
-    Search,
-    SquarePen,
-    Trash2,
-} from "lucide-react";
+import { ListPlus, RotateCcw, Search, SquarePen, Trash2 } from "lucide-react";
 import ActionMenu from "@/Components/ActionMenu";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import { ROAD_TYPE_TEXT } from "@/constants";
@@ -342,8 +334,10 @@ const BarangayRoads = () => {
             setData({
                 roads: [
                     {
-                        road_image: road.road_image || null, // keep original DB filename
-                        previewImage: null, // no preview yet
+                        road_image: null, // keep original DB filename
+                        previewImage: road.road_image
+                            ? `/storage/${road.road_image}`
+                            : null, // For showing in the form
                         road_type: road.road_type || "",
                         length: road.length || "",
                         condition: road.condition || "",
@@ -549,11 +543,8 @@ const BarangayRoads = () => {
 
                                             <img
                                                 src={
-                                                    road.previewImage
-                                                        ? road.previewImage // If user selected new file (preview)
-                                                        : road.road_image
-                                                        ? `/storage/${road.road_image}` // If existing image in DB
-                                                        : "/images/default-avatar.jpg" // Fallback placeholder
+                                                    road.previewImage ||
+                                                    "/images/default-avatar.jpg"
                                                 }
                                                 alt="Road Image"
                                                 className="w-32 h-32 object-cover rounded-sm border border-gray-200"

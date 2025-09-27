@@ -44,17 +44,45 @@ import {
 import { NavUser } from "@/components/nav-user";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
+import { useMemo } from "react";
+import { useRef } from "react";
 
 const items = [
-    { title: "Admin Dashboard", url: "/barangay_officer/dashboard", icon: LayoutDashboard, roles: ["barangay_officer"] },
-    { title: "CDRRMO Dashboard", url: "/cdrrmo_admin/dashboard", icon: LayoutDashboard, roles: ["cdrrmo_admin"] },
+    {
+        title: "Admin Dashboard",
+        url: "/barangay_officer/dashboard",
+        icon: LayoutDashboard,
+        roles: ["barangay_officer"],
+    },
+    {
+        title: "CDRRMO Dashboard",
+        url: "/cdrrmo_admin/dashboard",
+        icon: LayoutDashboard,
+        roles: ["cdrrmo_admin"],
+    },
+    {
+        title: "Resident Dashboard",
+        url: "/dashboard",
+        icon: LayoutDashboard,
+        roles: ["resident"],
+    },
     {
         title: "Barangay",
         icon: Home,
         roles: ["barangay_officer"],
         submenu: [
-            { title: "Barangay Profile", url: "/barangay_profile", icon: FileText, roles: ["barangay_officer"] },
-            { title: "Barangay Documents", url: "/document", icon: FileText, roles: ["barangay_officer"] },
+            {
+                title: "Barangay Profile",
+                url: "/barangay_profile",
+                icon: FileText,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Barangay Documents",
+                url: "/document",
+                icon: FileText,
+                roles: ["barangay_officer"],
+            },
         ],
     },
     {
@@ -62,13 +90,48 @@ const items = [
         icon: FileUser,
         roles: ["barangay_officer"],
         submenu: [
-            { title: "Information Table", url: "/resident", icon: Table, roles: ["barangay_officer"] },
-            { title: "Senior Citizen", url: "/senior_citizen", icon: UsersRound, roles: ["barangay_officer"] },
-            { title: "Families", url: "/family", icon: SquareUserRound, roles: ["barangay_officer"] },
-            { title: "Households", url: "/household", icon: House, roles: ["barangay_officer"] },
-            { title: "Vehicles", url: "/vehicle", icon: CarFront, roles: ["barangay_officer"] },
-            { title: "Education", url: "/education", icon: GraduationCap, roles: ["barangay_officer"] },
-            { title: "Occupation/Livelihood", url: "/occupation", icon: BriefcaseBusiness, roles: ["barangay_officer"] },
+            {
+                title: "Information Table",
+                url: "/resident",
+                icon: Table,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Senior Citizen",
+                url: "/senior_citizen",
+                icon: UsersRound,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Families",
+                url: "/family",
+                icon: SquareUserRound,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Households",
+                url: "/household",
+                icon: House,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Vehicles",
+                url: "/vehicle",
+                icon: CarFront,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Education",
+                url: "/education",
+                icon: GraduationCap,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Occupation/Livelihood",
+                url: "/occupation",
+                icon: BriefcaseBusiness,
+                roles: ["barangay_officer"],
+            },
         ],
     },
     {
@@ -76,15 +139,60 @@ const items = [
         icon: HeartPulse,
         roles: ["barangay_officer"],
         submenu: [
-            { title: "Information Table", url: "/medical", icon: Table, roles: ["barangay_officer"] },
-            { title: "Allergies", url: "/allergy", icon: Tablets, roles: ["barangay_officer"] },
-            { title: "Child Health Records", url: "/child_record", icon: Baby, roles: ["barangay_officer"] },
-            { title: "Medical Condition", url: "/medical_condition", icon: Stethoscope, roles: ["barangay_officer"] },
-            { title: "Disabilities", url: "/disability", icon: Accessibility, roles: ["barangay_officer"] },
-            { title: "Medications", url: "/medication", icon: Pill, roles: ["barangay_officer"] },
-            { title: "Pregnancy Records", url: "/pregnancy", icon: SquareActivity, roles: ["barangay_officer"] },
-            { title: "Vaccinations", url: "/vaccination", icon: Syringe, roles: ["barangay_officer"] },
-            { title: "Deaths", url: "/death/index", icon: PersonStanding, roles: ["barangay_officer"] },
+            {
+                title: "Information Table",
+                url: "/medical",
+                icon: Table,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Allergies",
+                url: "/allergy",
+                icon: Tablets,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Child Health Records",
+                url: "/child_record",
+                icon: Baby,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Medical Condition",
+                url: "/medical_condition",
+                icon: Stethoscope,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Disabilities",
+                url: "/disability",
+                icon: Accessibility,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Medications",
+                url: "/medication",
+                icon: Pill,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Pregnancy Records",
+                url: "/pregnancy",
+                icon: SquareActivity,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Vaccinations",
+                url: "/vaccination",
+                icon: Syringe,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Deaths",
+                url: "/death/index",
+                icon: PersonStanding,
+                roles: ["barangay_officer"],
+            },
         ],
     },
     {
@@ -92,7 +200,12 @@ const items = [
         icon: Files,
         roles: ["barangay_officer"],
         submenu: [
-            { title: "Certificate Issuance", url: "certificate/index", icon: FileText, roles: ["barangay_officer"] },
+            {
+                title: "Certificate Issuance",
+                url: "certificate/index",
+                icon: FileText,
+                roles: ["barangay_officer"],
+            },
         ],
     },
     {
@@ -100,8 +213,18 @@ const items = [
         icon: Scale,
         roles: ["barangay_officer"],
         submenu: [
-            { title: "Blotter Reports", url: "/blotter_report", icon: ScrollText, roles: ["barangay_officer"] },
-            { title: "Summon", url: "/summon", icon: MessageSquareWarning, roles: ["barangay_officer"] },
+            {
+                title: "Blotter Reports",
+                url: "/blotter_report",
+                icon: ScrollText,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Summon",
+                url: "/summon",
+                icon: MessageSquareWarning,
+                roles: ["barangay_officer"],
+            },
         ],
     },
     { title: "Reports", icon: Flag, submenu: [], roles: ["barangay_officer"] },
@@ -110,9 +233,41 @@ const items = [
         icon: FileStack,
         roles: ["cdrrmo_admin", "barangay_officer"],
         submenu: [
-            { title: "Information Table", icon: Table, roles: ["cdrrmo_admin"] },
-            { title: "Barangay Information Table", url: "/cra/dashboard", icon: Table, roles: ["barangay_officer"] },
-            { title: "Create", url: "/cra/create", icon: FileText, roles: ["cdrrmo_admin", "barangay_officer"] },
+            {
+                title: "Information Table",
+                icon: Table,
+                roles: ["cdrrmo_admin"],
+            },
+            {
+                title: "Barangay Information Table",
+                url: "/cra/dashboard",
+                icon: Table,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Create",
+                url: "/cra/create",
+                icon: FileText,
+                roles: ["cdrrmo_admin", "barangay_officer"],
+            },
+        ],
+    },
+    {
+        title: "Crtificate Issuance",
+        icon: FileStack,
+        roles: ["resident"],
+        submenu: [
+            {
+                title: "Information Table",
+                icon: Table,
+                roles: ["resident"],
+            },
+            {
+                title: "Requisition",
+                url: "/cra/dashboard",
+                icon: Table,
+                roles: ["resident"],
+            },
         ],
     },
 ];
@@ -123,6 +278,7 @@ export function AppSidebar({ auth }) {
     const [barangay, setBarangay] = useState(null);
     const APP_URL = useAppUrl();
     const user = auth.user;
+    const fetchedRef = useRef(false);
 
     const userRoles = user.roles.map((r) => r.name);
 
@@ -141,20 +297,30 @@ export function AppSidebar({ auth }) {
     };
 
     useEffect(() => {
+        if (!userRoles.includes("barangay_officer") || fetchedRef.current)
+            return;
+
         const fetchBarangayDetails = async () => {
             try {
-                const res = await axios.get(`${APP_URL}/barangay_profile/barangaydetails`);
+                const res = await axios.get(
+                    `${APP_URL}/barangay_profile/barangaydetails`
+                );
                 setBarangay(res.data.data);
+                fetchedRef.current = true;
             } catch (err) {
-                console.error("Error fetching barangay details:", err);
+                console.error(err);
             }
         };
-        if (userRoles.includes("barangay_officer")) fetchBarangayDetails();
+
+        fetchBarangayDetails();
     }, [APP_URL, userRoles]);
 
-    const filteredItems = items.filter((item) =>
-        item.roles.some((role) => userRoles.includes(role))
-    );
+    // Filter items based on user roles
+    const filteredItems = useMemo(() => {
+        return items.filter((item) =>
+            item.roles.some((role) => userRoles.includes(role))
+        );
+    }, [items, userRoles]);
 
     useEffect(() => {
         const matchedIndex = filteredItems.findIndex(
@@ -173,25 +339,32 @@ export function AppSidebar({ auth }) {
         <Sidebar>
             {/* Header with blue branding */}
             <div className="bg-white px-4 py-[8px] flex items-center border-b border-gray-200">
-                <img src="/images/csa-logo.png" alt="CSA Logo" className="h-11 w-11 mr-3" />
+                <img
+                    src="/images/csa-logo.png"
+                    alt="CSA Logo"
+                    className="h-11 w-11 mr-3"
+                />
                 <div className="flex flex-col leading-none space-y-0">
-                    <p className="font-black text-[20px] text-sky-700 font-montserrat m-0 pb-1 leading-none">iBIMS</p>
+                    <p className="font-black text-[20px] text-sky-700 font-montserrat m-0 pb-1 leading-none">
+                        iBIMS
+                    </p>
                     <p className="font-light text-sm text-gray-500 font-montserrat m-0 p-0 leading-none">
                         {userRoles.includes("super_admin")
                             ? "Super Admin"
                             : userRoles.includes("cdrrmo_admin")
-                                ? "CDRRMO Admin"
-                                : barangay
-                                    ? barangay.barangay_name
-                                    : "Loading..."}
+                            ? "CDRRMO Admin"
+                            : barangay
+                            ? barangay.barangay_name
+                            : "Loading..."}
                     </p>
                 </div>
             </div>
 
-
             <SidebarContent className="bg-white shadow-lg">
                 <SidebarGroup>
-                    <SidebarGroupLabel className="text-gray-500 mx-0 mr-4 text-sm">Main Menu</SidebarGroupLabel>
+                    <SidebarGroupLabel className="text-gray-500 mx-0 mr-4 text-sm">
+                        Main Menu
+                    </SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {filteredItems.map((item, index) => (
@@ -200,15 +373,25 @@ export function AppSidebar({ auth }) {
                                     <SidebarMenuItem>
                                         <SidebarMenuButton
                                             asChild
-                                            onClick={() => item.submenu?.length > 0 && toggleCollapse(index)}
+                                            onClick={() =>
+                                                item.submenu?.length > 0 &&
+                                                toggleCollapse(index)
+                                            }
                                         >
                                             <a
                                                 href={item.url || "#"}
-                                                className={`flex items-center justify-between w-full my-1 px-2 py-2 rounded-lg transition-all duration-200 ${(isActive(item.url) ||
-                                                    (item.submenu && item.submenu.some((sub) => isActive(sub.url))))
-                                                    ? "text-gray-900 font-semibold"
-                                                    : "text-gray-700 hover:text-gray-900"
-                                                    }`}
+                                                className={`flex items-center justify-between w-full my-1 px-2 py-2 rounded-lg transition-all duration-200 ${
+                                                    isActive(item.url) ||
+                                                    (item.submenu &&
+                                                        item.submenu.some(
+                                                            (sub) =>
+                                                                isActive(
+                                                                    sub.url
+                                                                )
+                                                        ))
+                                                        ? "text-gray-900 font-semibold"
+                                                        : "text-gray-700 hover:text-gray-900"
+                                                }`}
                                             >
                                                 <div className="flex items-center">
                                                     <item.icon className="mr-2 h-5 w-5" />
@@ -231,27 +414,39 @@ export function AppSidebar({ auth }) {
                                     {/* Submenu */}
                                     {item.submenu?.length > 0 && (
                                         <SidebarGroupContent
-                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${openIndex === index
-                                                ? "max-h-[1000px] opacity-100"
-                                                : "max-h-0 opacity-0"
-                                                }`}
+                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                                openIndex === index
+                                                    ? "max-h-[1000px] opacity-100"
+                                                    : "max-h-0 opacity-0"
+                                            }`}
                                         >
                                             {item.submenu
                                                 .filter((sub) =>
-                                                    sub.roles.some((role) => userRoles.includes(role))
+                                                    sub.roles.some((role) =>
+                                                        userRoles.includes(role)
+                                                    )
                                                 )
                                                 .map((sub) => (
-                                                    <SidebarMenuItem key={sub.title}>
-                                                        <SidebarMenuButton asChild>
+                                                    <SidebarMenuItem
+                                                        key={sub.title}
+                                                    >
+                                                        <SidebarMenuButton
+                                                            asChild
+                                                        >
                                                             <a
                                                                 href={sub.url}
-                                                                className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${isActive(sub.url)
-                                                                    ? "bg-gray-200 text-gray-900 font-semibold"
-                                                                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                                                                    }`}
+                                                                className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${
+                                                                    isActive(
+                                                                        sub.url
+                                                                    )
+                                                                        ? "bg-gray-200 text-gray-900 font-semibold"
+                                                                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                                                }`}
                                                             >
                                                                 <sub.icon className="mr-2 h-4 w-4" />
-                                                                <span>{sub.title}</span>
+                                                                <span>
+                                                                    {sub.title}
+                                                                </span>
                                                             </a>
                                                         </SidebarMenuButton>
                                                     </SidebarMenuItem>

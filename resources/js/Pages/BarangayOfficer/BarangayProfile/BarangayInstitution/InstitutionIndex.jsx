@@ -148,12 +148,11 @@ const InstitutionIndex = () => {
         ),
         head: (row) => {
             const res = row?.head?.resident;
-            return (
-                <span className="font-medium text-gray-800">
-                    {res.firstname} {res.middlename ?? ""} {res.lastname}{" "}
-                    <span className="text-gray-500">{res.suffix ?? ""}</span>
-                </span>
-            );
+            return res
+                ? `${res.firstname} ${res.middlename ?? ""} ${res.lastname} ${
+                      res.suffix ?? ""
+                  }`
+                : "No assigned head";
         },
 
         description: (row) => (

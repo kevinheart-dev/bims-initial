@@ -25,7 +25,7 @@ class StoreBarangayProjectRequest extends FormRequest
             'projects' => ['required', 'array'],
             'projects.*.project_image' => ['nullable', 'image', 'max:5120'],
             'projects.*.title' => ['required', 'string', 'max:55'],
-            'projects.*.description' => ['required', 'string'],
+            'projects.*.description' => ['nullable', 'string'],
             'projects.*.status' => ['required', 'in:planning,ongoing,completed,cancelled'],
             'projects.*.category' => ['required', 'string', 'max:55'],
             'projects.*.responsible_institution' => ['nullable', 'string', 'max:155'],
