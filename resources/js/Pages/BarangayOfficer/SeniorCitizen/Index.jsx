@@ -9,7 +9,7 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Eye, Search, SquarePen, Trash2, UserCheck } from "lucide-react";
+import { Eye, Search, SquarePen, Trash2, UserCheck, IdCard } from "lucide-react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import DynamicTable from "@/Components/DynamicTable";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
@@ -203,8 +203,7 @@ export default function Index({
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename ?? ""} ${
-                    resident.lastname ?? ""
+                `${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname ?? ""
                 } ${resident.suffix ?? ""}`
             );
             setData("purok_number", resident.purok_number);
@@ -263,8 +262,7 @@ export default function Index({
                 setData("resident_id", resident.id);
                 setData(
                     "resident_name",
-                    `${resident.firstname} ${resident.middlename ?? ""} ${
-                        resident.lastname ?? ""
+                    `${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname ?? ""
                     } ${resident.suffix ?? ""}`
                 );
                 setData("purok_number", resident.purok_number);
@@ -358,7 +356,7 @@ export default function Index({
                 resident.seniorcitizen == null ? (
                     <span className="text-yellow-600 font-medium">Pending</span>
                 ) : resident.seniorcitizen.is_pensioner?.toLowerCase() ===
-                  "yes" ? (
+                    "yes" ? (
                     <span className="text-green-600 font-medium">Yes</span>
                 ) : (
                     <span className="text-gray-500">No</span>
@@ -469,6 +467,22 @@ export default function Index({
             <div className="p-2 md:p-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                        <div className="mb-6">
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl shadow-sm">
+                                <div className="p-2 bg-yellow-100 rounded-full">
+                                    <IdCard className="w-6 h-6 text-yellow-600" />
+                                </div>
+                                <div>
+                                    <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+                                        Senior Citizen Records
+                                    </h1>
+                                    <p className="text-sm text-gray-500">
+                                        Manage and track senior citizen information. Quickly search,
+                                        filter, or export records to support programs and services.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                             <div className="flex items-start gap-2 flex-wrap">
                                 <DynamicTableControls
@@ -587,10 +601,10 @@ export default function Index({
                     registerSenior
                         ? "Register Senior Citizen"
                         : seniorDetails
-                        ? "Edit Senior Citizen Details"
-                        : selectedResident
-                        ? "Resident Details"
-                        : ""
+                            ? "Edit Senior Citizen Details"
+                            : selectedResident
+                                ? "Resident Details"
+                                : ""
                 }
             >
                 {selectedResident && (

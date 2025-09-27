@@ -8,6 +8,7 @@ import {
     Trash2,
     SquarePlus,
     Eye,
+    Cross,
     MoveRight,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -431,6 +432,24 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
                 <div className="p-2 md:p-4">
                     <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                            <div className="mb-6">
+                                <div className="flex items-center gap-3 p-3 bg-red-50 rounded-xl shadow-sm">
+                                    <div className="p-2 bg-red-100 rounded-full">
+                                        <Cross className="w-6 h-6 text-red-600" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+                                            Death Records
+                                        </h1>
+                                        <p className="text-sm text-gray-500">
+                                            Maintain and monitor resident <span className="font-medium">death records</span>.
+                                            Use the tools below to <span className="font-medium">search, filter, or export</span>
+                                            information for reports and documentation.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <DynamicTableControls

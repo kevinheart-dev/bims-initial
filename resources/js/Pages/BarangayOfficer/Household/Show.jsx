@@ -204,8 +204,7 @@ export default function Index({
     const columnRenderers = {
         resident_id: (member) => member.resident.id,
         name: (member) =>
-            `${member.resident.firstname} ${member.resident.middlename ?? ""} ${
-                member.resident.lastname ?? ""
+            `${member.resident.firstname} ${member.resident.middlename ?? ""} ${member.resident.lastname ?? ""
             } ${member.resident.suffix ?? ""}`,
         gender: (member) => {
             const genderKey = member.resident.gender;
@@ -247,7 +246,7 @@ export default function Index({
             CONSTANTS.HOUSEHOLD_POSITION_TEXT[member.household_position] || "",
         employment_status: (member) =>
             CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-                member.resident.employment_status
+            member.resident.employment_status
             ],
         registered_voter: (member) => {
             const status = member.resident?.registered_voter ?? 0;
@@ -313,6 +312,7 @@ export default function Index({
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             {/* <pre>{JSON.stringify(head, undefined, 3)}</pre> */}
             <div className="bg-white shadow-md rounded-lg m-5 border border-gray-200">
+
                 {/* Header */}
                 <div className="px-4 py-4 border-b bg-gray-100 rounded-t-lg">
                     <h2 className="text-2xl font-semibold text-gray-800">
@@ -357,30 +357,30 @@ export default function Index({
                                 household_details.bath_and_wash_area
                             )
                                 ? household_details.bath_and_wash_area
-                                      .map(
-                                          (item) =>
-                                              CONSTANTS
-                                                  .HOUSEHOLD_BATH_WASH_TEXT[
-                                                  item
-                                              ] || item
-                                      )
-                                      .join(", ")
+                                    .map(
+                                        (item) =>
+                                            CONSTANTS
+                                                .HOUSEHOLD_BATH_WASH_TEXT[
+                                            item
+                                            ] || item
+                                    )
+                                    .join(", ")
                                 : typeof household_details.bath_and_wash_area ===
-                                  "object"
-                                ? Object.values(
-                                      household_details.bath_and_wash_area
-                                  )
-                                      .map(
-                                          (item) =>
-                                              CONSTANTS
-                                                  .HOUSEHOLD_BATH_WASH_TEXT[
-                                                  item
-                                              ] || item
-                                      )
-                                      .join(", ")
-                                : CONSTANTS.HOUSEHOLD_BATH_WASH_TEXT[
-                                      household_details.bath_and_wash_area
-                                  ] || household_details.bath_and_wash_area,
+                                    "object"
+                                    ? Object.values(
+                                        household_details.bath_and_wash_area
+                                    )
+                                        .map(
+                                            (item) =>
+                                                CONSTANTS
+                                                    .HOUSEHOLD_BATH_WASH_TEXT[
+                                                item
+                                                ] || item
+                                        )
+                                        .join(", ")
+                                    : CONSTANTS.HOUSEHOLD_BATH_WASH_TEXT[
+                                    household_details.bath_and_wash_area
+                                    ] || household_details.bath_and_wash_area,
                         },
                         {
                             label: "Rooms",
@@ -399,14 +399,14 @@ export default function Index({
                             value:
                                 household_details.toilets?.length > 0
                                     ? household_details.toilets
-                                          .map(
-                                              (t) =>
-                                                  CONSTANTS
-                                                      .HOUSEHOLD_TOILET_TYPE_TEXT[
-                                                      t.toilet_type
-                                                  ] || t.toilet_type
-                                          )
-                                          .join(", ")
+                                        .map(
+                                            (t) =>
+                                                CONSTANTS
+                                                    .HOUSEHOLD_TOILET_TYPE_TEXT[
+                                                t.toilet_type
+                                                ] || t.toilet_type
+                                        )
+                                        .join(", ")
                                     : "None",
                         },
                         {
@@ -415,15 +415,15 @@ export default function Index({
                                 household_details.waste_management_types
                                     ?.length > 0
                                     ? household_details.waste_management_types
-                                          .map(
-                                              (item) =>
-                                                  CONSTANTS
-                                                      .HOUSEHOLD_WASTE_DISPOSAL_TEXT[
-                                                      item.waste_management_type
-                                                  ] ||
-                                                  item.waste_management_type
-                                          )
-                                          .join(", ")
+                                        .map(
+                                            (item) =>
+                                                CONSTANTS
+                                                    .HOUSEHOLD_WASTE_DISPOSAL_TEXT[
+                                                item.waste_management_type
+                                                ] ||
+                                                item.waste_management_type
+                                        )
+                                        .join(", ")
                                     : "None",
                         },
                         {
@@ -431,14 +431,14 @@ export default function Index({
                             value:
                                 household_details.water_source_types?.length > 0
                                     ? household_details.water_source_types
-                                          .map(
-                                              (w) =>
-                                                  CONSTANTS
-                                                      .HOUSEHOLD_WATER_SOURCE_TEXT[
-                                                      w.water_source_type
-                                                  ] || w.water_source_type
-                                          )
-                                          .join(", ")
+                                        .map(
+                                            (w) =>
+                                                CONSTANTS
+                                                    .HOUSEHOLD_WATER_SOURCE_TEXT[
+                                                w.water_source_type
+                                                ] || w.water_source_type
+                                        )
+                                        .join(", ")
                                     : "None",
                         },
                         {
@@ -446,14 +446,14 @@ export default function Index({
                             value:
                                 household_details.electricity_types?.length > 0
                                     ? household_details.electricity_types
-                                          .map(
-                                              (e) =>
-                                                  CONSTANTS
-                                                      .HOUSEHOLD_ELECTRICITY_TYPE[
-                                                      e.electricity_type
-                                                  ] || e.electricity_type
-                                          )
-                                          .join(", ")
+                                        .map(
+                                            (e) =>
+                                                CONSTANTS
+                                                    .HOUSEHOLD_ELECTRICITY_TYPE[
+                                                e.electricity_type
+                                                ] || e.electricity_type
+                                        )
+                                        .join(", ")
                                     : "None",
                         },
                     ].map(({ label, value }, index) => (

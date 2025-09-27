@@ -3,6 +3,7 @@ import { Head, Link, router, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+    Home,
     Eye,
     Search,
     UserRoundPlus,
@@ -145,22 +146,21 @@ export default function Index({ households, puroks, streets, queryParams }) {
             <span>
                 {
                     CONSTANTS.HOUSEHOLD_OWNERSHIP_TEXT[
-                        house.household.ownership_type
+                    house.household.ownership_type
                     ]
                 }
             </span>
         ),
         housing_condition: (house) => (
             <span
-                className={`px-2 py-1 text-sm rounded-lg ${
-                    CONSTANTS.HOUSING_CONDITION_COLOR[
-                        house.household.housing_condition
-                    ] ?? "bg-gray-100 text-gray-700"
-                }`}
+                className={`px-2 py-1 text-sm rounded-lg ${CONSTANTS.HOUSING_CONDITION_COLOR[
+                    house.household.housing_condition
+                ] ?? "bg-gray-100 text-gray-700"
+                    }`}
             >
                 {
                     CONSTANTS.HOUSEHOLD_CONDITION_TEXT[
-                        house.household.housing_condition
+                    house.household.housing_condition
                     ]
                 }
             </span>
@@ -171,7 +171,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
             <span>
                 {
                     CONSTANTS.HOUSEHOLD_STRUCTURE_TEXT[
-                        house.household.house_structure
+                    house.household.house_structure
                     ]
                 }
             </span>
@@ -274,6 +274,22 @@ export default function Index({ households, puroks, streets, queryParams }) {
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                        <div className="mb-6">
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl shadow-sm">
+                                <div className="p-2 bg-indigo-100 rounded-full">
+                                    <Home className="w-6 h-6 text-indigo-600" />
+                                </div>
+                                <div>
+                                    <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+                                        Households Records
+                                    </h1>
+                                    <p className="text-sm text-gray-500">
+                                        Manage all registered households in the barangay. Search, filter,
+                                        or export data, and add new households for accurate community tracking.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                             <div className="flex items-start gap-2 flex-wrap">
                                 <DynamicTableControls

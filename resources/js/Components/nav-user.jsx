@@ -2,11 +2,8 @@
 
 import {
     BadgeCheck,
-    Bell,
     ChevronsUpDown,
-    CreditCard,
     LogOut,
-    Sparkles,
     CircleUserRound,
 } from "lucide-react";
 
@@ -33,7 +30,7 @@ export function NavUser({ user }) {
         router.post(route("logout"));
     };
     return (
-        <SidebarMenu className="bg-blue-200 rounded-xl">
+        <SidebarMenu className="bg-blue-100 rounded-xl">
             <SidebarMenuItem>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>

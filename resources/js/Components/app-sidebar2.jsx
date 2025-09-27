@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import {
     LayoutDashboard,
@@ -47,6 +47,7 @@ import useAppUrl from "@/hooks/useAppUrl";
 import { useMemo } from "react";
 import { useRef } from "react";
 
+// Define the menu items outside the component to prevent re-creation on every render
 const items = [
     {
         title: "Admin Dashboard",
@@ -206,6 +207,7 @@ const items = [
                 icon: FileText,
                 roles: ["barangay_officer"],
             },
+
         ],
     },
     {
@@ -275,33 +277,37 @@ const items = [
 export function AppSidebar({ auth }) {
     const location = useLocation();
     const [openIndex, setOpenIndex] = useState(null);
-    const [barangay, setBarangay] = useState(null);
+    const [barangayName, setBarangayName] = useState(null); // Renamed for clarity
     const APP_URL = useAppUrl();
     const user = auth.user;
     const fetchedRef = useRef(false);
 
-    const userRoles = user.roles.map((r) => r.name);
+    const userRoles = useMemo(() => user.roles.map((r) => r.name), [user.roles]);
 
-    const normalize = (u) => {
+    // Memoize normalize function as it's used in isActive
+    const normalize = useCallback((u) => {
         if (!u) return "";
         let s = u.trim();
         if (!s.startsWith("/")) s = "/" + s;
         if (s.length > 1 && s.endsWith("/")) s = s.slice(0, -1);
         return s;
-    };
+    }, []); // No dependencies, so it's created once
 
-    const isActive = (url) => {
+    // Memoize isActive function
+    const isActive = useCallback((url) => {
         if (!url) return false;
         const n = normalize(url);
         return location.pathname === n || location.pathname.startsWith(n + "/");
-    };
+    }, [location.pathname, normalize]); // Re-create only if location.pathname or normalize changes
 
+    // Fetch barangay details only once and store the name
     useEffect(() => {
         if (!userRoles.includes("barangay_officer") || fetchedRef.current)
             return;
 
         const fetchBarangayDetails = async () => {
             try {
+
                 const res = await axios.get(
                     `${APP_URL}/barangay_profile/barangaydetails`
                 );
@@ -329,12 +335,11 @@ export function AppSidebar({ auth }) {
                 item.submenu.some((sub) => isActive(sub.url))
         );
         setOpenIndex(matchedIndex === -1 ? null : matchedIndex);
-    }, [location.pathname, JSON.stringify(filteredItems)]);
+    }, [location.pathname, filteredItems, isActive]);
 
-    const toggleCollapse = (index) => {
+    const toggleCollapse = useCallback((index) => {
         setOpenIndex((prev) => (prev === index ? null : index));
-    };
-
+    }, []);
     return (
         <Sidebar>
             {/* Header with blue branding */}
@@ -359,6 +364,7 @@ export function AppSidebar({ auth }) {
                     </p>
                 </div>
             </div>
+
 
             <SidebarContent className="bg-white shadow-lg">
                 <SidebarGroup>

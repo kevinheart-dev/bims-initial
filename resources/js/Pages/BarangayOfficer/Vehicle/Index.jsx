@@ -2,7 +2,7 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, SquarePen, Trash2, ListPlus, Filter } from "lucide-react";
+import { Search, SquarePen, Trash2, ListPlus, Filter, Car } from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import { Toaster, toast } from "sonner";
@@ -175,9 +175,8 @@ export default function Index({
             const statusLabel = VEHICLE_USAGE_TEXT[vehicle.usage_status];
             return (
                 <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        VEHICLE_USAGE_STYLES[vehicle.usage_status]
-                    }`}
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${VEHICLE_USAGE_STYLES[vehicle.usage_status]
+                        }`}
                 >
                     {statusLabel}
                 </span>
@@ -228,9 +227,8 @@ export default function Index({
     };
 
     const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
-            res.suffix ?? ""
-        }`,
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
+            }`,
         value: res.id.toString(),
     }));
 
@@ -266,9 +264,8 @@ export default function Index({
             setVehicleDetails(vehicle);
             setData({
                 resident_id: vehicle.resident.id,
-                resident_name: `${vehicle.resident.firstname} ${
-                    vehicle.resident.middlename ?? ""
-                } ${vehicle.resident.lastname}`,
+                resident_name: `${vehicle.resident.firstname} ${vehicle.resident.middlename ?? ""
+                    } ${vehicle.resident.lastname}`,
                 resident_image: vehicle.resident.image ?? null,
                 birthdate: vehicle.resident.birthdate ?? null,
                 purok_number: vehicle.resident.purok_number ?? null,
@@ -334,6 +331,22 @@ export default function Index({
                 <div className="p-2 md:p-4">
                     <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                            <div className="mb-6">
+                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl shadow-sm">
+                                    <div className="p-2 bg-blue-100 rounded-full">
+                                        <Car className="w-6 h-6 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+                                            Vehicle Records
+                                        </h1>
+                                        <p className="text-sm text-gray-500">
+                                            Manage community vehicle data including ownership, type, and usage.
+                                            Use the tools below to search, filter, or export vehicle records.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                                 <div className="flex items-start gap-2 flex-wrap">
                                     <DynamicTableControls
