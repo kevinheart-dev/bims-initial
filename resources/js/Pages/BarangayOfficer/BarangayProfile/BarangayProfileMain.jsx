@@ -8,17 +8,21 @@ import axios from "axios";
 import { Skeleton } from "@/Components/ui/skeleton";
 import { Toaster, toast } from "sonner";
 import TableSkeleton from "@/Components/TableSkeleton";
-import { Phone, Mail, MapPin } from 'lucide-react';
+import { Phone, Mail, MapPin } from "lucide-react";
 // Lazy load tab components
 const BarangayInfrastucture = lazy(() =>
     import("./BarangayInfrastructure/BarangayInfrastucture")
 );
 const FacilityIndex = lazy(() => import("./BarangayFacility/FacilityIndex"));
-const InstitutionIndex = lazy(() => import("./BarangayInstitution/InstitutionIndex"));
+const InstitutionIndex = lazy(() =>
+    import("./BarangayInstitution/InstitutionIndex")
+);
 const ProjectIndex = lazy(() => import("./BarangayProjects/ProjectIndex"));
 const RoadIndex = lazy(() => import("./BarangayRoad/RoadIndex"));
 const InventoryIndex = lazy(() => import("./BarangayInventory/InventoryIndex"));
-const BarangayOfficials = lazy(() => import("./BarangayOfficials/BarangayOfficials"));
+const BarangayOfficials = lazy(() =>
+    import("./BarangayOfficials/BarangayOfficials")
+);
 
 const BarangayProfileMain = () => {
     const props = usePage().props;
@@ -99,7 +103,6 @@ const BarangayProfileMain = () => {
                                 <span>{barangayData.email}</span>
                             </div>
                         </div>
-
                     </div>
 
                     {/* Tab Navigation */}
@@ -118,10 +121,11 @@ const BarangayProfileMain = () => {
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`py-2 px-1 border-b-2 ${activeTab === tab
-                                        ? "border-blue-600 text-blue-700"
-                                        : "border-transparent text-gray-500"
-                                        }`}
+                                    className={`py-2 px-1 border-b-2 ${
+                                        activeTab === tab
+                                            ? "border-blue-600 text-blue-700"
+                                            : "border-transparent text-gray-500"
+                                    }`}
                                 >
                                     {tab.charAt(0).toUpperCase() +
                                         tab.slice(1).replace(/([A-Z])/g, " $1")}
@@ -144,7 +148,9 @@ const BarangayProfileMain = () => {
                             {activeTab === "infrastructure" && (
                                 <BarangayInfrastucture />
                             )}
-                            {activeTab === "institutions" && <InstitutionIndex />}
+                            {activeTab === "institutions" && (
+                                <InstitutionIndex />
+                            )}
                             {activeTab === "facilities" && <FacilityIndex />}
                             {activeTab === "projects" && <ProjectIndex />}
                             {activeTab === "inventories" && <InventoryIndex />}

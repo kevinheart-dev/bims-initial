@@ -109,8 +109,11 @@ export default function Index({ residents, queryParams = null, puroks }) {
             activeFilters.push("SoloParent");
         }
         return activeFilters;
-    }, [currentQueryParams.pwd, currentQueryParams.fourps, currentQueryParams.solo_parent]);
-
+    }, [
+        currentQueryParams.pwd,
+        currentQueryParams.fourps,
+        currentQueryParams.solo_parent,
+    ]);
 
     // Optimize useQuery to prevent unnecessary re-fetches and improve caching
     const {
@@ -140,7 +143,8 @@ export default function Index({ residents, queryParams = null, puroks }) {
         () => (field, value) => {
             let newQueryParams = { ...currentQueryParams };
 
-            if (value && value.trim() !== "" && value !== "0") { // Added value !== "0" check for welfare filters
+            if (value && value.trim() !== "" && value !== "0") {
+                // Added value !== "0" check for welfare filters
                 newQueryParams[field] = value;
             } else {
                 delete newQueryParams[field];
@@ -231,11 +235,10 @@ export default function Index({ residents, queryParams = null, puroks }) {
                     ].includes(key) &&
                     value &&
                     value !== "" && // Check for empty string
-                    value !== "0"   // Explicitly ignore "0" for welfare filters
+                    value !== "0" // Explicitly ignore "0" for welfare filters
             ),
         [currentQueryParams]
     );
-
 
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
     useEffect(() => {
@@ -300,9 +303,11 @@ export default function Index({ residents, queryParams = null, puroks }) {
             ),
             name: (resident) => (
                 <div className="text-sm break-words whitespace-normal leading-snug">
-                    {`${resident.firstname} ${resident.middlename ? resident.middlename + " " : ""
-                        }${resident.lastname ?? ""} ${resident.suffix ? resident.suffix : ""
-                        }`}
+                    {`${resident.firstname} ${
+                        resident.middlename ? resident.middlename + " " : ""
+                    }${resident.lastname ?? ""} ${
+                        resident.suffix ? resident.suffix : ""
+                    }`}
                 </div>
             ),
             sex: (resident) => {
@@ -338,7 +343,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                 CONSTANTS.RESIDENT_CIVIL_STATUS_TEXT[resident.civil_status],
             employment_status: (resident) =>
                 CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-                resident.employment_status
+                    resident.employment_status
                 ],
             occupation: (resident) => {
                 const occ = resident.occupation;
@@ -355,14 +360,15 @@ export default function Index({ residents, queryParams = null, puroks }) {
             ethnicity: (resident) => resident.ethnicity,
             registered_voter: (resident) => (
                 <span
-                    className={`${CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
-                        resident.registered_voter
-                    ]
-                        } whitespace-nowrap`}
+                    className={`${
+                        CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
+                            resident.registered_voter
+                        ]
+                    } whitespace-nowrap`}
                 >
                     {
                         CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[
-                        resident.registered_voter
+                            resident.registered_voter
                         ]
                     }
                 </span>

@@ -346,8 +346,10 @@ const ProjectIndex = () => {
                     {
                         title: project.title || "",
                         description: project.description || "",
-                        project_image: project.project_image || null, // keep original DB filename
-                        previewImage: null, // no preview yet
+                        project_image: null, // keep original DB filename
+                        previewImage: project.project_image
+                            ? `/storage/${project.project_image}`
+                            : null, // For showing in the form
                         status: project.status || "planning",
                         category: project.category || "",
                         responsible_institution:
@@ -566,13 +568,10 @@ const ProjectIndex = () => {
 
                                         <img
                                             src={
-                                                project.previewImage
-                                                    ? project.previewImage // If user selected new file (preview)
-                                                    : project.project_image
-                                                    ? `/storage/${project.project_image}` // If existing image in DB
-                                                    : "/images/default-avatar.jpg" // Fallback placeholder
+                                                project.previewImage ||
+                                                "/images/default-avatar.jpg"
                                             }
-                                            alt="Facility Image"
+                                            alt="Project Image"
                                             className="w-32 h-32 object-cover rounded-sm border border-gray-200"
                                         />
 

@@ -34,6 +34,7 @@ use App\Http\Controllers\OccupationController;
 use App\Http\Controllers\PregnancyRecordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportGenerationController;
+use App\Http\Controllers\ResidentAccountController;
 use App\Http\Controllers\ResidentController;
 use App\Http\Controllers\ResidentMedicalConditionController;
 use App\Http\Controllers\ResidentMedicationController;
@@ -212,9 +213,8 @@ Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(
 
 // Resident-only routes
 Route::middleware(['auth', 'role:resident'])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [ResidentAccountController::class, 'dashboard'])->name('resident_account.dashboard');
+    Route::resource('resident_account', ResidentAccountController::class);
 });
 
 // Routes accessible to both resident and admin users (verified users)

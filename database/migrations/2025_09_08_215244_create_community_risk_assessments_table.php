@@ -18,9 +18,9 @@ return new class extends Migration
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            // make sure each barangay has only ONE CRA record at a time
             $table->unique('barangay_id');
-
+            $table->year('year');
+            $table->decimal('progess')->nullable();
             // track submission date
             $table->timestamp('submitted_at')->nullable();
 

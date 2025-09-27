@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Barangay;
 use App\Models\BarangayRoad;
 use App\Http\Requests\StoreBarangayRoadRequest;
 use App\Http\Requests\UpdateBarangayRoadRequest;
 use DB;
+use Illuminate\Support\Facades\Storage;
 use Str;
 
 class BarangayRoadController extends Controller
@@ -68,24 +70,25 @@ class BarangayRoadController extends Controller
     public function store(StoreBarangayRoadRequest $request)
     {
         $brgy_id = auth()->user()->barangay_id;
+        $barangayName = Barangay::find($brgy_id)->barangay_name;
+        $barangaySlug = Str::slug($barangayName);
         $data = $request->validated();
 
         try {
             if (!empty($data['roads']) && is_array($data['roads'])) {
                 foreach ($data['roads'] as $road) {
-
                     $imagePath = $road['road_image'] ?? null;
 
-                    // If it's a file upload, store it
+                    // Handle file upload
                     if ($imagePath instanceof \Illuminate\Http\UploadedFile) {
-                        $folder = 'road/' . Str::slug($road['road_type']) . Str::random(10);
+                        $folder = 'road/' . $barangaySlug . '/' . Str::slug($road['road_type']) . '-' . Str::random(10);
                         $imagePath = $imagePath->store($folder, 'public');
                     }
 
                     BarangayRoad::create([
                         'barangay_id'   => $brgy_id,
-                        'road_image'    => $imagePath,
                         'road_type'     => $road['road_type'],
+                        'road_image'    => $imagePath,
                         'length'        => $road['length'],
                         'condition'     => $road['condition'],
                         'status'        => $road['status'],
@@ -97,8 +100,8 @@ class BarangayRoadController extends Controller
             return redirect()
                 ->route('barangay_profile.index')
                 ->with([
-                    'success' => 'Road(s) saved successfully.',
-                    'activeTab' => 'roads'
+                    'success'   => 'Road(s) saved successfully.',
+                    'activeTab' => 'roads',
                 ]);
         } catch (\Exception $e) {
             return back()->with(
@@ -129,27 +132,45 @@ class BarangayRoadController extends Controller
      */
     public function update(UpdateBarangayRoadRequest $request, BarangayRoad $barangayRoad)
     {
+        $brgy_id = auth()->user()->barangay_id;
+        $barangayName = Barangay::find($brgy_id)->barangay_name;
+        $barangaySlug = Str::slug($barangayName);
         $data = $request->validated();
 
         try {
             if (!empty($data['roads']) && is_array($data['roads'])) {
                 foreach ($data['roads'] as $road) {
+                    $imagePath = $barangayRoad->road_image; // default to old one
 
-                    $imagePath = $road['road_image'] ?? $barangayRoad->road_image;
+                    // Case 1: New file uploaded
+                    if (!empty($road['road_image']) && $road['road_image'] instanceof \Illuminate\Http\UploadedFile) {
+                        // Delete old image if it exists
+                        if ($barangayRoad->road_image && Storage::disk('public')->exists($barangayRoad->road_image)) {
+                            Storage::disk('public')->delete($barangayRoad->road_image);
 
-                    // If it's a file upload, store it
-                    if ($imagePath instanceof \Illuminate\Http\UploadedFile) {
-                        $folder = 'road/' . Str::slug($road['road_type']) . Str::random(10);
-                        $imagePath = $imagePath->store($folder, 'public');
+                            // Delete the folder if empty
+                            $folder = dirname($barangayRoad->road_image);
+                            if (empty(Storage::disk('public')->files($folder))) {
+                                Storage::disk('public')->deleteDirectory($folder);
+                            }
+                        }
+
+                        // Store new file
+                        $folder = 'road/' . $barangaySlug . '/' . Str::slug($road['road_type']) . '-' . Str::random(10);
+                        $imagePath = $road['road_image']->store($folder, 'public');
+                    }
+                    // Case 2: No new file, but keep old one via existing_image
+                    elseif (!empty($road['existing_image'])) {
+                        $imagePath = $road['existing_image'];
                     }
 
                     $barangayRoad->update([
-                        'road_type'     => $road['road_type'],
+                        'road_type'     => $road['road_type'] ?? $barangayRoad->road_type,
                         'road_image'    => $imagePath,
-                        'length'        => $road['length'],
-                        'condition'     => $road['condition'],
-                        'status'        => $road['status'],
-                        'maintained_by' => $road['maintained_by'] ?? null,
+                        'length'        => $road['length'] ?? $barangayRoad->length,
+                        'condition'     => $road['condition'] ?? $barangayRoad->condition,
+                        'status'        => $road['status'] ?? $barangayRoad->status,
+                        'maintained_by' => $road['maintained_by'] ?? $barangayRoad->maintained_by,
                     ]);
                 }
             }
@@ -157,8 +178,8 @@ class BarangayRoadController extends Controller
             return redirect()
                 ->route('barangay_profile.index')
                 ->with([
-                    'success' => 'Road updated successfully.',
-                    'activeTab' => 'roads'
+                    'success'   => 'Road updated successfully.',
+                    'activeTab' => 'roads',
                 ]);
         } catch (\Exception $e) {
             return back()->with(
@@ -174,18 +195,37 @@ class BarangayRoadController extends Controller
     public function destroy(BarangayRoad $barangayRoad)
     {
         DB::beginTransaction();
+
         try {
+            // Delete the road image from storage if it exists
+            if ($barangayRoad->road_image && Storage::disk('public')->exists($barangayRoad->road_image)) {
+                Storage::disk('public')->delete($barangayRoad->road_image);
+
+                // Delete the folder if empty
+                $folder = dirname($barangayRoad->road_image);
+                if (empty(Storage::disk('public')->files($folder))) {
+                    Storage::disk('public')->deleteDirectory($folder);
+                }
+            }
+
+            // Delete the road record
             $barangayRoad->delete();
+
             DB::commit();
+
             return redirect()
                 ->route('barangay_profile.index')
                 ->with([
-                    'success' => 'Road deleted successfully!',
-                    'activeTab' => 'roads'
+                    'success'   => 'Road deleted successfully!',
+                    'activeTab' => 'roads',
                 ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Road could not be deleted: ' . $e->getMessage());
+
+            return back()->with(
+                'error',
+                'Road could not be deleted: ' . $e->getMessage()
+            );
         }
     }
     public function roadDetails($id){

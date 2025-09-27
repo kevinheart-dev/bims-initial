@@ -26,6 +26,8 @@ import ActionMenu from "@/Components/ActionMenu";
 import SidebarModal from "@/Components/SidebarModal";
 import { Textarea } from "@/components/ui/textarea";
 import { Toaster, toast } from "sonner";
+import { useMemo } from "react";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 
 export default function Index({ documents, queryParams }) {
     const breadcrumbs = [
@@ -37,6 +39,8 @@ export default function Index({ documents, queryParams }) {
     const props = usePage().props;
     const success = props?.success ?? null;
     const error = props?.error ?? null;
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [residentToDelete, setResidentToDelete] = useState(null);
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const fileInputRef = useRef(null);
@@ -97,17 +101,6 @@ export default function Index({ documents, queryParams }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedResident, setSelectedResident] = useState(null);
 
-    const handleView = async (resident) => {
-        try {
-            const response = await axios.get(
-                `${APP_URL}/resident/showresident/${resident}`
-            );
-            setSelectedResident(response.data.resident);
-        } catch (error) {
-            console.error("Error fetching placeholders:", error);
-        }
-        setIsModalOpen(true);
-    };
     const [isPaginated, setIsPaginated] = useState(true);
     const [showAll, setShowAll] = useState(false);
 
@@ -131,14 +124,9 @@ export default function Index({ documents, queryParams }) {
             <ActionMenu
                 actions={[
                     {
-                        label: "Edit",
-                        icon: <SquarePen className="w-4 h-4 text-green-500" />,
-                        onClick: () => handleEdit(row.id),
-                    },
-                    {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(row.id),
+                        onClick: () => handleDeleteClick(row.id),
                     },
                 ]}
             />
@@ -170,6 +158,33 @@ export default function Index({ documents, queryParams }) {
         });
     };
 
+    const handleDeleteClick = (id) => {
+        setResidentToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    // Memoize confirmDelete to ensure it's stable
+    const confirmDelete = useMemo(
+        () => () => {
+            if (residentToDelete) {
+                router.delete(route("document.destroy", residentToDelete), {
+                    onSuccess: () => {
+                        toast.success("Document deleted successfully!");
+                        setIsDeleteModalOpen(false);
+                        setResidentToDelete(null);
+                    },
+                    onError: (err) => {
+                        toast.error("Failed to delete resident.", {
+                            description: err.message,
+                        });
+                        setIsDeleteModalOpen(false);
+                    },
+                });
+            }
+        },
+        [residentToDelete]
+    );
+
     useEffect(() => {
         if (success) {
             handleModalClose();
@@ -185,7 +200,7 @@ export default function Index({ documents, queryParams }) {
     useEffect(() => {
         if (error) {
             toast.error(error, {
-                description: "Please check the form for errors.",
+                description: "Unable to delete Document.",
                 duration: 3000,
                 closeButton: true,
             });
@@ -460,6 +475,12 @@ export default function Index({ documents, queryParams }) {
                         </form>
                     </div>
                 </SidebarModal>
+                <DeleteConfirmationModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={confirmDelete}
+                    residentId={residentToDelete}
+                />
             </div>
         </AdminLayout>
     );

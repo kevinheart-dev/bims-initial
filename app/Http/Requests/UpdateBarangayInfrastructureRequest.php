@@ -16,20 +16,22 @@ class UpdateBarangayInfrastructureRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
             'infrastructure_id' => ['required', 'exists:barangay_infrastructures,id'],
             'infrastructures' => ['required', 'array', 'min:1'],
-            'infrastructures.*.infrastructure_image' => ['nullable', 'image', 'max:5120'],
+            'infrastructures.*.infrastructure_image' => ['nullable', 'image', 'max:5120'], // max 5MB
             'infrastructures.*.infrastructure_type' => ['required', 'string', 'max:100'],
             'infrastructures.*.infrastructure_category' => ['required', 'string', 'max:55'],
             'infrastructures.*.quantity' => ['required', 'integer', 'min:0'],
         ];
     }
+
+    /**
+     * Custom attribute names for cleaner error messages.
+     */
     public function attributes(): array
     {
         return [
@@ -40,6 +42,10 @@ class UpdateBarangayInfrastructureRequest extends FormRequest
             'infrastructures.*.quantity' => 'infrastructure quantity',
         ];
     }
+
+    /**
+     * Custom error messages.
+     */
     public function messages(): array
     {
         return [
@@ -48,7 +54,9 @@ class UpdateBarangayInfrastructureRequest extends FormRequest
             'infrastructures.*.infrastructure_category.required' => 'The category of infrastructure is required.',
             'infrastructures.*.quantity.required' => 'Please enter the quantity.',
             'infrastructures.*.quantity.integer' => 'Quantity must be a number.',
-            'infrastructures.*.quantity.min' => 'Quantity must be at least 1.',
+            'infrastructures.*.quantity.min' => 'Quantity must be at least 0.',
+            'infrastructures.*.infrastructure_image.image' => 'The uploaded file must be an image.',
+            'infrastructures.*.infrastructure_image.max' => 'The image size must not exceed 5MB.',
         ];
     }
 }

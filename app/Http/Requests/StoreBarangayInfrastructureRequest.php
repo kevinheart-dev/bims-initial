@@ -23,11 +23,11 @@ class StoreBarangayInfrastructureRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'infrastructures' => ['required', 'array', 'min:1'],
+            'infrastructures' => ['required', 'array'],
             'infrastructures.*.infrastructure_image' => ['nullable', 'image', 'max:5120'],
             'infrastructures.*.infrastructure_type' => ['required', 'string', 'max:100'],
             'infrastructures.*.infrastructure_category' => ['required', 'string', 'max:55'],
-            'infrastructures.*.quantity' => ['required', 'integer', 'min:0'],
+            'infrastructures.*.quantity' => ['nullable', 'integer', 'min:0'],
         ];
     }
     public function attributes(): array
@@ -47,9 +47,6 @@ class StoreBarangayInfrastructureRequest extends FormRequest
             'infrastructures.required' => 'Please add at least one infrastructure.',
             'infrastructures.*.infrastructure_type.required' => 'The type of infrastructure is required.',
             'infrastructures.*.infrastructure_category.required' => 'The category of infrastructure is required.',
-            'infrastructures.*.quantity.required' => 'Please enter the quantity.',
-            'infrastructures.*.quantity.integer' => 'Quantity must be a number.',
-            'infrastructures.*.quantity.min' => 'Quantity must be at least 1.',
         ];
     }
 }
