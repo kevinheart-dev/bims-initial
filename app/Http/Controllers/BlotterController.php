@@ -7,9 +7,14 @@ use App\Models\BlotterReport;
 use App\Http\Requests\StoreBlotterReportRequest;
 use App\Http\Requests\UpdateBlotterReportRequest;
 use App\Models\CaseParticipant;
+use App\Models\Certificate;
+use App\Models\Document;
 use App\Models\Resident;
+use Carbon\Carbon;
 use DB;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
+use PhpOffice\PhpWord\TemplateProcessor;
 
 class BlotterController extends Controller
 {
@@ -289,4 +294,132 @@ class BlotterController extends Controller
             return back()->with('error', 'Blotter report could not be deleted: ' . $e->getMessage());
         }
     }
+
+    public function generateForm($id)
+    {
+        $user         = auth()->user()->resident;
+        $barangayId   = $user->barangay_id;
+        $barangayName = $user->barangay->barangay_name;
+        $officer      = BarangayOfficial::where('resident_id', $user->id)->firstOrFail();
+
+        DB::beginTransaction();
+
+        try {
+            // Load blotter report with participants
+            $blotter = BlotterReport::with([
+                'complainants.resident',
+                'respondents.resident',
+                'witnesses.resident',
+                'recordedBy.resident'
+            ])->findOrFail($id);
+
+            // Load the latest 'blotter' template
+            $template = Document::where('barangay_id', $barangayId)
+                ->where('specific_purpose', 'blotter')
+                ->latest()
+                ->firstOrFail();
+
+            $templatePath = storage_path('app/public/' . $template->file_path);
+            if (!file_exists($templatePath)) {
+                throw new \Exception('Blotter template file not found.');
+            }
+
+            $templateProcessor = new TemplateProcessor($templatePath);
+
+            // Prepare placeholder values
+            $values = collect([
+                'type_of_incident'           => $blotter->type_of_incident ?? '',
+                'inclusive_date_of_incident' => $blotter->incident_date
+                ? Carbon::parse($blotter->incident_date)->format('F j, Y')
+                : '',
+
+                // Combine respondents and witnesses with distinction
+                'respondents_witnesses'      => trim(
+                    "\nRespondents: " . $blotter->respondents->map(fn($p) => $p->resident?->full_name ?? $p->name)->join(", ") . "\n" .
+                    "Witnesses: "   . $blotter->witnesses->map(fn($p) => $p->resident?->full_name ?? $p->name)->join(", ")
+                ),
+
+                'narrative_details'          => $blotter->narrative_details ?? '',
+                'actions_taken'              => $blotter->actions_taken ?? '',
+                'recommendation'             => $blotter->recommendations ?? '',
+
+                // Complainants / reported by
+                'complainants'               => $blotter->complainants->map(fn($p) => $p->resident?->full_name ?? $p->name)->join(", "),
+
+                'date_recieved'              => $blotter->created_at?->format('Y-m-d') ?? '',
+                // REVIEWED BY (the official who recorded it)
+                'reviewed_by' => $blotter->recordedBy->resident->full_name ?? str_repeat("\u{00A0}", 30),
+            ]);
+
+            // Fill placeholders dynamically
+            foreach ($templateProcessor->getVariables() as $placeholder) {
+                $templateProcessor->setValue($placeholder, $values->get($placeholder, ''));
+            }
+
+            // Generate file names and temp paths
+            $baseName    = "blotter_report_{$blotter->id}";
+            $docxFilename = "{$baseName}.docx";
+            $pdfFilename  = "{$baseName}.pdf";
+
+            $tempDir = sys_get_temp_dir();
+            $tempDocx = $tempDir . DIRECTORY_SEPARATOR . $docxFilename;
+            $tempPdf  = $tempDir . DIRECTORY_SEPARATOR . $pdfFilename;
+
+            // Save DOCX
+            $templateProcessor->saveAs($tempDocx);
+
+            if (!file_exists($tempDocx) || filesize($tempDocx) === 0) {
+                throw new \Exception('Generated DOCX is empty or invalid.');
+            }
+
+            // Convert DOCX → PDF (optional, skip if method not available)
+            if (method_exists($this, 'convertDocxToPdf')) {
+                if (!$this->convertDocxToPdf($tempDocx, $tempPdf)) {
+                    throw new \Exception('Failed to convert blotter form to PDF.');
+                }
+            }
+
+            // Save files to public storage
+            $barangaySlug = Str::slug($barangayName);
+            $docxRelative = "blotter_forms/{$barangaySlug}/docx/{$docxFilename}";
+            $pdfRelative  = "blotter_forms/{$barangaySlug}/pdf/{$pdfFilename}";
+
+            \Storage::disk('public')->makeDirectory(dirname($docxRelative));
+            \Storage::disk('public')->makeDirectory(dirname($pdfRelative));
+
+            \Storage::disk('public')->putFileAs(dirname($docxRelative), new \Illuminate\Http\File($tempDocx), basename($docxRelative));
+            if (file_exists($tempPdf)) {
+                \Storage::disk('public')->putFileAs(dirname($pdfRelative), new \Illuminate\Http\File($tempPdf), basename($pdfRelative));
+            }
+
+            // Record issuance in Certificate table
+            Certificate::create([
+                'resident_id'    => $blotter->recordedBy->resident->id,
+                'document_id'    => $template->id,
+                'barangay_id'    => $barangayId,
+                'request_status' => 'issued',
+                'purpose'        => 'blotter',
+                'issued_at'      => now(),
+                'issued_by'      => $officer->id,
+                'docx_path'      => $docxRelative,
+                'pdf_path'       => file_exists($tempPdf) ? $pdfRelative : null,
+                'control_number' => $blotter->id . '-' . now()->format('YmdHis'),
+            ]);
+
+            DB::commit();
+
+            // Return download response
+            return response()->download($tempDocx, $docxFilename)->deleteFileAfterSend(true);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            \Log::error('Blotter form generation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->with('error', 'Failed to generate blotter form: ' . $e->getMessage());
+        }
+    }
+
 }

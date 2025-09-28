@@ -45,7 +45,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Models\BarangayInfrastructure;
 use App\Models\BarangayInstitution;
+use App\Models\User;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
@@ -61,11 +63,11 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
     Route::get('/document/fetchdocumentpath/{id}', [DocumentController::class, 'fetchDocumentPath'])->name('document.documentpath');
     Route::get('/document/fetchplaceholders/{id}', [DocumentController::class, 'fetchPlaceholders'])->name('document.placeholders');
 
-    Route::get('/certificate/{id}/download', [CertificateController::class, 'download'])->name('certificate.download');
-    Route::get('/certificate/{id}/print', [CertificateController::class, 'print'])->name('certificate.print');
-    Route::get('/certificate/index', [CertificateController::class, 'index'])->name('certificate.index');
-    Route::post('/certificate/store', [CertificateController::class, 'storeFromPost'])->name('certificate.store');
-    Route::get('/certificate/export-certificates-excel', [ReportGenerationController::class, 'exportCertificates'])
+    Route::get('certificate/{id}/download', [CertificateController::class, 'download'])->name('certificate.download');
+    Route::get('certificate/{id}/print', [CertificateController::class, 'print'])->name('certificate.print');
+    Route::get('certificate/index', [CertificateController::class, 'index'])->name('certificate.index');
+    Route::post('certificate/store', [CertificateController::class, 'storeFromPost'])->name('certificate.store');
+    Route::get('certificate/export-certificates-excel', [ReportGenerationController::class, 'exportCertificates'])
         ->name('certificate.export');
 
     // family
@@ -114,6 +116,7 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
 
     // user
     Route::post('user/confirmpassword', [UserController::class, 'confirmPassword'])->name('user.confirm');
+    Route::get('/user/{id}', [UserController::class, 'accountDetails'])->name('user.details');
 
     // reports
     Route::get('report', [ReportGenerationController::class, 'index'])->name('report.index');
@@ -159,6 +162,17 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
     Route::put('death/update/{id}', [DeathController::class, 'update'])->name('death.update');
     Route::delete('death/destroy/{id}', [DeathController::class, 'destroy'])->name('death.destroy');
 
+    Route::post('/check-email-unique', function (Request $request) {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $exists = User::where('email', $request->email)->exists();
+
+        return response()->json(['unique' => !$exists]);
+    });
+    Route::patch('/user/{user}/toggle-account', [UserController::class, 'toggleAccount'])
+    ->name('user.toggle');
 
     // residents
     Route::resource('user', UserController::class);
@@ -183,6 +197,7 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
 
     // Katarungnang Pambarangay
     Route::get('summon/elevate/{id}', [SummonController::class, 'elevate'])->name('summon.elevate');
+    Route::get('blotter_report/generateform/{id}', [BlotterController::class, 'generateForm'])->name('blotter_report.generateForm');
     Route::resource('blotter_report', BlotterController::class);
     Route::resource('case_participant', CaseParticipantController::class);
     Route::resource('summon', SummonController::class);

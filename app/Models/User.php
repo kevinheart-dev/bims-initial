@@ -19,9 +19,14 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'resident_id',
+        'barangay_id',
+        'username',
         'email',
         'password',
+        'role',
+        'status',
+        'is_disabled'
     ];
 
     /**
@@ -44,6 +49,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_disabled' => 'boolean',
         ];
     }
     public function isAdmin()

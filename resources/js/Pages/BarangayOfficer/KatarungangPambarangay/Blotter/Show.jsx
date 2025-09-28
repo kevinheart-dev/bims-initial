@@ -3,10 +3,11 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router, usePage } from "@inertiajs/react";
 import { Card, CardContent } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
-import { Pencil, Trash2, ArrowUpCircle } from "lucide-react";
+import { Pencil, Trash2, ArrowUpCircle, FileOutput } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import { useEffect, useState } from "react";
+import { Toaster, toast } from "sonner";
 
 export default function Show({ blotter_details }) {
     const breadcrumbs = [
@@ -33,18 +34,22 @@ export default function Show({ blotter_details }) {
 
         return (
             <ul className="list-disc list-inside space-y-1">
-                {filtered.map((p, i) => (
-                    <li key={i}>
-                        <span className="font-medium">
-                            {p.resident?.firstname} {p.resident?.lastname}
-                        </span>
-                        {p.notes && (
-                            <span className="ml-2 text-sm text-gray-600">
-                                ({p.notes})
-                            </span>
-                        )}
-                    </li>
-                ))}
+                {filtered.map((p, i) => {
+                    const displayName = p.resident
+                        ? `${p.resident.firstname} ${p.resident.lastname}`
+                        : p.name || "Unknown";
+
+                    return (
+                        <li key={i}>
+                            <span className="font-medium">{displayName}</span>
+                            {p.notes && (
+                                <span className="ml-2 text-sm text-gray-600">
+                                    ({p.notes})
+                                </span>
+                            )}
+                        </li>
+                    );
+                })}
             </ul>
         );
     };
@@ -57,6 +62,73 @@ export default function Show({ blotter_details }) {
         router.delete(route("blotter_report.destroy", recordToDelete));
         setIsDeleteModalOpen(false);
     };
+
+    const handleGenerateForm = async () => {
+        try {
+            const response = await axios.get(
+                route("blotter_report.generateForm", blotter_details.id),
+                { responseType: "blob" }
+            );
+
+            const blob = new Blob([response.data], {
+                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            });
+            const url = window.URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+            link.href = url;
+
+            // try to use filename from server headers, otherwise fallback
+            const contentDisposition = response.headers["content-disposition"];
+            const match = contentDisposition?.match(/filename="?([^"]+)"?/);
+            const filename = match ? match[1] : "blotter_report.docx";
+
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            toast.success("Form generated successfully", {
+                duration: 3000,
+                className: "bg-green-100 text-green-800",
+            });
+        } catch (error) {
+            console.error("Form generation failed:", error);
+
+            let serverMessage =
+                "An unexpected error occurred. Please try again.";
+
+            if (error.response) {
+                if (error.response.data?.message) {
+                    serverMessage = error.response.data.message;
+                } else if (error.response.status === 404) {
+                    serverMessage = "The requested report could not be found.";
+                } else if (error.response.status === 500) {
+                    serverMessage =
+                        "A server error occurred while generating the form.";
+                } else {
+                    serverMessage = `Server responded with status ${error.response.status}.`;
+                }
+            } else if (error.request) {
+                serverMessage =
+                    "No response from server. Please check your internet connection.";
+            } else {
+                serverMessage = `Request failed: ${error.message}`;
+            }
+
+            toast.error("Failed to generate form", {
+                description: serverMessage,
+                duration: 6000,
+                className: "bg-red-100 text-red-800",
+                closeButton: true,
+            });
+        }
+    };
+
+    const handleEdit = (id) => {
+        router.get(route("blotter_report.edit", id));
+    };
+
     // feedback
     useEffect(() => {
         if (success) {
@@ -78,15 +150,11 @@ export default function Show({ blotter_details }) {
         }
         props.error = null;
     }, [error]);
-
-    const handleEdit = (id) => {
-        router.get(route("blotter_report.edit", id));
-    };
-
     return (
         <AdminLayout>
             <Head title="View Blotter Report" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
+            <Toaster richColors />
             {/* <pre>{JSON.stringify(blotter_details, undefined, 2)}</pre> */}
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
                 <Card className="shadow-sm border rounded-xl">
@@ -122,7 +190,14 @@ export default function Show({ blotter_details }) {
                                 <Trash2 className="w-4 h-4 mr-1" />
                                 Delete
                             </Button>
-
+                            <Button
+                                size="sm"
+                                className="bg-green-500 hover:bg-green-600 text-white"
+                                onClick={handleGenerateForm}
+                            >
+                                <FileOutput className="w-4 h-4 mr-1" />
+                                Generate Form
+                            </Button>
                             <Button
                                 size="sm"
                                 className="bg-indigo-600 hover:bg-indigo-700 text-white"

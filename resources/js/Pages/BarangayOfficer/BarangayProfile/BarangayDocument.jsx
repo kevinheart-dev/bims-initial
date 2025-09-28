@@ -28,6 +28,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Toaster, toast } from "sonner";
 import { useMemo } from "react";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
+import SelectField from "@/Components/SelectField";
+import { SPECIFIC_PURPOSE_TEXT } from "@/constants";
 
 export default function Index({ documents, queryParams }) {
     const breadcrumbs = [
@@ -95,6 +97,7 @@ export default function Index({ documents, queryParams }) {
     const allColumns = [
         { key: "id", label: "ID" },
         { key: "name", label: "Document Name" },
+        { key: "specific_purpose", label: "Specific Purpose" },
         { key: "created_at", label: "Date Added" },
         { key: "actions", label: "Actions" },
     ];
@@ -104,21 +107,10 @@ export default function Index({ documents, queryParams }) {
     const [isPaginated, setIsPaginated] = useState(true);
     const [showAll, setShowAll] = useState(false);
 
-    const defaultVisibleCols = allColumns.map((col) => col.key);
-    const [visibleColumns, setVisibleColumns] = useState(() => {
-        const saved = localStorage.getItem("document_visible_columns");
-        return saved ? JSON.parse(saved) : defaultVisibleCols;
-    });
-    useEffect(() => {
-        localStorage.setItem(
-            "document_visible_columns",
-            JSON.stringify(visibleColumns)
-        );
-    }, [visibleColumns]);
-
     const columnRenderers = {
         id: (row) => row.id,
         name: (row) => row.name,
+        specific_purpose: (row) => SPECIFIC_PURPOSE_TEXT[row.specific_purpose],
         created_at: (row) => new Date(row.created_at).toLocaleDateString(),
         actions: (row) => (
             <ActionMenu
@@ -283,8 +275,9 @@ export default function Index({ documents, queryParams }) {
                                 is_paginated={isPaginated}
                                 toggleShowAll={() => setShowAll(!showAll)}
                                 showAll={showAll}
-                                visibleColumns={visibleColumns}
-                                setVisibleColumns={setVisibleColumns}
+                                visibleColumns={allColumns.map(
+                                    (col) => col.key
+                                )} // always show all
                             />
                         </div>
                     </div>
@@ -403,29 +396,72 @@ export default function Index({ documents, queryParams }) {
                             </div>
 
                             {/* Document Name */}
-                            <div className="space-y-2">
-                                <label
-                                    htmlFor="name"
-                                    className="text-sm font-medium text-gray-700"
-                                >
-                                    Document Name
-                                </label>
-                                <InputField
-                                    id="name"
-                                    type="text"
-                                    name="name"
-                                    value={data.name}
-                                    onChange={(e) =>
-                                        setData("name", e.target.value)
-                                    }
-                                    placeholder="e.g., Barangay Clearance"
-                                    className="w-full"
-                                />
-                                {errors.name && (
-                                    <p className="text-xs text-red-600">
-                                        {errors.name}
-                                    </p>
-                                )}
+                            <div className="flex justify-between gap-4">
+                                <div className="space-y-2 w-full">
+                                    <label
+                                        htmlFor="name"
+                                        className="text-sm font-medium text-gray-700"
+                                    >
+                                        Document Name
+                                    </label>
+                                    <InputField
+                                        id="name"
+                                        type="text"
+                                        name="name"
+                                        value={data.name}
+                                        onChange={(e) =>
+                                            setData("name", e.target.value)
+                                        }
+                                        placeholder="e.g., Barangay Clearance"
+                                        className="w-full"
+                                    />
+                                    {errors.name && (
+                                        <p className="text-xs text-red-600">
+                                            {errors.name}
+                                        </p>
+                                    )}
+                                </div>
+                                <div className="space-y-2 w-full">
+                                    <label
+                                        htmlFor="name"
+                                        className="text-sm font-medium text-gray-700"
+                                    >
+                                        Specific Purpose
+                                    </label>
+                                    <SelectField
+                                        name="specific_purpose"
+                                        value={data.specific_purpose || ""}
+                                        onChange={(e) =>
+                                            setData(
+                                                "specific_purpose",
+                                                e.target.value
+                                            )
+                                        }
+                                        items={[
+                                            {
+                                                label: "Certification",
+                                                value: "certification",
+                                            },
+                                            {
+                                                label: "Blotter Report Form",
+                                                value: "blotter",
+                                            },
+                                            {
+                                                label: "Incident Report Form",
+                                                value: "incident",
+                                            },
+                                            {
+                                                label: "Summon Report Form",
+                                                value: "summon",
+                                            },
+                                        ]}
+                                    />
+                                    {errors.name && (
+                                        <p className="text-xs text-red-600">
+                                            {errors.name}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Description */}

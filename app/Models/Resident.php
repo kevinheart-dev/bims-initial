@@ -170,10 +170,15 @@ class Resident extends Model
         return $this->hasMany(HouseholdHeadHistory::class);
     }
 
+    // public function user()
+    // {
+    //     return $this->belongsTo(User::class);
+    // }
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasOne(User::class, 'resident_id', 'id');
     }
+
 
     public function street()
     {

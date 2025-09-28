@@ -577,3 +577,9 @@ export const SESSION_STATUS_TEXT = {
     cancelled: "Cancelled",
     no_show: "No Show",
 };
+
+export const SPECIFIC_PURPOSE_TEXT = {
+    certification: "Certification",
+    blotter: "Blotter Report Generation",
+    summon: "Summon Report Generation",
+};

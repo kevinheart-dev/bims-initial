@@ -295,6 +295,7 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
                 'role' => 'super_admin',
                 'status' => 'active',
+                'is_disabled' => false,
             ])->assignRole($superAdminRole);
 
             User::factory()->create([
@@ -304,6 +305,7 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
                 'role' => 'cdrrmo_admin',
                 'status' => 'active',
+                'is_disabled' => false,
             ])->assignRole($cdrrmoRole);
 
             $barangays = Barangay::all();
@@ -329,6 +331,7 @@ class DatabaseSeeder extends Seeder
                     'email_verified_at' => now(),
                     'role' => 'barangay_officer',
                     'status' => 'active',
+                    'is_disabled' => false,
                 ]);
                 $adminUser->assignRole($barangayOfficerRole);
 
@@ -361,11 +364,12 @@ class DatabaseSeeder extends Seeder
                     $user = User::factory()->create([
                         'resident_id' => $res->id,
                         'username' => 'Sample Resident ' . $index,
-                        'email' => 'user' . $barangay->id . '_' . $index . '@example.com',
+                        'email' => 'user'. $barangay->id. "_" . $index + 1 . '@example.com',
                         'password' => bcrypt('user123'),
                         'email_verified_at' => now(),
                         'role' => 'resident',
                         'status' => 'active',
+                        'is_disabled' => false,
                     ]);
                     $user->assignRole($residentRole);
                 }

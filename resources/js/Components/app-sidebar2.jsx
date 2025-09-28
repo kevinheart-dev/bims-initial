@@ -29,6 +29,7 @@ import {
     ChevronDown,
     ChevronUp,
     Scale,
+    CircleUser,
 } from "lucide-react";
 import {
     Sidebar,
@@ -81,6 +82,12 @@ const items = [
                 title: "Barangay Documents",
                 url: "/document",
                 icon: FileText,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Barangay Accounts",
+                url: "/user",
+                icon: CircleUser,
                 roles: ["barangay_officer"],
             },
         ],

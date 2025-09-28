@@ -20,7 +20,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password', 100);
             $table->enum('role', ['resident', 'barangay_officer', 'admin', 'super_admin', 'cdrrmo_admin']);
-            $table->enum('status', ['active', 'pending', 'banned', 'rejected']);
+            $table->enum('status', ['active', 'inactive']);
+            $table->boolean('is_disabled')->nullable()->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

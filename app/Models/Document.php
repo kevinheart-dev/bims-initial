@@ -15,6 +15,7 @@ class Document extends Model
         'name',
         'file_path',
         'description',
+        'specific_purpose'
     ];
 
     public function barangay()

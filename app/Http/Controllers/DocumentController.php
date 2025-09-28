@@ -98,6 +98,7 @@ class DocumentController extends Controller
                 'file' => 'required|file|mimes:docx,doc,pdf,txt|max:10240', // 10MB max
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string|max:255',
+                'specific_purpose' => 'nullable|string|max:55',
             ]);
             $file = $data['file'];
             $originalName = $file->getClientOriginalName();
@@ -109,6 +110,7 @@ class DocumentController extends Controller
                 'name' => $data['name'] ?? $originalName,
                 'file_path' => $path,
                 'description' => $data['description'] ?? null,
+                'specific_purpose' => $data['specific_purpose'] ?? null,
             ]);
             return back()->with('success', "{$data['name']} Document uploaded.");
         } catch (\Exception $e) {

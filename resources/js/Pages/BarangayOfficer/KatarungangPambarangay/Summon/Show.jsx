@@ -7,7 +7,7 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import { Toaster } from "sonner";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 
 export default function ViewBlotterReport({ blotter_details }) {
     const breadcrumbs = [
@@ -19,7 +19,9 @@ export default function ViewBlotterReport({ blotter_details }) {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [recordToDelete, setRecordToDelete] = useState(null);
 
-    const handleEdit = (id) => console.log("Edit", id);
+    const handleEdit = (id) => {
+        router.get(route("summon.elevate", id));
+    };
     const handleDeleteClick = (id) => {
         setRecordToDelete(id);
         setIsDeleteModalOpen(true);
@@ -139,13 +141,6 @@ export default function ViewBlotterReport({ blotter_details }) {
                                 }
                             >
                                 <Trash2 className="w-4 h-4 mr-1" /> Delete
-                            </Button>
-                            <Button
-                                size="sm"
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                            >
-                                <ArrowUpCircle className="w-4 h-4 mr-1" />{" "}
-                                Elevate
                             </Button>
                         </div>
                     </div>

@@ -186,27 +186,34 @@ export default function Index({ blotters, queryParams, incident_types }) {
                 "—"
             );
         },
-
         latest_complainant: (blotter) => {
             const complainants = blotter.complainants || [];
 
             if (complainants.length === 0) return "—";
 
-            return complainants.map((c, idx) => (
-                <span key={c.id}>
-                    <span
-                        className="text-blue-600 hover:underline hover:cursor-pointer"
-                        onClick={() => handleView(c.resident?.id)}
-                    >
-                        {`${c.resident?.firstname ?? ""} ${
-                            c.resident?.middlename ?? ""
-                        } ${c.resident?.lastname ?? ""} ${
-                            c.resident?.suffix ?? ""
-                        }`.trim()}
+            return complainants.map((c, idx) => {
+                const fullName = c.resident
+                    ? `${c.resident.firstname ?? ""} ${
+                          c.resident.middlename ?? ""
+                      } ${c.resident.lastname ?? ""} ${
+                          c.resident.suffix ?? ""
+                      }`.trim()
+                    : c.name ?? "—";
+
+                return (
+                    <span key={c.id}>
+                        <span
+                            className="text-blue-600 hover:underline hover:cursor-pointer"
+                            onClick={() =>
+                                c.resident?.id && handleView(c.resident.id)
+                            }
+                        >
+                            {fullName}
+                        </span>
+                        {idx < complainants.length - 1 && ", "}
                     </span>
-                    {idx < complainants.length - 1 && ", "}
-                </span>
-            ));
+                );
+            });
         },
 
         actions: (blotter) => (

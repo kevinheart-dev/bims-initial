@@ -1923,6 +1923,42 @@ const FilterToggle = ({
                 </Select>
             )}
 
+            {/* ACCOUNT */}
+            {isVisible("session_status") && (
+                <Select
+                    onValueChange={(session_status) =>
+                        searchFieldName("session_status", session_status)
+                    }
+                    value={queryParams.session_status}
+                >
+                    <SelectTrigger className="w-[160px]">
+                        <SelectValue placeholder="Session Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("account_status") && (
+                <Select
+                    onValueChange={(account_status) =>
+                        searchFieldName("account_status", account_status)
+                    }
+                    value={queryParams.account_status}
+                >
+                    <SelectTrigger className="w-[160px]">
+                        <SelectValue placeholder="Account Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="0">Enabled</SelectItem>
+                        <SelectItem value="1">Disabled</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+
             {isVisible("created_at") && (
                 <div className="flex items-center gap-2">
                     <DatePicker
