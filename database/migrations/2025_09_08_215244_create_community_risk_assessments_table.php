@@ -19,7 +19,7 @@ return new class extends Migration
                 ->onDelete('cascade');
 
             $table->unique('barangay_id');
-            $table->year('year');
+            $table->year('year')->nullable();
             $table->decimal('progess')->nullable();
             // track submission date
             $table->timestamp('submitted_at')->nullable();
