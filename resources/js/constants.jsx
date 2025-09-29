@@ -552,7 +552,7 @@ export const SUMMON_STATUS_CLASS = {
 };
 
 export const SUMMON_STATUS_TEXT = {
-    on_going: "On-going",
+    on_going: "On Going",
     closed: "Closed",
 };
 export const SESSION_STATUS_CLASS = {

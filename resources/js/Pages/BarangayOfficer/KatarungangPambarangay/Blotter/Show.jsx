@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import { useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
+import {
+    BARANGAY_OFFICIAL_POSITIONS_TEXT,
+    BLOTTER_REPORT_STATUS,
+} from "@/constants";
 
 export default function Show({ blotter_details }) {
     const breadcrumbs = [
@@ -93,7 +97,7 @@ export default function Show({ blotter_details }) {
                 className: "bg-green-100 text-green-800",
             });
         } catch (error) {
-            console.error("Form generation failed:", error);
+            console.error("Blotter form generation failed:", error);
 
             let serverMessage =
                 "An unexpected error occurred. Please try again.";
@@ -102,10 +106,11 @@ export default function Show({ blotter_details }) {
                 if (error.response.data?.message) {
                     serverMessage = error.response.data.message;
                 } else if (error.response.status === 404) {
-                    serverMessage = "The requested report could not be found.";
+                    serverMessage =
+                        "The requested blotter form could not be found.";
                 } else if (error.response.status === 500) {
                     serverMessage =
-                        "A server error occurred while generating the form.";
+                        "A server error occurred while generating the blotter form.";
                 } else {
                     serverMessage = `Server responded with status ${error.response.status}.`;
                 }
@@ -116,7 +121,7 @@ export default function Show({ blotter_details }) {
                 serverMessage = `Request failed: ${error.message}`;
             }
 
-            toast.error("Failed to generate form", {
+            toast.error("Failed to generate blotter form", {
                 description: serverMessage,
                 duration: 6000,
                 className: "bg-red-100 text-red-800",
@@ -196,7 +201,7 @@ export default function Show({ blotter_details }) {
                                 onClick={handleGenerateForm}
                             >
                                 <FileOutput className="w-4 h-4 mr-1" />
-                                Generate Form
+                                Incident Form
                             </Button>
                             <Button
                                 size="sm"
@@ -249,8 +254,9 @@ export default function Show({ blotter_details }) {
                                     Report Status
                                 </h4>
                                 <Badge className="capitalize">
-                                    {blotter_details?.report_status ||
-                                        "pending"}
+                                    {BLOTTER_REPORT_STATUS[
+                                        blotter_details?.report_status
+                                    ] || "pending"}
                                 </Badge>
                             </div>
                         </div>
@@ -281,8 +287,9 @@ export default function Show({ blotter_details }) {
                                     Official Position
                                 </h4>
                                 <p className="text-base text-gray-900 capitalize">
-                                    {blotter_details?.recorded_by?.position ||
-                                        "-"}
+                                    {BARANGAY_OFFICIAL_POSITIONS_TEXT[
+                                        blotter_details?.recorded_by?.position
+                                    ] || "-"}
                                 </p>
                             </div>
                         </div>

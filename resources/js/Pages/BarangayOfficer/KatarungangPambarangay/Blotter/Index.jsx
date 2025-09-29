@@ -171,11 +171,34 @@ export default function Index({ blotters, queryParams, incident_types }) {
             );
         },
 
-        incident_date: (blotter) =>
-            blotter.incident_date
-                ? new Date(blotter.incident_date).toLocaleDateString()
-                : "—",
+        incident_date: (blotter) => {
+            if (!blotter.incident_date) return "—";
 
+            const date = new Date(blotter.incident_date).toLocaleDateString(
+                undefined,
+                {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                }
+            );
+
+            const time = new Date(blotter.incident_date).toLocaleTimeString(
+                [],
+                {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                }
+            );
+
+            return (
+                <div>
+                    <div>{date}</div>
+                    <div className="text-sm text-gray-500">around {time}</div>
+                </div>
+            );
+        },
         recorded_by: (blotter) => {
             const c = blotter.recorded_by;
             if (!c) return "—";

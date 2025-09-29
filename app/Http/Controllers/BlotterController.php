@@ -319,9 +319,21 @@ class BlotterController extends Controller
                 ->latest()
                 ->firstOrFail();
 
+            // Template not found
+            if (!$template) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Blotter template not found.'
+                ], 404);
+            }
+
             $templatePath = storage_path('app/public/' . $template->file_path);
+            // Template file missing in storage
             if (!file_exists($templatePath)) {
-                throw new \Exception('Blotter template file not found.');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Template file missing in storage.'
+                ], 404);
             }
 
             $templateProcessor = new TemplateProcessor($templatePath);
@@ -330,8 +342,8 @@ class BlotterController extends Controller
             $values = collect([
                 'type_of_incident'           => $blotter->type_of_incident ?? '',
                 'inclusive_date_of_incident' => $blotter->incident_date
-                ? Carbon::parse($blotter->incident_date)->format('F j, Y')
-                : '',
+                    ? Carbon::parse($blotter->incident_date)->format('F j, Y h:i A') // e.g., September 29, 2025 07:45 AM
+                    : '',
 
                 // Combine respondents and witnesses with distinction
                 'respondents_witnesses'      => trim(
@@ -418,7 +430,10 @@ class BlotterController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return back()->with('error', 'Failed to generate blotter form: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate KP Form: ' . $e->getMessage()
+            ], 500);
         }
     }
 

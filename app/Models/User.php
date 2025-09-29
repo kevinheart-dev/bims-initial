@@ -76,6 +76,10 @@ class User extends Authenticatable
     {
         return $this->hasRole('resident');
     }
+    public function isDisabled()
+    {
+        return $this->is_disabled;
+    }
 
     public function resident(){
         return $this->belongsTo(Resident::class);

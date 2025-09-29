@@ -76,8 +76,6 @@ class FamilyController extends Controller
             'families' => $families,
             'queryParams' => request()->query() ?: null,
             'puroks' => $puroks,
-            'residents' =>  $residents,
-            'members' => $members
         ]);
     }
 
@@ -86,9 +84,7 @@ class FamilyController extends Controller
      */
     public function create()
     {
-        dd('ers');
-        $brgy_id = Auth()->user()->barangay_id; // get brgy id through the admin
-        return Inertia::render("BarangayOfficer/Family/AddFamily");
+        //
     }
 
     /**
@@ -743,5 +739,28 @@ class FamilyController extends Controller
                 'error', 'Failed to remove resident: ' . $e->getMessage(),
             );
         }
+    }
+    public function getResidentsAndMembersJson()
+    {
+        $brgyId = auth()->user()->barangay_id;
+
+        // Household heads
+        // $residents = HouseholdResident::with('resident:id,barangay_id,household_id,firstname,lastname,middlename,birthdate,purok_number,resident_picture_path', 'resident.latestHousehold')
+        //     ->whereHas('resident', function ($query) use ($brgyId) {
+        //         $query->where('barangay_id', $brgyId)
+        //             ->where('is_household_head', true);
+        //     })->select('id', 'resident_id', 'household_id')
+        //     ->get();
+
+        // All members
+        $members = Resident::with('latestHousehold:household_id,house_number')
+        ->where('barangay_id', $brgyId) // filter by barangay
+        ->select('id', 'household_id', 'purok_number', 'resident_picture_path', 'firstname', 'middlename', 'lastname', 'birthdate', 'barangay_id')
+        ->get();
+
+        // Return as JSON
+        return response()->json([
+            'members' => $members,
+        ]);
     }
 }

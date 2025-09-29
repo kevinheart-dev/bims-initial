@@ -42,14 +42,9 @@ import { PiUsersFourBold } from "react-icons/pi";
 import { Toaster, toast } from "sonner";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import ExportButton from "@/Components/ExportButton";
+import { useQuery } from "@tanstack/react-query";
 
-export default function Index({
-    families,
-    queryParams = null,
-    puroks,
-    residents,
-    members,
-}) {
+export default function Index({ families, queryParams = null, puroks }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         {
@@ -69,6 +64,7 @@ export default function Index({
     const [familyDetails, setFamilyDetails] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
     const [familyToDelete, setFamilyToDelete] = useState(null); //delete
+    const [members, setMembers] = useState([]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -146,9 +142,11 @@ export default function Index({
         family_id: (row) => row.id,
         name: (row) =>
             row.latest_head
-                ? `${row.latest_head.firstname ?? ""} ${row.latest_head.middlename ?? ""
-                } ${row.latest_head.lastname ?? ""} ${row.latest_head.suffix ?? ""
-                }`
+                ? `${row.latest_head.firstname ?? ""} ${
+                      row.latest_head.middlename ?? ""
+                  } ${row.latest_head.lastname ?? ""} ${
+                      row.latest_head.suffix ?? ""
+                  }`
                 : "Unknown",
         is_household_head: (row) =>
             row.is_household_head ? (
@@ -182,8 +180,9 @@ export default function Index({
 
             return bracketText ? (
                 <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${bracketMeta?.className ?? ""
-                        }`}
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                        bracketMeta?.className ?? ""
+                    }`}
                 >
                     {bracketText}
                 </span>
@@ -241,6 +240,19 @@ export default function Index({
         ),
     };
 
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get("/family/residents-members");
+                setMembers(response.data.members || []);
+            } catch (err) {
+                console.error("Error fetching data:", err);
+            }
+        };
+
+        fetchData();
+    }, []);
+
     // add family
     const handleAddFamily = () => {
         setIsModalOpen(true);
@@ -255,15 +267,10 @@ export default function Index({
         household_position: "",
     };
 
-    const residentsList = residents.map((res) => ({
-        label: `${res.resident.firstname} ${res.resident.middlename} ${res.resident.lastname
-            } ${res.resident.suffix ?? ""}`,
-        value: res.resident.id.toString(),
-    }));
-
     const memberList = members.map((mem) => ({
-        label: `${mem.firstname} ${mem.middlename} ${mem.lastname} ${mem.suffix ?? ""
-            }`,
+        label: `${mem.firstname} ${mem.middlename} ${mem.lastname} ${
+            mem.suffix ?? ""
+        }`,
         value: mem.id.toString(),
     }));
 
@@ -305,7 +312,8 @@ export default function Index({
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename} ${resident.lastname
+                `${resident.firstname} ${resident.middlename} ${
+                    resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("purok_number", resident.purok_number);
@@ -323,8 +331,9 @@ export default function Index({
             updatedMembers[index] = {
                 ...updatedMembers[index],
                 resident_id: selected.id ?? "",
-                resident_name: `${selected.firstname ?? ""} ${selected.middlename ?? ""
-                    } ${selected.lastname ?? ""} ${selected.suffix ?? ""}`,
+                resident_name: `${selected.firstname ?? ""} ${
+                    selected.middlename ?? ""
+                } ${selected.lastname ?? ""} ${selected.suffix ?? ""}`,
                 purok_number: selected.purok_number ?? "",
                 birthdate: selected.birthdate ?? "",
                 resident_image: selected.image ?? null,
@@ -377,8 +386,9 @@ export default function Index({
 
             setData({
                 resident_id: latestHead?.id ?? null,
-                resident_name: `${latestHead?.firstname} ${latestHead?.middlename ? latestHead?.middlename + " " : ""
-                    }${latestHead?.lastname} ${latestHead?.suffix}`.trim(),
+                resident_name: `${latestHead?.firstname} ${
+                    latestHead?.middlename ? latestHead?.middlename + " " : ""
+                }${latestHead?.lastname} ${latestHead?.suffix}`.trim(),
                 resident_image: latestHead?.resident_picture_path,
                 birthdate: latestHead?.birthdate ?? null,
                 purok_number: latestHead?.purok_number ?? null,
@@ -392,8 +402,9 @@ export default function Index({
                             m.household_residents?.[0] || {};
                         return {
                             resident_id: m.id,
-                            resident_name: `${m.firstname} ${m.middlename ? m.middlename + " " : ""
-                                }${m.lastname} ${m.suffix}`.trim(),
+                            resident_name: `${m.firstname} ${
+                                m.middlename ? m.middlename + " " : ""
+                            }${m.lastname} ${m.suffix}`.trim(),
                             resident_image: m.resident_picture_path,
                             birthdate: m.birthdate,
                             purok_number: m.purok_number,
@@ -469,7 +480,8 @@ export default function Index({
                                         Family Records
                                     </h1>
                                     <p className="text-sm text-gray-500">
-                                        Manage and track families registered in the barangay.
+                                        Manage and track families registered in
+                                        the barangay.
                                     </p>
                                 </div>
                             </div>
@@ -798,7 +810,7 @@ export default function Index({
                                                     <InputError
                                                         message={
                                                             errors[
-                                                            `members.${memberIndex}.relationship_to_head`
+                                                                `members.${memberIndex}.relationship_to_head`
                                                             ]
                                                         }
                                                         className="mt-1"
@@ -835,7 +847,7 @@ export default function Index({
                                                     <InputError
                                                         message={
                                                             errors[
-                                                            `members.${memberIndex}.household_position`
+                                                                `members.${memberIndex}.household_position`
                                                             ]
                                                         }
                                                         className="mt-1"

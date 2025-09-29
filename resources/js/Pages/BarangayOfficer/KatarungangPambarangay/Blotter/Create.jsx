@@ -154,8 +154,8 @@ export default function Create({ residents }) {
 
                                         <div>
                                             <InputField
-                                                type="date"
-                                                label="Incident Date"
+                                                type="datetime-local" // changed from "date"
+                                                label="Incident Date & Time"
                                                 name="incident_date"
                                                 value={data.incident_date}
                                                 onChange={(e) =>

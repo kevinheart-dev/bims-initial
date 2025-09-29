@@ -25,7 +25,7 @@ class StoreBlotterReportRequest extends FormRequest
         return [
             // Core report fields
             'type_of_incident'  => ['required', 'string', 'max:255'],
-            'incident_date'     => ['required', 'date'],
+            'incident_date' => ['required', 'date_format:Y-m-d\TH:i'],
             'location'          => ['nullable', 'string', 'max:255'],
             'narrative_details' => ['nullable', 'string', 'min:10'],
             'actions_taken'     => ['nullable', 'string'],

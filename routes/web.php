@@ -75,6 +75,8 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
     Route::get('family/showfamily/{family}', [FamilyController::class, 'showFamily'])->name('family.showfamily');
     Route::get('family/getfamilydetails/{id}', [FamilyController::class, 'getFamilyDetails'])->name('family.getdetails');
     Route::get('family/remove/{id}', [FamilyController::class, 'remove'])->name('family.remove');
+    Route::get('/family/residents-members', [FamilyController::class, 'getResidentsAndMembersJson'])
+    ->name('family.residents-members');
 
     // resident
     Route::get('resident/createresident', [ResidentController::class, 'createResident'])->name('resident.createresident');
@@ -198,6 +200,7 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
     // Katarungnang Pambarangay
     Route::get('summon/elevate/{id}', [SummonController::class, 'elevate'])->name('summon.elevate');
     Route::get('blotter_report/generateform/{id}', [BlotterController::class, 'generateForm'])->name('blotter_report.generateForm');
+    Route::get('summon/generateform/{id}', [SummonController::class, 'generateForm'])->name('summon.generateForm');
     Route::resource('blotter_report', BlotterController::class);
     Route::resource('case_participant', CaseParticipantController::class);
     Route::resource('summon', SummonController::class);
