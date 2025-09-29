@@ -34,6 +34,14 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
         $user = Auth::user();
 
+        // Check if the user account is disabled
+        if ($user->isDisabled()) {
+            Auth::logout(); // log them out just in case
+            return redirect()->route('login')->withErrors([
+                'email' => 'Your account has been disabled. Please contact the administrator.',
+            ]);
+        }
+
         if ($user->isSuperAdmin()) {
             return redirect()->intended(route('super_admin.dashboard', [], false));
         }

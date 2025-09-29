@@ -1,13 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, ArrowUpCircle } from "lucide-react";
+import { Pencil, Trash2, ArrowUpCircle, FileOutput } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
-import { Toaster } from "sonner";
-import { Head, router } from "@inertiajs/react";
+import { Toaster, toast } from "sonner";
+import { Head, router, usePage } from "@inertiajs/react";
+import {
+    BARANGAY_OFFICIAL_POSITIONS_TEXT,
+    BLOTTER_REPORT_STATUS,
+    RESIDENT_GENDER_TEXT2,
+    SUMMON_STATUS_TEXT,
+} from "@/constants";
+import axios from "axios";
 
 export default function ViewBlotterReport({ blotter_details }) {
     const breadcrumbs = [
@@ -15,7 +22,9 @@ export default function ViewBlotterReport({ blotter_details }) {
         { label: "Summons", href: route("summon.index"), showOnMobile: false },
         { label: "View Summon", showOnMobile: true },
     ];
-
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [recordToDelete, setRecordToDelete] = useState(null);
 
@@ -38,6 +47,31 @@ export default function ViewBlotterReport({ blotter_details }) {
               })
             : "-";
 
+    const incidentFormatDate = (date) => {
+        if (!date) return "-";
+
+        const d = new Date(date);
+
+        const formattedDate = d.toLocaleDateString("en-US", {
+            dateStyle: "medium",
+        });
+
+        const formattedTime = d.toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+        });
+
+        return (
+            <div>
+                <div>{formattedDate}</div>
+                <div className="text-sm text-gray-500">
+                    around {formattedTime}
+                </div>
+            </div>
+        );
+    };
+
     const groupByRole = (participants, role) =>
         participants?.filter((p) => p.role_type === role) || [];
 
@@ -54,7 +88,7 @@ export default function ViewBlotterReport({ blotter_details }) {
                         </span>
                         {p.resident && (
                             <span className="text-sm text-gray-600">
-                                {p.resident.gender},{" "}
+                                {RESIDENT_GENDER_TEXT2[p.resident.gender]},{" "}
                                 {p.resident.contact_number || "No contact"}
                             </span>
                         )}
@@ -105,6 +139,90 @@ export default function ViewBlotterReport({ blotter_details }) {
         );
     };
 
+    const handleGenerateForm = async () => {
+        try {
+            const response = await axios.get(
+                route("summon.generateForm", blotter_details.id), // 👈 make sure this route exists
+                { responseType: "blob" }
+            );
+
+            const blob = new Blob([response.data], {
+                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            });
+            const url = window.URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+            link.href = url;
+
+            // filename from backend headers
+            const contentDisposition = response.headers["content-disposition"];
+            const match = contentDisposition?.match(/filename="?([^"]+)"?/);
+            const filename = match ? match[1] : "summon_form.docx";
+
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            toast.success("Summon form generated successfully!", {
+                duration: 3000,
+                className: "bg-green-100 text-green-800",
+            });
+        } catch (error) {
+            console.error("Summon form generation failed:", error);
+
+            let serverMessage =
+                "An unexpected error occurred. Please try again.";
+
+            if (error.response) {
+                if (error.response.data?.message) {
+                    serverMessage = error.response.data.message;
+                } else if (error.response.status === 404) {
+                    serverMessage =
+                        "The requested summon form could not be found.";
+                } else if (error.response.status === 500) {
+                    serverMessage =
+                        "A server error occurred while generating the summon form.";
+                } else {
+                    serverMessage = `Server responded with status ${error.response.status}.`;
+                }
+            } else if (error.request) {
+                serverMessage =
+                    "No response from server. Please check your internet connection.";
+            } else {
+                serverMessage = `Request failed: ${error.message}`;
+            }
+
+            toast.error("Failed to generate summon form", {
+                description: serverMessage,
+                duration: 6000,
+                className: "bg-red-100 text-red-800",
+                closeButton: true,
+            });
+        }
+    };
+
+    // feedback
+    useEffect(() => {
+        if (success) {
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.success = null;
+    }, [success]);
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
     return (
         <AdminLayout>
             <Head title="View Blotter Report" />
@@ -142,6 +260,14 @@ export default function ViewBlotterReport({ blotter_details }) {
                             >
                                 <Trash2 className="w-4 h-4 mr-1" /> Delete
                             </Button>
+                            <Button
+                                size="sm"
+                                className="bg-green-500 hover:bg-green-600 text-white"
+                                onClick={handleGenerateForm}
+                            >
+                                <FileOutput className="w-4 h-4 mr-1" />
+                                Summon Form
+                            </Button>
                         </div>
                     </div>
 
@@ -155,7 +281,9 @@ export default function ViewBlotterReport({ blotter_details }) {
                             )}
                             {renderInfoItem(
                                 "Incident Date",
-                                formatDate(blotter_details.incident_date)
+                                incidentFormatDate(
+                                    blotter_details.incident_date
+                                )
                             )}
                             {renderInfoItem(
                                 "Location",
@@ -165,7 +293,11 @@ export default function ViewBlotterReport({ blotter_details }) {
                                 <h4 className="text-sm font-medium text-gray-600">
                                     Report Status
                                 </h4>
-                                {statusBadge(blotter_details.report_status)}
+                                {statusBadge(
+                                    BLOTTER_REPORT_STATUS[
+                                        blotter_details.report_status
+                                    ]
+                                )}
                             </div>
                         </div>
 
@@ -188,7 +320,9 @@ export default function ViewBlotterReport({ blotter_details }) {
                             )}
                             {renderInfoItem(
                                 "Official Position",
-                                blotter_details.recorded_by?.position
+                                BARANGAY_OFFICIAL_POSITIONS_TEXT[
+                                    blotter_details.recorded_by?.position
+                                ]
                             )}
                         </div>
 
@@ -282,7 +416,11 @@ export default function ViewBlotterReport({ blotter_details }) {
                                             <span className="font-medium text-gray-700">
                                                 Status:
                                             </span>
-                                            {statusBadge(summon.status)}
+                                            {statusBadge(
+                                                SUMMON_STATUS_TEXT[
+                                                    summon.status
+                                                ]
+                                            )}
                                         </div>
                                         <div className="text-sm text-gray-800 mt-1">
                                             <span className="font-medium">

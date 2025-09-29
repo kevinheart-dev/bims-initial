@@ -1,16 +1,16 @@
-import { Head, Link } from '@inertiajs/react';
-import Home from '@/Components/Homepage/Home';
-import Header from '@/Components/Homepage/Header';
+import { Head, Link } from "@inertiajs/react";
+import Home from "@/Components/Homepage/Home";
+import Header from "@/Components/Homepage/Header";
 export default function Welcome({ auth, laravelVersion, phpVersion }) {
     const handleImageError = () => {
         document
-            .getElementById('screenshot-container')
-            ?.classList.add('!hidden');
-        document.getElementById('docs-card')?.classList.add('!row-span-1');
+            .getElementById("screenshot-container")
+            ?.classList.add("!hidden");
+        document.getElementById("docs-card")?.classList.add("!row-span-1");
         document
-            .getElementById('docs-card-content')
-            ?.classList.add('!flex-row');
-        document.getElementById('background')?.classList.add('!hidden');
+            .getElementById("docs-card-content")
+            ?.classList.add("!flex-row");
+        document.getElementById("background")?.classList.add("!hidden");
     };
 
     return (

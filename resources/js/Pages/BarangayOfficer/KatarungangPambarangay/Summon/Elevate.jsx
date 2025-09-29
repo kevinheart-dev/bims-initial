@@ -51,15 +51,15 @@ export default function Elevate({ residents, blotter_details }) {
 
     const { data, setData, post, errors, reset } = useForm({
         // 📝 Main report details
-        type_of_incident: blotter_details?.type_of_incident ?? "",
-        narrative_details: blotter_details?.narrative_details ?? "",
-        actions_taken: blotter_details?.actions_taken ?? "",
-        report_status: blotter_details?.report_status ?? "pending",
-        location: blotter_details?.location ?? "",
-        resolution: blotter_details?.resolution ?? "",
-        recommendations: blotter_details?.recommendations ?? "",
-        incident_date: blotter_details?.incident_date ?? "",
-        recorded_by: blotter_details?.recorded_by ?? null,
+        type_of_incident: blotter_details?.type_of_incident || "",
+        narrative_details: blotter_details?.narrative_details || "",
+        actions_taken: blotter_details?.actions_taken || "",
+        report_status: blotter_details?.report_status || "pending",
+        location: blotter_details?.location || "",
+        resolution: blotter_details?.resolution || "",
+        recommendations: blotter_details?.recommendations || "",
+        incident_date: blotter_details?.incident_date || "",
+        recorded_by: blotter_details?.recorded_by || null,
 
         // 👥 Participants
         complainants: mapParticipants(
@@ -73,14 +73,14 @@ export default function Elevate({ residents, blotter_details }) {
         witnesses: mapParticipants(blotter_details?.participants, "witness"),
 
         // 📝 Summon details
-        summons: blotter_details?.summons ?? [],
+        summons: blotter_details?.summons || [],
         newSession:
             {
                 session_number: "",
                 hearing_date: "",
-                session_status: "",
+                session_status: "scheduled",
                 session_remarks: "",
-            } ?? {},
+            } || {},
         summon_status: blotter_details?.summons?.length
             ? blotter_details.summons[blotter_details.summons.length - 1].status
             : "",

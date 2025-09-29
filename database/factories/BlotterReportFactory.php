@@ -61,7 +61,7 @@ class BlotterReportFactory extends Factory
             'resolution' => $this->faker->optional()->randomElement($resolutions),
             'recommendations' => $this->faker->optional()->sentence(),
             'recorded_by' => BarangayOfficial::inRandomOrder()->first()?->id ?? 1,
-            'incident_date' => $this->faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d'), // realistic incident date
+            'incident_date' => $this->faker->dateTimeBetween('-1 year', 'now')->format('Y-m-d H:i:s'),
         ];
     }
 }
