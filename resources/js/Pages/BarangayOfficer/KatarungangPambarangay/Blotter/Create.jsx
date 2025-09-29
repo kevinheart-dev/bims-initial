@@ -6,7 +6,7 @@ import { Button } from "@/Components/ui/button";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router, usePage, useForm } from "@inertiajs/react";
 import { useEffect } from "react";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, FilePenLine, Save } from "lucide-react";
 import SelectField from "@/Components/SelectField";
 import { Textarea } from "@/Components/ui/textarea";
 import { ParticipantSection } from "@/Components/ParticipantSection";
@@ -69,9 +69,8 @@ export default function Create({ residents }) {
     };
 
     const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
-            res.suffix ?? ""
-        }`,
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
+            }`,
         value: res.id.toString(),
     }));
 
@@ -100,14 +99,14 @@ export default function Create({ residents }) {
 
     return (
         <AdminLayout>
-            <Head title="Resident Dashboard" />
+            <Head title="Blotter Report" />
             <Toaster richColors />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
                     {/* <pre>{JSON.stringify(residents, undefined, 2)}</pre> */}
-                    <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 my-8">
-                        <div className=" my-2 p-5">
+                    <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 my-2">
+                        <div className=" my-2 p-2">
                             {error && (
                                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                                     {error}
@@ -115,21 +114,22 @@ export default function Create({ residents }) {
                             )}
                             <div>
                                 <form onSubmit={onSubmit}>
-                                    {/* Form Title & Description */}
-                                    <div className="mb-6">
-                                        <h2 className="text-3xl font-semibold text-gray-800 mb-1">
-                                            Blotter Report Form
-                                        </h2>
-                                        <p className="text-sm text-gray-600">
-                                            Fill out the details of the
-                                            incident, including participants,
-                                            actions, and recommendations. Ensure
-                                            all required fields are completed
-                                            before submitting.
-                                        </p>
+                                    <div className="flex items-start gap-3 p-4 mb-6 bg-gray-50 rounded-xl shadow-sm">
+                                        <div className="p-3 bg-blue-100 rounded-full">
+                                            <FilePenLine className="w-6 h-6 text-blue-600" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-lg md:text-2xl font-semibold text-gray-800 mb-1">
+                                                Blotter Report Form
+                                            </h2>
+                                            <p className="text-sm text-gray-600">
+                                                Fill out the details of the incident, including participants, actions,
+                                                and recommendations. Ensure all required fields are completed before submitting.
+                                            </p>
+                                        </div>
                                     </div>
 
-                                    {/* Basic Report Fields in One Row */}
+
                                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                                         <div>
                                             <InputField
@@ -227,88 +227,79 @@ export default function Create({ residents }) {
                                             />
                                         </div>
                                     </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 
-                                    {/* Narrative Details */}
-                                    <div className="mb-6">
-                                        <InputLabel value="Narrative Details" />
-                                        <Textarea
-                                            name="narrative_details"
-                                            value={data.narrative_details}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "narrative_details",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Describe what happened..."
-                                            rows={4}
-                                        />
-                                        <InputError
-                                            message={errors.narrative_details}
-                                            className="mt-1"
-                                        />
+                                        <div>
+                                            <InputLabel value="Narrative Details" />
+                                            <Textarea
+                                                name="narrative_details"
+                                                value={data.narrative_details}
+                                                onChange={(e) =>
+                                                    setData("narrative_details", e.target.value)
+                                                }
+                                                placeholder="Describe what happened in details..."
+                                                rows={5}
+                                            />
+                                            <InputError
+                                                message={errors.narrative_details}
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+
+                                        <div>
+                                            <InputLabel value="Actions Taken" />
+                                            <Textarea
+                                                name="actions_taken"
+                                                value={data.actions_taken}
+                                                onChange={(e) =>
+                                                    setData("actions_taken", e.target.value)
+                                                }
+                                                placeholder="What immediate actions were taken?"
+                                                rows={5} // Consistent rows with Narrative Details for visual alignment
+                                            />
+                                            <InputError
+                                                message={errors.actions_taken}
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+
+                                        <div>
+                                            <InputLabel value="Resolution" />
+                                            <Textarea
+                                                name="resolution"
+                                                value={data.resolution}
+                                                onChange={(e) =>
+                                                    setData("resolution", e.target.value)
+                                                }
+                                                placeholder="Resolution or settlement details..."
+                                                rows={4}
+                                            />
+                                            <InputError
+                                                message={errors.resolution}
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <InputLabel value="Recommendations" />
+                                            <Textarea
+                                                name="recommendations"
+                                                value={data.recommendations}
+                                                onChange={(e) =>
+                                                    setData("recommendations", e.target.value)
+                                                }
+                                                placeholder="Any recommendations for next steps..."
+                                                rows={4}
+                                            />
+                                            <InputError
+                                                message={errors.recommendations}
+                                                className="mt-1"
+                                            />
+                                        </div>
                                     </div>
 
-                                    {/* Actions Taken / Resolution / Recommendations */}
-                                    <div className="mb-6">
-                                        <InputLabel value="Actions Taken" />
-                                        <Textarea
-                                            name="actions_taken"
-                                            value={data.actions_taken}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "actions_taken",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="What actions were taken?"
-                                            rows={3}
-                                        />
-                                        <InputError
-                                            message={errors.actions_taken}
-                                            className="mt-1"
-                                        />
-                                    </div>
-
-                                    <div className="mb-6">
-                                        <InputLabel value="Resolution" />
-                                        <Textarea
-                                            name="resolution"
-                                            value={data.resolution}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "resolution",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Resolution or settlement details..."
-                                            rows={3}
-                                        />
-                                        <InputError
-                                            message={errors.resolution}
-                                            className="mt-1"
-                                        />
-                                    </div>
-
-                                    <div className="mb-6">
-                                        <InputLabel value="Recommendations" />
-                                        <Textarea
-                                            name="recommendations"
-                                            value={data.recommendations}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "recommendations",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Any recommendations for next steps..."
-                                            rows={3}
-                                        />
-                                        <InputError
-                                            message={errors.recommendations}
-                                            className="mt-1"
-                                        />
-                                    </div>
 
                                     {/* Participants */}
                                     <ParticipantSection
@@ -339,19 +330,25 @@ export default function Create({ residents }) {
                                         residentsList={residentsList}
                                     />
 
-                                    {/* Submit Buttons */}
-                                    <div className="flex w-full justify-end items-center mt-7 gap-4">
+                                    <div className="flex w-full justify-end items-center mt-4 gap-4 pt-0">
+
                                         <Button
                                             type="button"
                                             onClick={() => reset()}
+                                            variant="outline"
+                                            className="text-gray-600 border-gray-300 hover:bg-gray-50 transition duration-150"
                                         >
-                                            <RotateCcw /> Reset
+                                            <RotateCcw className="w-4 h-4 mr-2" />
+                                            Reset Form
                                         </Button>
+
+
                                         <Button
                                             type="submit"
-                                            className="w-40 bg-blue-700 hover:bg-blue-400"
+                                            className="w-40 bg-blue-600 hover:bg-blue-700 transition duration-150 shadow-md"
                                         >
-                                            Submit
+                                            <Save className="w-4 h-4 mr-2" />
+                                            Submit Report
                                         </Button>
                                     </div>
                                 </form>

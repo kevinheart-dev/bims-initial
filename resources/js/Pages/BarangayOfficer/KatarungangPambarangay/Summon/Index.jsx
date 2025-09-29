@@ -6,6 +6,7 @@ import {
     Eye,
     Search,
     UserRoundPlus,
+    FileText,
     HousePlus,
     SquarePen,
     Trash2,
@@ -163,11 +164,9 @@ export default function Index({ summons, queryParams, incident_types }) {
                     {complainants.map((c, idx) => {
                         // Use resident name if available, otherwise use name/display_name
                         const fullName = c.resident
-                            ? `${c.resident.firstname ?? ""} ${
-                                  c.resident.middlename ?? ""
-                              } ${c.resident.lastname ?? ""} ${
-                                  c.resident.suffix ?? ""
-                              }`.trim()
+                            ? `${c.resident.firstname ?? ""} ${c.resident.middlename ?? ""
+                                } ${c.resident.lastname ?? ""} ${c.resident.suffix ?? ""
+                                }`.trim()
                             : c.name ?? c.display_name ?? "—";
 
                         return (
@@ -196,11 +195,9 @@ export default function Index({ summons, queryParams, incident_types }) {
                 <div className="flex flex-wrap gap-x-1 text-sm">
                     {respondents.map((r, idx) => {
                         const fullName = r.resident
-                            ? `${r.resident.firstname ?? ""} ${
-                                  r.resident.middlename ?? ""
-                              } ${r.resident.lastname ?? ""} ${
-                                  r.resident.suffix ?? ""
-                              }`.trim()
+                            ? `${r.resident.firstname ?? ""} ${r.resident.middlename ?? ""
+                                } ${r.resident.lastname ?? ""} ${r.resident.suffix ?? ""
+                                }`.trim()
                             : r.name ?? r.display_name ?? "—";
 
                         return (
@@ -221,10 +218,9 @@ export default function Index({ summons, queryParams, incident_types }) {
         status: (summon) => {
             return (
                 <span
-                    className={`px-2 py-1 text-sm rounded-lg ${
-                        CONSTANTS.SUMMON_STATUS_CLASS[summon.status] ??
+                    className={`px-2 py-1 text-sm rounded-lg ${CONSTANTS.SUMMON_STATUS_CLASS[summon.status] ??
                         "bg-gray-100 text-gray-700"
-                    }`}
+                        }`}
                 >
                     {CONSTANTS.SUMMON_STATUS_TEXT[summon.status]}
                 </span>
@@ -249,20 +245,19 @@ export default function Index({ summons, queryParams, incident_types }) {
                         <span className="text-sm text-gray-600">
                             {latestTake.hearing_date
                                 ? new Date(
-                                      latestTake.hearing_date
-                                  ).toLocaleDateString()
+                                    latestTake.hearing_date
+                                ).toLocaleDateString()
                                 : "No Date Set"}
                         </span>
                         <span
-                            className={`text-xs ${
-                                CONSTANTS.SESSION_STATUS_CLASS[
-                                    latestTake.session_status
-                                ]
-                            }`}
+                            className={`text-xs ${CONSTANTS.SESSION_STATUS_CLASS[
+                                latestTake.session_status
+                            ]
+                                }`}
                         >
                             {
                                 CONSTANTS.SESSION_STATUS_TEXT[
-                                    latestTake.session_status
+                                latestTake.session_status
                                 ]
                             }
                         </span>
@@ -274,9 +269,8 @@ export default function Index({ summons, queryParams, incident_types }) {
         issued_by: (summon) => {
             const o = summon.issued_by?.resident;
             if (!o) return "—";
-            const res = `${o.firstname ?? ""} ${o.middlename ?? ""} ${
-                o.lastname ?? ""
-            } ${o.suffix ?? ""}`.trim();
+            const res = `${o.firstname ?? ""} ${o.middlename ?? ""} ${o.lastname ?? ""
+                } ${o.suffix ?? ""}`.trim();
             return <span className="text-wrap text-gray-600">{res}</span>;
         },
 
@@ -356,6 +350,21 @@ export default function Index({ summons, queryParams, incident_types }) {
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                        <div className="flex items-center gap-3 p-4 mb-6 bg-gray-50 rounded-xl shadow-sm">
+                            <div className="p-3 bg-green-100 rounded-full">
+                                <FileText className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div>
+                                <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+                                    Summon Records
+                                </h1>
+                                <p className="text-sm text-gray-500">
+                                    Track and manage summons issued in relation to blotter cases.
+                                    Monitor hearing schedules, statuses, and ensure proper documentation
+                                    for transparent case resolution.
+                                </p>
+                            </div>
+                        </div>
                         <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                             <div className="flex items-start gap-2 flex-wrap">
                                 <DynamicTableControls
@@ -414,7 +423,7 @@ export default function Index({ summons, queryParams, incident_types }) {
                                             <ListPlus className="w-4 h-4" />
                                         </Button>
                                         <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                            Add a Blotter Report
+                                            Add Blotter Report
                                         </div>
                                     </div>
                                 </Link>
