@@ -9,7 +9,14 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Eye, Search, SquarePen, Trash2, UserCheck, IdCard } from "lucide-react";
+import {
+    Eye,
+    Search,
+    SquarePen,
+    Trash2,
+    UserCheck,
+    IdCard,
+} from "lucide-react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import DynamicTable from "@/Components/DynamicTable";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
@@ -203,7 +210,8 @@ export default function Index({
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname ?? ""
+                `${resident.firstname} ${resident.middlename ?? ""} ${
+                    resident.lastname ?? ""
                 } ${resident.suffix ?? ""}`
             );
             setData("purok_number", resident.purok_number);
@@ -262,7 +270,8 @@ export default function Index({
                 setData("resident_id", resident.id);
                 setData(
                     "resident_name",
-                    `${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname ?? ""
+                    `${resident.firstname} ${resident.middlename ?? ""} ${
+                        resident.lastname ?? ""
                     } ${resident.suffix ?? ""}`
                 );
                 setData("purok_number", resident.purok_number);
@@ -356,7 +365,7 @@ export default function Index({
                 resident.seniorcitizen == null ? (
                     <span className="text-yellow-600 font-medium">Pending</span>
                 ) : resident.seniorcitizen.is_pensioner?.toLowerCase() ===
-                    "yes" ? (
+                  "yes" ? (
                     <span className="text-green-600 font-medium">Yes</span>
                 ) : (
                     <span className="text-gray-500">No</span>
@@ -477,8 +486,10 @@ export default function Index({
                                         Senior Citizen Records
                                     </h1>
                                     <p className="text-sm text-gray-500">
-                                        Manage and track senior citizen information. Quickly search,
-                                        filter, or export records to support programs and services.
+                                        Manage and track senior citizen
+                                        information. Quickly search, filter, or
+                                        export records to support programs and
+                                        services.
                                     </p>
                                 </div>
                             </div>
@@ -601,10 +612,10 @@ export default function Index({
                     registerSenior
                         ? "Register Senior Citizen"
                         : seniorDetails
-                            ? "Edit Senior Citizen Details"
-                            : selectedResident
-                                ? "Resident Details"
-                                : ""
+                        ? "Edit Senior Citizen Details"
+                        : selectedResident
+                        ? "Resident Details"
+                        : ""
                 }
             >
                 {selectedResident && (

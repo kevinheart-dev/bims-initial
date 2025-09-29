@@ -330,7 +330,7 @@ class DatabaseSeeder extends Seeder
                     'password' => bcrypt('admin123'),
                     'email_verified_at' => now(),
                     'role' => 'barangay_officer',
-                    'status' => 'active',
+                    'status' => 'inactive',
                     'is_disabled' => false,
                 ]);
                 $adminUser->assignRole($barangayOfficerRole);
@@ -340,7 +340,7 @@ class DatabaseSeeder extends Seeder
                     'barangay_id' => $barangay->id,
                     'term_start' => 2022,
                     'term_end' => 2025,
-                    'status' => 'active',
+                    'status' => 'inactive',
                 ]);
 
                 // Assign Barangay Official
@@ -348,7 +348,7 @@ class DatabaseSeeder extends Seeder
                     'resident_id' => $resident->id,
                     'term_id' => $term->id,
                     'position' => 'barangay_secretary',
-                    'status' => 'active',
+                    'status' => 'inactive',
                     'appointment_type' => 'appointed',
                 ]);
 
@@ -368,7 +368,7 @@ class DatabaseSeeder extends Seeder
                         'password' => bcrypt('user123'),
                         'email_verified_at' => now(),
                         'role' => 'resident',
-                        'status' => 'active',
+                        'status' => 'inactive',
                         'is_disabled' => false,
                     ]);
                     $user->assignRole($residentRole);

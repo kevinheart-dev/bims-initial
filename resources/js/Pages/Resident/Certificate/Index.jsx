@@ -2,17 +2,17 @@ import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router, useForm } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import {
-    CheckCircle,
     Eye,
+    FileInput,
     FilePlus2,
     FileText,
     FileUp,
+    FileWarning,
     PrinterIcon,
     RotateCcw,
     Search,
     SquarePlus,
     Trash2,
-    XCircle,
 } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -69,25 +69,19 @@ export default function Index({
             .toLowerCase()
             .replace(/(?:^|_)([a-z])/g, (_, char) => char.toUpperCase());
 
-    const { data, setData, errors, setError, reset, clearErrors } = useForm({
-        resident_id: null,
-        resident_name: "",
-        document_id: null,
-        document_name: "",
-        birthdate: null,
-        age: null,
-        civil_status: "",
-        resident_image: "",
-        purpose: "",
-        placeholders: null,
-
-        // second resident support
-        resident_id_2: null,
-        resident_name_2: "",
-        civil_status_2: "",
-        resident_image_2: "",
-        purpose_2: "",
-    });
+    const { data, setData, post, errors, setError, reset, clearErrors } =
+        useForm({
+            resident_id: null,
+            resident_name: "",
+            document_id: null,
+            document_name: "",
+            birthdate: null,
+            age: null,
+            civil_status: "",
+            resident_image: "",
+            purpose: "",
+            placeholders: null,
+        });
 
     const months = [
         { label: "January", value: "1" },
@@ -120,201 +114,44 @@ export default function Index({
         }
     };
 
-    const handleResidentChange = (e) => {
-        const resident_id = Number(e.target.value);
-        const resident = residents.find((r) => r.id == resident_id);
-        if (resident) {
-            setData("resident_id", resident.id);
-            setData(
-                "resident_name",
-                `${resident.firstname} ${resident.middlename} ${
-                    resident.lastname
-                } ${resident.suffix ?? ""}`
-            );
-            setData("gender", resident.gender);
-            setData("birthdate", resident.birthdate);
-            setData("civil_status", resident.civil_status);
-            setData("resident_image", resident.resident_picture_path);
-        }
-    };
-
-    const handleSecondResidentChange = (e) => {
-        const resident_id = Number(e.target.value);
-        const resident = residents.find((r) => r.id == resident_id);
-        if (resident) {
-            setData("resident_id_2", resident.id);
-            setData(
-                "resident_name_2",
-                `${resident.firstname} ${resident.middlename} ${
-                    resident.lastname
-                } ${resident.suffix ?? ""}`
-            );
-            setData("civil_status_2", resident.civil_status);
-            setData("resident_image_2", resident.resident_picture_path);
-        }
-    };
-
-    const residentsList = residents.map((resident) => ({
-        label: `${resident.firstname} ${resident.middlename ?? ""} ${
-            resident.lastname
-        }${resident.suffix ? ", " + resident.suffix : ""}`
-            .replace(/\s+/g, " ")
-            .trim(),
-        value: resident.id,
-    }));
-
     const documentsList = documents.map((document) => ({
         label: document.name.replace(/\s+/g, " ").trim(),
         value: document.id.toString(),
     }));
 
-    const isDualTemplate = (data.placeholders || []).some((ph) =>
-        ph.endsWith("_2")
-    );
-
     // handles document issuance
-    const handleIssue = async () => {
-        setError({});
-        setDisableSubmit(true);
-        const newErrors = {};
+    const handleRequest = (e) => {
+        e.preventDefault(); // prevent page reload
 
-        if (!data.resident_id)
-            newErrors.resident_id = "Please select a resident.";
-        if (!data.document_id)
-            newErrors.document_id = "Please select a certificate.";
-        if (!data.purpose || data.purpose.trim() === "")
-            newErrors.purpose = "Purpose is required.";
+        // Optional: clear previous errors
+        clearErrors();
 
-        // if (isDualTemplate) {
-        //     if (!data.resident_id_2)
-        //         newErrors.resident_id_2 = "Please select a second resident.";
-        //     if (!data.purpose_2 || data.purpose_2.trim() === "")
-        //         newErrors.purpose_2 = "Purpose for 2nd resident is required.";
-        // }
-
-        (data.placeholders || [])
-            .filter((placeholder) => !defaultPlacehodlers.includes(placeholder))
-            .forEach((placeholder) => {
-                if (!data[placeholder] || data[placeholder].trim() === "") {
-                    newErrors[placeholder] = `${placeholder
-                        .replace(/_/g, " ")
-                        .replace(/\b\w/g, (c) =>
-                            c.toUpperCase()
-                        )} is required.`;
-                }
-            });
-
-        if (Object.keys(newErrors).length > 0) {
-            setError(newErrors);
-            toast.error("Validation failed", {
-                description: "Please fill in all required fields.",
-                duration: 4000,
-                className: "bg-red-100 text-red-800",
-            });
-            setDisableSubmit(false);
+        // Optional client-side validation
+        if (!data.document_id) {
+            setError("document_id", "Please select a certificate.");
+            return;
+        }
+        if (!data.purpose) {
+            setError("purpose", "Please provide the purpose.");
             return;
         }
 
-        const payload = {
-            document_id: data.document_id,
-            resident_id: data.resident_id,
-            purpose: data.purpose,
-            ...(isDualTemplate
-                ? {
-                      resident_id_2: data.resident_id_2,
-                      purpose_2: data.purpose_2,
-                  }
-                : {}),
-            ...Object.fromEntries(
-                (data.placeholders || [])
-                    .filter(
-                        (placeholder) =>
-                            !defaultPlacehodlers.includes(placeholder)
-                    )
-                    .map((placeholder) => [
-                        placeholder,
-                        data[placeholder] || "",
-                    ])
-            ),
-        };
-
-        try {
-            toast.loading("Issuing document...", {
-                duration: 5000,
-                className: "bg-blue-100 text-blue-800",
-            });
-            const response = await axios.post(
-                route("certificate.store"),
-                payload,
-                { responseType: "blob" }
-            );
-
-            const blob = new Blob([response.data], {
-                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-
-            const contentDisposition = response.headers["content-disposition"];
-            const match = contentDisposition?.match(/filename="?([^"]+)"?/);
-            const filename = match ? match[1] : "certificate.docx";
-
-            link.setAttribute("download", filename);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-
-            router.get(route("certificate.index", { success: true }));
-        } catch (error) {
-            console.error("Issuance failed", error);
-            const serverMessage =
-                error?.response?.data?.message || "Unknown error occurred.";
-            toast.error("Failed to issue document", {
-                description: serverMessage,
-                duration: 5000,
-                className: "bg-red-100 text-red-800",
-            });
-        }
+        post(route("resident.certificate.store"), data, {
+            onError: (errs) => {
+                console.error("Validation Errors:", errs);
+                const messages = Object.values(errs).flat(); // flatten nested errors if needed
+                toast.error("Validation Error", {
+                    description: (
+                        <ul className="list-disc pl-5">
+                            {messages.map((m, i) => (
+                                <li key={i}>{m}</li>
+                            ))}
+                        </ul>
+                    ),
+                });
+            },
+        });
     };
-
-    // for resident approval
-    const handleCertificateIssue = async (id) => {
-        try {
-            toast.loading("Issuing document...");
-
-            const response = await axios.post(
-                route("certificate.issue", id),
-                {},
-                { responseType: "blob" }
-            );
-
-            const blob = new Blob([response.data], {
-                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = url;
-
-            const contentDisposition = response.headers["content-disposition"];
-            const match = contentDisposition?.match(/filename="?([^"]+)"?/);
-            const filename = match ? match[1] : "certificate.docx";
-
-            link.setAttribute("download", filename);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-
-            router.get(route("certificate.index", { success: true }));
-        } catch (error) {
-            console.error("Issuance failed", error);
-            toast.error("Failed to issue certificate", {
-                description:
-                    error?.response?.data?.message || "Unknown error occurred.",
-            });
-        }
-    };
-
     // tables and modals
     queryParams = queryParams || {};
 
@@ -365,7 +202,6 @@ export default function Index({
 
     const allColumns = [
         { key: "id", label: "Issued ID" },
-        { key: "name", label: "Name" },
         { key: "certificate", label: "Certificate" },
         { key: "purpose", label: "Purpose" },
         { key: "request_status", label: "Request Status" },
@@ -398,18 +234,6 @@ export default function Index({
 
     const columnRenderers = {
         id: (row) => <span className="text-xs text-gray-700">{row.id}</span>,
-
-        name: (row) => {
-            const r = row.resident ?? {};
-            const fullName = `${r.firstname ?? ""} ${r.middlename ?? ""} ${
-                r.lastname ?? ""
-            } ${r.suffix ?? ""}`.trim();
-            return (
-                <span className="text-sm font-medium text-gray-800">
-                    {fullName || "—"}
-                </span>
-            );
-        },
 
         certificate: (row) => (
             <span className="text-xs text-indigo-700 font-medium">
@@ -457,40 +281,10 @@ export default function Index({
         actions: (row) => (
             <ActionMenu
                 actions={[
-                    ...(row.request_status === "pending"
-                        ? [
-                              {
-                                  label: "Issue",
-                                  icon: (
-                                      <CheckCircle className="w-4 h-4 text-blue-600" />
-                                  ),
-                                  onClick: () => handleCertificateIssue(row.id),
-                              },
-                              {
-                                  label: "Deny",
-                                  icon: (
-                                      <XCircle className="w-4 h-4 text-orange-600" />
-                                  ),
-                                  onClick: () => handleCertificateDeny(row.id),
-                              },
-                          ]
-                        : []),
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
                         onClick: () => handleDelete(row.id),
-                    },
-                    {
-                        label: "Download",
-                        icon: <FileText className="w-4 h-4 text-green-600" />,
-                        onClick: () => handleCertificateDownload(row.id),
-                    },
-                    {
-                        label: "Print",
-                        icon: (
-                            <PrinterIcon className="w-4 h-4 text-indigo-600" />
-                        ),
-                        onClick: () => handleCertificatePrint(row.id),
                     },
                 ]}
             />
@@ -501,85 +295,6 @@ export default function Index({
     const handleAddCertificate = () => {
         setModalState("add");
         setIsModalOpen(true);
-    };
-
-    //handle print
-    const handleCertificatePrint = async (id) => {
-        try {
-            const response = await axios.get(route("certificate.print", id), {
-                responseType: "blob",
-            });
-
-            const blob = new Blob([response.data], { type: "application/pdf" });
-            const url = window.URL.createObjectURL(blob);
-
-            // Open in new tab and auto-print
-            const printWindow = window.open(url);
-            if (printWindow) {
-                printWindow.onload = () => {
-                    printWindow.focus();
-                    printWindow.print();
-                };
-            }
-
-            // Cleanup after some time
-            setTimeout(() => {
-                window.URL.revokeObjectURL(url);
-            }, 2000);
-        } catch (error) {
-            const msg = error.response?.data?.error || "Failed to load PDF.";
-            toast.error(msg, {
-                description: "Operation failed!",
-                duration: 3000,
-                className: "bg-red-100 text-red-800",
-            });
-        }
-    };
-
-    // handle download
-    const handleCertificateDownload = async (id) => {
-        try {
-            const response = await axios.get(
-                route("certificate.download", id),
-                {
-                    responseType: "blob",
-                }
-            );
-
-            // Extract filename from headers if possible
-            const contentDisposition = response.headers["content-disposition"];
-            const match = contentDisposition?.match(/filename="?([^"]+)"?/);
-            const filename = match ? match[1] : `certificate_${id}.docx`;
-
-            // Create a blob for download
-            const blob = new Blob([response.data], {
-                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            });
-            const url = window.URL.createObjectURL(blob);
-
-            // Trigger browser download
-            const link = document.createElement("a");
-            link.href = url;
-            link.setAttribute("download", filename);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-
-            setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-
-            toast.success("Certificate downloaded successfully.", {
-                description: "Operation successful!",
-                duration: 3000,
-                className: "bg-green-100 text-green-800",
-            });
-        } catch (error) {
-            const msg = error.response?.data?.error || "Download failed.";
-            toast.error(msg, {
-                description: "Operation failed!",
-                duration: 3000,
-                className: "bg-red-100 text-red-800",
-            });
-        }
     };
 
     // handle modal closing
@@ -646,16 +361,17 @@ export default function Index({
                                     </div>
                                     <div>
                                         <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-                                            Certificate Issuance
+                                            My Certificates
                                         </h1>
                                         <p className="text-sm text-gray-500">
-                                            Manage the{" "}
+                                            View and request{" "}
                                             <span className="font-medium">
-                                                issuance of certificates{" "}
-                                            </span>
-                                            for residents. Use the tools below
-                                            to search, filter, export, or issue
-                                            new certificates as needed.
+                                                official certificates
+                                            </span>{" "}
+                                            from your barangay. You can check
+                                            your records, request new
+                                            certificates, or download available
+                                            documents below.
                                         </p>
                                     </div>
                                 </div>
@@ -672,11 +388,6 @@ export default function Index({
                                         toggleShowFilters={() =>
                                             setShowFilters((prev) => !prev)
                                         }
-                                    />
-                                    <ExportButton
-                                        url="/certificate/export-certificates-excel"
-                                        queryParams={queryParams}
-                                        label="Export Certificates as XLSX"
                                     />
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap justify-end">
@@ -715,10 +426,10 @@ export default function Index({
                                             className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
                                             onClick={handleAddCertificate}
                                         >
-                                            <SquarePlus className="w-4 h-4" />
+                                            <FileInput className="w-4 h-4" />
                                         </Button>
                                         <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                            Issue Certificate
+                                            Request Certificate
                                         </div>
                                     </div>
                                 </div>
@@ -758,27 +469,23 @@ export default function Index({
                         onClose={() => {
                             handleModalClose();
                         }}
-                        title={
-                            modalState === "add"
-                                ? "Issue a Certificate"
-                                : "View Resident Details"
-                        }
+                        title={"Request a Certificate"}
                     >
                         {modalState === "add" && (
-                            <div className="bg-white shadow-xl rounded-2xl p-8 my-10 space-y-10 border border-gray-100">
-                                {/* Certificate & Resident Selection */}
-                                <div>
-                                    <h2 className="text-xl font-bold text-gray-800 mb-2">
-                                        Certificate & Resident Selection
+                            <div className="bg-white shadow-xl rounded-2xl p-8 my-8 border border-gray-100">
+                                {/* Certificate Selection */}
+                                <section className="space-y-3 pb-6 border-b border-gray-100">
+                                    <h2 className="text-lg font-semibold text-gray-900">
+                                        Certificate Request
                                     </h2>
-                                    <p className="text-sm text-gray-500 mb-6">
-                                        Choose the type of certificate to issue
-                                        and select the resident(s) for whom it
-                                        will be generated.
+                                    <p className="text-sm text-gray-500">
+                                        Choose the type of certificate you need
+                                        and submit your request to the barangay
+                                        office. Once processed, your certificate
+                                        will be available for pickup.
                                     </p>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        {/* Certificate */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                                         <div>
                                             <DropdownInputField
                                                 label="Select a Certificate"
@@ -789,71 +496,43 @@ export default function Index({
                                                         e.target.value
                                                     )
                                                 }
+                                                disabled={
+                                                    documentsList.length === 0
+                                                }
                                             />
                                             <InputError
                                                 message={errors.document_id}
                                                 className="mt-1"
                                             />
-                                            <p className="text-xs text-gray-400 mt-1">
-                                                Example: Certificate of
-                                                Indigency, Residency, etc.
-                                            </p>
-                                        </div>
 
-                                        {/* Resident */}
-                                        <div>
-                                            <DropdownInputField
-                                                label="Select a Resident"
-                                                items={residentsList}
-                                                value={data.resident_name || ""}
-                                                onChange={handleResidentChange}
-                                            />
-                                            <InputError
-                                                message={errors.resident_id}
-                                                className="mt-1"
-                                            />
-                                            <p className="text-xs text-gray-400 mt-1">
-                                                The resident for whom this
-                                                certificate will be issued.
-                                            </p>
-                                        </div>
-
-                                        {/* Dual Resident */}
-                                        {isDualTemplate && (
-                                            <div className="md:col-span-2">
-                                                <DropdownInputField
-                                                    label="Select Second Resident"
-                                                    items={residentsList}
-                                                    value={
-                                                        data.resident_name_2 ||
-                                                        ""
-                                                    }
-                                                    onChange={
-                                                        handleSecondResidentChange
-                                                    }
-                                                />
-                                                <InputError
-                                                    message={
-                                                        errors.resident_id_2
-                                                    }
-                                                    className="mt-1"
-                                                />
+                                            {documentsList.length > 0 ? (
                                                 <p className="text-xs text-gray-400 mt-1">
-                                                    Some certificates require
-                                                    two residents (e.g., joint
-                                                    certification).
+                                                    Example: Certificate of
+                                                    Indigency, Residency, etc.
                                                 </p>
-                                            </div>
-                                        )}
+                                            ) : (
+                                                <p className="flex items-center text-sm text-red-500 mt-2 font-medium gap-2">
+                                                    <FileWarning className="w-8 h-8 flex-shrink-0" />
+                                                    <span>
+                                                        No certificates are
+                                                        currently available.
+                                                        <br />
+                                                        Please contact your
+                                                        barangay office for
+                                                        assistance.
+                                                    </span>
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
+                                </section>
 
-                                {/* Purpose Section */}
-                                <div>
-                                    <h2 className="text-xl font-bold text-gray-800 mb-2">
+                                {/* Purpose */}
+                                <section className="space-y-3 py-6 border-b border-gray-100">
+                                    <h2 className="text-lg font-semibold text-gray-900">
                                         Purpose
                                     </h2>
-                                    <p className="text-sm text-gray-500 mb-6">
+                                    <p className="text-sm text-gray-500">
                                         Provide the purpose of the certificate.
                                         This will appear in the certification
                                         document.
@@ -881,46 +560,22 @@ export default function Index({
                                                 financial assistance.
                                             </p>
                                         </div>
-
-                                        {isDualTemplate && (
-                                            <div>
-                                                <InputField
-                                                    label="Purpose (Second Resident)"
-                                                    value={data.purpose_2 || ""}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            "purpose_2",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                />
-                                                <InputError
-                                                    message={errors.purpose_2}
-                                                    className="mt-1"
-                                                />
-                                                <p className="text-xs text-gray-400 mt-1">
-                                                    Provide a separate purpose
-                                                    if the second resident
-                                                    requires one.
-                                                </p>
-                                            </div>
-                                        )}
                                     </div>
-                                </div>
+                                </section>
 
-                                {/* Dynamic Placeholders */}
+                                {/* Additional Information */}
                                 {data.placeholders?.length > 0 && (
-                                    <div>
-                                        <h2 className="text-xl font-bold text-gray-800 mb-2">
+                                    <section className="space-y-3 py-6 border-b border-gray-100">
+                                        <h2 className="text-lg font-semibold text-gray-900">
                                             Additional Information
                                         </h2>
-                                        <p className="text-sm text-gray-500 mb-6">
+                                        <p className="text-sm text-gray-500">
                                             Some templates require extra
                                             details. Fill out the fields below
                                             if they are present in the template.
                                         </p>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                                             {data.placeholders
                                                 .filter(
                                                     (p) =>
@@ -968,32 +623,30 @@ export default function Index({
                                                     </div>
                                                 ))}
                                         </div>
-                                    </div>
+                                    </section>
                                 )}
 
                                 {/* Actions */}
-                                <div className="flex justify-between items-center border-t pt-6">
+                                <div className="flex justify-end gap-3 pt-6">
                                     <Button
                                         type="button"
                                         onClick={() => reset()}
                                         variant="outline"
-                                        className="flex items-center gap-2 text-gray-500"
+                                        className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
                                     >
                                         <RotateCcw className="w-4 h-4" /> Reset
                                     </Button>
                                     <Button
-                                        onClick={handleIssue}
+                                        onClick={handleRequest}
                                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl shadow-md"
-                                        disabled={disableSubmit}
+                                        disabled={!documentsList}
                                     >
-                                        Issue Certificate
+                                        Request Certificate
                                     </Button>
                                 </div>
                             </div>
                         )}
                     </SidebarModal>
-                    {/*
-                     */}
                 </div>
             </div>
         </AdminLayout>

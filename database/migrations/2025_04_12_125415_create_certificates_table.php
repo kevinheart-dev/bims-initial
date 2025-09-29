@@ -16,13 +16,14 @@ return new class extends Migration
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
             $table->foreignId('document_id')->constrained('documents')->onDelete('cascade');
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->enum('request_status', ['pending', 'approved', 'denied', 'issued']);
+            $table->enum('request_status', ['pending', 'denied', 'issued']);
             $table->text('purpose');
-            $table->date('issued_at');
-            $table->foreignId('issued_by')->constrained('barangay_officials')->onDelete('cascade'); // Assuming `users` is the table for issued_by.
+            $table->date('issued_at')->nullable();
+            $table->foreignId('issued_by')->nullable()->constrained('barangay_officials')->onDelete('cascade');
             $table->text('docx_path')->nullable(); // Path to the certificate file
             $table->text('pdf_path')->nullable(); // Path to the generated PDF file, if applicable
             $table->string('control_number')->nullable(); // Optional control number field
+            $table->json('dynamic_values')->nullable();
             $table->timestamps();
         });
     }

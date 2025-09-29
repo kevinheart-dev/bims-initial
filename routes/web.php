@@ -69,6 +69,8 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
     Route::post('certificate/store', [CertificateController::class, 'storeFromPost'])->name('certificate.store');
     Route::get('certificate/export-certificates-excel', [ReportGenerationController::class, 'exportCertificates'])
         ->name('certificate.export');
+    Route::post('/certificate/issue/{id}', [CertificateController::class, 'issue'])
+        ->name('certificate.issue');
 
     // family
     Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('resident.familytree');
@@ -232,7 +234,12 @@ Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(
 // Resident-only routes
 Route::middleware(['auth', 'role:resident'])->group(function () {
     Route::get('/dashboard', [ResidentAccountController::class, 'dashboard'])->name('resident_account.dashboard');
+    Route::get('/certificates', [ResidentAccountController::class, 'residentCertificates'])->name('resident_account.certificates');
     Route::resource('resident_account', ResidentAccountController::class);
+    Route::get('/document/fetchplaceholders/{id}', [DocumentController::class, 'fetchPlaceholders'])
+    ->name('resident.document.placeholders');
+    Route::post('/certificate-request', [ResidentAccountController::class, 'requestCertificate'])
+    ->name('resident.certificate.store');
 });
 
 // Routes accessible to both resident and admin users (verified users)

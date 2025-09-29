@@ -17,6 +17,10 @@ import { Button } from "@/components/ui/button";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import { useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
+import {
+    BARANGAY_OFFICIAL_POSITIONS_TEXT,
+    BLOTTER_REPORT_STATUS,
+} from "@/constants";
 
 export default function Show({ blotter_details }) {
     const breadcrumbs = [
@@ -295,8 +299,9 @@ export default function Show({ blotter_details }) {
                                         Report Status
                                     </h4>
                                     <Badge className="capitalize mt-1">
-                                        {blotter_details?.report_status ||
-                                            "pending"}
+                                        {BLOTTER_REPORT_STATUS[
+                                            blotter_details?.report_status
+                                        ] || "pending"}
                                     </Badge>
                                 </div>
 
@@ -325,8 +330,10 @@ export default function Show({ blotter_details }) {
                                         Official Position
                                     </h4>
                                     <p className="text-base text-gray-900 capitalize">
-                                        {blotter_details?.recorded_by
-                                            ?.position || "-"}
+                                        {BARANGAY_OFFICIAL_POSITIONS_TEXT[
+                                            blotter_details?.recorded_by
+                                                ?.position
+                                        ] || "-"}
                                     </p>
                                 </div>
                             </div>

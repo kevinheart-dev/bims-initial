@@ -66,7 +66,7 @@ class DocumentController extends Controller
         $templatePath = storage_path("app/public/{$template->file_path}");
 
         if (!file_exists($templatePath)) {
-            return response()->json(['error' => 'Template file not found.'], 404);
+            abort(404, 'Template file not found.');
         }
 
         $templateProcessor = new TemplateProcessor($templatePath);

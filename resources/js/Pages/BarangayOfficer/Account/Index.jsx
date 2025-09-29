@@ -299,6 +299,17 @@ export default function Index({ accounts, queryParams, residents }) {
         _method: undefined,
     });
     const handleResidentChange = useResidentChangeHandler(residents, setData);
+    const defaultVisibleCols = allColumns.map((col) => col.key);
+    const [visibleColumns, setVisibleColumns] = useState(() => {
+        const saved = localStorage.getItem("accounts_visible_columns");
+        return saved ? JSON.parse(saved) : defaultVisibleCols;
+    });
+    useEffect(() => {
+        localStorage.setItem(
+            "accounts_visible_columns",
+            JSON.stringify(visibleColumns)
+        );
+    }, [visibleColumns]);
 
     const handleModalClose = () => {
         setModalState(null);
@@ -413,7 +424,9 @@ export default function Index({ accounts, queryParams, residents }) {
         router.delete(route("user.destroy", recordToDelete));
         setIsDeleteModalOpen(false);
     };
-
+    const handlePrint = () => {
+        window.print();
+    };
     useEffect(() => {
         if (success) {
             handleModalClose();
@@ -477,9 +490,9 @@ export default function Index({ accounts, queryParams, residents }) {
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <DynamicTableControls
                                         allColumns={allColumns}
-                                        visibleColumns={allColumns.map(
-                                            (col) => col.key
-                                        )}
+                                        visibleColumns={visibleColumns}
+                                        setVisibleColumns={setVisibleColumns}
+                                        onPrint={handlePrint}
                                         showFilters={showFilters}
                                         toggleShowFilters={() =>
                                             setShowFilters((prev) => !prev)
@@ -554,9 +567,7 @@ export default function Index({ accounts, queryParams, residents }) {
                                 is_paginated={isPaginated}
                                 toggleShowAll={() => setShowAll(!showAll)}
                                 showAll={showAll}
-                                visibleColumns={allColumns.map(
-                                    (col) => col.key
-                                )}
+                                visibleColumns={visibleColumns}
                             />
                         </div>
                     </div>

@@ -42,6 +42,9 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
+        // ✅ Mark user as active on login
+        $user->update(['status' => 'active']);
+
         if ($user->isSuperAdmin()) {
             return redirect()->intended(route('super_admin.dashboard', [], false));
         }
@@ -67,6 +70,12 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $user = Auth::user();
+
+        if ($user) {
+            // ✅ Mark user as inactive on logout
+            $user->update(['status' => 'inactive']);
+        }
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();

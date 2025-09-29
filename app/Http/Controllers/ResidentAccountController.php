@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreCertificateRequest;
+use App\Models\Certificate;
+use App\Models\Document;
 use App\Models\Family;
 use App\Models\Household;
 use App\Models\Resident;
@@ -124,4 +127,100 @@ class ResidentAccountController extends Controller
             'pwdDistribution' => $pwdDistribution,
         ]);
     }
+
+    public function residentCertificates(){
+        $user = auth()->user();
+        $barangay_id = $user->resident->barangay_id;
+        $query = Document::where('barangay_id',  $barangay_id);
+        $documents = $query->get();
+
+        $query = Certificate::where('barangay_id', $barangay_id)
+        ->with('document:id,name', 'issuedBy:id,position')->where('resident_id', $user->resident->id)
+        ->select('id', 'resident_id', 'document_id', 'barangay_id', 'request_status', 'purpose', 'issued_at', 'issued_by', 'docx_path', 'pdf_path', 'control_number');
+
+        // Filter by certificate_type (assuming it's on the documents table)
+        if (request('certificate_type') && request('certificate_type') !== 'All') {
+            $type = request('certificate_type');
+            $query->whereHas('document', function ($q) use ($type) {
+                $q->where('name', $type);
+            });
+        }
+
+        // Filter by request_status
+        if (request('request_status') && request('request_status') !== 'All') {
+            $query->where('request_status', request('request_status'));
+        }
+
+        // Filter by issued_by
+        if (request('issued_by') && request('issued_by') !== 'All') {
+            $query->where('issued_by', request('issued_by'));
+        }
+
+        if ($issuedAt = request('issued_at')) {
+            try {
+                $date = \Carbon\Carbon::parse($issuedAt)->toDateString();
+                $query->whereDate('issued_at', $date);
+            } catch (\Exception $e) {
+                // Ignore invalid date filter
+            }
+        }
+
+        $search = trim(request('name', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('purpose', 'like', "%{$search}%")
+                ->orWhereHas('document', function ($d) use ($search) {
+                    $d->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+
+        $certificates = $query->get();
+
+        if (request()->boolean('success')) {
+            session()->flash('success', 'Certificate issued successfully.');
+        }
+        return Inertia::render('Resident/Certificate/Index', [
+            'documents' => $documents,
+            'queryParams' => request()->query() ?: null,
+            'certificates' => $certificates,
+            'success' => session('success'),
+            'error' => session('error'),
+        ]);
+    }
+
+    public function requestCertificate(StoreCertificateRequest $request)
+    {
+        try {
+            $user = auth()->user();
+            $resident = $user->resident;
+
+            $validated = $request->validated(); // only validated fields
+
+            $certificate = Certificate::create([
+                'resident_id'    => $validated['resident_id'] ?? $resident->id,
+                'document_id'    => $validated['document_id'],
+                'barangay_id'    => $resident->barangay_id,
+                'request_status' => 'pending',
+                'purpose'        => $validated['purpose'],
+                'issued_at'      => null,
+                'issued_by'      => null,
+                'docx_path'      => null,
+                'pdf_path'       => null,
+                'control_number' => null,
+                'dynamic_values' => json_encode($validated['placeholders'] ?? []),
+            ]);
+
+            return redirect()->route('resident_account.certificates')->with('success', 'Certificate request submitted successfully.');
+        } catch (\Exception $e) {
+            \Log::error('Certificate request failed: ' . $e->getMessage());
+
+            return back()->with(
+                'error','Certificate request could not be submitted: ' . $e->getMessage()
+            );
+        }
+    }
+
+
 }
