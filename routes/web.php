@@ -41,6 +41,7 @@ use App\Http\Controllers\ResidentMedicationController;
 use App\Http\Controllers\ResidentVaccinationController;
 use App\Http\Controllers\SeniorCitizenController;
 use App\Http\Controllers\SummonController;
+use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Models\BarangayInfrastructure;
@@ -229,10 +230,14 @@ Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(
         ->name('cdrrmo_admin.datacollection');
 });
 
-
+// Super Admin-only routes
+Route::middleware(['auth', 'role:super_admin'])->prefix('super_admin')->group(function () {
+    Route::get('dashboard', [SuperAdminController::class, 'index'])->name('super_admin.dashboard');
+    Route::get('accounts', [SuperAdminController::class, 'accounts'])->name('super_admin.accounts');
+});
 
 // Resident-only routes
-Route::middleware(['auth', 'role:resident'])->group(function () {
+Route::middleware(['auth', 'role:resident'])->prefix('resident')->group(function () {
     Route::get('/dashboard', [ResidentAccountController::class, 'dashboard'])->name('resident_account.dashboard');
     Route::get('/certificates', [ResidentAccountController::class, 'residentCertificates'])->name('resident_account.certificates');
     Route::resource('resident_account', ResidentAccountController::class);

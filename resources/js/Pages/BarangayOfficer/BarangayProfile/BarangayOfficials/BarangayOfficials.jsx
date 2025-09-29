@@ -19,7 +19,6 @@ import YearDropdown from "@/Components/YearDropdown";
 import InputField from "@/Components/InputField";
 import InputLabel from "@/Components/InputLabel";
 import { Textarea } from "@/Components/ui/textarea";
-import TextInput from "@/Components/TextInput";
 import { Toaster, toast } from "sonner";
 import InputError from "@/Components/InputError";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
@@ -127,7 +126,7 @@ const BarangayOfficials = () => {
             const official = response.data.official;
 
             setSelectedOfficial(official);
-            //console.log(official);
+            console.log(official);
             setData("resident_id", official.resident.id || "");
             setData(
                 "resident_name",
@@ -190,7 +189,7 @@ const BarangayOfficials = () => {
         value: key.toString(),
     }));
 
-    const purok_numbers = puroks.map((purok) => ({
+    const purok_numbers = Array.from(new Set(puroks)).map((purok) => ({
         label: "Purok " + purok,
         value: purok.toString(),
     }));
@@ -206,17 +205,6 @@ const BarangayOfficials = () => {
         label: `${term.term_start} - ${term.term_end}`,
         value: term.id.toString(),
     }));
-
-    useEffect(() => {
-        if (success) {
-            handleModalClose();
-            toast.success(success, {
-                description: "Operation successful!",
-                duration: 3000,
-                closeButton: true,
-            });
-        }
-    }, [success]);
 
     useEffect(() => {
         if (error) {
@@ -249,6 +237,7 @@ const BarangayOfficials = () => {
     }, [data.appointment_type]);
 
     const handleModalClose = () => {
+        refetch();
         setIsModalOpen(false);
         setSelectedResident(null);
         setSelectedOfficial(null);
@@ -263,6 +252,19 @@ const BarangayOfficials = () => {
         post(route("barangay_official.store"), {
             onError: (validationErrors) => {
                 console.error("Validation Errors:", validationErrors);
+                const messages = Object.values(validationErrors);
+                toast.error("Validation Error", {
+                    description: (
+                        <ul>
+                            {messages.map((m, i) => (
+                                <li key={i}>{m}</li>
+                            ))}
+                        </ul>
+                    ),
+                });
+            },
+            onSuccess: () => {
+                handleModalClose();
             },
         });
     };
@@ -273,12 +275,24 @@ const BarangayOfficials = () => {
         post(route("barangay_official.update", data.official_id), {
             onError: (validationErrors) => {
                 console.error("Validation Errors:", validationErrors);
+                const messages = Object.values(validationErrors);
+                toast.error("Validation Error", {
+                    description: (
+                        <ul>
+                            {messages.map((m, i) => (
+                                <li key={i}>{m}</li>
+                            ))}
+                        </ul>
+                    ),
+                });
+            },
+            onSuccess: () => {
+                handleModalClose();
             },
         });
     };
     return (
         <div className="p-2 md:px-2 md:py-2">
-            <Toaster richColors />
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 p-4">
                 {officials.map((official) => (
                     <OfficialCard
@@ -565,7 +579,12 @@ const BarangayOfficials = () => {
                                                             "designations"
                                                         )
                                                     }
-                                                    items={purok_numbers}
+                                                    items={purok_numbers.map(
+                                                        (item, idx) => ({
+                                                            ...item,
+                                                            key: idx, // unique key for React
+                                                        })
+                                                    )}
                                                 />
                                                 <InputError
                                                     message={

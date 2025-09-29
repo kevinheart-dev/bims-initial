@@ -9,6 +9,7 @@ use App\Models\BarangayOfficialTerm;
 use App\Models\Designation;
 use App\Models\Purok;
 use App\Models\Resident;
+use Carbon\Carbon;
 use DB;
 use Inertia\Inertia;
 use Str;
@@ -65,10 +66,10 @@ class BarangayOfficialController extends Controller
     public function store(StoreBarangayOfficialRequest $request)
     {
         try {
-
+            //dd($request->all());
             $data = $request->validated();
             DB::beginTransaction();
-
+            //dd($data);
             // Store Barangay Official
             $official = BarangayOfficial::create([
                 'resident_id'       => $data['resident_id'],
@@ -82,14 +83,20 @@ class BarangayOfficialController extends Controller
             ]);
 
             // Store designation(s) only for kagawad positions
-            if (in_array($data['position'], ['barangay_kagawad', 'sk_kagawad']) && !empty($data['designation'])) {
-                foreach ($data['designation'] as $purokId) {
-                    Designation::create([
-                        'official_id' => $official->id,
-                        'purok_id'    => $purokId,
-                        'started_at'  => now()->year,
-                        'ended_at'    => null,
-                    ]);
+            if (in_array($data['position'], ['barangay_kagawad', 'sk_kagawad']) && !empty($data['designations'])) {
+                foreach ($data['designations'] as $designation) {
+                    $purok_id = Purok::where('barangay_id', auth()->user()->resident->barangay_id)
+                        ->where('purok_number', $designation['designation'])
+                        ->value('id'); // get the actual ID
+
+                    if ($purok_id) { // only create if a valid Purok exists
+                        Designation::create([
+                            'official_id' => $official->id,
+                            'purok_id'    => $purok_id,
+                            'started_at'  => $designation['term_start'] ?? now()->year,
+                            'ended_at'    => $designation['term_end'] ?? null,
+                        ]);
+                    }
                 }
             }
             DB::commit();
@@ -128,7 +135,7 @@ class BarangayOfficialController extends Controller
     {
         try {
             $data = $request->validated();
-
+            //dd($data);
             // If appointment type is not "appointed", remove the appointed_by and appointment_reason
             if ($data['appointment_type'] !== 'appointed') {
                 $data['appointed_by'] = null;
@@ -146,10 +153,20 @@ class BarangayOfficialController extends Controller
                 'remarks'            => $data['remarks'] ?? null,
             ]);
 
-            // Update designation relationship if sent
             if (!empty($data['designations'])) {
-                $barangayOfficial->designation()->sync($data['designations']);
+                // Remove existing designations
+                $barangayOfficial->designation()->delete();
+
+                // Add new ones
+                foreach ($data['designations'] as $des) {
+                    $barangayOfficial->designation()->create([
+                        'purok_id'   => $des['designation'],
+                        'started_at' => $des['term_start'], // just the year
+                        'ended_at'   => $des['term_end'],   // just the year
+                    ]);
+                }
             }
+
             return redirect()
                 ->route('barangay_profile.index')
                 ->with([
@@ -175,11 +192,19 @@ class BarangayOfficialController extends Controller
         $official = BarangayOfficial::with([
             'resident.barangay',
             'resident.street.purok',
-            'designation' => function ($query) {
-                $query->whereNull('ended_at'); // or $query->where('end_date', '>', now());
-            },
+            'designation.purok',
             'term'
         ])->findOrFail($id);
+
+        $official->designation->transform(function ($d) {
+            return [
+                'id' => $d->id,
+                'purok_id' => $d->purok_id,
+                'purok_number' => $d->purok->purok_number ?? null, // easier for display
+                'started_at' => $d->started_at,
+                'ended_at' => $d->ended_at,
+            ];
+        });
 
         return response()->json(['official' => $official]);
     }

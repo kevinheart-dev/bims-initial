@@ -31,6 +31,7 @@ import {
     Scale,
     CircleUser,
     FileInput,
+    CircleUserRound,
 } from "lucide-react";
 import {
     Sidebar,
@@ -61,6 +62,12 @@ const items = [
         url: "/cdrrmo_admin/dashboard",
         icon: LayoutDashboard,
         roles: ["cdrrmo_admin"],
+    },
+    {
+        title: "Super Admin Dashboard",
+        url: "/super_admin/dashboard",
+        icon: LayoutDashboard,
+        roles: ["super_admin"],
     },
     {
         title: "Resident Dashboard",
@@ -270,6 +277,12 @@ const items = [
         icon: FileStack,
         roles: ["resident"],
         url: "/certificates",
+    },
+    {
+        title: "Barangay Accounts",
+        url: "/super_admin/accounts",
+        icon: CircleUserRound,
+        roles: ["super_admin"],
     },
 ];
 

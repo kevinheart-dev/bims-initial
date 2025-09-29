@@ -11,6 +11,7 @@ use App\Models\BarangayOfficialTerm;
 use App\Models\BarangayProject;
 use App\Models\BarangayRoad;
 use App\Models\Designation;
+use App\Models\Inventory;
 use App\Models\Purok;
 use App\Models\Resident;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -35,10 +36,19 @@ class BarangayInformationSeeder extends Seeder
         ];
 
         foreach ($positionsLimits as $position => $limit) {
-            BarangayOfficial::factory()->count($limit)->state([
-                'position' => $position,
-                'status' => 'active', // example fixed status
-            ])->create();
+            BarangayOfficial::factory()
+                ->count($limit)
+                ->state(function () use ($position) {
+                    $term = BarangayOfficialTerm::inRandomOrder()->first()
+                        ?? BarangayOfficialTerm::factory()->create();
+
+                    return [
+                        'position' => $position,
+                        'status' => 'active',
+                        'term_id' => $term->id,
+                    ];
+                })
+                ->create();
         }
 
         // Get all puroks grouped by barangay for quick lookup
@@ -101,19 +111,23 @@ class BarangayInformationSeeder extends Seeder
 
             BarangayInstitutionMember::factory()->create([
                 'institution_id' => $institution->id,
-                'resident_id' => $head->id,
-                'is_head' => true,
+                'resident_id'    => $head->id,
+                'is_head'        => true,
             ]);
 
             // Create other members (non-head)
-            $memberCount = rand(5, 10); // adjust number of members you want
-            $otherMembers = $residents->where('id', '!=', $head->id)->random($memberCount);
+            $memberCount      = rand(5, 10);
+            $availableMembers = $residents->where('id', '!=', $head->id);
+
+            // Clamp member count to avoid "requested X but only Y available"
+            $memberCount   = min($memberCount, $availableMembers->count());
+            $otherMembers  = $availableMembers->random($memberCount);
 
             foreach ($otherMembers as $member) {
                 BarangayInstitutionMember::factory()->create([
                     'institution_id' => $institution->id,
-                    'resident_id' => $member->id,
-                    'is_head' => false,
+                    'resident_id'    => $member->id,
+                    'is_head'        => false,
                 ]);
             }
         }
@@ -123,18 +137,25 @@ class BarangayInformationSeeder extends Seeder
         BarangayRoad::factory(10)->create();
         BarangayFacility::factory(10)->create();
 
-        BarangayInstitution::all()->each(function ($institution) {
-            // Create random members (5–10)
-            $members = BarangayInstitutionMember::factory()
-                ->count(rand(8, 16))
+        BarangayInstitution::all()->each(function ($institution) use ($residents) {
+            // Requested 8–16, but clamp to available residents
+            $memberCount      = rand(8, 16);
+            $availableMembers = $residents;
+
+            $memberCount  = min($memberCount, $availableMembers->count());
+            $members      = BarangayInstitutionMember::factory()
+                ->count($memberCount)
                 ->create([
                     'institution_id' => $institution->id,
                 ]);
 
-            // Randomly pick one of them as head
-            $head = $members->random();
-            $head->update(['is_head' => true]);
+            // Randomly pick one of them as head if members exist
+            if ($members->count() > 0) {
+                $head = $members->random();
+                $head->update(['is_head' => true]);
+            }
         });
+        Inventory::factory(50)->create();
     }
 
 }

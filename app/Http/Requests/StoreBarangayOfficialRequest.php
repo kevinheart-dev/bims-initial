@@ -36,7 +36,7 @@ class StoreBarangayOfficialRequest extends FormRequest
             'appointment_type'    => ['required', Rule::in(['elected', 'appointed', 'succession'])],
 
             // If appointed, additional fields are required
-            'appointed_by'       => ['nullable', 'string', 'max:255'],
+            'appointted_by'       => ['nullable', 'string', 'max:255'],
             'appointment_reason' => ['nullable', 'string', 'max:255'],
             'remarks'             => ['nullable', 'string', 'max:500'],
         ];
