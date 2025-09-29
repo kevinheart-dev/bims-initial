@@ -1,5 +1,6 @@
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import DropdownInputField from "./DropdownInputField";
+import { PlusCircle } from "lucide-react"
 import InputError from "./InputError";
 import InputLabel from "./InputLabel";
 import { Textarea } from "./ui/textarea";
@@ -14,18 +15,18 @@ export const ParticipantSection = ({
     notesKey = "notes",
     disableAdd = false,
 }) => {
-    // Update selected resident
-    const handleResidentArrayChange = (residentId, index) => {
+    const handleResidentArrayChange = (value, index) => {
         const resident = residentsList.find(
-            (r) => Number(r.value) === Number(residentId)
+            (r) => Number(r.value) === Number(value)
         );
 
         const updated = [...dataArray];
+
         if (!resident) {
             updated[index] = {
                 ...updated[index],
                 [fieldKey]: "",
-                resident_name: "",
+                resident_name: value,
             };
         } else {
             updated[index] = {
@@ -43,6 +44,7 @@ export const ParticipantSection = ({
 
         setDataArray(updated);
     };
+
 
     // Update notes
     const handleNotesChange = (value, index) => {
@@ -74,36 +76,39 @@ export const ParticipantSection = ({
                     key={index}
                     className="border p-4 mb-4 rounded-md relative bg-gray-50"
                 >
-                    <DropdownInputField
-                        label={title.slice(0, -1)}
-                        name={`${title.toLowerCase()}.${index}.${fieldKey}`}
+                    <label className="block text-sm font-medium text-gray-700">
+                        {title.slice(0, -1)}
+                    </label>
+                    <input
+                        list={`residents-${index}`}
                         value={item.resident_name || ""}
-                        placeholder="Select a resident"
-                        onChange={(e) =>
-                            handleResidentArrayChange(e.target.value, index)
-                        }
-                        items={residentsList}
+                        onChange={(e) => handleResidentArrayChange(e.target.value, index)}
+                        placeholder="Select or type a name"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 text-sm"
                     />
+                    <datalist id={`residents-${index}`}>
+                        {residentsList.map((res) => (
+                            <option key={res.value} value={res.label} />
+                        ))}
+                    </datalist>
+
                     <InputError
                         message={
                             errors?.[
-                                `${title.toLowerCase()}.${index}.${fieldKey}`
+                            `${title.toLowerCase()}.${index}.${fieldKey}`
                             ]
                         }
                         className="mt-2"
                     />
 
                     {item.resident_name && (
-                        <div className="mt-3 rounded-lg border bg-white shadow-sm p-4">
-                            <h4 className="text-sm font-semibold text-gray-800 mb-3">
+                        <div className="mt-3 rounded-lg border border-gray-200 bg-white shadow-sm p-4">
+                            <h4 className="text-base font-semibold text-gray-800 mb-4 border-b pb-2">
                                 {title.slice(0, -1)} Details
                             </h4>
                             <div className="grid grid-cols-3 gap-6 text-sm text-gray-700">
+                                {/* Profile */}
                                 <div className="flex flex-col items-center">
-                                    <InputLabel
-                                        htmlFor={`${title}_${index}_image`}
-                                        value="Profile Photo"
-                                    />
                                     <img
                                         src={
                                             item.resident_image
@@ -111,50 +116,40 @@ export const ParticipantSection = ({
                                                 : "/images/default-avatar.jpg"
                                         }
                                         alt="Resident"
-                                        className="w-24 h-24 object-cover rounded-full border border-gray-200 mt-2"
+                                        className="w-24 h-24 object-cover rounded-full border border-gray-300 shadow-sm"
                                     />
+                                    <p className="mt-2 font-medium text-gray-800">
+                                        {item.resident_name}
+                                    </p>
                                 </div>
+
+                                {/* Info */}
                                 <div className="col-span-2 grid grid-cols-2 gap-x-6 gap-y-3">
                                     <div>
-                                        <span className="font-medium">
-                                            Name:
-                                        </span>{" "}
-                                        {item.resident_name}
+                                        <span className="font-medium">Purok:</span>{" "}
+                                        {item.purok_number || "—"}
                                     </div>
                                     <div>
-                                        <span className="font-medium">
-                                            Purok:
-                                        </span>{" "}
-                                        {item.purok_number}
+                                        <span className="font-medium">Birthdate:</span>{" "}
+                                        {item.birthdate || "—"}
                                     </div>
                                     <div>
-                                        <span className="font-medium">
-                                            Birthdate:
-                                        </span>{" "}
-                                        {item.birthdate}
+                                        <span className="font-medium">Gender:</span>{" "}
+                                        {item.gender || "—"}
                                     </div>
                                     <div>
-                                        <span className="font-medium">
-                                            Gender:
-                                        </span>{" "}
-                                        {item.gender}
-                                    </div>
-                                    <div>
-                                        <span className="font-medium">
-                                            Contact:
-                                        </span>{" "}
-                                        {item.contact_number}
+                                        <span className="font-medium">Contact:</span>{" "}
+                                        {item.contact_number || "—"}
                                     </div>
                                     <div className="col-span-2">
-                                        <span className="font-medium">
-                                            Email:
-                                        </span>{" "}
-                                        {item.email}
+                                        <span className="font-medium">Email:</span>{" "}
+                                        {item.email || "—"}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     )}
+
 
                     <div className="mt-6">
                         <InputLabel value="Notes" />
@@ -174,7 +169,7 @@ export const ParticipantSection = ({
                         <InputError
                             message={
                                 errors?.[
-                                    `${title.toLowerCase()}.${index}.${notesKey}`
+                                `${title.toLowerCase()}.${index}.${notesKey}`
                                 ]
                             }
                             className="mt-1"
@@ -196,9 +191,10 @@ export const ParticipantSection = ({
                 <button
                     type="button"
                     onClick={addItem}
-                    className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                    className="text-blue-500 hover:text-blue-700 flex items-center gap-1 transition duration-150 font-medium p-1 rounded"
                 >
-                    <IoIosAddCircleOutline className="text-2xl" />
+                    <PlusCircle className="w-5 h-5" />
+
                     <span>Add {title.slice(0, -1)}</span>
                 </button>
             )}

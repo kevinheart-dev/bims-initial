@@ -18,6 +18,7 @@ use App\Models\Barangay;
 use App\Models\Resident;
 use Illuminate\Http\Request;
 use App\Exports\ResidentsExport;
+use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReportGenerationController extends Controller
@@ -30,11 +31,12 @@ class ReportGenerationController extends Controller
     }
     public function index()
     {
-        dd('Under development');
+        return Inertia::render('BarangayOfficer/Reports/Index');
     }
 
-    private function setfilename($name){
-         // Safely get barangay name
+    private function setfilename($name)
+    {
+        // Safely get barangay name
         $barangay = $this->data->barangay_name ?? 'Barangay';
         $year = now()->year;
         // Replace spaces with underscores for file name safety
