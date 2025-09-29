@@ -11,6 +11,16 @@ import {
     IoIosCloseCircleOutline,
 } from "react-icons/io";
 
+// Define BMI_STATUS here
+const BMI_STATUS = {
+    severely_underweight: "Severely Underweight",
+    underweight: "Underweight",
+    normal: "Normal",
+    overweight: "Overweight",
+    obese: "Obese",
+};
+
+
 function MedicalInfo() {
     const { userData, setUserData, errors } = useContext(StepperContext);
     const families = userData.household?.families || [];
@@ -146,10 +156,9 @@ function MedicalInfo() {
                     <button
                         type="button"
                         className={`w-full text-left p-4 font-semibold flex justify-between items-center
-                            ${
-                                openFamilyIndex === fIndex
-                                    ? "border-t-2 border-blue-600 text-gray-900"
-                                    : "text-gray-700 hover:bg-sky-100"
+                            ${openFamilyIndex === fIndex
+                                ? "border-t-2 border-blue-600 text-gray-900"
+                                : "text-gray-700 hover:bg-sky-100"
                             }
                             transition duration-300 ease-in-out`}
                         onClick={() =>
@@ -176,9 +185,8 @@ function MedicalInfo() {
                             {(family.members || []).map((member, mIndex) => {
                                 const isOpen =
                                     openMemberIndex[fIndex] === mIndex;
-                                const displayName = `${
-                                    member.firstname || ""
-                                } ${member.lastname || ""}`.trim();
+                                const displayName = `${member.firstname || ""
+                                    } ${member.lastname || ""}`.trim();
 
                                 return (
                                     <div
@@ -188,10 +196,9 @@ function MedicalInfo() {
                                         <button
                                             type="button"
                                             className={`w-full text-left p-4 font-semibold flex justify-between items-center
-                                                ${
-                                                    isOpen
-                                                        ? "border-t-2 border-blue-600 text-gray-900"
-                                                        : "text-gray-700 hover:bg-sky-100"
+                                                ${isOpen
+                                                    ? "border-t-2 border-blue-600 text-gray-900"
+                                                    : "text-gray-700 hover:bg-sky-100"
                                                 }
                                                 transition duration-300 ease-in-out`}
                                             onClick={() =>
@@ -242,14 +249,14 @@ function MedicalInfo() {
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.weight_kg`
                                                         ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
+                                                                <p className="text-red-500 text-xs">
+                                                                    {
+                                                                        errors[
                                                                         `families.${fIndex}.members.${mIndex}.weight_kg`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
+                                                                        ]
+                                                                    }
+                                                                </p>
+                                                            )}
                                                     </div>
 
                                                     {/* Height */}
@@ -276,14 +283,14 @@ function MedicalInfo() {
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.height_cm`
                                                         ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
+                                                                <p className="text-red-500 text-xs">
+                                                                    {
+                                                                        errors[
                                                                         `families.${fIndex}.members.${mIndex}.height_cm`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
+                                                                        ]
+                                                                    }
+                                                                </p>
+                                                            )}
                                                     </div>
 
                                                     {/* BMI */}
@@ -301,14 +308,14 @@ function MedicalInfo() {
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.bmi`
                                                         ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
+                                                                <p className="text-red-500 text-xs">
+                                                                    {
+                                                                        errors[
                                                                         `families.${fIndex}.members.${mIndex}.bmi`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
+                                                                        ]
+                                                                    }
+                                                                </p>
+                                                            )}
                                                     </div>
 
                                                     {/* Nutrition Status */}
@@ -349,14 +356,14 @@ function MedicalInfo() {
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.emergency_contact_number`
                                                         ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
+                                                                <p className="text-red-500 text-xs">
+                                                                    {
+                                                                        errors[
                                                                         `families.${fIndex}.members.${mIndex}.emergency_contact_number`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
+                                                                        ]
+                                                                    }
+                                                                </p>
+                                                            )}
                                                     </div>
 
                                                     {/* Emergency Contact Name */}
@@ -381,14 +388,14 @@ function MedicalInfo() {
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.emergency_contact_name`
                                                         ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
+                                                                <p className="text-red-500 text-xs">
+                                                                    {
+                                                                        errors[
                                                                         `families.${fIndex}.members.${mIndex}.emergency_contact_name`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
+                                                                        ]
+                                                                    }
+                                                                </p>
+                                                            )}
                                                     </div>
 
                                                     {/* Emergency Contact Relationship */}
@@ -423,14 +430,14 @@ function MedicalInfo() {
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.emergency_contact_relationship`
                                                         ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
+                                                                <p className="text-red-500 text-xs">
+                                                                    {
+                                                                        errors[
                                                                         `families.${fIndex}.members.${mIndex}.emergency_contact_relationship`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
+                                                                        ]
+                                                                    }
+                                                                </p>
+                                                            )}
                                                     </div>
 
                                                     {/* Blood Type */}
@@ -464,14 +471,14 @@ function MedicalInfo() {
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.blood_type`
                                                         ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
+                                                                <p className="text-red-500 text-xs">
+                                                                    {
+                                                                        errors[
                                                                         `families.${fIndex}.members.${mIndex}.blood_type`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
+                                                                        ]
+                                                                    }
+                                                                </p>
+                                                            )}
                                                     </div>
 
                                                     {/* PhilHealth */}
@@ -505,48 +512,48 @@ function MedicalInfo() {
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.has_philhealth`
                                                         ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
-                                                                        `families.${fIndex}.members.${mIndex}.has_philhealth`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
-                                                    </div>
-
-                                                    {member.has_philhealth ==
-                                                        1 && (
-                                                        <div>
-                                                            <InputField
-                                                                label="PhilHealth ID number"
-                                                                name="philhealth_id_number"
-                                                                value={
-                                                                    member.philhealth_id_number ||
-                                                                    ""
-                                                                }
-                                                                onChange={(e) =>
-                                                                    handleMedicalChange(
-                                                                        fIndex,
-                                                                        mIndex,
-                                                                        e
-                                                                    )
-                                                                }
-                                                                placeholder="Enter PhilHealth id number"
-                                                            />
-                                                            {errors?.[
-                                                                `families.${fIndex}.members.${mIndex}.philhealth_id_number`
-                                                            ] && (
                                                                 <p className="text-red-500 text-xs">
                                                                     {
                                                                         errors[
-                                                                            `families.${fIndex}.members.${mIndex}.philhealth_id_number`
+                                                                        `families.${fIndex}.members.${mIndex}.has_philhealth`
                                                                         ]
                                                                     }
                                                                 </p>
                                                             )}
-                                                        </div>
-                                                    )}
+                                                    </div>
+
+                                                    {member.has_philhealth ==
+                                                        1 && (
+                                                            <div>
+                                                                <InputField
+                                                                    label="PhilHealth ID number"
+                                                                    name="philhealth_id_number"
+                                                                    value={
+                                                                        member.philhealth_id_number ||
+                                                                        ""
+                                                                    }
+                                                                    onChange={(e) =>
+                                                                        handleMedicalChange(
+                                                                            fIndex,
+                                                                            mIndex,
+                                                                            e
+                                                                        )
+                                                                    }
+                                                                    placeholder="Enter PhilHealth id number"
+                                                                />
+                                                                {errors?.[
+                                                                    `families.${fIndex}.members.${mIndex}.philhealth_id_number`
+                                                                ] && (
+                                                                        <p className="text-red-500 text-xs">
+                                                                            {
+                                                                                errors[
+                                                                                `families.${fIndex}.members.${mIndex}.philhealth_id_number`
+                                                                                ]
+                                                                            }
+                                                                        </p>
+                                                                    )}
+                                                            </div>
+                                                        )}
 
                                                     {/* Alcohol */}
                                                     <div>
@@ -579,14 +586,14 @@ function MedicalInfo() {
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.is_alcohol_user`
                                                         ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
+                                                                <p className="text-red-500 text-xs">
+                                                                    {
+                                                                        errors[
                                                                         `families.${fIndex}.members.${mIndex}.is_alcohol_user`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
+                                                                        ]
+                                                                    }
+                                                                </p>
+                                                            )}
                                                     </div>
 
                                                     {/* Smoker */}
@@ -620,14 +627,14 @@ function MedicalInfo() {
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.is_smoker`
                                                         ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
+                                                                <p className="text-red-500 text-xs">
+                                                                    {
+                                                                        errors[
                                                                         `families.${fIndex}.members.${mIndex}.is_smoker`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
+                                                                        ]
+                                                                    }
+                                                                </p>
+                                                            )}
                                                     </div>
 
                                                     {/* PWD */}
@@ -661,14 +668,14 @@ function MedicalInfo() {
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.is_pwd`
                                                         ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
+                                                                <p className="text-red-500 text-xs">
+                                                                    {
+                                                                        errors[
                                                                         `families.${fIndex}.members.${mIndex}.is_pwd`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
+                                                                        ]
+                                                                    }
+                                                                </p>
+                                                            )}
                                                     </div>
                                                 </div>
 
@@ -737,14 +744,14 @@ function MedicalInfo() {
                                                                                     {errors?.[
                                                                                         `families.${fIndex}.members.${mIndex}.disabilities.${disIndex}.disability_type`
                                                                                     ] && (
-                                                                                        <p className="text-red-500 text-xs">
-                                                                                            {
-                                                                                                errors[
+                                                                                            <p className="text-red-500 text-xs">
+                                                                                                {
+                                                                                                    errors[
                                                                                                     `families.${fIndex}.members.${mIndex}.disabilities.${disIndex}.disability_type`
-                                                                                                ]
-                                                                                            }
-                                                                                        </p>
-                                                                                    )}
+                                                                                                    ]
+                                                                                                }
+                                                                                            </p>
+                                                                                        )}
                                                                                 </div>
 
                                                                                 <button

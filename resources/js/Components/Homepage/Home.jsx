@@ -15,7 +15,7 @@ const letterVariant = {
 
 const AnimatedText = ({ text }) => (
     <motion.h1
-        className="text-6xl sm:text-6xl md:text-7xl lg:text-[120px] font-extrabold font-montserrat
+        className="text-[55px] sm:text-6xl md:text-7xl lg:text-[120px] font-extrabold font-montserrat
                bg-gradient-to-r from-[#0a2a66] via-[#6aa0ff] to-[#0a2a66]
                bg-clip-text text-transparent drop-shadow-2xl flex justify-center flex-wrap"
         initial="hidden"

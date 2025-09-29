@@ -20,7 +20,6 @@ export default function Login({ status, canResetPassword }) {
         post(route("login"), {
             onFinish: () => reset("password"),
             onError: (err) => {
-                // Show disabled message via toaster if it exists
                 if (err.email) {
                     toast.error(err.email);
                 }
@@ -34,13 +33,16 @@ export default function Login({ status, canResetPassword }) {
             <Toaster richColors />
 
             {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
+                <div className="mb-4 text-sm font-medium text-green-600 animate-fadeIn">
                     {status}
                 </div>
             )}
 
-            <form onSubmit={submit}>
-                <div>
+            <form
+                onSubmit={submit}
+                className="space-y-4 animate-slideUp"
+            >
+                <div className="transition-all duration-300 hover:scale-[1.01]">
                     <InputLabel htmlFor="email" value="Email" />
 
                     <TextInput
@@ -48,7 +50,7 @@ export default function Login({ status, canResetPassword }) {
                         type="email"
                         name="email"
                         value={data.email}
-                        className="mt-1 block w-full"
+                        className="mt-1 block w-full transition-all duration-300 focus:ring-2 focus:ring-indigo-400"
                         autoComplete="username"
                         isFocused={true}
                         onChange={(e) => setData("email", e.target.value)}
@@ -57,7 +59,7 @@ export default function Login({ status, canResetPassword }) {
                     <InputError message={errors.email} className="mt-2" />
                 </div>
 
-                <div className="mt-4">
+                <div className="transition-all duration-300 hover:scale-[1.01]">
                     <InputLabel htmlFor="password" value="Password" />
 
                     <TextInput
@@ -65,7 +67,7 @@ export default function Login({ status, canResetPassword }) {
                         type="password"
                         name="password"
                         value={data.password}
-                        className="mt-1 block w-full"
+                        className="mt-1 block w-full transition-all duration-300 focus:ring-2 focus:ring-indigo-400"
                         autoComplete="current-password"
                         onChange={(e) => setData("password", e.target.value)}
                     />
@@ -73,7 +75,7 @@ export default function Login({ status, canResetPassword }) {
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
-                <div className="mt-4 block">
+                <div className="mt-2 block">
                     <label className="flex items-center">
                         <Checkbox
                             name="remember"
@@ -88,17 +90,20 @@ export default function Login({ status, canResetPassword }) {
                     </label>
                 </div>
 
-                <div className="mt-4 flex items-center justify-end">
+                <div className="mt-4 flex items-center justify-between">
                     {canResetPassword && (
                         <Link
                             href={route("password.request")}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            className="rounded-md text-sm text-gray-600 underline transition-colors duration-300 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                         >
                             Forgot your password?
                         </Link>
                     )}
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
+                    <PrimaryButton
+                        className="ms-4 transform transition-all duration-300 hover:scale-105 hover:shadow-md disabled:opacity-50"
+                        disabled={processing}
+                    >
                         Log in
                     </PrimaryButton>
                 </div>
