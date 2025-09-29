@@ -24,7 +24,7 @@ class BarangayInformationSeeder extends Seeder
      */
     public function run(): void
     {
-        BarangayOfficialTerm::factory(4)->create();
+        //BarangayOfficialTerm::factory(4)->create();
         $positionsLimits = [
             'barangay_captain' => 1,
             'barangay_treasurer' => 1,
