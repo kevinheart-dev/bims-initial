@@ -1958,6 +1958,24 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
+            {/* BARANGAY */}
+            {isVisible("brgy_type") && (
+                <Select
+                    onValueChange={(brgy_type) =>
+                        searchFieldName("brgy_type", brgy_type)
+                    }
+                    value={queryParams.brgy_type}
+                >
+                    <SelectTrigger className="w-[160px]">
+                        <SelectValue placeholder="Barangay Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="urban">Urban</SelectItem>
+                        <SelectItem value="rural">Rural</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
 
             {isVisible("created_at") && (
                 <div className="flex items-center gap-2">

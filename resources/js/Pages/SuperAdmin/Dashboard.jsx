@@ -131,7 +131,6 @@ export default function Dashboard({
                                     selectedBarangayId={selectedBarangay}
                                 />
                             </div>
-
                             <div className="w-full max-w-xs">
                                 <GenderDonutChart genderData={genderData} />
                             </div>

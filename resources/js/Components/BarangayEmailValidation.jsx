@@ -3,17 +3,17 @@ import { Check, X } from "lucide-react";
 import axios from "axios";
 import InputField from "./InputField";
 import useAppUrl from "@/hooks/useAppUrl";
-import InputLabel from "./InputLabel";
 
-export default function EmailValidationInput({
+export default function BarangayEmailValidation({
     data,
     setData,
     originalEmail,
-    isSuperAdmin = false,
+    barangayEmail, // 👈 new prop for brgy email
 }) {
     const [emailValid, setEmailValid] = useState(null);
     const [emailUnique, setEmailUnique] = useState(null);
     const [checking, setChecking] = useState(false);
+    const [isBarangayEmail, setIsBarangayEmail] = useState(false); // 👈 new flag
     const APP_URL = useAppUrl();
 
     // Step 1: Validate format
@@ -21,17 +21,27 @@ export default function EmailValidationInput({
         if (!data.email) {
             setEmailValid(null);
             setEmailUnique(null);
+            setIsBarangayEmail(false);
             return;
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         setEmailValid(emailRegex.test(data.email));
-    }, [data.email]);
 
-    // Step 2: Check uniqueness only if changed
+        // Flag if same as barangay email
+        setIsBarangayEmail(data.email === barangayEmail);
+    }, [data.email, barangayEmail]);
+
+    // Step 2: Check uniqueness only if changed & not barangay email
     useEffect(() => {
-        if (!emailValid || data.email === originalEmail) {
-            setEmailUnique(true); // treat unchanged email as valid
+        if (!emailValid) {
+            setEmailUnique(null);
+            setChecking(false);
+            return;
+        }
+
+        if (data.email === originalEmail || isBarangayEmail) {
+            setEmailUnique(true); // treat unchanged or barangay email as valid
             setChecking(false);
             return;
         }
@@ -61,31 +71,17 @@ export default function EmailValidationInput({
             .finally(() => setChecking(false));
 
         return () => controller.abort();
-    }, [data.email, emailValid, originalEmail]);
+    }, [data.email, emailValid, originalEmail, isBarangayEmail]);
 
     return (
         <div className="w-full">
-            {isSuperAdmin ? (
-                <>
-                    <InputLabel htmlFor="email" value="Email" />
-                    <InputField
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={data.email || ""}
-                        placeholder="Optional: contact email"
-                        onChange={(e) => setData("email", e.target.value)}
-                    />
-                </>
-            ) : (
-                <InputField
-                    label="Email"
-                    name="email"
-                    type="email"
-                    value={data.email || ""}
-                    onChange={(e) => setData("email", e.target.value)}
-                />
-            )}
+            <InputField
+                label="Email"
+                name="email"
+                type="email"
+                value={data.email || ""}
+                onChange={(e) => setData("email", e.target.value)}
+            />
 
             {emailValid !== null && (
                 <p
@@ -100,10 +96,13 @@ export default function EmailValidationInput({
                     ) : (
                         <X className="w-4 h-4" />
                     )}
+
                     {!emailValid
                         ? "Invalid email format"
                         : checking
                         ? "Checking uniqueness..."
+                        : isBarangayEmail
+                        ? "Same as barangay email (allowed)"
                         : emailUnique === false
                         ? "Email already taken"
                         : "Valid and unique email"}

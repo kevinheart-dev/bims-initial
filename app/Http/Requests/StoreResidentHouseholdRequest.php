@@ -139,7 +139,7 @@ class StoreResidentHouseholdRequest extends FormRequest
             'household.families.*.members.*.occupations.*.employer' => ['nullable', 'string', 'max:100'],
             'household.families.*.members.*.occupations.*.started_at' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
             'household.families.*.members.*.occupations.*.ended_at' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
-            'household.families.*.members.*.occupations.*.frequency' => ['nullable', Rule::in(['daily', 'weekly', 'bi-weekly', 'monthly'])],
+            'household.families.*.members.*.occupations.*.frequency' => ['nullable', Rule::in(['daily', 'weekly', 'bi-weekly', 'monthly', 'annually'])],
             'household.families.*.members.*.occupations.*.income' => ['nullable', 'numeric', 'min:0'],
             'household.families.*.members.*.occupations.*.monthly_income' => ['nullable', 'numeric', 'min:0'],
             'household.families.*.members.*.occupations.*.is_ofw' => ['nullable', Rule::in([0, 1])],

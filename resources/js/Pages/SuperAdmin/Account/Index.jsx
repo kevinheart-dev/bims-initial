@@ -19,25 +19,19 @@ import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import { Toaster, toast } from "sonner";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
-import {
-    RESIDENT_GENDER_COLOR_CLASS,
-    RESIDENT_GENDER_TEXT2,
-} from "@/constants";
 import SidebarModal from "@/Components/SidebarModal";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
-import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
-import useResidentChangeHandler from "@/hooks/handleResidentChange";
 import DropdownInputField from "@/Components/DropdownInputField";
 import InputError from "@/Components/InputError";
-import InputLabel from "@/Components/InputLabel";
 import InputField from "@/Components/InputField";
 import PasswordValidationChecklist from "@/Components/PasswordValidationChecklist";
 import EmailValidationInput from "@/Components/EmailValidationInput";
 import { Switch } from "@/Components/ui/switch";
+import BarangayEmailValidation from "@/Components/BarangayEmailValidation";
 
 export default function Index({ accounts, queryParams, barangays }) {
     const breadcrumbs = [
@@ -73,7 +67,7 @@ export default function Index({ accounts, queryParams, barangays }) {
         if (queryParams.page) {
             delete queryParams.page;
         }
-        router.get(route("user.index", queryParams));
+        router.get(route("super_admin.accounts", queryParams));
     };
     const onKeyPressed = (field, e) => {
         if (e.key === "Enter") {
@@ -274,6 +268,7 @@ export default function Index({ accounts, queryParams, barangays }) {
 
     const { data, setData, post, errors, reset, clearErrors } = useForm({
         barangay_id: null,
+        barangay_name: "",
 
         // Account fields
         username: "",
@@ -282,7 +277,7 @@ export default function Index({ accounts, queryParams, barangays }) {
         password_confirmation: "",
 
         // Optional admin controls
-        status: "active", // default active
+        status: "inactive", // default active
         is_disabled: false,
         account_id: null,
         _method: undefined,
@@ -298,7 +293,23 @@ export default function Index({ accounts, queryParams, barangays }) {
             JSON.stringify(visibleColumns)
         );
     }, [visibleColumns]);
+    const barangaysList = barangays.map((b) => ({
+        label: b.barangay_name,
+        value: b.id.toString(), // ensure string for dropdown compatibility
+    }));
+    const handleBarangayChange = (value) => {
+        const selectedBarangay = barangaysList.find(
+            (b) => b.value.toString() == value.target.value
+        );
 
+        if (selectedBarangay) {
+            setData("barangay_id", selectedBarangay.value);
+            setData("barangay_name", selectedBarangay.label); // store name for display
+        } else {
+            setData("barangay_id", "");
+            setData("barangay_name", value.target.value);
+        }
+    };
     const handleModalClose = () => {
         setModalState(null);
         setIsModalOpen(false);
@@ -314,49 +325,24 @@ export default function Index({ accounts, queryParams, barangays }) {
     };
     const handleAddAccountSubmit = (e) => {
         e.preventDefault();
-        post(route("user.store"), {
-            onError: (errors) => {
-                const errorList = Object.values(errors).map(
-                    (msg, i) => `<div key=${i}> ${msg}</div>`
-                );
-
-                toast.error("Validation Error", {
-                    description: (
-                        <div
-                            dangerouslySetInnerHTML={{
-                                __html: errorList.join(""),
-                            }}
-                        />
-                    ),
-                    duration: 4000,
-                    closeButton: true,
-                });
-            },
-        });
+        post(route("super_admin.account.store"));
     };
 
     const handleEdit = async (accountId) => {
         try {
-            const res = await axios.get(`${APP_URL}/user/${accountId}`);
+            const res = await axios.get(
+                `${APP_URL}/super_admin/details/${accountId}`
+            );
+            console.log(res);
             const account = res.data;
-
-            const resident = account.resident; // assuming backend includes resident relation
 
             setModalState("edit");
             setIsModalOpen(true);
 
             // Populate form data
             setData({
-                resident_id: account.resident_id,
-                resident_name: resident
-                    ? `${resident.firstname} ${resident.middlename} ${
-                          resident.lastname
-                      } ${resident.suffix ?? ""}`.trim()
-                    : "",
-                resident_image: resident?.image || null,
-                birthdate: resident?.birthdate || "",
-                purok_number: resident?.purok_number || "",
-                sex: resident?.sex || "",
+                barangay_id: account.barangay_id,
+                barangay_name: account.barangay_name || "", // top-level field
                 username: account.username,
                 email: account.email,
                 originalEmail: account.email,
@@ -370,20 +356,13 @@ export default function Index({ accounts, queryParams, barangays }) {
             toast.error("Failed to fetch account details.");
         }
     };
+
     const handleEditAccountSubmit = (e) => {
         e.preventDefault();
 
         if (!data.account_id) return; // safety check
 
-        post(route("user.update", data.account_id), {
-            onSuccess: () => {
-                toast.success("User account updated successfully!", {
-                    description: "The changes have been saved.",
-                    duration: 3000,
-                    closeButton: true,
-                });
-                handleModalClose(); // close modal
-            },
+        post(route("super_admin.account.update", data.account_id), {
             onError: (errors) => {
                 const errorList = Object.values(errors).map(
                     (msg, i) => `<div key=${i}>${msg}</div>`
@@ -415,6 +394,7 @@ export default function Index({ accounts, queryParams, barangays }) {
     const handlePrint = () => {
         window.print();
     };
+
     useEffect(() => {
         if (success) {
             handleModalClose();
@@ -433,13 +413,14 @@ export default function Index({ accounts, queryParams, barangays }) {
                 duration: 3000,
                 closeButton: true,
             });
+            handleModalClose();
         }
         props.error = null;
     }, [error]);
 
     return (
         <AdminLayout>
-            <Head title="Resident Information" />
+            <Head title="Account Information" />
             <div>
                 <Toaster richColors />
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
@@ -546,7 +527,7 @@ export default function Index({ accounts, queryParams, barangays }) {
                                         "account_status",
                                     ]}
                                     showFilters={true}
-                                    clearRouteName="user.index"
+                                    clearRouteName="super_admin.accounts"
                                     clearRouteParams={{}}
                                 />
                             )}
@@ -609,21 +590,15 @@ export default function Index({ accounts, queryParams, barangays }) {
                                             the account is created.
                                         </p>
                                     </div>
-
                                     <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                                         <DropdownInputField
                                             label="Barangay"
-                                            name="barangay_id"
-                                            value={data.barangay_id || ""}
+                                            name="barangay_name" // using name for display
+                                            value={data.barangay_name || ""} // show barangay name
                                             placeholder="Select a barangay"
-                                            items={barangays.map((b) => ({
-                                                value: b.id,
-                                                label: b.barangay_name,
-                                            }))}
-                                            disabled={modalState === "edit"} // Cannot change barangay when editing
-                                            onChange={(value) =>
-                                                setData("barangay_id", value)
-                                            }
+                                            items={barangaysList} // [{ value: 1, label: "Centro – San Antonio" }, ...]
+                                            disabled={modalState === "edit"} // cannot change on edit
+                                            onChange={handleBarangayChange}
                                             className="w-full"
                                         />
                                         <InputError
@@ -661,13 +636,15 @@ export default function Index({ accounts, queryParams, barangays }) {
                                             }
                                         />
 
-                                        {/* Email */}
-                                        <EmailValidationInput
+                                        <BarangayEmailValidation
                                             data={data}
                                             setData={setData}
                                             originalEmail={
                                                 data.originalEmail ?? null
                                             }
+                                            barangayEmail={
+                                                data.barangay_email ?? null
+                                            } // 👈 pass barangay email here
                                         />
                                     </div>
 
@@ -753,12 +730,6 @@ export default function Index({ accounts, queryParams, barangays }) {
                             </form>
                         </div>
                     )}
-
-                    {modalState === "view" ? (
-                        selectedResident ? (
-                            <PersonDetailContent person={selectedResident} />
-                        ) : null
-                    ) : null}
                 </SidebarModal>
                 <DeleteConfirmationModal
                     isOpen={isDeleteModalOpen}

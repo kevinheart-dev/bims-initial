@@ -84,4 +84,8 @@ class User extends Authenticatable
     public function resident(){
         return $this->belongsTo(Resident::class);
     }
+    public function barangay()
+    {
+        return $this->belongsTo(Barangay::class);
+    }
 }

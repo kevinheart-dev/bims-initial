@@ -825,7 +825,6 @@ class ResidentController extends Controller
         $barangayId = Auth()->user()->barangay_id;
         try {
             $data = $request->validated();
-            dd($data);
             $householdData = [
                 'barangay_id' =>  $barangayId ?? null,
                 'purok_id' => $data['purok'] ?? null,
