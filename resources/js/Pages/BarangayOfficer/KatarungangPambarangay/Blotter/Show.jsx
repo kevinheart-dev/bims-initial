@@ -17,10 +17,6 @@ import { Button } from "@/components/ui/button";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import { useEffect, useState } from "react";
 import { Toaster, toast } from "sonner";
-import {
-    BARANGAY_OFFICIAL_POSITIONS_TEXT,
-    BLOTTER_REPORT_STATUS,
-} from "@/constants";
 
 export default function Show({ blotter_details }) {
     const breadcrumbs = [
@@ -106,7 +102,7 @@ export default function Show({ blotter_details }) {
                 className: "bg-green-100 text-green-800",
             });
         } catch (error) {
-            console.error("Blotter form generation failed:", error);
+            console.error("Form generation failed:", error);
 
             let serverMessage =
                 "An unexpected error occurred. Please try again.";
@@ -115,11 +111,10 @@ export default function Show({ blotter_details }) {
                 if (error.response.data?.message) {
                     serverMessage = error.response.data.message;
                 } else if (error.response.status === 404) {
-                    serverMessage =
-                        "The requested blotter form could not be found.";
+                    serverMessage = "The requested report could not be found.";
                 } else if (error.response.status === 500) {
                     serverMessage =
-                        "A server error occurred while generating the blotter form.";
+                        "A server error occurred while generating the form.";
                 } else {
                     serverMessage = `Server responded with status ${error.response.status}.`;
                 }
@@ -130,7 +125,7 @@ export default function Show({ blotter_details }) {
                 serverMessage = `Request failed: ${error.message}`;
             }
 
-            toast.error("Failed to generate blotter form", {
+            toast.error("Failed to generate form", {
                 description: serverMessage,
                 duration: 6000,
                 className: "bg-red-100 text-red-800",
@@ -201,7 +196,9 @@ export default function Show({ blotter_details }) {
                                 size="sm"
                                 variant="destructive"
                                 className="flex items-center gap-1"
-                                onClick={() => handleDeleteClick(blotter_details.id)}
+                                onClick={() =>
+                                    handleDeleteClick(blotter_details.id)
+                                }
                             >
                                 <Trash2 className="w-4 h-4" />
                                 Delete
@@ -212,16 +209,20 @@ export default function Show({ blotter_details }) {
                                 className="flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white shadow-sm"
                                 onClick={handleGenerateForm}
                             >
-
-                                <FileOutput className="w-4 h-4 mr-1" />
-                                Incident Form
+                                <FileOutput className="w-4 h-4" />
+                                Generate Form
                             </Button>
 
                             <Button
                                 size="sm"
                                 className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
                                 onClick={() =>
-                                    router.visit(route("summon.elevate", blotter_details.id))
+                                    router.visit(
+                                        route(
+                                            "summon.elevate",
+                                            blotter_details.id
+                                        )
+                                    )
                                 }
                             >
                                 <ArrowUpCircle className="w-4 h-4" />
@@ -235,92 +236,99 @@ export default function Show({ blotter_details }) {
                         <p>
                             <span className="font-medium">Created At:</span>{" "}
                             {blotter_details?.created_at
-                                ? new Date(blotter_details.created_at).toLocaleString()
+                                ? new Date(
+                                      blotter_details.created_at
+                                  ).toLocaleString()
                                 : "-"}
                         </p>
                         <p>
                             <span className="font-medium">Last Updated:</span>{" "}
                             {blotter_details?.updated_at
-                                ? new Date(blotter_details.updated_at).toLocaleString()
+                                ? new Date(
+                                      blotter_details.updated_at
+                                  ).toLocaleString()
                                 : "-"}
                         </p>
                     </div>
 
                     {/* Body */}
-                    <CardContent className="p-6 space-y-6">
-                        {/* Basic Info */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                            <div>
-                                <h4 className="text-sm font-medium text-gray-600">
-                                    Type of Incident
-                                </h4>
-                                <p className="text-base text-gray-900">
-                                    {blotter_details?.type_of_incident || "-"}
-                                </p>
-                            </div>
-                            <div>
-                                <h4 className="text-sm font-medium text-gray-600">
-                                    Incident Date
-                                </h4>
-                                <p className="text-base text-gray-900">
-                                    {blotter_details?.incident_date || "-"}
-                                </p>
-                            </div>
-                            <div>
-                                <h4 className="text-sm font-medium text-gray-600">
-                                    Location
-                                </h4>
-                                <p className="text-base text-gray-900">
-                                    {blotter_details?.location || "-"}
-                                </p>
-                            </div>
-                            <div>
-                                <h4 className="text-sm font-medium text-gray-600">
-                                    Report Status
-                                </h4>
-                                <Badge className="capitalize">
-                                    {BLOTTER_REPORT_STATUS[
-                                        blotter_details?.report_status
-                                    ] || "pending"}
-                                </Badge>
+                    <CardContent className="px-6 py-2 space-y-4">
+                        {/* Report Information */}
+                        <div>
+                            <div className="flex items-center gap-2 mb-4">
+                                <Info className="w-5 h-5 text-blue-600" />
+                                <h3 className="text-lg font-semibold text-gray-800">
+                                    Report Information
+                                </h3>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
                                 <div>
-                                    <h4 className="text-sm font-medium text-gray-600">Type of Incident</h4>
+                                    <h4 className="text-sm font-medium text-gray-600">
+                                        Type of Incident
+                                    </h4>
                                     <p className="text-base text-gray-900">
-                                        {blotter_details?.type_of_incident || "-"}
+                                        {blotter_details?.type_of_incident ||
+                                            "-"}
                                     </p>
                                 </div>
-                        {/* Recorded By */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h4 className="text-sm font-medium text-gray-600">
-                                    Recorded By
-                                </h4>
-                                <p className="text-base text-gray-900">
-                                    {blotter_details?.recorded_by?.resident
-                                        ? `${
-                                              blotter_details.recorded_by
-                                                  .resident.firstname
-                                          } ${
-                                              blotter_details.recorded_by
-                                                  .resident.middlename || ""
-                                          } ${
-                                              blotter_details.recorded_by
-                                                  .resident.lastname
-                                          }`
-                                        : "-"}
-                                </p>
-                            </div>
-                            <div>
-                                <h4 className="text-sm font-medium text-gray-600">
-                                    Official Position
-                                </h4>
-                                <p className="text-base text-gray-900 capitalize">
-                                    {BARANGAY_OFFICIAL_POSITIONS_TEXT[
-                                        blotter_details?.recorded_by?.position
-                                    ] || "-"}
-                                </p>
+
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-600">
+                                        Incident Date
+                                    </h4>
+                                    <p className="text-base text-gray-900">
+                                        {blotter_details?.incident_date || "-"}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-600">
+                                        Location
+                                    </h4>
+                                    <p className="text-base text-gray-900">
+                                        {blotter_details?.location || "-"}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-600">
+                                        Report Status
+                                    </h4>
+                                    <Badge className="capitalize mt-1">
+                                        {blotter_details?.report_status ||
+                                            "pending"}
+                                    </Badge>
+                                </div>
+
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-600">
+                                        Recorded By
+                                    </h4>
+                                    <p className="text-base text-gray-900">
+                                        {blotter_details?.recorded_by?.resident
+                                            ? `${
+                                                  blotter_details.recorded_by
+                                                      .resident.firstname
+                                              } ${
+                                                  blotter_details.recorded_by
+                                                      .resident.middlename || ""
+                                              } ${
+                                                  blotter_details.recorded_by
+                                                      .resident.lastname
+                                              }`
+                                            : "-"}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <h4 className="text-sm font-medium text-gray-600">
+                                        Official Position
+                                    </h4>
+                                    <p className="text-base text-gray-900 capitalize">
+                                        {blotter_details?.recorded_by
+                                            ?.position || "-"}
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
@@ -328,7 +336,9 @@ export default function Show({ blotter_details }) {
                         <div>
                             <div className="flex items-center gap-2 mb-4">
                                 <BookText className="w-5 h-5 text-green-600" />
-                                <h3 className="text-lg font-semibold text-gray-800">Narrative</h3>
+                                <h3 className="text-lg font-semibold text-gray-800">
+                                    Narrative
+                                </h3>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-4 border rounded-lg overflow-hidden bg-gray-50">
                                 {/* Narrative Details */}
@@ -337,13 +347,16 @@ export default function Show({ blotter_details }) {
                                         Narrative Details
                                     </h4>
                                     <p className="whitespace-pre-line break-words text-gray-800">
-                                        {blotter_details?.narrative_details || "-"}
+                                        {blotter_details?.narrative_details ||
+                                            "-"}
                                     </p>
                                 </div>
 
                                 {/* Actions Taken */}
                                 <div className="p-4 border-b md:border-b-0 md:border-r">
-                                    <h4 className="text-sm font-medium text-gray-600 mb-1">Actions Taken</h4>
+                                    <h4 className="text-sm font-medium text-gray-600 mb-1">
+                                        Actions Taken
+                                    </h4>
                                     <p className="whitespace-pre-line break-words text-gray-800">
                                         {blotter_details?.actions_taken || "-"}
                                     </p>
@@ -351,7 +364,9 @@ export default function Show({ blotter_details }) {
 
                                 {/* Resolution */}
                                 <div className="p-4 border-b md:border-b-0 md:border-r">
-                                    <h4 className="text-sm font-medium text-gray-600 mb-1">Resolution</h4>
+                                    <h4 className="text-sm font-medium text-gray-600 mb-1">
+                                        Resolution
+                                    </h4>
                                     <p className="whitespace-pre-line break-words text-gray-800">
                                         {blotter_details?.resolution || "-"}
                                     </p>
@@ -363,7 +378,8 @@ export default function Show({ blotter_details }) {
                                         Recommendations
                                     </h4>
                                     <p className="whitespace-pre-line break-words text-gray-800">
-                                        {blotter_details?.recommendations || "-"}
+                                        {blotter_details?.recommendations ||
+                                            "-"}
                                     </p>
                                 </div>
                             </div>
@@ -373,7 +389,9 @@ export default function Show({ blotter_details }) {
                         <div>
                             <div className="flex items-center gap-2 mb-4">
                                 <Users className="w-5 h-5 text-purple-600" />
-                                <h3 className="text-lg font-semibold text-gray-800">Participants</h3>
+                                <h3 className="text-lg font-semibold text-gray-800">
+                                    Participants
+                                </h3>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 border rounded-lg overflow-hidden">
                                 {/* Complainants */}
@@ -381,7 +399,10 @@ export default function Show({ blotter_details }) {
                                     <h4 className="text-lg font-semibold text-gray-700 mb-2">
                                         Complainants
                                     </h4>
-                                    {renderParticipants(blotter_details?.complainants, "complainant")}
+                                    {renderParticipants(
+                                        blotter_details?.complainants,
+                                        "complainant"
+                                    )}
                                 </div>
 
                                 {/* Respondents */}
@@ -389,7 +410,10 @@ export default function Show({ blotter_details }) {
                                     <h4 className="text-lg font-semibold text-gray-700 mb-2">
                                         Respondents
                                     </h4>
-                                    {renderParticipants(blotter_details?.respondents, "respondent")}
+                                    {renderParticipants(
+                                        blotter_details?.respondents,
+                                        "respondent"
+                                    )}
                                 </div>
 
                                 {/* Witnesses */}
@@ -397,7 +421,10 @@ export default function Show({ blotter_details }) {
                                     <h4 className="text-lg font-semibold text-gray-700 mb-2">
                                         Witnesses
                                     </h4>
-                                    {renderParticipants(blotter_details?.witnesses, "witness")}
+                                    {renderParticipants(
+                                        blotter_details?.witnesses,
+                                        "witness"
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -412,7 +439,6 @@ export default function Show({ blotter_details }) {
                     residentId={recordToDelete}
                 />
             </div>
-
         </AdminLayout>
     );
 }
