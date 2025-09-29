@@ -32,6 +32,7 @@ import {
     CircleUser,
     FileInput,
     CircleUserRound,
+    LayoutList,
 } from "lucide-react";
 import {
     Sidebar,
@@ -282,6 +283,12 @@ const items = [
         title: "Barangay Accounts",
         url: "/super_admin/accounts",
         icon: CircleUserRound,
+        roles: ["super_admin"],
+    },
+    {
+        title: "List of Barangays",
+        url: "/super_admin/barangay",
+        icon: LayoutList,
         roles: ["super_admin"],
     },
 ];

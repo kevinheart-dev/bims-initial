@@ -4,9 +4,9 @@ import { Head } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import Counter from "@/Components/counter";
 import { Users, House } from "lucide-react";
+import GenderDonutChart from "../CDRRMO/GraphDashboard/GenderDonutChart";
+import AgeDistributionChart from "../CDRRMO/GraphDashboard/AgeDistributionChart";
 import PopulationPerPurok from "../BarangayOfficer/DashboardCharts/PopulationPerPurok";
-import GenderDonutChart from "../BarangayOfficer/DashboardCharts/GenderDonutChart";
-import AgeDistribution from "../BarangayOfficer/DashboardCharts/AgeDistribution";
 import PwdPieChart from "../BarangayOfficer/DashboardCharts/PwdDistribution";
 
 const iconMap = {
@@ -177,7 +177,7 @@ export default function Dashboard({
                                 </h3>
                                 {/* This wrapper div will now control the space for the chart */}
                                 <div className="flex-1 w-full">
-                                    <AgeDistribution
+                                    <AgeDistributionChart
                                         ageDistribution={ageDistribution}
                                     />
                                 </div>

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreBarangayAccountRequest;
+use App\Http\Requests\UpdateBarangayAccountRequest;
 use App\Models\Barangay;
 use App\Models\CRAGeneralPopulation;
 use App\Models\CRAPopulationAgeGroup;
@@ -10,6 +12,7 @@ use App\Models\User;
 use DB;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Role;
 
 class SuperAdminController extends Controller
 {
@@ -201,5 +204,105 @@ class SuperAdminController extends Controller
             'queryParams' => $request->query() ?: null,
             'barangays' => $barangays
         ]);
+    }
+    public function addAccount(StoreBarangayAccountRequest $request)
+    {
+        $data = $request->validated(); // validated data from request
+
+        // Check if a barangay account already exists
+        $existingUser = User::where('barangay_id', $data['barangay_id'])->first();
+        if ($existingUser) {
+            return back()
+                ->withInput()
+                ->with('error', 'An account for this barangay already exists.');
+        }
+
+        try {
+            $user = User::create([
+                'resident_id' => $data['resident_id'] ?? null, // optional if not required
+                'barangay_id' => $data['barangay_id'],
+                'username'    => $data['username'],
+                'email'       => $data['email'],
+                'password'    => bcrypt($data['password']),
+                'role'        => 'barangay_officer', // default role
+                'status'      => $data['status'],
+                'is_disabled' => $data['is_disabled'] ?? false,
+                'account_id'  => $data['account_id'] ?? null,
+            ]);
+
+            // Assign role
+            $role = Role::firstOrCreate(['name' => 'barangay_officer']);
+            $user->assignRole($role);
+
+            return redirect()
+                ->route('super_admin.accounts') // adjust route as needed
+                ->with('success', 'Barangay account created successfully!');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Barangay account could not be created: ' . $e->getMessage());
+        }
+    }
+    public function accountDetails($id)
+    {
+        try {
+            $user = User::with([
+                'resident:id,firstname,middlename,lastname',
+                'barangay:id,barangay_name'
+            ])->findOrFail($id, ['id', 'username', 'email', 'status', 'is_disabled', 'barangay_id', 'resident_id']);
+
+            return response()->json([
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'status' => $user->status,
+                'is_disabled' => $user->is_disabled,
+                'barangay_id' => $user->barangay_id,
+                'barangay_name' => $user->barangay?->barangay_name, // safe
+                'resident' => $user->resident,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'User account not found or could not be retrieved.',
+                'message' => $e->getMessage()
+            ], 404);
+        }
+    }
+
+    public function updateAccount(UpdateBarangayAccountRequest $request, $id){
+        $data = $request->validated(); // validated data from request
+        try {
+            $user = User::findOrFail($id);
+
+            // Check if another user already has this barangay_id
+            $existingUser = User::where('barangay_id', $data['barangay_id'])
+                ->where('id', '!=', $id)
+                ->first();
+
+            if ($existingUser) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Another account for this barangay already exists.');
+            }
+
+            $user->update([
+                'username'    => $data['username'],
+                'email'       => $data['email'],
+            ]);
+
+            // Ensure role assignment
+            $role = Role::firstOrCreate(['name' => 'barangay_officer']);
+            if (!$user->hasRole($role)) {
+                $user->assignRole($role);
+            }
+
+            return redirect()
+                ->route('super_admin.accounts')
+                ->with('success', 'Barangay account updated successfully!');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Barangay account could not be updated: ' . $e->getMessage());
+        }
     }
 }

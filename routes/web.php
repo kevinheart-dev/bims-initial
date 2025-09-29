@@ -2,6 +2,7 @@
 
 use App\Exports\ResidentsExport;
 use App\Http\Controllers\AllergyController;
+use App\Http\Controllers\BarangayController;
 use App\Http\Controllers\BarangayInfrastructureController;
 use App\Http\Controllers\BarangayFacilityController;
 use App\Http\Controllers\BarangayInstitutionController;
@@ -54,7 +55,7 @@ use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 
 // Admin-only routes
-Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(function () {
+Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin'])->group(function () {
     Route::get('/document/fill/{resident}/{template}', [DocumentGenerationController::class, 'generateFilledDocument'])
         ->name('document.fill');
 
@@ -219,6 +220,7 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin'])->group(functio
     Route::resource('inventory', InventoryController::class);
     Route::resource('institution_member', InstitutionMemberController::class);
 });
+
 Route::middleware(['auth', 'role:barangay_officer'])->group(function () {
     Route::get('barangay_officer/dashboard', [DashboardController::class, 'dashboard'])->name('barangay_officer.dashboard');
 });
@@ -232,10 +234,14 @@ Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(
 
 // Super Admin-only routes
 Route::middleware(['auth', 'role:super_admin'])->prefix('super_admin')->group(function () {
-    Route::get('dashboard', [SuperAdminController::class, 'index'])->name('super_admin.dashboard');
-    Route::get('accounts', [SuperAdminController::class, 'accounts'])->name('super_admin.accounts');
-});
+    Route::get('/dashboard', [SuperAdminController::class, 'index'])->name('super_admin.dashboard');
+    Route::get('/accounts', [SuperAdminController::class, 'accounts'])->name('super_admin.accounts');
+    Route::put('/update/account/{id}', [SuperAdminController::class, 'updateAccount'])->name('super_admin.account.update');
+    Route::post('/store/account', [SuperAdminController::class, 'addAccount'])->name('super_admin.account.store');
+    Route::get('/details/{id}', [SuperAdminController::class, 'accountDetails'])->name('super_admin.account.details');
 
+    Route::resource('barangay', BarangayController::class);
+});
 // Resident-only routes
 Route::middleware(['auth', 'role:resident'])->prefix('resident')->group(function () {
     Route::get('/dashboard', [ResidentAccountController::class, 'dashboard'])->name('resident_account.dashboard');

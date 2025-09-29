@@ -10,6 +10,21 @@ class Barangay extends Model
     /** @use HasFactory<\Database\Factories\BarangayFactory> */
     use HasFactory;
     // Barangay.php
+    protected $fillable = [
+        'barangay_name',
+        'city',
+        'province',
+        'zip_code',
+        'contact_number',
+        'area_sq_km',
+        'email',
+        'logo_path',
+        'founded_year',
+        'barangay_code',
+        'barangay_type',
+    ];
+
+    public $timestamps = true;
     public function generalPopulation()
     {
         return $this->hasOne(CRAGeneralPopulation::class);
