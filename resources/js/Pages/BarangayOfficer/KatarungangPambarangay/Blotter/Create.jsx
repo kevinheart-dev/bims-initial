@@ -31,7 +31,7 @@ export default function Create({ residents }) {
         type_of_incident: "",
         narrative_details: "",
         actions_taken: "",
-        report_status: "pending",
+        report_status: "",
         location: "",
         resolution: "",
         recommendations: "",
@@ -68,10 +68,12 @@ export default function Create({ residents }) {
         });
     };
 
-    const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
-            }`,
-        value: res.id.toString(),
+    const residentsList = residents.map((r) => ({
+        value: r.id,
+        label: `${r.firstname} ${r.middlename ? r.middlename + " " : ""}${
+            r.lastname
+        }${r.suffix ? ", " + r.suffix : ""}`,
+        ...r, // keep all original fields
     }));
 
     useEffect(() => {
@@ -123,12 +125,15 @@ export default function Create({ residents }) {
                                                 Blotter Report Form
                                             </h2>
                                             <p className="text-sm text-gray-600">
-                                                Fill out the details of the incident, including participants, actions,
-                                                and recommendations. Ensure all required fields are completed before submitting.
+                                                Fill out the details of the
+                                                incident, including
+                                                participants, actions, and
+                                                recommendations. Ensure all
+                                                required fields are completed
+                                                before submitting.
                                             </p>
                                         </div>
                                     </div>
-
 
                                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                                         <div>
@@ -198,7 +203,7 @@ export default function Create({ residents }) {
                                                 onChange={(value) =>
                                                     setData(
                                                         "report_status",
-                                                        value
+                                                        value.target.value
                                                     )
                                                 }
                                                 items={[
@@ -228,24 +233,27 @@ export default function Create({ residents }) {
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-
                                         <div>
                                             <InputLabel value="Narrative Details" />
                                             <Textarea
                                                 name="narrative_details"
                                                 value={data.narrative_details}
                                                 onChange={(e) =>
-                                                    setData("narrative_details", e.target.value)
+                                                    setData(
+                                                        "narrative_details",
+                                                        e.target.value
+                                                    )
                                                 }
                                                 placeholder="Describe what happened in details..."
                                                 rows={5}
                                             />
                                             <InputError
-                                                message={errors.narrative_details}
+                                                message={
+                                                    errors.narrative_details
+                                                }
                                                 className="mt-1"
                                             />
                                         </div>
-
 
                                         <div>
                                             <InputLabel value="Actions Taken" />
@@ -253,7 +261,10 @@ export default function Create({ residents }) {
                                                 name="actions_taken"
                                                 value={data.actions_taken}
                                                 onChange={(e) =>
-                                                    setData("actions_taken", e.target.value)
+                                                    setData(
+                                                        "actions_taken",
+                                                        e.target.value
+                                                    )
                                                 }
                                                 placeholder="What immediate actions were taken?"
                                                 rows={5} // Consistent rows with Narrative Details for visual alignment
@@ -264,14 +275,16 @@ export default function Create({ residents }) {
                                             />
                                         </div>
 
-
                                         <div>
                                             <InputLabel value="Resolution" />
                                             <Textarea
                                                 name="resolution"
                                                 value={data.resolution}
                                                 onChange={(e) =>
-                                                    setData("resolution", e.target.value)
+                                                    setData(
+                                                        "resolution",
+                                                        e.target.value
+                                                    )
                                                 }
                                                 placeholder="Resolution or settlement details..."
                                                 rows={4}
@@ -288,7 +301,10 @@ export default function Create({ residents }) {
                                                 name="recommendations"
                                                 value={data.recommendations}
                                                 onChange={(e) =>
-                                                    setData("recommendations", e.target.value)
+                                                    setData(
+                                                        "recommendations",
+                                                        e.target.value
+                                                    )
                                                 }
                                                 placeholder="Any recommendations for next steps..."
                                                 rows={4}
@@ -299,7 +315,6 @@ export default function Create({ residents }) {
                                             />
                                         </div>
                                     </div>
-
 
                                     {/* Participants */}
                                     <ParticipantSection
@@ -331,7 +346,6 @@ export default function Create({ residents }) {
                                     />
 
                                     <div className="flex w-full justify-end items-center mt-4 gap-4 pt-0">
-
                                         <Button
                                             type="button"
                                             onClick={() => reset()}
@@ -341,7 +355,6 @@ export default function Create({ residents }) {
                                             <RotateCcw className="w-4 h-4 mr-2" />
                                             Reset Form
                                         </Button>
-
 
                                         <Button
                                             type="submit"

@@ -35,7 +35,7 @@ export default function Create({ residents, blotter_details }) {
                     resident_id: p.resident_id || "",
                     resident_name: p.name || p.display_name || "",
                     birthdate: p.resident?.birthdate || "",
-                    gender: p.resident?.gender || "",
+                    sex: p.resident?.sex || "",
                     purok_number: p.resident?.purok_number || "",
                     email: p.resident?.email || "",
                     contact_number: p.resident?.contact_number || "",
@@ -49,7 +49,7 @@ export default function Create({ residents, blotter_details }) {
         type_of_incident: blotter_details?.type_of_incident ?? "",
         narrative_details: blotter_details?.narrative_details ?? "",
         actions_taken: blotter_details?.actions_taken ?? "",
-        report_status: blotter_details?.report_status ?? "pending",
+        report_status: blotter_details?.report_status ?? "",
         location: blotter_details?.location ?? "",
         resolution: blotter_details?.resolution ?? "",
         recommendations: blotter_details?.recommendations ?? "",
@@ -93,10 +93,12 @@ export default function Create({ residents, blotter_details }) {
         });
     };
 
-    const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
-            }`,
-        value: res.id.toString(),
+    const residentsList = residents.map((r) => ({
+        value: r.id,
+        label: `${r.firstname} ${r.middlename ? r.middlename + " " : ""}${
+            r.lastname
+        }${r.suffix ? ", " + r.suffix : ""}`,
+        ...r, // keep all original fields
     }));
 
     useEffect(() => {
@@ -148,8 +150,12 @@ export default function Create({ residents, blotter_details }) {
                                                 Edit Blotter Report Form
                                             </h2>
                                             <p className="text-sm text-gray-600">
-                                                Fill out the details of the incident, including participants, actions,
-                                                and recommendations. Ensure all required fields are completed before submitting.
+                                                Fill out the details of the
+                                                incident, including
+                                                participants, actions, and
+                                                recommendations. Ensure all
+                                                required fields are completed
+                                                before submitting.
                                             </p>
                                         </div>
                                     </div>
@@ -254,7 +260,6 @@ export default function Create({ residents, blotter_details }) {
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-
                                         {/* Narrative Details */}
                                         <div className="mb-6">
                                             <InputLabel value="Narrative Details" />
@@ -271,7 +276,9 @@ export default function Create({ residents, blotter_details }) {
                                                 rows={4}
                                             />
                                             <InputError
-                                                message={errors.narrative_details}
+                                                message={
+                                                    errors.narrative_details
+                                                }
                                                 className="mt-1"
                                             />
                                         </div>
@@ -337,7 +344,6 @@ export default function Create({ residents, blotter_details }) {
                                             />
                                         </div>
                                     </div>
-
 
                                     {/* Participants */}
                                     <ParticipantSection

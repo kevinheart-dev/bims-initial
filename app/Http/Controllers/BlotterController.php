@@ -86,7 +86,7 @@ class BlotterController extends Controller
     public function create()
     {
         $brgy_id = auth()->user()->barangay_id;
-        $residents = Resident::where('barangay_id', $brgy_id)->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'gender', 'birthdate', 'purok_number', 'contact_number', 'email')->get();
+        $residents = Resident::where('barangay_id', $brgy_id)->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'sex', 'birthdate', 'purok_number', 'contact_number', 'email')->get();
         return Inertia::render("BarangayOfficer/KatarungangPambarangay/Blotter/Create", [
             'residents' => $residents
         ]);
@@ -95,6 +95,7 @@ class BlotterController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(StoreBlotterReportRequest $request)
     {
         DB::beginTransaction();
@@ -161,6 +162,22 @@ class BlotterController extends Controller
     /**
      * Display the specified resource.
      */
+    protected function prepareForValidation()
+    {
+        if ($this->incident_date) {
+            try {
+                // Convert from "01/10/2025 12:10:10 PM" → "2025-01-10 12:10:10"
+                $formatted = Carbon::createFromFormat('m/d/Y h:i:s A', $this->incident_date)
+                    ->format('Y-m-d H:i:s');
+
+                $this->merge([
+                    'incident_date' => $formatted,
+                ]);
+            } catch (\Exception $e) {
+                // Leave it unchanged → validation will catch invalid format
+            }
+        }
+    }
     public function show(BlotterReport $blotterReport)
     {
         $brgy_id = auth()->user()->barangay_id;
@@ -187,7 +204,7 @@ class BlotterController extends Controller
     {
         $brgy_id = auth()->user()->barangay_id;
         $blotterReport->load([
-            'participants.resident:id,firstname,lastname,middlename,suffix,resident_picture_path,gender,birthdate,purok_number,contact_number,email'
+            'participants.resident:id,firstname,lastname,middlename,suffix,resident_picture_path,sex,birthdate,purok_number,contact_number,email'
         ]);
         $residents = Resident::where('barangay_id', $brgy_id)->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'sex', 'birthdate', 'purok_number', 'contact_number', 'email')->get();
         return Inertia::render("BarangayOfficer/KatarungangPambarangay/Blotter/Edit", [

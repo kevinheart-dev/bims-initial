@@ -1,9 +1,10 @@
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import DropdownInputField from "./DropdownInputField";
-import { PlusCircle } from "lucide-react"
+import { PlusCircle } from "lucide-react";
 import InputError from "./InputError";
 import InputLabel from "./InputLabel";
 import { Textarea } from "./ui/textarea";
+import { RESIDENT_GENDER_TEXT2 } from "@/constants";
 
 export const ParticipantSection = ({
     title,
@@ -19,7 +20,6 @@ export const ParticipantSection = ({
         const resident = residentsList.find(
             (r) => Number(r.value) === Number(value)
         );
-
         const updated = [...dataArray];
 
         if (!resident) {
@@ -36,7 +36,7 @@ export const ParticipantSection = ({
                 purok_number: resident.purok_number,
                 birthdate: resident.birthdate,
                 resident_image: resident.resident_picture_path,
-                gender: resident.sex,
+                sex: resident.sex,
                 contact_number: resident.contact_number,
                 email: resident.email,
             };
@@ -44,7 +44,6 @@ export const ParticipantSection = ({
 
         setDataArray(updated);
     };
-
 
     // Update notes
     const handleNotesChange = (value, index) => {
@@ -79,23 +78,22 @@ export const ParticipantSection = ({
                     <label className="block text-sm font-medium text-gray-700">
                         {title.slice(0, -1)}
                     </label>
-                    <input
-                        list={`residents-${index}`}
+
+                    <DropdownInputField
+                        name={`resident_name_${index}`}
                         value={item.resident_name || ""}
-                        onChange={(e) => handleResidentArrayChange(e.target.value, index)}
+                        onChange={(e) =>
+                            handleResidentArrayChange(e.target.value, index)
+                        }
                         placeholder="Select or type a name"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 text-sm"
+                        items={residentsList} // expects [{ value, label }]
+                        required={false} // set true if needed
                     />
-                    <datalist id={`residents-${index}`}>
-                        {residentsList.map((res) => (
-                            <option key={res.value} value={res.label} />
-                        ))}
-                    </datalist>
 
                     <InputError
                         message={
                             errors?.[
-                            `${title.toLowerCase()}.${index}.${fieldKey}`
+                                `${title.toLowerCase()}.${index}.${fieldKey}`
                             ]
                         }
                         className="mt-2"
@@ -126,30 +124,47 @@ export const ParticipantSection = ({
                                 {/* Info */}
                                 <div className="col-span-2 grid grid-cols-2 gap-x-6 gap-y-3">
                                     <div>
-                                        <span className="font-medium">Purok:</span>{" "}
+                                        <span className="font-medium">
+                                            Purok:
+                                        </span>{" "}
                                         {item.purok_number || "—"}
                                     </div>
                                     <div>
-                                        <span className="font-medium">Birthdate:</span>{" "}
-                                        {item.birthdate || "—"}
+                                        <span className="font-medium">
+                                            Birthdate:
+                                        </span>{" "}
+                                        {item.birthdate
+                                            ? new Date(
+                                                  item.birthdate
+                                              ).toLocaleDateString("en-US", {
+                                                  month: "long",
+                                                  day: "numeric",
+                                                  year: "numeric",
+                                              })
+                                            : "—"}
                                     </div>
                                     <div>
-                                        <span className="font-medium">Gender:</span>{" "}
-                                        {item.gender || "—"}
+                                        <span className="font-medium">
+                                            Sex:
+                                        </span>{" "}
+                                        {RESIDENT_GENDER_TEXT2[item.sex] || "—"}
                                     </div>
                                     <div>
-                                        <span className="font-medium">Contact:</span>{" "}
+                                        <span className="font-medium">
+                                            Contact:
+                                        </span>{" "}
                                         {item.contact_number || "—"}
                                     </div>
                                     <div className="col-span-2">
-                                        <span className="font-medium">Email:</span>{" "}
+                                        <span className="font-medium">
+                                            Email:
+                                        </span>{" "}
                                         {item.email || "—"}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     )}
-
 
                     <div className="mt-6">
                         <InputLabel value="Notes" />
@@ -169,7 +184,7 @@ export const ParticipantSection = ({
                         <InputError
                             message={
                                 errors?.[
-                                `${title.toLowerCase()}.${index}.${notesKey}`
+                                    `${title.toLowerCase()}.${index}.${notesKey}`
                                 ]
                             }
                             className="mt-1"

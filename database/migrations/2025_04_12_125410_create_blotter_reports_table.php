@@ -22,7 +22,7 @@ return new class extends Migration
             $table->text('resolution')->nullable();
             $table->text('recommendations')->nullable();
             $table->foreignId('recorded_by')->nullable()->constrained('barangay_officials')->onDelete('set null');
-            $table->timestamp('incident_date')->nullable();
+            $table->text('incident_date')->nullable();
             $table->timestamps();
         });
     }

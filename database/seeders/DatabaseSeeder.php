@@ -98,7 +98,7 @@ class DatabaseSeeder extends Seeder
         // $barangays = Barangay::all();
         $barangays = Barangay::take(5)->get();
 
-        foreach ($barangays as $barangay) {
+        foreach ($barangays->take(2) as $barangay){
             // Create 7 puroks per barangay
             $puroks = []; // Collect all created Puroks
 
@@ -304,8 +304,8 @@ class DatabaseSeeder extends Seeder
             FamilyRelationSeeder::class,
             BarangayInformationSeeder::class,
         ]);
-        $this->call([
-            CRADataseeder::class,
-        ]);
+        // $this->call([
+        //     CRADataseeder::class,
+        // ]);
     }
 }
