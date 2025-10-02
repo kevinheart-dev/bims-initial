@@ -1,26 +1,12 @@
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
+import { Head, router, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-    FileCheck2,
-    FilePlus2,
-    FileUp,
-    ListPlus,
-    Search,
-    SquarePen,
-    SquarePlus,
-    Trash2,
-} from "lucide-react";
+import { FileCheck2, FilePlus2, ListPlus, Search, Trash2 } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
-import DropdownInputField from "@/Components/DropdownInputField";
 import InputField from "@/Components/InputField";
-import InputLabel from "@/Components/InputLabel";
-import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
-import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
-import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
 import SidebarModal from "@/Components/SidebarModal";
@@ -144,8 +130,17 @@ export default function Index({ documents, queryParams }) {
         e.preventDefault();
 
         post(route("document.store"), {
-            onError: () => {
+            onError: (errors) => {
                 console.error("Validation Errors:", errors);
+
+                // Optional: Show toast
+                toast.error("Action Failed", {
+                    description: errors
+                        ? JSON.stringify(errors)
+                        : "Unable to add document.",
+                    duration: 4000,
+                    closeButton: true,
+                });
             },
         });
     };
@@ -191,13 +186,17 @@ export default function Index({ documents, queryParams }) {
 
     useEffect(() => {
         if (error) {
-            toast.error(error, {
-                description: "Unable to delete Document.",
+            toast.error("Action Failed", {
+                description:
+                    typeof error === "string"
+                        ? error
+                        : "An unexpected error occurred.",
                 duration: 3000,
                 closeButton: true,
             });
+
+            if (props.setError) props.setError(null);
         }
-        props.error = null;
     }, [error]);
 
     return (
@@ -445,10 +444,6 @@ export default function Index({ documents, queryParams }) {
                                             {
                                                 label: "Blotter Report Form",
                                                 value: "blotter",
-                                            },
-                                            {
-                                                label: "Incident Report Form",
-                                                value: "incident",
                                             },
                                             {
                                                 label: "Summon Report Form",

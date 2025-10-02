@@ -239,7 +239,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('super_admin')->group(fu
     Route::put('/update/account/{id}', [SuperAdminController::class, 'updateAccount'])->name('super_admin.account.update');
     Route::post('/store/account', [SuperAdminController::class, 'addAccount'])->name('super_admin.account.store');
     Route::get('/details/{id}', [SuperAdminController::class, 'accountDetails'])->name('super_admin.account.details');
-
+    Route::get('/barangay_details/{id}', [BarangayController::class, 'barangayDetails'])->name('barangay.details');
     Route::resource('barangay', BarangayController::class);
 });
 // Resident-only routes

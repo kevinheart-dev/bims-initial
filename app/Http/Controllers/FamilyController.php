@@ -62,14 +62,14 @@ class FamilyController extends Controller
         });
         $puroks = Purok::where('barangay_id', $brgyId)->orderBy('purok_number', 'asc')->pluck('purok_number');
 
-        $residents = HouseholdResident::with('resident', 'resident.latestHousehold')
-            ->whereHas('resident', function ($query) use ($brgyId) {
-                $query->where('barangay_id', $brgyId)
-                    ->where('is_household_head', true);
-            })
-            ->get();
+        // $residents = HouseholdResident::with('resident', 'resident.latestHousehold')
+        //     ->whereHas('resident', function ($query) use ($brgyId) {
+        //         $query->where('barangay_id', $brgyId)
+        //             ->where('is_household_head', true);
+        //     })
+        //     ->get();
 
-        $members = Resident::with('latestHousehold')->get();
+        //$members = Resident::with('latestHousehold')->get();
 
 
         return Inertia::render("BarangayOfficer/Family/Index", [

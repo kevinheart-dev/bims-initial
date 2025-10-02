@@ -51,14 +51,11 @@ export default function Index({ queryParams, barangays }) {
     const success = props?.success ?? null;
     const error = props?.error ?? null;
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
-    const [accountDetails, setAccountDetails] = useState(null); //delete
     const [recordToDelete, setRecordToDelete] = useState(null); //delete
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalState, setModalState] = useState("");
-    const [selectedResident, setSelectedResident] = useState(null);
-    const [passwordError, setPasswordError] = useState("");
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
@@ -188,7 +185,7 @@ export default function Index({ queryParams, barangays }) {
                     {
                         label: "Edit",
                         icon: <Pencil className="w-4 h-4 text-blue-600" />,
-                        onClick: () => handleEdit(row.id),
+                        onClick: () => handleEditBarangay(row.id),
                     },
                     {
                         label: "Delete",
@@ -211,7 +208,7 @@ export default function Index({ queryParams, barangays }) {
         barangay_type: "urban", // default value
 
         // Meta
-        id: null, // for editing
+        barangay_id: null, // for editing
         _method: undefined, // for PUT/PATCH requests
     });
     const defaultVisibleCols = allColumns.map((col) => col.key);
@@ -229,10 +226,9 @@ export default function Index({ queryParams, barangays }) {
     const handleModalClose = () => {
         setModalState(null);
         setIsModalOpen(false);
-        setSelectedResident(null);
-        setAccountDetails(null);
         reset();
         clearErrors();
+        setRecordToDelete(null);
     };
 
     const handleAddBarangay = () => {
@@ -241,15 +237,104 @@ export default function Index({ queryParams, barangays }) {
     };
     const handleSubmitStore = (e) => {
         e.preventDefault();
-        post(route("barangay.store"));
+        post(route("barangay.store"), {
+            onError: (errors) => {
+                const errorList = Object.values(errors).map(
+                    (msg, i) => `<div key=${i}>${msg}</div>`
+                );
+
+                toast.error("Validation Error", {
+                    description: (
+                        <div
+                            dangerouslySetInnerHTML={{
+                                __html: errorList.join(""),
+                            }}
+                        />
+                    ),
+                    duration: 4000,
+                    closeButton: true,
+                });
+            },
+        });
     };
+
     const handleSubmitUpdate = (e) => {
         e.preventDefault();
+        put(route("barangay.update", data.barangay_id), {
+            onError: (errors) => {
+                const errorList = Object.values(errors).map(
+                    (msg, i) => `<div key=${i}>${msg}</div>`
+                );
+
+                toast.error("Validation Error", {
+                    description: (
+                        <div
+                            dangerouslySetInnerHTML={{
+                                __html: errorList.join(""),
+                            }}
+                        />
+                    ),
+                    duration: 4000,
+                    closeButton: true,
+                });
+            },
+        });
     };
 
     const handlePrint = () => {
         window.print();
     };
+
+    const handleEditBarangay = async (barangayId) => {
+        try {
+            const res = await axios.get(
+                `${APP_URL}/super_admin/barangay_details/${barangayId}`
+            );
+            console.log(res);
+            const barangay = res.data;
+
+            setModalState("edit");
+            setIsModalOpen(true);
+
+            // Build logo URL or fallback
+            const logoUrl = barangay.logo_path
+                ? `${APP_URL}/storage/${barangay.logo_path}`
+                : "/images/default-logo.png"; // <-- your default logo path
+
+            // Populate form data
+            setData({
+                barangay_id: barangay.id,
+                barangay_name: barangay.barangay_name || "",
+                barangay_type: barangay.barangay_type || "",
+                barangay_code: barangay.barangay_code || "",
+                city: barangay.city || "",
+                province: barangay.province || "",
+                zip_code: barangay.zip_code || "",
+                contact_number: barangay.contact_number || "",
+                email: barangay.email || "",
+                founded_year: barangay.founded_year || "",
+                area_sq_km: barangay.area_sq_km || "",
+                logo_path: null, // <-- important! don't put string here
+                previewImage: logoUrl, // keep preview separately
+                originalLogo: barangay.logo_path || "", // store original path
+                originalEmail: barangay.email || "",
+                _method: "PUT",
+            });
+        } catch (error) {
+            console.error("Error fetching barangay details:", error);
+            toast.error("Failed to fetch barangay details.");
+        }
+    };
+
+    const handleDeleteClick = (id) => {
+        setRecordToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+    const confirmDelete = () => {
+        router.delete(route("barangay.destroy", recordToDelete));
+        setIsDeleteModalOpen(false);
+    };
+
     useEffect(() => {
         if (success) {
             handleModalClose();
@@ -542,13 +627,12 @@ export default function Index({ queryParams, barangays }) {
                                     <img
                                         src={
                                             data.logo_path
-                                                ? typeof data.logo_path ===
-                                                  "string"
-                                                    ? `${APP_URL}/${data.logo_path}`
-                                                    : URL.createObjectURL(
-                                                          data.logo_path
-                                                      )
-                                                : "/images/city-of-ilagan.png"
+                                                ? URL.createObjectURL(
+                                                      data.logo_path
+                                                  ) // if new file uploaded
+                                                : data.originalLogo
+                                                ? `${APP_URL}/storage/${data.originalLogo}` // existing logo
+                                                : "/images/city-of-ilagan.png" // fallback
                                         }
                                         alt="Barangay Logo"
                                         className="w-32 h-32 object-cover rounded-full border border-gray-200 shadow-sm"
@@ -681,6 +765,14 @@ export default function Index({ queryParams, barangays }) {
                         </form>
                     </div>
                 </SidebarModal>
+                <DeleteConfirmationModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => {
+                        setIsDeleteModalOpen(false);
+                    }}
+                    onConfirm={confirmDelete}
+                    residentId={recordToDelete}
+                />
             </div>
         </AdminLayout>
     );

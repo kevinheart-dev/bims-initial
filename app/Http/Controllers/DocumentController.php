@@ -91,8 +91,6 @@ class DocumentController extends Controller
     public function store(Request $request)
     {
         try {
-
-
             $barangay = auth()->user()->resident->barangay;
             $data = $request->validate([
                 'file' => 'required|file|mimes:docx,doc,pdf,txt|max:10240', // 10MB max
@@ -114,7 +112,8 @@ class DocumentController extends Controller
             ]);
             return back()->with('success', "{$data['name']} Document uploaded.");
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to add document: ' . $e->getMessage());
+            // Show only user-friendly error on the frontend
+            return back()->with('error', "Failed to add document. Please try again or contact support.");
         }
     }
 

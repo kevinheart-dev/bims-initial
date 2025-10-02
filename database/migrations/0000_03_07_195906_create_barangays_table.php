@@ -21,7 +21,7 @@ return new class extends Migration
             $table->decimal('area_sq_km', 5, 2)->nullable();
             $table->string('email', 50)->nullable();
             $table->text('logo_path')->nullable();
-            $table->year('founded_year')->nullable();
+            $table->smallInteger('founded_year')->nullable();
             $table->string('barangay_code', 20)->nullable();
             $table->enum('barangay_type', ['rural', 'urban']);
             $table->timestamps();
