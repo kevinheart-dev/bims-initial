@@ -111,11 +111,6 @@ export default function Index({ allergies, puroks, queryParams }) {
     }, [hasActiveFilter]);
 
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
-    const toggleShowFilters = () => setShowFilters((prev) => !prev);
-
-    const handlePrint = () => {
-        window.print();
-    };
 
     const columnRenderers = {
         id: (row) => row.id,
@@ -296,7 +291,6 @@ export default function Index({ allergies, puroks, queryParams }) {
                                         allColumns={allColumns}
                                         visibleColumns={visibleColumns}
                                         setVisibleColumns={setVisibleColumns}
-                                        onPrint={handlePrint}
                                         showFilters={showFilters}
                                         toggleShowFilters={() =>
                                             setShowFilters((prev) => !prev)

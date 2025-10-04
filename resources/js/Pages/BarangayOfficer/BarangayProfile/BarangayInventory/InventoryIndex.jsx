@@ -173,9 +173,8 @@ const InventoryIndex = () => {
 
             return (
                 <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        statusColors[row.status] || "bg-gray-100 text-gray-800"
-                    }`}
+                    className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[row.status] || "bg-gray-100 text-gray-800"
+                        }`}
                 >
                     {row.status || "—"}
                 </span>
@@ -186,10 +185,10 @@ const InventoryIndex = () => {
             <span className="text-sm text-gray-500">
                 {row.received_date
                     ? new Date(row.received_date).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                      })
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                    })
                     : "—"}
             </span>
         ),
@@ -381,10 +380,6 @@ const InventoryIndex = () => {
         props.error = null;
     }, [Toasterror]);
 
-    const handlePrint = () => {
-        window.print();
-    };
-
     if (isLoading) {
         return (
             <div className="gap-2 space-y-4">
@@ -407,7 +402,6 @@ const InventoryIndex = () => {
                             allColumns={allColumns}
                             visibleColumns={visibleColumns}
                             setVisibleColumns={setVisibleColumns}
-                            onPrint={handlePrint}
                             showFilters={showFilters}
                             toggleShowFilters={() =>
                                 setShowFilters((prev) => !prev)
@@ -478,7 +472,7 @@ const InventoryIndex = () => {
                         allColumns={allColumns}
                         columnRenderers={columnRenderers}
                         visibleColumns={visibleColumns}
-                        setVisibleColumns={setVisibleColumns}
+                        showTotal={true}
                     />
                 </div>
             </div>
@@ -530,7 +524,7 @@ const InventoryIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `inventory_items.${invIdx}.item_name`
+                                                `inventory_items.${invIdx}.item_name`
                                                 ]
                                             }
                                             className="mt-1"
@@ -579,7 +573,7 @@ const InventoryIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `inventory_items.${invIdx}.item_category`
+                                                `inventory_items.${invIdx}.item_category`
                                                 ]
                                             }
                                             className="mt-1"
@@ -605,7 +599,7 @@ const InventoryIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `inventory_items.${invIdx}.quantity`
+                                                `inventory_items.${invIdx}.quantity`
                                                 ]
                                             }
                                             className="mt-1"
@@ -630,7 +624,7 @@ const InventoryIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `inventory_items.${invIdx}.unit`
+                                                `inventory_items.${invIdx}.unit`
                                                 ]
                                             }
                                             className="mt-1"
@@ -668,7 +662,7 @@ const InventoryIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `inventory_items.${invIdx}.status`
+                                                `inventory_items.${invIdx}.status`
                                                 ]
                                             }
                                             className="mt-1"
@@ -695,7 +689,7 @@ const InventoryIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `inventory_items.${invIdx}.received_date`
+                                                `inventory_items.${invIdx}.received_date`
                                                 ]
                                             }
                                             className="mt-1"
@@ -720,7 +714,7 @@ const InventoryIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `inventory_items.${invIdx}.supplier`
+                                                `inventory_items.${invIdx}.supplier`
                                                 ]
                                             }
                                             className="mt-1"

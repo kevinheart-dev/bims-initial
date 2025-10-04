@@ -143,10 +143,6 @@ export default function Index({
 
     const toggleShowFilters = () => setShowFilters((prev) => !prev);
 
-    const handlePrint = () => {
-        window.print();
-    };
-
     const columnRenderers = {
         id: (row) => row.vehicles?.[0]?.id ?? "—",
 
@@ -353,7 +349,6 @@ export default function Index({
                                         allColumns={allColumns}
                                         visibleColumns={visibleColumns}
                                         setVisibleColumns={setVisibleColumns}
-                                        onPrint={handlePrint}
                                         showFilters={showFilters}
                                         toggleShowFilters={toggleShowFilters}
                                     />

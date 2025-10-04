@@ -177,12 +177,12 @@ const BarangayInfrastucture = () => {
             <span className="text-sm text-gray-500">
                 {row.created_at
                     ? new Date(row.created_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                      })
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    })
                     : "—"}
             </span>
         ),
@@ -191,12 +191,12 @@ const BarangayInfrastucture = () => {
             <span className="text-sm text-gray-500">
                 {row.updated_at
                     ? new Date(row.updated_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                      })
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    })
                     : "—"}
             </span>
         ),
@@ -217,10 +217,6 @@ const BarangayInfrastucture = () => {
                 ]}
             />
         ),
-    };
-
-    const handlePrint = () => {
-        window.print();
     };
 
     // add
@@ -470,7 +466,6 @@ const BarangayInfrastucture = () => {
                             allColumns={allColumns}
                             visibleColumns={visibleColumns}
                             setVisibleColumns={setVisibleColumns}
-                            onPrint={handlePrint}
                             showFilters={showFilters}
                             toggleShowFilters={() =>
                                 setShowFilters((prev) => !prev)
@@ -542,7 +537,7 @@ const BarangayInfrastucture = () => {
                         allColumns={allColumns}
                         columnRenderers={columnRenderers}
                         visibleColumns={visibleColumns}
-                        setVisibleColumns={setVisibleColumns}
+                        showTotal={true}
                     />
                 </div>
             </div>
@@ -618,7 +613,7 @@ const BarangayInfrastucture = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `infrastructures.${infraIdx}.infrastructure_image`
+                                                `infrastructures.${infraIdx}.infrastructure_image`
                                                 ]
                                             }
                                             className="mt-2"
@@ -648,7 +643,7 @@ const BarangayInfrastucture = () => {
                                             <InputError
                                                 message={
                                                     errors[
-                                                        `infrastructures.${infraIdx}.infrastructure_type`
+                                                    `infrastructures.${infraIdx}.infrastructure_type`
                                                     ]
                                                 }
                                                 className="mt-1"
@@ -694,7 +689,7 @@ const BarangayInfrastucture = () => {
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `infrastructures.${infraIdx}.infrastructure_category`
+                                                        `infrastructures.${infraIdx}.infrastructure_category`
                                                         ]
                                                     }
                                                     className="mt-1"
@@ -722,7 +717,7 @@ const BarangayInfrastucture = () => {
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `infrastructures.${infraIdx}.quantity`
+                                                        `infrastructures.${infraIdx}.quantity`
                                                         ]
                                                     }
                                                     className="mt-1"

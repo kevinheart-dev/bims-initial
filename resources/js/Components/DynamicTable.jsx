@@ -129,14 +129,12 @@ const DynamicTable = ({
                     </div>
                 ) : (
                     <div className="my-2 px-4 flex items-center justify-between">
-                        {/* Show totals */}
                         {showTotal && (
                             <span className="text-sm text-gray-700 bg-gray-100 px-2 mt-4 py-1 rounded-md">
                                 Showing {cleanData.length} / {passedData?.total ?? cleanData.length} records
                             </span>
                         )}
 
-                        {/* Pagination */}
                         {Array.isArray(passedData?.links) &&
                             passedData.links.length > 0 && (
                                 <Pagination

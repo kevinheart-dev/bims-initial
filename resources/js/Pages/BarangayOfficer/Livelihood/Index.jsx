@@ -126,12 +126,6 @@ export default function Index({
     ];
 
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
-    const toggleShowFilters = () => setShowFilters((prev) => !prev);
-    const handlePrint = () => {
-        window.print();
-    };
-    const [isPaginated, setIsPaginated] = useState(true);
-    const [showAll, setShowAll] = useState(false);
     const [selectedResident, setSelectedResident] = useState(null);
     const defaultVisibleCols = allColumns.map((col) => col.key);
     const [visibleColumns, setVisibleColumns] = useState(() => {
@@ -211,8 +205,8 @@ export default function Index({
         is_main_livelihood: (row) => (
             <span
                 className={`px-2 py-0.5 rounded-md text-xs font-medium ${row.is_main_livelihood
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-gray-100 text-gray-700"
+                    ? "bg-blue-100 text-blue-800"
+                    : "bg-gray-100 text-gray-700"
                     }`}
             >
                 {row.is_main_livelihood ? "Yes" : "No"}
@@ -430,7 +424,6 @@ export default function Index({
                                     allColumns={allColumns}
                                     visibleColumns={visibleColumns}
                                     setVisibleColumns={setVisibleColumns}
-                                    onPrint={handlePrint}
                                     showFilters={showFilters}
                                     toggleShowFilters={() =>
                                         setShowFilters((prev) => !prev)

@@ -112,12 +112,6 @@ export default function Index({ households, puroks, streets, queryParams }) {
     }, [hasActiveFilter]);
 
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
-    const toggleShowFilters = () => setShowFilters((prev) => !prev);
-
-    const handlePrint = () => {
-        window.print();
-    };
-
     const columnRenderers = {
         id: (house) => house.household?.id,
         name: (entry) => {
@@ -296,7 +290,6 @@ export default function Index({ households, puroks, streets, queryParams }) {
                                     allColumns={allColumns}
                                     visibleColumns={visibleColumns}
                                     setVisibleColumns={setVisibleColumns}
-                                    onPrint={handlePrint}
                                     showFilters={showFilters}
                                     toggleShowFilters={() =>
                                         setShowFilters((prev) => !prev)

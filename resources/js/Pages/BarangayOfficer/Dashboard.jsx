@@ -1,30 +1,56 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head } from "@inertiajs/react";
+import { useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import Counter from "@/Components/counter";
 import { Users, House } from "lucide-react";
 import GenderDonutChart from "./DashboardCharts/GenderDonutChart";
 import PopulationPerPurok from "./DashboardCharts/PopulationPerPurok";
 import AgeDistribution from "./DashboardCharts/AgeDistribution";
-import PwdDistribution from "./DashboardCharts/PwdDistribution";
+import PwdHalfPie from "./DashboardCharts/PwdDistribution";
+import AgeCategory from "./DashboardCharts/AgeCategory";
+import EmploymentStatus from "./DashboardCharts/EmploymentStatus";
+import CivilStatus from "./DashboardCharts/CivilStatus";
 
 const iconMap = {
-    users: <Users className="w-32 h-32 text-blue-500" />,
-    senior: <Users className="w-32 h-32 text-green-500" />,
-    house: <House className="w-32 h-32 text-orange-500" />,
-    family: <Users className="w-32 h-32 text-purple-500" />,
+    users: (
+        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100">
+            <Users className="w-6 h-6 text-blue-500" />
+        </div>
+    ),
+    senior: (
+        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100">
+            <Users className="w-6 h-6 text-green-500" />
+        </div>
+    ),
+    house: (
+        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100">
+            <House className="w-6 h-6 text-orange-500" />
+        </div>
+    ),
+    family: (
+        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100">
+            <Users className="w-6 h-6 text-purple-500" />
+        </div>
+    ),
 };
 
 export default function Dashboard({
+    barangayName,
     residentCount,
     seniorCitizenCount,
     totalHouseholds,
     totalFamilies,
     genderDistribution,
+    sexDistribution,
     populationPerPurok,
     ageDistribution,
     pwdDistribution,
+    ageCategory,
+    employmentStatusDistribution,
+    civilStatusDistribution,
+    voterDistribution,
 }) {
     const breadcrumbs = [{ label: "Dashboard", showOnMobile: true }];
     const data = [
@@ -33,114 +59,136 @@ export default function Dashboard({
         { title: "Households", value: totalHouseholds, icon: "house" },
         { title: "Families", value: totalFamilies, icon: "family" },
     ];
+    const [view, setView] = useState("sex");
 
+    console.log(voterDistribution);
     return (
         <AdminLayout>
             <Head title="Admin Dashboard" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
 
-            <div className="pt-4 min-h-screen bg-gradient-to-br from-white via-blue-100 to-blue-400">
-                <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6 space-y-8">
-                    {/* Main layout grid - Stacks vertically on mobile, becomes a 12-col grid on large screens */}
-                    <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6">
-                        {/* Left Column - Takes full width on mobile, 8 columns on large screens */}
-                        <div className="lg:col-span-8 flex flex-col gap-6">
-                            {/* Top stats cards - 2 columns on mobile, 4 on medium screens and up */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                                {data.map((item, index) => (
-                                    <Card
-                                        key={index}
-                                        className="relative flex flex-col justify-between rounded-2xl border border-white/80
-                                            bg-white/20 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-300
-                                            p-6 min-h-[150px] overflow-hidden"
-                                    >
-                                        <div className="absolute bottom-0 right-0 w-28 h-28 overflow-hidden pointer-events-none">
-                                            <div className="opacity-30 transform translate-x-4 translate-y-4">
-                                                {iconMap[item.icon]}
-                                            </div>
-                                        </div>
+            <div className="mt-4 mb-0 mx-7 text-left">
+                <h1 className="text-2xl font-extrabold text-gray-800">
+                    Barangay {barangayName} Dashboard
+                </h1>
+                <p className="text-md text-gray-600 mt-0">
+                    This dashboard provides an overview of the barangay’s population, demographics, and social statistics to help in planning and decision-making.
+                </p>
+            </div>
 
-                                        <div className="z-10 flex flex-col items-start">
-                                            <CardContent className="p-0">
-                                                {/* Responsive number */}
-                                                <p className="text-3xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 drop-shadow-sm">
-                                                    <Counter end={item.value} duration={900} />
-                                                </p>
-                                            </CardContent>
-                                            <CardHeader className="p-0 mt-2">
-                                                {/* Responsive title */}
-                                                <CardTitle className="text-sm sm:text-base md:text-lg font-semibold text-gray-500">
-                                                    {item.title}
-                                                </CardTitle>
-                                            </CardHeader>
-                                        </div>
-                                    </Card>
 
-                                ))}
-                            </div>
-                            {/* Middle wide card */}
-                            <div className="rounded-2xl border border-white/80 bg-white/20 backdrop-blur-md shadow-lg p-6 min-h-[310px]">
-                                <h2 className="text-xl font-bold text-gray-800 mb-2">Population Overview</h2>
+
+            <div className="pt-4 min-h-screen">
+                <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6 space-y-6">
+                    {/* Stats Cards */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        {data.map((item, index) => (
+                            <Card
+                                key={index}
+                                className="flex flex-col items-center justify-center
+                                rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md
+                                transition-all duration-200 p-3 text-center"
+                            >
+                                <div className="mb-2">{iconMap[item.icon]}</div>
+                                <CardHeader className="p-0 mt-1">
+                                    <CardTitle className="text-xs sm:text-sm font-semibold text-gray-500">
+                                        {item.title}
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-0">
+                                    <p className="text-lg sm:text-xl font-bold text-gray-900">
+                                        <Counter end={item.value} duration={900} />
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+
+                    {/* Main Charts Section */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Population Overview Per Purok - Takes 2/3 width on large screens */}
+                        <Card className="lg:col-span-2 p-6">
+                            <CardHeader className="p-0 mb-4">
+                                <CardTitle className="text-xl font-bold text-gray-800">
+                                    Population Overview Per Purok
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-0">
                                 <PopulationPerPurok populationPerPurok={populationPerPurok} />
-                            </div>
+                            </CardContent>
+                        </Card>
 
-                            {/* Bottom two cards - Stacks on mobile, 2 columns on medium screens and up */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="rounded-2xl border border-white/80 bg-white/20 backdrop-blur-md shadow-lg p-6 min-h-[220px]">
-                                    <h3 className="font-bold text-gray-700">Gender Distribution</h3>
-                                    <GenderDonutChart genderDistribution={genderDistribution} />
+                        {/* Gender/Sex Distribution - Takes 1/3 width on large screens */}
+                        <Card className="p-6">
+                            <CardHeader className="p-0 mb-3">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="font-bold text-gray-700">
+                                        {view === "sex" ? "Sex Distribution" : "Gender Distribution"}
+                                    </CardTitle>
+                                    <button
+                                        onClick={() => setView(view === "sex" ? "gender" : "sex")}
+                                        className="px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600 transition"
+                                    >
+                                        {view === "sex" ? "Show Gender" : "Show Sex"}
+                                    </button>
                                 </div>
-                                <div className="rounded-2xl border border-white/80 bg-white/20 backdrop-blur-md shadow-lg p-6 min-h-[220px]">
-                                    <h3 className="font-bold text-gray-700">PWD Distribution</h3>
-                                    <PwdDistribution pwdDistribution={pwdDistribution} />
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <GenderDonutChart
+                                    view={view}
+                                    genderDistribution={genderDistribution}
+                                    sexDistribution={sexDistribution}
+                                />
+                            </CardContent>
+                        </Card>
+                    </div>
 
-                                </div>
-                            </div>
-                        </div>
+                    {/* Second row of charts: Age Distribution, PWD Distribution, Age Category, Employment Status */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                        {/* Age Distribution */}
+                        <Card className="p-6">
+                            <CardHeader className="p-0 mb-4">
+                                <CardTitle className="font-bold text-gray-700">Population by Age</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-0 h-[350px]">
+                                <AgeDistribution ageDistribution={ageDistribution} />
+                            </CardContent>
+                        </Card>
 
-                        <div className="lg:col-span-4 flex flex-col gap-6 h-full">
-                            {/* Incoming Document Requests */}
-                            <div className="flex-1 rounded-2xl border border-white/80 bg-white/20 backdrop-blur-md shadow-lg p-6 flex flex-col min-h-0">
-                                <h2 className="text-xl font-bold text-gray-800 mb-4">Incoming Document Requests</h2>
-                                <div className="space-y-4 overflow-y-auto flex-1 pr-2">
-                                    {/* Dummy Data */}
-                                    <div className="flex justify-between items-center p-4 rounded-xl bg-white/30 backdrop-blur-sm shadow">
-                                        <p className="text-gray-700 font-medium">Request #1234 - Barangay Clearance</p>
-                                        <span className="text-sm text-blue-600 font-semibold">Pending</span>
-                                    </div>
-                                    <div className="flex justify-between items-center p-4 rounded-xl bg-white/30 backdrop-blur-sm shadow">
-                                        <p className="text-gray-700 font-medium">Request #1235 - Business Permit</p>
-                                        <span className="text-sm text-green-600 font-semibold">Approved</span>
-                                    </div>
-                                    <div className="flex justify-between items-center p-4 rounded-xl bg-white/30 backdrop-blur-sm shadow">
-                                        <p className="text-gray-700 font-medium">Request #1236 - Indigency Cert.</p>
-                                        <span className="text-sm text-green-600 font-semibold">Approved</span>
-                                    </div>
-                                    <div className="flex justify-between items-center p-4 rounded-xl bg-white/30 backdrop-blur-sm shadow">
-                                        <p className="text-gray-700 font-medium">Request #1234 - Barangay Clearance</p>
-                                        <span className="text-sm text-blue-600 font-semibold">Pending</span>
-                                    </div>
-                                    <div className="flex justify-between items-center p-4 rounded-xl bg-white/30 backdrop-blur-sm shadow">
-                                        <p className="text-gray-700 font-medium">Request #1235 - Business Permit</p>
-                                        <span className="text-sm text-green-600 font-semibold">Approved</span>
-                                    </div>
-                                    <div className="flex justify-between items-center p-4 rounded-xl bg-white/30 backdrop-blur-sm shadow">
-                                        <p className="text-gray-700 font-medium">Request #1236 - Indigency Cert.</p>
-                                        <span className="text-sm text-green-600 font-semibold">Approved</span>
-                                    </div>
-                                </div>
-                            </div>
+                        {/* PWD Distribution */}
 
-                            {/* System Health */}
-                            <div className="flex-1 rounded-2xl border border-white/80 bg-white/20 backdrop-blur-md shadow-lg p-6 flex flex-col min-h-0">
-                                <h3 className="font-bold text-gray-700 mb-4">Population by Age</h3>
-                                {/* This wrapper div will now control the space for the chart */}
-                                <div className="flex-1 w-full">
-                                    <AgeDistribution ageDistribution={ageDistribution} />
-                                </div>
-                            </div>
-                        </div>
 
+                        <PwdHalfPie pwdDistribution={pwdDistribution} />
+
+
+                        {/* Age Category */}
+                        <Card className="p-6">
+                            <CardHeader className="p-0 mb-4">
+                                <CardTitle className="font-bold text-gray-700">Age Category</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <AgeCategory ageCategory={ageCategory} />
+                            </CardContent>
+                        </Card>
+
+                        {/* Employment Status */}
+                        <Card className="p-6">
+                            <CardHeader className="p-0 mb-4">
+                                <CardTitle className="font-bold text-gray-700">Employment Status</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <EmploymentStatus employmentStatusDistribution={employmentStatusDistribution} />
+                            </CardContent>
+                        </Card>
+
+                        <Card className="p-6">
+                            <CardHeader className="p-0 mb-4">
+                                <CardTitle className="font-bold text-gray-700">Civil Status</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                                <CivilStatus civilStatusDistribution={civilStatusDistribution} />
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
             </div>

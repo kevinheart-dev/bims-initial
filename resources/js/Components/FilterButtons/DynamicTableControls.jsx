@@ -13,7 +13,6 @@ const DynamicTableControls = ({
     allColumns,
     visibleColumns,
     setVisibleColumns,
-    onPrint,
     toggleShowFilters,
     showFilters,
 }) => {
@@ -82,19 +81,6 @@ const DynamicTableControls = ({
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Print */}
-            <div className="relative group z-5">
-                <Button
-                    className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
-                    variant="outline"
-                    onClick={onPrint}
-                >
-                    <Printer className="w-4 h-4" />
-                </Button>
-                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                    Print
-                </div>
-            </div>
 
             {/* Filter Button */}
             <Button

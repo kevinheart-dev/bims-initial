@@ -124,12 +124,6 @@ export default function Index({ blotters, queryParams, incident_types }) {
     }, [hasActiveFilter]);
 
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
-    const toggleShowFilters = () => setShowFilters((prev) => !prev);
-
-    const handlePrint = () => {
-        window.print();
-    };
-
     const columnRenderers = {
         id: (blotter) => blotter.id,
         type_of_incident: (blotter) => (
@@ -161,10 +155,9 @@ export default function Index({ blotters, queryParams, incident_types }) {
 
             return (
                 <span
-                    className={`px-2 py-1 text-sm rounded-lg ${
-                        statusClasses[blotter.report_status] ??
+                    className={`px-2 py-1 text-sm rounded-lg ${statusClasses[blotter.report_status] ??
                         "bg-gray-100 text-gray-700"
-                    }`}
+                        }`}
                 >
                     {CONSTANTS.BLOTTER_REPORT_STATUS[blotter.report_status]}
                 </span>
@@ -203,8 +196,7 @@ export default function Index({ blotters, queryParams, incident_types }) {
             const c = blotter.recorded_by;
             if (!c) return "—";
             return (
-                `${c.resident?.firstname ?? ""} ${
-                    c.resident?.middlename ?? ""
+                `${c.resident?.firstname ?? ""} ${c.resident?.middlename ?? ""
                 } ${c.resident?.lastname ?? ""} ${c.resident?.suffix ?? ""}` ??
                 "—"
             );
@@ -216,11 +208,9 @@ export default function Index({ blotters, queryParams, incident_types }) {
 
             return complainants.map((c, idx) => {
                 const fullName = c.resident
-                    ? `${c.resident.firstname ?? ""} ${
-                          c.resident.middlename ?? ""
-                      } ${c.resident.lastname ?? ""} ${
-                          c.resident.suffix ?? ""
-                      }`.trim()
+                    ? `${c.resident.firstname ?? ""} ${c.resident.middlename ?? ""
+                        } ${c.resident.lastname ?? ""} ${c.resident.suffix ?? ""
+                        }`.trim()
                     : c.name ?? "—";
 
                 return (
@@ -338,7 +328,6 @@ export default function Index({ blotters, queryParams, incident_types }) {
                                     allColumns={allColumns}
                                     visibleColumns={visibleColumns}
                                     setVisibleColumns={setVisibleColumns}
-                                    onPrint={handlePrint}
                                     showFilters={showFilters}
                                     toggleShowFilters={() =>
                                         setShowFilters((prev) => !prev)
@@ -414,11 +403,8 @@ export default function Index({ blotters, queryParams, incident_types }) {
                             passedData={blotters}
                             columnRenderers={columnRenderers}
                             allColumns={allColumns}
-                            is_paginated={isPaginated}
-                            toggleShowAll={() => setShowAll(!showAll)}
-                            showAll={showAll}
                             visibleColumns={visibleColumns}
-                            setVisibleColumns={setVisibleColumns}
+                            showTotal={true}
                         ></DynamicTable>
                         <SidebarModal
                             isOpen={isModalOpen}

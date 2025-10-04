@@ -10,7 +10,6 @@ import {
     LabelList,
 } from 'recharts';
 
-// Custom tooltip component
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (
@@ -44,7 +43,7 @@ function PopulationPerPurok({ populationPerPurok }) {
                 />
                 <YAxis />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="value" fill="#4A90E2" barSize={50}>
+                <Bar dataKey="value" fill="#4A90E2" barSize={35} radius={[10, 10, 0, 0]}>
                     <LabelList
                         dataKey="value"
                         position="top"

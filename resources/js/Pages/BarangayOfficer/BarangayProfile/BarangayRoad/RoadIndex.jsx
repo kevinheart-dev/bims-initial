@@ -172,9 +172,8 @@ const BarangayRoads = () => {
 
             return (
                 <span
-                    className={`px-2 py-0.5 rounded-md text-xs font-medium capitalize ${
-                        colorMap[row.condition] || "bg-gray-100 text-gray-600"
-                    }`}
+                    className={`px-2 py-0.5 rounded-md text-xs font-medium capitalize ${colorMap[row.condition] || "bg-gray-100 text-gray-600"
+                        }`}
                 >
                     {row.condition || "—"}
                 </span>
@@ -190,9 +189,8 @@ const BarangayRoads = () => {
 
             return (
                 <span
-                    className={`px-2 py-0.5 rounded-md text-xs font-medium capitalize ${
-                        colorMap[row.status] || "bg-gray-100 text-gray-600"
-                    }`}
+                    className={`px-2 py-0.5 rounded-md text-xs font-medium capitalize ${colorMap[row.status] || "bg-gray-100 text-gray-600"
+                        }`}
                 >
                     {row.status || "—"}
                 </span>
@@ -202,12 +200,12 @@ const BarangayRoads = () => {
             <span className="text-sm text-gray-500">
                 {row.created_at
                     ? new Date(row.created_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                      })
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    })
                     : "—"}
             </span>
         ),
@@ -216,12 +214,12 @@ const BarangayRoads = () => {
             <span className="text-sm text-gray-500">
                 {row.updated_at
                     ? new Date(row.updated_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                      })
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    })
                     : "—"}
             </span>
         ),
@@ -405,9 +403,6 @@ const BarangayRoads = () => {
         }
         props.error = null;
     }, [Toasterror]);
-    const handlePrint = () => {
-        window.print();
-    };
     if (isLoading) {
         return (
             <div className="gap-2 space-y-4">
@@ -423,90 +418,89 @@ const BarangayRoads = () => {
         <div className="p-2 md:px-2 md:py-2">
             <Toaster richColors />
             <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                    {/* <pre>{JSON.stringify(roads, undefined, 3)}</pre> */}
-                    <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <DynamicTableControls
-                                allColumns={allColumns}
-                                visibleColumns={visibleColumns}
-                                setVisibleColumns={setVisibleColumns}
-                                onPrint={handlePrint}
-                                showFilters={showFilters}
-                                toggleShowFilters={() =>
-                                    setShowFilters((prev) => !prev)
+                {/* <pre>{JSON.stringify(roads, undefined, 3)}</pre> */}
+                <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <DynamicTableControls
+                            allColumns={allColumns}
+                            visibleColumns={visibleColumns}
+                            setVisibleColumns={setVisibleColumns}
+                            showFilters={showFilters}
+                            toggleShowFilters={() =>
+                                setShowFilters((prev) => !prev)
+                            }
+                        />
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap justify-end">
+                        <form
+                            onSubmit={handleSubmit}
+                            className="flex w-[300px] max-w-lg items-center space-x-1"
+                        >
+                            <Input
+                                type="text"
+                                placeholder="Search road lengths"
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                onKeyDown={(e) =>
+                                    onKeyPressed("name", e.target.value)
                                 }
+                                className="ml-4"
                             />
-                        </div>
-                        <div className="flex items-center gap-2 flex-wrap justify-end">
-                            <form
-                                onSubmit={handleSubmit}
-                                className="flex w-[300px] max-w-lg items-center space-x-1"
+                            <Button
+                                type="submit"
+                                className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
+                                variant="outline"
                             >
-                                <Input
-                                    type="text"
-                                    placeholder="Search road lengths"
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                    onKeyDown={(e) =>
-                                        onKeyPressed("name", e.target.value)
-                                    }
-                                    className="ml-4"
-                                />
-                                <Button
-                                    type="submit"
-                                    className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
-                                    variant="outline"
-                                >
-                                    <Search />
-                                </Button>
-                                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                    Search
-                                </div>
-                            </form>
+                                <Search />
+                            </Button>
+                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                Search
+                            </div>
+                        </form>
 
-                            <div className="relative group z-50">
-                                <Button
-                                    variant="outline"
-                                    className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                    onClick={handleAddRoad}
-                                >
-                                    <ListPlus className="w-4 h-4" />
-                                </Button>
-                                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                    Add a Road
-                                </div>
+                        <div className="relative group z-50">
+                            <Button
+                                variant="outline"
+                                className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                onClick={handleAddRoad}
+                            >
+                                <ListPlus className="w-4 h-4" />
+                            </Button>
+                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                Add a Road
                             </div>
                         </div>
                     </div>
-                    <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                        {showFilters && (
-                            <FilterToggle
-                                queryParams={queryParams}
-                                searchFieldName={searchFieldName}
-                                visibleFilters={[
-                                    "road_type",
-                                    "maintained_by",
-                                    "road_status",
-                                    "road_condition",
-                                ]}
-                                showFilters={true}
-                                types={types}
-                                names={maintains}
-                                setQueryParams={setQueryParams}
-                                setQuery={setQuery}
-                                clearRouteAxios={true}
-                            />
-                        )}
-
-                        <DynamicTable
-                            passedData={roads}
-                            allColumns={allColumns}
-                            columnRenderers={columnRenderers}
-                            visibleColumns={visibleColumns}
-                        />
-                    </div>
                 </div>
+                <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                    {showFilters && (
+                        <FilterToggle
+                            queryParams={queryParams}
+                            searchFieldName={searchFieldName}
+                            visibleFilters={[
+                                "road_type",
+                                "maintained_by",
+                                "road_status",
+                                "road_condition",
+                            ]}
+                            showFilters={true}
+                            types={types}
+                            names={maintains}
+                            setQueryParams={setQueryParams}
+                            setQuery={setQuery}
+                            clearRouteAxios={true}
+                        />
+                    )}
+
+                    <DynamicTable
+                        passedData={roads}
+                        allColumns={allColumns}
+                        columnRenderers={columnRenderers}
+                        visibleColumns={visibleColumns}
+                        showTotal={true}
+                    />
+                </div>
+
                 <SidebarModal
                     isOpen={isModalOpen}
                     onClose={() => {
@@ -575,7 +569,7 @@ const BarangayRoads = () => {
                                             <InputError
                                                 message={
                                                     errors[
-                                                        `roads.${roadIdx}.road_image`
+                                                    `roads.${roadIdx}.road_image`
                                                     ]
                                                 }
                                                 className="mt-2"
@@ -618,7 +612,7 @@ const BarangayRoads = () => {
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `roads.${roadIdx}.road_type`
+                                                        `roads.${roadIdx}.road_type`
                                                         ]
                                                     }
                                                     className="mt-1"
@@ -645,7 +639,7 @@ const BarangayRoads = () => {
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `roads.${roadIdx}.length`
+                                                        `roads.${roadIdx}.length`
                                                         ]
                                                     }
                                                     className="mt-1"
@@ -693,7 +687,7 @@ const BarangayRoads = () => {
                                             <InputError
                                                 message={
                                                     errors[
-                                                        `roads.${roadIdx}.condition`
+                                                    `roads.${roadIdx}.condition`
                                                     ]
                                                 }
                                                 className="mt-1"
@@ -727,7 +721,7 @@ const BarangayRoads = () => {
                                             <InputError
                                                 message={
                                                     errors[
-                                                        `roads.${roadIdx}.status`
+                                                    `roads.${roadIdx}.status`
                                                     ]
                                                 }
                                                 className="mt-1"
@@ -752,7 +746,7 @@ const BarangayRoads = () => {
                                             <InputError
                                                 message={
                                                     errors[
-                                                        `roads.${roadIdx}.maintained_by`
+                                                    `roads.${roadIdx}.maintained_by`
                                                     ]
                                                 }
                                                 className="mt-1"

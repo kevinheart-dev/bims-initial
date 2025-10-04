@@ -245,10 +245,6 @@ export default function Index({ residents, queryParams = null, puroks }) {
         setShowFilters(hasActiveFilter);
     }, [hasActiveFilter]);
 
-    const handlePrint = () => {
-        window.print();
-    };
-
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [residentToDelete, setResidentToDelete] = useState(null);
 
@@ -303,11 +299,9 @@ export default function Index({ residents, queryParams = null, puroks }) {
             ),
             name: (resident) => (
                 <div className="text-sm break-words whitespace-normal leading-snug">
-                    {`${resident.firstname} ${
-                        resident.middlename ? resident.middlename + " " : ""
-                    }${resident.lastname ?? ""} ${
-                        resident.suffix ? resident.suffix : ""
-                    }`}
+                    {`${resident.firstname} ${resident.middlename ? resident.middlename + " " : ""
+                        }${resident.lastname ?? ""} ${resident.suffix ? resident.suffix : ""
+                        }`}
                 </div>
             ),
             sex: (resident) => {
@@ -343,7 +337,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                 CONSTANTS.RESIDENT_CIVIL_STATUS_TEXT[resident.civil_status],
             employment_status: (resident) =>
                 CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-                    resident.employment_status
+                resident.employment_status
                 ],
             occupation: (resident) => {
                 const occ = resident.occupation;
@@ -360,15 +354,14 @@ export default function Index({ residents, queryParams = null, puroks }) {
             ethnicity: (resident) => resident.ethnicity,
             registered_voter: (resident) => (
                 <span
-                    className={`${
-                        CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
-                            resident.registered_voter
+                    className={`${CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
+                        resident.registered_voter
                         ]
-                    } whitespace-nowrap`}
+                        } whitespace-nowrap`}
                 >
                     {
                         CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[
-                            resident.registered_voter
+                        resident.registered_voter
                         ]
                     }
                 </span>
@@ -472,7 +465,6 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                                 setVisibleColumns={
                                                     setVisibleColumns
                                                 }
-                                                onPrint={handlePrint}
                                                 showFilters={showFilters}
                                                 toggleShowFilters={() =>
                                                     setShowFilters(

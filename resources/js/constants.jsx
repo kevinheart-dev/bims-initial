@@ -231,7 +231,7 @@ export const HOUSEHOLD_STRUCTURE_TEXT = {
 export const HOUSEHOLD_CONDITION_TEXT = {
     good: "Good",
     needs_repair: "Needs Repair",
-    dilapidated: "Delapitated",
+    dilapidated: "Dilapidated",
 };
 
 export const HOUSING_CONDITION_COLOR = {

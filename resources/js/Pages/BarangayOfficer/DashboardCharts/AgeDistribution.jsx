@@ -10,7 +10,6 @@ import {
     LabelList,
 } from 'recharts';
 
-// Custom tooltip for age distribution
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (
@@ -26,7 +25,6 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const AgeDistribution = ({ ageDistribution }) => {
-    // --- FIX IS HERE: Define labelMap before using it ---
     const labelMap = {
         "0-6 months": "0-6m",
         "7 mos. to 2 years old": "7m-2y",
