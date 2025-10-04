@@ -127,8 +127,7 @@ export default function Index({
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename} ${
-                    resident.lastname
+                `${resident.firstname} ${resident.middlename} ${resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("gender", resident.gender);
@@ -145,8 +144,7 @@ export default function Index({
             setData("resident_id_2", resident.id);
             setData(
                 "resident_name_2",
-                `${resident.firstname} ${resident.middlename} ${
-                    resident.lastname
+                `${resident.firstname} ${resident.middlename} ${resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("civil_status_2", resident.civil_status);
@@ -155,9 +153,8 @@ export default function Index({
     };
 
     const residentsList = residents.map((resident) => ({
-        label: `${resident.firstname} ${resident.middlename ?? ""} ${
-            resident.lastname
-        }${resident.suffix ? ", " + resident.suffix : ""}`
+        label: `${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname
+            }${resident.suffix ? ", " + resident.suffix : ""}`
             .replace(/\s+/g, " ")
             .trim(),
         value: resident.id,
@@ -221,9 +218,9 @@ export default function Index({
             purpose: data.purpose,
             ...(isDualTemplate
                 ? {
-                      resident_id_2: data.resident_id_2,
-                      purpose_2: data.purpose_2,
-                  }
+                    resident_id_2: data.resident_id_2,
+                    purpose_2: data.purpose_2,
+                }
                 : {}),
             ...Object.fromEntries(
                 (data.placeholders || [])
@@ -376,13 +373,8 @@ export default function Index({
     ];
 
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
-    const toggleShowFilters = () => setShowFilters((prev) => !prev);
-    const handlePrint = () => {
-        window.print();
-    };
     const [isPaginated, setIsPaginated] = useState(true);
     const [showAll, setShowAll] = useState(false);
-    const [selectedResident, setSelectedResident] = useState(null);
 
     const defaultVisibleCols = allColumns.map((col) => col.key);
     const [visibleColumns, setVisibleColumns] = useState(() => {
@@ -401,9 +393,8 @@ export default function Index({
 
         name: (row) => {
             const r = row.resident ?? {};
-            const fullName = `${r.firstname ?? ""} ${r.middlename ?? ""} ${
-                r.lastname ?? ""
-            } ${r.suffix ?? ""}`.trim();
+            const fullName = `${r.firstname ?? ""} ${r.middlename ?? ""} ${r.lastname ?? ""
+                } ${r.suffix ?? ""}`.trim();
             return (
                 <span className="text-sm font-medium text-gray-800">
                     {fullName || "—"}
@@ -422,11 +413,10 @@ export default function Index({
         ),
         request_status: (row) => (
             <span
-                className={`text-xs font-medium ${
-                    CONSTANTS.CERTIFICATE_REQUEST_STATUS_CLASS[
-                        row.request_status
-                    ]
-                }`}
+                className={`text-xs font-medium ${CONSTANTS.CERTIFICATE_REQUEST_STATUS_CLASS[
+                    row.request_status
+                ]
+                    }`}
             >
                 {CONSTANTS.CERTIFICATE_REQUEST_STATUS_TEXT[
                     row.request_status
@@ -459,21 +449,21 @@ export default function Index({
                 actions={[
                     ...(row.request_status === "pending"
                         ? [
-                              {
-                                  label: "Issue",
-                                  icon: (
-                                      <CheckCircle className="w-4 h-4 text-blue-600" />
-                                  ),
-                                  onClick: () => handleCertificateIssue(row.id),
-                              },
-                              {
-                                  label: "Deny",
-                                  icon: (
-                                      <XCircle className="w-4 h-4 text-orange-600" />
-                                  ),
-                                  onClick: () => handleCertificateDeny(row.id),
-                              },
-                          ]
+                            {
+                                label: "Issue",
+                                icon: (
+                                    <CheckCircle className="w-4 h-4 text-blue-600" />
+                                ),
+                                onClick: () => handleCertificateIssue(row.id),
+                            },
+                            {
+                                label: "Deny",
+                                icon: (
+                                    <XCircle className="w-4 h-4 text-orange-600" />
+                                ),
+                                onClick: () => handleCertificateDeny(row.id),
+                            },
+                        ]
                         : []),
                     {
                         label: "Delete",
@@ -667,7 +657,6 @@ export default function Index({
                                         allColumns={allColumns}
                                         visibleColumns={visibleColumns}
                                         setVisibleColumns={setVisibleColumns}
-                                        onPrint={handlePrint}
                                         showFilters={showFilters}
                                         toggleShowFilters={() =>
                                             setShowFilters((prev) => !prev)
@@ -744,12 +733,8 @@ export default function Index({
                                 passedData={certificates}
                                 allColumns={allColumns}
                                 columnRenderers={columnRenderers}
-                                queryParams={queryParams}
-                                is_paginated={isPaginated}
-                                toggleShowAll={() => setShowAll(!showAll)}
-                                showAll={showAll}
                                 visibleColumns={visibleColumns}
-                                setVisibleColumns={setVisibleColumns}
+                                showTotal={true}
                             />
                         </div>
                     </div>
@@ -936,7 +921,7 @@ export default function Index({
                                                             )}
                                                             value={
                                                                 data[
-                                                                    placeholder
+                                                                placeholder
                                                                 ] || ""
                                                             }
                                                             onChange={(e) =>
@@ -950,7 +935,7 @@ export default function Index({
                                                         <InputError
                                                             message={
                                                                 errors[
-                                                                    placeholder
+                                                                placeholder
                                                                 ]
                                                             }
                                                             className="mt-1"

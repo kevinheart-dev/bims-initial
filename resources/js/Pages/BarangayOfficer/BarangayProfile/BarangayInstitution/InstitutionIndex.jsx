@@ -149,9 +149,8 @@ const InstitutionIndex = () => {
         head: (row) => {
             const res = row?.head?.resident;
             return res
-                ? `${res.firstname} ${res.middlename ?? ""} ${res.lastname} ${
-                      res.suffix ?? ""
-                  }`
+                ? `${res.firstname} ${res.middlename ?? ""} ${res.lastname} ${res.suffix ?? ""
+                }`
                 : "No assigned head";
         },
 
@@ -175,9 +174,8 @@ const InstitutionIndex = () => {
             };
             return (
                 <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        statusColors[row.status] || "bg-gray-100 text-gray-800"
-                    }`}
+                    className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[row.status] || "bg-gray-100 text-gray-800"
+                        }`}
                 >
                     {INSTITUTION_STATUS_TEXT[row.status] || "—"}
                 </span>
@@ -188,12 +186,12 @@ const InstitutionIndex = () => {
             <span className="text-sm text-gray-500">
                 {row.created_at
                     ? new Date(row.created_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                      })
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    })
                     : "—"}
             </span>
         ),
@@ -202,12 +200,12 @@ const InstitutionIndex = () => {
             <span className="text-sm text-gray-500">
                 {row.updated_at
                     ? new Date(row.updated_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                      })
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    })
                     : "—"}
             </span>
         ),
@@ -396,10 +394,6 @@ const InstitutionIndex = () => {
         props.error = null;
     }, [Toasterror]);
 
-    const handlePrint = () => {
-        window.print();
-    };
-
     if (isLoading) {
         return (
             <div className="gap-2 space-y-4">
@@ -422,7 +416,6 @@ const InstitutionIndex = () => {
                             allColumns={allColumns}
                             visibleColumns={visibleColumns}
                             setVisibleColumns={setVisibleColumns}
-                            onPrint={handlePrint}
                             showFilters={showFilters}
                             toggleShowFilters={() =>
                                 setShowFilters((prev) => !prev)
@@ -488,7 +481,7 @@ const InstitutionIndex = () => {
                         allColumns={allColumns}
                         columnRenderers={columnRenderers}
                         visibleColumns={visibleColumns}
-                        setVisibleColumns={setVisibleColumns}
+                        showTotal={true}
                     />
                 </div>
             </div>
@@ -542,7 +535,7 @@ const InstitutionIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `institutions.${instIdx}.name`
+                                                `institutions.${instIdx}.name`
                                                 ]
                                             }
                                             className="mt-1"
@@ -589,7 +582,7 @@ const InstitutionIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `institutions.${instIdx}.type`
+                                                `institutions.${instIdx}.type`
                                                 ]
                                             }
                                             className="mt-1"
@@ -617,7 +610,7 @@ const InstitutionIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `institutions.${instIdx}.description`
+                                                `institutions.${instIdx}.description`
                                                 ]
                                             }
                                             className="mt-1"
@@ -645,7 +638,7 @@ const InstitutionIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `institutions.${instIdx}.year_established`
+                                                `institutions.${instIdx}.year_established`
                                                 ]
                                             }
                                             className="mt-1"
@@ -682,7 +675,7 @@ const InstitutionIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `institutions.${instIdx}.status`
+                                                `institutions.${instIdx}.status`
                                                 ]
                                             }
                                             className="mt-1"

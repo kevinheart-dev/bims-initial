@@ -131,12 +131,6 @@ export default function Index({ summons, queryParams, incident_types }) {
     }, [hasActiveFilter]);
 
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
-    const toggleShowFilters = () => setShowFilters((prev) => !prev);
-
-    const handlePrint = () => {
-        window.print();
-    };
-
     const columnRenderers = {
         id: (summon) => summon.id,
 
@@ -371,7 +365,6 @@ export default function Index({ summons, queryParams, incident_types }) {
                                     allColumns={allColumns}
                                     visibleColumns={visibleColumns}
                                     setVisibleColumns={setVisibleColumns}
-                                    onPrint={handlePrint}
                                     showFilters={showFilters}
                                     toggleShowFilters={() =>
                                         setShowFilters((prev) => !prev)
@@ -450,11 +443,8 @@ export default function Index({ summons, queryParams, incident_types }) {
                             passedData={summons}
                             columnRenderers={columnRenderers}
                             allColumns={allColumns}
-                            is_paginated={isPaginated}
-                            toggleShowAll={() => setShowAll(!showAll)}
-                            showAll={showAll}
                             visibleColumns={visibleColumns}
-                            setVisibleColumns={setVisibleColumns}
+                            showTotal={true}
                         ></DynamicTable>
                         <SidebarModal
                             isOpen={isModalOpen}

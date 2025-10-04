@@ -166,12 +166,12 @@ const FacilityIndex = () => {
             <span className="text-sm text-gray-500">
                 {row.created_at
                     ? new Date(row.created_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                      })
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    })
                     : "—"}
             </span>
         ),
@@ -180,12 +180,12 @@ const FacilityIndex = () => {
             <span className="text-sm text-gray-500">
                 {row.updated_at
                     ? new Date(row.updated_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                      })
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    })
                     : "—"}
             </span>
         ),
@@ -239,9 +239,6 @@ const FacilityIndex = () => {
         clearErrors();
     };
 
-    const handlePrint = () => {
-        window.print();
-    };
     const handleFacilityFieldChange = (value, facIdx, field) => {
         setData((prevData) => {
             const updated = [...prevData.facilities];
@@ -403,7 +400,6 @@ const FacilityIndex = () => {
                             allColumns={allColumns}
                             visibleColumns={visibleColumns}
                             setVisibleColumns={setVisibleColumns}
-                            onPrint={handlePrint}
                             showFilters={showFilters}
                             toggleShowFilters={() =>
                                 setShowFilters((prev) => !prev)
@@ -469,7 +465,7 @@ const FacilityIndex = () => {
                         allColumns={allColumns}
                         columnRenderers={columnRenderers}
                         visibleColumns={visibleColumns}
-                        setVisibleColumns={setVisibleColumns}
+                        showTotal={true}
                     />
                 </div>
             </div>
@@ -543,7 +539,7 @@ const FacilityIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `facilities.${facIdx}.facility_image`
+                                                `facilities.${facIdx}.facility_image`
                                                 ]
                                             }
                                             className="mt-2"
@@ -568,7 +564,7 @@ const FacilityIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `facilities.${facIdx}.name`
+                                                `facilities.${facIdx}.name`
                                                 ]
                                             }
                                             className="mt-1"
@@ -622,7 +618,7 @@ const FacilityIndex = () => {
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `facilities.${facIdx}.facility_type`
+                                                        `facilities.${facIdx}.facility_type`
                                                         ]
                                                     }
                                                     className="mt-1"
@@ -649,7 +645,7 @@ const FacilityIndex = () => {
                                                 <InputError
                                                     message={
                                                         errors[
-                                                            `facilities.${facIdx}.quantity`
+                                                        `facilities.${facIdx}.quantity`
                                                         ]
                                                     }
                                                     className="mt-1"

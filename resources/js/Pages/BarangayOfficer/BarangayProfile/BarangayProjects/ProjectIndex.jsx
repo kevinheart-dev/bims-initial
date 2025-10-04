@@ -248,9 +248,6 @@ const ProjectIndex = () => {
             />
         ),
     };
-    const handlePrint = () => {
-        window.print();
-    };
 
     // add
     const handleAddProject = () => {
@@ -452,7 +449,6 @@ const ProjectIndex = () => {
                             allColumns={allColumns}
                             visibleColumns={visibleColumns}
                             setVisibleColumns={setVisibleColumns}
-                            onPrint={handlePrint}
                             showFilters={showFilters}
                             toggleShowFilters={() =>
                                 setShowFilters((prev) => !prev)
@@ -525,7 +521,7 @@ const ProjectIndex = () => {
                         allColumns={allColumns}
                         columnRenderers={columnRenderers}
                         visibleColumns={visibleColumns}
-                        setVisibleColumns={setVisibleColumns}
+                        showTotal={true}
                     />
                 </div>
             </div>
@@ -599,7 +595,7 @@ const ProjectIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `projects.${projIdx}.project_image`
+                                                `projects.${projIdx}.project_image`
                                                 ]
                                             }
                                             className="mt-2"
@@ -623,7 +619,7 @@ const ProjectIndex = () => {
                                             <InputError
                                                 message={
                                                     errors[
-                                                        `projects.${projIdx}.title`
+                                                    `projects.${projIdx}.title`
                                                     ]
                                                 }
                                                 className="mt-1"
@@ -670,7 +666,7 @@ const ProjectIndex = () => {
                                             <InputError
                                                 message={
                                                     errors[
-                                                        `projects.${projIdx}.category`
+                                                    `projects.${projIdx}.category`
                                                     ]
                                                 }
                                                 className="mt-1"
@@ -696,7 +692,7 @@ const ProjectIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `projects.${projIdx}.description`
+                                                `projects.${projIdx}.description`
                                                 ]
                                             }
                                             className="mt-1"
@@ -737,7 +733,7 @@ const ProjectIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `projects.${projIdx}.status`
+                                                `projects.${projIdx}.status`
                                                 ]
                                             }
                                             className="mt-1"
@@ -765,7 +761,7 @@ const ProjectIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `projects.${projIdx}.responsible_institution`
+                                                `projects.${projIdx}.responsible_institution`
                                                 ]
                                             }
                                             className="mt-1"
@@ -792,7 +788,7 @@ const ProjectIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `projects.${projIdx}.budget`
+                                                `projects.${projIdx}.budget`
                                                 ]
                                             }
                                             className="mt-1"
@@ -817,7 +813,7 @@ const ProjectIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `projects.${projIdx}.funding_source`
+                                                `projects.${projIdx}.funding_source`
                                                 ]
                                             }
                                             className="mt-1"
@@ -842,7 +838,7 @@ const ProjectIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `projects.${projIdx}.start_date`
+                                                `projects.${projIdx}.start_date`
                                                 ]
                                             }
                                             className="mt-1"
@@ -867,7 +863,7 @@ const ProjectIndex = () => {
                                         <InputError
                                             message={
                                                 errors[
-                                                    `projects.${projIdx}.end_date`
+                                                `projects.${projIdx}.end_date`
                                                 ]
                                             }
                                             className="mt-1"

@@ -133,20 +133,13 @@ export default function Index({ families, queryParams = null, puroks }) {
     }, [hasActiveFilter]);
 
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
-    const toggleShowFilters = () => setShowFilters((prev) => !prev);
-
-    const handlePrint = () => {
-        window.print();
-    };
     const columnRenderers = {
         family_id: (row) => row.id,
         name: (row) =>
             row.latest_head
-                ? `${row.latest_head.firstname ?? ""} ${
-                      row.latest_head.middlename ?? ""
-                  } ${row.latest_head.lastname ?? ""} ${
-                      row.latest_head.suffix ?? ""
-                  }`
+                ? `${row.latest_head.firstname ?? ""} ${row.latest_head.middlename ?? ""
+                } ${row.latest_head.lastname ?? ""} ${row.latest_head.suffix ?? ""
+                }`
                 : "Unknown",
         is_household_head: (row) =>
             row.is_household_head ? (
@@ -180,9 +173,8 @@ export default function Index({ families, queryParams = null, puroks }) {
 
             return bracketText ? (
                 <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                        bracketMeta?.className ?? ""
-                    }`}
+                    className={`px-2 py-1 rounded text-xs font-medium ${bracketMeta?.className ?? ""
+                        }`}
                 >
                     {bracketText}
                 </span>
@@ -268,9 +260,8 @@ export default function Index({ families, queryParams = null, puroks }) {
     };
 
     const memberList = members.map((mem) => ({
-        label: `${mem.firstname} ${mem.middlename} ${mem.lastname} ${
-            mem.suffix ?? ""
-        }`,
+        label: `${mem.firstname} ${mem.middlename} ${mem.lastname} ${mem.suffix ?? ""
+            }`,
         value: mem.id.toString(),
     }));
 
@@ -312,8 +303,7 @@ export default function Index({ families, queryParams = null, puroks }) {
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename} ${
-                    resident.lastname
+                `${resident.firstname} ${resident.middlename} ${resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("purok_number", resident.purok_number);
@@ -331,9 +321,8 @@ export default function Index({ families, queryParams = null, puroks }) {
             updatedMembers[index] = {
                 ...updatedMembers[index],
                 resident_id: selected.id ?? "",
-                resident_name: `${selected.firstname ?? ""} ${
-                    selected.middlename ?? ""
-                } ${selected.lastname ?? ""} ${selected.suffix ?? ""}`,
+                resident_name: `${selected.firstname ?? ""} ${selected.middlename ?? ""
+                    } ${selected.lastname ?? ""} ${selected.suffix ?? ""}`,
                 purok_number: selected.purok_number ?? "",
                 birthdate: selected.birthdate ?? "",
                 resident_image: selected.image ?? null,
@@ -386,9 +375,8 @@ export default function Index({ families, queryParams = null, puroks }) {
 
             setData({
                 resident_id: latestHead?.id ?? null,
-                resident_name: `${latestHead?.firstname} ${
-                    latestHead?.middlename ? latestHead?.middlename + " " : ""
-                }${latestHead?.lastname} ${latestHead?.suffix}`.trim(),
+                resident_name: `${latestHead?.firstname} ${latestHead?.middlename ? latestHead?.middlename + " " : ""
+                    }${latestHead?.lastname} ${latestHead?.suffix}`.trim(),
                 resident_image: latestHead?.resident_picture_path,
                 birthdate: latestHead?.birthdate ?? null,
                 purok_number: latestHead?.purok_number ?? null,
@@ -402,9 +390,8 @@ export default function Index({ families, queryParams = null, puroks }) {
                             m.household_residents?.[0] || {};
                         return {
                             resident_id: m.id,
-                            resident_name: `${m.firstname} ${
-                                m.middlename ? m.middlename + " " : ""
-                            }${m.lastname} ${m.suffix}`.trim(),
+                            resident_name: `${m.firstname} ${m.middlename ? m.middlename + " " : ""
+                                }${m.lastname} ${m.suffix}`.trim(),
                             resident_image: m.resident_picture_path,
                             birthdate: m.birthdate,
                             purok_number: m.purok_number,
@@ -493,7 +480,6 @@ export default function Index({ families, queryParams = null, puroks }) {
                                     allColumns={allColumns}
                                     visibleColumns={visibleColumns}
                                     setVisibleColumns={setVisibleColumns}
-                                    onPrint={handlePrint}
                                     showFilters={showFilters}
                                     toggleShowFilters={() =>
                                         setShowFilters((prev) => !prev)
@@ -810,7 +796,7 @@ export default function Index({ families, queryParams = null, puroks }) {
                                                     <InputError
                                                         message={
                                                             errors[
-                                                                `members.${memberIndex}.relationship_to_head`
+                                                            `members.${memberIndex}.relationship_to_head`
                                                             ]
                                                         }
                                                         className="mt-1"
@@ -847,7 +833,7 @@ export default function Index({ families, queryParams = null, puroks }) {
                                                     <InputError
                                                         message={
                                                             errors[
-                                                                `members.${memberIndex}.household_position`
+                                                            `members.${memberIndex}.household_position`
                                                             ]
                                                         }
                                                         className="mt-1"

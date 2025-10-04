@@ -116,16 +116,15 @@ const BarangayProfileMain = () => {
                                 "inventories",
                                 "roads",
                                 "officials",
-                                "disaster",
+                                // "disaster",
                             ].map((tab) => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`py-2 px-1 border-b-2 ${
-                                        activeTab === tab
+                                    className={`py-2 px-1 border-b-2 ${activeTab === tab
                                             ? "border-blue-600 text-blue-700"
                                             : "border-transparent text-gray-500"
-                                    }`}
+                                        }`}
                                 >
                                     {tab.charAt(0).toUpperCase() +
                                         tab.slice(1).replace(/([A-Z])/g, " $1")}
@@ -156,9 +155,9 @@ const BarangayProfileMain = () => {
                             {activeTab === "inventories" && <InventoryIndex />}
                             {activeTab === "roads" && <RoadIndex />}
                             {activeTab === "officials" && <BarangayOfficials />}
-                            {activeTab === "disaster" && (
+                            {/* {activeTab === "disaster" && (
                                 <p>Disaster content goes here.</p>
-                            )}
+                            )} */}
                         </Suspense>
                     </div>
                 </div>

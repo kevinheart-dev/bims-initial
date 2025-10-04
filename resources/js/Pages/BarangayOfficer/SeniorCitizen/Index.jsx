@@ -210,8 +210,7 @@ export default function Index({
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename ?? ""} ${
-                    resident.lastname ?? ""
+                `${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname ?? ""
                 } ${resident.suffix ?? ""}`
             );
             setData("purok_number", resident.purok_number);
@@ -270,8 +269,7 @@ export default function Index({
                 setData("resident_id", resident.id);
                 setData(
                     "resident_name",
-                    `${resident.firstname} ${resident.middlename ?? ""} ${
-                        resident.lastname ?? ""
+                    `${resident.firstname} ${resident.middlename ?? ""} ${resident.lastname ?? ""
                     } ${resident.suffix ?? ""}`
                 );
                 setData("purok_number", resident.purok_number);
@@ -365,7 +363,7 @@ export default function Index({
                 resident.seniorcitizen == null ? (
                     <span className="text-yellow-600 font-medium">Pending</span>
                 ) : resident.seniorcitizen.is_pensioner?.toLowerCase() ===
-                  "yes" ? (
+                    "yes" ? (
                     <span className="text-green-600 font-medium">Yes</span>
                 ) : (
                     <span className="text-gray-500">No</span>
@@ -500,7 +498,6 @@ export default function Index({
                                     allColumns={allColumns}
                                     visibleColumns={visibleColumns}
                                     setVisibleColumns={setVisibleColumns}
-                                    onPrint={() => window.print()}
                                     showFilters={showFilters}
                                     toggleShowFilters={() =>
                                         setShowFilters((prev) => !prev)
@@ -612,10 +609,10 @@ export default function Index({
                     registerSenior
                         ? "Register Senior Citizen"
                         : seniorDetails
-                        ? "Edit Senior Citizen Details"
-                        : selectedResident
-                        ? "Resident Details"
-                        : ""
+                            ? "Edit Senior Citizen Details"
+                            : selectedResident
+                                ? "Resident Details"
+                                : ""
                 }
             >
                 {selectedResident && (

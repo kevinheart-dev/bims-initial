@@ -1,83 +1,57 @@
-import { useState, useEffect } from "react";
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
-const COLORS = ["#4A90E2", "#E94E77"]; // Blue = PWD, Pink = Non-PWD
+const COLORS = ["#3b82f6", "#e5e7eb"];
 
-const useWindowWidth = () => {
-    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+function PwdHalfPie({ pwdDistribution }) {
+    const total = (pwdDistribution.PWD || 0) + (pwdDistribution.nonPWD || 0);
+    const percentage = total > 0 ? ((pwdDistribution.PWD || 0) / total) * 100 : 0;
 
-    useEffect(() => {
-        const handleResize = () => setWindowWidth(window.innerWidth);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    return windowWidth;
-};
-
-function PwdPieChart({ pwdDistribution }) {
     const data = [
-        { name: "PWD", value: pwdDistribution.PWD || 0 },
-        { name: "Non-PWD", value: pwdDistribution.nonPWD || 0 },
+        { name: "PWD", value: percentage },
+        { name: "Remaining", value: 100 - percentage },
     ];
 
-    const width = useWindowWidth();
-    const isMobile = width < 768;
-
-    const renderLegend = (props) => {
-        const { payload } = props;
-        return (
-            <ul className={`flex ${isMobile ? 'flex-row justify-center flex-wrap gap-x-6' : 'flex-col gap-y-4'}`}>
-                {payload.map((entry, index) => (
-                    <li key={`item-${index}`} className="flex items-center">
-                        <span
-                            className="inline-block w-4 h-4 rounded-full mr-3"
-                            style={{ backgroundColor: entry.color }}
-                        ></span>
-                        <span className="w-24 inline-block text-lg text-gray-600">{entry.value}</span>
-                        <span className="font-bold text-lg text-gray-800 ml-1">
-                            {entry.payload.value}
-                        </span>
-                    </li>
-                ))}
-            </ul>
-        );
-    };
-
     return (
-        <ResponsiveContainer width="100%" height={isMobile ? 220 : 150}>
-            <PieChart>
-                <Pie
-                    data={data}
-                    cx={isMobile ? "50%" : "33%"}
-                    cy="50%"
-                    outerRadius={isMobile ? 60 : 70}
-                    paddingAngle={0}
-                    dataKey="value"
-                >
-                    {data.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                </Pie>
-                <Tooltip
-                    contentStyle={{
-                        background: "rgba(255, 255, 255, 0.8)",
-                        backdropFilter: "blur(4px)",
-                        border: "1px solid rgba(209, 213, 219, 0.5)",
-                        borderRadius: "0.75rem",
-                        boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
-                    }}
-                />
-                <Legend
-                    layout={isMobile ? "horizontal" : "vertical"}
-                    align={isMobile ? "center" : "right"}
-                    verticalAlign={isMobile ? "bottom" : "middle"}
-                    content={renderLegend}
-                    wrapperStyle={isMobile ? { bottom: 0 } : { right: 20 }}
-                />
-            </PieChart>
-        </ResponsiveContainer>
+        <div className="flex items-center justify-between bg-white rounded-2xl shadow-md p-4 w-full max-w-sm">
+            <div className="flex flex-col justify-center">
+                <h3 className="text-gray-600 font-semibold text-sm">PWD Distribution</h3>
+                <p className="text-2xl font-bold text-gray-900 mt-1">{pwdDistribution.PWD || 0}</p>
+                <p className="text-xs text-gray-400">out of {total} residents</p>
+            </div>
+
+            {/* Right Side Half Pie */}
+            <div className="w-28 h-20 relative">
+                <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                        <Pie
+                            data={data}
+                            dataKey="value"
+                            startAngle={180}
+                            endAngle={0}
+                            innerRadius={40}
+                            outerRadius={60}
+                            stroke="none"
+                        >
+                            {data.map((entry, index) => (
+                                <Cell
+                                    key={`cell-${index}`}
+                                    fill={COLORS[index % COLORS.length]}
+                                    cornerRadius={50}
+                                />
+                            ))}
+                        </Pie>
+                    </PieChart>
+                </ResponsiveContainer>
+
+                {/* Percentage inside chart */}
+                <div className="absolute inset-0 flex items-center justify-center -mt-4">
+                    <p className="text-sm font-semibold text-gray-800">
+                        {percentage.toFixed(1)}%
+                    </p>
+                </div>
+            </div>
+        </div>
     );
 }
 
-export default PwdPieChart;
+export default PwdHalfPie;

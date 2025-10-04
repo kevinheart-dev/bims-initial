@@ -1,13 +1,7 @@
 import { useState, useEffect } from "react";
-import {
-    PieChart,
-    Pie,
-    Cell,
-    Tooltip,
-    ResponsiveContainer,
-} from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
-const COLORS = ["#1e3a8a", "#2563eb", "#3b82f6", "#60a5fa", "#93c5fd"];
+const COLORS = ["#1e3a8a", "#2563eb", "#3b82f6", "#60a5fa", "#93c5fd", "#bfdbfe"]; // blue shades
 
 const useWindowWidth = () => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -21,44 +15,35 @@ const useWindowWidth = () => {
     return windowWidth;
 };
 
-function GenderDonutChart({ genderDistribution, sexDistribution, view }) {
-    const genderData = [
-        { name: "LGBTQ", value: genderDistribution["lgbtq"] || 0 },
-        { name: "Female", value: genderDistribution["female"] || 0 },
-        { name: "Male", value: genderDistribution["male"] || 0 },
-    ];
-
-    const sexData = [
-        { name: "Male", value: sexDistribution["male"] || 0 },
-        { name: "Female", value: sexDistribution["female"] || 0 },
-    ];
-
-    const activeData = view === "sex" ? sexData : genderData;
+function CivilStatus({ civilStatusDistribution }) {
+    // Convert { Single: 20, Married: 30 } → [{name: 'Single', value: 20}, ...]
+    const chartData = Object.entries(civilStatusDistribution).map(([key, value]) => ({
+        name: key,
+        value: value,
+    }));
 
     const width = useWindowWidth();
     const isMobile = width < 768;
 
-    const total = activeData.reduce((sum, item) => sum + item.value, 0);
+    const total = chartData.reduce((acc, curr) => acc + curr.value, 0);
 
     return (
-        <div className="w-full flex flex-col items-center relative">
+        <div className="w-full flex flex-col items-center relative rounded-2xl p-6">
+
             {/* Donut Chart */}
-            <ResponsiveContainer width="100%" height={isMobile ? 250 : 220}>
+            <ResponsiveContainer width="100%" height={isMobile ? 260 : 240}>
                 <PieChart>
                     <Pie
-                        data={activeData}
+                        data={chartData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={60}
-                        outerRadius={90}
-                        paddingAngle={4}
+                        innerRadius={70}
+                        outerRadius={100}
+                        paddingAngle={3}
                         dataKey="value"
                     >
-                        {activeData.map((entry, index) => (
-                            <Cell
-                                key={`cell-${index}`}
-                                fill={COLORS[index % COLORS.length]}
-                            />
+                        {chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                     </Pie>
                     <Tooltip
@@ -76,14 +61,14 @@ function GenderDonutChart({ genderDistribution, sexDistribution, view }) {
                 </PieChart>
             </ResponsiveContainer>
 
-            {/* Center Number only */}
+            {/* Center total only */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <p className="text-xl font-bold text-gray-800">{total}</p>
             </div>
 
             {/* Legend below chart */}
             <div className="mt-4 w-full">
-                {activeData.map((entry, index) => (
+                {chartData.map((entry, index) => (
                     <div
                         key={index}
                         className="flex items-center justify-between text-sm text-gray-700 mb-2"
@@ -91,7 +76,7 @@ function GenderDonutChart({ genderDistribution, sexDistribution, view }) {
                         <div className="flex items-center">
                             <span
                                 className="inline-block w-4 h-4 rounded-full mr-2"
-                                style={{ backgroundColor: COLORS[index] }}
+                                style={{ backgroundColor: COLORS[index % COLORS.length] }}
                             ></span>
                             <span>{entry.name}</span>
                         </div>
@@ -105,4 +90,4 @@ function GenderDonutChart({ genderDistribution, sexDistribution, view }) {
     );
 }
 
-export default GenderDonutChart;
+export default CivilStatus;

@@ -124,12 +124,6 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
     }, [hasActiveFilter]);
 
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
-    const toggleShowFilters = () => setShowFilters((prev) => !prev);
-
-    const handlePrint = () => {
-        window.print();
-    };
-
     const columnRenderers = {
         id: (row) => (
             <span className="text-xs font-semibold text-gray-500">
@@ -456,7 +450,6 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
                                         allColumns={allColumns}
                                         visibleColumns={visibleColumns}
                                         setVisibleColumns={setVisibleColumns}
-                                        onPrint={handlePrint}
                                         showFilters={showFilters}
                                         toggleShowFilters={() =>
                                             setShowFilters((prev) => !prev)

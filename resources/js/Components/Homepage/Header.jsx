@@ -24,7 +24,7 @@ const Header = ({ auth }) => {
                     />
                 </a>
                 <h1 className="text-[#004aad] font-montserrat text-xl font-black">
-                    iBMIS
+                    iBIMS
                 </h1>
             </div>
 
