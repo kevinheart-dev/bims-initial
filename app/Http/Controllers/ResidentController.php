@@ -53,11 +53,12 @@ class ResidentController extends Controller
             ->with([
                 'socialwelfareprofile',
                 'occupations' => function ($q) {
-                    $q->latest('started_at'); // ensures newest occupation is first
+                    $q->latest('started_at');
                 },
                 'livelihoods',
             ])
-            ->where('barangay_id', $brgy_id)->whereNull("date_of_death");
+            ->where('barangay_id', $brgy_id)
+            ->where('is_deceased', false);
 
         // ✅ get puroks once
         $puroks = Purok::where('barangay_id', $brgy_id)
@@ -2173,7 +2174,8 @@ class ResidentController extends Controller
                 },
                 'livelihoods', // keep full relation
             ])
-            ->where('barangay_id', $brgy_id)->whereNull("date_of_death");
+            ->where('barangay_id', $brgy_id)
+            ->where('is_deceased', false);
 
         // ✅ filters
         if (request()->filled('purok') && request('purok') !== 'All') {

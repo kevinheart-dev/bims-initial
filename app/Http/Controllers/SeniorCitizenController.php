@@ -37,6 +37,7 @@ class SeniorCitizenController extends Controller
                 'sex',
             ])
             ->where('barangay_id', $brgy_id)
+            ->where('is_deceased', false)
             ->whereDate('birthdate', '<=', now()->subYears(60))
             ->with(['seniorcitizen:id,resident_id,osca_id_number,is_pensioner,pension_type,living_alone']);
 

@@ -20,12 +20,12 @@ class DashboardController extends Controller
 
         // ✅ exclude dead residents
         $residentCount = Resident::where('barangay_id', $brgy_id)
-            ->whereNull('date_of_death')
+            ->where('is_deceased', false)
             ->count();
 
         // ✅ count senior citizens by age, not by SeniorCitizen table (keeps data consistent)
         $seniorCitizenCount = Resident::where('barangay_id', $brgy_id)
-            ->whereNull('date_of_death')
+            ->where('is_deceased', false)
             ->whereRaw("TIMESTAMPDIFF(YEAR, birthdate, CURDATE()) >= 60")
             ->count();
 
@@ -34,27 +34,27 @@ class DashboardController extends Controller
 
         $genderDistribution = Resident::select('gender')
             ->where('barangay_id', $brgy_id)
-            ->whereNull('date_of_death')
+            ->where('is_deceased', false)
             ->selectRaw('gender, COUNT(*) as count')
             ->groupBy('gender')
             ->pluck('count', 'gender');
 
         $sexDistibution = Resident::select('sex')
             ->where('barangay_id', $brgy_id)
-            ->whereNull('date_of_death')
+            ->where('is_deceased', false)
             ->selectRaw('sex, COUNT(*) as count')
             ->groupBy('sex')
             ->pluck('count', 'sex');
 
         $populationPerPurok = Resident::selectRaw('purok_number, COUNT(*) as count')
             ->where('barangay_id', $brgy_id)
-            ->whereNull('date_of_death')
+            ->where('is_deceased', false)
             ->groupBy('purok_number')
             ->pluck('count', 'purok_number');
 
         $civilStatusDistribution = Resident::select('civil_status')
             ->where('barangay_id', $brgy_id)
-            ->whereNull('date_of_death')
+            ->where('is_deceased', false)
             ->selectRaw('civil_status, COUNT(*) as count')
             ->groupBy('civil_status')
             ->pluck('count', 'civil_status');
@@ -73,7 +73,7 @@ class DashboardController extends Controller
         $ageDistribution = [];
         foreach ($ageGroups as $label => [$min, $max]) {
             $ageDistribution[$label] = Resident::where('barangay_id', $brgy_id)
-                ->whereNull('date_of_death')
+                ->where('is_deceased', false)
                 ->whereRaw("TIMESTAMPDIFF(YEAR, birthdate, CURDATE()) BETWEEN ? AND ?", [$min, $max])
                 ->count();
         }
@@ -88,37 +88,37 @@ class DashboardController extends Controller
         $ageCategory = [];
         foreach ($ageCategories as $label => [$min, $max]) {
             $ageCategory[$label] = Resident::where('barangay_id', $brgy_id)
-                ->whereNull('date_of_death')
+                ->where('is_deceased', false)
                 ->whereRaw("TIMESTAMPDIFF(YEAR, birthdate, CURDATE()) BETWEEN ? AND ?", [$min, $max])
                 ->count();
         }
 
         $pwdDistribution = [
             'PWD' => Resident::where('barangay_id', $brgy_id)
-                ->whereNull('date_of_death')
+                ->where('is_deceased', false)
                 ->whereHas('disabilities')
                 ->count(),
             'nonPWD' => Resident::where('barangay_id', $brgy_id)
-                ->whereNull('date_of_death')
+                ->where('is_deceased', false)
                 ->whereDoesntHave('disabilities')
                 ->count(),
         ];
 
         $employmentStatusDistribution = Resident::select('employment_status')
             ->where('barangay_id', $brgy_id)
-            ->whereNull('date_of_death')
+            ->where('is_deceased', false)
             ->selectRaw('employment_status, COUNT(*) as count')
             ->groupBy('employment_status')
             ->pluck('count', 'employment_status');
 
         $voterDistribution = [
             'Registered Voters' => Resident::where('barangay_id', $brgy_id)
-                ->whereNull('date_of_death')
+                ->where('is_deceased', false)
                 ->where('registered_voter', 1)
                 ->count(),
 
             'Unregistered Voters' => Resident::where('barangay_id', $brgy_id)
-                ->whereNull('date_of_death')
+                ->where('is_deceased', false)
                 ->where('registered_voter', 0)
                 ->count(),
         ];

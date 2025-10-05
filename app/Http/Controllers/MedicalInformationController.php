@@ -25,7 +25,7 @@ class MedicalInformationController extends Controller
                 'resident.disabilities'
             ])
             ->whereHas('resident', function ($q) use ($brgy_id) {
-                $q->where('barangay_id', $brgy_id);
+                $q->where('barangay_id', $brgy_id)->where('is_deceased', false);
             });
 
         // 🔹 Fetch puroks in the barangay

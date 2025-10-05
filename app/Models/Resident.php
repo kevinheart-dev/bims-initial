@@ -37,7 +37,7 @@ class Resident extends Model
         'resident_picture_path',
         'is_pwd',
         'ethnicity',
-        'date_of_death',
+        'is_deceased',
         'household_id',
         'is_household_head',
         'family_id',

@@ -144,7 +144,7 @@ class ResidentFactory extends Factory
             'ethnicity' => $this->faker->randomElement([
                 'Tagalog', 'Ilocano', 'Bisaya', 'Bicolano', 'Kapampangan'
             ]),
-            'date_of_death' => $this->faker->optional(0.25)->dateTimeBetween('-20 years', 'now')?->format('Y-m-d'),
+            'is_deceased' => $this->faker->boolean(20),
             'household_id' => $household->id,
             'is_household_head' => false,
             'family_id' => $randomFamily->id,
