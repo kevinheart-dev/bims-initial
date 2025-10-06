@@ -1,13 +1,6 @@
+import Counter from "@/Components/Counter";
 import { useState, useEffect } from "react";
-import {
-    PieChart,
-    Pie,
-    Cell,
-    Tooltip,
-    ResponsiveContainer,
-} from "recharts";
-
-const COLORS = ["#1e3a8a", "#2563eb", "#3b82f6", "#60a5fa", "#93c5fd"];
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 const useWindowWidth = () => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -40,27 +33,47 @@ function GenderDonutChart({ genderDistribution, sexDistribution, view }) {
 
     const total = activeData.reduce((sum, item) => sum + item.value, 0);
 
+    const BLUE_SHADES = [
+        { start: "#1e3a8a", end: "#3b82f6" },
+        { start: "#1d4ed8", end: "#4f46e5" },
+        { start: "#0ea5e9", end: "#3b82f6" },
+    ];
+
+
     return (
-        <div className="w-full flex flex-col items-center relative">
-            {/* Donut Chart */}
+        <div className="w-full h-[210px] flex flex-col items-center relative">
             <ResponsiveContainer width="100%" height={isMobile ? 250 : 220}>
                 <PieChart>
+                    <defs>
+                        {activeData.map((entry, index) => (
+                            <linearGradient
+                                key={`grad-${index}`}
+                                id={`grad-${index}`}
+                                x1="0%"
+                                y1="0%"
+                                x2="100%"
+                                y2="0%"
+                            >
+                                <stop offset="0%" stopColor={BLUE_SHADES[index].start} />
+                                <stop offset="100%" stopColor={BLUE_SHADES[index].end} />
+                            </linearGradient>
+                        ))}
+                    </defs>
+
                     <Pie
                         data={activeData}
                         cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={90}
-                        paddingAngle={4}
+                        cy="35%"
+                        innerRadius="40%"
+                        outerRadius="70%"
+                        paddingAngle={0}
                         dataKey="value"
                     >
                         {activeData.map((entry, index) => (
-                            <Cell
-                                key={`cell-${index}`}
-                                fill={COLORS[index % COLORS.length]}
-                            />
+                            <Cell key={`cell-${index}`} fill={`url(#grad-${index})`} />
                         ))}
                     </Pie>
+
                     <Tooltip
                         formatter={(value) =>
                             `${value} (${((value / total) * 100).toFixed(1)}%)`
@@ -76,12 +89,13 @@ function GenderDonutChart({ genderDistribution, sexDistribution, view }) {
                 </PieChart>
             </ResponsiveContainer>
 
-            {/* Center Number only */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <p className="text-xl font-bold text-gray-800">{total}</p>
+                <p className="text-2xl font-bold text-gray-800 -translate-y-7">
+                    <Counter end={total} />
+                </p>
             </div>
 
-            {/* Legend below chart */}
+            {/* Legend */}
             <div className="mt-4 w-full">
                 {activeData.map((entry, index) => (
                     <div
@@ -91,7 +105,9 @@ function GenderDonutChart({ genderDistribution, sexDistribution, view }) {
                         <div className="flex items-center">
                             <span
                                 className="inline-block w-4 h-4 rounded-full mr-2"
-                                style={{ backgroundColor: COLORS[index] }}
+                                style={{
+                                    background: `linear-gradient(to right, ${BLUE_SHADES[index].start}, ${BLUE_SHADES[index].end})`,
+                                }}
                             ></span>
                             <span>{entry.name}</span>
                         </div>

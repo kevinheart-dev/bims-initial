@@ -13,7 +13,7 @@ import {
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-white/40 backdrop-blur-md px-4 py-2 shadow-lg rounded-2xl border border-white/40 text-sm text-gray-800 min-w-[140px]">
+            <div className="bg-white px-4 py-2 shadow-lg rounded-2xl border border-gray-200 text-sm text-gray-800 min-w-[140px]">
                 <p className="font-semibold text-gray-700">{`Purok: ${label}`}</p>
                 <p className="font-semibold text-gray-700">
                     Population: <span className="font-bold">{payload[0].value}</span>
@@ -31,28 +31,47 @@ function PopulationPerPurok({ populationPerPurok }) {
     }));
 
     return (
-        <ResponsiveContainer width="100%" height={220}>
-            <BarChart
-                data={data}
-                margin={{ top: 20, right: 20, left: 0, bottom: -10 }}
-            >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                    dataKey="name"
-                    label={{ position: "insideBottom", offset: -5 }}
-                />
-                <YAxis />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="value" fill="#4A90E2" barSize={35} radius={[10, 10, 0, 0]}>
-                    <LabelList
-                        dataKey="value"
-                        position="top"
-                        formatter={(val) => val.toLocaleString()}
-                        style={{ fontSize: '12px', fill: '#4A90E2', fontWeight: 'bold' }}
-                    />
-                </Bar>
-            </BarChart>
-        </ResponsiveContainer>
+        <div className="w-full h-[280px] p-4 flex flex-col">
+            {/* Title */}
+            <h3 className="text-gray-700 font-semibold text-lg mb-4">
+                Population Distribution per Purok
+            </h3>
+
+            {/* Chart */}
+            <div className="flex-1">
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                        data={data}
+                        margin={{ top: 20, right: -10, left: -40, bottom: 10 }}
+                    >
+                        <defs>
+                            <linearGradient id="whiteToBlue" x1="0" y1="1" x2="0" y2="0">
+                                <stop offset="0%" stopColor="#ffffff" stopOpacity={1} />
+                                <stop offset="100%" stopColor="#3B82F6" stopOpacity={1} />
+                            </linearGradient>
+                        </defs>
+
+                        <CartesianGrid strokeDasharray="2 2" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Bar
+                            dataKey="value"
+                            fill="url(#whiteToBlue)"
+                            barSize={50}
+                            radius={[10, 10, 0, 0]}
+                        >
+                            <LabelList
+                                dataKey="value"
+                                position="top"
+                                formatter={(val) => val.toLocaleString()}
+                                style={{ fontSize: '12px', fill: '#1e3a8a', fontWeight: 'bold' }}
+                            />
+                        </Bar>
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
+        </div>
     );
 }
 

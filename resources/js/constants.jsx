@@ -277,13 +277,13 @@ export const EDUCATION_SCHOOL_TYPE = {
 };
 
 export const EDUCATION_LEVEL_TEXT = {
+    no_formal_education: "No Formal Education",
     no_education_yet: "No Education Yet",
     prep_school: "Prep School",
     kindergarten: "Kindergarten",
     tesda: "TESDA",
     junior_high_school: "Junior High School",
     senior_high_school: "Senior High School",
-    no_formal_education: "No Formal Education",
     elementary: "Elementary",
     high_school: "High School",
     college: "College",
