@@ -181,7 +181,7 @@ class DashboardController extends Controller
 
         $ethnicityDistribution = DB::table('residents')
             ->where('barangay_id', $brgy_id)
-            ->whereNull('date_of_death')
+            ->where('is_deceased', false)
             ->selectRaw('IFNULL(NULLIF(ethnicity, ""), "Unknown") AS ethnicity, COUNT(*) AS total')
             ->groupBy('ethnicity')
             ->orderByDesc('total')
@@ -191,7 +191,7 @@ class DashboardController extends Controller
         $fourPsDistribution = DB::table('social_welfare_profiles as swp')
             ->join('residents as r', 'swp.resident_id', '=', 'r.id')
             ->where('swp.barangay_id', $brgy_id)
-            ->whereNull('r.date_of_death')
+            ->where('r.is_deceased', false)
             ->select('swp.is_4ps_beneficiary', DB::raw('COUNT(*) as total'))
             ->groupBy('swp.is_4ps_beneficiary')
             ->pluck('total', 'swp.is_4ps_beneficiary');
@@ -204,7 +204,7 @@ class DashboardController extends Controller
         $soloParentDistribution = DB::table('social_welfare_profiles as swp')
             ->join('residents as r', 'swp.resident_id', '=', 'r.id')
             ->where('swp.barangay_id', $brgy_id)
-            ->whereNull('r.date_of_death')
+            ->where('r.is_deceased', false)
             ->select('swp.is_solo_parent', DB::raw('COUNT(*) as total'))
             ->groupBy('swp.is_solo_parent')
             ->pluck('total', 'swp.is_solo_parent');
