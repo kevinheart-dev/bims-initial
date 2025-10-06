@@ -1,20 +1,10 @@
+import Counter from "@/Components/Counter";
 import React, { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 // Blue shades palette
 const COLORS = ["#1e3a8a", "#2563eb", "#3b82f6", "#60a5fa", "#93c5fd"];
 
-const useWindowWidth = () => {
-    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-
-    useEffect(() => {
-        const handleResize = () => setWindowWidth(window.innerWidth);
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    return windowWidth;
-};
 
 const EmploymentStatus = ({ employmentStatusDistribution }) => {
     // Convert object into array for Recharts
@@ -28,25 +18,18 @@ const EmploymentStatus = ({ employmentStatusDistribution }) => {
     // Calculate total count
     const total = data.reduce((acc, curr) => acc + curr.value, 0);
 
-    const width = useWindowWidth();
-    const isMobile = width < 768;
-
     return (
-        <div className="w-full flex flex-col items-center relative bg-white rounded-2xl p-6 shadow-md">
-            <h3 className="text-lg font-bold text-gray-700 mb-4">
-                Employment Status Distribution
-            </h3>
-
+        <div className="w-full h-[260px] flex flex-col items-center relative ">
             {/* Donut Chart */}
-            <ResponsiveContainer width="100%" height={isMobile ? 260 : 240}>
+            <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                     <Pie
                         data={data}
                         cx="50%"
                         cy="50%"
-                        innerRadius={70}
-                        outerRadius={100}
-                        paddingAngle={3}
+                        innerRadius="60%"
+                        outerRadius="100%"
+                        paddingAngle={0}
                         dataKey="value"
                     >
                         {data.map((entry, index) => (
@@ -71,13 +54,12 @@ const EmploymentStatus = ({ employmentStatusDistribution }) => {
                 </PieChart>
             </ResponsiveContainer>
 
-            {/* Center total only */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <p className="text-xl font-bold text-gray-800">{total}</p>
+                <p className="text-2xl font-bold text-gray-800 -translate-y-11">
+                    <Counter end={total} />
+                </p>
             </div>
-
-            {/* Legend below chart */}
-            <div className="mt-4 w-full">
+            <div className="mt-2 w-full max-h-[100px] overflow-y-auto">
                 {data.map((entry, index) => (
                     <div
                         key={index}
@@ -88,7 +70,9 @@ const EmploymentStatus = ({ employmentStatusDistribution }) => {
                                 className="inline-block w-4 h-4 rounded-full mr-2"
                                 style={{ backgroundColor: COLORS[index % COLORS.length] }}
                             ></span>
-                            <span>{entry.name}</span>
+                            <span>
+                                {index < 2 ? entry.name : entry.name} {/* You can style differently if needed */}
+                            </span>
                         </div>
                         <span className="font-semibold">
                             {entry.value} ({((entry.value / total) * 100).toFixed(2)}%)
@@ -96,6 +80,9 @@ const EmploymentStatus = ({ employmentStatusDistribution }) => {
                     </div>
                 ))}
             </div>
+
+
+
         </div>
     );
 };

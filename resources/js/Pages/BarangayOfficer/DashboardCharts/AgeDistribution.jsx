@@ -13,7 +13,7 @@ import {
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-white/40 backdrop-blur-md px-4 py-2 shadow-lg rounded-2xl border border-white/40 text-sm text-gray-800 min-w-[140px]">
+            <div className="bg-white px-3 py-2 shadow-lg rounded-xl border border-gray-200 text-xs text-gray-800">
                 <p className="font-semibold text-gray-700">{`${label}`}</p>
                 <p className="font-semibold text-gray-700">
                     Count: <span className="font-bold">{payload[0].value}</span>
@@ -41,33 +41,46 @@ const AgeDistribution = ({ ageDistribution }) => {
     }));
 
     return (
-        <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-                layout="vertical"
-                data={data}
-                margin={{ top: 0, right: 20, left: -20, bottom: 10 }}
-            >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                    type="number"
-                    tick={{ fontSize: 10, fill: '#4A90E2', fontWeight: 'bold' }}
-                />
-                <YAxis
-                    dataKey="ageGroup"
-                    type="category"
-                    tick={{ fontSize: 10, fill: '#4A90E2', fontWeight: 'bold' }}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="count" fill="#4A90E2" barSize={20}>
-                    <LabelList
-                        dataKey="count"
-                        position="right"
-                        formatter={(val) => val.toLocaleString()}
-                        style={{ fontSize: '12px', fill: '#4A90E2', fontWeight: 'bold' }}
-                    />
-                </Bar>
-            </BarChart>
-        </ResponsiveContainer>
+        <div className="w-full h-[210px] p-0 flex flex-col">
+
+            <div className="flex-1 w-full">
+                <ResponsiveContainer width="105%" height="110%">
+                    <BarChart
+                        layout="vertical"
+                        data={data}
+                        margin={{ top: 0, right: 20, left: -20, bottom: 5 }}
+                    >
+                        {/* Gradient definition */}
+                        <defs>
+                            <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stopColor="#ffffff" />
+                                <stop offset="100%" stopColor="#4A90E2" />
+                            </linearGradient>
+                        </defs>
+
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis
+                            type="number"
+                            tick={{ fontSize: 10, fill: '#4A90E2', fontWeight: 'bold' }}
+                        />
+                        <YAxis
+                            dataKey="ageGroup"
+                            type="category"
+                            tick={{ fontSize: 10, fill: '#4A90E2', fontWeight: 'bold' }}
+                        />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Bar dataKey="count" fill="url(#barGradient)" barSize={30} radius={[0, 8, 8, 0]}>
+                            <LabelList
+                                dataKey="count"
+                                position="right"
+                                formatter={(val) => val.toLocaleString()}
+                                style={{ fontSize: '11px', fill: '#4A90E2', fontWeight: 'bold' }}
+                            />
+                        </Bar>
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
+        </div>
     );
 };
 
