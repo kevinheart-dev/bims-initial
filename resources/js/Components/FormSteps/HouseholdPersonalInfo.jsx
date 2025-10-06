@@ -8,7 +8,7 @@ import YearDropdown from "../YearDropdown";
 import InputLabel from "../InputLabel";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import SelectField from "../SelectField";
-
+import { v4 as uuidv4 } from "uuid";
 // ✅ Default member structure
 const defaultMember = {
     lastname: "",
@@ -159,15 +159,78 @@ const HouseholdPersonalInfo = ({ barangays }) => {
     };
 
     // Step 4: Update member-level field
+    // const handleMemberChange = (familyIndex, memberIndex, field, value) => {
+    //     const families = [...household.families];
+    //     const member = { ...families[familyIndex].members[memberIndex] };
+    //     member[field] = value;
+
+    //     if (field === "birthdate") member.age = calculateAge(value);
+
+    //     families[familyIndex].members[memberIndex] = member;
+    //     setUserData({ ...userData, household: { ...household, families } });
+    // };
     const handleMemberChange = (familyIndex, memberIndex, field, value) => {
         const families = [...household.families];
         const member = { ...families[familyIndex].members[memberIndex] };
         member[field] = value;
 
-        if (field === "birthdate") member.age = calculateAge(value);
+        if (field === "birthdate") {
+            member.age = calculateAge(value);
+        }
+
+        if (field === "relation_to_household_head") {
+            switch (value) {
+                case "sibling":
+                case "sibling-of-spouse":
+                    // Ensure a unique group key for this sibling
+                    if (!member.siblingGroupKey) {
+                        member.siblingGroupKey = uuidv4();
+                    }
+                    break;
+
+                case "spouse-of-sibling-of-spouse":
+                case "spouse-sibling":
+                    // Inherit group key from the relevant sibling or sibling-of-spouse
+                    const relatedSibling = families[familyIndex].members.find(
+                        (m) =>
+                            ["sibling", "sibling-of-spouse"].includes(
+                                m.relation_to_household_head
+                            )
+                    );
+                    if (relatedSibling) {
+                        member.siblingGroupKey =
+                            relatedSibling.siblingGroupKey || uuidv4();
+                        relatedSibling.siblingGroupKey = member.siblingGroupKey; // ensure shared key
+                    } else if (!member.siblingGroupKey) {
+                        member.siblingGroupKey = uuidv4();
+                    }
+                    break;
+
+                case "niblings":
+                    // Inherit group key from a sibling, sibling-of-spouse, or spouse-sibling
+                    const parent = families[familyIndex].members.find(
+                        (m) =>
+                            [
+                                "sibling",
+                                "sibling-of-spouse",
+                                "spouse-sibling",
+                            ].includes(m.relation_to_household_head) &&
+                            m.siblingGroupKey
+                    );
+                    member.siblingGroupKey =
+                        parent?.siblingGroupKey || uuidv4();
+                    break;
+
+                default:
+                    break;
+            }
+        }
 
         families[familyIndex].members[memberIndex] = member;
-        setUserData({ ...userData, household: { ...household, families } });
+        setUserData({
+            ...userData,
+            household: { ...household, families },
+        });
     };
 
     // ✅ Shared field handler for first member
@@ -1385,62 +1448,101 @@ const HouseholdPersonalInfo = ({ barangays }) => {
                                                                             1
                                                                     }
                                                                 />
-
-                                                                <SelectField
-                                                                    label="Relation to Head"
-                                                                    name="relation_to_household_head"
-                                                                    value={
-                                                                        member.relation_to_household_head
-                                                                    }
-                                                                    items={[
-                                                                        {
-                                                                            label: "Self/Head",
-                                                                            value: "self",
-                                                                        },
-                                                                        {
-                                                                            label: "Spouse",
-                                                                            value: "spouse",
-                                                                        },
-                                                                        {
-                                                                            label: "Child",
-                                                                            value: "child",
-                                                                        },
-                                                                        {
-                                                                            label: "Sibling",
-                                                                            value: "sibling",
-                                                                        },
-                                                                        {
-                                                                            label: "Parent",
-                                                                            value: "parent",
-                                                                        },
-                                                                        {
-                                                                            label: "Parent-in-law",
-                                                                            value: "parent_in_law",
-                                                                        },
-                                                                        {
-                                                                            label: "Grandparent",
-                                                                            value: "grandparent",
-                                                                        },
-                                                                    ]}
-                                                                    onChange={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleMemberChange(
-                                                                            fIndex,
-                                                                            mIndex,
-                                                                            "relation_to_household_head",
+                                                                <div className="grid col-span-2 w-full">
+                                                                    <SelectField
+                                                                        label="Relation to Head"
+                                                                        name="relation_to_household_head"
+                                                                        value={
+                                                                            member.relation_to_household_head
+                                                                        }
+                                                                        items={[
+                                                                            {
+                                                                                label: "Self/Head",
+                                                                                value: "self",
+                                                                                subtitle:
+                                                                                    "The main resident of the household",
+                                                                            },
+                                                                            {
+                                                                                label: "Spouse",
+                                                                                value: "spouse",
+                                                                                subtitle:
+                                                                                    "Legally married partner of the head",
+                                                                            },
+                                                                            {
+                                                                                label: "Child",
+                                                                                value: "child",
+                                                                                subtitle:
+                                                                                    "Son or daughter of the head",
+                                                                            },
+                                                                            {
+                                                                                label: "Sibling",
+                                                                                value: "sibling",
+                                                                                subtitle:
+                                                                                    "Brother or sister of the head",
+                                                                            },
+                                                                            {
+                                                                                label: "Parent",
+                                                                                value: "parent",
+                                                                                subtitle:
+                                                                                    "Father or mother of the head",
+                                                                            },
+                                                                            {
+                                                                                label: "Parent-in-law",
+                                                                                value: "parent_in_law",
+                                                                                subtitle:
+                                                                                    "Parent of the head’s spouse",
+                                                                            },
+                                                                            {
+                                                                                label: "Sibling of Spouse",
+                                                                                value: "sibling-of-spouse",
+                                                                                subtitle:
+                                                                                    "Brother or sister of the spouse",
+                                                                            },
+                                                                            {
+                                                                                label: "Spouse of (Sibling of Spouse)",
+                                                                                value: "spouse-of-sibling-of-spouse",
+                                                                                subtitle:
+                                                                                    "Spouse of your sibling-in-law",
+                                                                            },
+                                                                            {
+                                                                                label: "Spouse of Sibling",
+                                                                                value: "spouse-sibling",
+                                                                                subtitle:
+                                                                                    "Spouse of your sibling",
+                                                                            },
+                                                                            {
+                                                                                label: "Niece/Nephew",
+                                                                                value: "niblings",
+                                                                                subtitle:
+                                                                                    "Child of your sibling or sibling in law",
+                                                                            },
+                                                                            {
+                                                                                label: "Grandparent",
+                                                                                value: "grandparent",
+                                                                                subtitle:
+                                                                                    "Grandfather or grandmother of the head",
+                                                                            },
+                                                                        ]}
+                                                                        onChange={(
                                                                             e
-                                                                                .target
-                                                                                .value
-                                                                        )
-                                                                    }
-                                                                    placeholder="Select type"
-                                                                    required
-                                                                    disabled={
-                                                                        member.is_household_head ===
-                                                                        1
-                                                                    }
-                                                                />
+                                                                        ) =>
+                                                                            handleMemberChange(
+                                                                                fIndex,
+                                                                                mIndex,
+                                                                                "relation_to_household_head",
+                                                                                e
+                                                                                    .target
+                                                                                    .value
+                                                                            )
+                                                                        }
+                                                                        placeholder="Select type"
+                                                                        required
+                                                                        disabled={
+                                                                            member.is_household_head ===
+                                                                            1
+                                                                        }
+                                                                    />
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>

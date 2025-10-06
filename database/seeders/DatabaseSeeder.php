@@ -96,8 +96,8 @@ class DatabaseSeeder extends Seeder
             'is_disabled' => false,
         ])->assignRole($cdrrmoRole);
 
-        //$barangays = Barangay::all();
-        $barangays = Barangay::take(1)->get();
+        $barangays = Barangay::all();
+        //$barangays = Barangay::take(1)->get();
         //  foreach ($barangays->take(2) as $barangay)
         foreach ($barangays as $barangay){
             // Create 7 puroks per barangay

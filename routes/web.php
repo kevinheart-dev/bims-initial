@@ -103,7 +103,8 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin'])->g
     // household
     Route::get('household/getlatesthead/{id}', [HouseholdController::class, 'getLatestHead'])->name('household.latesthead');
     Route::get('household/remove/{id}', [HouseholdController::class, 'remove'])->name('household.remove');
-
+    Route::get('/household/latest-house-number', [HouseholdController::class, 'getLatestHouseNumber'])
+    ->name('household.latestHouseNumber');
 
     // senior
     Route::get('senior_citizen/seniordetails/{id}', [SeniorCitizenController::class, 'seniordetails'])->name('senior_citizen.details');

@@ -144,7 +144,7 @@ class ResidentFactory extends Factory
             'ethnicity' => $this->faker->randomElement([
                 'Tagalog', 'Ilocano', 'Bisaya', 'Bicolano', 'Kapampangan'
             ]),
-            'is_deceased' => $this->faker->boolean(20),
+            'is_deceased' => $this->faker->boolean(15),
             'household_id' => $household->id,
             'is_household_head' => false,
             'family_id' => $randomFamily->id,

@@ -81,6 +81,7 @@ class StoreResidentHouseholdRequest extends FormRequest
             // Members (residents of the household)
             'household.families.*.members' => ['required', 'array', 'min:1'],
             'household.families.*.members.*.resident_image' => ['nullable', 'image', 'max:5120'],
+            'household.families.*.members.*.siblingGroupKey' => ['nullable'],
             'household.families.*.members.*.lastname' => ['required', 'string', 'max:55'],
             'household.families.*.members.*.firstname' => ['required', 'string', 'max:55'],
             'household.families.*.members.*.middlename' => ['nullable', 'string', 'max:55'],
@@ -102,7 +103,7 @@ class StoreResidentHouseholdRequest extends FormRequest
             'household.families.*.members.*.living_alone' => ['nullable', Rule::in([0, 1])],
             'household.families.*.members.*.residency_type' => ['required', Rule::in(['permanent', 'temporary', 'immigrant'])],
             'household.families.*.members.*.residency_date' => ['required', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
-            'household.families.*.members.*.relation_to_household_head' => ['required', Rule::in(['self', 'spouse', 'child', 'sibling', 'parent', 'parent_in_law','grandparent'])],
+            'household.families.*.members.*.relation_to_household_head' => ['required', Rule::in(['self', 'spouse', 'child', 'sibling', 'parent', 'parent_in_law','grandparent', 'spouse-sibling', 'spouse-of-sibling-of-spouse','niblings', 'sibling-of-spouse'])],
             'household.families.*.members.*.registered_voter' => ['required', Rule::in([0, 1])],
             'household.families.*.members.*.registered_barangay' => ['required_if:members.*.registered_voter,1'],
             'household.families.*.members.*.voter_id_number' => ['nullable', 'string', 'max:55'],

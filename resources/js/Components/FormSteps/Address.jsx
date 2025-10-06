@@ -1,12 +1,15 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import InputField from "@/Components/InputField";
 import DropdownInputField from "../DropdownInputField";
 import SelectField from "../SelectField";
+import axios from "axios";
+import useAppUrl from "@/hooks/useAppUrl";
 
 const Address = ({ puroks, streets }) => {
     const { userData, setUserData, errors } = useContext(StepperContext);
-
+    // const [latestHouseNumber, setLatestHouseNumber] = useState(null);
+    const APP_URL = useAppUrl();
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -38,6 +41,35 @@ const Address = ({ puroks, streets }) => {
         label: street.street_name,
         value: street.id.toString(),
     }));
+
+    useEffect(() => {
+        const fetchLatestHouseNumber = async () => {
+            try {
+                const response = await axios.get(
+                    `${APP_URL}/household/latest-house-number`
+                );
+                if (response.data.success) {
+                    const latest = response.data.house_number;
+
+                    // If no housenumber is set yet, auto-fill it
+                    setUserData((prev) => ({
+                        ...prev,
+                        housenumber: prev.housenumber || latest,
+                    }));
+                } else {
+                    toast.error("Failed to fetch latest house number");
+                }
+            } catch (error) {
+                console.error("Error fetching house number:", error);
+                toast.error("Error fetching latest house number", {
+                    description: error.message,
+                });
+            }
+        };
+
+        fetchLatestHouseNumber();
+    }, []);
+
     return (
         <div>
             <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-1">
@@ -63,6 +95,7 @@ const Address = ({ puroks, streets }) => {
                         </p>
                     )}
                 </div>
+
                 <div>
                     <DropdownInputField
                         type="text"
