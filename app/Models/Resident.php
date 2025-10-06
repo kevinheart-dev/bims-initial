@@ -37,7 +37,7 @@ class Resident extends Model
         'resident_picture_path',
         'is_pwd',
         'ethnicity',
-        'date_of_death',
+        'is_deceased',
         'household_id',
         'is_household_head',
         'family_id',
@@ -60,13 +60,34 @@ class Resident extends Model
     }
 
     // Siblings (Find other residents who share the same parents)
+    // public function siblings()
+    // {
+    //     return $this->parents()->with('children')->get()
+    //         ->flatMap(fn($parent) => $parent->children) // Get all children of parents
+    //         ->unique('id') // Remove duplicates
+    //         ->reject(fn($sibling) => $sibling->id === $this->id) // Exclude self
+    //         ->values(); // Reset array keys
+    // }
+
     public function siblings()
     {
-        return $this->parents()->with('children')->get()
-            ->flatMap(fn($parent) => $parent->children) // Get all children of parents
-            ->unique('id') // Remove duplicates
-            ->reject(fn($sibling) => $sibling->id === $this->id) // Exclude self
-            ->values(); // Reset array keys
+        // First, check for direct sibling relationships
+        $directSiblings = $this->belongsToMany(Resident::class, 'family_relations', 'resident_id', 'related_to')
+            ->wherePivot('relationship', 'sibling')
+            ->get();
+
+        if ($directSiblings->isNotEmpty()) {
+            return $directSiblings;
+        }
+
+        // Fallback: infer siblings via shared parents
+        $parentSiblings = $this->parents()->with('children')->get()
+            ->flatMap(fn($parent) => $parent->children)
+            ->unique('id')
+            ->reject(fn($sibling) => $sibling->id === $this->id)
+            ->values();
+
+        return $parentSiblings;
     }
 
     // Spouse Relationship

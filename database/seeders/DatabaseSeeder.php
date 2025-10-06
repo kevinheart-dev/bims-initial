@@ -11,6 +11,7 @@ use App\Models\BarangayOfficialTerm;
 use App\Models\BlotterReport;
 use App\Models\CaseParticipant;
 use App\Models\ChildHealthMonitoringRecord;
+use App\Models\Deceased;
 use App\Models\Designation;
 use App\Models\Disability;
 use App\Models\DisasterRisk;
@@ -95,10 +96,10 @@ class DatabaseSeeder extends Seeder
             'is_disabled' => false,
         ])->assignRole($cdrrmoRole);
 
-        // $barangays = Barangay::all();
-        $barangays = Barangay::take(5)->get();
-
-        foreach ($barangays->take(2) as $barangay){
+        $barangays = Barangay::all();
+        //$barangays = Barangay::take(1)->get();
+        //  foreach ($barangays->take(2) as $barangay)
+        foreach ($barangays as $barangay){
             // Create 7 puroks per barangay
             $puroks = []; // Collect all created Puroks
 
@@ -149,7 +150,7 @@ class DatabaseSeeder extends Seeder
             ]);
 
             // Create households and families
-            Household::factory(20)
+            Household::factory(100)
                 ->for($barangay)
                 ->has(Livestock::factory()->count(rand(0, 5)), 'livestocks')
                 ->has(HouseholdToilet::factory()->count(rand(1, 2)), 'toilets')
@@ -158,10 +159,10 @@ class DatabaseSeeder extends Seeder
                 ->has(HouseholdWaterSource::factory()->count(rand(1, 3)), 'waterSourceTypes')
                 ->create();
 
-            Family::factory(25)->create(['barangay_id' => $barangay->id]);
+            Family::factory(125)->create(['barangay_id' => $barangay->id]);
 
             // Create additional residents (reduce to 50 per barangay for testing)
-            $residents = Resident::factory(45)->create(['barangay_id' => $barangay->id]);
+            $residents = Resident::factory(245)->create(['barangay_id' => $barangay->id]);
             foreach ($residents as $resident) {
                 // Each resident can have 1–3 occupations
                 Occupation::factory(rand(1, 3))->create([
@@ -224,6 +225,13 @@ class DatabaseSeeder extends Seeder
                 if ($resident->birthdate >= now()->subYears(5)) {
                     ChildHealthMonitoringRecord::factory(rand(1, 3))->create(['resident_id' => $resident->id]);
                 }
+
+                if (!empty($resident->is_deceased) && $resident->is_deceased == 1) {
+                    Deceased::factory()->create([
+                        'resident_id' => $resident->id,
+                    ]);
+                }
+
             }
             Resident::where('barangay_id', $barangay->id)
                 ->orderBy('household_id')

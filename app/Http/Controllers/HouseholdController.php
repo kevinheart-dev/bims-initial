@@ -715,4 +715,23 @@ class HouseholdController extends Controller
             );
         }
     }
+
+    public function getLatestHouseNumber()
+    {
+        $barangayId = Auth()->user()->barangay_id;
+        try {
+            $latestHouse = Household::orderBy('house_number', 'desc')->where('barangay_id', $barangayId)->first();
+
+            return response()->json([
+                'success' => true,
+                'house_number' => $latestHouse ? $latestHouse->house_number : null,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Could not fetch latest house number',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

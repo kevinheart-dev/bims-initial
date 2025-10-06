@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreDeceasedRequest;
+use App\Http\Requests\UpdateDeceasedRequest;
+use App\Models\Deceased;
 use App\Models\Purok;
 use App\Models\Resident;
 use Illuminate\Http\Request;
@@ -11,26 +14,24 @@ class DeathController extends Controller
 {
     public function index()
     {
-        $brgy_id = auth()->user()->barangay_id;
+        $brgyId = auth()->user()->barangay_id;
 
-        $query = Resident::query()
-            ->select([
-                'id',
-                'firstname',
-                'lastname',
-                'middlename',
-                'suffix',
-                'date_of_death',
-                'birthdate',
-                'purok_number',
-                'sex',
-            ])
-            ->where('barangay_id', $brgy_id)
-            ->whereNotNull("date_of_death");
+        // Capture filters once
+        $search   = request('name');
+        $purok    = request('purok');
+        $sex      = request('sex');
+        $deathDate = request('date_of_death');
 
-        if (request('name')) {
-            $search = request('name');
-            $query->where(function ($q) use ($search) {
+        // Main deceased query
+        $query = Deceased::query()
+            ->with(['resident:id,firstname,lastname,middlename,suffix,sex,purok_number,birthdate,resident_picture_path'])
+            ->whereHas('resident', function ($q) use ($brgyId) {
+                $q->where('barangay_id', $brgyId);
+            });
+
+        // 🔎 Search filter
+        if (!empty($search)) {
+            $query->whereHas('resident', function ($q) use ($search) {
                 $q->where('firstname', 'like', "%{$search}%")
                     ->orWhere('lastname', 'like', "%{$search}%")
                     ->orWhere('middlename', 'like', "%{$search}%")
@@ -41,43 +42,40 @@ class DeathController extends Controller
             });
         }
 
-        // ✅ Filters
-        if (request()->filled('purok') && request('purok') !== 'All') {
-            $query->where('purok_number', request('purok'));
+        // 🏡 Purok filter
+        if (!empty($purok) && $purok !== 'All') {
+            $query->whereHas('resident', fn($q) => $q->where('purok_number', $purok));
         }
 
-        if (request()->filled('sex') && request('sex') !== 'All') {
-            $query->where('sex', request('sex'));
+        // 🚻 Sex filter
+        if (!empty($sex) && $sex !== 'All') {
+            $query->whereHas('resident', fn($q) => $q->where('sex', $sex));
         }
 
-        if (request()->filled('date_of_death')) {
-            $query->whereDate('date_of_death', request()->date_of_death);
+        // ⚰️ Date of death filter
+        if (!empty($deathDate)) {
+            $query->whereDate('date_of_death', $deathDate);
         }
 
-        if (request()->filled('age_group') && request('age_group') !== 'All') {
-            $ageGroup = request('age_group');
-
-            $query->whereRaw("
-                TIMESTAMPDIFF(YEAR, birthdate, date_of_death)
-                BETWEEN ? AND ?
-            ", $this->getAgeRange($ageGroup));
-        }
-
-        $puroks = Purok::where('barangay_id', $brgy_id)
-            ->orderBy('purok_number', 'asc')
+        $puroks = Purok::where('barangay_id', $brgyId)
+            ->orderBy('purok_number')
             ->pluck('purok_number');
 
-        $deaths = $query->orderBy('date_of_death', 'desc')->paginate(10)->withQueryString();
+        // Final deaths list
+        $deaths = $query->orderBy('date_of_death', 'desc')
+            ->paginate(10)
+            ->withQueryString();
 
-        $residents = Resident::where('barangay_id', $brgy_id)
+        // Resident list (for dropdown/reference use)
+        $residents = Resident::where('barangay_id', $brgyId)
             ->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'birthdate')
             ->get();
 
         return Inertia::render("BarangayOfficer/Death/Index", [
-            'deaths' => $deaths,
+            'deaths'      => $deaths,
             'queryParams' => request()->query() ?: null,
-            'puroks' => $puroks,
-            'residents' => $residents
+            'puroks'      => $puroks,
+            'residents'   => $residents,
         ]);
     }
 
@@ -98,61 +96,66 @@ class DeathController extends Controller
         };
     }
 
-    public function store(Request $request)
+    public function store(StoreDeceasedRequest $request)
     {
-        $data = $request->validate([
-            'resident_id'   => ['required', 'exists:residents,id'],
-            'date_of_death' => ['required', 'date'],
-        ], [
-            'resident_id.required'   => 'Please select a resident.',
-            'resident_id.exists'     => 'The selected resident does not exist.',
-            'date_of_death.required' => 'Please provide the date of death.',
-            'date_of_death.date'     => 'The date of death must be a valid date.',
-        ]);
-
+        $data = $request->validated();
+        //dd($data);
         try {
             $resident = Resident::findOrFail($data['resident_id']);
 
-            // Manually validate against DB birthdate
+            // Double-check that death date is not before birthdate
             if ($resident->birthdate && $data['date_of_death'] < $resident->birthdate) {
                 return back()->withErrors([
                     'date_of_death' => 'Date of death cannot be before the birthdate.',
                 ])->withInput();
             }
 
-            $resident->update(['date_of_death' => $data['date_of_death']]);
+            // ✅ Create death record
+            Deceased::create([
+                'resident_id'              => $resident->id,
+                'date_of_death'            => $data['date_of_death'],
+                'cause_of_death'           => $data['cause_of_death'] ?? null,
+                'place_of_death'           => $data['place_of_death'] ?? null,
+                'burial_place'             => $data['burial_place'] ?? null,
+                'burial_date'              => $data['burial_date'] ?? null,
+                'death_certificate_number' => $data['death_certificate_number'] ?? null,
+                'remarks'                  => $data['remarks'] ?? null,
+            ]);
+
+            // ✅ Mark resident as deceased
+            $resident->update(['is_deceased' => true]);
 
             return redirect()
                 ->route('death.index')
-                ->with('success', 'Death Record saved successfully.');
+                ->with('success', 'Death record saved successfully.');
         } catch (\Exception $e) {
             return back()->with(
                 'error',
-                'Death Record could not be saved: ' . $e->getMessage()
-            );
+                'Death record could not be saved: ' . $e->getMessage()
+            )->withInput();
         }
     }
 
 
-    public function update(Request $request, $id)
+    public function update(UpdateDeceasedRequest $request, $id)
     {
-        $data = $request->validate([
-            'date_of_death' => ['required', 'date'],
-        ], [
-            'date_of_death.required' => 'Please provide the date of death.',
-            'date_of_death.date'     => 'The date of death must be a valid date.',
-        ]);
-
         try {
             $resident = Resident::findOrFail($id);
+            $data     = $request->validated();
 
-            if ($resident->birthdate && $data['date_of_death'] < $resident->birthdate) {
-                return back()->withErrors([
-                    'date_of_death' => 'Date of death cannot be before the birthdate.',
-                ])->withInput();
-            }
-
-            $resident->update(['date_of_death' => $data['date_of_death']]);
+            // Update deceased record (or create if not exists)
+            Deceased::updateOrCreate(
+                ['resident_id' => $resident->id],
+                [
+                    'date_of_death'            => $data['date_of_death'],
+                    'cause_of_death'           => $data['cause_of_death'] ?? null,
+                    'place_of_death'           => $data['place_of_death'] ?? null,
+                    'burial_place'             => $data['burial_place'] ?? null,
+                    'burial_date'              => $data['burial_date'] ?? null,
+                    'death_certificate_number' => $data['death_certificate_number'] ?? null,
+                    'remarks'                  => $data['remarks'] ?? null,
+                ]
+            );
 
             return redirect()
                 ->route('death.index')
@@ -165,28 +168,62 @@ class DeathController extends Controller
         }
     }
 
-    public function deathDetails($id){
+    public function deathDetails($id)
+    {
         $details = Resident::query()
-            ->select(['id', 'firstname', 'lastname', 'middlename', 'suffix', 'date_of_death', 'birthdate', 'purok_number', 'sex', 'resident_picture_path'])
-            ->findOrFail($id);
+            ->leftJoin('deceaseds', 'residents.id', '=', 'deceaseds.resident_id') // 👈 table should match your migration
+            ->where('residents.id', $id)
+            ->select([
+                'residents.id',
+                'residents.firstname',
+                'residents.lastname',
+                'residents.middlename',
+                'residents.suffix',
+                'residents.birthdate',
+                'residents.purok_number',
+                'residents.sex',
+                'residents.resident_picture_path',
+                'deceaseds.id as death_id',
+                'deceaseds.date_of_death',
+                'deceaseds.cause_of_death',
+                'deceaseds.place_of_death',
+                'deceaseds.burial_place',
+                'deceaseds.burial_date',
+                'deceaseds.death_certificate_number',
+                'deceaseds.remarks',
+            ])
+            ->firstOrFail(); // 👈 instead of findOrFail()
 
         return response()->json([
             'details' => $details,
         ]);
     }
 
-    public function destroy($id){
+    public function destroy($id)
+    {
         try {
+            // Find resident
             $resident = Resident::findOrFail($id);
-            $resident->update(['date_of_death' => null]);
+
+            // Find related deceased record
+            $deceased = Deceased::where('resident_id', $resident->id)->first();
+
+            if ($deceased) {
+                $deceased->delete(); // remove deceased record
+            }
+
+            // Reset resident death-related fields
+            $resident->update([
+                'is_deceased' => false,
+            ]);
 
             return redirect()
                 ->route('death.index')
-                ->with('success', 'Death Record deleted successfully.');
+                ->with('success', 'Death record deleted successfully.');
         } catch (\Exception $e) {
             return back()->with(
                 'error',
-                'Death Record could not be deleted: ' . $e->getMessage()
+                'Death record could not be deleted: ' . $e->getMessage()
             );
         }
     }
