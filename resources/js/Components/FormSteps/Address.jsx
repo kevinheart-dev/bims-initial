@@ -84,7 +84,7 @@ const Address = ({ puroks, streets }) => {
                         type="text"
                         label="House/Unit No./Lot/Blk No."
                         name="housenumber"
-                        value={userData.housenumber || ""}
+                        value={userData.housenumber.toString() || ""}
                         onChange={handleChange}
                         placeholder="e.g., Lot 12 Blk 7 or Unit 3A"
                         required
