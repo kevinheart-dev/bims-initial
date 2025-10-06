@@ -395,7 +395,7 @@ const Summary = ({ onBack, onSubmit, streets }) => {
                 <div className="grid md:grid-cols-2 gap-4 mt-6">
                     <div>
                         <h6 className="text-md font-semibold text-gray-700 border-b pb-1 mb-2">Livestock Ownership</h6>
-                        {(userData.has_livestock === 1 && userData.livestocks?.length > 0) ? (
+                        {(userData.has_livestock == 1 && userData.livestocks?.length > 0) ? (
                             <div className="space-y-2">
                                 {userData.livestocks.map((livestock, index) => (
                                     <div key={index} className="bg-sky-50 p-3 border border-sky-200 rounded-md flex flex-wrap gap-6">
@@ -412,7 +412,7 @@ const Summary = ({ onBack, onSubmit, streets }) => {
 
                     <div>
                         <h6 className="text-md font-semibold text-gray-700 border-b pb-1 mb-2">Pet Ownership</h6>
-                        {(userData.has_pets === 1 && userData.pets?.length > 0) ? (
+                        {(userData.has_pets == 1 && userData.pets?.length > 0) ? (
                             <div className="space-y-2">
                                 {userData.pets.map((pet, index) => (
                                     <div key={index} className="bg-sky-50 p-3 border border-sky-200 rounded-md flex flex-wrap gap-6">
