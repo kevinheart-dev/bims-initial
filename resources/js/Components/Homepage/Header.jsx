@@ -3,12 +3,16 @@ import { ChevronRight } from "lucide-react";
 import { RiMenu4Line } from "react-icons/ri";
 import { Link } from "@inertiajs/react";
 
+
+
 const Header = ({ auth }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const handleClick = () => {
         setIsMenuOpen(!isMenuOpen);
     };
+
+
 
     return (
         <header className="fixed top-0 left-0 w-full flex justify-between items-center text-[#093a7b] py-2 px-8 md:px-32

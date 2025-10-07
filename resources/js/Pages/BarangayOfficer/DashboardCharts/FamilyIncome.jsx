@@ -28,7 +28,7 @@ const CustomTooltip = ({ active, payload, label }) => {
                     entry.income_bracket
                 )})`}</p>
                 <p className="font-semibold text-gray-700">
-                    Families: <span className="font-bold">{entry.family_count}</span>
+                    Families: <span className="font-bold">{entry.total}</span>
                 </p>
             </div>
         );
@@ -51,9 +51,10 @@ function FamilyIncomeBarChart({ familyIncome }) {
         const found = familyIncome.find((f) => f.income_category === cat);
         return found || {
             income_category: cat,
-            income_bracket: Object.keys(familyIncome[0])[0] || "", // fallback
-            family_count: 0,
+            income_bracket: "",
+            total: 0,
         };
+
     });
 
     return (
@@ -66,7 +67,7 @@ function FamilyIncomeBarChart({ familyIncome }) {
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                         data={completeData}
-                        margin={{ top: 10, right: 0, left: -40, bottom: 30 }}
+                        margin={{ top: 20, right: 0, left: -40, bottom: 30 }}
                     >
                         <defs>
                             <linearGradient id="blueGradient" x1="0" y1="1" x2="0" y2="0">
@@ -97,13 +98,13 @@ function FamilyIncomeBarChart({ familyIncome }) {
                         <Tooltip content={<CustomTooltip />} />
 
                         <Bar
-                            dataKey="family_count"
+                            dataKey="total"
                             fill="url(#blueGradient)"
                             barSize={50}
                             radius={[10, 10, 0, 0]}
                         >
                             <LabelList
-                                dataKey="family_count"
+                                dataKey="total"
                                 position="top"
                                 formatter={(val) => val.toLocaleString()}
                                 style={{ fontSize: "12px", fill: "#1e3a8a", fontWeight: "bold" }}

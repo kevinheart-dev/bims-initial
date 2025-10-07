@@ -69,16 +69,19 @@ export default function Dashboard({
     ];
     const [view, setView] = useState("sex");
 
-    console.log(soloParentDistribution);
+    console.log(populationPerPurok);
 
     return (
         <AdminLayout>
             <Head title="Admin Dashboard" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
 
-            <div className="mt-4 mb-0 mx-7 text-left">
+            <div
+                className="mt-4 mb-0 mx-7 p-6 rounded-xl shadow-lgtext-left shadow-md
+                            bg-gradient-to-r from-sky-50 via-white to-cyan-50"
+            >
                 <h1 className="text-2xl font-extrabold text-gray-800">
-                    Barangay {barangayName} Dashboard
+                    Barangay <span className="bg-blue-100 text-blue-800 rounded-sm px-1">{barangayName}</span> Dashboard
                 </h1>
                 <p className="text-md text-gray-600 mt-0">
                     This dashboard provides an overview of the barangay’s population, demographics, and social statistics to help in planning and decision-making.
@@ -87,7 +90,6 @@ export default function Dashboard({
 
             <div className="pt-4 min-h-screen">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6 space-y-6">
-                    {/* Stats Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                         {/* Left Section: Cards */}
                         <div className="grid grid-cols-2 gap-2 col-span-2 mb-6">

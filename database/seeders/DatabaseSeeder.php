@@ -99,7 +99,7 @@ class DatabaseSeeder extends Seeder
         //$barangays = Barangay::all();
         $barangays = Barangay::take(1)->get();
         //  foreach ($barangays->take(2) as $barangay)
-        foreach ($barangays as $barangay){
+        foreach ($barangays as $barangay) {
             // Create 7 puroks per barangay
             $puroks = []; // Collect all created Puroks
 
@@ -231,7 +231,6 @@ class DatabaseSeeder extends Seeder
                         'resident_id' => $resident->id,
                     ]);
                 }
-
             }
             Resident::where('barangay_id', $barangay->id)
                 ->orderBy('household_id')

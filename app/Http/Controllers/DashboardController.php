@@ -6,11 +6,9 @@ use App\Models\EducationalHistory;
 use App\Models\Family;
 use App\Models\Household;
 use App\Models\Resident;
-use App\Models\SeniorCitizen;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
-
 
 class DashboardController extends Controller
 {
@@ -21,12 +19,11 @@ class DashboardController extends Controller
             ? auth()->user()->barangay->barangay_name
             : 'Barangay Name';
 
-        // ✅ exclude dead residents
+        // ✅ All counts exclude deceased
         $residentCount = Resident::where('barangay_id', $brgy_id)
             ->where('is_deceased', false)
             ->count();
 
-        // ✅ count senior citizens by age, not by SeniorCitizen table (keeps data consistent)
         $seniorCitizenCount = Resident::where('barangay_id', $brgy_id)
             ->where('is_deceased', false)
             ->whereRaw("TIMESTAMPDIFF(YEAR, birthdate, CURDATE()) >= 60")
@@ -35,34 +32,31 @@ class DashboardController extends Controller
         $totalHouseholds = Household::where('barangay_id', $brgy_id)->count();
         $totalFamilies = Family::where('barangay_id', $brgy_id)->count();
 
-        $genderDistribution = Resident::select('gender')
-            ->where('barangay_id', $brgy_id)
+        $genderDistribution = Resident::where('barangay_id', $brgy_id)
             ->where('is_deceased', false)
             ->selectRaw('gender, COUNT(*) as count')
             ->groupBy('gender')
             ->pluck('count', 'gender');
 
-        $sexDistibution = Resident::select('sex')
-            ->where('barangay_id', $brgy_id)
+        $sexDistibution = Resident::where('barangay_id', $brgy_id)
             ->where('is_deceased', false)
             ->selectRaw('sex, COUNT(*) as count')
             ->groupBy('sex')
             ->pluck('count', 'sex');
 
-        $populationPerPurok = Resident::selectRaw('purok_number, COUNT(*) as count')
-            ->where('barangay_id', $brgy_id)
+        $populationPerPurok = Resident::where('barangay_id', $brgy_id)
             ->where('is_deceased', false)
+            ->selectRaw('purok_number, COUNT(*) as count')
             ->groupBy('purok_number')
             ->pluck('count', 'purok_number');
 
-        $civilStatusDistribution = Resident::select('civil_status')
-            ->where('barangay_id', $brgy_id)
+        $civilStatusDistribution = Resident::where('barangay_id', $brgy_id)
             ->where('is_deceased', false)
             ->selectRaw('civil_status, COUNT(*) as count')
             ->groupBy('civil_status')
             ->pluck('count', 'civil_status');
 
-
+        // ✅ Age groups exclude deceased
         $ageGroups = [
             '0-6 months' => [0, 0.5],
             '7 mos. to 2 years old' => [0.6, 2],
@@ -107,8 +101,7 @@ class DashboardController extends Controller
                 ->count(),
         ];
 
-        $employmentStatusDistribution = Resident::select('employment_status')
-            ->where('barangay_id', $brgy_id)
+        $employmentStatusDistribution = Resident::where('barangay_id', $brgy_id)
             ->where('is_deceased', false)
             ->selectRaw('employment_status, COUNT(*) as count')
             ->groupBy('employment_status')
@@ -127,7 +120,7 @@ class DashboardController extends Controller
         ];
 
         $familyIncome = Family::where('barangay_id', $brgy_id)
-            ->select('income_bracket', DB::raw('COUNT(*) as family_count'))
+            ->select('income_bracket', DB::raw('COUNT(*) as total'))
             ->groupBy('income_bracket')
             ->get()
             ->map(function ($item) {
@@ -140,12 +133,17 @@ class DashboardController extends Controller
                     '70001_120000' => 'Upper Middle Income',
                     'above_120001' => 'High Income',
                 ];
-                $item->income_category = $labels[$item->income_bracket] ?? 'Unknown';
-                return $item;
+                return [
+                    'income_bracket' => $item->income_bracket,
+                    'income_category' => $labels[$item->income_bracket] ?? 'Unknown',
+                    'total' => $item->total,
+                ];
             });
+
 
         $educationData = EducationalHistory::join('residents', 'educational_histories.resident_id', '=', 'residents.id')
             ->where('residents.barangay_id', $brgy_id)
+            ->where('residents.is_deceased', false)
             ->select('educational_attainment', 'education_status', DB::raw('COUNT(*) as total_count'))
             ->groupBy('educational_attainment', 'education_status')
             ->get()
@@ -157,13 +155,13 @@ class DashboardController extends Controller
                     'kindergarten' => 'Kindergarten',
                     'tesda' => 'TESDA',
                     'junior_high_school' => 'Junior High School',
-                    'senior_high_school' => 'Senior High School',
+                    'senior_high_school' => 'Senior HS',
                     'elementary' => 'Elementary',
                     'high_school' => 'High School',
                     'college' => 'College',
                     'post_graduate' => 'Post Graduate',
                     'vocational' => 'Vocational',
-                    'als' => 'ALS (Alternative Learning System)',
+                    'als' => 'ALS',
                 ];
 
                 $statusLabels = [
@@ -187,10 +185,9 @@ class DashboardController extends Controller
             ->orderByDesc('total')
             ->pluck('total', 'ethnicity');
 
-
         $fourPsDistribution = DB::table('social_welfare_profiles as swp')
             ->join('residents as r', 'swp.resident_id', '=', 'r.id')
-            ->where('swp.barangay_id', $brgy_id)
+            ->where('r.barangay_id', $brgy_id)
             ->where('r.is_deceased', false)
             ->select('swp.is_4ps_beneficiary', DB::raw('COUNT(*) as total'))
             ->groupBy('swp.is_4ps_beneficiary')
@@ -203,18 +200,16 @@ class DashboardController extends Controller
 
         $soloParentDistribution = DB::table('social_welfare_profiles as swp')
             ->join('residents as r', 'swp.resident_id', '=', 'r.id')
-            ->where('swp.barangay_id', $brgy_id)
+            ->where('r.barangay_id', $brgy_id)
             ->where('r.is_deceased', false)
             ->select('swp.is_solo_parent', DB::raw('COUNT(*) as total'))
             ->groupBy('swp.is_solo_parent')
             ->pluck('total', 'swp.is_solo_parent');
 
         $soloParentDistribution = [
-            1 => $soloParentDistribution[1] ?? 0, // Solo Parents
-            0 => $soloParentDistribution[0] ?? 0, // Non-Solo Parents
+            1 => $soloParentDistribution[1] ?? 0,
+            0 => $soloParentDistribution[0] ?? 0,
         ];
-
-
 
         return Inertia::render('BarangayOfficer/Dashboard', [
             'barangayName' => $barangayName,

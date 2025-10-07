@@ -5,10 +5,10 @@ import Counter from "@/Components/Counter";
 function HalfPieChart({
     title,
     distribution,
-    fillColor = "#3b82f6", // Kept for default/fallback, but gradient will be used
+    fillColor = "#3b82f6",
     labelName,
-    gradientId, // New prop: ID for the gradient definition
-    gradientColor, // New prop: The color at the end of the gradient
+    gradientId,
+    gradientColor,
 }) {
     const keys = Object.keys(distribution);
     const filledKey = keys[0] ?? null;
