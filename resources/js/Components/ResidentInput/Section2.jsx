@@ -32,9 +32,9 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                 <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-1">
                     Education and Occupation
                 </h2>
-                <p className="text-sm text-gray-600 mb-3">
-                    Please provide the resident education background and current
-                    occupation.
+                <p className="text-sm text-gray-600 mb-4">
+                    Provide the resident's educational background and current
+                    occupation. Add multiple entries if applicable.
                 </p>
             </div>
 
@@ -42,9 +42,10 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                 data.educational_histories.map((edu_history, edIndex) => (
                     <div
                         key={edIndex}
-                        className="border p-4 mb-4 rounded-md relative bg-gray-50"
+                        className="border p-4 mb-4 rounded-md relative bg-gray-50 shadow-sm"
                     >
-                        <div className="grid md:grid-cols-3 gap-10 mt-4">
+                        {/* Education Details */}
+                        <div className="grid md:grid-cols-3 gap-8 mt-2">
                             <div>
                                 <DropdownInputField
                                     label="Educational Attainment"
@@ -58,6 +59,7 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                             "educational_histories"
                                         )
                                     }
+                                    required
                                     items={[
                                         {
                                             label: "No Education Yet",
@@ -102,7 +104,7 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                             value: "post_graduate",
                                         },
                                     ]}
-                                    placeholder="Select your Educational Attainment"
+                                    placeholder="Select Educational Attainment"
                                 />
                                 <InputError
                                     message={
@@ -110,13 +112,19 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                             `educational_histories.${edIndex}.education`
                                         ]
                                     }
-                                    className="mt-2"
+                                    className="mt-1"
                                 />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Select the highest educational attainment of
+                                    the resident.
+                                </p>
                             </div>
+
                             <div>
                                 <SelectField
                                     label="Educational Status"
                                     name="education_status"
+                                    required
                                     items={[
                                         {
                                             label: "Currently Enrolled",
@@ -157,9 +165,14 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                             `educational_histories.${edIndex}.education_status`
                                         ]
                                     }
-                                    className="mt-2"
+                                    className="mt-1"
                                 />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Indicate whether the resident graduated or
+                                    is still enrolled.
+                                </p>
                             </div>
+
                             <div>
                                 <InputField
                                     label="School Name"
@@ -188,24 +201,24 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                             `educational_histories.${edIndex}.school_name`
                                         ]
                                     }
-                                    className="mt-2"
+                                    className="mt-1"
                                 />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Enter the name of the school attended.
+                                </p>
                             </div>
                         </div>
+
+                        {/* School Type & Years */}
                         <div className="grid md:grid-cols-3 gap-4 mt-4">
                             <div>
                                 <RadioGroup
                                     label="School Type"
                                     name="school_type"
+                                    required
                                     options={[
-                                        {
-                                            label: "Public",
-                                            value: "public",
-                                        },
-                                        {
-                                            label: "Private",
-                                            value: "private",
-                                        },
+                                        { label: "Public", value: "public" },
+                                        { label: "Private", value: "private" },
                                     ]}
                                     selectedValue={
                                         edu_history.school_type || ""
@@ -231,9 +244,10 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                             `educational_histories.${edIndex}.school_type`
                                         ]
                                     }
-                                    className="mt-2"
+                                    className="mt-1"
                                 />
                             </div>
+
                             <div>
                                 <YearDropdown
                                     label="Year Started"
@@ -260,9 +274,10 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                             `educational_histories.${edIndex}.year_started`
                                         ]
                                     }
-                                    className="mt-2"
+                                    className="mt-1"
                                 />
                             </div>
+
                             <div>
                                 <YearDropdown
                                     label="Year Ended"
@@ -289,52 +304,57 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                             `educational_histories.${edIndex}.year_ended`
                                         ]
                                     }
-                                    className="mt-2"
+                                    className="mt-1"
                                 />
                             </div>
-                            {edu_history.education === "college" && (
-                                <div>
-                                    <InputField
-                                        label={
-                                            edu_history.education_status ===
-                                            "graduated"
-                                                ? "Finished Course"
-                                                : "Current Course"
-                                        }
-                                        name="program"
-                                        type="text"
-                                        value={edu_history.program || ""}
-                                        onChange={(e) =>
-                                            handleArrayValues(
-                                                e,
-                                                edIndex,
-                                                "program",
-                                                "educational_histories"
-                                            )
-                                        }
-                                        placeholder="Enter your course"
-                                        disabled={
-                                            edu_history.education ===
-                                            "no_formal_education"
-                                        }
-                                    />
-                                    <InputError
-                                        message={
-                                            errors[
-                                                `educational_histories.${edIndex}.program`
-                                            ]
-                                        }
-                                        className="mt-2"
-                                    />
-                                </div>
-                            )}
                         </div>
+
+                        {/* College Program */}
+                        {edu_history.education === "college" && (
+                            <div className="mt-4">
+                                <InputField
+                                    label={
+                                        edu_history.education_status ===
+                                        "graduated"
+                                            ? "Finished Course"
+                                            : "Current Course"
+                                    }
+                                    name="program"
+                                    type="text"
+                                    value={edu_history.program || ""}
+                                    onChange={(e) =>
+                                        handleArrayValues(
+                                            e,
+                                            edIndex,
+                                            "program",
+                                            "educational_histories"
+                                        )
+                                    }
+                                    placeholder="Enter your course"
+                                    disabled={
+                                        edu_history.education ===
+                                        "no_formal_education"
+                                    }
+                                />
+                                <InputError
+                                    message={
+                                        errors[
+                                            `educational_histories.${edIndex}.program`
+                                        ]
+                                    }
+                                    className="mt-1"
+                                />
+                            </div>
+                        )}
+
+                        {/* Remove Entry Button */}
                         <button
                             type="button"
                             onClick={() => removeEducation(edIndex)}
-                            className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
+                            className="absolute top-2 right-2 flex items-center gap-1 text-red-500 hover:text-red-700 text-2xl transition-colors duration-200"
+                            title="Remove Education Entry"
                         >
-                            <IoIosCloseCircleOutline className="text-2xl" />
+                            <IoIosCloseCircleOutline />
                         </button>
                     </div>
                 ))}

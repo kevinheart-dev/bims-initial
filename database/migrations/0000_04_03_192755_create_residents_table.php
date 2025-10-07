@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('birthplace', 150);
             $table->enum('civil_status', ['single', 'married', 'widowed', 'separated', 'divorced', 'annulled']);
             $table->boolean('registered_voter');
-            $table->enum('employment_status', ['employed', 'unemployed', 'self_employed', 'student', 'under_employed']);
+            $table->enum('employment_status', ['employed', 'unemployed', 'self_employed', 'student', 'under_employed','child','retired','homemaker'])->nullable();
             $table->string('citizenship', 55);
             $table->string('religion', 55);
             $table->string('contact_number', 15);
@@ -40,6 +40,7 @@ return new class extends Migration
             $table->boolean('is_deceased')->default(false)->nullable();
             $table->foreignId('household_id')->nullable()->constrained('households')->onDelete('set null');
             $table->boolean('is_household_head')->default(false);
+            $table->boolean('is_family_head')->nullable()->default(false);
             $table->foreignId('family_id')->nullable()->constrained('families')->onDelete('set null');
             $table->boolean('verified')->default(false);
             $table->timestamps();

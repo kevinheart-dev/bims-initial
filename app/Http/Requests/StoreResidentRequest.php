@@ -43,6 +43,7 @@ class StoreResidentRequest extends FormRequest
             'residency_type' => ['required', Rule::in(['permanent', 'temporary', 'immigrant'])],
             'residency_date' => ['required', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
             'is_household_head' => ['required', Rule::in([0, 1])],
+            'is_family_head' => ['required', Rule::in([0, 1])],
             'is_4ps_beneficiary' => ['nullable', Rule::in([0, 1])],
             'is_solo_parent' => ['nullable', Rule::in([0, 1])],
             'solo_parent_id_number' => ['nullable', 'string', 'max:55'],
@@ -84,7 +85,7 @@ class StoreResidentRequest extends FormRequest
             'occupations' => ['nullable', 'array'],
             'employment_status' => [
                 'required_with:occupations.*.occupation',
-                Rule::in(['employed', 'unemployed', 'self_employed', 'student', 'under_employed']),
+                Rule::in(['employed', 'unemployed', 'self_employed', 'student', 'under_employed','child','retired','homemaker']),
             ],
             'occupations.*.occupation' => ['nullable', 'string', 'max:100'],
             'occupations.*.employment_type' => [
@@ -108,35 +109,35 @@ class StoreResidentRequest extends FormRequest
             'occupations.*.is_ofw' => ['nullable', 'boolean'],
 
             // SECTION 4: Health Information
-            'weight_kg' => ['required', 'numeric', 'min:0', 'max:300'],
-            'height_cm' => ['required', 'numeric', 'min:0', 'max:500'],
-            'bmi' => ['required', 'numeric'],
-            'nutrition_status' => ['required', Rule::in([
+            'weight_kg' => ['nullable', 'numeric', 'min:0', 'max:300'],
+            'height_cm' => ['nullable', 'numeric', 'min:0', 'max:500'],
+            'bmi' => ['nullable', 'numeric'],
+            'nutrition_status' => ['nullable', Rule::in([
                 'normal', 'underweight', 'severly_underweight', 'overweight', 'obese'
             ])],
 
-            'emergency_contact_number' => ['required', 'string', 'max:11'],
-            'emergency_contact_name' => ['required', 'string', 'max:255'],
-            'emergency_contact_relationship' => ['required', 'string', 'max:100'],
+            'emergency_contact_number' => ['nullable', 'string', 'max:11'],
+            'emergency_contact_name' => ['nullable', 'string', 'max:255'],
+            'emergency_contact_relationship' => ['nullable', 'string', 'max:100'],
             'blood_type' => ['nullable', Rule::in([
                 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
             ])],
 
-            'has_philhealth' => ['required', Rule::in([0, 1])],
+            'has_philhealth' => ['nullable', Rule::in([0, 1])],
             'philhealth_id_number' => ['nullable', 'string', 'max:50'],
 
-            'is_alcohol_user' => ['required', Rule::in([0, 1])],
-            'is_smoker' => ['required', Rule::in([0, 1])],
+            'is_alcohol_user' => ['nullable', Rule::in([0, 1])],
+            'is_smoker' => ['nullable', Rule::in([0, 1])],
 
-            'is_pwd' => ['required', Rule::in([0, 1])],
+            'is_pwd' => ['nullable', Rule::in([0, 1])],
             'pwd_id_number' => ['required_if:is_pwd,1', 'nullable', 'string', 'max:15'],
 
             'disabilities' => ['required_if:is_pwd,1', 'array'],
             'disabilities.*.disability_type' => ['required_with:disabilities', 'string', 'max:100'],
 
             // SECTION 5: Housing Information
-            'housenumber' => ['required', 'integer', 'min:1', 'max:9999'],
-            'street_id' => ['required', 'exists:streets,id'],
+            'housenumber' => ['nullable', 'integer', 'min:1', 'max:9999'],
+            'street_id' => ['nullable', 'exists:streets,id'],
             'subdivision' => ['nullable', 'string', 'max:100'],
             'relationship_to_head' => ['nullable', 'string', 'max:100'],
             'household_position' => ['nullable', 'string', 'max:100'],

@@ -35,15 +35,7 @@ class Family extends Model
     }
     public function latestHead()
     {
-        return $this->hasOneThrough(
-            Resident::class,
-            HouseholdResident::class,
-            'household_id',   // Foreign key on HouseholdResident
-            'id',             // Foreign key on Resident
-            'household_id',   // Local key on Family
-            'resident_id'     // Local key on HouseholdResident
-        )
-        ->where('is_household_head', true)
-        ->latest();
+        return $this->hasOne(Resident::class, 'family_id')
+                    ->where('is_family_head', true);
     }
 }

@@ -147,6 +147,7 @@ class ResidentFactory extends Factory
             'is_deceased' => $this->faker->boolean(15),
             'household_id' => $household->id,
             'is_household_head' => false,
+            'is_family_head' => false,
             'family_id' => $randomFamily->id,
             'verified' => true,
         ];

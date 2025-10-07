@@ -3,8 +3,9 @@ import * as d3 from "d3";
 import FamilyCard from "./FamilyCard";
 import { transformToTreeFormat } from "@/utils/transformtoTreeFormat";
 import SidebarModal from "./SidebarModal";
-import PersonDetailContent, { personDetailTitle } from "./SidebarModalContents/PersonDetailContent";
-
+import PersonDetailContent, {
+    personDetailTitle,
+} from "./SidebarModalContents/PersonDetailContent";
 
 const CARD_WIDTH = 240;
 const CARD_HEIGHT = 90;
@@ -64,7 +65,9 @@ const FamilyTree = ({ familyData }) => {
                 } else {
                     // ✅ Couple or self + spouse
                     const self = members.find((m) => m.relation === "Self");
-                    const spouses = members.filter((m) => m.relation === "Spouse");
+                    const spouses = members.filter(
+                        (m) => m.relation === "Spouse"
+                    );
 
                     if (self) {
                         self._x = baseX;
@@ -79,7 +82,8 @@ const FamilyTree = ({ familyData }) => {
                         spouses.forEach((spouse, idx) => {
                             const direction = idx % 2 === 0 ? -1 : 1;
                             const multiplier = Math.ceil((idx + 1) / 2);
-                            const spouseX = baseX + direction * spacing * multiplier;
+                            const spouseX =
+                                baseX + direction * spacing * multiplier;
 
                             positioned.push({
                                 ...spouse,
@@ -104,7 +108,6 @@ const FamilyTree = ({ familyData }) => {
                     }
                 }
             } else if (d.data.id !== "virtual-root") {
-
                 // ✅ Children or other individuals
                 positioned.push({
                     ...d.data,
@@ -147,13 +150,18 @@ const FamilyTree = ({ familyData }) => {
                 // === ✅ CHILDREN CONNECTION ===
                 if (d.children?.length > 0) {
                     const children = d.children
-                        .map((child) => positioned.find((p) => p.id === child.data.id))
+                        .map((child) =>
+                            positioned.find((p) => p.id === child.data.id)
+                        )
                         .filter(Boolean);
 
                     if (children.length === 0) return;
 
-                    const parentXs = memberNodes.map(m => m.x + CARD_WIDTH / 2);
-                    const parentCenterX = (Math.min(...parentXs) + Math.max(...parentXs)) / 2;
+                    const parentXs = memberNodes.map(
+                        (m) => m.x + CARD_WIDTH / 2
+                    );
+                    const parentCenterX =
+                        (Math.min(...parentXs) + Math.max(...parentXs)) / 2;
                     const parentBottomY = baseY + CARD_HEIGHT / 2;
                     const junctionY = parentBottomY + 90;
 
@@ -173,7 +181,9 @@ const FamilyTree = ({ familyData }) => {
                         });
                     } else {
                         // Multiple children
-                        const childXs = children.map(child => child.x + CARD_WIDTH / 2);
+                        const childXs = children.map(
+                            (child) => child.x + CARD_WIDTH / 2
+                        );
                         const minX = Math.min(...childXs);
                         const maxX = Math.max(...childXs);
 
@@ -207,7 +217,9 @@ const FamilyTree = ({ familyData }) => {
                 const junctionY = parentY + 90;
 
                 const children = d.children
-                    .map((child) => positioned.find((p) => p.id === child.data.id))
+                    .map((child) =>
+                        positioned.find((p) => p.id === child.data.id)
+                    )
                     .filter(Boolean);
 
                 if (children.length === 1) {
@@ -225,7 +237,9 @@ const FamilyTree = ({ familyData }) => {
                     });
 
                     // Horizontal line through all children
-                    const childXs = children.map((child) => child.x + CARD_WIDTH / 2);
+                    const childXs = children.map(
+                        (child) => child.x + CARD_WIDTH / 2
+                    );
                     const minX = Math.min(...childXs);
                     const maxX = Math.max(...childXs);
 
@@ -246,14 +260,14 @@ const FamilyTree = ({ familyData }) => {
             }
         });
 
-
         setConnections(lines);
 
         const svg = d3.select(svgRef.current);
         const g = svg.select("g");
 
         svg.call(
-            d3.zoom()
+            d3
+                .zoom()
                 .scaleExtent([0.3, 2])
                 .on("zoom", (event) => {
                     g.attr("transform", event.transform);

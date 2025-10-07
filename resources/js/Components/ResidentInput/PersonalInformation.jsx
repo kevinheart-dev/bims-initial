@@ -23,6 +23,7 @@ const PersonalInformation = ({
     streets = null,
     households = null,
     barangays = null,
+    familyHeads = null,
 }) => {
     const { data, setData, post, errors } = useForm({
         resident_image: null,

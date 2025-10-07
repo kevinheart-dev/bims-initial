@@ -137,9 +137,11 @@ export default function Index({ families, queryParams = null, puroks }) {
         family_id: (row) => row.id,
         name: (row) =>
             row.latest_head
-                ? `${row.latest_head.firstname ?? ""} ${row.latest_head.middlename ?? ""
-                } ${row.latest_head.lastname ?? ""} ${row.latest_head.suffix ?? ""
-                }`
+                ? `${row.latest_head.firstname ?? ""} ${
+                      row.latest_head.middlename ?? ""
+                  } ${row.latest_head.lastname ?? ""} ${
+                      row.latest_head.suffix ?? ""
+                  }`
                 : "Unknown",
         is_household_head: (row) =>
             row.is_household_head ? (
@@ -162,7 +164,8 @@ export default function Index({ families, queryParams = null, puroks }) {
 
         family_member_count: (row) => (
             <span className="flex items-center">
-                {row?.members_count ?? 0} <User className="ml-2 h-5 w-5" />
+                {row?.family_member_count ?? 0}{" "}
+                <User className="ml-2 h-5 w-5" />
             </span>
         ),
 
@@ -173,8 +176,9 @@ export default function Index({ families, queryParams = null, puroks }) {
 
             return bracketText ? (
                 <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${bracketMeta?.className ?? ""
-                        }`}
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                        bracketMeta?.className ?? ""
+                    }`}
                 >
                     {bracketText}
                 </span>
@@ -260,8 +264,9 @@ export default function Index({ families, queryParams = null, puroks }) {
     };
 
     const memberList = members.map((mem) => ({
-        label: `${mem.firstname} ${mem.middlename} ${mem.lastname} ${mem.suffix ?? ""
-            }`,
+        label: `${mem.firstname} ${mem.middlename} ${mem.lastname} ${
+            mem.suffix ?? ""
+        }`,
         value: mem.id.toString(),
     }));
 
@@ -272,6 +277,8 @@ export default function Index({ families, queryParams = null, puroks }) {
         birthdate: null,
         purok_number: null,
         house_number: null,
+        family_name: "",
+        family_type: "",
         members: [defaultMember],
         family_id: null,
         _method: undefined,
@@ -303,7 +310,8 @@ export default function Index({ families, queryParams = null, puroks }) {
             setData("resident_id", resident.id);
             setData(
                 "resident_name",
-                `${resident.firstname} ${resident.middlename} ${resident.lastname
+                `${resident.firstname} ${resident.middlename} ${
+                    resident.lastname
                 } ${resident.suffix ?? ""}`
             );
             setData("purok_number", resident.purok_number);
@@ -321,8 +329,9 @@ export default function Index({ families, queryParams = null, puroks }) {
             updatedMembers[index] = {
                 ...updatedMembers[index],
                 resident_id: selected.id ?? "",
-                resident_name: `${selected.firstname ?? ""} ${selected.middlename ?? ""
-                    } ${selected.lastname ?? ""} ${selected.suffix ?? ""}`,
+                resident_name: `${selected.firstname ?? ""} ${
+                    selected.middlename ?? ""
+                } ${selected.lastname ?? ""} ${selected.suffix ?? ""}`,
                 purok_number: selected.purok_number ?? "",
                 birthdate: selected.birthdate ?? "",
                 resident_image: selected.image ?? null,
@@ -375,8 +384,9 @@ export default function Index({ families, queryParams = null, puroks }) {
 
             setData({
                 resident_id: latestHead?.id ?? null,
-                resident_name: `${latestHead?.firstname} ${latestHead?.middlename ? latestHead?.middlename + " " : ""
-                    }${latestHead?.lastname} ${latestHead?.suffix}`.trim(),
+                resident_name: `${latestHead?.firstname} ${
+                    latestHead?.middlename ? latestHead?.middlename + " " : ""
+                }${latestHead?.lastname} ${latestHead?.suffix}`.trim(),
                 resident_image: latestHead?.resident_picture_path,
                 birthdate: latestHead?.birthdate ?? null,
                 purok_number: latestHead?.purok_number ?? null,
@@ -384,14 +394,17 @@ export default function Index({ families, queryParams = null, puroks }) {
                     latestHead?.household?.house_number ??
                     details.household?.house_number ??
                     null,
+                family_type: details.family_type,
+                family_name: details.family_name,
                 members: (details.members || [])
                     .map((m) => {
                         const householdResident =
                             m.household_residents?.[0] || {};
                         return {
                             resident_id: m.id,
-                            resident_name: `${m.firstname} ${m.middlename ? m.middlename + " " : ""
-                                }${m.lastname} ${m.suffix}`.trim(),
+                            resident_name: `${m.firstname} ${
+                                m.middlename ? m.middlename + " " : ""
+                            }${m.lastname} ${m.suffix}`.trim(),
                             resident_image: m.resident_picture_path,
                             birthdate: m.birthdate,
                             purok_number: m.purok_number,
@@ -456,6 +469,7 @@ export default function Index({ families, queryParams = null, puroks }) {
             <Toaster richColors />
             <div className="pt-4">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
+                    {/* <pre>{JSON.stringify(families, undefined, 2)}</pre> */}
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                         <div className="mb-6">
                             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl shadow-sm">
@@ -600,108 +614,198 @@ export default function Index({ families, queryParams = null, puroks }) {
                         </p>
 
                         <form
-                            className="bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg p-6 mb-8 text-white"
+                            className="bg-gradient-to-br from-blue-50 via-white to-blue-100 border border-blue-200 rounded-2xl shadow-xl p-8 text-gray-800"
                             onSubmit={
                                 familyDetails
                                     ? handleUpdateFamily
                                     : handleSubmitFamily
                             }
                         >
-                            <h3 className="text-xl font-medium text-gray-700 mb-8">
-                                Household Head Information
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-6 gap-y-2 md:gap-x-4 mb-5 w-full">
-                                <div className="md:row-span-2 md:col-span-2 flex flex-col items-center space-y-2">
-                                    <InputLabel
-                                        htmlFor={`resident_image`}
-                                        value="Profile Photo"
-                                    />
-                                    <img
-                                        src={
-                                            data.resident_image
-                                                ? `/storage/${data.resident_image}`
-                                                : "/images/default-avatar.jpg"
-                                        }
-                                        alt={`Resident Image`}
-                                        className="w-32 h-32 object-cover rounded-full border border-gray-200"
-                                    />
-                                </div>
-                                <div className="md:col-span-4 space-y-2">
-                                    <div className="w-full">
+                            {" "}
+                            {/* Header Section */}{" "}
+                            <div className="mb-8 text-left">
+                                {" "}
+                                <h2 className="text-2xl font-bold text-blue-900 mb-2">
+                                    {" "}
+                                    {familyDetails
+                                        ? "Update Family Profile"
+                                        : "Register a New Family"}{" "}
+                                </h2>{" "}
+                                <p className="text-gray-600 text-sm max-w-2xl">
+                                    {" "}
+                                    Provide accurate household details for the
+                                    barangay records. Start by selecting the
+                                    household head, then add all family members
+                                    with their corresponding relationships and
+                                    roles.{" "}
+                                </p>{" "}
+                            </div>
+                            {/* Household Head Section */}{" "}
+                            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+                                <h3 className="text-xl font-semibold text-blue-800 mb-4 flex items-center gap-2">
+                                    Family Head Information
+                                </h3>
+
+                                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                                    {/* Profile Photo */}
+                                    <div className="md:row-span-2 md:col-span-2 flex flex-col items-center space-y-3">
+                                        <InputLabel
+                                            htmlFor="resident_image"
+                                            value="Profile Photo"
+                                        />
+                                        <img
+                                            src={
+                                                data.resident_image
+                                                    ? `/storage/${data.resident_image}`
+                                                    : "/images/default-avatar.jpg"
+                                            }
+                                            alt="Resident Image"
+                                            className="w-32 h-32 object-cover rounded-full border border-gray-300 shadow-sm"
+                                        />
+                                    </div>
+
+                                    {/* Info Fields */}
+                                    <div className="md:col-span-4 space-y-4">
                                         <DropdownInputField
                                             label="Full Name"
                                             name="resident_name"
                                             value={data.resident_name || ""}
                                             placeholder="Select a resident"
-                                            onChange={(e) =>
-                                                handleResidentChange(e)
-                                            }
+                                            onChange={handleResidentChange}
                                             items={memberList}
                                         />
                                         <InputError
                                             message={errors.resident_id}
-                                            className="mt-2"
+                                            className="mt-1"
                                         />
-                                    </div>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                        <div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                             <InputField
                                                 label="Birthdate"
                                                 name="birthdate"
                                                 value={data.birthdate || ""}
-                                                readOnly={true}
+                                                readOnly
                                             />
-                                        </div>
-
-                                        <div>
                                             <InputField
                                                 label="Purok Number"
                                                 name="purok_number"
                                                 value={data.purok_number}
-                                                readOnly={true}
+                                                readOnly
                                             />
-                                        </div>
-                                        <div>
                                             <InputField
                                                 label="House Number"
                                                 name="house_number"
                                                 value={data.house_number}
-                                                readOnly={true}
+                                                readOnly
+                                            />
+                                        </div>
+
+                                        {/* 🆕 Family Info Section */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                                            <InputField
+                                                label="Family Name (Optional)"
+                                                name="family_name"
+                                                value={data.family_name || ""}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "family_name",
+                                                        e.target.value
+                                                    )
+                                                }
+                                                placeholder="Enter family name (optional)"
+                                            />
+                                            <DropdownInputField
+                                                label="Family Type"
+                                                value={data.family_type || ""}
+                                                items={[
+                                                    {
+                                                        label: "Nuclear",
+                                                        value: "nuclear",
+                                                    },
+                                                    {
+                                                        label: "Extended",
+                                                        value: "extended",
+                                                    },
+                                                    {
+                                                        label: "Single Parent",
+                                                        value: "single_parent",
+                                                    },
+                                                    {
+                                                        label: "Grandparent",
+                                                        value: "grandparent",
+                                                    },
+                                                    {
+                                                        label: "Childless",
+                                                        value: "childless",
+                                                    },
+                                                    {
+                                                        label: "Cohabiting Partners",
+                                                        value: "cohabiting_partners",
+                                                    },
+                                                    {
+                                                        label: "One-person Household",
+                                                        value: "one_person_household",
+                                                    },
+                                                    {
+                                                        label: "Roommates",
+                                                        value: "roommates",
+                                                    },
+                                                ]}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "family_type",
+                                                        e.target.value
+                                                    )
+                                                }
+                                                placeholder="e.g., Nuclear, Extended"
                                             />
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <h3 className="text-lg font-medium text-gray-700">
-                                Family Members
-                            </h3>
-                            <div className="space-y-4 mt-4 bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl shadow-lg">
-                                {(data.members || []).map(
-                                    (member, memberIndex) => (
-                                        <div
-                                            key={memberIndex}
-                                            className="border p-4 mb-4 rounded-md relative bg-gray-50"
-                                        >
-                                            {/* Left: input fields */}
-                                            <div className="grid grid-cols-1 md:grid-cols-6 gap-y-2 md:gap-x-4 mb-5 w-full">
-                                                <div className="md:row-span-2 md:col-span-2 flex flex-col items-center space-y-2">
-                                                    <InputLabel
-                                                        htmlFor={`resident_image`}
-                                                        value="Profile Photo"
-                                                    />
-                                                    <img
-                                                        src={
-                                                            member.resident_image
-                                                                ? `/storage/${member.resident_image}`
-                                                                : "/images/default-avatar.jpg"
-                                                        }
-                                                        alt={`Resident Image`}
-                                                        className="w-32 h-32 object-cover rounded-full border border-gray-200"
-                                                    />
-                                                </div>
-                                                <div className="md:col-span-4 space-y-2">
-                                                    <div className="w-full">
+                            {/* Family Members Section */}{" "}
+                            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                                {" "}
+                                <h3 className="text-xl font-semibold text-blue-800 mb-4 flex items-center gap-2">
+                                    {" "}
+                                    Family Members{" "}
+                                </h3>{" "}
+                                <p className="text-gray-600 text-sm mb-4">
+                                    {" "}
+                                    Add all household members below. Make sure
+                                    their information is accurate and
+                                    relationships to the household head are
+                                    correctly specified.{" "}
+                                </p>{" "}
+                                <div className="space-y-4">
+                                    {" "}
+                                    {(data.members || []).map(
+                                        (member, memberIndex) => (
+                                            <div
+                                                key={memberIndex}
+                                                className="relative bg-gray-50 border border-gray-200 p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                                            >
+                                                {" "}
+                                                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                                                    {" "}
+                                                    <div className="md:row-span-2 md:col-span-2 flex flex-col items-center space-y-3">
+                                                        {" "}
+                                                        <InputLabel
+                                                            htmlFor="resident_image"
+                                                            value="Profile Photo"
+                                                        />{" "}
+                                                        <img
+                                                            src={
+                                                                member.resident_image
+                                                                    ? `/storage/${member.resident_image}`
+                                                                    : "/images/default-avatar.jpg"
+                                                            }
+                                                            alt="Resident Image"
+                                                            className="w-24 h-24 object-cover rounded-full border border-gray-300"
+                                                        />{" "}
+                                                    </div>{" "}
+                                                    <div className="md:col-span-4 space-y-3">
+                                                        {" "}
                                                         <DropdownInputField
                                                             label="Full Name"
                                                             name="resident_name"
@@ -717,17 +821,17 @@ export default function Index({ families, queryParams = null, puroks }) {
                                                                 )
                                                             }
                                                             items={memberList}
-                                                        />
+                                                        />{" "}
                                                         <InputError
                                                             message={
-                                                                errors.resident_id
+                                                                errors[
+                                                                    `members.${memberIndex}.resident_id`
+                                                                ]
                                                             }
-                                                            className="mt-2"
-                                                        />
-                                                    </div>
-
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                                        <div>
+                                                            className="mt-1"
+                                                        />{" "}
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                            {" "}
                                                             <InputField
                                                                 label="Birthdate"
                                                                 name="birthdate"
@@ -735,25 +839,23 @@ export default function Index({ families, queryParams = null, puroks }) {
                                                                     member.birthdate ||
                                                                     ""
                                                                 }
-                                                                readOnly={true}
-                                                            />
-                                                        </div>
-
-                                                        <div>
+                                                                readOnly
+                                                            />{" "}
                                                             <InputField
                                                                 label="Purok Number"
                                                                 name="purok_number"
                                                                 value={
-                                                                    member.purok_number
+                                                                    member.purok_number ||
+                                                                    ""
                                                                 }
-                                                                readOnly={true}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div className="w-full">
+                                                                readOnly
+                                                            />{" "}
+                                                        </div>{" "}
+                                                    </div>{" "}
+                                                </div>{" "}
+                                                {/* Relationship + Position */}{" "}
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                                    {" "}
                                                     <DropdownInputField
                                                         label="Relationship to Head"
                                                         name="relationship_to_head"
@@ -792,17 +894,7 @@ export default function Index({ families, queryParams = null, puroks }) {
                                                                 value: "grandparent",
                                                             },
                                                         ]}
-                                                    />
-                                                    <InputError
-                                                        message={
-                                                            errors[
-                                                            `members.${memberIndex}.relationship_to_head`
-                                                            ]
-                                                        }
-                                                        className="mt-1"
-                                                    />
-                                                </div>
-                                                <div className="w-full">
+                                                    />{" "}
                                                     <DropdownInputField
                                                         label="Household Position"
                                                         name="household_position"
@@ -829,65 +921,62 @@ export default function Index({ families, queryParams = null, puroks }) {
                                                                 value: "boarder",
                                                             },
                                                         ]}
-                                                    />
-                                                    <InputError
-                                                        message={
-                                                            errors[
-                                                            `members.${memberIndex}.household_position`
-                                                            ]
-                                                        }
-                                                        className="mt-1"
-                                                    />
-                                                </div>
+                                                    />{" "}
+                                                </div>{" "}
+                                                {/* Remove Member Button */}{" "}
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        removeMember(
+                                                            memberIndex
+                                                        )
+                                                    }
+                                                    className="absolute top-3 right-3 text-red-500 hover:text-red-700 text-2xl transition-colors"
+                                                    title="Remove Member"
+                                                >
+                                                    {" "}
+                                                    <IoIosCloseCircleOutline />{" "}
+                                                </button>{" "}
                                             </div>
-
-                                            {/* Right: remove button */}
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    removeMember(memberIndex)
-                                                }
-                                                className="absolute top-1 right-2 flex items-center gap-1 text-2xl text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
-                                                title="Remove"
-                                            >
-                                                <IoIosCloseCircleOutline />
-                                            </button>
-                                        </div>
-                                    )
-                                )}
-                                <div className="flex justify-between items-center p-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => addMember()}
-                                        className="flex items-center text-blue-600 hover:text-blue-800 text-sm mt-2"
-                                        title="Add vehicle"
-                                    >
-                                        <IoIosAddCircleOutline className="text-4xl" />
-                                        <span className="ml-1">Add Member</span>
-                                    </button>
-
-                                    <div className="flex justify-end items-center gap-2">
-                                        {familyDetails ? (
-                                            <div></div>
-                                        ) : (
-                                            <Button
-                                                type="button"
-                                                onClick={() => reset()}
-                                            >
-                                                <RotateCcw /> Reset
-                                            </Button>
-                                        )}
-
-                                        <Button
-                                            className="bg-blue-700 hover:bg-blue-400 "
-                                            type={"submit"}
+                                        )
+                                    )}{" "}
+                                    {/* Add Member & Action Buttons */}{" "}
+                                    <div className="flex justify-between items-center mt-6">
+                                        {" "}
+                                        <button
+                                            type="button"
+                                            onClick={addMember}
+                                            className="flex items-center text-blue-700 hover:text-blue-900 text-sm font-medium transition"
                                         >
-                                            {familyDetails ? "Update" : "Add"}{" "}
-                                            <MoveRight />
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
+                                            {" "}
+                                            <IoIosAddCircleOutline className="text-3xl mr-1" />{" "}
+                                            Add Member{" "}
+                                        </button>{" "}
+                                        <div className="flex items-center gap-3">
+                                            {" "}
+                                            {!familyDetails && (
+                                                <Button
+                                                    type="button"
+                                                    onClick={reset}
+                                                >
+                                                    {" "}
+                                                    <RotateCcw /> Reset{" "}
+                                                </Button>
+                                            )}{" "}
+                                            <Button
+                                                className="bg-blue-700 hover:bg-blue-500 text-white"
+                                                type="submit"
+                                            >
+                                                {" "}
+                                                {familyDetails
+                                                    ? "Update"
+                                                    : "Add"}{" "}
+                                                <MoveRight />{" "}
+                                            </Button>{" "}
+                                        </div>{" "}
+                                    </div>{" "}
+                                </div>{" "}
+                            </div>{" "}
                         </form>
                     </SidebarModal>
                     <DeleteConfirmationModal

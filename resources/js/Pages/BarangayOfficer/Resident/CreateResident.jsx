@@ -10,6 +10,7 @@ export default function Index({
     streets,
     households,
     barangays,
+    familyHeads,
 }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
@@ -27,6 +28,7 @@ export default function Index({
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+                    {/* <pre>{JSON.stringify(familyHeads, undefined, 2)}</pre> */}
                     <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 my-8">
                         <div className=" my-2 p-5">
                             {errors.error && (
@@ -40,6 +42,7 @@ export default function Index({
                                 streets={streets}
                                 households={households}
                                 barangays={barangays}
+                                familyHeads={familyHeads}
                             />
                         </div>
                     </div>

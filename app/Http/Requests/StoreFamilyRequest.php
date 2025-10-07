@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreFamilyRequest extends FormRequest
 {
@@ -24,6 +25,8 @@ class StoreFamilyRequest extends FormRequest
         return [
             // Head of Household
             'resident_id' => ['required', 'exists:residents,id'],
+            'family_type' => ['required', Rule::in(['nuclear', 'extended', 'single_parent', 'stepfamilies', 'grandparent', 'childless', 'cohabiting_partners', 'one_person_household', 'roommates'])],
+            'fmaily_name' => ['nullable', 'string'],
 
             // Family Members (array of members)
             'members' => ['required', 'array'],
