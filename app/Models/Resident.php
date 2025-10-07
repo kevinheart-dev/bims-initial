@@ -40,6 +40,7 @@ class Resident extends Model
         'is_deceased',
         'household_id',
         'is_household_head',
+        'is_family_head',
         'family_id',
         'verified',
         'created_at',

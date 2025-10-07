@@ -15,6 +15,8 @@ class HouseholdResident extends Model
         'household_id',
         'relationship_to_head',
         'household_position',
+        'family_id',
+        'is_household_head',
         'created_at',
         'updated_at',
     ];

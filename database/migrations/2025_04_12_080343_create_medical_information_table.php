@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('medical_information', function (Blueprint $table) {
             $table->id();
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
-            $table->decimal('weight_kg', 5, 2);
-            $table->decimal('height_cm', 5, 2);
-            $table->decimal('bmi', 5, 2);
+            $table->decimal('weight_kg', 5, 2)->nullable();
+            $table->decimal('height_cm', 5, 2)->nullable();
+            $table->decimal('bmi', 5, 2)->nullable();
             $table->string('nutrition_status', 55)->nullable();
             $table->string('emergency_contact_number', 20)->nullable();
             $table->string('emergency_contact_name', 55)->nullable();

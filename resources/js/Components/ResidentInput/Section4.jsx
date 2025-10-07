@@ -24,13 +24,15 @@ const Section4 = ({ data, setData, errors }) => {
                 Medical Information
             </h2>
             <p className="text-sm text-gray-600 mb-3">
-                Kindly share your medical history and health-related details.
+                Please record the resident's medical and health information.
+                This includes weight, height, BMI, nutrition status, emergency
+                contacts, blood type, and lifestyle habits.
             </p>
 
-            <div className="grid md:grid-cols-4 gap-4">
+            <div className="grid md:grid-cols-4 gap-6">
                 <div>
                     <InputField
-                        label="Weight in Kilograms (KG)"
+                        label="Weight (KG)"
                         name="weight_kg"
                         value={data.weight_kg || ""}
                         onChange={(e) => setData("weight_kg", e.target.value)}
@@ -38,11 +40,12 @@ const Section4 = ({ data, setData, errors }) => {
                         type="number"
                         step="0.01"
                     />
-                    <InputError message={errors.weight_kg} className="mt-2" />
+                    <InputError message={errors.weight_kg} className="mt-1" />
                 </div>
+
                 <div>
                     <InputField
-                        label="Height in Centimeters (CM)"
+                        label="Height (CM)"
                         name="height_cm"
                         value={data.height_cm || ""}
                         onChange={(e) => setData("height_cm", e.target.value)}
@@ -50,65 +53,56 @@ const Section4 = ({ data, setData, errors }) => {
                         type="number"
                         step="0.01"
                     />
-                    <InputError message={errors.height_cm} className="mt-2" />
+                    <InputError message={errors.height_cm} className="mt-1" />
                 </div>
+
                 <div>
                     <InputField
                         label="BMI"
                         name="bmi"
-                        placeholder="BMI is Calculated Automatically"
+                        placeholder="Calculated automatically"
                         value={data.bmi || ""}
-                        disabled={true}
+                        disabled
                     />
                     <InputError
                         message={errors.nutrition_status}
-                        className="mt-2"
+                        className="mt-1"
                     />
                 </div>
+
                 <div>
                     <InputField
                         label="Nutrition Status"
                         name="nutrition_status"
                         value={data.nutrition_status || ""}
-                        items={[
-                            "normal",
-                            "underweight",
-                            "severly underweight",
-                            "overweight",
-                            "obese",
-                        ]}
                         placeholder="Select status"
-                        onChange={(e) =>
-                            setData("nutrition_status", e.target.value)
-                        }
-                        disabled={true}
+                        disabled
                     />
                     <InputError
                         message={errors.nutrition_status}
-                        className="mt-2"
+                        className="mt-1"
                     />
                 </div>
 
-                {/* medical info */}
                 <div>
                     <InputField
-                        label="Emergency contact number"
+                        label="Emergency Contact Number"
                         name="emergency_contact_number"
                         value={data.emergency_contact_number || ""}
                         onChange={(e) =>
                             setData("emergency_contact_number", e.target.value)
                         }
                         placeholder="09XXXXXXXXX"
-                        type="text"
                     />
                     <InputError
                         message={errors.emergency_contact_number}
-                        className="mt-2"
+                        className="mt-1"
                     />
                 </div>
+
                 <div>
                     <InputField
-                        label="Emergency contact name"
+                        label="Emergency Contact Name"
                         name="emergency_contact_name"
                         value={data.emergency_contact_name || ""}
                         onChange={(e) =>
@@ -118,12 +112,13 @@ const Section4 = ({ data, setData, errors }) => {
                     />
                     <InputError
                         message={errors.emergency_contact_name}
-                        className="mt-2"
+                        className="mt-1"
                     />
                 </div>
+
                 <div>
                     <DropdownInputField
-                        label="Emergency Contact Relationship"
+                        label="Relationship"
                         name="emergency_contact_relationship"
                         value={data.emergency_contact_relationship || ""}
                         onChange={(e) =>
@@ -147,9 +142,10 @@ const Section4 = ({ data, setData, errors }) => {
                     />
                     <InputError
                         message={errors.emergency_contact_relationship}
-                        className="mt-2"
+                        className="mt-1"
                     />
                 </div>
+
                 <div>
                     <DropdownInputField
                         label="Blood Type"
@@ -167,11 +163,12 @@ const Section4 = ({ data, setData, errors }) => {
                             { label: "O-", value: "O-" },
                         ]}
                     />
-                    <InputError message={errors.blood_type} className="mt-2" />
+                    <InputError message={errors.blood_type} className="mt-1" />
                 </div>
+
                 <div>
                     <RadioGroup
-                        label="Are you a PhilHealth data?"
+                        label="PhilHealth"
                         name="has_philhealth"
                         options={[
                             { label: "Yes", value: 1 },
@@ -184,12 +181,13 @@ const Section4 = ({ data, setData, errors }) => {
                     />
                     <InputError
                         message={errors.has_philhealth}
-                        className="mt-2"
+                        className="mt-1"
                     />
                 </div>
+
                 <div>
                     <RadioGroup
-                        label="Do you consume alcohol?"
+                        label="Consume Alcohol"
                         name="is_alcohol_user"
                         options={[
                             { label: "Yes", value: 1 },
@@ -202,13 +200,13 @@ const Section4 = ({ data, setData, errors }) => {
                     />
                     <InputError
                         message={errors.is_alcohol_user}
-                        className="mt-2"
+                        className="mt-1"
                     />
                 </div>
 
                 <div>
                     <RadioGroup
-                        label="Do you smoke?"
+                        label="Smoker"
                         name="is_smoker"
                         options={[
                             { label: "Yes", value: 1 },
@@ -217,12 +215,12 @@ const Section4 = ({ data, setData, errors }) => {
                         selectedValue={data.is_smoker || ""}
                         onChange={(e) => setData("is_smoker", e.target.value)}
                     />
-                    <InputError message={errors.is_smoker} className="mt-2" />
+                    <InputError message={errors.is_smoker} className="mt-1" />
                 </div>
 
                 <div>
                     <RadioGroup
-                        label="Are you a Person with Disability (PWD)?"
+                        label="Person with Disability (PWD)"
                         name="is_pwd"
                         options={[
                             { label: "Yes", value: 1 },
@@ -231,35 +229,35 @@ const Section4 = ({ data, setData, errors }) => {
                         selectedValue={data.is_pwd || ""}
                         onChange={(e) => setData("is_pwd", e.target.value)}
                     />
-                    <InputError message={errors.is_pwd} className="mt-2" />
+                    <InputError message={errors.is_pwd} className="mt-1" />
                 </div>
 
                 {data.has_philhealth == 1 && (
-                    <>
+                    <div className="md:col-span-2">
                         <InputField
-                            label="PhilHealth ID number"
+                            label="PhilHealth ID Number"
                             name="philhealth_id_number"
                             value={data.philhealth_id_number || ""}
                             onChange={(e) =>
                                 setData("philhealth_id_number", e.target.value)
                             }
-                            placeholder="Enter PhilHealth id number"
+                            placeholder="Enter PhilHealth ID number"
                         />
                         <InputError
                             message={errors.philhealth_id_number}
-                            className="mt-2"
+                            className="mt-1"
                         />
-                    </>
+                    </div>
                 )}
             </div>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 mt-5">
                 {data.is_pwd == 1 && (
-                    <div className="flex flex-wrap gap-4 items-start">
+                    <div className="flex flex-col md:flex-row md:items-start gap-6">
                         {/* PWD ID input */}
-                        <div>
+                        <div className="flex-1 min-w-[200px]">
                             <InputField
-                                label="PWD ID number"
+                                label="PWD ID Number"
                                 name="pwd_id_number"
                                 value={data.pwd_id_number || ""}
                                 onChange={(e) =>
@@ -269,65 +267,53 @@ const Section4 = ({ data, setData, errors }) => {
                             />
                             <InputError
                                 message={errors.pwd_id_number}
-                                className="mt-2"
+                                className="mt-1"
                             />
                         </div>
 
                         {/* Disability Types */}
-                        <div className="mt-3">
-                            <label className="block text-sm font-semibold text-gray-700">
-                                Disability type(s)
+                        <div className="flex-1 min-w-[250px]">
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Disability Type(s)
                             </label>
 
-                            <div className="flex flex-wrap items-center gap-4">
+                            <div className="flex flex-wrap gap-3">
                                 {(data.disabilities || []).map(
                                     (disability, disIndex) => (
                                         <div
                                             key={disIndex}
-                                            className="flex items-center gap-1"
+                                            className="flex items-center gap-2"
                                         >
-                                            <div>
-                                                <InputField
-                                                    type="text"
-                                                    name={`disability_type`}
-                                                    value={
-                                                        disability.disability_type ||
-                                                        ""
-                                                    }
-                                                    onChange={(e) => {
-                                                        const updated = [
-                                                            ...(data.disabilities ||
-                                                                []),
-                                                        ];
-                                                        updated[disIndex] = {
-                                                            ...updated[
-                                                                disIndex
-                                                            ],
-                                                            disability_type:
-                                                                e.target.value,
-                                                        };
-                                                        setData(
-                                                            "disabilities",
-                                                            updated
-                                                        );
-                                                    }}
-                                                    placeholder="Enter disability type"
-                                                />
-                                                <InputError
-                                                    message={
-                                                        errors[
-                                                            `disabilities.${disIndex}.disability_type`
-                                                        ]
-                                                    }
-                                                    className="mt-2"
-                                                />
-                                            </div>
+                                            <InputField
+                                                type="text"
+                                                name={`disability_type`}
+                                                value={
+                                                    disability.disability_type ||
+                                                    ""
+                                                }
+                                                onChange={(e) => {
+                                                    const updated = [
+                                                        ...(data.disabilities ||
+                                                            []),
+                                                    ];
+                                                    updated[disIndex] = {
+                                                        ...updated[disIndex],
+                                                        disability_type:
+                                                            e.target.value,
+                                                    };
+                                                    setData(
+                                                        "disabilities",
+                                                        updated
+                                                    );
+                                                }}
+                                                placeholder="Enter disability type"
+                                            />
                                             <button
                                                 type="button"
                                                 onClick={() =>
                                                     removeDisability(disIndex)
                                                 }
-                                                className="text-red-200 text-2xl hover:text-red-500 active:text-red-600"
+                                                className="text-red-400 hover:text-red-600 text-xl"
                                             >
                                                 <IoIosCloseCircleOutline />
                                             </button>
@@ -339,7 +325,7 @@ const Section4 = ({ data, setData, errors }) => {
                                 <button
                                     type="button"
                                     onClick={() => addDisability()}
-                                    className="text-blue-500 text-3xl mt-5 hover:text-blue-700"
+                                    className="text-blue-500 hover:text-blue-700 text-2xl"
                                 >
                                     <IoIosAddCircleOutline />
                                 </button>

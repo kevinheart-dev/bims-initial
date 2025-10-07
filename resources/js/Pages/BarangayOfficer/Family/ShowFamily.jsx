@@ -191,7 +191,8 @@ export default function Index({
     const columnRenderers = {
         resident_id: (member) => member.id,
         name: (member) =>
-            `${member.firstname} ${member.middlename ?? ""} ${member.lastname ?? ""
+            `${member.firstname} ${member.middlename ?? ""} ${
+                member.lastname ?? ""
             } ${member.suffix ?? ""}`,
         gender: (member) => {
             const genderKey = member.gender;
@@ -229,15 +230,15 @@ export default function Index({
         },
         relationship_to_head: (member) =>
             CONSTANTS.RELATIONSHIP_TO_HEAD_TEXT[
-            member.household_residents?.[0]?.relationship_to_head
+                member.household_residents?.[0]?.relationship_to_head
             ] || "",
         household_position: (member) =>
             CONSTANTS.HOUSEHOLD_POSITION_TEXT[
-            member.household_residents?.[0]?.household_position
+                member.household_residents?.[0]?.household_position
             ] || "",
         employment_status: (member) =>
             CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-            member?.employment_status
+                member?.employment_status
             ],
         registered_voter: (member) => {
             const status = member?.registered_voter ?? 0;
@@ -314,8 +315,9 @@ export default function Index({
                                         Family Details
                                     </h1>
                                     <p className="text-sm text-gray-500">
-                                        View and manage the records of this specific family,
-                                        including members, relationships, and household links.
+                                        View and manage the records of this
+                                        specific family, including members,
+                                        relationships, and household links.
                                     </p>
                                 </div>
                             </div>

@@ -18,12 +18,15 @@ class SeniorCitizenController extends Controller
      */
     public function index()
     {
-        $brgy_id = auth()->user()->barangay_id;
+        $barangayId = auth()->user()->barangay_id;
+        $request = request();
 
-        $puroks = Purok::where('barangay_id', $brgy_id)
-            ->orderBy('purok_number', 'asc')
+        // 🟢 Preload puroks for filters
+        $puroks = Purok::where('barangay_id', $barangayId)
+            ->orderBy('purok_number')
             ->pluck('purok_number');
 
+        // 🟢 Base query for senior citizens
         $query = Resident::query()
             ->select([
                 'id',
@@ -36,76 +39,68 @@ class SeniorCitizenController extends Controller
                 'resident_picture_path',
                 'sex',
             ])
-            ->where('barangay_id', $brgy_id)
+            ->where('barangay_id', $barangayId)
             ->where('is_deceased', false)
             ->whereDate('birthdate', '<=', now()->subYears(60))
             ->with(['seniorcitizen:id,resident_id,osca_id_number,is_pensioner,pension_type,living_alone']);
 
-        // 🔎 Search filter
-        if ($name = request('name')) {
+        // 🟡 Search filter
+        if ($name = $request->get('name')) {
             $query->where(function ($q) use ($name) {
-                $q->where('firstname', 'like', "%{$name}%")
-                    ->orWhere('lastname', 'like', "%{$name}%")
-                    ->orWhere('middlename', 'like', "%{$name}%")
-                    ->orWhere('suffix', 'like', "%{$name}%")
-                    ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ["%{$name}%"])
-                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ["%{$name}%"])
-                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", ["%{$name}%"]);
+                $like = "%{$name}%";
+                $q->where('firstname', 'like', $like)
+                    ->orWhere('lastname', 'like', $like)
+                    ->orWhere('middlename', 'like', $like)
+                    ->orWhere('suffix', 'like', $like)
+                    ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", [$like])
+                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", [$like])
+                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", [$like]);
             });
         }
 
-        // 🔎 Registered filter
-        if (request()->filled('is_registered') && request('is_registered') !== 'All') {
-            if (request('is_registered') === 'yes') {
-                $query->whereHas('seniorcitizen');
-            } elseif (request('is_registered') === 'no') {
-                $query->whereDoesntHave('seniorcitizen');
-            }
+        // 🟡 Registered filter
+        $isRegistered = $request->get('is_registered');
+        if ($isRegistered && $isRegistered !== 'All') {
+            $method = $isRegistered === 'yes' ? 'whereHas' : 'whereDoesntHave';
+            $query->{$method}('seniorcitizen');
         }
 
-        // 🔎 Birth month filter
-        if (request()->filled('birth_month') && request('birth_month') !== 'All') {
-            $month = intval(request('birth_month')); // expects 1-12
+        // 🟡 Birth month filter
+        if ($month = $request->integer('birth_month')) {
             $query->whereMonth('birthdate', $month);
         }
 
-        // 🔎 Pensioner filter
-        if (request()->filled('is_pensioner') && request('is_pensioner') !== 'All') {
-            $query->whereHas('seniorcitizen', function ($q) {
-                $q->where('is_pensioner', request('is_pensioner'));
-            });
+        // 🟡 Senior citizen relationship filters
+        $filterMap = [
+            'is_pensioner' => 'is_pensioner',
+            'pension_type' => 'pension_type',
+            'living_alone' => 'living_alone',
+        ];
+
+        foreach ($filterMap as $param => $column) {
+            $value = $request->get($param);
+            if ($value && $value !== 'All') {
+                $query->whereHas('seniorcitizen', fn($q) => $q->where($column, $value));
+            }
         }
 
-        // 🔎 Sex filter
-        if (request()->filled('sex') && request('sex') !== 'All') {
-            $query->where('sex', request('sex'));
+        // 🟡 Sex filter
+        if (($sex = $request->get('sex')) && $sex !== 'All') {
+            $query->where('sex', $sex);
         }
 
-        // 🔎 Pension type filter
-        if (request()->filled('pension_type') && request('pension_type') !== 'All') {
-            $query->whereHas('seniorcitizen', function ($q) {
-                $q->where('pension_type', request('pension_type'));
-            });
+        // 🟡 Purok filter
+        if (($purok = $request->get('purok')) && $purok !== 'All') {
+            $query->where('purok_number', $purok);
         }
 
-        // 🔎 Living alone filter
-        if (request()->filled('living_alone') && request('living_alone') !== 'All') {
-            $query->whereHas('seniorcitizen', function ($q) {
-                $q->where('living_alone', request('living_alone'));
-            });
-        }
-
-        // 🔎 Purok filter
-        if (request()->filled('purok') && request('purok') !== 'All') {
-            $query->where('purok_number', request('purok'));
-        }
-
+        // 🟢 Paginate and return
         $seniorCitizens = $query->paginate(10)->withQueryString();
 
         return Inertia::render('BarangayOfficer/SeniorCitizen/Index', [
             'seniorCitizens' => $seniorCitizens,
             'puroks' => $puroks,
-            'queryParams' => request()->query() ?: null,
+            'queryParams' => $request->query() ?: null,
         ]);
     }
 

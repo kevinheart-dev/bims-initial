@@ -26,7 +26,9 @@ use App\Http\Controllers\DocumentGenerationController;
 use App\Http\Controllers\EducationController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyRelationController;
+use App\Http\Controllers\FamilyTreeController;
 use App\Http\Controllers\HouseholdController;
+use App\Http\Controllers\IBIMSController;
 use App\Http\Controllers\InstitutionMemberController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LivelihoodController;
@@ -76,6 +78,7 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin'])->g
 
     // family
     Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('resident.familytree');
+    Route::post('/family-tree/store', [FamilyTreeController::class, 'store'])->name('family_tree.store');
     Route::get('family/showfamily/{family}', [FamilyController::class, 'showFamily'])->name('family.showfamily');
     Route::get('family/getfamilydetails/{id}', [FamilyController::class, 'getFamilyDetails'])->name('family.getdetails');
     Route::get('family/remove/{id}', [FamilyController::class, 'remove'])->name('family.remove');
@@ -263,13 +266,6 @@ Route::middleware(['auth', 'verified', 'role:resident|barangay_officer'])->group
 });
 
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-})->name('welcome'); // Welcome page accessible to both admin and resident
+Route::get('/', [IBIMSController::class, 'welcome'])->name('welcome'); // Welcome page accessible to both admin and resident
 
 require __DIR__ . '/auth.php';

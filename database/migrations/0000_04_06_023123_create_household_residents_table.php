@@ -15,8 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('resident_id')->nullable()->constrained('residents')->onDelete('cascade');
             $table->foreignId('household_id')->nullable()->constrained('households')->onDelete('cascade');
+
             $table->string('relationship_to_head', 55)->nullable();
             $table->string('household_position', 55)->nullable();
+
+            $table->boolean('is_household_head')->default(false); // quick filter
+            $table->foreignId('family_id')->nullable()->constrained('families')->onDelete('cascade');
+
             $table->timestamps();
         });
     }

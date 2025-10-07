@@ -52,6 +52,13 @@ const EditPersonalInformation = ({
         value: house.household.id.toString(),
     }));
 
+    const familyHeadList = familyHeads.map((head) => ({
+        label: [head.firstname, head.middlename, head.lastname, head.suffix]
+            .filter(Boolean) // removes null/undefined/empty strings
+            .join(" "), // join with spaces
+        value: head.id.toString(),
+    }));
+
     const initial = {
         resident_image: null,
         lastname: resident?.lastname || "",
@@ -99,6 +106,7 @@ const EditPersonalInformation = ({
             );
             return match?.value || "";
         })(),
+
         is_4ps_beneficiary:
             resident?.social_welfare_profile?.is_4ps_beneficiary != null
                 ? resident.social_welfare_profile.is_4ps_beneficiary.toString()

@@ -58,22 +58,23 @@ const Section5 = ({
     };
 
     const handleHouseholdChange = (e) => {
-        const householdId = e.target.value;
+        const householdId = parseInt(e.target.value);
 
-        // Find the household head from the list of residents or a pre-fetched list
+        // Find the household head for the selected household
         const head = households.find(
-            (r) =>
-                r.household_id === parseInt(householdId) &&
-                r.is_household_head === 1
+            (r) => r.household_id === householdId && r.is_household_head === 1
         );
 
+        // Compose full name if a head exists
         const fullName = head
-            ? `${head.firstname} ${head.middlename ?? ""} ${head.lastname}${
-                  head.suffix ? " " + head.suffix : ""
-              }`
+            ? [head.firstname, head.middlename, head.lastname, head.suffix]
+                  .filter(Boolean)
+                  .join(" ")
             : "";
-        setData("housenumber", householdId); // set the selected household
-        setData("name_of_head", fullName.trim()); // set the head's name
+
+        // Update state
+        setData("housenumber", householdId.toString());
+        setData("name_of_head", fullName);
     };
 
     const handleStreetChange = (e) => {
@@ -112,18 +113,352 @@ const Section5 = ({
         };
         setData((prev) => ({ ...prev, [field]: currentArray }));
     };
+    const handleFamilyHeadChange = (e) => {
+        const familyHeadId = parseInt(e.target.value);
+
+        // Find the family head from the pre-fetched list
+        const head = familyHeads.find((h) => h.id === familyHeadId);
+
+        // Build full name
+        const fullName = head
+            ? [head.firstname, head.middlename, head.lastname, head.suffix]
+                  .filter(Boolean)
+                  .join(" ")
+            : "";
+
+        // Set selected family head ID
+        setData("family_head_id", familyHeadId);
+
+        // Optionally, store/display the full name somewhere
+        if (fullName) {
+            setData("family_head_name", fullName);
+        } else {
+            setData("family_head_name", e.target.value);
+        }
+    };
 
     return (
         <>
-            <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-5">
-                House Information
-            </h2>
-            <p className="text-sm text-gray-600 mb-3">
-                Please provide the necessary house information.
-            </p>
+            {/* HOUSE INFORMATION */}
+            <section className="my-8">
+                <h2 className="text-3xl font-semibold text-gray-800 mb-2 mt-5">
+                    House Information
+                </h2>
+                <p className="text-sm text-gray-600 mb-4">
+                    Please provide the necessary house details. If you are the
+                    head of the household, some fields will be editable.
+                </p>
+
+                <div className="bg-gray-50 p-6 rounded-lg space-y-6">
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {/* House Number */}
+                        <div className="flex flex-col">
+                            <DropdownInputField
+                                type="text"
+                                label="House/Unit No./Lot/Blk No."
+                                name="housenumber"
+                                value={data.housenumber || ""}
+                                onChange={(e) => handleHouseholdChange(e)}
+                                placeholder="Select or enter house number"
+                                items={householdList}
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Choose your assigned house or lot number.
+                            </p>
+                            <InputError
+                                message={errors.housenumber}
+                                className="mt-1"
+                            />
+                        </div>
+                        {/* Head of Household */}
+                        <div className="flex flex-col">
+                            <InputField
+                                type="text"
+                                label="Head of Household"
+                                name="name_of_head"
+                                value={data.name_of_head || ""}
+                                placeholder="Head of Household"
+                                disabled
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                This field displays the head of the household.
+                            </p>
+                            <InputError
+                                message={errors.name_of_head}
+                                className="mt-1"
+                            />
+                        </div>
+
+                        <div className="flex flex-col">
+                            <SelectField
+                                label="Relationship to Household Head"
+                                name="relationship_to_head"
+                                value={data.relationship_to_head || ""}
+                                onChange={(e) =>
+                                    setData(
+                                        "relationship_to_head",
+                                        e.target.value
+                                    )
+                                }
+                                placeholder="Select relationship"
+                                required
+                                items={[
+                                    // {
+                                    //     label: "Self/Head",
+                                    //     value: "self",
+                                    //     subtitle:
+                                    //         "The main resident of the household",
+                                    // },
+                                    {
+                                        label: "Spouse",
+                                        value: "spouse",
+                                        subtitle:
+                                            "Legally married partner of the head",
+                                    },
+                                    {
+                                        label: "Child",
+                                        value: "child",
+                                        subtitle: "Son or daughter of the head",
+                                    },
+                                    {
+                                        label: "Sibling",
+                                        value: "sibling",
+                                        subtitle:
+                                            "Brother or sister of the head",
+                                    },
+                                    {
+                                        label: "Parent",
+                                        value: "parent",
+                                        subtitle:
+                                            "Father or mother of the head",
+                                    },
+                                    {
+                                        label: "Parent-in-law",
+                                        value: "parent_in_law",
+                                        subtitle: "Parent of the head's spouse",
+                                    },
+                                    {
+                                        label: "Sibling of Spouse",
+                                        value: "sibling-of-spouse",
+                                        subtitle:
+                                            "Brother or sister of the spouse",
+                                    },
+                                    {
+                                        label: "Spouse of (Sibling of Spouse)",
+                                        value: "spouse-of-sibling-of-spouse",
+                                        subtitle:
+                                            "Spouse of your sibling-in-law",
+                                    },
+                                    {
+                                        label: "Spouse of Sibling",
+                                        value: "spouse-sibling",
+                                        subtitle: "Spouse of your sibling",
+                                    },
+                                    {
+                                        label: "Niece/Nephew",
+                                        value: "niblings",
+                                        subtitle:
+                                            "Child of your sibling or sibling-in-law",
+                                    },
+                                    {
+                                        label: "Grandparent",
+                                        value: "grandparent",
+                                        subtitle:
+                                            "Grandfather or grandmother of the head",
+                                    },
+                                ]}
+                            />
+                            <InputError
+                                message={errors.relationship_to_head}
+                                className="mt-1"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Select how this resident is related to the head
+                                of the household. This helps establish family
+                                connections and proper household records.
+                            </p>
+                        </div>
+
+                        {/* Street Name */}
+                        <div className="flex flex-col">
+                            <InputField
+                                type="text"
+                                label="Street Name"
+                                name="street_name"
+                                value={data.street_name || ""}
+                                placeholder="e.g., Rizal St., Mabini Avenue"
+                                disabled={data.is_household_head != 1}
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Provide the street where your house is located.
+                            </p>
+                            <InputError
+                                message={errors.street_name}
+                                className="mt-1"
+                            />
+                        </div>
+
+                        {/* Subdivision/Village */}
+                        <div className="flex flex-col">
+                            <InputField
+                                type="text"
+                                label="Subdivision/Village/Compound"
+                                name="subdivision"
+                                value={data.subdivision || ""}
+                                onChange={(e) =>
+                                    setData("subdivision", e.target.value)
+                                }
+                                placeholder="e.g., Villa Gloria Subdivision"
+                                disabled={data.is_household_head != 1}
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Enter the subdivision or village name if
+                                applicable.
+                            </p>
+                            <InputError
+                                message={errors.subdivision}
+                                className="mt-1"
+                            />
+                        </div>
+
+                        {/* Purok Number */}
+                        <div className="flex flex-col">
+                            <SelectField
+                                label="Purok Number"
+                                name="purok_number"
+                                value={data.purok_number || ""}
+                                onChange={(e) =>
+                                    setData("purok_number", e.target.value)
+                                }
+                                items={purok_numbers}
+                                disabled={data.is_household_head != 1}
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Select the assigned Purok number.
+                            </p>
+                            <InputError
+                                message={errors.purok_number}
+                                className="mt-1"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* FAMILY RELATION */}
+            {/* {!edit && (
+                <section className="mb-8">
+                    <h2 className="text-3xl font-semibold text-gray-800 mb-1 mt-5">
+                        Family Relation Information
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-4">
+                        Specify your relationship to the head of the household,
+                        your household position, and whether you are the family
+                        head.
+                    </p>
+
+                    <div className="bg-gray-50 p-5 rounded space-y-4">
+                        <div className="grid md:grid-cols-3 gap-6">
+                            <div>
+                                <DropdownInputField
+                                    type="text"
+                                    label="Select Family Head"
+                                    name="family_head_id"
+                                    value={data.family_head_name ?? ""}
+                                    onChange={handleFamilyHeadChange}
+                                    placeholder="Select if this member is the family head"
+                                    items={familyHeadList}
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Indicate if this member is the head of the
+                                    family.
+                                </p>
+                                <InputError
+                                    message={errors.family_head_id}
+                                    className="mt-1"
+                                />
+                            </div>
+
+                            <div>
+                                <DropdownInputField
+                                    type="text"
+                                    label="Relation to Head of Family"
+                                    name="relationship_to_head"
+                                    value={data.relationship_to_head || ""}
+                                    onChange={(e) =>
+                                        setData(
+                                            "relationship_to_head",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Select relationship"
+                                    items={[
+                                        { label: "Spouse", value: "spouse" },
+                                        { label: "Child", value: "child" },
+                                        { label: "Sibling", value: "sibling" },
+                                        { label: "Parent", value: "parent" },
+                                        {
+                                            label: "Parent-in-law",
+                                            value: "parent_in_law",
+                                        },
+                                        {
+                                            label: "Grandparent",
+                                            value: "grandparent",
+                                        },
+                                        {
+                                            label: "Grandchild",
+                                            value: "grandchild",
+                                        },
+                                        { label: "Other", value: "other" },
+                                    ]}
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Select your relationship to the head of the
+                                    household.
+                                </p>
+                                <InputError
+                                    message={errors.relationship_to_head}
+                                    className="mt-1"
+                                />
+                            </div>
+
+                            <div>
+                                <DropdownInputField
+                                    type="text"
+                                    label="Household Position"
+                                    name="household_position"
+                                    value={data.household_position || ""}
+                                    onChange={(e) =>
+                                        setData(
+                                            "household_position",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Select household position"
+                                    items={[
+                                        { label: "Primary", value: "primary" },
+                                        {
+                                            label: "Extended",
+                                            value: "extended",
+                                        },
+                                        { label: "Boarder", value: "boarder" },
+                                    ]}
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Select your position within the household.
+                                </p>
+                                <InputError
+                                    message={errors.household_position}
+                                    className="mt-1"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            )} */}
 
             {/* HOUSE ADDRESS */}
-            {head !== true && (
+            {/* {head !== true && (
                 <div className="bg-gray-50 p-3 rounded space-y-2">
                     <div className="grid md:grid-cols-4 gap-4">
                         <div>
@@ -278,7 +613,7 @@ const Section5 = ({
                         </div>
                     </div>
                 </div>
-            )}
+            )} */}
 
             {head !== false && (
                 <>

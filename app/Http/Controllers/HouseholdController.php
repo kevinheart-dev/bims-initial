@@ -724,7 +724,7 @@ class HouseholdController extends Controller
 
             return response()->json([
                 'success' => true,
-                'house_number' => $latestHouse ? $latestHouse->house_number : null,
+                'house_number' => $latestHouse ? (string)($latestHouse->house_number + 1) : null,
             ]);
         } catch (\Exception $e) {
             return response()->json([

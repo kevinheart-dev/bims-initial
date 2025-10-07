@@ -20,61 +20,70 @@ class FamilyController extends Controller
      */
     public function index()
     {
-        $brgyId = Auth()->user()->barangay_id; // get brgy id through the admin
-        $query = Family::with([
-            'latestHead.householdResidents.household'
-        ])->with([
-            'latestHead.street.purok'
-        ])->where('barangay_id', $brgyId)->withCount('members');
+        $barangayId = auth()->user()->barangay_id;
+        $request = request();
 
-        if (request('name')) {
-            $query->where(function ($q) {
-                $q->where('family_name', 'like', '%' . request('name') . '%')
-                    ->orWhereHas('members.householdResidents.household', function ($sub) {
-                        $sub->where('house_number', 'like', '%' . request('name') . '%');
+        // 🟢 Load puroks for filters
+        $puroks = Purok::where('barangay_id', $barangayId)
+            ->orderBy('purok_number')
+            ->pluck('purok_number');
+
+        // 🟢 Base query
+        $query = Family::query()
+            ->where('barangay_id', $barangayId)
+            ->withCount(['members as family_member_count' => function ($q) use ($barangayId) {
+                $q->where('barangay_id', $barangayId);
+            }])
+            ->with([
+                // include `family_id` so Laravel can link relationship
+                'latestHead:id,family_id,firstname,lastname,street_id,is_family_head',
+
+                'latestHead.householdResidents.household:id,purok_id,house_number',
+                'latestHead.street:id,purok_id,street_name',
+                'latestHead.street.purok:id,purok_number',
+            ]);
+
+        // 🟡 Search by family name or house number
+        if ($name = $request->get('name')) {
+            $like = "%{$name}%";
+            $query->where(function ($q) use ($like) {
+                $q->where('family_name', 'like', $like)
+                    ->orWhereHas('members.householdResidents.household', function ($sub) use ($like) {
+                        $sub->where('house_number', 'like', $like);
                     });
             });
         }
-        if (request()->filled('purok') && request('purok') !== 'All') {
-            $query->whereHas('members.householdResidents.household.purok', function ($q) {
-                $q->where('purok_number', request('purok'));
+
+        // 🟡 Filter by Purok
+        if (($purok = $request->get('purok')) && $purok !== 'All') {
+            $query->whereHas('members.householdResidents.household.purok', function ($q) use ($purok) {
+                $q->where('purok_number', $purok);
             });
         }
-        if (request()->filled('famtype') && request('famtype') !== 'All') {
-            $query->where('family_type', request('famtype'));
+
+        // 🟡 Filter by Family Type
+        if (($famtype = $request->get('famtype')) && $famtype !== 'All') {
+            $query->where('family_type', $famtype);
         }
-        if (request()->filled('income_bracket') && request('income_bracket') !== 'All') {
-            $query->where('income_bracket', request('income_bracket'));
+
+        // 🟡 Filter by Income Bracket
+        if (($income = $request->get('income_bracket')) && $income !== 'All') {
+            $query->where('income_bracket', $income);
         }
-        if (request()->filled('household_head') && request('household_head') !== 'All') {
-            $query->whereHas('members', function ($q) {
-                $q->where('is_household_head', request('household_head'));
+
+        // 🟡 Filter by Household Head
+        if (($head = $request->get('household_head')) && $head !== 'All') {
+            $query->whereHas('members', function ($q) use ($head) {
+                $q->where('is_household_head', $head);
             });
         }
+
+        // 🟢 Paginate
         $families = $query->paginate(10)->withQueryString();
 
-
-
-        $families->each(function ($resident) use ($brgyId) {
-            $resident->family_member_count = $resident->family?->members
-                ->where('barangay_id', $brgyId)
-                ->count() ?? 0;
-        });
-        $puroks = Purok::where('barangay_id', $brgyId)->orderBy('purok_number', 'asc')->pluck('purok_number');
-
-        // $residents = HouseholdResident::with('resident', 'resident.latestHousehold')
-        //     ->whereHas('resident', function ($query) use ($brgyId) {
-        //         $query->where('barangay_id', $brgyId)
-        //             ->where('is_household_head', true);
-        //     })
-        //     ->get();
-
-        //$members = Resident::with('latestHousehold')->get();
-
-
-        return Inertia::render("BarangayOfficer/Family/Index", [
+        return Inertia::render('BarangayOfficer/Family/Index', [
             'families' => $families,
-            'queryParams' => request()->query() ?: null,
+            'queryParams' => $request->query() ?: null,
             'puroks' => $puroks,
         ]);
     }
@@ -93,6 +102,7 @@ class FamilyController extends Controller
     public function store(StoreFamilyRequest $request)
     {
         $data = $request->validated();
+        dd($data);
         $resident = HouseholdResident::where('resident_id', $data['resident_id'])->firstOrFail();
         $head = Resident::with('occupations')->findOrFail($data['resident_id']);
 
@@ -139,136 +149,13 @@ class FamilyController extends Controller
                 'household_id' => $resident->household_id,
                 'income_bracket' => $incomeBracket,
                 'income_category' =>  $incomeCategory,
-                'family_type' => 'extended',
-                'family_name' => $head->lastname,
+                'family_type' => $data['family_type'],
+                'family_name' => $data['family_name'] ?? $head->lastname,
             ]);
 
             // Assign family_id to all residents
             Resident::whereIn('id', $allResidentIds)->update(['family_id' => $family->id]);
-
-            // ----------- Store Relationships -----------
-            $headId = $head->id;
-            $spouse = collect($members)->firstWhere('relationship_to_head', 'spouse');
-
-            if ($spouse) {
-                FamilyRelation::firstOrCreate([
-                    'resident_id' => $headId,
-                    'related_to' => $spouse['resident_id'],
-                    'relationship' => 'spouse',
-                ]);
-                FamilyRelation::firstOrCreate([
-                    'resident_id' => $spouse['resident_id'],
-                    'related_to' => $headId,
-                    'relationship' => 'spouse',
-                ]);
-            }
-
-            foreach ($members as $member) {
-                $residentId = $member['resident_id'] ?? null;
-                $relationship = strtolower(trim($member['relationship_to_head']));
-
-                switch ($relationship) {
-                    case 'child':
-                        FamilyRelation::firstOrCreate([
-                            'resident_id' => $residentId,
-                            'related_to' => $headId,
-                            'relationship' => 'child',
-                        ]);
-                        FamilyRelation::firstOrCreate([
-                            'resident_id' => $headId,
-                            'related_to' => $residentId,
-                            'relationship' => 'parent',
-                        ]);
-                        if ($spouse) {
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $residentId,
-                                'related_to' => $spouse['resident_id'],
-                                'relationship' => 'child',
-                            ]);
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $spouse['resident_id'],
-                                'related_to' => $residentId,
-                                'relationship' => 'parent',
-                            ]);
-                        }
-                        break;
-
-                    case 'parent':
-                        FamilyRelation::firstOrCreate([
-                            'resident_id' => $residentId,
-                            'related_to' => $headId,
-                            'relationship' => 'parent',
-                        ]);
-                        FamilyRelation::firstOrCreate([
-                            'resident_id' => $headId,
-                            'related_to' => $residentId,
-                            'relationship' => 'child',
-                        ]);
-                        break;
-
-                    case 'grandparent':
-                        $parents = $head->parents ?? collect();
-                        foreach ($parents as $parent) {
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $residentId,
-                                'related_to' => $parent->id,
-                                'relationship' => 'parent',
-                            ]);
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $parent->id,
-                                'related_to' => $residentId,
-                                'relationship' => 'child',
-                            ]);
-                        }
-                        break;
-
-                    case 'sibling':
-                        $sharedParents = $head->parents ?? collect();
-                        foreach ($sharedParents as $parent) {
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $parent->id,
-                                'related_to' => $residentId,
-                                'relationship' => 'parent',
-                            ]);
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $residentId,
-                                'related_to' => $parent->id,
-                                'relationship' => 'child',
-                            ]);
-                        }
-                        break;
-
-                    case 'parent_in_law':
-                        if ($spouse) {
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $residentId,
-                                'related_to' => $spouse['resident_id'],
-                                'relationship' => 'parent',
-                            ]);
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $spouse['resident_id'],
-                                'related_to' => $residentId,
-                                'relationship' => 'child',
-                            ]);
-                        }
-                        break;
-                }
-            }
-
-            // Link siblings
-            $children = collect($members)->filter(fn ($m) => strtolower($m['relationship_to_head']) === 'child');
-            foreach ($children as $i => $childA) {
-                foreach ($children as $j => $childB) {
-                    if ($i !== $j) {
-                        FamilyRelation::firstOrCreate([
-                            'resident_id' => $childA['resident_id'],
-                            'related_to' => $childB['resident_id'],
-                            'relationship' => 'sibling',
-                        ]);
-                    }
-                }
-            }
-            $head->update(['is_household_head' => true]);
+            $head->update(['is_family_head' => true]);
 
             return redirect()->route('family.index')->with('success', 'Family added successfully!');
         } catch (\Exception $e) {
@@ -287,98 +174,109 @@ class FamilyController extends Controller
 
     public function showFamily(Family $family)
     {
-        $family_details = $family->load('household', 'members');
+        $family->load(['household.purok', 'members.householdResidents']);
+
         $household_details = $family->household;
 
-        $query = $family->members()->with('householdResidents')->latest();
+        // 🟢 Base query for members (only select needed columns)
+        $query = $family->members()
+            ->select([
+                'id',
+                'firstname',
+                'middlename',
+                'lastname',
+                'suffix',
+                'gender',
+                'birthdate',
+                'employment_status',
+                'registered_voter',
+                'is_pwd',
+            ])
+            ->with(['householdResidents:id,resident_id,relationship_to_head,household_position'])
+            ->latest();
 
-        // Search by name
+        // 🟡 Search by name
         if (request()->filled('name')) {
-            $query->where(function ($q) {
-                $q->where('firstname', 'like', '%' . request('name') . '%')
-                    ->orWhere('lastname', 'like', '%' . request('name') . '%')
-                    ->orWhere('middlename', 'like', '%' . request('name') . '%')
-                    ->orWhere('suffix', 'like', '%' . request('name') . '%')
-                    ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
-                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", ['%' . request('name') . '%'])
-                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, suffix) LIKE ?", ['%' . request('name') . '%']);
+            $name = request('name');
+            $query->where(function ($q) use ($name) {
+                $like = "%{$name}%";
+                $q->where('firstname', 'like', $like)
+                    ->orWhere('lastname', 'like', $like)
+                    ->orWhere('middlename', 'like', $like)
+                    ->orWhere('suffix', 'like', $like)
+                    ->orWhereRaw("CONCAT(firstname, ' ', lastname) LIKE ?", [$like])
+                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname) LIKE ?", [$like])
+                    ->orWhereRaw("CONCAT(firstname, ' ', middlename, ' ', lastname, ' ', suffix) LIKE ?", [$like]);
             });
         }
 
-        // Filter by gender
+        // 🟡 Gender Filter
         if (request()->filled('gender') && request('gender') !== 'All') {
             $query->where('gender', request('gender'));
         }
 
-        // Filter by age group
-        if (request()->filled('age_group') && request('age_group') !== 'All') {
-            $today = now();
-
-            switch (request('age_group')) {
-                case 'child':
-                    $max = $today->copy()->subYears(0);
-                    $min = $today->copy()->subYears(13);
-                    break;
-                case 'teen':
-                    $max = $today->copy()->subYears(13);
-                    $min = $today->copy()->subYears(18);
-                    break;
-                case 'young_adult':
-                    $max = $today->copy()->subYears(18);
-                    $min = $today->copy()->subYears(26);
-                    break;
-                case 'adult':
-                    $max = $today->copy()->subYears(26);
-                    $min = $today->copy()->subYears(60);
-                    break;
-                case 'senior':
-                    $max = $today->copy()->subYears(60);
-                    $min = null;
-                    break;
-            }
-
-            if (isset($min)) {
-                $query->whereBetween('birthdate', [$min, $max]);
-            } else {
-                $query->where('birthdate', '<=', $max);
-            }
-        }
-
-        // Filter by employment status
+        // 🟡 Employment Status
         if (request()->filled('estatus') && request('estatus') !== 'All') {
             $query->where('employment_status', request('estatus'));
         }
 
-        // Filter by voter status
+        // 🟡 Voter Status
         if (request()->filled('voter_status') && request('voter_status') !== 'All') {
             $query->where('registered_voter', request('voter_status'));
         }
 
-        // Filter by PWD
+        // 🟡 PWD Filter
         if (request()->filled('is_pwd') && request('is_pwd') !== 'All') {
             $query->where('is_pwd', request('is_pwd'));
         }
 
-        // Filter by relation to head (from householdResidents relation)
+        // 🟡 Relation to Head
         if (request()->filled('relation') && request('relation') !== 'All') {
             $query->whereHas('householdResidents', function ($q) {
                 $q->where('relationship_to_head', request('relation'));
             });
         }
 
-        // Filter by household position
+        // 🟡 Household Position
         if (request()->filled('household_position') && request('household_position') !== 'All') {
             $query->whereHas('householdResidents', function ($q) {
                 $q->where('household_position', request('household_position'));
             });
         }
 
-        $members = $query->get();
+        // 🟢 Execute query and map structure
+        $members = $query->get()->map(function ($member) {
+            return [
+                'id' => $member->id,
+                'firstname' => $member->firstname,
+                'middlename' => $member->middlename,
+                'lastname' => $member->lastname,
+                'suffix' => $member->suffix,
+                'gender' => $member->gender,
+                'birthdate' => $member->birthdate,
+                'employment_status' => $member->employment_status,
+                'registered_voter' => $member->registered_voter,
+                'is_pwd' => $member->is_pwd,
+                'household_residents' => $member->householdResidents->map(fn($hr) => [
+                    'relationship_to_head' => $hr->relationship_to_head,
+                    'household_position' => $hr->household_position,
+                ]),
+            ];
+        });
 
         return Inertia::render("BarangayOfficer/Family/ShowFamily", [
+            'family_details' => [
+                'id' => $family->id,
+                'family_name' => $family->family_name,
+                'family_type' => $family->family_type,
+                'income_bracket' => $family->income_bracket,
+            ],
+            'household_details' => [
+                'id' => $household_details?->id,
+                'house_number' => $household_details?->house_number,
+                'purok_number' => $household_details?->purok?->purok_number,
+            ],
             'members' => $members,
-            'family_details' => $family_details,
-            'household_details' => $household_details,
             'queryParams' => request()->query() ?: null,
         ]);
     }
@@ -690,23 +588,13 @@ class FamilyController extends Controller
 
     public function getFamilyDetails($id)
     {
-        $family = Family::findOrFail($id);
-
-        $family_details = $family->load([
-            'members.householdResidents' => function ($query) {
-                $query->select(
-                    'id',
-                    'resident_id',
-                    'household_id',
-                    'relationship_to_head',
-                    'household_position'
-                );
-            },
+        $family = Family::with([
+            'members.householdResidents:id,resident_id,household_id,relationship_to_head,household_position',
             'members.householdResidents.household:id,house_number'
-        ]);
+        ])->findOrFail($id, ['id', 'family_name', 'barangay_id', 'income_bracket', 'family_type']);
 
         return response()->json([
-            'family_details' => $family_details,
+            'family_details' => $family,
         ]);
     }
 

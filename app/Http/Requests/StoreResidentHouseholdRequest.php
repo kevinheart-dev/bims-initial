@@ -98,6 +98,7 @@ class StoreResidentHouseholdRequest extends FormRequest
             'household.families.*.members.*.contactNumber' => ['nullable', 'string', 'max:15'],
             'household.families.*.members.*.email' => ['nullable','email','min:10','max:55','unique:residents,email'],
             'household.families.*.members.*.is_pensioner' => ['nullable', Rule::in(['yes', 'no'])],
+            'household.families.*.members.*.is_family_head' => ['nullable', Rule::in([1, 0])],
             'household.families.*.members.*.osca_id_number' => ['nullable', 'string', 'max:55'],
             'household.families.*.members.*.pension_type' => ['nullable', Rule::in(['SSS', 'GSIS', 'DSWD', 'private', 'none'])],
             'household.families.*.members.*.living_alone' => ['nullable', Rule::in([0, 1])],
