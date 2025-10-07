@@ -29,7 +29,7 @@ const AgeCategory = ({ ageCategory }) => {
                 <BarChart
                     data={data}
                     layout="vertical"
-                    margin={{ top: 0, right: 0, left: 5, bottom: -10 }}
+                    margin={{ top: 0, right: 20, left: 0, bottom: -10 }}
                 >
                     {/* Horizontal Gradient: White -> Blue */}
                     <defs>

@@ -33,7 +33,7 @@ const EthnicityBarChart = ({ ethnicityDistribution = {} }) => {
                 Ethnicity Distribution
             </h3>
 
-            <ResponsiveContainer width="108%" height={50}>
+            <ResponsiveContainer width="100%" height={50}>
                 <BarChart data={stackedData} layout="vertical" margin={{ left: 2, right: 2 }}>
                     <XAxis type="number" hide />
                     <YAxis type="category" dataKey="name" hide />
@@ -62,8 +62,11 @@ const EthnicityBarChart = ({ ethnicityDistribution = {} }) => {
 
             <hr className="my-4" />
 
-            {/* Scrollable Breakdown List */}
-            <div className={`flex flex-col gap-2 ${dataArray.length > 6 ? "max-h-60 overflow-y-auto" : ""}`}>
+
+            {/* Scrollable Legend / Breakdown List */}
+            <div
+                className={`flex flex-col gap-2 overflow-y-auto max-h-[175px]`} // fixed height for scroll
+            >
                 {dataArray.map((entry, index) => {
                     const percentage = calculatePercentage(entry.total, totalPopulation);
                     return (
@@ -95,6 +98,7 @@ const EthnicityBarChart = ({ ethnicityDistribution = {} }) => {
                     );
                 })}
             </div>
+
         </div>
     );
 };
