@@ -142,9 +142,9 @@ const Home = () => {
                         animate="visible"
                         transition={{ delay: 0.4 }}
                     >
-                        Tang ina mo
+                        Barangay Information
                         <br />
-                        Xed
+                        Management System
                     </motion.p>
 
                     <motion.p
