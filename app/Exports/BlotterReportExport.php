@@ -121,10 +121,31 @@ class BlotterReportExport implements FromCollection, WithHeadings, ShouldAutoSiz
                 // Insert rows for logos + title
                 $sheet->insertNewRowBefore(1,4);
 
-                $barangayLogo = $this->barangay->logo_path
-                    ? storage_path('app/public/'.$this->barangay->logo_path)
+                // === Get logos dynamically and safely ===
+                $barangayLogoPath = $this->barangay->logo_path
+                    ? storage_path('app/public/' . ltrim($this->barangay->logo_path, '/'))
                     : public_path('images/csa-logo.png');
-                $cityLogo = public_path('images/city-of-ilagan.png');
+
+                $cityLogoPath = public_path('images/city-of-ilagan.png');
+
+                // ✅ Check existence of Barangay logo, fallback if missing
+                if (!file_exists($barangayLogoPath)) {
+                    // Log warning (optional for debugging)
+                    \Log::warning("Barangay logo not found at: {$barangayLogoPath}");
+
+                    // Use fallback logo
+                    $barangayLogoPath = public_path('images/csa-logo.png');
+                }
+
+                // ✅ Check existence of City logo, fallback if missing
+                if (!file_exists($cityLogoPath)) {
+                    \Log::warning("City logo not found at: {$cityLogoPath}");
+                    $cityLogoPath = public_path('images/default-logo.png'); // optional fallback
+                }
+
+                // ✅ Assign safely to variables used in PDF
+                $barangayLogo = $barangayLogoPath;
+                $cityLogo = $cityLogoPath;
 
                 $sheet->getRowDimension(1)->setRowHeight(60);
                 $sheet->getRowDimension(2)->setRowHeight(20);

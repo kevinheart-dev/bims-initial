@@ -170,12 +170,11 @@ export default function Create({
 
                                                 <div>
                                                     <InputField
-                                                        label="Gender"
-                                                        name="gender"
+                                                        label="Sex"
+                                                        name="sex"
                                                         value={
                                                             RESIDENT_GENDER_TEXT2[
-                                                                data.gender ||
-                                                                    ""
+                                                                data.sex || ""
                                                             ]
                                                         }
                                                         placeholder="Select a resident"

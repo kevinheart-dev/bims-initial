@@ -33,6 +33,7 @@ import {
     FileInput,
     CircleUserRound,
     LayoutList,
+    UtilityPole,
 } from "lucide-react";
 import {
     Sidebar,
@@ -128,6 +129,12 @@ const items = [
                 title: "Households",
                 url: "/household",
                 icon: House,
+                roles: ["barangay_officer"],
+            },
+            {
+                title: "Household Overview",
+                url: "/overview",
+                icon: UtilityPole,
                 roles: ["barangay_officer"],
             },
             {

@@ -36,6 +36,7 @@ const FilterToggle = ({
     institutions = [],
     types = [],
     names = [],
+    ethnicities = ["Tagalog", "Ilocano", "Ibanag"],
     clearRouteName = "",
     clearRouteParams = {},
     clearRouteAxios = false,
@@ -222,6 +223,24 @@ const FilterToggle = ({
                         <SelectItem value="All">All</SelectItem>
                         <SelectItem value="1">Registered Voter</SelectItem>
                         <SelectItem value="0">Unregistered Voter</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("ethnic") && (
+                <Select
+                    onValueChange={(v) => searchFieldName("ethnic", v)}
+                    value={queryParams.ethnic}
+                >
+                    <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Ethnicity" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {ethnicities.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {option}
+                            </SelectItem>
+                        ))}
                     </SelectContent>
                 </Select>
             )}

@@ -184,6 +184,9 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin'])->g
     Route::patch('/user/{user}/toggle-account', [UserController::class, 'toggleAccount'])
     ->name('user.toggle');
 
+    // households
+    Route::get('/overview', [HouseholdController::class, 'householdOverview'])->name('household.overview');
+
     // residents
     Route::resource('user', UserController::class);
     Route::resource('resident', ResidentController::class);
@@ -226,6 +229,7 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin'])->g
 });
 
 Route::middleware(['auth', 'role:barangay_officer'])->group(function () {
+    Route::redirect('/', '/barangay_officer/dashboard');
     Route::get('barangay_officer/dashboard', [DashboardController::class, 'dashboard'])->name('barangay_officer.dashboard');
 });
 

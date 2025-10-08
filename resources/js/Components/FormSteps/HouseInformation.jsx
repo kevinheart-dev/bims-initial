@@ -254,7 +254,6 @@ function HouseInformation() {
                                 value: "wireless_fidelity",
                             },
                             { label: "None", value: "none" },
-
                         ]}
                         required
                     />
@@ -314,7 +313,7 @@ function HouseInformation() {
                                         <p className="text-red-500 text-xs">
                                             {
                                                 errors[
-                                                `toilets.${idx}.toilet_type`
+                                                    `toilets.${idx}.toilet_type`
                                                 ]
                                             }
                                         </p>
@@ -402,14 +401,14 @@ function HouseInformation() {
                                         {errors?.[
                                             `electricity_types.${idx}.electricity_type`
                                         ] && (
-                                                <p className="text-red-500 text-xs">
-                                                    {
-                                                        errors[
+                                            <p className="text-red-500 text-xs">
+                                                {
+                                                    errors[
                                                         `electricity_types.${idx}.electricity_type`
-                                                        ]
-                                                    }
-                                                </p>
-                                            )}
+                                                    ]
+                                                }
+                                            </p>
+                                        )}
                                     </div>
                                     {userData.electricity_types.length > 1 && (
                                         <button
@@ -506,14 +505,14 @@ function HouseInformation() {
                                         {errors?.[
                                             `water_source_types.${idx}.water_source_type`
                                         ] && (
-                                                <p className="text-red-500 text-xs">
-                                                    {
-                                                        errors[
+                                            <p className="text-red-500 text-xs">
+                                                {
+                                                    errors[
                                                         `water_source_types.${idx}.water_source_type`
-                                                        ]
-                                                    }
-                                                </p>
-                                            )}
+                                                    ]
+                                                }
+                                            </p>
+                                        )}
                                     </div>
                                     {userData.water_source_types.length > 1 && (
                                         <button
@@ -607,31 +606,31 @@ function HouseInformation() {
                                         {errors?.[
                                             `waste_management_types.${idx}.waste_management_type`
                                         ] && (
-                                                <p className="text-red-500 text-xs">
-                                                    {
-                                                        errors[
+                                            <p className="text-red-500 text-xs">
+                                                {
+                                                    errors[
                                                         `waste_management_types.${idx}.waste_management_type`
-                                                        ]
-                                                    }
-                                                </p>
-                                            )}
+                                                    ]
+                                                }
+                                            </p>
+                                        )}
                                     </div>
 
                                     {userData.waste_management_types.length >
                                         1 && (
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    removeDynamicField(
-                                                        "waste_management_types",
-                                                        idx
-                                                    )
-                                                }
-                                                className="text-red-500 hover:text-red-700 text-xl"
-                                            >
-                                                <IoIosCloseCircleOutline />
-                                            </button>
-                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                removeDynamicField(
+                                                    "waste_management_types",
+                                                    idx
+                                                )
+                                            }
+                                            className="text-red-500 hover:text-red-700 text-xl"
+                                        >
+                                            <IoIosCloseCircleOutline />
+                                        </button>
+                                    )}
                                 </div>
                             )
                         )}
@@ -727,14 +726,14 @@ function HouseInformation() {
                                                         {errors?.[
                                                             `livestocks.${livIndex}.livestock_type`
                                                         ] && (
-                                                                <p className="text-red-500 text-xs">
-                                                                    {
-                                                                        errors[
+                                                            <p className="text-red-500 text-xs">
+                                                                {
+                                                                    errors[
                                                                         `livestocks.${livIndex}.livestock_type`
-                                                                        ]
-                                                                    }
-                                                                </p>
-                                                            )}
+                                                                    ]
+                                                                }
+                                                            </p>
+                                                        )}
                                                     </div>
                                                     <div>
                                                         <InputField
@@ -756,14 +755,14 @@ function HouseInformation() {
                                                         {errors?.[
                                                             `livestocks.${livIndex}.quantity`
                                                         ] && (
-                                                                <p className="text-red-500 text-xs">
-                                                                    {
-                                                                        errors[
+                                                            <p className="text-red-500 text-xs">
+                                                                {
+                                                                    errors[
                                                                         `livestocks.${livIndex}.quantity`
-                                                                        ]
-                                                                    }
-                                                                </p>
-                                                            )}
+                                                                    ]
+                                                                }
+                                                            </p>
+                                                        )}
                                                     </div>
                                                     <div>
                                                         <DropdownInputField
@@ -798,14 +797,14 @@ function HouseInformation() {
                                                         {errors?.[
                                                             `livestocks.${livIndex}.purpose`
                                                         ] && (
-                                                                <p className="text-red-500 text-xs">
-                                                                    {
-                                                                        errors[
+                                                            <p className="text-red-500 text-xs">
+                                                                {
+                                                                    errors[
                                                                         `livestocks.${livIndex}.purpose`
-                                                                        ]
-                                                                    }
-                                                                </p>
-                                                            )}
+                                                                    ]
+                                                                }
+                                                            </p>
+                                                        )}
                                                     </div>
 
                                                     <button
@@ -906,14 +905,14 @@ function HouseInformation() {
                                                     {errors?.[
                                                         `pets.${petIndex}.pet_type`
                                                     ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
+                                                        <p className="text-red-500 text-xs">
+                                                            {
+                                                                errors[
                                                                     `pets.${petIndex}.pet_type`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
+                                                                ]
+                                                            }
+                                                        </p>
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <RadioGroup
@@ -943,14 +942,14 @@ function HouseInformation() {
                                                     {errors?.[
                                                         `pets.${petIndex}.is_vaccinated`
                                                     ] && (
-                                                            <p className="text-red-500 text-xs">
-                                                                {
-                                                                    errors[
+                                                        <p className="text-red-500 text-xs">
+                                                            {
+                                                                errors[
                                                                     `pets.${petIndex}.is_vaccinated`
-                                                                    ]
-                                                                }
-                                                            </p>
-                                                        )}
+                                                                ]
+                                                            }
+                                                        </p>
+                                                    )}
                                                 </div>
 
                                                 <button

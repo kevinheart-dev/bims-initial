@@ -58,6 +58,7 @@ export default function Index({
     const error = props?.error ?? null;
 
     const [query, setQuery] = useState(queryParams["name"] ?? "");
+    const [householdHeadId, setHouseholdHeadId] = useState(null);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -185,6 +186,17 @@ export default function Index({
     const handlePrint = () => {
         window.print();
     };
+    useEffect(() => {
+        if (!Array.isArray(members)) return;
+
+        const head = members.find((member) =>
+            member.household_residents?.some(
+                (hr) => hr.relationship_to_head === "self"
+            )
+        );
+
+        setHouseholdHeadId(head?.id ?? null);
+    }, [members]);
 
     // === AP TO HERE
 
@@ -302,7 +314,7 @@ export default function Index({
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <Toaster richColors />
             <div className="pt-4">
-                {/* <pre>{JSON.stringify(family_details, undefined, 3)}</pre> */}
+                {/* <pre>{JSON.stringify(members, undefined, 3)}</pre> */}
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                         <div className="mb-6">
@@ -366,32 +378,25 @@ export default function Index({
                                         </div>
                                     </div>
                                 </form>
-                                <Link href={route("family.create")}>
-                                    <div className="relative group z-50">
-                                        <Button
-                                            variant="outline"
-                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                        >
-                                            <Share2 className="w-4 h-4" />
-                                        </Button>
-                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                            Add Relationship
+                                {householdHeadId && (
+                                    <Link
+                                        href={route("resident.familytree", {
+                                            resident: householdHeadId,
+                                        })}
+                                    >
+                                        <div className="relative group z-50">
+                                            <Button
+                                                variant="outline"
+                                                className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                            >
+                                                <Network className="w-4 h-4" />
+                                            </Button>
+                                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                                Family Tree
+                                            </div>
                                         </div>
-                                    </div>
-                                </Link>
-                                <Link href={route("family.create")}>
-                                    <div className="relative group z-50">
-                                        <Button
-                                            variant="outline"
-                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                        >
-                                            <Network className="w-4 h-4" />
-                                        </Button>
-                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                            Family Tree
-                                        </div>
-                                    </div>
-                                </Link>
+                                    </Link>
+                                )}
                             </div>
                         </div>
                         {showFilters && (

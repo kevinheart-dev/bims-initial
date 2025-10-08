@@ -11,6 +11,7 @@ use App\Models\HouseholdResident;
 use App\Models\Purok;
 use App\Models\Resident;
 use DB;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class FamilyController extends Controller
@@ -23,64 +24,60 @@ class FamilyController extends Controller
         $barangayId = auth()->user()->barangay_id;
         $request = request();
 
-        // 🟢 Load puroks for filters
-        $puroks = Purok::where('barangay_id', $barangayId)
-            ->orderBy('purok_number')
-            ->pluck('purok_number');
+        // 🟢 Load Puroks for filter options (cached for performance)
+        $puroks = Cache::rememberForever("puroks_{$barangayId}", function () use ($barangayId) {
+            return Purok::where('barangay_id', $barangayId)
+                ->orderBy('purok_number')
+                ->pluck('purok_number');
+        });
 
-        // 🟢 Base query
-        $query = Family::query()
-            ->where('barangay_id', $barangayId)
-            ->withCount(['members as family_member_count' => function ($q) use ($barangayId) {
+        // 🟢 Base Family Query
+        $query = Family::withCount(['members as family_member_count' => function ($q) use ($barangayId) {
                 $q->where('barangay_id', $barangayId);
             }])
             ->with([
-                // include `family_id` so Laravel can link relationship
                 'latestHead:id,family_id,firstname,lastname,street_id,is_family_head',
-
                 'latestHead.householdResidents.household:id,purok_id,house_number',
                 'latestHead.street:id,purok_id,street_name',
                 'latestHead.street.purok:id,purok_number',
-            ]);
+            ])
+            ->where('barangay_id', $barangayId);
 
-        // 🟡 Search by family name or house number
-        if ($name = $request->get('name')) {
-            $like = "%{$name}%";
-            $query->where(function ($q) use ($like) {
+        // 🟡 Apply Filters Dynamically
+        $filters = [
+            'name' => fn($value) => $query->where(function ($q) use ($value) {
+                $like = "%{$value}%";
                 $q->where('family_name', 'like', $like)
-                    ->orWhereHas('members.householdResidents.household', function ($sub) use ($like) {
-                        $sub->where('house_number', 'like', $like);
-                    });
-            });
+                ->orWhereHas('members.householdResidents.household', fn($sub) => $sub->where('house_number', 'like', $like));
+            }),
+
+            'purok' => fn($value) => $value !== 'All'
+                ? $query->whereHas('members.householdResidents.household.purok', fn($q) => $q->where('purok_number', $value))
+                : null,
+
+            'famtype' => fn($value) => $value !== 'All'
+                ? $query->where('family_type', $value)
+                : null,
+
+            'income_bracket' => fn($value) => $value !== 'All'
+                ? $query->where('income_bracket', $value)
+                : null,
+
+            'household_head' => fn($value) => $value !== 'All'
+                ? $query->whereHas('members', fn($q) => $q->where('is_household_head', $value))
+                : null,
+        ];
+
+        foreach ($filters as $key => $applyFilter) {
+            if ($value = $request->get($key)) {
+                $applyFilter($value);
+            }
         }
 
-        // 🟡 Filter by Purok
-        if (($purok = $request->get('purok')) && $purok !== 'All') {
-            $query->whereHas('members.householdResidents.household.purok', function ($q) use ($purok) {
-                $q->where('purok_number', $purok);
-            });
-        }
-
-        // 🟡 Filter by Family Type
-        if (($famtype = $request->get('famtype')) && $famtype !== 'All') {
-            $query->where('family_type', $famtype);
-        }
-
-        // 🟡 Filter by Income Bracket
-        if (($income = $request->get('income_bracket')) && $income !== 'All') {
-            $query->where('income_bracket', $income);
-        }
-
-        // 🟡 Filter by Household Head
-        if (($head = $request->get('household_head')) && $head !== 'All') {
-            $query->whereHas('members', function ($q) use ($head) {
-                $q->where('is_household_head', $head);
-            });
-        }
-
-        // 🟢 Paginate
+        // 🟢 Paginate Results
         $families = $query->paginate(10)->withQueryString();
 
+        // 🟢 Return to View
         return Inertia::render('BarangayOfficer/Family/Index', [
             'families' => $families,
             'queryParams' => $request->query() ?: null,
@@ -102,26 +99,32 @@ class FamilyController extends Controller
     public function store(StoreFamilyRequest $request)
     {
         $data = $request->validated();
-        dd($data);
-        $resident = HouseholdResident::where('resident_id', $data['resident_id'])->firstOrFail();
-        $head = Resident::with('occupations')->findOrFail($data['resident_id']);
+
+        // Head = household head
+        $headResidentId = $data['resident_id'];
+        $headResident = Resident::with('occupations')->findOrFail($headResidentId);
+        $headHouseholdResident = HouseholdResident::where('resident_id', $headResidentId)->firstOrFail();
 
         try {
+            DB::beginTransaction();
+
             $members = $data['members'] ?? [];
 
-            // Collect all IDs: head + members
-            $allResidentIds = collect($members)->pluck('resident_id')->push($head->id)->unique();
+            // Combine head and members
+            $allResidentIds = collect($members)
+                ->pluck('resident_id')
+                ->push($headResidentId)
+                ->unique();
 
-            // Load residents with active occupations
+            // Load all residents with active occupations
             $residents = Resident::with(['occupations' => function ($q) {
                 $q->whereNull('ended_at')->orWhere('ended_at', '>=', now());
             }])->whereIn('id', $allResidentIds)->get();
 
-            // Compute total monthly income from active occupations
-            $allIncomes = $residents->flatMap(fn ($r) => $r->occupations)->pluck('monthly_income')->filter();
+            // Compute average income
+            $avgIncome = $residents->flatMap(fn($r) => $r->occupations)->pluck('monthly_income')->filter()->avg() ?? 0;
 
-            $avgIncome = $allIncomes->avg() ?? 0;
-
+            // Determine income levels
             $incomeBracket = match (true) {
                 $avgIncome < 5000 => 'below_5000',
                 $avgIncome <= 10000 => '5001_10000',
@@ -142,23 +145,66 @@ class FamilyController extends Controller
                 default => 'above_high_income',
             };
 
-            // Create the Family record
-            $resident->family?->delete();
+            // Delete any old family linked to this head (avoid duplicates)
+            $headHouseholdResident->family?->delete();
+
+            // Create new family record
             $family = Family::create([
-                'barangay_id' => $resident->resident->barangay_id,
-                'household_id' => $resident->household_id,
-                'income_bracket' => $incomeBracket,
-                'income_category' =>  $incomeCategory,
-                'family_type' => $data['family_type'],
-                'family_name' => $data['family_name'] ?? $head->lastname,
+                'barangay_id'     => $headResident->barangay_id,
+                'household_id'    => $headHouseholdResident->household_id,
+                'income_bracket'  => $incomeBracket,
+                'income_category' => $incomeCategory,
+                'family_type'     => $data['family_type'],
+                'family_name'     => $data['family_name'] ?? $headResident->lastname,
             ]);
 
-            // Assign family_id to all residents
-            Resident::whereIn('id', $allResidentIds)->update(['family_id' => $family->id]);
-            $head->update(['is_family_head' => true]);
+            // Update all residents with new family and household IDs
+            Resident::whereIn('id', $allResidentIds)->update([
+                'family_id' => $family->id,
+                'is_family_head' => false,
+            ]);
+
+            // Update head
+            $headResident->update(['is_family_head' => true]);
+
+            // Update members' household records
+            foreach ($members as $member) {
+                // Determine the correct household_id
+                $householdId = $headHouseholdResident->household_id;
+
+                // Update or create the household_resident record
+                HouseholdResident::updateOrCreate(
+                    ['resident_id' => $member['resident_id']],
+                    [
+                        'family_id' => $family->id,
+                        'household_id' => $householdId,
+                        'relationship_to_head' => $member['relationship_to_head'] ?? null,
+                        'household_position' => $member['household_position'] ?? 'primary',
+                        'is_household_head' => false,
+                    ]
+                );
+
+                // Also update the household_id in the residents table
+                Resident::where('id', $member['resident_id'])->update([
+                    'household_id' => $householdId,
+                ]);
+            }
+
+            // Update head’s household record
+            $isHead = $headHouseholdResident->is_household_head;
+            $headHouseholdResident->update([
+                'family_id' => $family->id,
+                'household_id' => $headHouseholdResident->household_id,
+                'relationship_to_head' => 'self',
+                'household_position' => $isHead ? 'primary' : 'extended',
+                'is_household_head' => $isHead,
+            ]);
+
+            DB::commit();
 
             return redirect()->route('family.index')->with('success', 'Family added successfully!');
         } catch (\Exception $e) {
+            DB::rollBack();
             report($e);
             return back()->with('error', 'Family could not be added: ' . $e->getMessage());
         }
@@ -295,26 +341,18 @@ class FamilyController extends Controller
     public function update(UpdateFamilyRequest $request, Family $family)
     {
         $data = $request->validated();
-
         $headId = $data['resident_id'];
         $members = $data['members'] ?? [];
 
         try {
-            // capture previous members BEFORE we change anything
             $previousMemberIds = Resident::where('family_id', $family->id)->pluck('id')->toArray();
-
-            // all new member ids (head + members)
             $allResidentIds = collect($members)->pluck('resident_id')->push($headId)->unique()->values()->toArray();
 
-            // Load head & residents (for income calc)
-            $head = Resident::with('occupations')->findOrFail($headId);
+            $residents = Resident::with(['occupations' => fn($q) =>
+                $q->whereNull('ended_at')->orWhere('ended_at', '>=', now())
+            ])->whereIn('id', $allResidentIds)->get();
 
-            $residents = Resident::with(['occupations' => function ($q) {
-                $q->whereNull('ended_at')->orWhere('ended_at', '>=', now());
-            }])->whereIn('id', $allResidentIds)->get();
-
-            // Compute average income
-            $allIncomes = $residents->flatMap(fn ($r) => $r->occupations)->pluck('monthly_income')->filter();
+            $allIncomes = $residents->flatMap(fn($r) => $r->occupations)->pluck('monthly_income')->filter();
             $avgIncome = $allIncomes->avg() ?? 0;
 
             $incomeBracket = match (true) {
@@ -337,63 +375,42 @@ class FamilyController extends Controller
                 default => 'above_high_income',
             };
 
-            // Use a transaction to keep DB consistent
-            \DB::transaction(function () use ($family, $head, $headId, $members, $allResidentIds, $previousMemberIds, $incomeBracket, $incomeCategory) {
-
-                // 1) Update family meta
+            \DB::transaction(function () use (
+                $family, $headId, $members, $allResidentIds,
+                $previousMemberIds, $incomeBracket, $incomeCategory, $data
+            ) {
+                // 1) Update family metadata
                 $family->update([
                     'income_bracket' => $incomeBracket,
                     'income_category' => $incomeCategory,
-                    'family_name' => $head->lastname,
+                    'family_type' => $data['family_type']
                 ]);
 
-                // 2) Assign family_id to the new/current residents
+                // 2) Update family_id & household_id for current residents
                 if (!empty($allResidentIds)) {
-                    Resident::whereIn('id', $allResidentIds)->update(['family_id' => $family->id]);
+                    Resident::whereIn('id', $allResidentIds)->update([
+                        'family_id' => $family->id,
+                        'household_id' => $family->household_id,
+                    ]);
                 }
 
-                // 3) Find removed members (were in family before but not in new list)
-                $removed = array_values(array_diff($previousMemberIds, $allResidentIds));
-
+                // 3) Remove old members no longer in family
+                $removed = array_diff($previousMemberIds, $allResidentIds);
                 if (!empty($removed)) {
-                    // clear family_id for removed residents
-                    Resident::whereIn('id', $removed)->update(['family_id' => null]);
+                    Resident::whereIn('id', $removed)->update([
+                        'family_id' => null,
+                        'household_id' => null,
+                    ]);
 
-                    // remove their household pivot entries for this household
                     HouseholdResident::whereIn('resident_id', $removed)
                         ->where('household_id', $family->household_id)
                         ->delete();
-
-                    // remove family relations involving removed residents
-                    FamilyRelation::where(function ($q) use ($removed) {
-                        $q->whereIn('resident_id', $removed)
-                        ->orWhereIn('related_to', $removed);
-                    })->delete();
                 }
 
-                // 4) Remove ALL old FamilyRelation entries for ANY previous family member
-                //    (so we can rebuild from scratch for the updated list)
-                if (!empty($previousMemberIds)) {
-                    FamilyRelation::where(function ($q) use ($previousMemberIds) {
-                        $q->whereIn('resident_id', $previousMemberIds)
-                        ->orWhereIn('related_to', $previousMemberIds);
-                    })->delete();
-                }
-
-                // 5) Update / Create household_resident pivot entries for current members
+                // 4) Update or create household_resident for each member
                 foreach ($members as $member) {
                     $rid = $member['resident_id'] ?? null;
-                    $rel = strtolower(trim($member['relationship_to_head'] ?? ''));
-                    $pos = $member['household_position'] ?? null;
-
-                    if (!$rid) {
-                        continue;
-                    }
-
-                    // skip 'self' in members (head is handled separately)
-                    if ($rel === 'self') {
-                        continue;
-                    }
+                    if (!$rid || ($member['relationship_to_head'] ?? '') === 'self') continue;
 
                     HouseholdResident::updateOrCreate(
                         [
@@ -401,13 +418,16 @@ class FamilyController extends Controller
                             'household_id' => $family->household_id,
                         ],
                         [
-                            'relationship_to_head' => $rel,
-                            'household_position' => $pos,
+                            'relationship_to_head' => strtolower($member['relationship_to_head'] ?? ''),
+                            'household_position' => $member['household_position'] ?? 'primary',
+                            'is_household_head' => false,
                         ]
                     );
                 }
 
-                // 6) Ensure head pivot exists & is correct
+                // 5) Handle household head logic
+                $isNuclear = $data['family_type'] === 'nuclear';
+
                 HouseholdResident::updateOrCreate(
                     [
                         'resident_id' => $headId,
@@ -415,137 +435,14 @@ class FamilyController extends Controller
                     ],
                     [
                         'relationship_to_head' => 'self',
-                        'household_position' => 'head',
+                        'household_position' => $isNuclear ? 'primary' : 'extended',
+                        'is_household_head' => $isNuclear,
                     ]
                 );
 
-                // 7) Rebuild FamilyRelation records for the current members set
-                $spouse = collect($members)->firstWhere('relationship_to_head', 'spouse');
-
-                if ($spouse) {
-                    FamilyRelation::firstOrCreate([
-                        'resident_id' => $headId,
-                        'related_to'  => $spouse['resident_id'],
-                        'relationship'=> 'spouse',
-                    ]);
-                    FamilyRelation::firstOrCreate([
-                        'resident_id' => $spouse['resident_id'],
-                        'related_to'  => $headId,
-                        'relationship'=> 'spouse',
-                    ]);
-                }
-
-                foreach ($members as $member) {
-                    $residentId = $member['resident_id'] ?? null;
-                    $relationship = strtolower(trim($member['relationship_to_head'] ?? ''));
-
-                    if (!$residentId || $relationship === 'self') {
-                        continue;
-                    }
-
-                    switch ($relationship) {
-                        case 'child':
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $residentId,
-                                'related_to' => $headId,
-                                'relationship' => 'child',
-                            ]);
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $headId,
-                                'related_to' => $residentId,
-                                'relationship' => 'parent',
-                            ]);
-                            if ($spouse) {
-                                FamilyRelation::firstOrCreate([
-                                    'resident_id' => $residentId,
-                                    'related_to' => $spouse['resident_id'],
-                                    'relationship' => 'child',
-                                ]);
-                                FamilyRelation::firstOrCreate([
-                                    'resident_id' => $spouse['resident_id'],
-                                    'related_to' => $residentId,
-                                    'relationship' => 'parent',
-                                ]);
-                            }
-                            break;
-
-                        case 'parent':
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $residentId,
-                                'related_to' => $headId,
-                                'relationship' => 'parent',
-                            ]);
-                            FamilyRelation::firstOrCreate([
-                                'resident_id' => $headId,
-                                'related_to' => $residentId,
-                                'relationship' => 'child',
-                            ]);
-                            break;
-
-                        case 'grandparent':
-                            $parents = $head->parents ?? collect();
-                            foreach ($parents as $parent) {
-                                FamilyRelation::firstOrCreate([
-                                    'resident_id' => $residentId,
-                                    'related_to' => $parent->id,
-                                    'relationship' => 'parent',
-                                ]);
-                                FamilyRelation::firstOrCreate([
-                                    'resident_id' => $parent->id,
-                                    'related_to' => $residentId,
-                                    'relationship' => 'child',
-                                ]);
-                            }
-                            break;
-
-                        case 'sibling':
-                            $sharedParents = $head->parents ?? collect();
-                            foreach ($sharedParents as $parent) {
-                                FamilyRelation::firstOrCreate([
-                                    'resident_id' => $parent->id,
-                                    'related_to' => $residentId,
-                                    'relationship' => 'parent',
-                                ]);
-                                FamilyRelation::firstOrCreate([
-                                    'resident_id' => $residentId,
-                                    'related_to' => $parent->id,
-                                    'relationship' => 'child',
-                                ]);
-                            }
-                            break;
-
-                        case 'parent_in_law':
-                            if ($spouse) {
-                                FamilyRelation::firstOrCreate([
-                                    'resident_id' => $residentId,
-                                    'related_to' => $spouse['resident_id'],
-                                    'relationship' => 'parent',
-                                ]);
-                                FamilyRelation::firstOrCreate([
-                                    'resident_id' => $spouse['resident_id'],
-                                    'related_to' => $residentId,
-                                    'relationship' => 'child',
-                                ]);
-                            }
-                            break;
-                    }
-                }
-
-                // Link siblings (children) to each other
-                $children = collect($members)->filter(fn ($m) => strtolower($m['relationship_to_head'] ?? '') === 'child');
-                foreach ($children as $i => $childA) {
-                    foreach ($children as $j => $childB) {
-                        if ($i === $j) continue;
-                        FamilyRelation::firstOrCreate([
-                            'resident_id' => $childA['resident_id'],
-                            'related_to' => $childB['resident_id'],
-                            'relationship' => 'sibling',
-                        ]);
-                    }
-                }
-
-                // mark head flag
-                $head->update(['is_household_head' => true]);
+                Resident::where('id', $headId)->update([
+                    'is_household_head' => $isNuclear,
+                ]);
             });
 
             return redirect()->route('family.index')->with('success', 'Family updated successfully!');
