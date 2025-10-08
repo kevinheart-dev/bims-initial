@@ -1,1 +1,0 @@
-import{r as o,j as f}from"./app-DluTzGHb.js";function m({end:t,duration:r=900}){const[n,s]=o.useState(0);o.useEffect(()=>{let e=0;const l=Math.floor(r/14),u=Math.max(Math.floor(t/l),1),a=setInterval(()=>{e+=u,e>=t?(clearInterval(a),s(t)):s(e)},16);return()=>clearInterval(a)},[t,r]);const c=Number(n).toLocaleString();return f.jsx("span",{children:c})}export{m as C};
