@@ -23,7 +23,12 @@ const AnimatedText = ({ text }) => (
         animate="visible"
     >
         {text.split("").map((char, index) => (
-            <motion.span key={index} custom={index} variants={letterVariant} className="inline-block">
+            <motion.span
+                key={index}
+                custom={index}
+                variants={letterVariant}
+                className="inline-block"
+            >
                 {char === " " ? "\u00A0" : char}
             </motion.span>
         ))}
@@ -59,17 +64,39 @@ const Home = () => {
     return (
         <>
             <div className="relative overflow-x-hidden font-montserrat">
-
                 {/* Hero Section (full height, icons overlayed) */}
                 <section className="flex flex-col items-center justify-center h-screen text-center px-4 relative z-10">
-
                     {/* 🧭 ICON DECORATIONS MOVED INSIDE THE SECTION */}
                     <div className="absolute inset-0 pointer-events-none z-[5]">
                         {[
-                            { src: "/images/icon-request.png", top: "25%", left: "10%", rotate: 12, delay: 0.2 },
-                            { src: "/images/icon-folder.png", top: "20%", right: "10%", rotate: -12, delay: 0.4 },
-                            { src: "/images/icon-blotter.png", bottom: "20%", left: "12%", rotate: 15, delay: 0.6 },
-                            { src: "/images/icon-bookrecords.png", bottom: "15%", right: "12%", rotate: -15, delay: 0.8 },
+                            {
+                                src: "/images/icon-request.png",
+                                top: "25%",
+                                left: "10%",
+                                rotate: 12,
+                                delay: 0.2,
+                            },
+                            {
+                                src: "/images/icon-folder.png",
+                                top: "20%",
+                                right: "10%",
+                                rotate: -12,
+                                delay: 0.4,
+                            },
+                            {
+                                src: "/images/icon-blotter.png",
+                                bottom: "20%",
+                                left: "12%",
+                                rotate: 15,
+                                delay: 0.6,
+                            },
+                            {
+                                src: "/images/icon-bookrecords.png",
+                                bottom: "15%",
+                                right: "12%",
+                                rotate: -15,
+                                delay: 0.8,
+                            },
                         ].map((icon, idx) => (
                             <motion.div
                                 key={idx}
@@ -77,14 +104,21 @@ const Home = () => {
                                 className="absolute p-2 sm:p-3 rounded-2xl backdrop-blur-lg bg-white/30 z-0 shadow-xl"
                                 style={{
                                     ...icon,
-                                    boxShadow: `${icon.rotate > 0 ? 10 : -10}px ${icon.rotate > 0 ? 10 : -10
-                                        }px 25px rgba(0,0,0,0.2)`,
+                                    boxShadow: `${
+                                        icon.rotate > 0 ? 10 : -10
+                                    }px ${
+                                        icon.rotate > 0 ? 10 : -10
+                                    }px 25px rgba(0,0,0,0.2)`,
                                 }}
                                 variants={popVariant(icon.delay)}
                                 initial="hidden"
                                 animate="visible"
                             >
-                                <img src={icon.src} alt="" className="w-11 sm:w-11 md:w-13 lg:w-14" />
+                                <img
+                                    src={icon.src}
+                                    alt=""
+                                    className="w-11 sm:w-11 md:w-13 lg:w-14"
+                                />
                             </motion.div>
                         ))}
                     </div>
@@ -108,8 +142,9 @@ const Home = () => {
                         animate="visible"
                         transition={{ delay: 0.4 }}
                     >
-                        Barangay Information<br />
-                        Management System
+                        Tang ina mo
+                        <br />
+                        Xed
                     </motion.p>
 
                     <motion.p
@@ -129,7 +164,8 @@ const Home = () => {
                         animate="visible"
                         transition={{ delay: 1 }}
                     >
-                        A centralized system for efficient barangay management and seamless citizen engagement.
+                        A centralized system for efficient barangay management
+                        and seamless citizen engagement.
                     </motion.p>
                 </section>
 
@@ -156,17 +192,15 @@ const Home = () => {
                 <div
                     className="absolute top-0 left-1/2 w-[40vw] h-[20vw] max-w-[400px] max-h-[200px] -z-10 transform -translate-x-1/2 rounded-b-full opacity-75"
                     style={{
-                        background: "radial-gradient(circle, rgba(28, 100, 220, 0.6) 0%, rgba(28, 100, 220, 0.15) 100%)",
+                        background:
+                            "radial-gradient(circle, rgba(28, 100, 220, 0.6) 0%, rgba(28, 100, 220, 0.15) 100%)",
                         filter: "blur(80px)",
                     }}
                 ></div>
 
                 {/* <OverviewPage /> */}
             </div>
-
-
         </>
-
     );
 };
 
