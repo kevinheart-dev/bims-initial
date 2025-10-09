@@ -8,8 +8,13 @@ use App\Models\FamilyRelation;
 use App\Models\Household;
 use App\Http\Requests\StoreHouseholdRequest;
 use App\Http\Requests\UpdateHouseholdRequest;
+use App\Models\HouseholdElectricitySource;
 use App\Models\HouseholdHeadHistory;
 use App\Models\HouseholdResident;
+use App\Models\HouseholdToilet;
+use App\Models\HouseholdWasteManagement;
+use App\Models\HouseholdWaterSource;
+use App\Models\InternetAccessibility;
 use App\Models\OccupationType;
 use App\Models\Purok;
 use App\Models\Resident;
@@ -764,7 +769,7 @@ class HouseholdController extends Controller
             'waste' => ['relation' => 'wasteManagementTypes', 'column' => 'waste_management_type'],
             'livestock' => ['relation' => 'livestocks', 'column' => 'livestock_type'],
             'pet' => ['relation' => 'pets', 'column' => 'pet_type'],
-            'internet' => ['relation' => 'internetAccessibility', 'column' => 'internet_type'],
+            'internet' => ['relation' => 'internetAccessibility', 'column' => 'type_of_internet'],
         ];
 
         foreach ($filters as $key => $filter) {
@@ -781,11 +786,54 @@ class HouseholdController extends Controller
         // 🟢 Paginate & Preserve Query
         $households = $query->paginate(10)->withQueryString();
 
+        // 🧩 Cache distinct type lists (to reduce heavy queries)
+        $cacheDuration = now()->addMinutes(30);
+
+        $toiletTypes = Cache::remember("toilet_types_{$barangayId}", $cacheDuration, function () use ($barangayId) {
+            return HouseholdToilet::whereHas('household', fn($q) => $q->where('barangay_id', $barangayId))
+                ->distinct()->pluck('toilet_type')->filter()->values();
+        });
+
+        $electricityTypes = Cache::remember("electricity_types_{$barangayId}", $cacheDuration, function () use ($barangayId) {
+            return HouseholdElectricitySource::whereHas('household', fn($q) => $q->where('barangay_id', $barangayId))
+                ->distinct()->pluck('electricity_type')->filter()->values();
+        });
+
+        $waterSourceTypes = Cache::remember("water_types_{$barangayId}", $cacheDuration, function () use ($barangayId) {
+            return HouseholdWaterSource::whereHas('household', fn($q) => $q->where('barangay_id', $barangayId))
+                ->distinct()->pluck('water_source_type')->filter()->values();
+        });
+
+        $wasteManagementTypes = Cache::remember("waste_types_{$barangayId}", $cacheDuration, function () use ($barangayId) {
+            return HouseholdWasteManagement::whereHas('household', fn($q) => $q->where('barangay_id', $barangayId))
+                ->distinct()->pluck('waste_management_type')->filter()->values();
+        });
+
+        $internetTypes = Cache::remember("internet_types_{$barangayId}", $cacheDuration, function () use ($barangayId) {
+            return InternetAccessibility::whereHas('household', fn($q) => $q->where('barangay_id', $barangayId))
+                ->distinct()->pluck('type_of_internet')->filter()->values();
+        });
+
+        $bathTypes = Cache::remember("bath_types_{$barangayId}", $cacheDuration, function () use ($barangayId) {
+            return Household::where('barangay_id', $barangayId)
+                ->distinct()
+                ->pluck('bath_and_wash_area')
+                ->filter()
+                ->values();
+        });
+
+
         // 🟢 Render with Filters
         return Inertia::render('BarangayOfficer/Household/Services', [
             'households' => $households,
             'puroks' => $puroks,
             'queryParams' => $request->query() ?: null,
+            'toiletTypes' => $toiletTypes,
+            'electricityTypes' => $electricityTypes,
+            'waterSourceTypes' => $waterSourceTypes,
+            'wasteManagementTypes' => $wasteManagementTypes,
+            'internetTypes' => $internetTypes,
+            'bathTypes' => $bathTypes
         ]);
     }
 }

@@ -27,7 +27,17 @@ import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControl
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import ExportButton from "@/Components/ExportButton";
 
-export default function Service({ households, puroks, queryParams }) {
+export default function Service({
+    households,
+    puroks,
+    queryParams,
+    toiletTypes,
+    electricityTypes,
+    waterSourceTypes,
+    wasteManagementTypes,
+    internetTypes,
+    bathTypes,
+}) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         { label: "Households", showOnMobile: true },
@@ -56,7 +66,7 @@ export default function Service({ households, puroks, queryParams }) {
         if (queryParams.page) {
             delete queryParams.page;
         }
-        router.get(route("household.services", queryParams));
+        router.get(route("household.overview", queryParams));
     };
 
     const onKeyPressed = (field, e) => {
@@ -97,7 +107,15 @@ export default function Service({ households, puroks, queryParams }) {
 
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
-            ["purok", "own_type", "condition", "structure"].includes(key) &&
+            [
+                "purok",
+                "toilet",
+                "electricity",
+                "water",
+                "waste",
+                "internet",
+                "bath",
+            ].includes(key) &&
             value &&
             value !== ""
     );
@@ -465,13 +483,22 @@ export default function Service({ households, puroks, queryParams }) {
                                 searchFieldName={searchFieldName}
                                 visibleFilters={[
                                     "purok",
-                                    "own_type",
-                                    "condition",
-                                    "structure",
+                                    "toilet",
+                                    "electricity",
+                                    "water",
+                                    "waste",
+                                    "internet",
+                                    "bath",
                                 ]}
                                 showFilters={true}
                                 puroks={puroks}
-                                clearRouteName="household.services"
+                                toiletTypes={toiletTypes}
+                                electricityTypes={electricityTypes}
+                                wasteManagementTypes={wasteManagementTypes}
+                                waterSourceTypes={waterSourceTypes}
+                                internetTypes={internetTypes}
+                                bathTypes={bathTypes}
+                                clearRouteName="household.overview"
                                 clearRouteParams={{}}
                             />
                         )}
