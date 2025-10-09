@@ -115,7 +115,6 @@ class SuperAdminController extends Controller
                 ->count();
         }
 
-        // Age Distribution (Categories)
         $ageCategories = [
             'Child' => [0, 14],
             'Youth' => [15, 30],

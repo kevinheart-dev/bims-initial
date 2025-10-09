@@ -4,10 +4,10 @@ import AgeCategory from "@/Pages/BarangayOfficer/DashboardCharts/AgeCategory";
 import AgeDistribution from "@/Pages/BarangayOfficer/DashboardCharts/AgeDistribution";
 
 const AgeCard = ({ ageDistribution, ageCategory }) => {
-    const [view, setView] = useState("category"); // default to Age Category
+    const [view, setView] = useState("category");
 
     return (
-        <Card className="w-full p-6">
+        <Card className="w-full p-6 ">
             <CardHeader className="p-0 mb-3">
                 <div className="flex items-center justify-between">
                     <CardTitle className="font-bold text-gray-700 whitespace-nowrap">

@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import OverviewPage from "./OverviewPage"; // Assuming this component exists
 
 const letterVariant = {
     hidden: { opacity: 0, y: 20 },
@@ -55,7 +54,7 @@ const textPop = {
     },
 };
 
-const Home = () => {
+const Home = ({ populationPerBarangay }) => {
     return (
         <>
             <div className="relative overflow-x-hidden font-montserrat">
@@ -135,7 +134,7 @@ const Home = () => {
 
                 {/* 🌈 Background Glows */}
                 <div
-                    className="absolute left-0 top-1/2 w-[50vw] h-[50vw] max-w-[500px] max-h-[500px] rounded-full opacity-90 -z-10 transform -translate-x-1/2"
+                    className="absolute left-0 top-1/4 w-[50vw] h-[50vw] max-w-[500px] max-h-[500px] rounded-full opacity-90 -z-10 transform -translate-x-1/2"
                     style={{
                         background:
                             "radial-gradient(circle, rgba(28, 100, 220, 0.9) 70%, rgba(28, 100, 220, 0.4) 70%, transparent 100%)",
@@ -160,13 +159,8 @@ const Home = () => {
                         filter: "blur(80px)",
                     }}
                 ></div>
-
-                {/* <OverviewPage /> */}
             </div>
-
-
         </>
-
     );
 };
 
