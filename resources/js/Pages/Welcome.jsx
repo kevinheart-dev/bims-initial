@@ -6,15 +6,16 @@ import AgeGroup from "@/Components/Homepage/AgeGroup";
 import FamilyIncomePage from "@/Components/Homepage/FamilyIncomePage";
 import EmploymentStatus from "./BarangayOfficer/DashboardCharts/EmploymentStatus";
 import EmploymentStatusPage from "@/Components/Homepage/EmploymentStatusPage";
-export default function Welcome({ auth, laravelVersion, phpVersion,
+export default function Welcome({
+    auth,
+    laravelVersion,
+    phpVersion,
     populationPerBarangay,
     ageCategoryData,
     ageDistributionData,
     familyIncomeData,
     employmentStatusData,
-
 }) {
-
     console.log(employmentStatusData);
 
     const handleImageError = () => {
@@ -84,9 +85,12 @@ export default function Welcome({ auth, laravelVersion, phpVersion,
                     </div>
                 </div>
             </div> */}
-            <Home ></Home>
+            <Home></Home>
             <OverviewPage populationPerBarangay={populationPerBarangay} />
-            <AgeGroup ageCategoryData={ageCategoryData} ageDistributionData={ageDistributionData} />
+            <AgeGroup
+                ageCategoryData={ageCategoryData}
+                ageDistributionData={ageDistributionData}
+            />
             <FamilyIncomePage familyIncomeData={familyIncomeData} />
             <EmploymentStatusPage employmentStatusData={employmentStatusData} />
         </>
