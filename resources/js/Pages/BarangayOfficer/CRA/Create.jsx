@@ -132,7 +132,7 @@ export default function Index() {
             <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 mt-6">
                 <div className="text-left mb-6">
                     <h1 className="text-2xl font-bold text-gray-800">
-                        Community Risk Assessment (CRA) JOHN XEDRIC ALEJO
+                        Community Risk Assessment (CRA) JOHN XEDRIC B ALEJO
                     </h1>
                     <p className="text-gray-600 mt-1">
                         Step-by-step process for evaluating barangay resources,
