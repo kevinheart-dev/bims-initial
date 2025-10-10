@@ -129,6 +129,7 @@ export default function Dashboard({
                             </div>
 
                             <div className="col-span-2 mt-0 w-full">
+
                                 <Card className="w-full px-4 py-2">
                                     <FamilyIncomeBarChart familyIncome={familyIncome} />
                                 </Card>
