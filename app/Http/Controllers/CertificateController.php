@@ -323,10 +323,13 @@ class CertificateController extends Controller
             return Storage::disk('public')->download($docxRelative, $docxFilename);
 
         } catch (\Throwable $e) {
+            \Log::error('Certificate generation failed: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
             DB::rollBack();
+
             return response()->json([
-                'error'   => 'Certificate generation failed.',
-                'message' => $e->getMessage(),
+                'error' => 'Certificate generation failed.',
+                'message' => $e->getMessage(), // Add this
             ], 500);
         }
     }

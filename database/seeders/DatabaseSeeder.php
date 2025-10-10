@@ -96,8 +96,8 @@ class DatabaseSeeder extends Seeder
             'is_disabled' => false,
         ])->assignRole($cdrrmoRole);
 
-        $barangays = Barangay::all();
-        // $barangays = Barangay::take(1)->get();
+        // $barangays = Barangay::all();
+        $barangays = Barangay::take(1)->get();
         //  foreach ($barangays->take(2) as $barangay)
         foreach ($barangays as $barangay) {
             // Create 7 puroks per barangay
@@ -162,7 +162,7 @@ class DatabaseSeeder extends Seeder
             Family::factory(10)->create(['barangay_id' => $barangay->id]);
 
             // Create additional residents (reduce to 50 per barangay for testing)
-            $residents = Resident::factory(20)->create(['barangay_id' => $barangay->id]);
+            $residents = Resident::factory(30)->create(['barangay_id' => $barangay->id]);
             foreach ($residents as $resident) {
                 // Each resident can have 1–3 occupations
                 Occupation::factory(rand(1, 3))->create([
@@ -308,7 +308,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             OccupationTypeSeeder::class,
             FixHouseholdResidentSeeder::class,
-            FamilyRelationSeeder::class,
+            // FamilyRelationSeeder::class,
             BarangayInformationSeeder::class,
         ]);
         // $this->call([

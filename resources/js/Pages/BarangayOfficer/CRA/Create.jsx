@@ -25,13 +25,13 @@ export default function Index() {
             return saved
                 ? JSON.parse(saved)
                 : {
-                    population: [],
-                    livelihood: [],
-                    infrastructure: [],
-                    institutions: [],
-                    hazards: [],
-                    evacuation: [],
-                };
+                      population: [],
+                      livelihood: [],
+                      infrastructure: [],
+                      institutions: [],
+                      hazards: [],
+                      evacuation: [],
+                  };
         } catch (err) {
             console.error("Error loading draft:", err);
             return {
@@ -135,7 +135,8 @@ export default function Index() {
                         Community Risk Assessment (CRA)
                     </h1>
                     <p className="text-gray-600 mt-1">
-                        Step-by-step process for evaluating barangay resources, hazards, and disaster readiness
+                        Step-by-step process for evaluating barangay resources,
+                        hazards, and disaster readiness
                     </p>
                 </div>
                 <div className="bg-blue-100 rounded-t-xl px-2 sm:px-6 lg:px-8 py-2 border-gray-200 shadow-lg">

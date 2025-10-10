@@ -1,7 +1,8 @@
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import Pagination from "./Pagination";
 import { ClipboardX } from "lucide-react";
+import { usePage } from "@inertiajs/react";
 
 const DynamicTable = ({
     passedData,
@@ -16,6 +17,8 @@ const DynamicTable = ({
     const reactToPrintFn = useReactToPrint({
         content: () => contentRef.current,
     });
+    const { props } = usePage();
+    const userRole = props?.auth?.user?.role;
 
     const cleanData = Array.isArray(passedData?.data)
         ? passedData.data
@@ -81,7 +84,7 @@ const DynamicTable = ({
                                 )}
                             </tr>
                         </thead>
-                        <tbody>
+                        {/* <tbody>
                             {cleanData.length > 0 ? (
                                 sortedData.map((data, rowIndex) => (
                                     <tr
@@ -119,6 +122,82 @@ const DynamicTable = ({
                                     </td>
                                 </tr>
                             )}
+                        </tbody> */}
+
+                        <tbody>
+                            {cleanData.length > 0 ? (
+                                sortedData.map((data, rowIndex) => (
+                                    <tr
+                                        key={rowIndex}
+                                        className="border-b hover:bg-gray-50"
+                                    >
+                                        {allColumns.map((col) =>
+                                            effectiveVisibleColumns.includes(
+                                                col.key
+                                            ) ? (
+                                                <td
+                                                    key={`${rowIndex}-${col.key}`}
+                                                    className="py-2 px-3 whitespace-wrap text-wrap break-words text-sm text-gray-700 min-w-[60px] max-w-[100px]"
+                                                >
+                                                    {col.key === "actions"
+                                                        ? (() => {
+                                                              // Render action column safely
+                                                              const rendered =
+                                                                  columnRenderers[
+                                                                      col.key
+                                                                  ]?.(data);
+                                                              if (!rendered)
+                                                                  return null;
+
+                                                              // ✅ Hide delete button if not admin
+                                                              if (
+                                                                  userRole !==
+                                                                      "admin" &&
+                                                                  //   userRole !==
+                                                                  //       "super_admin" &&
+                                                                  rendered.props
+                                                                      ?.actions
+                                                              ) {
+                                                                  const filteredActions =
+                                                                      rendered.props.actions.filter(
+                                                                          (a) =>
+                                                                              a.label !==
+                                                                              "Delete"
+                                                                      );
+                                                                  return React.cloneElement(
+                                                                      rendered,
+                                                                      {
+                                                                          actions:
+                                                                              filteredActions,
+                                                                      }
+                                                                  );
+                                                              }
+
+                                                              return rendered;
+                                                          })()
+                                                        : columnRenderers[
+                                                              col.key
+                                                          ]?.(data) ?? ""}
+                                                </td>
+                                            ) : null
+                                        )}
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td
+                                        colSpan={effectiveVisibleColumns.length}
+                                        className="text-center py-6 text-gray-500"
+                                    >
+                                        <div className="flex flex-col items-center justify-center space-y-2">
+                                            <ClipboardX className="w-20 h-20 text-gray-400" />
+                                            <span className="text-md font-medium">
+                                                No records found
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -131,7 +210,8 @@ const DynamicTable = ({
                     <div className="my-2 px-4 flex items-center justify-between">
                         {showTotal && (
                             <span className="text-sm text-gray-700 bg-gray-100 px-2 mt-4 py-1 rounded-md">
-                                Showing {cleanData.length} / {passedData?.total ?? cleanData.length} records
+                                Showing {cleanData.length} /{" "}
+                                {passedData?.total ?? cleanData.length} records
                             </span>
                         )}
 
@@ -144,7 +224,6 @@ const DynamicTable = ({
                             )}
                     </div>
                 )}
-
             </div>
         </>
     );
