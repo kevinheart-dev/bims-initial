@@ -1,7 +1,23 @@
 import { Head, Link } from "@inertiajs/react";
 import Home from "@/Components/Homepage/Home";
 import Header from "@/Components/Homepage/Header";
-export default function Welcome({ auth, laravelVersion, phpVersion }) {
+import OverviewPage from "@/Components/Homepage/OverviewPage";
+import AgeGroup from "@/Components/Homepage/AgeGroup";
+import FamilyIncomePage from "@/Components/Homepage/FamilyIncomePage";
+import EmploymentStatus from "./BarangayOfficer/DashboardCharts/EmploymentStatus";
+import EmploymentStatusPage from "@/Components/Homepage/EmploymentStatusPage";
+export default function Welcome({
+    auth,
+    laravelVersion,
+    phpVersion,
+    populationPerBarangay,
+    ageCategoryData,
+    ageDistributionData,
+    familyIncomeData,
+    employmentStatusData,
+}) {
+    console.log(employmentStatusData);
+
     const handleImageError = () => {
         document
             .getElementById("screenshot-container")
@@ -70,6 +86,13 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                 </div>
             </div> */}
             <Home></Home>
+            <OverviewPage populationPerBarangay={populationPerBarangay} />
+            <AgeGroup
+                ageCategoryData={ageCategoryData}
+                ageDistributionData={ageDistributionData}
+            />
+            <FamilyIncomePage familyIncomeData={familyIncomeData} />
+            <EmploymentStatusPage employmentStatusData={employmentStatusData} />
         </>
     );
 }

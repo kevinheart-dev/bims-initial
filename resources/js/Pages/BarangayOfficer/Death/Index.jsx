@@ -884,7 +884,10 @@ export default function Index({ deaths, puroks, queryParams, residents }) {
                     )}
                     {modalState === "view" ? (
                         selectedResident ? (
-                            <PersonDetailContent person={selectedResident} />
+                            <PersonDetailContent
+                                person={selectedResident}
+                                deceased={true}
+                            />
                         ) : null
                     ) : null}
                 </SidebarModal>

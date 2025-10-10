@@ -62,7 +62,12 @@ const allColumns = [
     { key: "actions", label: "Actions" },
 ];
 
-export default function Index({ residents, queryParams = null, puroks }) {
+export default function Index({
+    residents,
+    queryParams = null,
+    puroks,
+    ethnicities,
+}) {
     // Use useMemo for queryParams to ensure it's stable across renders if not explicitly updated
     const currentQueryParams = useMemo(() => queryParams || {}, [queryParams]);
 
@@ -227,6 +232,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                         "gender",
                         "age_group",
                         "estatus",
+                        "ethnic",
                         "voter_status",
                         "cstatus",
                         "pwd",
@@ -556,6 +562,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                                 "gender",
                                                 "age_group",
                                                 "estatus",
+                                                "ethnic",
                                                 "voter_status",
                                                 "cstatus",
                                                 "pwd",
@@ -566,6 +573,7 @@ export default function Index({ residents, queryParams = null, puroks }) {
                                             puroks={puroks}
                                             clearRouteName="resident.index"
                                             clearRouteParams={{}}
+                                            ethnicities={ethnicities}
                                         />
                                     </Suspense>
                                 )}

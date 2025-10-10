@@ -56,6 +56,9 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 
+
+Route::get('/', [IBIMSController::class, 'welcome'])->name('welcome'); // Welcome page accessible to both admin and resident
+
 // Admin-only routes
 Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin'])->group(function () {
     Route::get('/document/fill/{resident}/{template}', [DocumentGenerationController::class, 'generateFilledDocument'])
@@ -184,6 +187,9 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin'])->g
     Route::patch('/user/{user}/toggle-account', [UserController::class, 'toggleAccount'])
     ->name('user.toggle');
 
+    // households
+    Route::get('/overview', [HouseholdController::class, 'householdOverview'])->name('household.overview');
+
     // residents
     Route::resource('user', UserController::class);
     Route::resource('resident', ResidentController::class);
@@ -226,7 +232,11 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin'])->g
 });
 
 Route::middleware(['auth', 'role:barangay_officer'])->group(function () {
-    Route::get('barangay_officer/dashboard', [DashboardController::class, 'dashboard'])->name('barangay_officer.dashboard');
+    Route::get('/barangay_officer', function () {
+        return redirect()->route('barangay_officer.dashboard');
+    });
+    Route::get('/barangay_officer/dashboard', [DashboardController::class, 'dashboard'])
+        ->name('barangay_officer.dashboard');
 });
 
 Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(function () {
@@ -266,6 +276,6 @@ Route::middleware(['auth', 'verified', 'role:resident|barangay_officer'])->group
 });
 
 
-Route::get('/', [IBIMSController::class, 'welcome'])->name('welcome'); // Welcome page accessible to both admin and resident
+
 
 require __DIR__ . '/auth.php';

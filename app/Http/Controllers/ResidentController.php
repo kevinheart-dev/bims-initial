@@ -90,6 +90,7 @@ class ResidentController extends Controller
             'estatus' => 'employment_status',
             'cstatus' => 'civil_status',
             'voter_status' => 'registered_voter',
+            'ethnic' => 'ethnicity',
         ];
 
         foreach ($filters as $param => $column) {
@@ -165,10 +166,19 @@ class ResidentController extends Controller
             $residents->getCollection()->transform($transform);
         }
 
+        $ethnicities = Cache::remember("ethnicities_{$brgy_id}", 600, function () {
+            return Resident::whereNotNull('ethnicity')
+                ->distinct()
+                ->pluck('ethnicity')
+                ->sort()
+                ->values();
+        });
+
         return Inertia::render('BarangayOfficer/Resident/Index', [
             'residents' => $residents,
             'queryParams' => request()->query() ?: null,
             'puroks' => $puroks,
+            'ethnicities' => $ethnicities
         ]);
     }
 

@@ -8,14 +8,20 @@ use App\Models\FamilyRelation;
 use App\Models\Household;
 use App\Http\Requests\StoreHouseholdRequest;
 use App\Http\Requests\UpdateHouseholdRequest;
+use App\Models\HouseholdElectricitySource;
 use App\Models\HouseholdHeadHistory;
 use App\Models\HouseholdResident;
+use App\Models\HouseholdToilet;
+use App\Models\HouseholdWasteManagement;
+use App\Models\HouseholdWaterSource;
+use App\Models\InternetAccessibility;
 use App\Models\OccupationType;
 use App\Models\Purok;
 use App\Models\Resident;
 use App\Models\Street;
 use App\Models\Vehicle;
 use DB;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class HouseholdController extends Controller
@@ -25,19 +31,33 @@ class HouseholdController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->barangay_id;
+        $barangayId = auth()->user()->barangay_id;
+        $request = request();
 
+        // 🧠 Cache commonly used lists (short lifetime to stay fresh)
+        $puroks = Cache::remember("puroks_{$barangayId}", now()->addMinutes(10), function () use ($barangayId) {
+            return Purok::where('barangay_id', $barangayId)
+                ->orderBy('purok_number')
+                ->pluck('purok_number');
+        });
+
+        $streets = Cache::remember("streets_{$barangayId}", now()->addMinutes(10), function () use ($barangayId) {
+            return Street::whereHas('purok', fn($q) => $q->where('barangay_id', $barangayId))
+                ->orderBy('street_name')
+                ->pluck('street_name');
+        });
+
+        // 🟢 Base query for latest household heads
         $query = HouseholdResident::query()
+            ->select('id', 'resident_id', 'household_id', 'relationship_to_head', 'updated_at')
             ->with([
                 'resident:id,firstname,lastname,middlename,suffix,resident_picture_path,gender,birthdate,residency_type,residency_date',
                 'household:id,barangay_id,purok_id,street_id,house_number,ownership_type,housing_condition,year_established,house_structure,number_of_rooms,number_of_floors',
                 'household.street:id,street_name',
                 'household.purok:id,purok_number',
-                'household.residentsCount'
+                'household.residentsCount',
             ])
-            ->whereHas('household', function ($q) use ($brgy_id) {
-                $q->where('barangay_id', $brgy_id);
-            })
+            ->whereHas('household', fn($q) => $q->where('barangay_id', $barangayId))
             ->where('relationship_to_head', 'self')
             ->whereIn('id', function ($sub) {
                 $sub->selectRaw('MAX(id)')
@@ -47,13 +67,9 @@ class HouseholdController extends Controller
             })
             ->latest('updated_at');
 
-        // Head name search
-        if ($name = request('name')) {
-            $name = trim($name);
-            $parts = collect(explode(' ', $name))
-                ->filter(fn($p) => $p !== '')
-                ->values();
-
+        // 🟡 Filter: Name search (optimized multi-part handling)
+        if ($name = trim($request->get('name', ''))) {
+            $parts = array_filter(explode(' ', $name));
             $query->whereHas('resident', function ($r) use ($parts, $name) {
                 $r->where(function ($w) use ($parts, $name) {
                     foreach ($parts as $part) {
@@ -69,59 +85,31 @@ class HouseholdController extends Controller
             });
         }
 
-        // Purok filter
-        if (request()->filled('purok') && request('purok') !== 'All') {
-            $query->whereHas('household.purok', function ($q) {
-                $q->where('purok_number', request('purok'));
-            });
+        // 🟡 Map of request filters to their target columns/relations
+        $filters = [
+            'purok'     => ['relation' => 'household.purok', 'column' => 'purok_number'],
+            'street'    => ['relation' => 'household.street', 'column' => 'street_name'],
+            'own_type'  => ['relation' => 'household', 'column' => 'ownership_type'],
+            'condition' => ['relation' => 'household', 'column' => 'housing_condition'],
+            'structure' => ['relation' => 'household', 'column' => 'house_structure'],
+        ];
+
+        // 🟢 Apply filters dynamically
+        foreach ($filters as $key => $filter) {
+            $value = $request->get($key);
+            if ($value && $value !== 'All') {
+                $query->whereHas($filter['relation'], fn($q) => $q->where($filter['column'], $value));
+            }
         }
 
-        // Street filter
-        if (request()->filled('street') && request('street') !== 'All') {
-            $query->whereHas('household.street', function ($q) {
-                $q->where('street_name', request('street'));
-            });
-        }
-
-        // Ownership type filter
-        if (request()->filled('own_type') && request('own_type') !== 'All') {
-            $query->whereHas('household', function ($q) {
-                $q->where('ownership_type', request('own_type'));
-            });
-        }
-
-        // Housing condition filter
-        if (request()->filled('condition') && request('condition') !== 'All') {
-            $query->whereHas('household', function ($q) {
-                $q->where('housing_condition', request('condition'));
-            });
-        }
-
-        // Structure filter
-        if (request()->filled('structure') && request('structure') !== 'All') {
-            $query->whereHas('household', function ($q) {
-                $q->where('house_structure', request('structure'));
-            });
-        }
-
-        // Get paginated results
-        //dd($query->get());
+        // 🟢 Pagination with query preservation
         $heads = $query->paginate(10)->withQueryString();
 
-        // For dropdowns
-        $puroks = Purok::where('barangay_id', $brgy_id)
-            ->orderBy('purok_number', 'asc')
-            ->pluck('purok_number');
-
-        $streets = Street::whereHas('purok', function ($query) use ($brgy_id) {
-            $query->where('barangay_id', $brgy_id);
-        })->pluck('street_name');
-
-        return Inertia::render("BarangayOfficer/Household/Index", [
-            "households" => $heads, // contains latest head per household
+        return Inertia::render('BarangayOfficer/Household/Index', [
+            'households' => $heads,
             'puroks' => $puroks,
             'streets' => $streets,
-            'queryParams' => request()->query() ?: null,
+            'queryParams' => $request->query() ?: null,
         ]);
     }
 
@@ -244,48 +232,47 @@ class HouseholdController extends Controller
                         'end_year'    => null,
                     ]);
 
-                    // Assuming $resident already contains the single resident model
-                    $monthlyIncome = $resident->occupations()
-                        ->whereNull('ended_at')
-                        ->sum('monthly_income') ?? 0;
+                    // // Assuming $resident already contains the single resident model
+                    // $monthlyIncome = $resident->occupations()
+                    //     ->whereNull('ended_at')
+                    //     ->sum('monthly_income') ?? 0;
 
-                    // Determine income bracket based on the monthly income
-                    if ($monthlyIncome < 5000) {
-                        $incomeBracket = 'below_5000';
-                        $incomeCategory = 'survival';
-                    } elseif ($monthlyIncome <= 10000) {
-                        $incomeBracket = '5001_10000';
-                        $incomeCategory = 'poor';
-                    } elseif ($monthlyIncome <= 20000) {
-                        $incomeBracket = '10001_20000';
-                        $incomeCategory = 'low_income';
-                    } elseif ($monthlyIncome <= 40000) {
-                        $incomeBracket = '20001_40000';
-                        $incomeCategory = 'lower_middle_income';
-                    } elseif ($monthlyIncome <= 70000) {
-                        $incomeBracket = '40001_70000';
-                        $incomeCategory = 'middle_income';
-                    } elseif ($monthlyIncome <= 120000) {
-                        $incomeBracket = '70001_120000';
-                        $incomeCategory = 'upper_middle_income';
-                    } else {
-                        $incomeBracket = 'above_120001';
-                        $incomeCategory = 'high_income';
-                    }
+                    // // Determine income bracket based on the monthly income
+                    // if ($monthlyIncome < 5000) {
+                    //     $incomeBracket = 'below_5000';
+                    //     $incomeCategory = 'survival';
+                    // } elseif ($monthlyIncome <= 10000) {
+                    //     $incomeBracket = '5001_10000';
+                    //     $incomeCategory = 'poor';
+                    // } elseif ($monthlyIncome <= 20000) {
+                    //     $incomeBracket = '10001_20000';
+                    //     $incomeCategory = 'low_income';
+                    // } elseif ($monthlyIncome <= 40000) {
+                    //     $incomeBracket = '20001_40000';
+                    //     $incomeCategory = 'lower_middle_income';
+                    // } elseif ($monthlyIncome <= 70000) {
+                    //     $incomeBracket = '40001_70000';
+                    //     $incomeCategory = 'middle_income';
+                    // } elseif ($monthlyIncome <= 120000) {
+                    //     $incomeBracket = '70001_120000';
+                    //     $incomeCategory = 'upper_middle_income';
+                    // } else {
+                    //     $incomeBracket = 'above_120001';
+                    //     $incomeCategory = 'high_income';
+                    // }
 
-                    // Create the family record
-                    $family = Family::create([
-                        'barangay_id'     => $barangayId,
-                        'household_id'    => $household->id,
-                        'income_bracket'  => $incomeBracket,
-                        'income_category' => $incomeCategory,
-                        'family_name'     => $resident->lastname ?? null,
-                        'family_type'     => "nuclear",
-                    ]);
+                    // // Create the family record
+                    // $family = Family::create([
+                    //     'barangay_id'     => $barangayId,
+                    //     'household_id'    => $household->id,
+                    //     'income_bracket'  => $incomeBracket,
+                    //     'income_category' => $incomeCategory,
+                    //     'family_name'     => $resident->lastname ?? null,
+                    //     'family_type'     => "nuclear",
+                    // ]);
 
                     $resident->update([
                         'household_id' => $household->id,
-                        'family_id' => $family->id,
                     ]);
 
 
@@ -733,5 +720,120 @@ class HouseholdController extends Controller
                 'error'   => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function householdOverview()
+    {
+        $barangayId = auth()->user()->barangay_id;
+        $request = request();
+
+        // 🧠 Cache Purok List (frequently used filter)
+        $puroks = Cache::remember("puroks_{$barangayId}", now()->addMinutes(10), function () use ($barangayId) {
+            return Purok::where('barangay_id', $barangayId)
+                ->orderBy('purok_number')
+                ->pluck('purok_number');
+        });
+
+        // 🟢 Base Query for Households
+        $query = Household::query()
+            ->select([
+                'id',
+                'barangay_id',
+                'purok_id',
+                'street_id',
+                'house_number',
+                'bath_and_wash_area',
+            ])
+            ->with([
+                'toilets:id,household_id,toilet_type',
+                'electricityTypes:id,household_id,electricity_type',
+                'waterSourceTypes:id,household_id,water_source_type',
+                'wasteManagementTypes:id,household_id,waste_management_type',
+                'livestocks:id,household_id,livestock_type,quantity',
+                'pets:id,household_id,pet_type,is_vaccinated',
+                'internetAccessibility:id,household_id,type_of_internet',
+                'purok:id,purok_number',
+                'street:id,street_name',
+            ])
+            ->where('barangay_id', $barangayId)
+            ->orderBy('house_number', 'asc');
+
+        // 🟡 Apply Filters
+        $filters = [
+            'purok' => ['relation' => 'purok', 'column' => 'purok_number'],
+            'street' => ['relation' => 'street', 'column' => 'street_name'],
+            'bath' => ['relation' => null, 'column' => 'bath_and_wash_area'],
+            'toilet' => ['relation' => 'toilets', 'column' => 'toilet_type'],
+            'electricity' => ['relation' => 'electricityTypes', 'column' => 'electricity_type'],
+            'water' => ['relation' => 'waterSourceTypes', 'column' => 'water_source_type'],
+            'waste' => ['relation' => 'wasteManagementTypes', 'column' => 'waste_management_type'],
+            'livestock' => ['relation' => 'livestocks', 'column' => 'livestock_type'],
+            'pet' => ['relation' => 'pets', 'column' => 'pet_type'],
+            'internet' => ['relation' => 'internetAccessibility', 'column' => 'type_of_internet'],
+        ];
+
+        foreach ($filters as $key => $filter) {
+            $value = $request->get($key);
+            if ($value && $value !== 'All') {
+                if ($filter['relation']) {
+                    $query->whereHas($filter['relation'], fn($q) => $q->where($filter['column'], $value));
+                } else {
+                    $query->where($filter['column'], $value);
+                }
+            }
+        }
+
+        // 🟢 Paginate & Preserve Query
+        $households = $query->paginate(10)->withQueryString();
+
+        // 🧩 Cache distinct type lists (to reduce heavy queries)
+        $cacheDuration = now()->addMinutes(30);
+
+        $toiletTypes = Cache::remember("toilet_types_{$barangayId}", $cacheDuration, function () use ($barangayId) {
+            return HouseholdToilet::whereHas('household', fn($q) => $q->where('barangay_id', $barangayId))
+                ->distinct()->pluck('toilet_type')->filter()->values();
+        });
+
+        $electricityTypes = Cache::remember("electricity_types_{$barangayId}", $cacheDuration, function () use ($barangayId) {
+            return HouseholdElectricitySource::whereHas('household', fn($q) => $q->where('barangay_id', $barangayId))
+                ->distinct()->pluck('electricity_type')->filter()->values();
+        });
+
+        $waterSourceTypes = Cache::remember("water_types_{$barangayId}", $cacheDuration, function () use ($barangayId) {
+            return HouseholdWaterSource::whereHas('household', fn($q) => $q->where('barangay_id', $barangayId))
+                ->distinct()->pluck('water_source_type')->filter()->values();
+        });
+
+        $wasteManagementTypes = Cache::remember("waste_types_{$barangayId}", $cacheDuration, function () use ($barangayId) {
+            return HouseholdWasteManagement::whereHas('household', fn($q) => $q->where('barangay_id', $barangayId))
+                ->distinct()->pluck('waste_management_type')->filter()->values();
+        });
+
+        $internetTypes = Cache::remember("internet_types_{$barangayId}", $cacheDuration, function () use ($barangayId) {
+            return InternetAccessibility::whereHas('household', fn($q) => $q->where('barangay_id', $barangayId))
+                ->distinct()->pluck('type_of_internet')->filter()->values();
+        });
+
+        $bathTypes = Cache::remember("bath_types_{$barangayId}", $cacheDuration, function () use ($barangayId) {
+            return Household::where('barangay_id', $barangayId)
+                ->distinct()
+                ->pluck('bath_and_wash_area')
+                ->filter()
+                ->values();
+        });
+
+
+        // 🟢 Render with Filters
+        return Inertia::render('BarangayOfficer/Household/Services', [
+            'households' => $households,
+            'puroks' => $puroks,
+            'queryParams' => $request->query() ?: null,
+            'toiletTypes' => $toiletTypes,
+            'electricityTypes' => $electricityTypes,
+            'waterSourceTypes' => $waterSourceTypes,
+            'wasteManagementTypes' => $wasteManagementTypes,
+            'internetTypes' => $internetTypes,
+            'bathTypes' => $bathTypes
+        ]);
     }
 }

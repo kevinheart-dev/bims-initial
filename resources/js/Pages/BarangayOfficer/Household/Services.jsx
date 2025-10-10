@@ -27,7 +27,17 @@ import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControl
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import ExportButton from "@/Components/ExportButton";
 
-export default function Index({ households, puroks, streets, queryParams }) {
+export default function Service({
+    households,
+    puroks,
+    queryParams,
+    toiletTypes,
+    electricityTypes,
+    waterSourceTypes,
+    wasteManagementTypes,
+    internetTypes,
+    bathTypes,
+}) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         { label: "Households", showOnMobile: true },
@@ -56,7 +66,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
         if (queryParams.page) {
             delete queryParams.page;
         }
-        router.get(route("household.index", queryParams));
+        router.get(route("household.overview", queryParams));
     };
 
     const onKeyPressed = (field, e) => {
@@ -69,17 +79,16 @@ export default function Index({ households, puroks, streets, queryParams }) {
 
     const allColumns = [
         { key: "id", label: "ID" },
-        { key: "name", label: "Name of Household Head" },
         { key: "house_number", label: "House Number" },
-        { key: "purok_number", label: "Purok" },
-        { key: "street_name", label: "Street" },
-        { key: "ownership_type", label: "Ownership Type" },
-        { key: "housing_condition", label: "Housing Condition" },
-        { key: "year_established", label: "Year Established" },
-        { key: "house_structure", label: "House Structure" },
-        { key: "number_of_rooms", label: "Number of Rooms" },
-        { key: "number_of_floors", label: "Number of Floors" },
-        { key: "number_of_occupants", label: "Number of Occupants" },
+        { key: "bath_and_wash_area", label: "Bath & Wash Area" },
+        { key: "toilets", label: "Toilet Type(s)" },
+        { key: "electricity_types", label: "Electricity Source(s)" },
+        { key: "water_source_types", label: "Water Source(s)" },
+        { key: "waste_management_types", label: "Waste Management Type(s)" },
+        { key: "livestocks_text", label: "Livestock Summary" },
+        { key: "pets_text", label: "Pet Summary" },
+        { key: "internet_accessibility", label: "Internet Accessibility" },
+        { key: "purok", label: "Purok Number" },
         { key: "actions", label: "Actions" },
     ];
 
@@ -98,9 +107,15 @@ export default function Index({ households, puroks, streets, queryParams }) {
 
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
-            ["purok", "street", "own_type", "condition", "structure"].includes(
-                key
-            ) &&
+            [
+                "purok",
+                "toilet",
+                "electricity",
+                "water",
+                "waste",
+                "internet",
+                "bath",
+            ].includes(key) &&
             value &&
             value !== ""
     );
@@ -113,72 +128,207 @@ export default function Index({ households, puroks, streets, queryParams }) {
 
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
     const columnRenderers = {
-        id: (house) => house.household?.id,
-        name: (entry) => {
-            const head = entry.resident;
-            return head ? (
-                <Link href={route("resident.show", head.id)}>
-                    {head.firstname} {head.middlename ?? ""}{" "}
-                    {head.lastname ?? ""} {head.suffix ?? ""}
-                </Link>
-            ) : (
-                <span className="text-gray-400 italic">No household head</span>
-            );
-        },
+        id: (house) => (
+            <span className="text-gray-800 font-medium">
+                {house.id ?? "Not specified"}
+            </span>
+        ),
+
         house_number: (house) => (
             <Link
-                href={route("household.show", house.household?.id)}
-                className="hover:text-blue-500 hover:underline"
+                href={route("household.show", { household: house.id })}
+                className="text-blue-600 hover:underline font-semibold"
             >
-                {" "}
-                {house.household.house_number}
+                {house.house_number ?? (
+                    <span className="text-gray-400 font-normal italic">
+                        Not specified
+                    </span>
+                )}
             </Link>
         ),
-        purok_number: (house) => house.household.purok.purok_number,
-        street_name: (house) => house.household.street.street_name,
-        ownership_type: (house) => (
-            <span>
-                {
-                    CONSTANTS.HOUSEHOLD_OWNERSHIP_TEXT[
-                        house.household.ownership_type
-                    ]
-                }
-            </span>
-        ),
-        housing_condition: (house) => (
-            <span
-                className={`px-2 py-1 text-sm rounded-lg ${
-                    CONSTANTS.HOUSING_CONDITION_COLOR[
-                        house.household.housing_condition
-                    ] ?? "bg-gray-100 text-gray-700"
-                }`}
-            >
-                {
-                    CONSTANTS.HOUSEHOLD_CONDITION_TEXT[
-                        house.household.housing_condition
-                    ]
-                }
-            </span>
-        ),
-        year_established: (house) =>
-            house.household.year_established ?? "Unknown",
-        house_structure: (house) => (
-            <span>
-                {
-                    CONSTANTS.HOUSEHOLD_STRUCTURE_TEXT[
-                        house.household.house_structure
-                    ]
-                }
-            </span>
-        ),
-        number_of_rooms: (house) => house.household.number_of_rooms ?? "N/A",
-        number_of_floors: (house) => house.household.number_of_floors ?? "N/A",
-        number_of_occupants: (house) => (
-            <span className="flex items-center">
-                {house?.household?.residents_count?.[0]?.aggregate ?? 0}{" "}
-                <User className="ml-2 h-5 w-5" />
-            </span>
-        ),
+
+        bath_and_wash_area: (house) =>
+            house.bath_and_wash_area ? (
+                <span className="text-gray-800 capitalize font-medium">
+                    {house.bath_and_wash_area}
+                </span>
+            ) : (
+                <span className="text-gray-400 italic">Not specified</span>
+            ),
+
+        toilets: (house) => {
+            const toilets = house.toilets ?? [];
+            return toilets.length ? (
+                <ul className="text-gray-800 space-y-0.5">
+                    {toilets.map((t, index) => (
+                        <li key={index} className="capitalize">
+                            <span className="font-medium">
+                                {t.toilet_type.replace(/_/g, " ")}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <span className="text-gray-400 italic">No toilet data</span>
+            );
+        },
+
+        electricity_types: (house) => {
+            const electricity = house.electricity_types ?? [];
+            return electricity.length ? (
+                <ul className="text-gray-800 space-y-0.5">
+                    {electricity.map((e, index) => (
+                        <li key={index} className="capitalize">
+                            <span className="font-medium">
+                                {e.electricity_type.replace(/_/g, " ")}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <span className="text-gray-400 italic">
+                    No electricity data
+                </span>
+            );
+        },
+
+        water_source_types: (house) => {
+            const water = house.water_source_types ?? [];
+            return water.length ? (
+                <ul className="text-gray-800 space-y-0.5">
+                    {water.map((w, index) => (
+                        <li key={index} className="capitalize">
+                            <span className="font-medium">
+                                {w.water_source_type.replace(/_/g, " ")}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <span className="text-gray-400 italic">
+                    No water source data
+                </span>
+            );
+        },
+
+        waste_management_types: (house) => {
+            const waste = house.waste_management_types ?? [];
+            return waste.length ? (
+                <ul className="text-gray-800 space-y-0.5">
+                    {waste.map((w, index) => (
+                        <li key={index} className="capitalize">
+                            <span className="font-medium">
+                                {w.waste_management_type.replace(/_/g, " ")}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <span className="text-gray-400 italic">No waste data</span>
+            );
+        },
+
+        livestocks_text: (house) => {
+            const livestocks = house.livestocks ?? [];
+            if (livestocks.length === 0)
+                return (
+                    <span className="text-gray-400 italic">
+                        No livestock recorded
+                    </span>
+                );
+
+            const grouped = livestocks.reduce((acc, l) => {
+                acc[l.livestock_type] =
+                    (acc[l.livestock_type] ?? 0) + (l.quantity ?? 1);
+                return acc;
+            }, {});
+
+            return (
+                <ul className="space-y-0.5 text-gray-800">
+                    {Object.entries(grouped).map(([type, qty]) => (
+                        <li key={type}>
+                            <span className="capitalize font-medium">
+                                {type.replace(/_/g, " ")}:
+                            </span>{" "}
+                            <span className="text-gray-700 font-semibold">
+                                {qty}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            );
+        },
+
+        pets_text: (house) => {
+            const pets = house.pets ?? [];
+            if (pets.length === 0)
+                return (
+                    <span className="text-gray-400 italic">
+                        No pets recorded
+                    </span>
+                );
+
+            const grouped = pets.reduce((acc, p) => {
+                if (!acc[p.pet_type])
+                    acc[p.pet_type] = { total: 0, vaccinated: 0 };
+                acc[p.pet_type].total += 1;
+                if (p.is_vaccinated) acc[p.pet_type].vaccinated += 1;
+                return acc;
+            }, {});
+
+            return (
+                <ul className="space-y-0.5 text-gray-800">
+                    {Object.entries(grouped).map(([type, data]) => (
+                        <li key={type}>
+                            <span className="capitalize font-medium">
+                                {type.replace(/_/g, " ")}:
+                            </span>{" "}
+                            <span className="text-gray-700 font-semibold">
+                                {data.total}
+                            </span>{" "}
+                            <span className="text-gray-500">
+                                ({data.vaccinated}/{data.total} vaccinated)
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            );
+        },
+
+        internet_accessibility: (house) => {
+            const internet = house.internet_accessibility ?? [];
+            if (internet.length === 0)
+                return (
+                    <span className="text-gray-400 italic">
+                        No internet information
+                    </span>
+                );
+
+            return (
+                <ul className="text-gray-800 space-y-0.5">
+                    {internet.map((i, index) => (
+                        <li key={index}>
+                            <span className="capitalize font-medium">
+                                {i.connection_type ?? "Not specified"}:
+                            </span>{" "}
+                            <span className="text-gray-700 font-semibold">
+                                {i.provider ?? "Not provided"}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            );
+        },
+
+        purok: (house) =>
+            house.purok?.purok_number ? (
+                <span className="text-gray-800 font-medium">
+                    {house.purok.purok_number}
+                </span>
+            ) : (
+                <span className="text-gray-400 italic">Not specified</span>
+            ),
+
         actions: (house) => (
             <ActionMenu
                 actions={[
@@ -187,21 +337,21 @@ export default function Index({ households, puroks, streets, queryParams }) {
                         icon: <Eye className="w-4 h-4 text-indigo-600" />,
                         onClick: () =>
                             router.visit(
-                                route("household.show", house.household?.id)
-                            ), // Inertia
+                                route("household.show", { household: house.id })
+                            ),
                     },
                     {
                         label: "Edit",
                         icon: <SquarePen className="w-4 h-4 text-green-500" />,
                         onClick: () =>
                             router.visit(
-                                route("household.edit", house.household?.id)
+                                route("household.edit", { household: house.id })
                             ),
                     },
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDeleteClick(house.household?.id),
+                        onClick: () => handleDeleteClick(house.id),
                     },
                 ]}
             />
@@ -256,13 +406,14 @@ export default function Index({ households, puroks, streets, queryParams }) {
                                 </div>
                                 <div>
                                     <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-                                        Households Records
+                                        Household Data Overview
                                     </h1>
                                     <p className="text-sm text-gray-500">
-                                        Manage all registered households in the
-                                        barangay. Search, filter, or export
-                                        data, and add new households for
-                                        accurate community tracking.
+                                        Review and manage comprehensive
+                                        information about households within the
+                                        barangay. Access records, apply filters,
+                                        and maintain accurate data for effective
+                                        community planning.
                                     </p>
                                 </div>
                             </div>
@@ -278,17 +429,6 @@ export default function Index({ households, puroks, streets, queryParams }) {
                                         setShowFilters((prev) => !prev)
                                     }
                                 />
-                                <ExportButton
-                                    url="report/export-household-excel"
-                                    queryParams={queryParams}
-                                    label="Export Households as XLSX"
-                                />
-                                <ExportButton
-                                    url="report/export-householdmembers-excel"
-                                    queryParams={queryParams}
-                                    icon={<FileUser />}
-                                    label="Export Household Members as XLSX"
-                                />
                             </div>
 
                             <div className="flex items-center gap-2 flex-wrap justify-end">
@@ -298,7 +438,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
                                 >
                                     <Input
                                         type="text"
-                                        placeholder="Search for Household Member Name"
+                                        placeholder="Search for Household Number"
                                         value={query}
                                         onChange={(e) =>
                                             setQuery(e.target.value)
@@ -343,15 +483,22 @@ export default function Index({ households, puroks, streets, queryParams }) {
                                 searchFieldName={searchFieldName}
                                 visibleFilters={[
                                     "purok",
-                                    "street",
-                                    "own_type",
-                                    "condition",
-                                    "structure",
+                                    "toilet",
+                                    "electricity",
+                                    "water",
+                                    "waste",
+                                    "internet",
+                                    "bath",
                                 ]}
                                 showFilters={true}
                                 puroks={puroks}
-                                streets={streets}
-                                clearRouteName="household.index"
+                                toiletTypes={toiletTypes}
+                                electricityTypes={electricityTypes}
+                                wasteManagementTypes={wasteManagementTypes}
+                                waterSourceTypes={waterSourceTypes}
+                                internetTypes={internetTypes}
+                                bathTypes={bathTypes}
+                                clearRouteName="household.overview"
                                 clearRouteParams={{}}
                             />
                         )}

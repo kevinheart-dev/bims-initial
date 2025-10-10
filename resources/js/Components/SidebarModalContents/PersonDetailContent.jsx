@@ -7,8 +7,9 @@ import * as CONSTANTS from "@/constants";
 import { IoPerson } from "react-icons/io5";
 import { FaPeopleGroup } from "react-icons/fa6";
 import { RiWheelchairFill } from "react-icons/ri";
+import { HeartPulse } from "lucide-react";
 
-export default function PersonDetailContent({ person }) {
+export default function PersonDetailContent({ person, deceased = false }) {
     const [activeTab, setActiveTab] = useState("education");
 
     if (!person) return <p className="text-red-500">No data found.</p>;
@@ -30,6 +31,20 @@ export default function PersonDetailContent({ person }) {
 
     return (
         <div className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-md shadow-lg text-sm text-black p-4 space-y-4">
+            {deceased && (
+                <div className="flex items-center gap-3 bg-gray-800 text-white border border-gray-700 rounded-lg px-5 py-3 text-sm font-medium shadow-md">
+                    <HeartPulse className="w-6 h-6 text-red-400" />
+                    <div>
+                        <p className="text-base font-semibold">
+                            Deceased Resident
+                        </p>
+                        <p className="text-xs text-gray-300 leading-snug">
+                            This record is marked as deceased and maintained for
+                            documentation purposes.
+                        </p>
+                    </div>
+                </div>
+            )}
             {/* <pre>{JSON.stringify(person, undefined, 2)}</pre> */}
             {/* ✅ Basic Info */}
             <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
@@ -159,47 +174,52 @@ export default function PersonDetailContent({ person }) {
                 <div className="flex gap-6 text-sm font-medium">
                     <button
                         onClick={() => setActiveTab("education")}
-                        className={`py-2 px-1 border-b-2 ${activeTab === "education"
+                        className={`py-2 px-1 border-b-2 ${
+                            activeTab === "education"
                                 ? "border-blue-600 text-blue-700"
                                 : "border-transparent text-gray-500"
-                            }`}
+                        }`}
                     >
                         Education
                     </button>
                     <button
                         onClick={() => setActiveTab("occupation")}
-                        className={`py-2 px-1 border-b-2 ${activeTab === "occupation"
+                        className={`py-2 px-1 border-b-2 ${
+                            activeTab === "occupation"
                                 ? "border-blue-600 text-blue-700"
                                 : "border-transparent text-gray-500"
-                            }`}
+                        }`}
                     >
                         Occupation
                     </button>
                     <button
                         onClick={() => setActiveTab("medical")}
-                        className={`py-2 px-1 border-b-2 ${activeTab === "medical"
+                        className={`py-2 px-1 border-b-2 ${
+                            activeTab === "medical"
                                 ? "border-blue-600 text-blue-700"
                                 : "border-transparent text-gray-500"
-                            }`}
+                        }`}
                     >
                         Medical
                     </button>
                     <button
                         onClick={() => setActiveTab("social")}
-                        className={`py-2 px-1 border-b-2 ${activeTab === "social"
+                        className={`py-2 px-1 border-b-2 ${
+                            activeTab === "social"
                                 ? "border-blue-600 text-blue-700"
                                 : "border-transparent text-gray-500"
-                            }`}
+                        }`}
                     >
                         Social Welfare
                     </button>
                     {person.seniorcitizen && (
                         <button
                             onClick={() => setActiveTab("senior")}
-                            className={`py-2 px-1 border-b-2 ${activeTab === "senior"
+                            className={`py-2 px-1 border-b-2 ${
+                                activeTab === "senior"
                                     ? "border-blue-600 text-blue-700"
                                     : "border-transparent text-gray-500"
-                                }`}
+                            }`}
                         >
                             Senior Citizen
                         </button>
@@ -216,7 +236,7 @@ export default function PersonDetailContent({ person }) {
                         </h3>
                         <hr className="mb-2 border-gray-400" />
                         {Array.isArray(person.educational_histories) &&
-                            person.educational_histories.length > 0 ? (
+                        person.educational_histories.length > 0 ? (
                             person.educational_histories.map((edu, index) => (
                                 <div
                                     key={index}
@@ -228,7 +248,7 @@ export default function PersonDetailContent({ person }) {
                                     <span className="text-left capitalize">
                                         {
                                             CONSTANTS.EDUCATION_LEVEL_TEXT[
-                                            edu.educational_attainment
+                                                edu.educational_attainment
                                             ]
                                         }
                                     </span>
@@ -290,7 +310,7 @@ export default function PersonDetailContent({ person }) {
                         </h3>
                         <hr className="mb-2 border-gray-400" />
                         {Array.isArray(person.occupations) &&
-                            person.occupations.length > 0 ? (
+                        person.occupations.length > 0 ? (
                             person.occupations.map((job, index) => (
                                 <div
                                     key={index}
@@ -323,7 +343,7 @@ export default function PersonDetailContent({ person }) {
                                     <span className="text-left capitalize">
                                         {
                                             CONSTANTS.EMPLOYMENT_TYPE_TEXT[
-                                            job.employment_type
+                                                job.employment_type
                                             ]
                                         }
                                     </span>
@@ -409,8 +429,8 @@ export default function PersonDetailContent({ person }) {
                                 <span className="text-left capitalize">
                                     {
                                         CONSTANTS.BMI_STATUS[
-                                        person.medical_information
-                                            .nutrition_status
+                                            person.medical_information
+                                                .nutrition_status
                                         ]
                                     }
                                 </span>
@@ -508,16 +528,16 @@ export default function PersonDetailContent({ person }) {
 
                                 {person.medical_information?.has_philhealth ===
                                     1 && (
-                                        <>
-                                            <span className="font-medium text-left">
-                                                PhilHealth ID:
-                                            </span>
-                                            <span className="text-left">
-                                                {person.medical_information
-                                                    ?.philhealth_id_number || "N/A"}
-                                            </span>
-                                        </>
-                                    )}
+                                    <>
+                                        <span className="font-medium text-left">
+                                            PhilHealth ID:
+                                        </span>
+                                        <span className="text-left">
+                                            {person.medical_information
+                                                ?.philhealth_id_number || "N/A"}
+                                        </span>
+                                    </>
+                                )}
 
                                 <span className="font-medium text-left">
                                     Is Solo Parent:
@@ -530,18 +550,18 @@ export default function PersonDetailContent({ person }) {
 
                                 {person.socialwelfareprofile.is_solo_parent ===
                                     1 && (
-                                        <>
-                                            <span className="font-medium text-left">
-                                                Solo Parent ID:
-                                            </span>
-                                            <span className="text-left">
-                                                {
-                                                    person.socialwelfareprofile
-                                                        .solo_parent_id_number
-                                                }
-                                            </span>
-                                        </>
-                                    )}
+                                    <>
+                                        <span className="font-medium text-left">
+                                            Solo Parent ID:
+                                        </span>
+                                        <span className="text-left">
+                                            {
+                                                person.socialwelfareprofile
+                                                    .solo_parent_id_number
+                                            }
+                                        </span>
+                                    </>
+                                )}
                             </div>
                         ) : (
                             <p className="text-sm text-gray-500 italic">

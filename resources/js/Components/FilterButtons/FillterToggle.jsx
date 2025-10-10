@@ -36,11 +36,18 @@ const FilterToggle = ({
     institutions = [],
     types = [],
     names = [],
+    ethnicities = ["Tagalog", "Ilocano", "Ibanag"],
     clearRouteName = "",
     clearRouteParams = {},
     clearRouteAxios = false,
     setQueryParams = null,
     setQuery = null,
+    toiletTypes = [],
+    electricityTypes = [],
+    waterSourceTypes = [],
+    wasteManagementTypes = [],
+    internetTypes = [],
+    bathTypes = [bathTypes],
 }) => {
     const isVisible = (key) => visibleFilters.includes(key);
 
@@ -71,6 +78,14 @@ const FilterToggle = ({
         }
         return years;
     };
+
+    const formatOptionLabel = (option) =>
+        option
+            ? option
+                  .split("_")
+                  .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                  .join(" ")
+            : "";
 
     return (
         <div className="flex flex-wrap gap-2 items-center mb-0 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 px-1 mt-2">
@@ -222,6 +237,141 @@ const FilterToggle = ({
                         <SelectItem value="All">All</SelectItem>
                         <SelectItem value="1">Registered Voter</SelectItem>
                         <SelectItem value="0">Unregistered Voter</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("ethnic") && (
+                <Select
+                    onValueChange={(v) => searchFieldName("ethnic", v)}
+                    value={queryParams.ethnic}
+                >
+                    <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Ethnicity" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {ethnicities.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {option}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+            {isVisible("bath") && (
+                <Select
+                    onValueChange={(v) => searchFieldName("bath", v)}
+                    value={queryParams.bath}
+                >
+                    <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Bath & Wash" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {bathTypes.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {formatOptionLabel(option)}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+            {/* 🧩 Toilet Type Filter */}
+            {isVisible("toilet") && (
+                <Select
+                    onValueChange={(v) => searchFieldName("toilet", v)}
+                    value={queryParams.toilet}
+                >
+                    <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Toilet Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {toiletTypes.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {formatOptionLabel(option)}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+
+            {/* 🧩 Electricity Type Filter */}
+            {isVisible("electricity") && (
+                <Select
+                    onValueChange={(v) => searchFieldName("electricity", v)}
+                    value={queryParams.electricity}
+                >
+                    <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Electricity" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {electricityTypes.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {formatOptionLabel(option)}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+
+            {/* 🧩 Water Source Type Filter */}
+            {isVisible("water") && (
+                <Select
+                    onValueChange={(v) => searchFieldName("water", v)}
+                    value={queryParams.water}
+                >
+                    <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Water Source" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {waterSourceTypes.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {formatOptionLabel(option)}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+
+            {/* 🧩 Waste Management Type Filter */}
+            {isVisible("waste") && (
+                <Select
+                    onValueChange={(v) => searchFieldName("waste", v)}
+                    value={queryParams.waste}
+                >
+                    <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Waste Mgmt" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {wasteManagementTypes.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {formatOptionLabel(option)}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            )}
+
+            {/* 🧩 Internet Type Filter */}
+            {isVisible("internet") && (
+                <Select
+                    onValueChange={(v) => searchFieldName("internet", v)}
+                    value={queryParams.internet}
+                >
+                    <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Internet" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        {internetTypes.map((option) => (
+                            <SelectItem key={option} value={option}>
+                                {formatOptionLabel(option)}
+                            </SelectItem>
+                        ))}
                     </SelectContent>
                 </Select>
             )}
