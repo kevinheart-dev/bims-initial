@@ -1,6 +1,9 @@
 /.phpunit.cache
 /node_modules
-/public/build
+# ==================================================
+# COMMENT THIS BEFORE UPLOADING IN LIVE DOMAIN
+#/public/build
+# ==================================================
 /public/hot
 /public/storage
 /storage/*.key
