@@ -162,7 +162,7 @@ class DatabaseSeeder extends Seeder
             Family::factory(10)->create(['barangay_id' => $barangay->id]);
 
             // Create additional residents (reduce to 50 per barangay for testing)
-            $residents = Resident::factory(20)->create(['barangay_id' => $barangay->id]);
+            $residents = Resident::factory(30)->create(['barangay_id' => $barangay->id]);
             foreach ($residents as $resident) {
                 // Each resident can have 1–3 occupations
                 Occupation::factory(rand(1, 3))->create([
