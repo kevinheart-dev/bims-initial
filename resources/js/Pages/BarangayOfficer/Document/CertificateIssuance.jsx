@@ -247,7 +247,7 @@ export default function Index({
             const response = await axios.post(
                 route("certificate.store"),
                 payload,
-                { responseType: "blob" }
+                { responseType: "blob", withCredentials: true }
             );
 
             const blob = new Blob([response.data], {

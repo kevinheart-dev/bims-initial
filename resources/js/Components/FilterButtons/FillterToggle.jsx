@@ -47,7 +47,7 @@ const FilterToggle = ({
     waterSourceTypes = [],
     wasteManagementTypes = [],
     internetTypes = [],
-    bathTypes = [bathTypes],
+    bathTypes = [],
 }) => {
     const isVisible = (key) => visibleFilters.includes(key);
 
