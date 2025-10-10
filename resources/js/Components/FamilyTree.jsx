@@ -23,11 +23,6 @@ const FamilyTree = ({ familyData }) => {
         setIsSidebarOpen(true);
     };
 
-    const closeSidebar = () => {
-        setIsSidebarOpen(false);
-        setSelectedPerson(null);
-    };
-
     useEffect(() => {
         const treeData = transformToTreeFormat(familyData);
         const root = d3.hierarchy(treeData);
@@ -44,7 +39,6 @@ const FamilyTree = ({ familyData }) => {
 
         const positioned = [];
 
-        // === 1. Position All Nodes ===
         root.descendants().forEach((d) => {
             const baseX = d.x + verticalOffset;
             const baseY = d.y + horizontalCenterOffset;
@@ -54,7 +48,7 @@ const FamilyTree = ({ familyData }) => {
                 const spacing = CARD_WIDTH + 130;
 
                 if (members.length === 1) {
-                    // ✅ Single parent or self
+                    // ✅ Single parent or self (within a couple node structure)
                     positioned.push({
                         ...members[0],
                         x: baseX,
@@ -70,7 +64,6 @@ const FamilyTree = ({ familyData }) => {
                     );
 
                     if (self) {
-                        self._x = baseX;
                         positioned.push({
                             ...self,
                             x: baseX,
@@ -111,7 +104,7 @@ const FamilyTree = ({ familyData }) => {
                 // ✅ Children or other individuals
                 positioned.push({
                     ...d.data,
-                    x: baseX - CARD_WIDTH / 2 - 65,
+                    x: baseX - CARD_WIDTH / 2 - 65, // Adjust for centering for individual nodes (not couples)
                     y: baseY,
                     relation: d.data.relation || "Relative",
                     id: d.data.id,
@@ -123,7 +116,8 @@ const FamilyTree = ({ familyData }) => {
 
         // === 2. Draw Lines ===
         const lines = [];
-        // this handle couples
+
+        // --- Handle Couple Connections and their Children ---
         root.descendants().forEach((d) => {
             if (d.data.isCouple && d.data.members?.length >= 1) {
                 const baseY = d.y + horizontalCenterOffset;
@@ -147,7 +141,7 @@ const FamilyTree = ({ familyData }) => {
                     });
                 }
 
-                // === ✅ CHILDREN CONNECTION ===
+                // === CHILDREN CONNECTION FOR COUPLES ===
                 if (d.children?.length > 0) {
                     const children = d.children
                         .map((child) =>
@@ -165,22 +159,36 @@ const FamilyTree = ({ familyData }) => {
                     const parentBottomY = baseY + CARD_HEIGHT / 2;
                     const junctionY = parentBottomY + 90;
 
-                    // Vertical line from parent(s) to junction point
-                    lines.push({
-                        from: { x: parentCenterX, y: parentBottomY },
-                        to: { x: parentCenterX, y: junctionY },
-                    });
-
-                    if (children.length === 1) {
-                        // One child → single vertical line
+                    if (children.length === 1 && memberNodes.length === 1) {
+                        // Special case: Single parent in a 'couple' node with one child
                         const child = children[0];
                         const childX = child.x + CARD_WIDTH / 2;
+                        lines.push({
+                            from: { x: parentCenterX, y: parentBottomY },
+                            to: { x: childX, y: child.y },
+                        });
+                    } else if (children.length === 1) {
+                        // Couple with one child
+                        const child = children[0];
+                        const childX = child.x + CARD_WIDTH / 2;
+                        // Vertical line from parent(s) to junction point
+                        lines.push({
+                            from: { x: parentCenterX, y: parentBottomY },
+                            to: { x: parentCenterX, y: junctionY },
+                        });
+                        // Line from junction to child
                         lines.push({
                             from: { x: parentCenterX, y: junctionY },
                             to: { x: childX, y: child.y },
                         });
                     } else {
-                        // Multiple children
+                        // Multiple children for a couple (or single parent in a couple node)
+                        // Vertical line from parent(s) to junction point
+                        lines.push({
+                            from: { x: parentCenterX, y: parentBottomY },
+                            to: { x: parentCenterX, y: junctionY },
+                        });
+
                         const childXs = children.map(
                             (child) => child.x + CARD_WIDTH / 2
                         );
@@ -206,7 +214,7 @@ const FamilyTree = ({ familyData }) => {
             }
         });
 
-        // this handle single parent
+        // --- Handle Single Parent (non-couple) Connections and their Children ---
         root.descendants().forEach((d) => {
             if (!d.data.isCouple && d.children?.length > 0) {
                 const parent = positioned.find((p) => p.id === d.data.id);
@@ -223,6 +231,7 @@ const FamilyTree = ({ familyData }) => {
                     .filter(Boolean);
 
                 if (children.length === 1) {
+                    // ✅ Condition for one parent and one child: directly connect them
                     const child = children[0];
                     const childX = child.x + CARD_WIDTH / 2;
                     lines.push({
@@ -259,6 +268,59 @@ const FamilyTree = ({ familyData }) => {
                 }
             }
         });
+
+        const topLevelSiblingGroups = new Map();
+
+        root.descendants().forEach((d) => {
+            if (d.parent) {
+                const parentId = d.parent.data.id;
+                const parentInPositioned = positioned.some(p => p.id === parentId);
+
+                const isTopLevelSibling =
+                    parentId === "virtual-root" ||
+                    (!parentInPositioned && !d.parent.data.isCouple);
+
+                if (isTopLevelSibling) {
+                    if (!topLevelSiblingGroups.has(parentId)) {
+                        topLevelSiblingGroups.set(parentId, []);
+                    }
+                    const positionedNode = positioned.find(p => p.id === d.data.id);
+                    if (positionedNode) {
+                        topLevelSiblingGroups.get(parentId).push(positionedNode);
+                    }
+                }
+            }
+        });
+
+        topLevelSiblingGroups.forEach((siblings, parentId) => {
+            if (siblings.length > 1) {
+                // Ensure siblings are sorted by their x-coordinate
+                siblings.sort((a, b) => a.x - b.x);
+
+                const firstSibling = siblings[0];
+                const lastSibling = siblings[siblings.length - 1];
+
+                // Determine the Y-coordinate for the horizontal line.
+                // This should be at the same level as the siblings,
+                // perhaps slightly above or below their midpoint.
+                const siblingLineY = firstSibling.y + CARD_HEIGHT / 2 + 5; // 30px below card center
+
+                // Main horizontal line connecting all siblings
+                lines.push({
+                    from: { x: firstSibling.x + CARD_WIDTH / 2, y: siblingLineY },
+                    to: { x: lastSibling.x + CARD_WIDTH / 2, y: siblingLineY },
+                });
+
+                // Vertical lines from the main horizontal line to each sibling
+                siblings.forEach(sibling => {
+                    lines.push({
+                        from: { x: sibling.x + CARD_WIDTH / 2, y: siblingLineY },
+                        to: { x: sibling.x + CARD_WIDTH / 2, y: sibling.y + CARD_HEIGHT / 2 },
+                    });
+                });
+            }
+        });
+
 
         setConnections(lines);
 
@@ -298,24 +360,15 @@ const FamilyTree = ({ familyData }) => {
                             />
                         ))}
 
+                        {/* Render nodes for interaction */}
                         {nodes.map((node, idx) => (
                             <FamilyCard
-                                key={idx}
+                                key={`card-${idx}`}
                                 x={node.x}
                                 y={node.y}
                                 person={node}
                                 relation={node.relation}
-                            />
-                        ))}
-
-                        {nodes.map((node, idx) => (
-                            <FamilyCard
-                                key={idx}
-                                x={node.x}
-                                y={node.y}
-                                person={node}
-                                relation={node.relation}
-                                onViewDetail={openSidebar} // ✅ pass openSidebar
+                                onViewDetail={openSidebar}
                             />
                         ))}
                     </g>

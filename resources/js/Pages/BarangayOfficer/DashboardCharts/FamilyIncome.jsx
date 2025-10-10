@@ -59,9 +59,9 @@ function FamilyIncomeBarChart({ familyIncome }) {
 
     return (
         <div className="w-full h-[325px] p-4 flex flex-col">
-            {/* <h3 className="text-gray-700 font-semibold text-lg mb-4">
+            <h3 className="text-gray-700 font-semibold text-lg mb-4">
                 Family Income Distribution
-            </h3> */}
+            </h3>
 
             <div className="flex-1">
                 <ResponsiveContainer width="100%" height="100%">
