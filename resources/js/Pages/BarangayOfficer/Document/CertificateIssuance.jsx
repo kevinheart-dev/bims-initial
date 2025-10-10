@@ -477,7 +477,7 @@ export default function Index({
                         onClick: () => handleDelete(row.id),
                     },
                     {
-                        label: "Download",
+                        label: "Download as DOCX",
                         icon: <FileText className="w-4 h-4 text-green-600" />,
                         onClick: () => handleCertificateDownload(row.id),
                     },
@@ -500,36 +500,9 @@ export default function Index({
     };
 
     //handle print
-    const handleCertificatePrint = async (id) => {
-        try {
-            const response = await axios.get(route("certificate.print", id), {
-                responseType: "blob",
-            });
-
-            const blob = new Blob([response.data], { type: "application/pdf" });
-            const url = window.URL.createObjectURL(blob);
-
-            // Open in new tab and auto-print
-            const printWindow = window.open(url);
-            if (printWindow) {
-                printWindow.onload = () => {
-                    printWindow.focus();
-                    printWindow.print();
-                };
-            }
-
-            // Cleanup after some time
-            setTimeout(() => {
-                window.URL.revokeObjectURL(url);
-            }, 2000);
-        } catch (error) {
-            const msg = error.response?.data?.error || "Failed to load PDF.";
-            toast.error(msg, {
-                description: "Operation failed!",
-                duration: 3000,
-                className: "bg-red-100 text-red-800",
-            });
-        }
+    const handleCertificatePrint = (id) => {
+        const printUrl = route("certificate.print", id);
+        window.open(printUrl, "_blank");
     };
 
     // handle download

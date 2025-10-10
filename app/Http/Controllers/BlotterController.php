@@ -388,11 +388,9 @@ class BlotterController extends Controller
             // Generate file names and temp paths
             $baseName    = "blotter_report_{$blotter->id}";
             $docxFilename = "{$baseName}.docx";
-            $pdfFilename  = "{$baseName}.pdf";
 
             $tempDir = sys_get_temp_dir();
             $tempDocx = $tempDir . DIRECTORY_SEPARATOR . $docxFilename;
-            $tempPdf  = $tempDir . DIRECTORY_SEPARATOR . $pdfFilename;
 
             // Save DOCX
             $templateProcessor->saveAs($tempDocx);
@@ -401,25 +399,13 @@ class BlotterController extends Controller
                 throw new \Exception('Generated DOCX is empty or invalid.');
             }
 
-            // Convert DOCX → PDF (optional, skip if method not available)
-            if (method_exists($this, 'convertDocxToPdf')) {
-                if (!$this->convertDocxToPdf($tempDocx, $tempPdf)) {
-                    throw new \Exception('Failed to convert blotter form to PDF.');
-                }
-            }
-
             // Save files to public storage
             $barangaySlug = Str::slug($barangayName);
             $docxRelative = "blotter_forms/{$barangaySlug}/docx/{$docxFilename}";
-            $pdfRelative  = "blotter_forms/{$barangaySlug}/pdf/{$pdfFilename}";
 
             \Storage::disk('public')->makeDirectory(dirname($docxRelative));
-            \Storage::disk('public')->makeDirectory(dirname($pdfRelative));
 
             \Storage::disk('public')->putFileAs(dirname($docxRelative), new \Illuminate\Http\File($tempDocx), basename($docxRelative));
-            if (file_exists($tempPdf)) {
-                \Storage::disk('public')->putFileAs(dirname($pdfRelative), new \Illuminate\Http\File($tempPdf), basename($pdfRelative));
-            }
 
             // Record issuance in Certificate table
             Certificate::create([
@@ -431,7 +417,7 @@ class BlotterController extends Controller
                 'issued_at'      => now(),
                 'issued_by'      => $officer->id,
                 'docx_path'      => $docxRelative,
-                'pdf_path'       => file_exists($tempPdf) ? $pdfRelative : null,
+                'pdf_path'       => null,
                 'control_number' => $blotter->id . '-' . now()->format('YmdHis'),
             ]);
 

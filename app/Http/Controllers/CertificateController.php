@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use PhpOffice\PhpWord\TemplateProcessor;
+use PhpOffice\PhpWord\IOFactory;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class CertificateController extends Controller
 {
@@ -292,17 +295,11 @@ class CertificateController extends Controller
             // Save as DOCX
             $templateProcessor->saveAs($tempDocx);
 
-            // Convert DOCX → PDF
-            if (!$this->convertDocxToPdf($tempDocx, $tempPdf)) {
-                throw new \Exception('Failed to convert certificate to PDF.');
-            }
-
             // Store in public storage
             $barangaySlug = Str::slug($barangayName);
             $docxRelative = "certificates/{$barangaySlug}/docx/{$docxFilename}";
-            $pdfRelative  = "certificates/{$barangaySlug}/pdf/{$pdfFilename}";
 
-            $this->storeFiles($tempDocx, $tempPdf, $docxRelative, $pdfRelative);
+            $this->storeFiles($tempDocx, $tempPdf, $docxRelative);
 
             // Save DB record (still tied to primary resident)
             $certificate = Certificate::create([
@@ -314,7 +311,6 @@ class CertificateController extends Controller
                 'issued_at'      => now(),
                 'issued_by'      => $officer->id,
                 'docx_path'      => $docxRelative,
-                'pdf_path'       => $pdfRelative,
                 'control_number' => $values['ctrl_no'],
             ]);
 
@@ -441,75 +437,39 @@ class CertificateController extends Controller
         }
     }
 
-    protected function storeFiles(string $docxPath, string $pdfPath, string $docxRelative, string $pdfRelative): void
+    protected function storeFiles(string $docxPath, string $pdfPath, string $docxRelative): void
     {
         Storage::disk('public')->putFileAs(dirname($docxRelative), new File($docxPath), basename($docxRelative));
-        Storage::disk('public')->putFileAs(dirname($pdfRelative), new File($pdfPath), basename($pdfRelative));
-
         @unlink($docxPath);
-        @unlink($pdfPath);
-    }
-
-    /**
-     * Convert DOCX to PDF using LibreOffice / soffice
-     */
-    protected function convertDocxToPdf(string $docxPath, string $outputPdfPath): bool
-    {
-        if (!is_dir(dirname($outputPdfPath))) {
-            mkdir(dirname($outputPdfPath), 0755, true);
-        }
-
-        $escapedInput = escapeshellarg($docxPath);
-        $escapedOutputDir = escapeshellarg(dirname($outputPdfPath));
-
-        // Detect Windows vs Linux/Mac
-        $cmd = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
-            ? "soffice --headless --convert-to pdf {$escapedInput} --outdir {$escapedOutputDir}"
-            : "libreoffice --headless --convert-to pdf {$escapedInput} --outdir {$escapedOutputDir}";
-
-        exec($cmd . ' 2>&1', $outputLines, $returnVar);
-
-        $expectedPdf = dirname($outputPdfPath) . DIRECTORY_SEPARATOR . pathinfo($docxPath, PATHINFO_FILENAME) . '.pdf';
-
-        if (!file_exists($expectedPdf)) {
-            \Log::error("LibreOffice conversion failed: " . implode("\n", $outputLines));
-            return false;
-        }
-
-        if ($expectedPdf !== $outputPdfPath) {
-            rename($expectedPdf, $outputPdfPath);
-        }
-
-        return file_exists($outputPdfPath);
     }
 
     public function print($id)
     {
         $certificate = Certificate::findOrFail($id);
-
-        if (!$certificate->pdf_path || !Storage::disk('public')->exists($certificate->pdf_path)) {
-            return response()->json(['error' => 'PDF file not found.'], 404);
+        if (!$certificate->docx_path || !Storage::disk('public')->exists($certificate->docx_path)) {
+            return response()->json(['error' => 'DOCX file not found.'], 404);
         }
 
-        // Return the PDF file as a binary stream
-        return response()->file(Storage::disk('public')->path($certificate->pdf_path), [
-            'Content-Type' => 'application/pdf',
-        ]);
+        $publicUrl = Storage::disk('public')->url($certificate->docx_path);
+        $viewerUrl = "https://docs.google.com/gview?url={$publicUrl}&embedded=true";
+        return redirect($viewerUrl);
     }
 
     public function download($id)
     {
         $certificate = Certificate::findOrFail($id);
 
+        // Check if DOCX file exists
         if (!$certificate->docx_path || !Storage::disk('public')->exists($certificate->docx_path)) {
             return response()->json(['error' => 'DOCX file not found.'], 404);
         }
 
-        // for docx
-        //return Storage::disk('public')->download($certificate->docx_path);
-
-        // for pdf
-        return Storage::disk('public')->download($certificate->pdf_path, basename($certificate->pdf_path));
+        // Return DOCX file for download
+        return Storage::disk('public')->download(
+            $certificate->docx_path,
+            basename($certificate->docx_path), // Download with original filename
+            ['Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+        );
     }
 
 
