@@ -1,7 +1,0 @@
-<<<<<<<< HEAD:public/build/assets/SelectField-D1KU0e9Z.js
-import{j as e}from"./app-CxQIk-Ug.js";const u=({label:r,name:a,value:o,onChange:n,required:l=!1,disabled:s=!1,items:c,placeholder:x="Select an option"})=>e.jsxs("div",{children:[r&&e.jsxs("label",{className:`block text-sm font-semibold mb-3 mt-4 ${s?"text-gray-400":"text-gray-700"}`,children:[r,l&&e.jsx("span",{className:"text-red-500",children:" *"})]}),e.jsxs("select",{name:a,value:o,onChange:n,required:l,disabled:s,className:`w-full border rounded-md px-3 py-2 focus:outline-none text-gray-500
-========
-import{j as e}from"./app-D2VBHUnE.js";const u=({label:r,name:a,value:o,onChange:n,required:l=!1,disabled:s=!1,items:c,placeholder:x="Select an option"})=>e.jsxs("div",{children:[r&&e.jsxs("label",{className:`block text-sm font-semibold mb-3 mt-4 ${s?"text-gray-400":"text-gray-700"}`,children:[r,l&&e.jsx("span",{className:"text-red-500",children:" *"})]}),e.jsxs("select",{name:a,value:o,onChange:n,required:l,disabled:s,className:`w-full border rounded-md px-3 py-2 focus:outline-none text-gray-500
->>>>>>>> 80c2705af2b118d58401176cb54388a976789fdd:public/build/assets/SelectField-COOdf5oK.js
-                        ${s?"bg-gray-100 text-gray-500 border-gray-300 cursor-not-allowed":"border-gray-400 focus:ring-2 focus:ring-indigo-500 text-gray-800"}
-                    `,children:[e.jsx("option",{value:"",className:"text-gray-400",children:x}),c.map((t,i)=>e.jsx("option",{value:t.value,title:t.subtitle?t.subtitle:void 0,children:t.label},`${t.value}-${i}`))]})]});export{u as S};

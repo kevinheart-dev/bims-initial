@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:public/build/assets/pencil-C-3x6pFB.js
 import{c as a}from"./createLucideIcon-DUzL0oSb.js";/**
-========
-import{c as a}from"./createLucideIcon-qFzIO3KD.js";/**
->>>>>>>> 80c2705af2b118d58401176cb54388a976789fdd:public/build/assets/pencil-DInvD7YH.js
  * @license lucide-react v0.487.0 - ISC
  *
  * This source code is licensed under the ISC license.

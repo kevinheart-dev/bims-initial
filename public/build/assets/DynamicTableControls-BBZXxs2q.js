@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:public/build/assets/DynamicTableControls-BBZXxs2q.js
 import{j as e}from"./app-CxQIk-Ug.js";import{D as m,a as u,b as g,d as f,e as i,f as s}from"./dropdown-menu-BIG2J05K.js";import{B as d}from"./button-eWlrO1vI.js";import{c as l}from"./createLucideIcon-DUzL0oSb.js";import"./index-a0Ptbf1R.js";import"./index-D20yT8t5.js";import"./floating-ui.react-dom-CDryE2et.js";import"./utils-CkmPJWYF.js";import"./clsx-B-dksMZM.js";import"./check-BlEJph0r.js";import"./chevron-right-9pm6d_Wd.js";/**
-========
-import{j as e}from"./app-D2VBHUnE.js";import{D as m,a as u,b as g,d as f,e as i,f as s}from"./dropdown-menu-DG5UGZdM.js";import{B as d}from"./button-JXF2cuM-.js";import{c as l}from"./createLucideIcon-qFzIO3KD.js";import"./index-6s3vvleY.js";import"./index-C2GEi9Oq.js";import"./floating-ui.react-dom-DwQNVWkT.js";import"./utils-CkmPJWYF.js";import"./clsx-B-dksMZM.js";import"./check-C5u2RFjT.js";import"./chevron-right-BJZaoRcX.js";/**
->>>>>>>> 80c2705af2b118d58401176cb54388a976789fdd:public/build/assets/DynamicTableControls-I3Z4kOWV.js
  * @license lucide-react v0.487.0 - ISC
  *
  * This source code is licensed under the ISC license.

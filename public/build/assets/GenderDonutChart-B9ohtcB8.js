@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:public/build/assets/GenderDonutChart-B9ohtcB8.js
 import{j as e}from"./app-CxQIk-Ug.js";import{R as h}from"./ResponsiveContainer-C_Pu-ntu.js";import{P as p,a as u}from"./PieChart-D4FJr-1R.js";import{C as y}from"./CategoricalChart-BXT2lT_2.js";import{L as f}from"./Label-2LgBFzo5.js";import{T as j}from"./Tooltip-DRgI57yh.js";import{c as l}from"./createLucideIcon-DUzL0oSb.js";import"./clsx-B-dksMZM.js";import"./string-CFFdVFMV.js";import"./index-D20yT8t5.js";/**
-========
-import{j as e}from"./app-D2VBHUnE.js";import{R as h}from"./ResponsiveContainer-Qpw03d7U.js";import{P as p,a as u}from"./PieChart-D2aWoXBX.js";import{C as y}from"./CategoricalChart-BVAFg95z.js";import{L as f}from"./Label-jxOxgWg3.js";import{T as j}from"./Tooltip-D72uu9LD.js";import{c as l}from"./createLucideIcon-qFzIO3KD.js";import"./clsx-B-dksMZM.js";import"./string-CFFdVFMV.js";import"./index-C2GEi9Oq.js";/**
->>>>>>>> 80c2705af2b118d58401176cb54388a976789fdd:public/build/assets/GenderDonutChart-Cqu1MpHC.js
  * @license lucide-react v0.487.0 - ISC
  *
  * This source code is licensed under the ISC license.

@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:public/build/assets/RadioGroup-CyaL9CjF.js
 import{j as e}from"./app-CxQIk-Ug.js";function m({label:a,name:n,options:c=[],selectedValue:o,onChange:x,disabled:r,required:l}){return e.jsxs("div",{className:"relative mt-4",children:[a&&e.jsxs("label",{className:`block text-sm font-semibold mb-3
-========
-import{j as e}from"./app-D2VBHUnE.js";function m({label:a,name:n,options:c=[],selectedValue:o,onChange:x,disabled:r,required:l}){return e.jsxs("div",{className:"relative mt-4",children:[a&&e.jsxs("label",{className:`block text-sm font-semibold mb-3
->>>>>>>> 80c2705af2b118d58401176cb54388a976789fdd:public/build/assets/RadioGroup-Dm2Mo-y6.js
                     ${r?" text-gray-400":" text-gray-700"} `,children:[a,l&&e.jsx("span",{className:"text-red-500 ml-1",children:"*"})]}),e.jsx("div",{className:"flex space-x-0.5",children:c.map(s=>{const t=String(o)===String(s.value);return e.jsxs("label",{className:`inline-flex items-center rounded-md px-3 py-2 text-sm transition-colors duration-200
                                 ${t?"bg-blue-600 text-white":"bg-white"}
                                 ${r?"opacity-50 text-gray-400 cursor-not-allowed pointer-events-none":"text-gray-700 cursor-pointer"}

@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:public/build/assets/AdminLayout-Ch0RJaaH.js
 import{u as H,r as n,j as e,a as R,K as q}from"./app-CxQIk-Ug.js";import{S as B,a as I,b as L,c as V,d as M,e as D,f as v,g as j,h as P,i as U}from"./sidebar-CmbCP2Gp.js";import{C as F,N as T}from"./nav-user-CUeqll6F.js";import{u as O}from"./useAppUrl-CjqOY4Q6.js";import{c as r}from"./createLucideIcon-DUzL0oSb.js";import{H as N,U as Z}from"./users-round-Dhttk4ok.js";import{H as E}from"./heart-pulse-DEWB0aq-.js";import{C as G,a as W}from"./chevron-up-DDsNXP0q.js";/**
-========
-import{u as H,r as n,j as e,a as R,K as q}from"./app-D2VBHUnE.js";import{S as B,a as I,b as L,c as V,d as M,e as D,f as v,g as j,h as P,i as U}from"./sidebar-MVOyybzj.js";import{C as F,N as T}from"./nav-user-BCj3xiYY.js";import{u as O}from"./useAppUrl-BohVm5NF.js";import{c as r}from"./createLucideIcon-qFzIO3KD.js";import{H as N,U as Z}from"./users-round-CjEM6b0u.js";import{H as E}from"./heart-pulse-Bpcsk9jC.js";import{C as G,a as W}from"./chevron-up-CnPsG_gG.js";/**
->>>>>>>> 80c2705af2b118d58401176cb54388a976789fdd:public/build/assets/AdminLayout-BvapmRau.js
  * @license lucide-react v0.487.0 - ISC
  *
  * This source code is licensed under the ISC license.

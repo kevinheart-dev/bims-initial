@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:public/build/assets/house-plus-B0wnQb2P.js
 import{c as a}from"./createLucideIcon-DUzL0oSb.js";/**
-========
-import{c as a}from"./createLucideIcon-qFzIO3KD.js";/**
->>>>>>>> 80c2705af2b118d58401176cb54388a976789fdd:public/build/assets/house-plus-ktG8cA9H.js
  * @license lucide-react v0.487.0 - ISC
  *
  * This source code is licensed under the ISC license.

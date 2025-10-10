@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:public/build/assets/ParticipantSection-DsTcKCG5.js
 import{j as e}from"./app-CxQIk-Ug.js";import{I as N}from"./index-YqE4AmIH.js";import{D as f}from"./DropdownInputField-CATmAO2Q.js";import{I as u}from"./InputError-B_I55Pol.js";import{I as v}from"./InputLabel-C8efUdP_.js";import{T as _}from"./textarea-DuLHQFIs.js";import{R as w}from"./constants-DEVjsWMH.js";import{c as C}from"./createLucideIcon-DUzL0oSb.js";/**
-========
-import{j as e}from"./app-D2VBHUnE.js";import{I as N}from"./index-DoJK41tF.js";import{D as f}from"./DropdownInputField-DZmkJTl1.js";import{I as u}from"./InputError-BL45JlCV.js";import{I as v}from"./InputLabel-k09HPs3i.js";import{T as _}from"./textarea-9wUd1fbN.js";import{R as w}from"./constants-B2gvBLga.js";import{c as C}from"./createLucideIcon-qFzIO3KD.js";/**
->>>>>>>> 80c2705af2b118d58401176cb54388a976789fdd:public/build/assets/ParticipantSection-CH7RU5R3.js
  * @license lucide-react v0.487.0 - ISC
  *
  * This source code is licensed under the ISC license.

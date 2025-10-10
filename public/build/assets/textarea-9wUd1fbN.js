@@ -1,5 +1,0 @@
-<<<<<<<< HEAD:public/build/assets/textarea-DuLHQFIs.js
-import{r as t,j as a}from"./app-CxQIk-Ug.js";import{c as o}from"./utils-CkmPJWYF.js";const i=t.forwardRef(({className:e,...r},s)=>a.jsx("textarea",{className:o("flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",e),ref:s,...r}));i.displayName="Textarea";export{i as T};
-========
-import{r as t,j as a}from"./app-D2VBHUnE.js";import{c as o}from"./utils-CkmPJWYF.js";const i=t.forwardRef(({className:e,...r},s)=>a.jsx("textarea",{className:o("flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",e),ref:s,...r}));i.displayName="Textarea";export{i as T};
->>>>>>>> 80c2705af2b118d58401176cb54388a976789fdd:public/build/assets/textarea-9wUd1fbN.js

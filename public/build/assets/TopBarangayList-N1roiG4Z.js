@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:public/build/assets/TopBarangayList-N1roiG4Z.js
 import{r as t,j as s}from"./app-CxQIk-Ug.js";import{c as u}from"./createLucideIcon-DUzL0oSb.js";import{U as x,H as j}from"./users-round-Dhttk4ok.js";import{U as g}from"./users-Dr5aWo0g.js";/**
-========
-import{r as t,j as s}from"./app-D2VBHUnE.js";import{c as u}from"./createLucideIcon-qFzIO3KD.js";import{U as x,H as j}from"./users-round-CjEM6b0u.js";import{U as g}from"./users-ClGwy-B6.js";/**
->>>>>>>> 80c2705af2b118d58401176cb54388a976789fdd:public/build/assets/TopBarangayList-DSmtpvCf.js
  * @license lucide-react v0.487.0 - ISC
  *
  * This source code is licensed under the ISC license.

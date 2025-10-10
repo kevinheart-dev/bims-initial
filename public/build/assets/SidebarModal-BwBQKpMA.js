@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:public/build/assets/SidebarModal-BwBQKpMA.js
 import{j as e}from"./app-CxQIk-Ug.js";import{X as n}from"./x-CoOb-UyO.js";import"./createLucideIcon-DUzL0oSb.js";function o({isOpen:r,onClose:t,title:s="Details",icon:l=null,children:i}){return r?e.jsxs(e.Fragment,{children:[e.jsx("div",{className:"fixed inset-0 z-[9998] bg-black/30 backdrop-blur-[2px]",onClick:t}),e.jsxs("div",{className:`fixed top-0 right-0 h-full w-[800px] z-[9999]
-========
-import{j as e}from"./app-D2VBHUnE.js";import{X as n}from"./x-DtldsTYz.js";import"./createLucideIcon-qFzIO3KD.js";function o({isOpen:r,onClose:t,title:s="Details",icon:l=null,children:i}){return r?e.jsxs(e.Fragment,{children:[e.jsx("div",{className:"fixed inset-0 z-[9998] bg-black/30 backdrop-blur-[2px]",onClick:t}),e.jsxs("div",{className:`fixed top-0 right-0 h-full w-[800px] z-[9999]
->>>>>>>> 80c2705af2b118d58401176cb54388a976789fdd:public/build/assets/SidebarModal-DNYbxHgQ.js
                 bg-white/70 backdrop-blur-sm
                 shadow-[0_8px_30px_rgba(107,114,128,0.4)]
                 border border-gray-300
