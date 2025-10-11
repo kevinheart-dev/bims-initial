@@ -295,8 +295,12 @@ class HouseholdController extends Controller
             'bath_and_wash_area' => $household_details['bath_and_wash_area']
         ];
 
-        $query = HouseholdResident::with('resident', 'household')
-            ->where('household_id', $household->id);
+        $query = HouseholdResident::with([
+            'resident:id,household_id,firstname,middlename,lastname,maiden_name,suffix,sex,employment_status,is_deceased,is_household_head,is_family_head,family_id',
+            'household:id,barangay_id,purok_id,street_id,house_number'
+        ])
+        ->where('household_id', $household->id);
+
         if (request()->filled('name')) {
             $query->whereHas('resident', function ($q) {
                 $q->where('firstname', 'like', '%' . request('name') . '%')
@@ -653,7 +657,7 @@ class HouseholdController extends Controller
     public function getLatestHead($id)
     {
         try {
-            $head = HouseholdResident::with(['resident', 'household'])
+            $head = HouseholdResident::with(['resident:id,household_id,firstname,middlename,lastname,maiden_name,suffix,sex,is_deceased,is_household_head,is_family_head,family_id', 'household'])
                 ->where('household_id', $id)
                 ->where('relationship_to_head', 'self')
                 ->latest('created_at') // make it explicit which column to order by

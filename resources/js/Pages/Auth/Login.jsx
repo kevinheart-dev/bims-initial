@@ -5,7 +5,7 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import TextInput from "@/Components/TextInput";
 import GuestLayout from "@/Layouts/GuestLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
-import { Toaster, toast } from "sonner"; // import sonner
+import { toast } from "sonner"; // import sonner
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -20,8 +20,18 @@ export default function Login({ status, canResetPassword }) {
         post(route("login"), {
             onFinish: () => reset("password"),
             onError: (err) => {
+                console.error("Login error details:", err); // for debugging
+
                 if (err.email) {
-                    toast.error(err.email);
+                    toast.error(`Email Error: ${err.email}`);
+                } else if (err.password) {
+                    toast.error(`Password Error: ${err.password}`);
+                } else if (err.message) {
+                    toast.error(`Login Failed: ${err.message}`);
+                } else {
+                    toast.error(
+                        "Login failed. Please check your credentials and try again."
+                    );
                 }
             },
         });
@@ -30,18 +40,13 @@ export default function Login({ status, canResetPassword }) {
     return (
         <GuestLayout>
             <Head title="Log in" />
-            <Toaster richColors />
-
             {status && (
                 <div className="mb-4 text-sm font-medium text-green-600 animate-fadeIn">
                     {status}
                 </div>
             )}
 
-            <form
-                onSubmit={submit}
-                className="space-y-4 animate-slideUp"
-            >
+            <form onSubmit={submit} className="space-y-4 animate-slideUp">
                 <div className="transition-all duration-300 hover:scale-[1.01]">
                     <InputLabel htmlFor="email" value="Email" />
 

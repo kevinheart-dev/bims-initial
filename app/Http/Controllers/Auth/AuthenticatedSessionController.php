@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\ActivityLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,13 +31,13 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
+
         $user = Auth::user();
 
-        // Check if the user account is disabled
+        // 🔒 Check if the user account is disabled
         if ($user->isDisabled()) {
-            Auth::logout(); // log them out just in case
+            Auth::logout();
             return redirect()->route('login')->withErrors([
                 'email' => 'Your account has been disabled. Please contact the administrator.',
             ]);
@@ -45,8 +46,23 @@ class AuthenticatedSessionController extends Controller
         // ✅ Mark user as active on login
         $user->update(['status' => 'active']);
 
+        // 🧾 Log the login activity
+        ActivityLog::create([
+            'user_id' => $user->id,
+            'barangay_id' => $user->barangay_id ?? null,
+            'role' => $user->getRoleNames()->first(),
+            'module' => 'authentication',
+            'action_type' => 'login',
+            'description' => "{$user->username} logged in to the system.",
+        ]);
+
+        // 🧭 Role-based redirect
         if ($user->isSuperAdmin()) {
             return redirect()->intended(route('super_admin.dashboard', [], false));
+        }
+
+        if ($user->isAdmin()) {
+            return redirect()->intended(route('admin.dashboard', [], false));
         }
 
         if ($user->isCdrrmo()) {
@@ -57,7 +73,6 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('barangay_officer.dashboard', [], false));
         }
 
-        // Check if the user is a resident
         if ($user->isResident()) {
             return redirect()->intended(route('resident_account.dashboard', [], false));
         }
@@ -75,11 +90,21 @@ class AuthenticatedSessionController extends Controller
         if ($user) {
             // ✅ Mark user as inactive on logout
             $user->update(['status' => 'inactive']);
+
+            // ✅ Log user logout activity
+            ActivityLog::create([
+                'user_id' => $user->id,
+                'barangay_id' => $user->barangay_id ?? null,
+                'role' => $user->getRoleNames()->first(),
+                'module' => 'authentication',
+                'action_type' => 'logout',
+                'description' => "{$user->username} logged out of the system.",
+            ]);
         }
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');

@@ -60,7 +60,7 @@ use Maatwebsite\Excel\Facades\Excel;
 Route::get('/', [IBIMSController::class, 'welcome'])->name('welcome'); // Welcome page accessible to both admin and resident
 
 // Admin-only routes
-Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin'])->group(function () {
+Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin'])->group(function () {
     Route::get('/document/fill/{resident}/{template}', [DocumentGenerationController::class, 'generateFilledDocument'])
         ->name('document.fill');
 
@@ -237,6 +237,14 @@ Route::middleware(['auth', 'role:barangay_officer'])->group(function () {
     });
     Route::get('/barangay_officer/dashboard', [DashboardController::class, 'dashboard'])
         ->name('barangay_officer.dashboard');
+});
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin', function () {
+        return redirect()->route('admin.dashboard');
+    });
+    Route::get('/admin/dashboard', [DashboardController::class, 'dashboard'])
+        ->name('admin.dashboard');
 });
 
 Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(function () {

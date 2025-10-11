@@ -74,6 +74,7 @@ class DatabaseSeeder extends Seeder
         $residentRole = Role::firstOrCreate(['name' => 'resident']);
         $superAdminRole = Role::firstOrCreate(['name' => 'super_admin']);
         $cdrrmoRole = Role::firstOrCreate(['name' => 'cdrrmo_admin']);
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
 
         // System users
         User::factory()->create([
@@ -122,7 +123,7 @@ class DatabaseSeeder extends Seeder
             $adminUser = User::factory()->create([
                 'resident_id' => $resident->id,
                 'barangay_id' => $barangay->id,
-                'username' => $barangay->name . ' Admin',
+                'username' => $barangay->name . ' Barangay Officer',
                 'email' => $barangay->email ?? 'barangay' . $barangay->id . '@example.com',
                 'password' => bcrypt('admin123'),
                 'email_verified_at' => now(),
@@ -131,6 +132,19 @@ class DatabaseSeeder extends Seeder
                 'is_disabled' => false,
             ]);
             $adminUser->assignRole($barangayOfficerRole);
+
+            $admin = User::factory()->create([
+                'resident_id' => null,
+                'barangay_id' => $barangay->id,
+                'username' => 'Administrator Account',
+                'email' => 'admin@example.com',
+                'password' => bcrypt('admin123'),
+                'email_verified_at' => now(),
+                'role' => 'admin',
+                'status' => 'inactive',
+                'is_disabled' => false,
+            ]);
+            $admin->assignRole($adminRole);
 
             // Create Barangay Official Term
             $term = BarangayOfficialTerm::factory()->create([

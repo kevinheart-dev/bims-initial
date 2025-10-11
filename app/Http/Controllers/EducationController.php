@@ -34,7 +34,7 @@ class EducationController extends Controller
                 'program'
             )
             ->whereHas('resident', function ($q) use ($brgy_id) {
-                $q->where('barangay_id', $brgy_id);
+                $q->where('barangay_id', $brgy_id)->where('is_deceased', false);
             });
 
         if (request()->filled('latest_education')) {
@@ -52,7 +52,7 @@ class EducationController extends Controller
                         'resident:id,firstname,lastname,middlename,suffix,purok_number,barangay_id'
                     ])
                     ->whereHas('resident', function ($q) use ($brgy_id) {
-                        $q->where('barangay_id', $brgy_id);
+                        $q->where('barangay_id', $brgy_id)->where('is_deceased', false);
                     });
             }
         }

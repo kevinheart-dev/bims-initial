@@ -539,7 +539,8 @@ class FamilyController extends Controller
 
         // All members
         $members = Resident::with('latestHousehold:household_id,house_number')
-        ->where('barangay_id', $brgyId) // filter by barangay
+        ->where('barangay_id', $brgyId)
+        ->where('is_deceased', false) // filter by barangay
         ->select('id', 'household_id', 'purok_number', 'resident_picture_path', 'firstname', 'middlename', 'lastname', 'birthdate', 'barangay_id')
         ->get();
 
