@@ -34,9 +34,8 @@ export default function Index({ family_tree, residents }) {
 
     const residentsList = residents.map((res) => ({
         value: res.id, // used for selection
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
-            res.suffix ?? ""
-        }`,
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
+            }`,
         image: res.resident_picture_path || null,
         birthdate: res.birthdate || null,
         purok_number: res.purok_number || null,
@@ -113,7 +112,7 @@ export default function Index({ family_tree, residents }) {
         setData(
             `${fieldPrefix}_name`,
             resident.label ||
-                `${resident.firstname} ${resident.middlename} ${resident.lastname}`
+            `${resident.firstname} ${resident.middlename} ${resident.lastname}`
         );
         setData(`${fieldPrefix}_image`, resident.image || null);
         setData(`${fieldPrefix}_birthdate`, resident.birthdate || null);

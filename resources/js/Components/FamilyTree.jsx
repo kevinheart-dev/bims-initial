@@ -269,12 +269,15 @@ const FamilyTree = ({ familyData }) => {
             }
         });
 
+        // --- Handle Top-Level Siblings (no parent or virtual root) ---
         const topLevelSiblingGroups = new Map();
 
         root.descendants().forEach((d) => {
             if (d.parent) {
                 const parentId = d.parent.data.id;
-                const parentInPositioned = positioned.some(p => p.id === parentId);
+                const parentInPositioned = positioned.some(
+                    (p) => p.id === parentId
+                );
 
                 const isTopLevelSibling =
                     parentId === "virtual-root" ||
@@ -284,38 +287,47 @@ const FamilyTree = ({ familyData }) => {
                     if (!topLevelSiblingGroups.has(parentId)) {
                         topLevelSiblingGroups.set(parentId, []);
                     }
-                    const positionedNode = positioned.find(p => p.id === d.data.id);
+                    const positionedNode = positioned.find(
+                        (p) => p.id === d.data.id
+                    );
                     if (positionedNode) {
-                        topLevelSiblingGroups.get(parentId).push(positionedNode);
+                        topLevelSiblingGroups
+                            .get(parentId)
+                            .push(positionedNode);
                     }
                 }
             }
         });
 
-        topLevelSiblingGroups.forEach((siblings, parentId) => {
+        topLevelSiblingGroups.forEach((siblings) => {
             if (siblings.length > 1) {
-                // Ensure siblings are sorted by their x-coordinate
                 siblings.sort((a, b) => a.x - b.x);
 
                 const firstSibling = siblings[0];
                 const lastSibling = siblings[siblings.length - 1];
+                const siblingLineY = firstSibling.y + CARD_HEIGHT / 2 + 5;
 
-                // Determine the Y-coordinate for the horizontal line.
-                // This should be at the same level as the siblings,
-                // perhaps slightly above or below their midpoint.
-                const siblingLineY = firstSibling.y + CARD_HEIGHT / 2 + 5; // 30px below card center
-
-                // Main horizontal line connecting all siblings
                 lines.push({
-                    from: { x: firstSibling.x + CARD_WIDTH / 2, y: siblingLineY },
-                    to: { x: lastSibling.x + CARD_WIDTH / 2, y: siblingLineY },
+                    from: {
+                        x: firstSibling.x + CARD_WIDTH / 2,
+                        y: siblingLineY,
+                    },
+                    to: {
+                        x: lastSibling.x + CARD_WIDTH / 2,
+                        y: siblingLineY,
+                    },
                 });
 
-                // Vertical lines from the main horizontal line to each sibling
-                siblings.forEach(sibling => {
+                siblings.forEach((sibling) => {
                     lines.push({
-                        from: { x: sibling.x + CARD_WIDTH / 2, y: siblingLineY },
-                        to: { x: sibling.x + CARD_WIDTH / 2, y: sibling.y + CARD_HEIGHT / 2 },
+                        from: {
+                            x: sibling.x + CARD_WIDTH / 2,
+                            y: siblingLineY,
+                        },
+                        to: {
+                            x: sibling.x + CARD_WIDTH / 2,
+                            y: sibling.y + CARD_HEIGHT / 2,
+                        },
                     });
                 });
             }
@@ -324,6 +336,7 @@ const FamilyTree = ({ familyData }) => {
 
         setConnections(lines);
 
+        // === D3 ZOOM SETUP ===
         const svg = d3.select(svgRef.current);
         const g = svg.select("g");
 
@@ -360,7 +373,6 @@ const FamilyTree = ({ familyData }) => {
                             />
                         ))}
 
-                        {/* Render nodes for interaction */}
                         {nodes.map((node, idx) => (
                             <FamilyCard
                                 key={`card-${idx}`}
