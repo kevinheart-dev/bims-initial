@@ -351,7 +351,7 @@ const FamilyTree = ({ familyData }) => {
     }, [familyData]);
 
     return (
-        <div className="w-full border rounded-lg bg-dot-grid">
+        <div className="w-[1170px] border rounded-lg bg-dot-grid">
             <div className="overflow-auto max-h-[600px] max-w-full rounded-lg">
                 <svg
                     ref={svgRef}

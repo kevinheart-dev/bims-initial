@@ -176,7 +176,7 @@ export default function Index({ family_tree, residents }) {
                         </div>
 
                         {/* <pre>{JSON.stringify(family_tree, undefined, 3)}</pre> */}
-                        <div className="h-[600px] w-full">
+                        <div className="h-[600px] w-[1000px]">
                             <FamilyTree familyData={family_tree} />
                         </div>
                     </div>

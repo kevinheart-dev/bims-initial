@@ -81,10 +81,10 @@ export default function Dashboard({
                             bg-gradient-to-r from-sky-50 via-white to-cyan-50"
             >
                 <h1 className="text-2xl font-extrabold text-gray-800">
-                    Barangay <span className="bg-blue-100 text-blue-800 rounded-sm px-1">{barangayName}</span> Dashboard
+                    Barangay <span className="bg-blue-100 text-blue-800 rounded-sm px-1">{barangayName}</span>
                 </h1>
                 <p className="text-md text-gray-600 mt-0">
-                    This dashboard provides an overview of the barangay’s population, demographics, and social statistics to help in planning and decision-making.
+                    This dashboard visualizes Barangay {barangayName}’s population, demographics, and social data for informed community planning.
                 </p>
             </div>
 

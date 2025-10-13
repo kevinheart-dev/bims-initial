@@ -18,19 +18,25 @@ import { FileChartPie } from 'lucide-react';
 
 // --- Color constants and data processing logic ---
 
-const COLORS_GENDER = ["#2563EB", "#60A5FA", "#1E40AF"];
-const COLORS_WELFARE = ["#2563EB", "#60A5FA", "#1E40AF"];
+const COLORS_GENDER = [
+    "#3B82F6", // Blue - Male
+    "#F472B6", // Pink - Female
+    "#10B981",
+];
+
+const COLORS_WELFARE = [
+    "#3B82F6",
+    "#F59E0B",
+    "#10B981",
+];
+
 const COLORS_PUROK = ["#1E40AF"];
 const COLORS_VOTERS = ["#2563EB", "#60A5FA"];
-const COLORS_EMPLOYMENT = [
-    "#1E3A8A", "#1D4ED8", "#2563EB", "#3B82F6", "#60A5FA"
-];
+const COLORS_EMPLOYMENT = ["#06b6d4", "#f43f5e", "#a855f7", "#facc15", "#10b981"]
 const COLORS_AGE = [
     "#1E3A8A", "#1D4ED8", "#2563EB", "#3B82F6", "#60A5FA", "#93C5FD", "#BFDBFE"
 ];
-const COLORS_CIVIL = [
-    "#1E3A8A", "#2563EB", "#3B82F6", "#60A5FA", "#93C5FD", "#BFDBFE", "#DBEAFE"
-];
+const COLORS_CIVIL = ["#06b6d4", "#f43f5e", "#a855f7", "#facc15", "#10b981", "#fb923c"]
 
 const AGE_GROUPS = [
     { label: "0-6m", min: 0, max: 0.5 },

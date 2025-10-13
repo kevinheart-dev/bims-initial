@@ -1,10 +1,8 @@
 import Counter from "@/Components/Counter";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
-// Blue shades palette
-const COLORS = ["#1e3a8a", "#2563eb", "#3b82f6", "#60a5fa", "#93c5fd"];
-
+const COLORS = ["#06b6d4", "#f43f5e", "#a855f7", "#facc15", "#10b981"];
 
 const EmploymentStatus = ({ employmentStatusDistribution }) => {
     // Convert object into array for Recharts
@@ -15,11 +13,19 @@ const EmploymentStatus = ({ employmentStatusDistribution }) => {
         })
     );
 
+    // Function to format label names (remove underscores, capitalize each word)
+    const formatLabel = (label) => {
+        return label
+            .split("_")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+    };
+
     // Calculate total count
     const total = data.reduce((acc, curr) => acc + curr.value, 0);
 
     return (
-        <div className="w-full h-[260px] flex flex-col items-center relative ">
+        <div className="w-full h-[260px] flex flex-col items-center relative">
             {/* Donut Chart */}
             <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -54,11 +60,14 @@ const EmploymentStatus = ({ employmentStatusDistribution }) => {
                 </PieChart>
             </ResponsiveContainer>
 
+            {/* Center Counter */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <p className="text-2xl font-bold text-gray-800 -translate-y-11">
                     <Counter end={total} />
                 </p>
             </div>
+
+            {/* Legend */}
             <div className="mt-2 w-full max-h-[100px] overflow-y-auto">
                 {data.map((entry, index) => (
                     <div
@@ -70,9 +79,7 @@ const EmploymentStatus = ({ employmentStatusDistribution }) => {
                                 className="inline-block w-4 h-4 rounded-full mr-2"
                                 style={{ backgroundColor: COLORS[index % COLORS.length] }}
                             ></span>
-                            <span>
-                                {index < 2 ? entry.name : entry.name} {/* You can style differently if needed */}
-                            </span>
+                            <span>{formatLabel(entry.name)}</span>
                         </div>
                         <span className="font-semibold">
                             {entry.value} ({((entry.value / total) * 100).toFixed(2)}%)
@@ -80,9 +87,6 @@ const EmploymentStatus = ({ employmentStatusDistribution }) => {
                     </div>
                 ))}
             </div>
-
-
-
         </div>
     );
 };

@@ -1,9 +1,50 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import AgeDistributionTable from "@/Pages/BarangayOfficer/DashboardCharts/AgeDistributionTable";
 import AgeCard from "../DasboardComponents/AgeCard";
 
 const AgeGroup = ({ ageCategoryData, ageDistributionData }) => {
+    // 🧮 Compute total and key insights dynamically
+    const insights = useMemo(() => {
+        if (!ageDistributionData || Object.keys(ageDistributionData).length === 0) {
+            return {
+                totalPopulation: 0,
+                dominantGroup: "N/A",
+                dominantPercentage: 0,
+                summary: "No data available to analyze age distribution.",
+            };
+        }
+
+        const entries = Object.entries(ageDistributionData).map(([ageRange, value]) => ({
+            ageRange,
+            value,
+        }));
+
+        const totalPopulation = entries.reduce((sum, item) => sum + item.value, 0);
+        const dominant = entries.reduce(
+            (prev, curr) => (curr.value > prev.value ? curr : prev),
+            entries[0]
+        );
+
+        const dominantPercentage =
+            totalPopulation > 0 ? ((dominant.value / totalPopulation) * 100).toFixed(1) : 0;
+
+        let summary = `This section provides an overview of the barangay's population by age group. `;
+        summary += `The total recorded population across all age brackets is approximately ${totalPopulation.toLocaleString()} residents. `;
+        summary += `The largest segment of the population falls under the ${dominant.ageRange.replace(
+            /_/g,
+            " "
+        )} group, comprising about ${dominantPercentage}% of the total population. `;
+        summary += `This insight helps identify which age groups dominate the demographic structure and informs resource allocation, programs, and policy planning.`;
+
+        return {
+            totalPopulation,
+            dominantGroup: dominant.ageRange,
+            dominantPercentage,
+            summary,
+        };
+    }, [ageDistributionData]);
+
     return (
         <div className="relative overflow-hidden bg-[#f8faff] font-montserrat min-h-screen">
             {/* Header Section */}
@@ -12,10 +53,9 @@ const AgeGroup = ({ ageCategoryData, ageDistributionData }) => {
                     Age Population
                 </h3>
 
-                <p className="max-w-3xl text-[#093a7b] text-sm sm:text-base leading-relaxed">
-                    This section provides an overview of the population distribution by age group.
-                    The table summarizes age ranges and their population counts, while the chart on
-                    the right visualizes the overall age composition across the barangay.
+                {/* 🧾 Dynamic Paragraph */}
+                <p className="w-full text-[#093a7b] text-sm sm:text-base leading-relaxed">
+                    {insights.summary}
                 </p>
             </div>
 

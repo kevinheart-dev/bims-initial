@@ -27,37 +27,49 @@ function GenderDonutChart({ genderDistribution, sexDistribution, view }) {
     ];
 
     const activeData = view === "sex" ? sexData : genderData;
-
     const width = useWindowWidth();
     const isMobile = width < 768;
-
     const total = activeData.reduce((sum, item) => sum + item.value, 0);
 
-    const BLUE_SHADES = [
-        { start: "#1e3a8a", end: "#3b82f6" },
-        { start: "#1d4ed8", end: "#4f46e5" },
-        { start: "#0ea5e9", end: "#3b82f6" },
-    ];
+    // 🎨 Corrected color gradients
+    const GRADIENTS = {
+        lgbtq: ["#f8b4b4", "#fbcfe8", "#c7d2fe", "#bae6fd", "#bbf7d0", "#fde68a"], // pastel rainbow
+        female: ["#f9a8d4", "#ec4899"], // pink
+        male: ["#60a5fa", "#2563eb"], // blue
+    };
 
+    const getGradientColors = (name) => {
+        if (name.toLowerCase() === "lgbtq") return GRADIENTS.lgbtq;
+        if (name.toLowerCase() === "female") return GRADIENTS.female;
+        return GRADIENTS.male;
+    };
 
     return (
         <div className="w-full h-[210px] flex flex-col items-center relative">
             <ResponsiveContainer width="100%" height={isMobile ? 250 : 220}>
                 <PieChart>
                     <defs>
-                        {activeData.map((entry, index) => (
-                            <linearGradient
-                                key={`grad-${index}`}
-                                id={`grad-${index}`}
-                                x1="0%"
-                                y1="0%"
-                                x2="100%"
-                                y2="0%"
-                            >
-                                <stop offset="0%" stopColor={BLUE_SHADES[index].start} />
-                                <stop offset="100%" stopColor={BLUE_SHADES[index].end} />
-                            </linearGradient>
-                        ))}
+                        {activeData.map((entry, index) => {
+                            const colors = getGradientColors(entry.name);
+                            return (
+                                <linearGradient
+                                    key={`grad-${index}`}
+                                    id={`grad-${index}`}
+                                    x1="0%"
+                                    y1="0%"
+                                    x2="100%"
+                                    y2="0%"
+                                >
+                                    {colors.map((color, i) => (
+                                        <stop
+                                            key={i}
+                                            offset={`${(i / (colors.length - 1)) * 100}%`}
+                                            stopColor={color}
+                                        />
+                                    ))}
+                                </linearGradient>
+                            );
+                        })}
                     </defs>
 
                     <Pie
@@ -66,7 +78,6 @@ function GenderDonutChart({ genderDistribution, sexDistribution, view }) {
                         cy="35%"
                         innerRadius="40%"
                         outerRadius="70%"
-                        paddingAngle={0}
                         dataKey="value"
                     >
                         {activeData.map((entry, index) => (
@@ -97,25 +108,28 @@ function GenderDonutChart({ genderDistribution, sexDistribution, view }) {
 
             {/* Legend */}
             <div className="mt-4 w-full">
-                {activeData.map((entry, index) => (
-                    <div
-                        key={index}
-                        className="flex items-center justify-between text-sm text-gray-700 mb-2"
-                    >
-                        <div className="flex items-center">
-                            <span
-                                className="inline-block w-4 h-4 rounded-full mr-2"
-                                style={{
-                                    background: `linear-gradient(to right, ${BLUE_SHADES[index].start}, ${BLUE_SHADES[index].end})`,
-                                }}
-                            ></span>
-                            <span>{entry.name}</span>
+                {activeData.map((entry, index) => {
+                    const colors = getGradientColors(entry.name);
+                    return (
+                        <div
+                            key={index}
+                            className="flex items-center justify-between text-sm text-gray-700 mb-2"
+                        >
+                            <div className="flex items-center">
+                                <span
+                                    className="inline-block w-4 h-4 rounded-full mr-2"
+                                    style={{
+                                        background: `linear-gradient(to right, ${colors.join(", ")})`,
+                                    }}
+                                ></span>
+                                <span>{entry.name}</span>
+                            </div>
+                            <span className="font-semibold">
+                                {entry.value} ({((entry.value / total) * 100).toFixed(2)}%)
+                            </span>
                         </div>
-                        <span className="font-semibold">
-                            {entry.value} ({((entry.value / total) * 100).toFixed(2)}%)
-                        </span>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );
