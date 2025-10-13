@@ -407,4 +407,111 @@ class SummonController extends Controller
         }
     }
 
+    public function generateFileAction($id)
+    {
+        $user       = auth()->user()->resident;
+        $barangayId = $user->barangay_id;
+
+        try {
+            // Load blotter report with related participants and officer
+            $blotter = BlotterReport::with([
+                'complainants.resident',
+                'respondents.resident',
+                'recordedBy.resident'
+            ])->findOrFail($id);
+
+            // Load Certificate to File Action template (KP Form 10)
+            $template = Document::where('barangay_id', $barangayId)
+                ->where('specific_purpose', 'file_action')
+                ->latest()
+                ->first();
+
+            // Template not found
+            if (!$template) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Certificate to File Action template not found.'
+                ], 404);
+            }
+
+            $templatePath = storage_path('app/public/' . $template->file_path);
+
+            // Template file missing in storage
+            if (!file_exists($templatePath)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Template file missing in storage.'
+                ], 404);
+            }
+
+            $templateProcessor = new TemplateProcessor($templatePath);
+
+            // Get barangay officials
+            $captain = BarangayOfficial::where('position', 'barangay_captain')
+                ->whereHas('resident', fn($q) => $q->where('barangay_id', $barangayId))
+                ->first();
+
+            $secretary = BarangayOfficial::where('position', 'barangay_secretary')
+                ->whereHas('resident', fn($q) => $q->where('barangay_id', $barangayId))
+                ->first();
+
+            // Prepare replacement values for placeholders
+            $values = collect([
+                'id'                  => $blotter->id,
+                'year'                => now()->format('Y'),
+                'month'               => now()->translatedFormat('F'),
+                'day'                 => now()->format('d'),
+                'type_of_incident'  => $blotter->type_of_incident ?? '',
+                'complainants'        => $blotter->complainants
+                                            ->map(fn($p) => $p->resident?->full_name ?? $p->name)
+                                            ->join(', '),
+                'respondents'         => $blotter->respondents
+                                            ->map(fn($p) => $p->resident?->full_name ?? $p->name)
+                                            ->join(', '),
+                'barangay_captian'    => $captain?->resident?->full_name ?? '',
+                'baranggay_secretary' => $secretary?->resident?->full_name ?? '',
+            ]);
+
+            // Fill all placeholders
+            foreach ($templateProcessor->getVariables() as $placeholder) {
+                $templateProcessor->setValue($placeholder, $values->get($placeholder, ''));
+            }
+
+            // File paths
+            $incidentType = Str::slug($blotter->type_of_incident, '_'); // make it filename-safe
+            $baseName = "certificate_file_action_{$incidentType}";
+            $docxFilename = "{$baseName}.docx";
+            $barangaySlug = \Str::slug($user->barangay->barangay_name);
+            $docxRelative = "kp_forms/{$barangaySlug}/docx/{$docxFilename}";
+            $docxPath     = storage_path("app/public/{$docxRelative}");
+
+            // Ensure directory exists
+            \Storage::disk('public')->makeDirectory(dirname($docxRelative));
+
+            // Save generated document
+            $templateProcessor->saveAs($docxPath);
+
+            if (!file_exists($docxPath) || filesize($docxPath) === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Generated DOCX is empty or invalid.'
+                ], 500);
+            }
+
+            // Return file for download
+            return response()->download($docxPath, $docxFilename);
+
+        } catch (\Throwable $e) {
+            \Log::error('Certificate to File Action generation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate Certificate to File Action: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
 }

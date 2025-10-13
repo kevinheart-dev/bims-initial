@@ -215,6 +215,7 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
     Route::get('summon/elevate/{id}', [SummonController::class, 'elevate'])->name('summon.elevate');
     Route::get('blotter_report/generateform/{id}', [BlotterController::class, 'generateForm'])->name('blotter_report.generateForm');
     Route::get('summon/generateform/{id}', [SummonController::class, 'generateForm'])->name('summon.generateForm');
+    Route::get('summon/fileaction/{id}', [SummonController::class, 'generateFileAction'])->name('summon.fileaction');
     Route::resource('blotter_report', BlotterController::class);
     Route::resource('case_participant', CaseParticipantController::class);
     Route::resource('summon', SummonController::class);

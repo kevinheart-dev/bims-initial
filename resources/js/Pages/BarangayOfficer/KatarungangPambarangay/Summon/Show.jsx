@@ -107,7 +107,15 @@ export default function ViewBlotterReport({ blotter_details }) {
     const renderInfoItem = (label, value) => (
         <div>
             <h4 className="text-sm font-medium text-gray-600">{label}</h4>
-            <p className="text-sm text-gray-900">{value || "Not provided"}</p>
+            {typeof value === "string" || typeof value === "number" ? (
+                <p className="text-sm text-gray-900">
+                    {value || "Not provided"}
+                </p>
+            ) : (
+                <div className="text-sm text-gray-900">
+                    {value || "Not provided"}
+                </div>
+            )}
         </div>
     );
 
@@ -202,6 +210,74 @@ export default function ViewBlotterReport({ blotter_details }) {
         }
     };
 
+    const handleGenerateCertificate = async () => {
+        try {
+            const response = await axios.get(
+                route("summon.fileaction", blotter_details.id),
+                { responseType: "blob" }
+            );
+
+            const blob = new Blob([response.data], {
+                type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            });
+            const url = window.URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+            link.href = url;
+
+            // Extract filename from headers if available
+            const contentDisposition = response.headers["content-disposition"];
+            const match = contentDisposition?.match(/filename="?([^"]+)"?/);
+            const filename = match
+                ? match[1]
+                : "certificate_to_file_action.docx";
+
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            toast.success(
+                "Certificate to File Action generated successfully!",
+                {
+                    duration: 3000,
+                    className: "bg-green-100 text-green-800",
+                }
+            );
+        } catch (error) {
+            console.error("Certificate generation failed:", error);
+
+            let serverMessage =
+                "An unexpected error occurred. Please try again.";
+
+            if (error.response) {
+                if (error.response.data?.message) {
+                    serverMessage = error.response.data.message;
+                } else if (error.response.status === 404) {
+                    serverMessage =
+                        "The requested certificate could not be found.";
+                } else if (error.response.status === 500) {
+                    serverMessage =
+                        "A server error occurred while generating the certificate.";
+                } else {
+                    serverMessage = `Server responded with status ${error.response.status}.`;
+                }
+            } else if (error.request) {
+                serverMessage =
+                    "No response from server. Please check your internet connection.";
+            } else {
+                serverMessage = `Request failed: ${error.message}`;
+            }
+
+            toast.error("Failed to generate certificate", {
+                description: serverMessage,
+                duration: 6000,
+                className: "bg-red-100 text-red-800",
+                closeButton: true,
+            });
+        }
+    };
+
     // feedback
     useEffect(() => {
         if (success) {
@@ -228,7 +304,7 @@ export default function ViewBlotterReport({ blotter_details }) {
             <Head title="View Blotter Report" />
             <Toaster richColors />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-
+            {/* <pre>{JSON.stringify(blotter_details, undefined, 3)}</pre> */}
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
                 <Card className="shadow-sm border rounded-xl">
                     {/* Header */}
@@ -268,6 +344,17 @@ export default function ViewBlotterReport({ blotter_details }) {
                                 <FileOutput className="w-4 h-4 mr-1" />
                                 Summon Form
                             </Button>
+                            {blotter_details.summons?.[0]?.takes.length ===
+                                3 && (
+                                <Button
+                                    size="sm"
+                                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                                    onClick={handleGenerateCertificate}
+                                >
+                                    <FileOutput className="w-4 h-4 mr-1" />
+                                    Certificate to File Action
+                                </Button>
+                            )}
                         </div>
                     </div>
 
