@@ -47,14 +47,14 @@ class AuthenticatedSessionController extends Controller
         $user->update(['status' => 'active']);
 
         // 🧾 Log the login activity
-        ActivityLog::create([
-            'user_id' => $user->id,
-            'barangay_id' => $user->barangay_id ?? null,
-            'role' => $user->getRoleNames()->first(),
-            'module' => 'authentication',
-            'action_type' => 'login',
-            'description' => "{$user->username} logged in to the system.",
-        ]);
+        // ActivityLog::create([
+        //     'user_id' => $user->id,
+        //     'barangay_id' => $user->barangay_id ?? null,
+        //     'role' => $user->getRoleNames()->first(),
+        //     'module' => 'authentication',
+        //     'action_type' => 'login',
+        //     'description' => "{$user->username} logged in to the system.",
+        // ]);
 
         // 🧭 Role-based redirect
         if ($user->isSuperAdmin()) {

@@ -1,16 +1,25 @@
 import React from "react";
 import { BarChart, Bar, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
+// 🎨 Vibrant, distinct colors (6 core + auto-fallback)
 const COLORS = [
-    "#3B82F6",
-    "#60A5FA",
-    "#93C5FD",
-    "#A5B4FC",
-    "#C4B5FD",
-    "#D8B4FE",
-    "#FBCFE8",
+    "#06b6d4", // Teal
+    "#f43f5e", // Coral Red
+    "#a855f7", // Violet
+    "#facc15", // Gold
+    "#10b981", // Emerald Green
+    "#fb923c", // Orange
 ];
 
+// Function to dynamically create a new color if ethnicity exceeds predefined COLORS
+const generateColor = (index) => {
+    if (index < COLORS.length) return COLORS[index];
+    // Generate a fallback color using HSL for uniqueness
+    const hue = (index * 45) % 360;
+    return `hsl(${hue}, 70%, 60%)`;
+};
+
+// Helper to calculate percentage
 const calculatePercentage = (value, total) => {
     return total > 0 ? ((value / total) * 100).toFixed(2) : "0.00";
 };
@@ -46,8 +55,7 @@ const EthnicityBarChart = ({ ethnicityDistribution = {} }) => {
                                 key={entry.ethnicity}
                                 dataKey={entry.ethnicity}
                                 stackId="a"
-                                fill={COLORS[index % COLORS.length]}
-
+                                fill={generateColor(index)}
                                 radius={isFirst ? [10, 0, 0, 10] : isLast ? [0, 10, 10, 0] : 0}
                             />
                         );
@@ -62,11 +70,8 @@ const EthnicityBarChart = ({ ethnicityDistribution = {} }) => {
 
             <hr className="my-4" />
 
-
             {/* Scrollable Legend / Breakdown List */}
-            <div
-                className={`flex flex-col gap-2 overflow-y-auto max-h-[175px]`} // fixed height for scroll
-            >
+            <div className="flex flex-col gap-2 overflow-y-auto max-h-[175px]">
                 {dataArray.map((entry, index) => {
                     const percentage = calculatePercentage(entry.total, totalPopulation);
                     return (
@@ -78,7 +83,7 @@ const EthnicityBarChart = ({ ethnicityDistribution = {} }) => {
                             <div className="flex items-center gap-3 w-1/2">
                                 <span
                                     className="w-3 h-3 rounded-full flex-shrink-0"
-                                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                                    style={{ backgroundColor: generateColor(index) }}
                                 ></span>
                                 <span className="text-sm text-gray-700 font-medium truncate">
                                     {entry.ethnicity}
@@ -98,7 +103,6 @@ const EthnicityBarChart = ({ ethnicityDistribution = {} }) => {
                     );
                 })}
             </div>
-
         </div>
     );
 };

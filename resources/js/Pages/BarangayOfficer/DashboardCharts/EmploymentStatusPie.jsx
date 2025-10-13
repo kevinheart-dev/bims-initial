@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
     PieChart,
     Pie,
     Cell,
     Tooltip,
     Legend,
-    ResponsiveContainer
+    ResponsiveContainer,
 } from "recharts";
 
 const EmploymentStatusPieChart = ({ employmentStatusData }) => {
@@ -23,18 +23,48 @@ const EmploymentStatusPieChart = ({ employmentStatusData }) => {
         value: total,
     }));
 
-    // Shades of blue
-    const COLORS = ["#093a7b", "#1d4ed8", "#2563eb", "#3b82f6", "#60a5fa"];
+    // 🎨 Complementary & balanced color palette
+    const COLORS = ["#3B82F6", "#F97316", "#10B981", "#A855F7", "#EF4444"];
+
+    // Total population for percentage display
+    const total = chartData.reduce((sum, item) => sum + item.value, 0);
+
+    // 📱 Responsive font scaling
+    const [fontSize, setFontSize] = useState(14);
+    const [radius, setRadius] = useState(120);
+
+    useEffect(() => {
+        const updateChartSize = () => {
+            const width = window.innerWidth;
+            if (width < 480) {
+                setFontSize(10);
+                setRadius(70);
+            } else if (width < 768) {
+                setFontSize(12);
+                setRadius(90);
+            } else if (width < 1024) {
+                setFontSize(14);
+                setRadius(110);
+            } else {
+                setFontSize(16);
+                setRadius(130);
+            }
+        };
+
+        updateChartSize();
+        window.addEventListener("resize", updateChartSize);
+        return () => window.removeEventListener("resize", updateChartSize);
+    }, []);
 
     return (
-        <div className="w-full h-full">
+        <div className="w-full h-[400px] sm:h-[450px] md:h-[500px] lg:h-[550px] xl:h-[600px]">
             <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                     <Pie
                         data={chartData}
-                        cx="50%"
+                        cx="45%"
                         cy="50%"
-                        outerRadius={120}
+                        outerRadius={radius}
                         dataKey="value"
                         labelLine={false}
                         isAnimationActive={true}
@@ -50,10 +80,9 @@ const EmploymentStatusPieChart = ({ employmentStatusData }) => {
                         ))}
                     </Pie>
 
-                    {/* Tooltip now includes percentage */}
+                    {/* 🧠 Custom Tooltip */}
                     <Tooltip
-                        formatter={(value, name, props) => {
-                            const total = chartData.reduce((sum, item) => sum + item.value, 0);
+                        formatter={(value, name) => {
                             const percentage = ((value / total) * 100).toFixed(2);
                             return [
                                 `${value.toLocaleString()} (${percentage}%)`,
@@ -61,18 +90,28 @@ const EmploymentStatusPieChart = ({ employmentStatusData }) => {
                             ];
                         }}
                         contentStyle={{
-                            backgroundColor: "white",
-                            border: "1px solid #e2e8f0",
-                            borderRadius: "8px",
-                            color: "#093a7b",
+                            backgroundColor: "rgba(255, 255, 255, 0.95)",
+                            border: "1px solid #e5e7eb",
+                            borderRadius: "0.75rem",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                            color: "#111827",
+                            fontSize: `${fontSize}px`,
+                            fontWeight: 500,
                         }}
+                        itemStyle={{ color: "#1f2937" }}
                     />
 
+                    {/* 📊 Responsive Legend */}
                     <Legend
                         layout="vertical"
                         verticalAlign="middle"
                         align="right"
                         iconType="circle"
+                        wrapperStyle={{
+                            paddingLeft: 10,
+                            lineHeight: "1.6rem",
+                            fontSize: `${fontSize}px`,
+                        }}
                     />
                 </PieChart>
             </ResponsiveContainer>
