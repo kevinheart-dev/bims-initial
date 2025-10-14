@@ -305,11 +305,9 @@ export default function Index({
             ),
             name: (resident) => (
                 <div className="text-sm break-words whitespace-normal leading-snug">
-                    {`${resident.firstname} ${
-                        resident.middlename ? resident.middlename + " " : ""
-                    }${resident.lastname ?? ""} ${
-                        resident.suffix ? resident.suffix : ""
-                    }`}
+                    {`${resident.firstname} ${resident.middlename ? resident.middlename + " " : ""
+                        }${resident.lastname ?? ""} ${resident.suffix ? resident.suffix : ""
+                        }`}
                 </div>
             ),
             sex: (resident) => {
@@ -345,7 +343,7 @@ export default function Index({
                 CONSTANTS.RESIDENT_CIVIL_STATUS_TEXT[resident.civil_status],
             employment_status: (resident) =>
                 CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-                    resident.employment_status
+                resident.employment_status
                 ],
             occupation: (resident) => {
                 const occ = resident.occupation;
@@ -362,15 +360,14 @@ export default function Index({
             ethnicity: (resident) => resident.ethnicity,
             registered_voter: (resident) => (
                 <span
-                    className={`${
-                        CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
-                            resident.registered_voter
-                        ]
-                    } whitespace-nowrap`}
+                    className={`${CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
+                        resident.registered_voter
+                    ]
+                        } whitespace-nowrap`}
                 >
                     {
                         CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[
-                            resident.registered_voter
+                        resident.registered_voter
                         ]
                     }
                 </span>
@@ -439,23 +436,23 @@ export default function Index({
     };
 
     return (
+
         <AdminLayout>
             <Head title="Resident" />
             <div>
                 <Toaster richColors />
-                <Suspense fallback={<div>Loading Breadcrumbs...</div>}>
-                    <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-                </Suspense>
+                <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
+
                 <div className="p-2 md:p-4">
                     <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-0">
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                            <Suspense fallback={<div>Loading Charts...</div>}>
-                                <ResidentCharts
-                                    residents={chartData ?? []}
-                                    isLoading={isChartLoading}
-                                    welfareFilters={welfareFilters}
-                                />
-                            </Suspense>
+
+                            <ResidentCharts
+                                residents={chartData ?? []}
+                                isLoading={isChartLoading}
+                                welfareFilters={welfareFilters}
+                            />
+
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
                                 <div className="flex items-start gap-2 flex-wrap">
                                     <Suspense
@@ -471,7 +468,9 @@ export default function Index({
                                             }
                                             showFilters={showFilters}
                                             toggleShowFilters={() =>
-                                                setShowFilters((prev) => !prev)
+                                                setShowFilters(
+                                                    (prev) => !prev
+                                                )
                                             }
                                         />
                                     </Suspense>
@@ -523,7 +522,9 @@ export default function Index({
                                         </div>
                                     </Link>
                                     <Link
-                                        href={route("resident.createresident")}
+                                        href={route(
+                                            "resident.createresident"
+                                        )}
                                     >
                                         <div className="relative group z-50">
                                             <Button
@@ -569,7 +570,9 @@ export default function Index({
                                 </Suspense>
                             )}
 
-                            <Suspense fallback={<div>Loading Table...</div>}>
+                            <Suspense
+                                fallback={<div>Loading Table...</div>}
+                            >
                                 <DynamicTable
                                     passedData={residents}
                                     allColumns={allColumns}
@@ -583,25 +586,24 @@ export default function Index({
                     </div>
                 </div>
             </div>
-            <Suspense fallback={null}>
-                {" "}
-                {/* Render modals only when needed */}
-                <SidebarModal
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    title="Resident Details"
-                >
-                    {selectedResident && (
-                        <PersonDetailContent person={selectedResident} />
-                    )}
-                </SidebarModal>
-                <DeleteConfirmationModal
-                    isOpen={isDeleteModalOpen}
-                    onClose={() => setIsDeleteModalOpen(false)}
-                    onConfirm={confirmDelete}
-                    residentId={residentToDelete}
-                />
-            </Suspense>
+
+            <SidebarModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Resident Details"
+            >
+                {selectedResident && (
+                    <PersonDetailContent person={selectedResident} />
+                )}
+            </SidebarModal>
+            <DeleteConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                residentId={residentToDelete}
+            />
+
         </AdminLayout>
+
     );
 }

@@ -73,7 +73,6 @@ const getAgeGroup = (age) => {
 
 // Add welfareFilters prop here
 const ResidentCharts = ({ residents, isLoading, welfareFilters = [] }) => {
-    // --- ALL HOOKS MUST BE CALLED UNCONDITIONALLY AT THE TOP LEVEL ---
 
     // 1. Memoize residentArray first
     const residentArray = useMemo(() => Array.isArray(residents) ? residents : residents?.data || [], [residents]);
@@ -93,12 +92,12 @@ const ResidentCharts = ({ residents, isLoading, welfareFilters = [] }) => {
 
     const { welfareData, totalWelfare } = useMemo(() => {
         const counts = residentArray.reduce((acc, r) => {
+            // Count independently
             if (r.is_pwd) acc.PWD++;
-            else if (r.is4ps) acc.FourPs++;
-            else if (r.isSoloParent) acc.SoloParent++;
+            if (r.is4ps) acc.FourPs++;
+            if (r.isSoloParent) acc.SoloParent++;
             return acc;
         }, { PWD: 0, FourPs: 0, SoloParent: 0 });
-
 
         let data = [];
         const allWelfareCategories = ["PWD", "FourPs", "SoloParent"];
@@ -118,12 +117,12 @@ const ResidentCharts = ({ residents, isLoading, welfareFilters = [] }) => {
 
         // Filter out categories with 0 values only if they are not explicitly selected
         // Or if all are shown by default and a category has 0 value
+        // Also, ensure categories with 0 value are displayed if they are part of `categoriesToDisplay`
         data = data.filter(item => item.value > 0 || categoriesToDisplay.includes(item.name));
-
 
         const total = data.reduce((sum, item) => sum + item.value, 0);
         return { welfareData: data, totalWelfare: total };
-    }, [residentArray, welfareFilters]); // Add welfareFilters to dependency array
+    }, [residentArray, welfareFilters]);
 
     const purokData = useMemo(() => {
         const counts = residentArray.reduce((acc, r) => {
