@@ -6,6 +6,7 @@ import {
     CartesianGrid,
     Tooltip,
     LabelList,
+    ResponsiveContainer, // Import ResponsiveContainer
 } from "recharts";
 
 const CustomTooltip = ({ active, payload }) => {
@@ -65,7 +66,7 @@ const PopulationChart = ({ populationPerBarangay }) => {
         );
     }
 
-    // ✅ Filter out barangays with 0 or null population
+    // Filter out barangays with 0 or null population
     const chartData = populationPerBarangay
         .filter((item) => item.population && item.population > 0)
         .map((item) => ({
@@ -83,46 +84,40 @@ const PopulationChart = ({ populationPerBarangay }) => {
         );
     }
 
-    const chartWidth = Math.max(chartData.length * 60, 1200);
-    const chartHeight = 300;
+    const minChartWidth = Math.max(chartData.length * 60, 400);
 
     return (
         <div className="w-full h-[350px] p-4 flex flex-col">
-
-            {/* ✅ Scrollable Chart Container */}
             <div className="flex-1 overflow-x-auto overflow-y-hidden">
-                <BarChart
-                    width={chartWidth}
-                    height={chartHeight}
-                    data={chartData}
-                    margin={{ top: 10, right: 10, left: -25, bottom: 20 }}
-                >
-                    <defs>
-                        <linearGradient id="whiteToBlue" x1="0" y1="1" x2="0" y2="0">
-                            <stop offset="0%" stopColor="#ffffff" stopOpacity={1} />
-                            <stop offset="100%" stopColor="#3B82F6" stopOpacity={1} />
-                        </linearGradient>
-                    </defs>
-
-                    <CartesianGrid strokeDasharray="2 2" />
-                    <YAxis tick={{ fontSize: 10 }} />
-                    <Tooltip content={<CustomTooltip />} />
-
-                    <Bar
-                        dataKey="population"
-                        fill="url(#whiteToBlue)"
-                        barSize={45}
-                        radius={[10, 10, 0, 0]}
+                <ResponsiveContainer width={minChartWidth > window.innerWidth ? minChartWidth : '100%'} height="100%">
+                    <BarChart
+                        data={chartData}
+                        margin={{ top: 10, right: 10, left: -25, bottom: 20 }}
                     >
+                        <defs>
+                            <linearGradient id="whiteToBlue" x1="0" y1="1" x2="0" y2="0">
+                                <stop offset="0%" stopColor="#ffffff" stopOpacity={1} />
+                                <stop offset="100%" stopColor="#3B82F6" stopOpacity={1} />
+                            </linearGradient>
+                        </defs>
 
+                        <CartesianGrid strokeDasharray="2 2" />
+                        <YAxis tick={{ fontSize: 10 }} />
+                        <Tooltip content={<CustomTooltip />} />
 
-                        {/* Inside bar vertical label */}
-                        <LabelList
-                            dataKey="name"
-                            content={<CustomBarLabel />}
-                        />
-                    </Bar>
-                </BarChart>
+                        <Bar
+                            dataKey="population"
+                            fill="url(#whiteToBlue)"
+                            barSize={45}
+                            radius={[10, 10, 0, 0]}
+                        >
+                            <LabelList
+                                dataKey="name"
+                                content={<CustomBarLabel />}
+                            />
+                        </Bar>
+                    </BarChart>
+                </ResponsiveContainer>
             </div>
         </div>
     );
