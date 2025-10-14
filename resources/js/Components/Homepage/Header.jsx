@@ -65,11 +65,14 @@ const Header = ({ auth }) => {
                         >
                             Log In <ChevronRight className="ml-1 text-lg" />
                         </Link>
-                        <Link
+                        {/* <Link
                             href={route("register")}
                             className="py-2 px-4 text-blue-500 font-md rounded-full hover:bg-blue-500 hover:text-white transition-all flex items-center cursor-pointer"
                         >
                             Register
+                        </Link> */}
+                        <Link className="py-2 px-4 text-blue-500 font-md rounded-full hover:bg-blue-500 hover:text-white transition-all flex items-center cursor-pointer">
+                            Issue a Cetificate
                         </Link>
                     </div>
                 )}

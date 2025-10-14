@@ -22,7 +22,7 @@ class CertificateController extends Controller
 {
     public function index()
     {
-        $barangay_id = auth()->user()->resident->barangay_id;
+        $barangay_id = auth()->user()->barangay_id;
         $query = Document::where('barangay_id',  $barangay_id);
         $documents = $query->get();
         $residents = Resident::whereBarangayId($barangay_id)->with('latestHousehold')->get();
@@ -236,10 +236,14 @@ class CertificateController extends Controller
     {
         $this->validateInput($data);
 
-        $user         = auth()->user()->resident;
-        $barangayId   = $user->barangay_id;
-        $barangayName = $user->barangay->barangay_name;
-        $officer      = BarangayOfficial::where('resident_id', $user->id)->firstOrFail();
+        $user       = auth()->user()->resident; // might be null
+        $barangay   = auth()->user()->barangay; // might be null
+
+        $barangayId   = $barangay?->id;        // null-safe
+        $barangayName = $barangay?->barangay_name ?? 'Unknown Barangay';
+
+        $officer = $user ? BarangayOfficial::where('resident_id', $user->id)->first() : null;
+        $issuedBy = $officer?->id;             // use this later in DB save
 
         DB::beginTransaction();
 
@@ -309,7 +313,7 @@ class CertificateController extends Controller
                 'request_status' => 'issued',
                 'purpose'        => $data['purpose'],
                 'issued_at'      => now(),
-                'issued_by'      => $officer->id,
+                'issued_by'      => $officer?->id,
                 'docx_path'      => $docxRelative,
                 'control_number' => $values['ctrl_no'],
             ]);

@@ -85,27 +85,27 @@ const items = [
         roles: ["barangay_officer", "admin"],
         submenu: [
             {
-                title: "Barangay Profile",
-                url: "/barangay_profile",
-                icon: UserPen,
-                roles: ["barangay_officer", "admin"],
+                title: "Accounts",
+                url: "/user",
+                icon: CircleUser,
+                roles: ["admin"],
             },
             {
-                title: "Barangay Management",
-                url: "/barangay_management",
-                icon: Settings,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Barangay Documents",
+                title: "Documents",
                 url: "/document",
                 icon: FileText,
                 roles: ["barangay_officer", "admin"],
             },
             {
-                title: "Barangay Accounts",
-                url: "/user",
-                icon: CircleUser,
+                title: "Management",
+                url: "/barangay_management",
+                icon: Settings,
+                roles: ["barangay_officer", "admin"],
+            },
+            {
+                title: "Profile",
+                url: "/barangay_profile",
+                icon: UserPen,
                 roles: ["admin"],
             },
         ],
@@ -340,19 +340,53 @@ export function AppSidebar({ auth }) {
         )
             return;
 
+        const cacheKey = "barangay_details_cache";
+        const cachedData = localStorage.getItem(cacheKey);
+
+        // ✅ Use cached data immediately if available
+        if (cachedData) {
+            try {
+                const parsed = JSON.parse(cachedData);
+                setBarangay(parsed);
+                fetchedRef.current = true;
+            } catch {
+                localStorage.removeItem(cacheKey);
+            }
+        }
+
+        // ✅ Fetch from API only if cache is empty or expired
         const fetchBarangayDetails = async () => {
             try {
                 const res = await axios.get(
                     `${APP_URL}/barangay_management/barangaydetails`
                 );
+
+                // Save to state
                 setBarangay(res.data.data);
                 fetchedRef.current = true;
+
+                // ✅ Cache with timestamp
+                localStorage.setItem(
+                    cacheKey,
+                    JSON.stringify({
+                        ...res.data.data,
+                        _cachedAt: Date.now(),
+                    })
+                );
             } catch (err) {
-                console.error(err);
+                console.error("Failed to fetch barangay details:", err);
             }
         };
 
-        fetchBarangayDetails();
+        // Check if cache is expired (e.g., 1 hour)
+        const cacheExpiry = 1000 * 60 * 60; // 1 hour
+        if (
+            !cachedData ||
+            (JSON.parse(cachedData)._cachedAt &&
+                Date.now() - JSON.parse(cachedData)._cachedAt > cacheExpiry)
+        ) {
+            fetchBarangayDetails();
+        }
     }, [APP_URL, userRoles]);
 
     // Filter items based on user roles
@@ -374,16 +408,20 @@ export function AppSidebar({ auth }) {
     const toggleCollapse = (index) => {
         setOpenIndex((prev) => (prev === index ? null : index));
     };
+    const logoSrc = barangay?.logo_path
+        ? `/storage/${barangay.logo_path}`
+        : "/images/city-of-ilagan.png";
 
     return (
         <Sidebar>
             {/* Header with blue branding */}
             <div className="bg-white px-4 py-[8px] flex items-center border-b border-gray-200">
                 <img
-                    src="/images/csa-logo.png"
-                    alt="CSA Logo"
-                    className="h-11 w-11 mr-3"
+                    src={logoSrc}
+                    alt={`${barangay?.barangay_name || "Barangay"} Logo`}
+                    className="max-h-10 max-w-10 mr-3 object-contain rounded-full border border-gray-200"
                 />
+
                 <div className="flex flex-col leading-none space-y-0">
                     <p className="font-black text-[20px] text-sky-700 font-montserrat m-0 pb-1 leading-none">
                         iBIMS

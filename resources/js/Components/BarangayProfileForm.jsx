@@ -39,43 +39,43 @@ export default function BarangayProfileForm({
                             General Information
                         </h3>
                         <div className="flex flex-col md:flex-row gap-6 md:items-start">
-                            {/* Logo */}
                             <div className="flex flex-col items-center space-y-3 bg-white p-4 rounded-xl shadow-sm md:w-1/4">
                                 <InputLabel
                                     htmlFor="logo_path"
                                     value="Barangay Logo"
                                 />
+
                                 <img
                                     src={
                                         data.logo_path instanceof File
                                             ? URL.createObjectURL(
                                                   data.logo_path
                                               )
-                                            : data.logo_path ||
-                                              "/images/default-avatar.jpg"
+                                            : data.logo_path
+                                            ? `/storage/${data.logo_path}`
+                                            : "/images/default-avatar.jpg"
                                     }
                                     alt="Barangay Logo"
                                     className="w-32 h-32 object-cover rounded-full border border-gray-200"
                                 />
+
                                 <input
                                     type="file"
                                     id="logo_path"
                                     accept="image/*"
                                     onChange={(e) => {
                                         const file = e.target.files[0];
-                                        if (file)
-                                            setData((prev) => ({
-                                                ...prev,
-                                                logo_path: file,
-                                            }));
+                                        if (file) setData("logo_path", file);
                                     }}
                                     className="block w-full text-sm text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                 />
+
                                 {errors.logo_path && (
                                     <p className="text-red-500 text-xs">
                                         {errors.logo_path}
                                     </p>
                                 )}
+
                                 <p className="text-sm text-gray-500 text-center">
                                     Upload the barangay logo. Preview updates
                                     automatically.
