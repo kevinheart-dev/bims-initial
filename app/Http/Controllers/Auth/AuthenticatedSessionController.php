@@ -74,7 +74,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         if ($user->isResident()) {
-            return redirect()->intended(route('resident_account.dashboard', [], false));
+            return redirect()->intended(route('resident_account.certificates', [], false));
         }
 
         return redirect()->intended(route('login', absolute: false));

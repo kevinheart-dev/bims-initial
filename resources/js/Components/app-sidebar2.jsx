@@ -74,12 +74,6 @@ const items = [
         roles: ["super_admin"],
     },
     {
-        title: "Resident Dashboard",
-        url: "/dashboard",
-        icon: LayoutDashboard,
-        roles: ["resident"],
-    },
-    {
         title: "Admin Dashboard",
         url: "/admin/dashboard",
         icon: LayoutDashboard,
@@ -298,7 +292,7 @@ const items = [
         title: "Certificate Issuance",
         icon: FileStack,
         roles: ["resident"],
-        url: "/certificates",
+        url: "/account/certificates",
     },
     {
         title: "Barangay Accounts",

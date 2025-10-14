@@ -23,7 +23,7 @@ const Header = ({ auth }) => {
             case "barangay_officer":
                 return "barangay_officer.dashboard";
             case "resident":
-                return "resident_account.dashboard";
+                return "resident_account.certificates";
             default:
                 return "welcome"; // fallback
         }
