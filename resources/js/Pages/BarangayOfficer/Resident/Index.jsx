@@ -305,11 +305,9 @@ export default function Index({
             ),
             name: (resident) => (
                 <div className="text-sm break-words whitespace-normal leading-snug">
-                    {`${resident.firstname} ${
-                        resident.middlename ? resident.middlename + " " : ""
-                    }${resident.lastname ?? ""} ${
-                        resident.suffix ? resident.suffix : ""
-                    }`}
+                    {`${resident.firstname} ${resident.middlename ? resident.middlename + " " : ""
+                        }${resident.lastname ?? ""} ${resident.suffix ? resident.suffix : ""
+                        }`}
                 </div>
             ),
             sex: (resident) => {
@@ -345,7 +343,7 @@ export default function Index({
                 CONSTANTS.RESIDENT_CIVIL_STATUS_TEXT[resident.civil_status],
             employment_status: (resident) =>
                 CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-                    resident.employment_status
+                resident.employment_status
                 ],
             occupation: (resident) => {
                 const occ = resident.occupation;
@@ -362,15 +360,14 @@ export default function Index({
             ethnicity: (resident) => resident.ethnicity,
             registered_voter: (resident) => (
                 <span
-                    className={`${
-                        CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
-                            resident.registered_voter
-                        ]
-                    } whitespace-nowrap`}
+                    className={`${CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
+                        resident.registered_voter
+                    ]
+                        } whitespace-nowrap`}
                 >
                     {
                         CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[
-                            resident.registered_voter
+                        resident.registered_voter
                         ]
                     }
                 </span>
@@ -439,181 +436,174 @@ export default function Index({
     };
 
     return (
-        <Suspense fallback={<div>Loading Page...</div>}>
-            {" "}
-            {/* Provide a fallback for the entire page */}
-            <AdminLayout>
-                <Head title="Resident" />
-                <div>
-                    <Toaster richColors />
-                    <Suspense fallback={<div>Loading Breadcrumbs...</div>}>
-                        <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-                    </Suspense>
-                    <div className="p-2 md:p-4">
-                        <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-0">
-                            <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                                <Suspense
-                                    fallback={<div>Loading Charts...</div>}
-                                >
-                                    <ResidentCharts
-                                        residents={chartData ?? []}
-                                        isLoading={isChartLoading}
-                                        welfareFilters={welfareFilters}
-                                    />
-                                </Suspense>
-                                <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                                    <div className="flex items-start gap-2 flex-wrap">
-                                        <Suspense
-                                            fallback={
-                                                <div>Loading Controls...</div>
-                                            }
-                                        >
-                                            <DynamicTableControls
-                                                allColumns={allColumns}
-                                                visibleColumns={visibleColumns}
-                                                setVisibleColumns={
-                                                    setVisibleColumns
-                                                }
-                                                showFilters={showFilters}
-                                                toggleShowFilters={() =>
-                                                    setShowFilters(
-                                                        (prev) => !prev
-                                                    )
-                                                }
-                                            />
-                                        </Suspense>
-                                        <ExportButton
-                                            url="report/export-residents-excel"
-                                            queryParams={currentQueryParams}
-                                        />
-                                    </div>
-                                    <div className="flex items-center gap-2 flex-wrap justify-end">
-                                        <form
-                                            onSubmit={handleSubmit}
-                                            className="flex w-[300px] max-w-lg items-center space-x-1"
-                                        >
-                                            <Input
-                                                type="text"
-                                                placeholder="Search"
-                                                value={query}
-                                                onChange={(e) =>
-                                                    setQuery(e.target.value)
-                                                }
-                                                onKeyDown={onKeyPressed} // Pass the event directly
-                                                className="ml-4"
-                                            />
-                                            <div className="relative group z-5">
-                                                <Button
-                                                    type="submit"
-                                                    className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
-                                                    variant="outline"
-                                                >
-                                                    <Search />
-                                                </Button>
-                                                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                                    Search
-                                                </div>
-                                            </div>
-                                        </form>
-                                        <Link href={route("resident.create")}>
-                                            <div className="relative group z-50">
-                                                <Button
-                                                    variant="outline"
-                                                    className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                                >
-                                                    <HousePlus className="w-4 h-4" />
-                                                </Button>
-                                                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                                    Add Household
-                                                </div>
-                                                {/* Tooltip */}
-                                            </div>
-                                        </Link>
-                                        <Link
-                                            href={route(
-                                                "resident.createresident"
-                                            )}
-                                        >
-                                            <div className="relative group z-50">
-                                                <Button
-                                                    variant="outline"
-                                                    className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                                >
-                                                    <UserRoundPlus className="w-4 h-4" />
-                                                </Button>
-                                                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                                    Add Resident
-                                                </div>
-                                                {/* Tooltip */}
-                                            </div>
-                                        </Link>
-                                    </div>
-                                </div>
-                                {showFilters && (
+
+        <AdminLayout>
+            <Head title="Resident" />
+            <div>
+                <Toaster richColors />
+                <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
+
+                <div className="p-2 md:p-4">
+                    <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-0">
+                        <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+
+                            <ResidentCharts
+                                residents={chartData ?? []}
+                                isLoading={isChartLoading}
+                                welfareFilters={welfareFilters}
+                            />
+
+                            <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
+                                <div className="flex items-start gap-2 flex-wrap">
                                     <Suspense
-                                        fallback={<div>Loading Filters...</div>}
+                                        fallback={
+                                            <div>Loading Controls...</div>
+                                        }
                                     >
-                                        <FilterToggle
-                                            queryParams={currentQueryParams}
-                                            searchFieldName={searchFieldName}
-                                            visibleFilters={[
-                                                "purok",
-                                                "sex",
-                                                "gender",
-                                                "age_group",
-                                                "estatus",
-                                                "ethnic",
-                                                "voter_status",
-                                                "cstatus",
-                                                "pwd",
-                                                "fourps",
-                                                "solo_parent",
-                                            ]}
-                                            showFilters={true} // Always true when rendered here
-                                            puroks={puroks}
-                                            clearRouteName="resident.index"
-                                            clearRouteParams={{}}
-                                            ethnicities={ethnicities}
+                                        <DynamicTableControls
+                                            allColumns={allColumns}
+                                            visibleColumns={visibleColumns}
+                                            setVisibleColumns={
+                                                setVisibleColumns
+                                            }
+                                            showFilters={showFilters}
+                                            toggleShowFilters={() =>
+                                                setShowFilters(
+                                                    (prev) => !prev
+                                                )
+                                            }
                                         />
                                     </Suspense>
-                                )}
-
+                                    <ExportButton
+                                        url="report/export-residents-excel"
+                                        queryParams={currentQueryParams}
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2 flex-wrap justify-end">
+                                    <form
+                                        onSubmit={handleSubmit}
+                                        className="flex w-[300px] max-w-lg items-center space-x-1"
+                                    >
+                                        <Input
+                                            type="text"
+                                            placeholder="Search"
+                                            value={query}
+                                            onChange={(e) =>
+                                                setQuery(e.target.value)
+                                            }
+                                            onKeyDown={onKeyPressed} // Pass the event directly
+                                            className="ml-4"
+                                        />
+                                        <div className="relative group z-5">
+                                            <Button
+                                                type="submit"
+                                                className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
+                                                variant="outline"
+                                            >
+                                                <Search />
+                                            </Button>
+                                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                                Search
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <Link href={route("resident.create")}>
+                                        <div className="relative group z-50">
+                                            <Button
+                                                variant="outline"
+                                                className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                            >
+                                                <HousePlus className="w-4 h-4" />
+                                            </Button>
+                                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                                Add Household
+                                            </div>
+                                            {/* Tooltip */}
+                                        </div>
+                                    </Link>
+                                    <Link
+                                        href={route(
+                                            "resident.createresident"
+                                        )}
+                                    >
+                                        <div className="relative group z-50">
+                                            <Button
+                                                variant="outline"
+                                                className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                            >
+                                                <UserRoundPlus className="w-4 h-4" />
+                                            </Button>
+                                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                                Add Resident
+                                            </div>
+                                            {/* Tooltip */}
+                                        </div>
+                                    </Link>
+                                </div>
+                            </div>
+                            {showFilters && (
                                 <Suspense
-                                    fallback={<div>Loading Table...</div>}
+                                    fallback={<div>Loading Filters...</div>}
                                 >
-                                    <DynamicTable
-                                        passedData={residents}
-                                        allColumns={allColumns}
-                                        columnRenderers={columnRenderers}
-                                        showAll={showAll}
-                                        visibleColumns={visibleColumns}
-                                        showTotal={true}
+                                    <FilterToggle
+                                        queryParams={currentQueryParams}
+                                        searchFieldName={searchFieldName}
+                                        visibleFilters={[
+                                            "purok",
+                                            "sex",
+                                            "gender",
+                                            "age_group",
+                                            "estatus",
+                                            "ethnic",
+                                            "voter_status",
+                                            "cstatus",
+                                            "pwd",
+                                            "fourps",
+                                            "solo_parent",
+                                        ]}
+                                        showFilters={true} // Always true when rendered here
+                                        puroks={puroks}
+                                        clearRouteName="resident.index"
+                                        clearRouteParams={{}}
+                                        ethnicities={ethnicities}
                                     />
                                 </Suspense>
-                            </div>
+                            )}
+
+                            <Suspense
+                                fallback={<div>Loading Table...</div>}
+                            >
+                                <DynamicTable
+                                    passedData={residents}
+                                    allColumns={allColumns}
+                                    columnRenderers={columnRenderers}
+                                    showAll={showAll}
+                                    visibleColumns={visibleColumns}
+                                    showTotal={true}
+                                />
+                            </Suspense>
                         </div>
                     </div>
                 </div>
-                <Suspense fallback={null}>
-                    {" "}
-                    {/* Render modals only when needed */}
-                    <SidebarModal
-                        isOpen={isModalOpen}
-                        onClose={() => setIsModalOpen(false)}
-                        title="Resident Details"
-                    >
-                        {selectedResident && (
-                            <PersonDetailContent person={selectedResident} />
-                        )}
-                    </SidebarModal>
-                    <DeleteConfirmationModal
-                        isOpen={isDeleteModalOpen}
-                        onClose={() => setIsDeleteModalOpen(false)}
-                        onConfirm={confirmDelete}
-                        residentId={residentToDelete}
-                    />
-                </Suspense>
-            </AdminLayout>
-        </Suspense>
+            </div>
+
+            <SidebarModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Resident Details"
+            >
+                {selectedResident && (
+                    <PersonDetailContent person={selectedResident} />
+                )}
+            </SidebarModal>
+            <DeleteConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                residentId={residentToDelete}
+            />
+
+        </AdminLayout>
+
     );
 }
