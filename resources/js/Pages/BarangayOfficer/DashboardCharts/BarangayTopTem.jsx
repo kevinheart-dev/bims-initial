@@ -55,7 +55,7 @@ const TopBarangaysPieChart = ({ populationPerBarangay }) => {
                 setOuterRadius(90);
                 setFontSize(12);
             } else if (width < 1024) {
-                setOuterRadius(110);
+                setOuterRadius(90);
                 setFontSize(13);
             } else {
                 setOuterRadius(130);
@@ -69,7 +69,7 @@ const TopBarangaysPieChart = ({ populationPerBarangay }) => {
     }, []);
 
     return (
-        <div className="w-full h-[400px] sm:h-[100px] md:h-[1700px] lg:h-[270px] xl:h-[370px]">
+        <div className="w-full h-[220px] sm:h-[100px] md:h-[310px] lg:h-[270px] xl:h-[370px]">
             {chartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
