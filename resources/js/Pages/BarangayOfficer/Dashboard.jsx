@@ -81,10 +81,15 @@ export default function Dashboard({
                             bg-gradient-to-r from-sky-50 via-white to-cyan-50"
             >
                 <h1 className="text-2xl font-extrabold text-gray-800">
-                    Barangay <span className="bg-blue-100 text-blue-800 rounded-sm px-1">{barangayName}</span>
+                    Barangay{" "}
+                    <span className="bg-blue-100 text-blue-800 rounded-sm px-1">
+                        {barangayName}
+                    </span>
                 </h1>
                 <p className="text-md text-gray-600 mt-0">
-                    This dashboard visualizes Barangay {barangayName}’s population, demographics, and social data for informed community planning.
+                    This dashboard visualizes Barangay {barangayName}’s
+                    population, demographics, and social data for informed
+                    community planning.
                 </p>
             </div>
 
@@ -110,7 +115,10 @@ export default function Dashboard({
                                     <div className="text-right max-w-[70%]">
                                         <CardContent className="p-0">
                                             <p className="text-lg md:text-3xl font-bold text-gray-900">
-                                                <Counter end={item.value} duration={900} />
+                                                <Counter
+                                                    end={item.value}
+                                                    duration={900}
+                                                />
                                             </p>
                                         </CardContent>
                                         <CardHeader className="p-0 mt-0">
@@ -124,20 +132,25 @@ export default function Dashboard({
 
                             <div className="col-span-2 mt-0 w-full">
                                 <Card className="w-full px-4 py-2">
-                                    <PopulationPerPurok populationPerPurok={populationPerPurok} />
-                                </Card>
-                            </div>
-
-                            <div className="col-span-2 mt-0 w-full">
-
-                                <Card className="w-full px-4 py-2">
-                                    <FamilyIncomeBarChart familyIncome={familyIncome} />
+                                    <PopulationPerPurok
+                                        populationPerPurok={populationPerPurok}
+                                    />
                                 </Card>
                             </div>
 
                             <div className="col-span-2 mt-0 w-full">
                                 <Card className="w-full px-4 py-2">
-                                    <EducationStackedBarChart educationData={educationData} />
+                                    <FamilyIncomeBarChart
+                                        familyIncome={familyIncome}
+                                    />
+                                </Card>
+                            </div>
+
+                            <div className="col-span-2 mt-0 w-full">
+                                <Card className="w-full px-4 py-2">
+                                    <EducationStackedBarChart
+                                        educationData={educationData}
+                                    />
                                 </Card>
                             </div>
                         </div>
@@ -154,24 +167,33 @@ export default function Dashboard({
                                     />
                                 </Card>
 
-
-                                <AgeCard ageDistribution={ageDistribution} ageCategory={ageCategory} />
-
+                                <AgeCard
+                                    ageDistribution={ageDistribution}
+                                    ageCategory={ageCategory}
+                                />
 
                                 <Card className="w-full p-6">
                                     <CardHeader className="p-0 mb-4">
-                                        <CardTitle className="font-bold text-gray-700">Employment Status</CardTitle>
+                                        <CardTitle className="font-bold text-gray-700">
+                                            Employment Status
+                                        </CardTitle>
                                     </CardHeader>
                                     <CardContent className="p-0">
-                                        <EmploymentStatus employmentStatusDistribution={employmentStatusDistribution} />
+                                        <EmploymentStatus
+                                            employmentStatusDistribution={
+                                                employmentStatusDistribution
+                                            }
+                                        />
                                     </CardContent>
                                 </Card>
 
                                 <Card>
-                                    <EthnicityBarChart ethnicityDistribution={ethnicityDistribution} />
+                                    <EthnicityBarChart
+                                        ethnicityDistribution={
+                                            ethnicityDistribution
+                                        }
+                                    />
                                 </Card>
-
-
                             </div>
 
                             <div className="flex flex-col gap-2">
@@ -188,20 +210,32 @@ export default function Dashboard({
                                     <CardHeader className="p-0 mb-3">
                                         <div className="flex items-center justify-between">
                                             <CardTitle className="font-bold text-gray-700">
-                                                {view === "sex" ? "Sex Distribution" : "Gender Distribution"}
+                                                {view === "sex"
+                                                    ? "Sex Distribution"
+                                                    : "Gender Distribution"}
                                             </CardTitle>
                                             <button
-                                                onClick={() => setView(view === "sex" ? "gender" : "sex")}
+                                                onClick={() =>
+                                                    setView(
+                                                        view === "sex"
+                                                            ? "gender"
+                                                            : "sex"
+                                                    )
+                                                }
                                                 className="px-3 py-1 text-sm rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-200 transition"
                                             >
-                                                {view === "sex" ? "Show Gender" : "Show Sex"}
+                                                {view === "sex"
+                                                    ? "Show Gender"
+                                                    : "Show Sex"}
                                             </button>
                                         </div>
                                     </CardHeader>
                                     <CardContent className="p-0">
                                         <GenderDonutChart
                                             view={view}
-                                            genderDistribution={genderDistribution}
+                                            genderDistribution={
+                                                genderDistribution
+                                            }
                                             sexDistribution={sexDistribution}
                                         />
                                     </CardContent>
@@ -209,10 +243,16 @@ export default function Dashboard({
 
                                 <Card className="w-full p-6">
                                     <CardHeader className="p-0 mb-4">
-                                        <CardTitle className="font-bold text-gray-700">Civil Status</CardTitle>
+                                        <CardTitle className="font-bold text-gray-700">
+                                            Civil Status
+                                        </CardTitle>
                                     </CardHeader>
                                     <CardContent className="p-0">
-                                        <CivilStatus civilStatusDistribution={civilStatusDistribution} />
+                                        <CivilStatus
+                                            civilStatusDistribution={
+                                                civilStatusDistribution
+                                            }
+                                        />
                                     </CardContent>
                                 </Card>
 

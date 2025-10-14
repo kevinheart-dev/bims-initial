@@ -107,9 +107,6 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
     Route::get('inventory/details/{id}', [InventoryController::class, 'itemDetails'])->name('inventory.details');
     Route::get('institution_member/details/{id}', [InstitutionMemberController::class, 'memberDetails'])->name('institution_member.details');
 
-    Route::get('/barangay_profile', [BarangayProfileController::class, 'index'])->name('barangay_profile.index');
-    Route::put('/barangay_profile/update', [BarangayProfileController::class, 'update'])->name('barangay_profile.update');
-
     // household
     Route::get('household/getlatesthead/{id}', [HouseholdController::class, 'getLatestHead'])->name('household.latesthead');
     Route::get('household/remove/{id}', [HouseholdController::class, 'remove'])->name('household.remove');
@@ -188,14 +185,12 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
 
         return response()->json(['unique' => !$exists]);
     });
-    Route::patch('/user/{user}/toggle-account', [UserController::class, 'toggleAccount'])
-    ->name('user.toggle');
 
     // households
     Route::get('/overview', [HouseholdController::class, 'householdOverview'])->name('household.overview');
 
     // residents
-    Route::resource('user', UserController::class);
+
     Route::resource('resident', ResidentController::class);
     Route::resource('document', DocumentController::class);
     Route::resource('household', HouseholdController::class);
@@ -250,6 +245,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     });
     Route::get('/admin/dashboard', [DashboardController::class, 'dashboard'])
         ->name('admin.dashboard');
+
+    Route::get('/barangay_profile', [BarangayProfileController::class, 'index'])->name('barangay_profile.index');
+    Route::put('/barangay_profile/update/{barangay}', [BarangayProfileController::class, 'update'])->name('barangay_profile.update');
+
+    Route::patch('/user/{user}/toggle-account', [UserController::class, 'toggleAccount'])
+    ->name('user.toggle');
+
+    Route::resource('user', UserController::class);
 });
 
 Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(function () {

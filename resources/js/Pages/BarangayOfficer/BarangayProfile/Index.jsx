@@ -24,7 +24,7 @@ export default function Index({ barangay }) {
         founded_year: barangay.founded_year || "",
         barangay_code: barangay.barangay_code || "",
         barangay_type: barangay.barangay_type || "",
-        logo_path: null,
+        logo_path: barangay.logo_path,
         _method: "PUT",
     });
 
@@ -39,6 +39,8 @@ export default function Index({ barangay }) {
                     duration: 3000,
                     closeButton: true,
                 });
+                // 🔁 Force full reload after short delay
+                setTimeout(() => window.location.reload(), 1000);
             },
             onError: (errs) => {
                 const errorList = Object.values(errs).map(
@@ -71,7 +73,6 @@ export default function Index({ barangay }) {
             <Head title="Barangay Profile" />
             <Toaster richColors />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-
             <div className="py-12">
                 <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
                     <BarangayProfileForm
