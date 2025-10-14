@@ -32,7 +32,8 @@ class UpdateUserAccountRequest extends FormRequest
                 'email',
                 // Only check uniqueness if email changed
                 Rule::unique('users')->ignore($userId),
-            ]
+            ],
+            'role' => ['required', 'string', Rule::in(['resident', 'barangay_officer'])],
         ];
     }
 }

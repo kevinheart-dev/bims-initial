@@ -27,12 +27,18 @@ class UserController extends Controller
             ->whereHas('resident', function ($q) use ($brgy_id) {
                 $q->where('barangay_id', $brgy_id);
             })
-            ->where('role', 'resident')
-            ->select('id', 'resident_id', 'username', 'email', 'status', 'is_disabled', 'created_at', 'updated_at');
+            ->whereIn('role', ['resident', 'barangay_officer'])
+            ->select('id', 'resident_id', 'username', 'email', 'status', 'role', 'is_disabled', 'created_at', 'updated_at')
+            ->orderBy('role', 'desc')        // first order by role
+            ->orderBy('created_at', 'desc'); // then order by creation date
 
         // ✅ Apply filters if present
         if ($request->filled('session_status') && $request->session_status !== 'All') {
             $query->where('status', $request->session_status);
+        }
+
+        if ($request->filled('account_role') && $request->account_role !== 'All') {
+            $query->where('role', $request->account_role);
         }
 
         if ($request->filled('account_status') && $request->account_status !== 'All') {
@@ -93,7 +99,7 @@ class UserController extends Controller
                 'username' => $data['username'],
                 'email' => $data['email'],
                 'password' => bcrypt($data['password']),
-                'role' => 'resident', // default role
+                'role' =>  $data['role'], // default role
                 'status' => 'inactive',
                 'is_disabled' => false,
             ]);
@@ -136,6 +142,7 @@ class UserController extends Controller
             $user->update([
                 'username' => $data['username'],
                 'email' => $data['email'],
+                'role' =>  $data['role'],
             ]);
 
             return redirect()->route('user.index')->with('success', 'User account updated successfully!');

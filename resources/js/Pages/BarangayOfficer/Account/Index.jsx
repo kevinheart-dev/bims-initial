@@ -20,6 +20,7 @@ import { Toaster, toast } from "sonner";
 import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
 import {
+    ACCOUNT_ROLE_TEXT,
     RESIDENT_GENDER_COLOR_CLASS,
     RESIDENT_GENDER_TEXT2,
 } from "@/constants";
@@ -38,6 +39,7 @@ import InputField from "@/Components/InputField";
 import PasswordValidationChecklist from "@/Components/PasswordValidationChecklist";
 import EmailValidationInput from "@/Components/EmailValidationInput";
 import { Switch } from "@/Components/ui/switch";
+import SelectField from "@/Components/SelectField";
 
 export default function Index({ accounts, queryParams, residents }) {
     const breadcrumbs = [
@@ -94,6 +96,7 @@ export default function Index({ accounts, queryParams, residents }) {
         { key: "resident_name", label: "Full Name" },
         { key: "name", label: "User Name" },
         { key: "email", label: "Email" },
+        { key: "role", label: "Role" },
         { key: "status", label: "Session Status" },
         { key: "account_status", label: "Account Status" },
         { key: "logged_in", label: "Last Logged In" },
@@ -150,6 +153,20 @@ export default function Index({ accounts, queryParams, residents }) {
 
         email: (row) => (
             <span className="text-xs text-gray-600">{row.email ?? "—"}</span>
+        ),
+
+        role: (row) => (
+            <span
+                className={`text-xs font-medium ${
+                    row.role === "barangay_officer"
+                        ? "text-indigo-600"
+                        : row.role === "resident"
+                        ? "text-green-600"
+                        : "text-gray-400"
+                }`}
+            >
+                {ACCOUNT_ROLE_TEXT[row.role] ?? "—"}
+            </span>
         ),
 
         status: (row) => {
@@ -291,6 +308,7 @@ export default function Index({ accounts, queryParams, residents }) {
         email: "",
         password: "",
         password_confirmation: "",
+        role: "",
 
         // Optional admin controls
         status: "active", // default active
@@ -327,6 +345,14 @@ export default function Index({ accounts, queryParams, residents }) {
     const handleAddAccountSubmit = (e) => {
         e.preventDefault();
         post(route("user.store"), {
+            onSuccess: () => {
+                toast.success("User account saved successfully!", {
+                    description: "The changes have been saved.",
+                    duration: 3000,
+                    closeButton: true,
+                });
+                handleModalClose(); // close modal
+            },
             onError: (errors) => {
                 const errorList = Object.values(errors).map(
                     (msg, i) => `<div key=${i}> ${msg}</div>`
@@ -371,6 +397,7 @@ export default function Index({ accounts, queryParams, residents }) {
                 sex: resident?.sex || "",
                 username: account.username,
                 email: account.email,
+                role: account.role,
                 originalEmail: account.email,
                 password: "",
                 password_confirmation: "",
@@ -427,27 +454,6 @@ export default function Index({ accounts, queryParams, residents }) {
     const handlePrint = () => {
         window.print();
     };
-    useEffect(() => {
-        if (success) {
-            handleModalClose();
-            toast.success(success, {
-                description: "Operation successful!",
-                duration: 3000,
-                closeButton: true,
-            });
-        }
-        props.success = null;
-    }, [success]);
-    useEffect(() => {
-        if (error) {
-            toast.error(error, {
-                description: "Operation failed!",
-                duration: 3000,
-                closeButton: true,
-            });
-        }
-        props.error = null;
-    }, [error]);
 
     return (
         <AdminLayout>
@@ -553,6 +559,7 @@ export default function Index({ accounts, queryParams, residents }) {
                                     visibleFilters={[
                                         "session_status",
                                         "account_status",
+                                        "account_role",
                                     ]}
                                     showFilters={true}
                                     clearRouteName="user.index"
@@ -608,11 +615,10 @@ export default function Index({ accounts, queryParams, residents }) {
                                             : "Update the account credentials and status (password cannot be changed here)."}
                                     </p>
                                 </div>
-
                                 {/* Resident Info Section */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-50 p-4 rounded-xl shadow-sm">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-50 p-6 rounded-xl shadow-sm">
                                     {/* Profile Photo */}
-                                    <div className="flex flex-col items-center space-y-2">
+                                    <div className="flex flex-col items-center space-y-3">
                                         <InputLabel
                                             htmlFor="resident_image"
                                             value="Profile Photo"
@@ -626,10 +632,15 @@ export default function Index({ accounts, queryParams, residents }) {
                                             alt="Resident Image"
                                             className="w-32 h-32 object-cover rounded-full border border-gray-200 shadow"
                                         />
+                                        <p className="text-sm text-gray-500 text-center">
+                                            {data.resident_id
+                                                ? "Preview of the selected resident"
+                                                : "Select a resident to view details"}
+                                        </p>
                                     </div>
 
                                     {/* Resident Selection & Info */}
-                                    <div className="md:col-span-2 space-y-4">
+                                    <div className="md:col-span-2 space-y-5">
                                         {/* Resident Dropdown */}
                                         <div>
                                             <DropdownInputField
@@ -647,90 +658,181 @@ export default function Index({ accounts, queryParams, residents }) {
                                             />
                                         </div>
 
-                                        {/* Read-only Resident Info */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                            <InputField
-                                                label="Birthdate"
-                                                name="birthdate"
-                                                value={data.birthdate || ""}
-                                                readOnly
-                                            />
-                                            <InputField
-                                                label="Purok Number"
-                                                name="purok_number"
-                                                value={data.purok_number || ""}
-                                                readOnly
-                                            />
-                                            <InputField
-                                                label="Sex"
-                                                name="sex"
-                                                value={data.sex || ""}
-                                                readOnly
-                                            />
-                                        </div>
+                                        {/* Show read-only info only if a resident is selected */}
+                                        {data.resident_id && (
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                                <div>
+                                                    <InputField
+                                                        label="Birthdate"
+                                                        name="birthdate"
+                                                        value={
+                                                            data.birthdate || ""
+                                                        }
+                                                        readOnly
+                                                    />
+                                                    <p className="mt-1 text-sm text-gray-500">
+                                                        Resident's birthdate
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <InputField
+                                                        label="Purok Number"
+                                                        name="purok_number"
+                                                        value={
+                                                            data.purok_number ||
+                                                            ""
+                                                        }
+                                                        readOnly
+                                                    />
+                                                    <p className="mt-1 text-sm text-gray-500">
+                                                        Resident's assigned
+                                                        Purok
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <InputField
+                                                        label="Sex"
+                                                        name="sex"
+                                                        value={
+                                                            RESIDENT_GENDER_TEXT2[
+                                                                data.sex
+                                                            ] || ""
+                                                        }
+                                                        readOnly
+                                                    />
+                                                    <p className="mt-1 text-sm text-gray-500">
+                                                        Resident's gender
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
                                 {/* Account Credentials Section */}
-                                <div className="bg-gray-50 p-4 rounded-xl shadow-sm space-y-4">
-                                    <h4 className="text-lg font-semibold text-gray-800">
+                                <div className="bg-gray-50 p-6 rounded-xl shadow-sm space-y-6">
+                                    <h4 className="text-xl font-semibold text-gray-800">
                                         Account Credentials
                                     </h4>
 
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <InputField
-                                            label="Username"
-                                            name="username"
-                                            value={data.username || ""}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "username",
-                                                    e.target.value
-                                                )
-                                            }
-                                        />
-                                        <EmailValidationInput
-                                            data={data}
-                                            setData={setData}
-                                            originalEmail={
-                                                data.originalEmail ?? null
-                                            }
-                                        />
+                                    {/* Username, Email, and Role Fields */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {/* Username */}
+                                        <div>
+                                            <InputField
+                                                label="Username"
+                                                name="username"
+                                                value={data.username || ""}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "username",
+                                                        e.target.value
+                                                    )
+                                                }
+                                            />
+                                            <p className="mt-1 text-sm text-gray-500">
+                                                Enter a unique username for
+                                                login (letters, numbers,
+                                                underscores allowed).
+                                            </p>
+                                        </div>
+
+                                        {/* Email */}
+                                        <div>
+                                            <EmailValidationInput
+                                                data={data}
+                                                setData={setData}
+                                                originalEmail={
+                                                    data.originalEmail ?? null
+                                                }
+                                            />
+                                            <p className="mt-1 text-sm text-gray-500">
+                                                Enter a valid email address.
+                                                This will be used for
+                                                notifications and login.
+                                            </p>
+                                        </div>
+
+                                        {/* Role Select Field */}
+                                        <div>
+                                            <SelectField
+                                                label="Role"
+                                                name="role"
+                                                value={data.role || ""}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        "role",
+                                                        e.target.value
+                                                    )
+                                                }
+                                                items={[
+                                                    {
+                                                        value: "barangay_officer",
+                                                        label: "Barangay Officer",
+                                                    },
+                                                    {
+                                                        value: "resident",
+                                                        label: "Resident",
+                                                    },
+                                                ]}
+                                            />
+                                            <p className="mt-1 text-sm text-gray-500">
+                                                Select the account role.
+                                                "Barangay Officer" has admin
+                                                privileges; "Resident" has
+                                                limited access.
+                                            </p>
+                                        </div>
                                     </div>
 
-                                    {/* Only show password fields for "add" */}
+                                    {/* Password fields only for add mode */}
                                     {modalState === "add" && (
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                            <InputField
-                                                label="Password"
-                                                name="password"
-                                                type="password"
-                                                value={data.password || ""}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        "password",
-                                                        e.target.value
-                                                    )
-                                                }
-                                            />
-                                            <InputField
-                                                label="Confirm Password"
-                                                name="password_confirmation"
-                                                type="password"
-                                                value={
-                                                    data.password_confirmation ||
-                                                    ""
-                                                }
-                                                onChange={(e) =>
-                                                    setData(
-                                                        "password_confirmation",
-                                                        e.target.value
-                                                    )
-                                                }
-                                            />
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <InputField
+                                                    label="Password"
+                                                    name="password"
+                                                    type="password"
+                                                    value={data.password || ""}
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            "password",
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                />
+                                                <p className="mt-1 text-sm text-gray-500">
+                                                    Use at least 8 characters,
+                                                    including uppercase,
+                                                    lowercase, numbers, and
+                                                    symbols.
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <InputField
+                                                    label="Confirm Password"
+                                                    name="password_confirmation"
+                                                    type="password"
+                                                    value={
+                                                        data.password_confirmation ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            "password_confirmation",
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                />
+                                                <p className="mt-1 text-sm text-gray-500">
+                                                    Re-enter the password to
+                                                    confirm.
+                                                </p>
+                                            </div>
                                         </div>
                                     )}
 
+                                    {/* Password validation checklist for add mode */}
                                     {modalState === "add" && (
                                         <PasswordValidationChecklist
                                             data={data}

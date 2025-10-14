@@ -6,6 +6,7 @@ use App\Http\Controllers\BarangayController;
 use App\Http\Controllers\BarangayInfrastructureController;
 use App\Http\Controllers\BarangayFacilityController;
 use App\Http\Controllers\BarangayInstitutionController;
+use App\Http\Controllers\BarangayManagementController;
 use App\Http\Controllers\BarangayOfficialController;
 use App\Http\Controllers\BarangayProfileController;
 use App\Http\Controllers\BarangayProjectController;
@@ -96,7 +97,7 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
     Route::get('resident/chartdata', [ResidentController::class, 'chartData'])->name('resident.chartdata');
 
     // barangay
-    Route::get('barangay_profile/barangaydetails', [BarangayProfileController::class, 'barangayDetails'])->name('barangay_profile.details');
+    Route::get('barangay_management/barangaydetails', [BarangayManagementController::class, 'barangayDetails'])->name('barangay_profile.details');
     Route::get('barangay_official/officialsinfo/{id}', [BarangayOfficialController::class, 'getOfficialInformation'])->name('barangay_official.info');
     Route::get('barangay_infrastructure/details/{id}', [BarangayInfrastructureController::class, 'infrastructureDetails'])->name('barangay_infrastructure.details');
     Route::get('barangay_institution/details/{id}', [BarangayInstitutionController::class, 'institutionDetails'])->name('barangay_institution.details');
@@ -105,6 +106,9 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
     Route::get('barangay_road/details/{id}', [BarangayRoadController::class, 'roadDetails'])->name('barangay_road.details');
     Route::get('inventory/details/{id}', [InventoryController::class, 'itemDetails'])->name('inventory.details');
     Route::get('institution_member/details/{id}', [InstitutionMemberController::class, 'memberDetails'])->name('institution_member.details');
+
+    Route::get('/barangay_profile', [BarangayProfileController::class, 'index'])->name('barangay_profile.index');
+    Route::put('/barangay_profile/update', [BarangayProfileController::class, 'update'])->name('barangay_profile.update');
 
     // household
     Route::get('household/getlatesthead/{id}', [HouseholdController::class, 'getLatestHead'])->name('household.latesthead');
@@ -222,7 +226,7 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
 
     // barangay
     Route::resource('barangay_official', BarangayOfficialController::class);
-    Route::resource('barangay_profile', BarangayProfileController::class);
+    Route::resource('barangay_management', BarangayManagementController::class);
     Route::resource('barangay_project', BarangayProjectController::class);
     Route::resource('barangay_infrastructure', BarangayInfrastructureController::class);
     Route::resource('barangay_facility', BarangayFacilityController::class);
@@ -249,7 +253,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(function () {
-    Route::get('dashboard', [CDRRMOAdminController::class, 'index'])
+    Route::get('/dashboard', [CDRRMOAdminController::class, 'index'])
         ->name('cdrrmo_admin.dashboard');
         Route::get('alldatacollection', [CDRRMOAdminController::class, 'allDataCollectionSummary'])
         ->name('cdrrmo_admin.datacollection');
@@ -266,18 +270,17 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('super_admin')->group(fu
     Route::resource('barangay', BarangayController::class);
 });
 // Resident-only routes
-Route::middleware(['auth', 'role:resident'])->prefix('resident')->group(function () {
+Route::middleware(['auth', 'role:resident'])->prefix('account')->group(function () {
     Route::get('/dashboard', [ResidentAccountController::class, 'dashboard'])->name('resident_account.dashboard');
     Route::get('/certificates', [ResidentAccountController::class, 'residentCertificates'])->name('resident_account.certificates');
-    Route::resource('resident_account', ResidentAccountController::class);
     Route::get('/document/fetchplaceholders/{id}', [DocumentController::class, 'fetchPlaceholders'])
-    ->name('resident.document.placeholders');
+        ->name('resident.document.placeholders');
     Route::post('/certificate-request', [ResidentAccountController::class, 'requestCertificate'])
-    ->name('resident.certificate.store');
+        ->name('resident.certificate.store');
 });
 
 // Routes accessible to both resident and admin users (verified users)
-Route::middleware(['auth', 'verified', 'role:resident|barangay_officer'])->group(function () {
+Route::middleware(['auth', 'role:resident|barangay_officer|super_admin|admin'])->group(function () {
     // Profile management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

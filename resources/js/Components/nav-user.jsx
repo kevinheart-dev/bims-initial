@@ -29,6 +29,9 @@ export function NavUser({ user }) {
     const handleLogout = () => {
         router.post(route("logout"));
     };
+    const handleProfile = () => {
+        router.get(route("profile.edit"));
+    };
     return (
         <SidebarMenu className="bg-blue-100 rounded-xl">
             <SidebarMenuItem>
@@ -87,7 +90,7 @@ export function NavUser({ user }) {
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuGroup>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleProfile}>
                                 <BadgeCheck />
                                 Profile
                             </DropdownMenuItem>
