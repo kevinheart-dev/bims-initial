@@ -304,12 +304,11 @@ class SuperAdminController extends Controller
     }
     public function accounts(Request $request)
     {
-        // Base query for all Barangay Officer accounts
         $query = User::with([
-            'resident:id,firstname,lastname,middlename,suffix,purok_number,barangay_id'
+            'barangay:id,barangay_name' // eager load barangay with only id and name
         ])
-            ->where('role', 'admin')
-            ->select('id', 'resident_id', 'username', 'email', 'status', 'is_disabled', 'created_at', 'updated_at');
+        ->where('role', 'admin')
+        ->select('id', 'barangay_id', 'username', 'email', 'status', 'is_disabled', 'created_at', 'updated_at');
 
         // Filters on user fields
         if ($request->filled('session_status') && $request->session_status !== 'All') {
