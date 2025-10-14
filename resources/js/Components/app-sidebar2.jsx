@@ -34,6 +34,8 @@ import {
     CircleUserRound,
     LayoutList,
     UtilityPole,
+    UserPen,
+    Settings,
 } from "lucide-react";
 import {
     Sidebar,
@@ -54,7 +56,7 @@ import { useRef } from "react";
 
 const items = [
     {
-        title: "Admin Dashboard",
+        title: "Barangay Officer",
         url: "/barangay_officer/dashboard",
         icon: LayoutDashboard,
         roles: ["barangay_officer"],
@@ -78,14 +80,26 @@ const items = [
         roles: ["resident"],
     },
     {
-        title: "Barangay",
+        title: "Admin Dashboard",
+        url: "/admin/dashboard",
+        icon: LayoutDashboard,
+        roles: ["admin"],
+    },
+    {
+        title: "Barangay Information",
         icon: Home,
         roles: ["barangay_officer", "admin"],
         submenu: [
             {
                 title: "Barangay Profile",
                 url: "/barangay_profile",
-                icon: FileText,
+                icon: UserPen,
+                roles: ["barangay_officer", "admin"],
+            },
+            {
+                title: "Barangay Management",
+                url: "/barangay_management",
+                icon: Settings,
                 roles: ["barangay_officer", "admin"],
             },
             {
@@ -325,13 +339,17 @@ export function AppSidebar({ auth }) {
     };
 
     useEffect(() => {
-        if (!userRoles.includes("barangay_officer") || fetchedRef.current)
+        if (
+            (!userRoles.includes("admin") &&
+                !userRoles.includes("barangay_officer")) ||
+            fetchedRef.current
+        )
             return;
 
         const fetchBarangayDetails = async () => {
             try {
                 const res = await axios.get(
-                    `${APP_URL}/barangay_profile/barangaydetails`
+                    `${APP_URL}/barangay_management/barangaydetails`
                 );
                 setBarangay(res.data.data);
                 fetchedRef.current = true;
@@ -377,13 +395,24 @@ export function AppSidebar({ auth }) {
                         iBIMS
                     </p>
                     <p className="font-light text-sm text-gray-500 font-montserrat m-0 p-0 leading-none">
-                        {userRoles.includes("super_admin")
-                            ? "Super Admin"
-                            : userRoles.includes("cdrrmo_admin")
-                            ? "CDRRMO Admin"
-                            : barangay
-                            ? barangay.barangay_name
-                            : "Loading..."}
+                        {(() => {
+                            if (userRoles.includes("super_admin"))
+                                return "Super Administrator";
+                            if (userRoles.includes("admin"))
+                                return (
+                                    barangay?.barangay_name || "Administrator"
+                                );
+                            if (userRoles.includes("cdrrmo_admin"))
+                                return "CDRRMO Administrator";
+                            if (userRoles.includes("barangay_officer"))
+                                return (
+                                    barangay?.barangay_name ||
+                                    "Barangay Officer"
+                                );
+                            if (userRoles.includes("resident"))
+                                return barangay?.barangay_name || "Resident";
+                            return "Loading...";
+                        })()}
                     </p>
                 </div>
             </div>

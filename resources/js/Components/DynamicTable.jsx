@@ -141,7 +141,7 @@ const DynamicTable = ({
                                                 >
                                                     {col.key === "actions"
                                                         ? (() => {
-                                                              // Render action column safely
+                                                              // Render the original action column
                                                               const rendered =
                                                                   columnRenderers[
                                                                       col.key
@@ -149,12 +149,19 @@ const DynamicTable = ({
                                                               if (!rendered)
                                                                   return null;
 
-                                                              // ✅ Hide delete button if not admin
+                                                              // Roles allowed to see the Delete button
+                                                              const allowedRoles =
+                                                                  [
+                                                                      "admin",
+                                                                      "super_admin",
+                                                                      "cdrrmo_admin",
+                                                                  ];
+
+                                                              // If user role is NOT allowed, filter out the Delete action
                                                               if (
-                                                                  userRole !==
-                                                                      "admin" &&
-                                                                  //   userRole !==
-                                                                  //       "super_admin" &&
+                                                                  !allowedRoles.includes(
+                                                                      userRole
+                                                                  ) &&
                                                                   rendered.props
                                                                       ?.actions
                                                               ) {

@@ -132,10 +132,10 @@ class BarangayInformationSeeder extends Seeder
             }
         }
 
-        BarangayProject::factory(10)->create();
-        BarangayInfrastructure::factory(10)->create();
-        BarangayRoad::factory(10)->create();
-        BarangayFacility::factory(10)->create();
+        BarangayProject::factory(13)->create();
+        BarangayInfrastructure::factory(13)->create();
+        BarangayRoad::factory(13)->create();
+        BarangayFacility::factory(13)->create();
 
         BarangayInstitution::all()->each(function ($institution) use ($residents) {
             // Requested 8–16, but clamp to available residents
@@ -155,7 +155,7 @@ class BarangayInformationSeeder extends Seeder
                 $head->update(['is_head' => true]);
             }
         });
-        Inventory::factory(50)->create();
+        Inventory::factory(20)->create();
     }
 
 }

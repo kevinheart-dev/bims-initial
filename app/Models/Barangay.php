@@ -226,9 +226,6 @@ class Barangay extends Model
     {
         return $this->hasOne(CommunityRiskAssessment::class, 'barangay_id');
     }
-
-
-
     public function dataCollection()
     {
         $general = $this->generalPopulation()->first();
@@ -762,4 +759,6 @@ class Barangay extends Model
             }),
         ];
     }
+
+
 }

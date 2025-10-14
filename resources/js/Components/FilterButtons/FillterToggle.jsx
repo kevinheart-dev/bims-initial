@@ -2108,6 +2108,25 @@ const FilterToggle = ({
                     </SelectContent>
                 </Select>
             )}
+            {isVisible("account_role") && (
+                <Select
+                    onValueChange={(account_role) =>
+                        searchFieldName("account_role", account_role)
+                    }
+                    value={queryParams.account_role}
+                >
+                    <SelectTrigger className="w-[160px]">
+                        <SelectValue placeholder="Account Role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="All">All</SelectItem>
+                        <SelectItem value="barangay_officer">
+                            Barangay Officer
+                        </SelectItem>
+                        <SelectItem value="resident">Resident</SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
             {/* BARANGAY */}
             {isVisible("brgy_type") && (
                 <Select

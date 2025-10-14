@@ -583,3 +583,8 @@ export const SPECIFIC_PURPOSE_TEXT = {
     blotter: "Blotter Report Generation",
     summon: "Summon Report Generation",
 };
+
+export const ACCOUNT_ROLE_TEXT = {
+    barangay_officer: "Barangay Officer",
+    resident: "Resident",
+};

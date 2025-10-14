@@ -1,8 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import {
+    Tooltip,
+    TooltipProvider,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Link } from "@inertiajs/react";
 
 const ActionMenu = ({ actions = [] }) => {
@@ -17,7 +27,7 @@ const ActionMenu = ({ actions = [] }) => {
             const visible = [];
             const overflow = [];
 
-            actions.forEach(action => {
+            actions.forEach((action) => {
                 const buttonWidth = 35; // approximate icon button width
                 if (totalWidth + buttonWidth <= containerWidth - 35) {
                     totalWidth += buttonWidth;
@@ -98,10 +108,15 @@ const ActionMenu = ({ actions = [] }) => {
                                 key={idx}
                                 className="flex items-center gap-2"
                                 asChild={!!action.href}
-                                onClick={action.href ? undefined : action.onClick}
+                                onClick={
+                                    action.href ? undefined : action.onClick
+                                }
                             >
                                 {action.href ? (
-                                    <Link href={action.href} className="flex items-center gap-2 w-full">
+                                    <Link
+                                        href={action.href}
+                                        className="flex items-center gap-2 w-full"
+                                    >
                                         {action.icon}
                                         {action.label}
                                     </Link>

@@ -308,7 +308,7 @@ class SuperAdminController extends Controller
         $query = User::with([
             'resident:id,firstname,lastname,middlename,suffix,purok_number,barangay_id'
         ])
-            ->where('role', 'barangay_officer')
+            ->where('role', 'admin')
             ->select('id', 'resident_id', 'username', 'email', 'status', 'is_disabled', 'created_at', 'updated_at');
 
         // Filters on user fields

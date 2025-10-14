@@ -38,7 +38,7 @@ const BarangayProfileMain = () => {
         queryKey: ["barangayDetails"],
         queryFn: async () => {
             const { data } = await axios.get(
-                `${APP_URL}/barangay_profile/barangaydetails`
+                `${APP_URL}/barangay_management/barangaydetails`
             );
             return data.data; // only API data
         },
@@ -121,10 +121,11 @@ const BarangayProfileMain = () => {
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`py-2 px-1 border-b-2 ${activeTab === tab
+                                    className={`py-2 px-1 border-b-2 ${
+                                        activeTab === tab
                                             ? "border-blue-600 text-blue-700"
                                             : "border-transparent text-gray-500"
-                                        }`}
+                                    }`}
                                 >
                                     {tab.charAt(0).toUpperCase() +
                                         tab.slice(1).replace(/([A-Z])/g, " $1")}

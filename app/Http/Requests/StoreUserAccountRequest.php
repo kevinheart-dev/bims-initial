@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class StoreUserAccountRequest extends FormRequest
@@ -25,6 +26,7 @@ class StoreUserAccountRequest extends FormRequest
         return [
             'resident_id' => ['required', 'exists:residents,id', 'unique:users,resident_id'],
             'username' => ['required', 'string', 'max:50', 'unique:users,username'],
+            'role' => ['required', 'string', Rule::in(['resident', 'barangay_officer'])],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => [
                 'required',
@@ -50,6 +52,11 @@ class StoreUserAccountRequest extends FormRequest
             'email.unique' => 'This email is already registered.',
             'password.required' => 'Password is required.',
             'password.confirmed' => 'Password confirmation does not match.',
+            'role.in' => 'Selected role is invalid.',
+            'password.min' => 'Password must be at least 8 characters.',
+            'password.letters' => 'Password must contain at least one letter.',
+            'password.numbers' => 'Password must contain at least one number.',
+            'password.symbols' => 'Password must contain at least one symbol.',
         ];
     }
 }
