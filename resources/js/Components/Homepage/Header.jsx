@@ -36,7 +36,7 @@ const Header = ({ auth }) => {
         >
             {/* Logo */}
             <div className="relative flex items-center gap-3">
-                <a href="#">
+                <a href={route("welcome")}>
                     <img
                         src="/images/city-of-ilagan.png"
                         alt="iBMIS"
@@ -71,9 +71,12 @@ const Header = ({ auth }) => {
                         >
                             Register
                         </Link> */}
-                        <Link className="py-2 px-4 text-blue-500 font-md rounded-full hover:bg-blue-500 hover:text-white transition-all flex items-center cursor-pointer">
+                        {/* <Link
+                            className="py-2 px-4 text-blue-500 font-md rounded-full hover:bg-blue-500 hover:text-white transition-all flex items-center cursor-pointer"
+                            href={route("request.certificate")}
+                        >
                             Issue a Cetificate
-                        </Link>
+                        </Link> */}
                     </div>
                 )}
             </div>
@@ -109,12 +112,18 @@ const Header = ({ auth }) => {
                                 </Link>
                             </li>
                             <li>
-                                <Link
+                                {/* <Link
                                     href={route("register")}
                                     className="hover:text-green-700"
                                 >
                                     Register
-                                </Link>
+                                </Link> */}
+                                {/* <Link
+                                    className="hover:text-blue-700"
+                                    href={route("request.certificate")}
+                                >
+                                    Issue a Cetificate
+                                </Link> */}
                             </li>
                         </>
                     )}

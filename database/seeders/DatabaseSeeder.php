@@ -325,8 +325,8 @@ class DatabaseSeeder extends Seeder
             // FamilyRelationSeeder::class,
             BarangayInformationSeeder::class,
         ]);
-        $this->call([
-            CRADataseeder::class,
-        ]);
+        // $this->call([
+        //     CRADataseeder::class,
+        // ]);
     }
 }
