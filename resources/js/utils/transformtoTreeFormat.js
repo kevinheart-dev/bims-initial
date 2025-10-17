@@ -1,6 +1,6 @@
 export function transformToTreeFormat(data) {
     const self = data.self?.data;
-    const spouses = data.spouse?.data || []; // Support multiple spouses
+    const spouses = data.spouse?.data || [];
     const siblings = data.siblings?.data || [];
     const children = data.children?.data || [];
     const parents = data.parents?.data || [];
@@ -11,48 +11,43 @@ export function transformToTreeFormat(data) {
         children: [],
     };
 
+    // --- SELF NODE ---
     const selfNode = {
         ...self,
-        id: `self-${self.id}`,
+        id: `self-${self?.id}`,
         relation: "Self",
         children: [],
     };
 
-    const siblingNodes = siblings.map((sibling) => ({
-        ...sibling,
-        id: `sibling-${sibling.id}`,
-        relation: "Sibling",
+    // --- SPOUSE NODES ---
+    const spouseNodes = spouses.map((sp) => ({
+        ...sp,
+        id: `spouse-${sp.id}`,
+        relation: "Spouse",
         children: [],
     }));
 
-    // Convert all children to tree nodes
+    // --- CHILDREN NODES ---
     const childrenNodes = children.map((child) => {
-        const parentIds = [self?.id, ...spouses.map(sp => sp.id)].filter(Boolean);
+        const parentIds = [self?.id, ...spouses.map((sp) => sp.id)].filter(Boolean);
         return {
             ...child,
             id: `child-${child.id}`,
             relation: "Child",
-            children: [],
             parents: parentIds,
+            children: [],
         };
     });
 
+    // --- MAIN NODE (SELF + SPOUSE AS ONE UNIT) ---
     let mainNode;
-
-    if (spouses.length > 0) {
-        const spouseNodes = spouses.map((spouse) => ({
-            ...spouse,
-            id: `spouse-${spouse.id}`,
-            relation: "Spouse",
-            children: [],
-        }));
-
+    if (spouseNodes.length > 0) {
         mainNode = {
-            id: `couple-${self.id}`,
+            id: `main-couple-${self.id}`,
+            relation: "MainCouple",
             isCouple: true,
-            relation: "Couple",
-            children: childrenNodes,
             members: [selfNode, ...spouseNodes],
+            children: childrenNodes,
         };
     } else {
         mainNode = {
@@ -61,27 +56,45 @@ export function transformToTreeFormat(data) {
         };
     }
 
-    if (parents.length > 0) {
-        const parentNodes = parents.map((parent) => ({
-            ...parent,
-            id: `parent-${parent.id}`,
+    // --- SIBLING NODES ---
+    const siblingNodes = siblings.map((sib) => ({
+        ...sib,
+        id: `sibling-${sib.id}`,
+        relation: "Sibling",
+        children: [],
+    }));
+
+    // --- PARENT CONNECTION HANDLING ---
+    if (parents.length === 1) {
+        // One parent only
+        const parentNode = {
+            ...parents[0],
+            id: `parent-${parents[0].id}`,
+            relation: "Parent",
+            children: [mainNode, ...siblingNodes],
+        };
+        root.children.push(parentNode);
+    } else if (parents.length >= 2) {
+        // Two or more parents — treat as couple
+        const parentNodes = parents.slice(0, 2).map((p) => ({
+            ...p,
+            id: `parent-${p.id}`,
             relation: "Parent",
             children: [],
         }));
 
         const parentCoupleNode = {
-            id: `couple-parents-${self.id}`, // unique ID
-            isCouple: true,
+            id: `parent-couple-${self.id}`,
             relation: "ParentCouple",
+            isCouple: true,
             members: parentNodes,
             children: [mainNode, ...siblingNodes],
         };
-
         root.children.push(parentCoupleNode);
     } else {
+        // No parents — self/siblings at root
         root.children.push(mainNode, ...siblingNodes);
     }
-
 
     return root;
 }
