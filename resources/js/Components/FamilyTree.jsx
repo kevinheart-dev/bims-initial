@@ -11,6 +11,7 @@ const CARD_WIDTH = 240;
 const CARD_HEIGHT = 90;
 
 const FamilyTree = ({ familyData }) => {
+    console.log(familyData);
     const svgRef = useRef();
     const [nodes, setNodes] = useState([]);
     const [connections, setConnections] = useState([]);
@@ -182,8 +183,6 @@ const FamilyTree = ({ familyData }) => {
                             to: { x: childX, y: child.y },
                         });
                     } else {
-                        // Multiple children for a couple (or single parent in a couple node)
-                        // Vertical line from parent(s) to junction point
                         lines.push({
                             from: { x: parentCenterX, y: parentBottomY },
                             to: { x: parentCenterX, y: junctionY },
@@ -269,15 +268,13 @@ const FamilyTree = ({ familyData }) => {
             }
         });
 
-        // --- Handle Top-Level Siblings (no parent or virtual root) ---
+        // --- Handle Top-Level Siblings (including Self if siblings exist) ---
         const topLevelSiblingGroups = new Map();
 
         root.descendants().forEach((d) => {
             if (d.parent) {
                 const parentId = d.parent.data.id;
-                const parentInPositioned = positioned.some(
-                    (p) => p.id === parentId
-                );
+                const parentInPositioned = positioned.some((p) => p.id === parentId);
 
                 const isTopLevelSibling =
                     parentId === "virtual-root" ||
@@ -287,51 +284,139 @@ const FamilyTree = ({ familyData }) => {
                     if (!topLevelSiblingGroups.has(parentId)) {
                         topLevelSiblingGroups.set(parentId, []);
                     }
-                    const positionedNode = positioned.find(
-                        (p) => p.id === d.data.id
-                    );
+
+                    const positionedNode = positioned.find((p) => p.id === d.data.id);
                     if (positionedNode) {
-                        topLevelSiblingGroups
-                            .get(parentId)
-                            .push(positionedNode);
+                        topLevelSiblingGroups.get(parentId).push(positionedNode);
                     }
                 }
             }
         });
 
+        // ✅ Include "self" node in sibling group if siblings exist
+        const selfNode = positioned.find((p) => p.relation === "Self");
+        if (selfNode && familyData.siblings?.data?.length > 0) {
+            const parentId = "virtual-root-self";
+            if (!topLevelSiblingGroups.has(parentId)) {
+                topLevelSiblingGroups.set(parentId, []);
+            }
+            // Add self and siblings together
+            const siblings = [selfNode, ...familyData.siblings.data
+                .map((sib) => positioned.find((p) => p.id === sib.id))
+                .filter(Boolean)];
+            topLevelSiblingGroups.set(parentId, siblings);
+        }
+
+
+        // --- Draw sibling connection lines (supports couples) ---
         topLevelSiblingGroups.forEach((siblings) => {
             if (siblings.length > 1) {
+                // Sort siblings (including couples) by x position
                 siblings.sort((a, b) => a.x - b.x);
 
-                const firstSibling = siblings[0];
-                const lastSibling = siblings[siblings.length - 1];
-                const siblingLineY = firstSibling.y + CARD_HEIGHT / 2 + 5;
+                const siblingCenters = siblings.map((sibling) => {
+                    if (sibling.isCouple) {
+                        // Get all member nodes (self + spouse)
+                        const memberNodes = [];
+                        sibling.members?.forEach((m) => {
+                            const memberPos = positioned.find((p) => p.id === m.id);
+                            if (memberPos) memberNodes.push(memberPos);
+                        });
 
-                lines.push({
-                    from: {
-                        x: firstSibling.x + CARD_WIDTH / 2,
-                        y: siblingLineY,
-                    },
-                    to: {
-                        x: lastSibling.x + CARD_WIDTH / 2,
-                        y: siblingLineY,
-                    },
+                        if (memberNodes.length > 0) {
+                            const minX = Math.min(...memberNodes.map((n) => n.x));
+                            const maxX = Math.max(...memberNodes.map((n) => n.x));
+                            const centerX = (minX + maxX + CARD_WIDTH) / 2;
+                            const centerY = memberNodes[0].y + CARD_HEIGHT / 2;
+                            return { ...sibling, centerX, centerY };
+                        }
+                    }
+
+                    // Single person (not couple)
+                    return {
+                        ...sibling,
+                        centerX: sibling.x + CARD_WIDTH / 2,
+                        centerY: sibling.y + CARD_HEIGHT / 2,
+                    };
                 });
 
-                siblings.forEach((sibling) => {
+                const first = siblingCenters[0];
+                const last = siblingCenters[siblingCenters.length - 1];
+                const siblingLineY = first.centerY + 5;
+
+                // Horizontal line connecting all siblings (continuous)
+                lines.push({
+                    from: { x: first.centerX, y: siblingLineY },
+                    to: { x: last.centerX, y: siblingLineY },
+                });
+
+                // Vertical connectors down to each sibling/couple
+                siblingCenters.forEach((sib) => {
                     lines.push({
-                        from: {
-                            x: sibling.x + CARD_WIDTH / 2,
-                            y: siblingLineY,
-                        },
-                        to: {
-                            x: sibling.x + CARD_WIDTH / 2,
-                            y: sibling.y + CARD_HEIGHT / 2,
-                        },
+                        from: { x: sib.centerX, y: siblingLineY },
+                        to: { x: sib.centerX, y: sib.centerY },
                     });
                 });
             }
         });
+
+
+
+        // --- Handle Parent → Child Connection (only when couple has exactly ONE child) ---
+        root.descendants().forEach((d) => {
+            if (d.parent && d.parent.data.isCouple) {
+                const parentCouple = d.parent;
+                const parentMembers = parentCouple.data.members || [];
+
+                const parentMemberNodes = parentMembers
+                    .map((m) => positioned.find((p) => p.id === m.id))
+                    .filter(Boolean);
+
+                if (parentMemberNodes.length === 0) return;
+
+                const children = d.parent.children || [];
+                // ✅ Only proceed if the couple has exactly ONE child
+                if (children.length !== 1) return;
+
+                const parentXs = parentMemberNodes.map((m) => m.x + CARD_WIDTH / 2);
+                const parentCenterX =
+                    (Math.min(...parentXs) + Math.max(...parentXs)) / 2;
+                const parentBottomY = parentMemberNodes[0].y + CARD_HEIGHT / 2;
+
+                if (d.data.isCouple && d.data.members?.length) {
+                    // Find only the 'self' inside members
+                    const selfMember = d.data.members.find(
+                        (m) => m.relation === "Self" || m.id?.startsWith("self-")
+                    );
+
+                    const selfNodePos = positioned.find((p) => p.id === selfMember?.id);
+                    if (!selfNodePos) return;
+
+                    // Connect parent couple → self node
+                    lines.push({
+                        from: { x: parentCenterX, y: parentBottomY },
+                        to: {
+                            x: selfNodePos.x + CARD_WIDTH / 2,
+                            y: selfNodePos.y,
+                        },
+                    });
+                } else {
+                    // Normal single child (non-couple)
+                    const childNodePos = positioned.find((p) => p.id === d.data.id);
+                    if (!childNodePos) return;
+
+                    lines.push({
+                        from: { x: parentCenterX, y: parentBottomY },
+                        to: {
+                            x: childNodePos.x + CARD_WIDTH / 2,
+                            y: childNodePos.y,
+                        },
+                    });
+                }
+            }
+        });
+
+
 
 
         setConnections(lines);
@@ -355,7 +440,7 @@ const FamilyTree = ({ familyData }) => {
             <div className="overflow-auto max-h-[600px] max-w-full rounded-lg">
                 <svg
                     ref={svgRef}
-                    width={1100}
+                    width={1200}
                     height={1000}
                     viewBox="0 0 2000 2000"
                     className="block"

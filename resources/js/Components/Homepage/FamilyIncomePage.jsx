@@ -13,7 +13,7 @@ const FamilyIncomePage = ({ familyIncomeData }) => {
             "Lower Middle Income",
             "Middle Income",
             "Upper Middle Income",
-            "High Income"
+            "High Income",
         ];
 
         const computed = {};
@@ -28,7 +28,9 @@ const FamilyIncomePage = ({ familyIncomeData }) => {
 
         // Calculate percentages
         Object.keys(computed).forEach((cat) => {
-            computed[cat].percentage = overallTotal ? ((computed[cat].count / overallTotal) * 100).toFixed(1) : 0;
+            computed[cat].percentage = overallTotal
+                ? ((computed[cat].count / overallTotal) * 100).toFixed(1)
+                : 0;
         });
 
         return { total: overallTotal, breakdown: computed };
@@ -36,27 +38,36 @@ const FamilyIncomePage = ({ familyIncomeData }) => {
 
     return (
         <div className="relative overflow-hidden bg-[#f8faff] font-montserrat min-h-screen">
-            {/* Header Section */}
-            <div className="relative z-10 flex flex-col items-start justify-center px-6 md:px-20 py-12 space-y-4">
-                <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#093a7b]">
-                    Family Income
-                </h3>
-
-                <p className="w-full text-[#093a7b] text-sm sm:text-base leading-relaxed">
-                    This section provides an overview of family income levels across the barangay.
-                    The total number of households recorded is <strong>{total}</strong>.
-                    Among them, <strong>{breakdown["Survival"].count}</strong> ({breakdown["Survival"].percentage}%) fall under the Survival category,
-                    <strong>{breakdown["Poor"].count}</strong> ({breakdown["Poor"].percentage}%) are in the Poor category,
-                    <strong>{breakdown["Low Income"].count}</strong> ({breakdown["Low Income"].percentage}%) are Low Income,
-                    <strong>{breakdown["Lower Middle Income"].count}</strong> ({breakdown["Lower Middle Income"].percentage}%) are Lower Middle Income,
-                    <strong>{breakdown["Middle Income"].count}</strong> ({breakdown["Middle Income"].percentage}%) are Middle Income,
-                    <strong>{breakdown["Upper Middle Income"].count}</strong> ({breakdown["Upper Middle Income"].percentage}%) are Upper Middle Income,
-                    and <strong>{breakdown["High Income"].count}</strong> ({breakdown["High Income"].percentage}%) are in the High Income category.
-                </p>
-            </div>
-
-            {/* Two Cards Section */}
+            {/* Shared container for header + cards to ensure alignment */}
             <div className="w-full max-w-7xl mx-auto px-6 md:px-20 lg:px-2 pb-20">
+                {/* Header Section */}
+                <div className="relative z-10 flex flex-col items-start justify-center py-10 space-y-2">
+                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#093a7b]">
+                        Family Income
+                    </h3>
+
+                    <p className="w-full text-[#093a7b] text-sm sm:text-base leading-relaxed max-w-8xl">
+                        This section provides an overview of family income levels across the
+                        barangay. The total number of households recorded is{" "}
+                        <strong>{total}</strong>. Among them,{" "}
+                        <strong>{breakdown["Survival"].count}</strong> (
+                        {breakdown["Survival"].percentage}%) fall under the Survival category,{" "}
+                        <strong>{breakdown["Poor"].count}</strong> (
+                        {breakdown["Poor"].percentage}%) are in the Poor category,{" "}
+                        <strong>{breakdown["Low Income"].count}</strong> (
+                        {breakdown["Low Income"].percentage}%) are Low Income,{" "}
+                        <strong>{breakdown["Lower Middle Income"].count}</strong> (
+                        {breakdown["Lower Middle Income"].percentage}%) are Lower Middle Income,{" "}
+                        <strong>{breakdown["Middle Income"].count}</strong> (
+                        {breakdown["Middle Income"].percentage}%) are Middle Income,{" "}
+                        <strong>{breakdown["Upper Middle Income"].count}</strong> (
+                        {breakdown["Upper Middle Income"].percentage}%) are Upper Middle Income, and{" "}
+                        <strong>{breakdown["High Income"].count}</strong> (
+                        {breakdown["High Income"].percentage}%) are in the High Income category.
+                    </p>
+                </div>
+
+                {/* Two Cards Section */}
                 <div className="flex flex-col md:flex-row justify-between gap-6">
                     {/* Left Card – Table */}
                     <Card className="flex-1 shadow-lg bg-white">

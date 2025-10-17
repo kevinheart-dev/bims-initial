@@ -4,7 +4,6 @@ import AgeDistributionTable from "@/Pages/BarangayOfficer/DashboardCharts/AgeDis
 import AgeCard from "../DasboardComponents/AgeCard";
 
 const AgeGroup = ({ ageCategoryData, ageDistributionData }) => {
-    // 🧮 Compute total and key insights dynamically
     const insights = useMemo(() => {
         if (!ageDistributionData || Object.keys(ageDistributionData).length === 0) {
             return {
@@ -47,20 +46,20 @@ const AgeGroup = ({ ageCategoryData, ageDistributionData }) => {
 
     return (
         <div className="relative overflow-hidden bg-[#f8faff] font-montserrat min-h-screen">
-            {/* Header Section */}
-            <div className="relative z-10 flex flex-col items-start justify-center px-6 md:px-20 py-10 space-y-2">
-                <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#093a7b]">
-                    Age Population
-                </h3>
-
-                {/* 🧾 Dynamic Paragraph */}
-                <p className="w-full text-[#093a7b] text-sm sm:text-base leading-relaxed">
-                    {insights.summary}
-                </p>
-            </div>
-
-            {/* Two Cards Section */}
+            {/* Use the same centered container for header + cards so edges align */}
             <div className="w-full max-w-7xl mx-auto px-6 md:px-20 lg:px-2 pb-20">
+                {/* Header Section (now inside same container) */}
+                <div className="relative z-10 flex flex-col items-start justify-center py-10 space-y-2">
+                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#093a7b]">
+                        Age Population
+                    </h3>
+
+                    <p className="w-full text-[#093a7b] text-sm sm:text-base leading-relaxed max-w-8xl">
+                        {insights.summary}
+                    </p>
+                </div>
+
+                {/* Two Cards Section */}
                 <div className="flex flex-col md:flex-row justify-between gap-6">
                     {/* Left Card – Table */}
                     <Card className="flex-1 shadow-lg bg-white">
@@ -92,6 +91,7 @@ const AgeGroup = ({ ageCategoryData, ageDistributionData }) => {
             </div>
         </div>
     );
+
 };
 
 export default AgeGroup;
