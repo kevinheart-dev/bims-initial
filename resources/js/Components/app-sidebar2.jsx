@@ -315,6 +315,7 @@ export function AppSidebar({ auth }) {
     const APP_URL = useAppUrl();
     const user = auth.user;
     const fetchedRef = useRef(false);
+    const defaultLogo = "/images/city-of-ilagan.png";
 
     const userRoles = user.roles.map((r) => r.name);
 
@@ -341,50 +342,67 @@ export function AppSidebar({ auth }) {
             return;
 
         const cacheKey = "barangay_details_cache";
-        const cachedData = localStorage.getItem(cacheKey);
+        const cachedDataRaw = localStorage.getItem(cacheKey);
+        let cachedData = null;
 
         // ✅ Use cached data immediately if available
-        if (cachedData) {
+        if (cachedDataRaw) {
             try {
-                const parsed = JSON.parse(cachedData);
-                setBarangay(parsed);
+                cachedData = JSON.parse(cachedDataRaw);
+                setBarangay(cachedData);
                 fetchedRef.current = true;
             } catch {
                 localStorage.removeItem(cacheKey);
             }
         }
 
-        // ✅ Fetch from API only if cache is empty or expired
         const fetchBarangayDetails = async () => {
             try {
                 const res = await axios.get(
                     `${APP_URL}/barangay_management/barangaydetails`
                 );
+                const apiData = res.data.data;
 
-                // Save to state
-                setBarangay(res.data.data);
+                // ✅ Compare with cached data, update if different
+                const cachedDataWithoutTimestamp = cachedData
+                    ? { ...cachedData }
+                    : null;
+                if (cachedDataWithoutTimestamp?._cachedAt) {
+                    delete cachedDataWithoutTimestamp._cachedAt;
+                }
+
+                const isDifferent =
+                    !cachedDataWithoutTimestamp ||
+                    JSON.stringify(cachedDataWithoutTimestamp) !==
+                        JSON.stringify(apiData);
+
+                if (isDifferent) {
+                    // Update state
+                    setBarangay(apiData);
+
+                    // Update cache with new data + timestamp
+                    localStorage.setItem(
+                        cacheKey,
+                        JSON.stringify({ ...apiData, _cachedAt: Date.now() })
+                    );
+                }
+
                 fetchedRef.current = true;
-
-                // ✅ Cache with timestamp
-                localStorage.setItem(
-                    cacheKey,
-                    JSON.stringify({
-                        ...res.data.data,
-                        _cachedAt: Date.now(),
-                    })
-                );
             } catch (err) {
                 console.error("Failed to fetch barangay details:", err);
             }
         };
 
-        // Check if cache is expired (e.g., 1 hour)
-        const cacheExpiry = 1000 * 60 * 60; // 1 hour
+        // Check if cache is expired (1 minute here)
+        const cacheExpiry = 1000 * 60 * 5; // 5 min
         if (
             !cachedData ||
-            (JSON.parse(cachedData)._cachedAt &&
-                Date.now() - JSON.parse(cachedData)._cachedAt > cacheExpiry)
+            (cachedData._cachedAt &&
+                Date.now() - cachedData._cachedAt > cacheExpiry)
         ) {
+            fetchBarangayDetails();
+        } else {
+            // ✅ Still fetch in background to check for changes
             fetchBarangayDetails();
         }
     }, [APP_URL, userRoles]);
@@ -408,9 +426,10 @@ export function AppSidebar({ auth }) {
     const toggleCollapse = (index) => {
         setOpenIndex((prev) => (prev === index ? null : index));
     };
-    const logoSrc = barangay?.logo_path
+
+    const logoSrc = barangay?.logo_path?.trim()
         ? `/storage/${barangay.logo_path}`
-        : "/images/city-of-ilagan.png";
+        : defaultLogo;
 
     return (
         <Sidebar>
@@ -418,6 +437,9 @@ export function AppSidebar({ auth }) {
             <div className="bg-white px-4 py-[8px] flex items-center border-b border-gray-200">
                 <img
                     src={logoSrc}
+                    onError={(e) => {
+                        e.currentTarget.src = defaultLogo;
+                    }}
                     alt={`${barangay?.barangay_name || "Barangay"} Logo`}
                     className="max-h-10 max-w-10 mr-3 object-contain rounded-full border border-gray-200"
                 />
@@ -469,17 +491,18 @@ export function AppSidebar({ auth }) {
                                         >
                                             <a
                                                 href={item.url || "#"}
-                                                className={`flex items-center justify-between w-full my-1 px-2 py-2 rounded-lg transition-all duration-200 ${isActive(item.url) ||
-                                                        (item.submenu &&
-                                                            item.submenu.some(
-                                                                (sub) =>
-                                                                    isActive(
-                                                                        sub.url
-                                                                    )
-                                                            ))
+                                                className={`flex items-center justify-between w-full my-1 px-2 py-2 rounded-lg transition-all duration-200 ${
+                                                    isActive(item.url) ||
+                                                    (item.submenu &&
+                                                        item.submenu.some(
+                                                            (sub) =>
+                                                                isActive(
+                                                                    sub.url
+                                                                )
+                                                        ))
                                                         ? "text-gray-900 font-semibold"
                                                         : "text-gray-700 hover:text-gray-900"
-                                                    }`}
+                                                }`}
                                             >
                                                 <div className="flex items-center">
                                                     <item.icon className="mr-2 h-5 w-5" />
@@ -502,10 +525,11 @@ export function AppSidebar({ auth }) {
                                     {/* Submenu */}
                                     {item.submenu?.length > 0 && (
                                         <SidebarGroupContent
-                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${openIndex === index
+                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                                openIndex === index
                                                     ? "max-h-[1000px] opacity-100"
                                                     : "max-h-0 opacity-0"
-                                                }`}
+                                            }`}
                                         >
                                             {item.submenu
                                                 .filter((sub) =>
@@ -522,12 +546,13 @@ export function AppSidebar({ auth }) {
                                                         >
                                                             <a
                                                                 href={sub.url}
-                                                                className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${isActive(
-                                                                    sub.url
-                                                                )
+                                                                className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${
+                                                                    isActive(
+                                                                        sub.url
+                                                                    )
                                                                         ? "bg-gray-200 text-gray-900 font-semibold"
                                                                         : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                                                                    }`}
+                                                                }`}
                                                             >
                                                                 <sub.icon className="mr-2 h-4 w-4" />
                                                                 <span>

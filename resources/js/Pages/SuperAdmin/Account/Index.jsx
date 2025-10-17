@@ -79,7 +79,7 @@ export default function Index({ accounts, queryParams, barangays }) {
 
     const allColumns = [
         { key: "id", label: "ID" },
-        { key: "resident_name", label: "Full Name" },
+        { key: "barangay", label: "Barangay" },
         { key: "name", label: "User Name" },
         { key: "email", label: "Email" },
         { key: "status", label: "Session Status" },
@@ -116,16 +116,12 @@ export default function Index({ accounts, queryParams, barangays }) {
         id: (row) => (
             <span className="text-xs text-gray-500 font-medium">{row.id}</span>
         ),
-
-        resident_name: (row) => {
-            const r = row.resident ?? {};
-            const fullName = `${r.firstname ?? ""} ${r.middlename ?? ""} ${
-                r.lastname ?? ""
-            } ${r.suffix ?? ""}`.trim();
+        barangay: (row) => {
+            const name = row.barangay?.barangay_name;
 
             return (
                 <span className="text-sm font-semibold text-gray-800">
-                    {fullName || "—"}
+                    {name ? `Barangay: ${name}` : "No barangay assigned"}
                 </span>
             );
         },
@@ -424,7 +420,7 @@ export default function Index({ accounts, queryParams, barangays }) {
             <div>
                 <Toaster richColors />
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-                {/* <pre>{JSON.stringify(barangays, undefined, 2)}</pre> */}
+                {/* <pre>{JSON.stringify(accounts, undefined, 2)}</pre> */}
                 <div className="p-2 md:p-4">
                     <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">

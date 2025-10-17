@@ -2,6 +2,7 @@
 
 use App\Exports\ResidentsExport;
 use App\Http\Controllers\AllergyController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BarangayController;
 use App\Http\Controllers\BarangayInfrastructureController;
 use App\Http\Controllers\BarangayFacilityController;
@@ -25,6 +26,7 @@ use App\Http\Controllers\DisabilityController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentGenerationController;
 use App\Http\Controllers\EducationController;
+use App\Http\Controllers\EmailController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyRelationController;
 use App\Http\Controllers\FamilyTreeController;
@@ -46,6 +48,7 @@ use App\Http\Controllers\ResidentVaccinationController;
 use App\Http\Controllers\SeniorCitizenController;
 use App\Http\Controllers\SummonController;
 use App\Http\Controllers\SuperAdminController;
+use App\Http\Controllers\UnauthenticatedIssuanceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Models\BarangayInfrastructure;
@@ -59,6 +62,12 @@ use Maatwebsite\Excel\Facades\Excel;
 
 
 Route::get('/', [IBIMSController::class, 'welcome'])->name('welcome'); // Welcome page accessible to both admin and resident
+Route::get('/send-mail', [EmailController::class, 'welcomeEmail'])->name('welcomeEmail'); // Welcome page accessible to both admin and resident
+Route::get('/request-certificate', [UnauthenticatedIssuanceController::class, 'makeRequest'])->name('request.certificate');
+Route::get('/request-certificate-documents/{id}', [UnauthenticatedIssuanceController::class, 'fetchDocuments'])->name('request.documents');
+Route::get('/request-certificate-placeholders/{id}', [DocumentController::class, 'fetchPlaceholders'])->name('request.placeholders');
+Route::post('/request-certificate/store', [UnauthenticatedIssuanceController::class, 'store'])->name('request.storerequest');
+
 
 // Admin-only routes
 Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin'])->group(function () {
