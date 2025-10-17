@@ -80,10 +80,7 @@ const Request = ({
                             value={data.purpose || ""}
                             onChange={(e) => setData("purpose", e.target.value)}
                         />
-                        <InputError
-                            message={errors.purpose}
-                            className="mt-1"
-                        />
+                        <InputError message={errors.purpose} className="mt-1" />
                         <p className="text-xs text-gray-400 mt-1">
                             Example: Scholarship requirement, job application,
                             financial assistance.
@@ -105,9 +102,7 @@ const Request = ({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                         {data.placeholders
-                            .filter(
-                                (p) => !defaultPlacehodlers.includes(p)
-                            )
+                            .filter((p) => !defaultPlacehodlers.includes(p))
                             .map((placeholder, i) => (
                                 <div key={i}>
                                     <InputField

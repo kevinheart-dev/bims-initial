@@ -26,6 +26,7 @@ use App\Http\Controllers\DisabilityController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DocumentGenerationController;
 use App\Http\Controllers\EducationController;
+use App\Http\Controllers\EmailController;
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FamilyRelationController;
 use App\Http\Controllers\FamilyTreeController;
@@ -61,6 +62,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 
 Route::get('/', [IBIMSController::class, 'welcome'])->name('welcome'); // Welcome page accessible to both admin and resident
+Route::get('/send-mail', [EmailController::class, 'welcomeEmail'])->name('welcomeEmail'); // Welcome page accessible to both admin and resident
 Route::get('/request-certificate', [UnauthenticatedIssuanceController::class, 'makeRequest'])->name('request.certificate');
 Route::get('/request-certificate-documents/{id}', [UnauthenticatedIssuanceController::class, 'fetchDocuments'])->name('request.documents');
 Route::get('/request-certificate-placeholders/{id}', [DocumentController::class, 'fetchPlaceholders'])->name('request.placeholders');
