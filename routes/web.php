@@ -272,6 +272,12 @@ Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(
         ->name('cdrrmo_admin.datacollection');
 
     Route::get('/population', [CRADataController::class, 'population'])->name('cdrrmo_admin.population');
+    Route::get('/livelihood', [CRADataController::class, 'livelihood'])->name('cdrrmo_admin.livelihood');
+    Route::get('/services', [CRADataController::class, 'services'])->name('cdrrmo_admin.services');
+    Route::get('/infraFacilities', [CRADataController::class, 'infraFacilities'])->name('cdrrmo_admin.infraFacilities');
+    Route::get('/primaryFacilities', [CRADataController::class, 'primaryFacilities'])->name('cdrrmo_admin.primaryFacilities');
+    Route::get('/institutions', [CRADataController::class, 'institutions'])->name('cdrrmo_admin.institutions');
+    Route::get('/humanResources', [CRADataController::class, 'humanResources'])->name('cdrrmo_admin.humanResources');
 });
 
 // Super Admin-only routes
