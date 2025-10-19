@@ -12,6 +12,7 @@ class CRAIllnessesStat extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'illness',
         'children',
         'adults',

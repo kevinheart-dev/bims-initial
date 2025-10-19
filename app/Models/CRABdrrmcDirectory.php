@@ -14,7 +14,8 @@ class CRABdrrmcDirectory extends Model
         'barangay_id',
         'designation_team',
         'name',
-        'contact_no'
+        'contact_no',
+        'cra_id',
     ];
 
     public function barangay(){

@@ -16,6 +16,7 @@ class CRADisasterPopulationImpact extends Model
         'category',
         'value',
         'source',
+        'cra_id',
     ];
 
     public function barangay(){

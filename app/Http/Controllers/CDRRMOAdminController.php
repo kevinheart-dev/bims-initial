@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barangay;
+use App\Models\CommunityRiskAssessment;
 use App\Models\CRAPopulationGender;
 use App\Models\CRAGeneralPopulation;
 use App\Models\CRAPopulationAgeGroup;
@@ -20,6 +21,34 @@ class CDRRMOAdminController extends Controller
 
     public function index(Request $request)
     {
+
+        // Get the year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+
+        // Check if CRA data exists for the given year
+        $craExists = CommunityRiskAssessment::where('year', $year)->exists();
+
+        // If CRA does not exist, clear the session and return empty data
+        if (!$craExists) {
+            // Clear the CRA year from session
+            session()->forget('cra_year');
+
+            return Inertia::render('CDRRMO/Dashboard', [
+                'totalPopulation'   => null,
+                'totalHouseholds'   => null,
+                'totalFamilies'     => null,
+                'ageDistribution'   => [],
+                'genderData'        => [],
+                'barangays'         => [],
+                'topBarangays'      => [],
+                'selectedBarangay'  => null,
+                'selectedYear'      => null, // optional, to sync with frontend
+            ]);
+        }
+
+        // If CRA exists, save the selected year in session
+        session(['cra_year' => $year]);
+
         $barangayId = $request->query('barangay_id');
 
         if ($barangayId) {

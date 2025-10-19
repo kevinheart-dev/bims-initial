@@ -12,6 +12,7 @@ class CRAPublicTransportation extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'transpo_type',
         'quantity',
     ];

@@ -13,17 +13,7 @@ return new class extends Migration
     {
         Schema::create('community_risk_assessments', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('barangay_id')
-                ->constrained('barangays')
-                ->onDelete('cascade');
-
-            $table->unique('barangay_id');
             $table->year('year')->nullable();
-            $table->decimal('progess')->nullable();
-            // track submission date
-            $table->timestamp('submitted_at')->nullable();
-
             $table->timestamps();
         });
     }

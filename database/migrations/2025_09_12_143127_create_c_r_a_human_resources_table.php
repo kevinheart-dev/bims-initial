@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('c_r_a_human_resources', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('cra_id')->nullable()->constrained('community_risk_assessments')->onDelete('cascade');
             $table->unsignedBigInteger('barangay_id');
             $table->string('category');
             $table->string('resource_name');

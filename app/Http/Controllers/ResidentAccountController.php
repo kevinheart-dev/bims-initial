@@ -196,7 +196,7 @@ class ResidentAccountController extends Controller
             $user = auth()->user();
             $resident = $user->resident;
 
-            $validated = $request->validated(); // only validated fields
+            $validated = $request->validated();
 
             $certificate = Certificate::create([
                 'resident_id'    => $validated['resident_id'] ?? $resident->id,
@@ -212,7 +212,26 @@ class ResidentAccountController extends Controller
                 'dynamic_values' => json_encode($validated['placeholders'] ?? []),
             ]);
 
-            return redirect()->route('resident_account.certificates')->with('success', 'Certificate request submitted successfully.');
+            // Send email notification
+            app(EmailController::class)->sendCertificateRequestEmail(
+                $resident->email,
+                "{$resident->firstname} {$resident->lastname}",
+                $certificate
+            );
+
+            // Send email notification to barangay
+            $barangayEmail = $resident->barangay->email; // make sure your Barangay model has an email field
+            if ($barangayEmail) {
+                app(EmailController::class)->sendBarangayCertificateNotification(
+                    $barangayEmail,
+                    $resident,
+                    $certificate
+                );
+            }
+
+            return redirect()->route('resident_account.certificates')
+                            ->with('success', 'Certificate request submitted successfully.');
+
         } catch (\Exception $e) {
             \Log::error('Certificate request failed: ' . $e->getMessage());
 

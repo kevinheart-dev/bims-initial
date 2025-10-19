@@ -12,6 +12,7 @@ class CRAInfraFacility extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'category',
         'infrastructure_name',
         'quantity',

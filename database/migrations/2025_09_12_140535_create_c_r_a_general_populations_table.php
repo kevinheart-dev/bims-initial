@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('c_r_a_general_populations', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('cra_id')->nullable()->constrained('community_risk_assessments')->onDelete('cascade');
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
             $table->integer('total_population')->default(0);;
             $table->integer('total_households')->default(0);;

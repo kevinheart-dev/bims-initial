@@ -12,6 +12,7 @@ class CRAHumanResource extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'category',
         'resource_name',
         'male_without_disability',

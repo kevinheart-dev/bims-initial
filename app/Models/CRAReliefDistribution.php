@@ -12,6 +12,7 @@ class CRAReliefDistribution extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'evacuation_center',
         'relief_good',
         'quantity',

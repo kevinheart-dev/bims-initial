@@ -12,6 +12,7 @@ class CRAEvacuationCenter extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'name',
         'capacity_families',
         'capacity_individuals',

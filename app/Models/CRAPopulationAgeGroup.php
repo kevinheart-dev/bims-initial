@@ -13,6 +13,7 @@ class CRAPopulationAgeGroup extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'age_group',
         'male_without_disability',
         'male_with_disability',

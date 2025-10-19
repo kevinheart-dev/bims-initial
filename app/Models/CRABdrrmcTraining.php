@@ -19,6 +19,7 @@ class CRABdrrmcTraining extends Model
         'inclusive_dates',
         'number_of_participants',
         'participants',
+        'cra_id',
     ];
 
     public function barangay(){

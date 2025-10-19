@@ -36,6 +36,7 @@ import {
     UtilityPole,
     UserPen,
     Settings,
+    SlidersHorizontal,
 } from "lucide-react";
 import {
     Sidebar,
@@ -53,6 +54,7 @@ import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import { useMemo } from "react";
 import { useRef } from "react";
+import { router } from "@inertiajs/react";
 
 const items = [
     {
@@ -267,24 +269,81 @@ const items = [
     {
         title: "Community Risk Assessment",
         icon: FileStack,
-        roles: ["cdrrmo_admin", "barangay_officer"],
+        roles: ["cdrrmo_admin", "barangay_officer", "admin"],
         submenu: [
-            {
-                title: "Information Table",
-                icon: Table,
-                roles: ["cdrrmo_admin"],
-            },
             {
                 title: "Barangay Information Table",
                 url: "/cra/dashboard",
                 icon: Table,
-                roles: ["barangay_officer"],
+                roles: ["barangay_officer", "admin"],
             },
             {
                 title: "Create",
                 url: "/cra/create",
                 icon: FileText,
-                roles: ["cdrrmo_admin", "barangay_officer"],
+                roles: ["barangay_officer", "admin"],
+            },
+            {
+                title: "Population and Residence",
+                url: "/cdrrmo_admin/population",
+                icon: FileText,
+                roles: ["cdrrmo_admin"],
+            },
+            {
+                title: "Livelihood",
+                url: "#",
+                icon: FileText,
+                roles: ["cdrrmo_admin"],
+            },
+            {
+                title: "Infrastructures and Institutions",
+                url: "#",
+                icon: FileText,
+                roles: ["cdrrmo_admin"],
+            },
+            {
+                title: "Buildings and other Infrastructures",
+                url: "#",
+                icon: FileText,
+                roles: ["cdrrmo_admin"],
+            },
+            {
+                title: "Primary Facilities and Services ",
+                url: "#",
+                icon: FileText,
+                roles: ["cdrrmo_admin"],
+            },
+            {
+                title: "Inventory of Institutions",
+                url: "#",
+                icon: FileText,
+                roles: ["cdrrmo_admin"],
+            },
+            {
+                title: "Human Resources",
+                url: "#",
+                icon: FileText,
+                roles: ["cdrrmo_admin"],
+            },
+            {
+                title: "PARTICIPATORY COMMUNITY RISK ASSESSMENT",
+                url: "#",
+                icon: FileText,
+                roles: ["cdrrmo_admin"],
+            },
+        ],
+    },
+    {
+        title: "CRA Settings",
+        icon: Settings,
+        roles: ["cdrrmo_admin"],
+        url: "#",
+        submenu: [
+            {
+                title: "Selectfield",
+                icon: SlidersHorizontal, // import this
+                url: "/cra/selectfield", // or your actual route
+                roles: ["cdrrmo_admin"], // make sure it matches your current user role
             },
         ],
     },
@@ -431,6 +490,27 @@ export function AppSidebar({ auth }) {
         ? `/storage/${barangay.logo_path}`
         : defaultLogo;
 
+    const [selectedYear, setSelectedYear] = useState("");
+
+    // On mount, only load if there’s a saved value
+    useEffect(() => {
+        const savedYear = sessionStorage.getItem("cra_year");
+        if (savedYear) {
+            setSelectedYear(savedYear);
+        }
+    }, []);
+
+    const handleYearChange = (e) => {
+        const year = e.target.value;
+        setSelectedYear(year);
+        sessionStorage.setItem("cra_year", year);
+
+        router.get(
+            window.location.pathname,
+            { year },
+            { preserveState: true, replace: true }
+        );
+    };
     return (
         <Sidebar>
             {/* Header with blue branding */}
@@ -531,37 +611,82 @@ export function AppSidebar({ auth }) {
                                                     : "max-h-0 opacity-0"
                                             }`}
                                         >
-                                            {item.submenu
-                                                .filter((sub) =>
-                                                    sub.roles.some((role) =>
-                                                        userRoles.includes(role)
-                                                    )
-                                                )
-                                                .map((sub) => (
-                                                    <SidebarMenuItem
-                                                        key={sub.title}
+                                            {/* Check if this is CRA Settings */}
+                                            {item.title === "CRA Settings" ? (
+                                                <div className="px-4 py-3">
+                                                    <label
+                                                        htmlFor="cra-year"
+                                                        className="block text-sm font-medium text-gray-600 mb-1"
                                                     >
-                                                        <SidebarMenuButton
-                                                            asChild
+                                                        Select Year
+                                                    </label>
+                                                    <select
+                                                        id="cra-year"
+                                                        name="cra-year"
+                                                        value={selectedYear}
+                                                        onChange={
+                                                            handleYearChange
+                                                        }
+                                                        className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    >
+                                                        <option
+                                                            value=""
+                                                            disabled
                                                         >
-                                                            <a
-                                                                href={sub.url}
-                                                                className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${
-                                                                    isActive(
-                                                                        sub.url
-                                                                    )
-                                                                        ? "bg-gray-200 text-gray-900 font-semibold"
-                                                                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                                                                }`}
+                                                            -- Select Year --
+                                                        </option>
+                                                        {[
+                                                            2023, 2024, 2025,
+                                                            2026,
+                                                        ].map((year) => (
+                                                            <option
+                                                                key={year}
+                                                                value={year}
                                                             >
-                                                                <sub.icon className="mr-2 h-4 w-4" />
-                                                                <span>
-                                                                    {sub.title}
-                                                                </span>
-                                                            </a>
-                                                        </SidebarMenuButton>
-                                                    </SidebarMenuItem>
-                                                ))}
+                                                                {year}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            ) : (
+                                                item.submenu
+                                                    .filter((sub) =>
+                                                        sub.roles.some((role) =>
+                                                            userRoles.includes(
+                                                                role
+                                                            )
+                                                        )
+                                                    )
+                                                    .map((sub) => (
+                                                        <SidebarMenuItem
+                                                            key={sub.title}
+                                                        >
+                                                            <SidebarMenuButton
+                                                                asChild
+                                                            >
+                                                                <a
+                                                                    href={
+                                                                        sub.url
+                                                                    }
+                                                                    className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${
+                                                                        isActive(
+                                                                            sub.url
+                                                                        )
+                                                                            ? "bg-gray-200 text-gray-900 font-semibold"
+                                                                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                                                    }`}
+                                                                >
+                                                                    <sub.icon className="mr-2 h-4 w-4" />
+                                                                    <span>
+                                                                        {
+                                                                            sub.title
+                                                                        }
+                                                                    </span>
+                                                                </a>
+                                                            </SidebarMenuButton>
+                                                        </SidebarMenuItem>
+                                                    ))
+                                            )}
                                         </SidebarGroupContent>
                                     )}
                                 </div>
@@ -573,7 +698,7 @@ export function AppSidebar({ auth }) {
 
             {/* Footer */}
             <SidebarFooter className="bg-white border-t border-gray-200">
-                <NavUser user={user} />
+                <NavUser user={user} auth={auth} />
             </SidebarFooter>
         </Sidebar>
     );

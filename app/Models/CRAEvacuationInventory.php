@@ -12,6 +12,7 @@ class CRAEvacuationInventory extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'purok_number',
         'total_families',
         'total_individuals',

@@ -17,6 +17,7 @@ class CRADisasterLifeline extends Model
         'description',
         'value',
         'source',
+        'cra_id',
     ];
 
     public function barangay(){

@@ -12,6 +12,7 @@ const DynamicTable = ({
     queryParams = null,
     showTotal = false,
     visibleColumns = [],
+    tableHeight = null,
 }) => {
     const contentRef = useRef();
     const reactToPrintFn = useReactToPrint({
@@ -62,7 +63,11 @@ const DynamicTable = ({
 
             {/* Table */}
             <div className="w-full overflow-x-auto border rounded-lg">
-                <div className="max-h-[800px] overflow-y-auto">
+                <div
+                    className={`overflow-y-auto ${
+                        tableHeight ? `max-h-[${tableHeight}]` : "max-h-[800px]"
+                    }`}
+                >
                     <table
                         ref={contentRef}
                         className="table-auto w-full min-w-max"

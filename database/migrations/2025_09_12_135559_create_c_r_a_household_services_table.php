@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('c_r_a_household_services', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('barangay_id');
+            $table->foreignId('cra_id')->nullable()->constrained('community_risk_assessments')->onDelete('cascade');
             $table->string('category');
             $table->string('service_name');
             $table->integer('households_quantity')->default(0);

@@ -12,6 +12,7 @@ class CRAPopulationGender extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'gender',
         'quantity'
     ];

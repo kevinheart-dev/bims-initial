@@ -12,6 +12,7 @@ class CRAHazardRisk extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'hazard_id',
         'probability_no',
         'effect_no',

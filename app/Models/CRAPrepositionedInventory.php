@@ -12,6 +12,7 @@ class CRAPrepositionedInventory extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'item_name',
         'quantity',
         'remarks',

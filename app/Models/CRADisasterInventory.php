@@ -18,6 +18,7 @@ class CRADisasterInventory extends Model
         'total_in_barangay',
         'percentage_at_risk',
         'location',
+        'cra_id',
     ];
 
     public function barangay(){

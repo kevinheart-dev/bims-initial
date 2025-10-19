@@ -12,6 +12,7 @@ class CRARoadNetwork extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'road_type',
         'length_km',
         'maintained_by'

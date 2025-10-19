@@ -12,6 +12,7 @@ class CRAHouseOwnership extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'ownership_type',
         'quantity',
     ];

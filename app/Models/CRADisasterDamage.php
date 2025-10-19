@@ -18,6 +18,7 @@ class CRADisasterDamage extends Model
         'damage_type',
         'value',
         'source',
+        'cra_id',
     ];
 
     public function barangay(){

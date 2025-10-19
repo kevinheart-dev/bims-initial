@@ -15,6 +15,7 @@ class CRAGeneralPopulation extends Model
         'total_population',
         'total_households',
         'total_families',
+        'cra_id',
     ];
 
     public function barangay(){

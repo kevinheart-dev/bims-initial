@@ -11,7 +11,7 @@ class CRAHazard extends Model
     use HasFactory;
     public $timestamps = true;
     protected $fillable = [
-        'hazard_name',
+        'hazard_name'
     ];
     public function disasterInventories()
     {

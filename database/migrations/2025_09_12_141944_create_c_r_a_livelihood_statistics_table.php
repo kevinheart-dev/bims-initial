@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('c_r_a_livelihood_statistics', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('cra_id')->nullable()->constrained('community_risk_assessments')->onDelete('cascade');
             $table->unsignedBigInteger('barangay_id');
             $table->string('livelihood_type', 155);
             $table->integer('male_without_disability')->default(0);

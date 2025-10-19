@@ -14,6 +14,7 @@ class CRADisasterOccurance extends Model
         'barangay_id',
         'disaster_name',
         'year',
+        'cra_id',
     ];
 
     public function barangay(){

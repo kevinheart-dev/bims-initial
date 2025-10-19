@@ -19,6 +19,7 @@ class CRAAssessmentMatrix extends Model
         'services',
         'environment',
         'livelihood',
+        'cra_id',
     ];
 
     public function barangay(){

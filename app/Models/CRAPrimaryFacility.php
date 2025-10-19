@@ -12,6 +12,7 @@ class CRAPrimaryFacility extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'facility_name',
         'quantity',
     ];

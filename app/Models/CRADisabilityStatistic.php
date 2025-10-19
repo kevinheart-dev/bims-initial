@@ -31,6 +31,7 @@ class CRADisabilityStatistic extends Model
         'age_60up_male',
         'age_60up_female',
         'age_60up_lgbtq',
+        'cra_id',
     ];
 
     public function barangay(){

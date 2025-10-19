@@ -12,6 +12,7 @@ class CRAReliefDistributionProcess extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'step_no',
         'distribution_process',
         'origin_of_goods',

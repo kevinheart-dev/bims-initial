@@ -12,6 +12,7 @@ class CRAPopulationExposure extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'hazard_id',
         'purok_number',
         'total_families',

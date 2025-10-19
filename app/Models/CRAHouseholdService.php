@@ -12,6 +12,7 @@ class CRAHouseholdService extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'category',
         'service_name',
         'households_quantity',

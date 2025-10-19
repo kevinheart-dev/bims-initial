@@ -11,7 +11,7 @@ class CommunityRiskAssessment extends Model
 
     protected $fillable = [
         'barangay_id',
-        'submitted_at',
+        'year',
     ];
 
     public function barangay()

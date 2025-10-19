@@ -12,6 +12,7 @@ class CRAEvacuationPlan extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'activity_no',
         'things_to_do',
         'responsible_person',

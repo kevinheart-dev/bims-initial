@@ -20,6 +20,7 @@ class CRAAffectedPlaces extends Model
         'at_risk_families',
         'at_risk_individuals',
         'safe_evacuation_area',
+        'cra_id',
     ];
 
     public function barangay(){

@@ -100,6 +100,16 @@ class AuthenticatedSessionController extends Controller
                 'action_type' => 'logout',
                 'description' => "{$user->username} logged out of the system.",
             ]);
+
+            // ✅ Clear CRA year if user is cdrrmo_admin
+            if ($user->hasRole('cdrrmo_admin')) {
+                // If you are using session storage in Laravel:
+                $request->session()->forget('cra_year');
+
+                // If you want to also clear browser sessionStorage, you need JS on logout page
+                // e.g., in your logout redirect view or JS snippet:
+                // <script>sessionStorage.removeItem('cra_year');</script>
+            }
         }
 
         Auth::guard('web')->logout();

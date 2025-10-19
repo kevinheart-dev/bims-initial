@@ -12,6 +12,7 @@ class CRALivelihoodEvacuationSite extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'livelihood_type',
         'evacuation_site',
         'place_of_origin',

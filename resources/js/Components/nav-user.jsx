@@ -24,9 +24,16 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar";
 import { router } from "@inertiajs/react";
-export function NavUser({ user }) {
+export function NavUser({ user, auth }) {
     const { isMobile } = useSidebar();
     const handleLogout = () => {
+        // Check if current user has the role cdrrmo_admin
+        if (auth.user.roles.some((r) => r.name === "cdrrmo_admin")) {
+            sessionStorage.removeItem("cra_year");
+            console.log("CRA year cleared for cdrrmo_admin");
+        }
+
+        // Perform logout
         router.post(route("logout"));
     };
     const handleProfile = () => {

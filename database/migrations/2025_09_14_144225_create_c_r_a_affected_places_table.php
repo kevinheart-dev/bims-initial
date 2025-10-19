@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('c_r_a_affected_places', function (Blueprint $table) {
             $table->id();
-
+            $table->foreignId('cra_id')->nullable()->constrained('community_risk_assessments')->onDelete('cascade');
             $table->foreignId('barangay_id')
                 ->constrained('barangays')
                 ->onDelete('cascade');

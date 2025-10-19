@@ -875,16 +875,25 @@ class CRADataseeder extends Seeder
             ],
         ];
 
-        $barangays = Barangay::all();
 
+
+        $barangays = Barangay::all();
+        //$barangays = Barangay::take(1)->get();
+        $cra = CommunityRiskAssessment::factory()->create([
+            'year' => 2025
+        ]);
         foreach ($barangays as $barangay) {
             // Example totals
             $totalPopulation = fake()->numberBetween(2000, 8000);
             $households = intval($totalPopulation / fake()->numberBetween(3, 5));
             $families = intval($households * fake()->numberBetween(1, 2));
+
             // Insert into general population
             CRAGeneralPopulation::updateOrCreate(
-                ['barangay_id' => $barangay->id],
+                [
+                    'barangay_id' => $barangay->id,
+                    'cra_id' => $cra->id, // ✅ link to the main CRA record
+                ],
                 [
                     'total_population' => $totalPopulation,
                     'total_households' => $households,
@@ -897,15 +906,29 @@ class CRADataseeder extends Seeder
             $lgbtq  = $totalPopulation - ($male + $female);
             // Insert into gender table
             CRAPopulationGender::updateOrCreate(
-                ['barangay_id' => $barangay->id, 'gender' => 'Male'],
+                [
+                    'barangay_id' => $barangay->id,
+                    'cra_id'      => $cra->id,
+                    'gender'      => 'Male',
+                ],
                 ['quantity' => $male]
             );
+
             CRAPopulationGender::updateOrCreate(
-                ['barangay_id' => $barangay->id, 'gender' => 'Female'],
+                [
+                    'barangay_id' => $barangay->id,
+                    'cra_id'      => $cra->id,
+                    'gender'      => 'Female',
+                ],
                 ['quantity' => $female]
             );
+
             CRAPopulationGender::updateOrCreate(
-                ['barangay_id' => $barangay->id, 'gender' => 'LGBTQ+'],
+                [
+                    'barangay_id' => $barangay->id,
+                    'cra_id'      => $cra->id,
+                    'gender'      => 'LGBTQ+',
+                ],
                 ['quantity' => $lgbtq]
             );
 
@@ -936,6 +959,7 @@ class CRADataseeder extends Seeder
                     [
                         'barangay_id' => $barangay->id,
                         'age_group'   => $age,
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'male_without_disability'   => $male - $maleDis,
@@ -963,6 +987,7 @@ class CRADataseeder extends Seeder
                     [
                         'barangay_id' => $barangay->id,
                         'house_type'  => $type,
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'one_floor'       => $oneFloor,
@@ -987,6 +1012,7 @@ class CRADataseeder extends Seeder
                     [
                         'barangay_id'    => $barangay->id,
                         'ownership_type' => $ownership,
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'quantity' => $quantity ?? 0,
@@ -1011,6 +1037,7 @@ class CRADataseeder extends Seeder
                     [
                         'barangay_id' => $barangay->id,
                         'livelihood_type' => $type,
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'male_without_disability' => $maleWithout,
@@ -1030,6 +1057,7 @@ class CRADataseeder extends Seeder
                             'barangay_id' => $barangay->id,
                             'category' => $category,
                             'service_name' => $name,
+                            'cra_id'      => $cra->id,
                         ],
                         [
                             'households_quantity' => $qty,
@@ -1045,6 +1073,7 @@ class CRADataseeder extends Seeder
                             'barangay_id' => $barangay->id,
                             'category' => $category,
                             'infrastructure_name' => $name,
+                            'cra_id'      => $cra->id,
                         ],
                         [
                             'quantity' => rand($min, $max),
@@ -1058,6 +1087,7 @@ class CRADataseeder extends Seeder
                     [
                         'barangay_id' => $barangay->id,
                         'facility_name' => $facility,
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'quantity' => rand($min, $max),
@@ -1070,6 +1100,7 @@ class CRADataseeder extends Seeder
                     [
                         'barangay_id' => $barangay->id,
                         'transpo_type' => $type,
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'quantity' => rand($min, $max),
@@ -1084,6 +1115,7 @@ class CRADataseeder extends Seeder
                     [
                         'barangay_id' => $barangay->id,
                         'road_type' => $type,
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'length_km' => $length,
@@ -1097,6 +1129,7 @@ class CRADataseeder extends Seeder
                     [
                         'barangay_id' => $barangay->id,
                         'name' => $name,
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'male_members' => rand(0, 200),
@@ -1128,6 +1161,7 @@ class CRADataseeder extends Seeder
                             'barangay_id' => $barangay->id,
                             'category' => $category,
                             'resource_name' => $resource,
+                            'cra_id'      => $cra->id,
                         ],
                         [
                             'male_without_disability' => $maleWithout,
@@ -1155,6 +1189,7 @@ class CRADataseeder extends Seeder
                 CRADisasterOccurance::firstOrCreate([
                     'barangay_id'   => $barangay->id,
                     'disaster_name' => $disasterName,
+                    'cra_id'      => $cra->id,
                     'year'          => $faker->numberBetween(date('Y') - 5, date('Y')),
                 ]);
             }
@@ -1167,6 +1202,7 @@ class CRADataseeder extends Seeder
                     CRADisasterPopulationImpact::create([
                         'disaster_id' => $disaster->id,
                         'barangay_id' => $barangay->id,
+                        'cra_id'      => $cra->id,
                         'category'    => $template['category'],
                         'value'       => rand($template['min'], $template['max']),
                         'source'      => $template['source'],
@@ -1176,6 +1212,7 @@ class CRADataseeder extends Seeder
                     CRADisasterEffectImpact::create([
                         'disaster_id' => $disaster->id,
                         'barangay_id' => $barangay->id,
+                        'cra_id'      => $cra->id,
                         'effect_type' => $template['effect_type'],
                         'value'       => rand($template['min'], $template['max']),
                         'source'      => $template['source'],
@@ -1185,6 +1222,7 @@ class CRADataseeder extends Seeder
                     CRADisasterAgriDamage::create([
                         'disaster_id' => $disaster->id,
                         'barangay_id' => $barangay->id,
+                        'cra_id'      => $cra->id,
                         'description' => $template['description'],
                         'value'       => rand($template['min'], $template['max']),
                         'source'      => $template['source'],
@@ -1195,6 +1233,7 @@ class CRADataseeder extends Seeder
                     CRADisasterLifeline::create([
                         'disaster_id' => $disaster->id,
                         'barangay_id' => $barangay->id,
+                        'cra_id'      => $cra->id,
                         'category'    => $lifeline['category'],
                         'description' => $lifeline['description'],
                         'value'       => $lifeline['value'],
@@ -1205,6 +1244,7 @@ class CRADataseeder extends Seeder
                     CRADisasterDamage::create([
                         'disaster_id' => $disaster->id,
                         'barangay_id' => $barangay->id,
+                        'cra_id'      => $cra->id,
                         'category'    => $template['category'],
                         'damage_type' => $template['damage_type'], // added this line
                         'description' => $template['description'],
@@ -1216,6 +1256,7 @@ class CRADataseeder extends Seeder
         }
 
         foreach ($barangays as $barangay) {
+
             foreach ($hazards as $hazardName) {
                 $hazard = CRAHazard::firstOrCreate(['hazard_name' => $hazardName]);
 
@@ -1225,6 +1266,7 @@ class CRADataseeder extends Seeder
 
                 CRAHazardRisk::create([
                     'barangay_id'    => $barangay->id,
+                    'cra_id'      => $cra->id,
                     'hazard_id'      => $hazard->id,
                     'probability_no' => $prob,
                     'effect_no'      => $effect,
@@ -1234,15 +1276,17 @@ class CRADataseeder extends Seeder
                 ]);
             }
         }
+
         foreach ($matrices as $matrixType => $hazardNames) {
             foreach ($hazardNames as $hazardName) {
                 $hazard = CRAHazard::firstOrCreate(
                     ['hazard_name' => $hazardName]
                 );
-
                 foreach ($barangays as $barangay) {
+
                     CRAAssessmentMatrix::create([
                         'hazard_id' => $hazard->id,
+                        'cra_id'      => $cra->id,
                         'barangay_id' => $barangay->id,
                         'matrix_type' => $matrixType,
 
@@ -1280,6 +1324,7 @@ class CRADataseeder extends Seeder
                                 'hazard_id'    => $hazard->id,
                                 'barangay_id'  => $barangay->id,
                                 'purok_number' => $purok,
+                                'cra_id'      => $cra->id,
                             ],
                             [
                                 'total_families'      => rand(100, 400),
@@ -1312,12 +1357,15 @@ class CRADataseeder extends Seeder
                 }
             }
         }
+
         foreach ($barangays as $barangay) {
+
             foreach ($disabilities as $type) {
                 CRADisabilityStatistic::updateOrCreate(
                     [
                         'barangay_id' => $barangay->id,
                         'disability_type' => $type,
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'age_0_6_male'       => rand(0, 3),
@@ -1349,6 +1397,7 @@ class CRADataseeder extends Seeder
                             'barangay_id' => $barangay->id,
                             'purok_number' => $purok,
                             'indicator' => $indicator,
+                            'cra_id'      => $cra->id,
                         ],
                         [
                             'count' => match ($indicator) {
@@ -1370,6 +1419,7 @@ class CRADataseeder extends Seeder
                     [
                         'barangay_id' => $barangay->id,
                         'illness' => $illness,
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         // Randomized values
@@ -1380,10 +1430,11 @@ class CRADataseeder extends Seeder
             }
 
         }
+
         foreach ($hazards as $name) {
             $hazard = CRAHazard::firstOrCreate(['hazard_name' => $name]);
-
             foreach ($barangays as $barangay) {
+
                 foreach (range(1, 7) as $purok) {
                     // Total population per purok
                     $totalFamilies = rand(100, 350);
@@ -1404,6 +1455,7 @@ class CRADataseeder extends Seeder
 
                     CRADisasterRiskPopulation::create([
                         'barangay_id' => $barangay->id,
+                        'cra_id'      => $cra->id,
                         'hazard_id' => $hazard->id,
                         'purok_number' => $purok,
                         'low_families' => $lowFamilies,
@@ -1416,7 +1468,9 @@ class CRADataseeder extends Seeder
                 }
             }
         }
+
         foreach ($barangays as $barangay) {
+
             $hazards = CRAHazard::all();
             foreach ($hazards as $hazard) {
                 foreach ($categories as $category => $items) {
@@ -1440,6 +1494,7 @@ class CRADataseeder extends Seeder
                                 'barangay_id' => $barangay->id,
                                 'hazard_id' => $hazard->id,
                                 'purok_number' => $purok,
+                                'cra_id'      => $cra->id,
                             ],
                             [
                                 'low_families' => $lowFamilies,
@@ -1454,15 +1509,17 @@ class CRADataseeder extends Seeder
                 }
             }
         }
+
         foreach ($barangays as $barangay) {
+
             // Each barangay gets 3–6 centers
             $centers = $faker->randomElements($sampleCenters, rand(3, 6));
-
             foreach ($centers as $center) {
                 CRAEvacuationCenter::firstOrCreate(
                     [
                         'barangay_id' => $barangay->id,
                         'name' => $center,
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'capacity_families' => rand(2, 60),
@@ -1474,7 +1531,9 @@ class CRADataseeder extends Seeder
                 );
             }
         }
+
         foreach ($barangays as $barangay) {
+
             foreach (range(1, 7) as $purok) {
                 $totalFamilies = rand(100, 350);
                 $totalIndividuals = $totalFamilies * rand(3, 5);
@@ -1505,6 +1564,7 @@ class CRADataseeder extends Seeder
                     [
                         'barangay_id' => $barangay->id,
                         'purok_number' => $purok,
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'total_families' => $totalFamilies,
@@ -1524,10 +1584,12 @@ class CRADataseeder extends Seeder
                 );
             }
         }
+
         foreach ($hazards as $hazardName) {
             $hazard = CRAHazard::firstOrCreate(['hazard_name' => $hazardName]);
 
             foreach ($barangays as $barangay) {
+
                 foreach (range(1, 7) as $purok) {
                     $totalFamilies = rand(100, 350);
                     $totalIndividuals = $totalFamilies * rand(3, 5);
@@ -1565,6 +1627,7 @@ class CRADataseeder extends Seeder
                             'barangay_id' => $barangay->id,
                             'hazard_id' => $hazard->id,
                             'purok_number' => $purok,
+                            'cra_id'      => $cra->id,
                         ],
                         [
                             'risk_level' => $riskLevel,
@@ -1579,12 +1642,14 @@ class CRADataseeder extends Seeder
             }
         }
         foreach ($barangays as $barangay) {
+
             foreach ($livelihoodEvac as $livelihood) {
                 CRALivelihoodEvacuationSite::updateOrCreate(
                     [
                         'barangay_id' => $barangay->id,
                         'livelihood_type' => $livelihood['type'],
                         'evacuation_site' => $livelihood['evacuation_sites'][0],
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'place_of_origin' => $livelihood['origin'],
@@ -1598,6 +1663,7 @@ class CRADataseeder extends Seeder
             }
         }
         foreach ($barangays as $barangay) {
+
             foreach ($prepositions as $item) {
                 // Randomize quantity around base quantity
                 $quantity = $item['base_quantity'];
@@ -1617,6 +1683,7 @@ class CRADataseeder extends Seeder
                     [
                         'barangay_id' => $barangay->id,
                         'item_name' => $item['item_name'],
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'quantity' => (string)$quantity,
@@ -1626,6 +1693,7 @@ class CRADataseeder extends Seeder
             }
         }
         foreach ($barangays as $barangay) {
+
             foreach (range(1, 7) as $purok) { // all Puroks
                 $numFamilies = rand(5, 30); // random number of families
                 $numIndividuals = $numFamilies * rand(3, 5); // random individuals per family
@@ -1655,6 +1723,7 @@ class CRADataseeder extends Seeder
                             'barangay_id' => $barangay->id,
                             'evacuation_center' => $evacuationCenters[array_rand($evacuationCenters)],
                             'relief_good' => $good['name'],
+                            'cra_id'      => $cra->id,
                         ],
                         [
                             'quantity' => (string)$quantity,
@@ -1667,11 +1736,13 @@ class CRADataseeder extends Seeder
             }
         }
         foreach ($barangays as $barangay) {
+
             foreach ($distributionSteps as $index => $step) {
                 CRAReliefDistributionProcess::updateOrCreate(
                     [
                         'barangay_id' => $barangay->id,
                         'step_no' => $index + 1,
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'distribution_process' => $step,
@@ -1682,11 +1753,13 @@ class CRADataseeder extends Seeder
             }
         }
         foreach ($barangays as $barangay) {
+
             foreach ($trainings as $training) {
                 CRABdrrmcTraining::firstOrCreate(
                     [
                         'barangay_id' => $barangay->id,
                         'title' => $training['title'],
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'status' => rand(0,1) ? 'checked' : 'cross',
@@ -1699,7 +1772,8 @@ class CRADataseeder extends Seeder
                 );
             }
         }
-                foreach ($barangays as $barangay) {
+        foreach ($barangays as $barangay) {
+
             foreach ($equipmentItems as $item) {
                 $availability = rand(0, 1) ? 'checked' : 'cross';
 
@@ -1716,6 +1790,7 @@ class CRADataseeder extends Seeder
                     [
                         'barangay_id' => $barangay->id,
                         'item' => $item,
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'availability' => $availability,
@@ -1727,11 +1802,13 @@ class CRADataseeder extends Seeder
             }
         }
         foreach ($barangays as $barangay) {
+
             foreach ($directories as $entry) {
                 CRABdrrmcDirectory::firstOrCreate(
                     [
                         'barangay_id' => $barangay->id,
                         'name' => $entry['name'],
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'designation_team' => $entry['designation_team'],
@@ -1741,11 +1818,13 @@ class CRADataseeder extends Seeder
             }
         }
         foreach ($barangays as $barangay) {
+
             foreach ($plans as $plan) {
                 CRAEvacuationPlan::firstOrCreate(
                     [
                         'barangay_id' => $barangay->id,
                         'activity_no' => $plan['activity_no'],
+                        'cra_id'      => $cra->id,
                     ],
                     [
                         'things_to_do' => $plan['things_to_do'],
@@ -1754,12 +1833,6 @@ class CRADataseeder extends Seeder
                     ]
                 );
             }
-
-            // ✅ Flag CRA as submitted for this barangay
-            CommunityRiskAssessment::updateOrCreate(
-                ['barangay_id' => $barangay->id],
-                ['submitted_at' => now()]
-            );
         }
     }
 }

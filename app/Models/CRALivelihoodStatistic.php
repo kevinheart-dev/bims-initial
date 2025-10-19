@@ -12,6 +12,7 @@ class CRALivelihoodStatistic extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'livelihood_type',
         'male_without_disability',
         'male_with_disability',

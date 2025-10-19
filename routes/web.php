@@ -20,6 +20,7 @@ use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\ChildHealthMonitoringController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CRAController;
+use App\Http\Controllers\CRADataController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeathController;
 use App\Http\Controllers\DisabilityController;
@@ -62,7 +63,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 
 Route::get('/', [IBIMSController::class, 'welcome'])->name('welcome'); // Welcome page accessible to both admin and resident
-Route::get('/send-mail', [EmailController::class, 'welcomeEmail'])->name('welcomeEmail'); // Welcome page accessible to both admin and resident
+Route::get('/test-email', [EmailController::class, 'sendPHPMailerEmail']);
 Route::get('/request-certificate', [UnauthenticatedIssuanceController::class, 'makeRequest'])->name('request.certificate');
 Route::get('/request-certificate-documents/{id}', [UnauthenticatedIssuanceController::class, 'fetchDocuments'])->name('request.documents');
 Route::get('/request-certificate-placeholders/{id}', [DocumentController::class, 'fetchPlaceholders'])->name('request.placeholders');
@@ -269,6 +270,8 @@ Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(
         ->name('cdrrmo_admin.dashboard');
         Route::get('alldatacollection', [CDRRMOAdminController::class, 'allDataCollectionSummary'])
         ->name('cdrrmo_admin.datacollection');
+
+    Route::get('/population', [CRADataController::class, 'population'])->name('cdrrmo_admin.population');
 });
 
 // Super Admin-only routes

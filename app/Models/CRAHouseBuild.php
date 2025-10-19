@@ -12,6 +12,7 @@ class CRAHouseBuild extends Model
     public $timestamps = true;
     protected $fillable = [
         'barangay_id',
+        'cra_id',
         'house_type',
         'one_floor',
         'two_or_more_floors',

@@ -16,6 +16,7 @@ class CRADisasterAgriDamage extends Model
         'description',
         'value',
         'source',
+        'cra_id',
     ];
 
     public function barangay(){
