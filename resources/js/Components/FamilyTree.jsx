@@ -49,7 +49,6 @@ const FamilyTree = ({ familyData }) => {
                 const spacing = CARD_WIDTH + 130;
 
                 if (members.length === 1) {
-                    // ✅ Single parent or self (within a couple node structure)
                     positioned.push({
                         ...members[0],
                         x: baseX,
@@ -58,11 +57,8 @@ const FamilyTree = ({ familyData }) => {
                         id: members[0].id,
                     });
                 } else {
-                    // ✅ Couple or self + spouse
                     const self = members.find((m) => m.relation === "Self");
-                    const spouses = members.filter(
-                        (m) => m.relation === "Spouse"
-                    );
+                    const spouses = members.filter((m) => m.relation === "Spouse");
 
                     if (self) {
                         positioned.push({
@@ -76,8 +72,7 @@ const FamilyTree = ({ familyData }) => {
                         spouses.forEach((spouse, idx) => {
                             const direction = idx % 2 === 0 ? -1 : 1;
                             const multiplier = Math.ceil((idx + 1) / 2);
-                            const spouseX =
-                                baseX + direction * spacing * multiplier;
+                            const spouseX = baseX + direction * spacing * multiplier;
 
                             positioned.push({
                                 ...spouse,
@@ -102,10 +97,9 @@ const FamilyTree = ({ familyData }) => {
                     }
                 }
             } else if (d.data.id !== "virtual-root") {
-                // ✅ Children or other individuals
                 positioned.push({
                     ...d.data,
-                    x: baseX - CARD_WIDTH / 2 - 65, // Adjust for centering for individual nodes (not couples)
+                    x: baseX - CARD_WIDTH / 2 - 65,
                     y: baseY,
                     relation: d.data.relation || "Relative",
                     id: d.data.id,
@@ -113,7 +107,33 @@ const FamilyTree = ({ familyData }) => {
             }
         });
 
-        setNodes(positioned);
+        // === 🧩 FIX OVERLAP ===
+        const adjusted = [...positioned];
+
+        const selfNode = adjusted.find((n) => n.relation === "Self"); // ✅ declare ONCE
+        const spouseNode = adjusted.find((n) => n.relation === "Spouse");
+
+        if (selfNode && spouseNode && familyData.siblings?.data?.length > 0) {
+            const sameLevelNodes = adjusted.filter(
+                (n) =>
+                    n.y === selfNode.y &&
+                    (n.relation === "Sibling" || n.relation === "Self")
+            );
+
+            sameLevelNodes.sort((a, b) => a.x - b.x);
+            const selfIndex = sameLevelNodes.findIndex((n) => n.id === selfNode.id);
+
+            if (selfIndex !== -1) {
+                const gapSize = CARD_WIDTH * 0.8;
+                for (let i = selfIndex + 1; i < sameLevelNodes.length; i++) {
+                    const sib = sameLevelNodes[i];
+                    const idx = adjusted.findIndex((n) => n.id === sib.id);
+                    if (idx !== -1) adjusted[idx].x += gapSize;
+                }
+            }
+        }
+
+        setNodes(adjusted);
 
         // === 2. Draw Lines ===
         const lines = [];
@@ -294,7 +314,7 @@ const FamilyTree = ({ familyData }) => {
         });
 
         // ✅ Include "self" node in sibling group if siblings exist
-        const selfNode = positioned.find((p) => p.relation === "Self");
+        // const selfNode = positioned.find((p) => p.relation === "Self");
         if (selfNode && familyData.siblings?.data?.length > 0) {
             const parentId = "virtual-root-self";
             if (!topLevelSiblingGroups.has(parentId)) {
@@ -331,8 +351,6 @@ const FamilyTree = ({ familyData }) => {
                             return { ...sibling, centerX, centerY };
                         }
                     }
-
-                    // Single person (not couple)
                     return {
                         ...sibling,
                         centerX: sibling.x + CARD_WIDTH / 2,

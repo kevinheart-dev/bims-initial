@@ -5,6 +5,7 @@ export function transformToTreeFormat(data) {
     const children = data.children?.data || [];
     const parents = data.parents?.data || [];
 
+    // Root placeholder
     const root = {
         id: "virtual-root",
         relation: "Root",
@@ -14,7 +15,7 @@ export function transformToTreeFormat(data) {
     // --- SELF NODE ---
     const selfNode = {
         ...self,
-        id: `self-${self?.id}`,
+        id: `person-${self?.id}`, // ✅ consistent ID used across both single/couple forms
         relation: "Self",
         children: [],
     };
@@ -27,55 +28,51 @@ export function transformToTreeFormat(data) {
         children: [],
     }));
 
-    // --- CHILDREN NODES ---
-    const childrenNodes = children.map((child) => {
-        const parentIds = [self?.id, ...spouses.map((sp) => sp.id)].filter(Boolean);
-        return {
-            ...child,
-            id: `child-${child.id}`,
-            relation: "Child",
-            parents: parentIds,
-            children: [],
-        };
-    });
-
-    // --- MAIN NODE (SELF + SPOUSE AS ONE UNIT) ---
-    let mainNode;
-    if (spouseNodes.length > 0) {
-        mainNode = {
-            id: `main-couple-${self.id}`,
-            relation: "MainCouple",
-            isCouple: true,
-            members: [selfNode, ...spouseNodes],
-            children: childrenNodes,
-        };
-    } else {
-        mainNode = {
-            ...selfNode,
-            children: childrenNodes,
-        };
-    }
-
-    // --- SIBLING NODES ---
-    const siblingNodes = siblings.map((sib) => ({
-        ...sib,
-        id: `sibling-${sib.id}`,
-        relation: "Sibling",
+    // --- CHILDREN ---
+    const childrenNodes = children.map((child) => ({
+        ...child,
+        id: `child-${child.id}`,
+        relation: "Child",
         children: [],
     }));
 
-    // --- PARENT CONNECTION HANDLING ---
+    // --- MAIN NODE (Self or Couple) ---
+    const mainNode =
+        spouseNodes.length > 0
+            ? {
+                ...selfNode,
+                relation: "MainCouple",
+                isCouple: true,
+                members: [selfNode, ...spouseNodes],
+                children: childrenNodes,
+            }
+            : {
+                ...selfNode,
+                children: childrenNodes,
+            };
+
+    // --- SIBLINGS ---
+    const siblingNodes = siblings
+        .filter((sib) => sib.id !== self?.id) // ✅ Prevent adding self as sibling
+        .map((sib) => ({
+            ...sib,
+            id: `sibling-${sib.id}`,
+            relation: "Sibling",
+            children: [],
+        }));
+
+    // --- PARENTS ---
     if (parents.length === 1) {
-        // One parent only
+        // Single parent
         const parentNode = {
             ...parents[0],
             id: `parent-${parents[0].id}`,
             relation: "Parent",
             children: [mainNode, ...siblingNodes],
         };
-        root.children.push(parentNode);
+        root.children = [parentNode];
     } else if (parents.length >= 2) {
-        // Two or more parents — treat as couple
+        // Parent couple
         const parentNodes = parents.slice(0, 2).map((p) => ({
             ...p,
             id: `parent-${p.id}`,
@@ -84,17 +81,31 @@ export function transformToTreeFormat(data) {
         }));
 
         const parentCoupleNode = {
-            id: `parent-couple-${self.id}`,
+            id: `parent-couple-${parents.map((p) => p.id).join("-")}`,
             relation: "ParentCouple",
             isCouple: true,
             members: parentNodes,
             children: [mainNode, ...siblingNodes],
         };
-        root.children.push(parentCoupleNode);
+
+        root.children = [parentCoupleNode];
     } else {
-        // No parents — self/siblings at root
-        root.children.push(mainNode, ...siblingNodes);
+        // No parents
+        root.children = [mainNode, ...siblingNodes];
     }
+
+    // ✅ DEDUPE — make sure no duplicate child references exist
+    const seen = new Set();
+    function dedupe(node) {
+        if (!node?.children) return;
+        node.children = node.children.filter((child) => {
+            if (seen.has(child.id)) return false;
+            seen.add(child.id);
+            return true;
+        });
+        node.children.forEach(dedupe);
+    }
+    dedupe(root);
 
     return root;
 }

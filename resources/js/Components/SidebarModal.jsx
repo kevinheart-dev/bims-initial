@@ -45,11 +45,12 @@
 // new no animation
 import { X } from "lucide-react"; // optional if you use lucide-react
 
+
 export default function SidebarModal({
     isOpen,
     onClose,
     title = "Details",
-    icon = null, // 🔹 optional icon prop
+    icon = null,
     children,
 }) {
     if (!isOpen) return null;
@@ -58,23 +59,24 @@ export default function SidebarModal({
         <>
             {/* Overlay */}
             <div
-                className="fixed inset-0 z-[9998] bg-black/30 backdrop-blur-[2px]"
+                className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-[2px]"
                 onClick={onClose}
             />
+
             {/* Sidebar Panel */}
             <div
-                className="fixed top-0 right-0 h-full w-[800px] z-[9999]
-                bg-white/70 backdrop-blur-sm
-                shadow-[0_8px_30px_rgba(107,114,128,0.4)]
-                border border-gray-300
-                rounded-l-2xl flex flex-col"
+                className={`fixed top-0 right-0 h-full z-[9999]
+                bg-white/80 backdrop-blur-md shadow-[0_8px_30px_rgba(107,114,128,0.4)]
+                border border-gray-200 rounded-l-2xl flex flex-col
+                transform transition-transform duration-300 ease-in-out
+                w-[800px] lg:w-[800px] md:w-[600px] sm:w-full
+                ${isOpen ? "translate-x-0" : "translate-x-full"}`}
             >
                 {/* Header */}
                 <div
                     className="flex items-center justify-between px-6 py-4
                                bg-gradient-to-r from-blue-600 to-blue-500
-                               border-b border-white/20
-                               rounded-tl-2xl shadow-sm"
+                               border-b border-white/20 rounded-tl-2xl shadow-sm"
                 >
                     {/* Title + optional icon */}
                     <div className="flex items-center gap-2">
@@ -94,18 +96,19 @@ export default function SidebarModal({
                                    hover:bg-red-500/80 hover:scale-105
                                    transition-all duration-200 ease-in-out"
                     >
-                        <X size={18} /> {/* using lucide icon */}
+                        <X size={18} />
                     </button>
                 </div>
 
                 {/* Scrollable Content */}
-                <div className="p-6 text-sm text-gray-800 overflow-y-auto h-full">
+                <div className="p-6 text-sm text-gray-800 overflow-y-auto h-full sm:p-4">
                     {children}
                 </div>
             </div>
         </>
     );
 }
+
 
 // new with animation
 // import { X } from "lucide-react";
