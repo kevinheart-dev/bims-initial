@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Cross, Activity, Home, Key } from "lucide-react";
+import { Users, Cross, Activity, Home, Key, VenusAndMars } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -75,11 +75,10 @@ export default function Dashboard({
         ),
         name: (row) => (
             <span
-                className={`font-medium ${
-                    row.barangay_name === "Total"
-                        ? "text-blue-700 font-bold"
-                        : "text-gray-800"
-                }`}
+                className={`font-medium ${row.barangay_name === "Total"
+                    ? "text-blue-700 font-bold"
+                    : "text-gray-800"
+                    }`}
             >
                 {row.barangay_name || "—"}
             </span>
@@ -144,11 +143,10 @@ export default function Dashboard({
 
         name: (row) => (
             <span
-                className={`font-medium ${
-                    row.barangay_name === "Total"
-                        ? "text-blue-700 font-bold"
-                        : "text-gray-800"
-                }`}
+                className={`font-medium ${row.barangay_name === "Total"
+                    ? "text-blue-700 font-bold"
+                    : "text-gray-800"
+                    }`}
             >
                 {row.barangay_name || "—"}
             </span>
@@ -234,11 +232,10 @@ export default function Dashboard({
 
         barangay: (row) => (
             <span
-                className={`font-medium ${
-                    row.barangay_name === "Total"
-                        ? "text-blue-700 font-bold"
-                        : "text-gray-800"
-                }`}
+                className={`font-medium ${row.barangay_name === "Total"
+                    ? "text-blue-700 font-bold"
+                    : "text-gray-800"
+                    }`}
             >
                 {row.barangay_name || "—"}
             </span>
@@ -351,11 +348,10 @@ export default function Dashboard({
         // === Overall Total ===
         total: (row) => (
             <span
-                className={`text-sm font-semibold ${
-                    row.barangay_name === "Total"
-                        ? "text-blue-600"
-                        : "text-blue-500"
-                }`}
+                className={`text-sm font-semibold ${row.barangay_name === "Total"
+                    ? "text-blue-600"
+                    : "text-blue-500"
+                    }`}
             >
                 {row.total?.toLocaleString() ?? "0"}
             </span>
@@ -383,11 +379,10 @@ export default function Dashboard({
 
         barangay: (row) => (
             <span
-                className={`font-medium ${
-                    row.barangay_name === "Total"
-                        ? "text-blue-700 font-bold"
-                        : "text-gray-800"
-                }`}
+                className={`font-medium ${row.barangay_name === "Total"
+                    ? "text-blue-700 font-bold"
+                    : "text-gray-800"
+                    }`}
             >
                 {row.barangay_name || "—"}
             </span>
@@ -464,11 +459,10 @@ export default function Dashboard({
 
         total: (row) => (
             <span
-                className={`text-sm font-semibold ${
-                    row.barangay_name === "Total"
-                        ? "text-blue-600"
-                        : "text-blue-500"
-                }`}
+                className={`text-sm font-semibold ${row.barangay_name === "Total"
+                    ? "text-blue-600"
+                    : "text-blue-500"
+                    }`}
             >
                 {row.total?.toLocaleString() ?? "0"}
             </span>
@@ -497,8 +491,8 @@ export default function Dashboard({
             <Head title="Admin Dashboard" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
 
-            <div className="pt-8 pb-2 min-h-screen bg-white">
-                <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
+            <div className="pt-8 pb-2 min-h-screen bg-gray-50">
+                <div className="mx-auto w-full">
                     {isDataNull ? (
                         <NoDataPlaceholder tip="Use the year selector above to navigate to a year with available data." />
                     ) : (
@@ -533,7 +527,7 @@ export default function Dashboard({
                             />
 
                             <TableSection
-                                icon={<Users />}
+                                icon={<VenusAndMars />}
                                 color="pink"
                                 title="Population by Gender"
                                 description="Displays the total number of residents categorized by gender for each barangay. This overview helps analyze demographic distribution within the community."
@@ -551,7 +545,7 @@ export default function Dashboard({
 
                             <TableSection
                                 icon={<Users />} // You can change this to a more fitting icon like <BarChart /> or <PieChart /> if available
-                                color="orange"
+                                color="green"
                                 title="Population by Age Group"
                                 description="Displays the total population segmented by age group for each barangay. This helps identify age demographics and support age-specific community programs."
                                 tableProps={{
@@ -567,8 +561,8 @@ export default function Dashboard({
                             />
 
                             <TableSection
-                                icon={<Home />} // 🏠 You can replace this with another relevant icon (e.g., <Building /> or <Warehouse />)
-                                color="amber"
+                                icon={<Home />}
+                                color="red"
                                 title="Housing Structure Distribution"
                                 description="Displays the total number of houses categorized by building material and floor levels for each barangay. This data helps assess housing durability and structural safety in the community."
                                 tableProps={{
@@ -585,7 +579,7 @@ export default function Dashboard({
 
                             <TableSection
                                 icon={<Key />} // 🗝️ Represents house ownership; you can replace with <Home /> or <Building /> if preferred
-                                color="teal"
+                                color="green"
                                 title="House Ownership Distribution"
                                 description="Displays the distribution of house ownership types across each barangay. This data helps analyze housing tenure patterns and identify informal settlements within the community."
                                 tableProps={{

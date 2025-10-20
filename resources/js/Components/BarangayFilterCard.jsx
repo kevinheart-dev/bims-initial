@@ -7,21 +7,21 @@ const BarangayFilterCard = ({
     barangays,
 }) => {
     return (
-        <div className="bg-white shadow-md rounded-xl p-6 md:p-8 mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-6 border border-gray-200">
+        <div className="bg-white shadow-sm rounded-lg p-4 md:p-5 mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border border-gray-200 mx-4 w-auto">
+
             {/* Left: Title and Info */}
             <div className="flex-1">
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                <h2 className="text-xl font-semibold text-gray-800 mb-1">
                     Barangay Statistics
                 </h2>
-                <p className="text-gray-600 text-sm md:text-base">
-                    Select a barangay to filter the population, gender, age
-                    distribution, and household statistics. Leave it blank to
-                    view data for all barangays.
+                <p className="text-gray-600 text-xs md:text-sm leading-snug">
+                    Select a barangay to filter population and household
+                    statistics. Leave blank to view data for all barangays.
                 </p>
             </div>
 
             {/* Right: Barangay Dropdown */}
-            <div className="w-full md:w-64">
+            <div className="w-full md:w-56">
                 <SelectField
                     name="barangay"
                     value={selectedBarangay || ""}
@@ -36,7 +36,7 @@ const BarangayFilterCard = ({
                             label: b.name,
                         })),
                     ]}
-                    placeholder="Select a barangay"
+                    placeholder="Select barangay"
                 />
             </div>
         </div>

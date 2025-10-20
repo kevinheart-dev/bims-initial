@@ -49,7 +49,7 @@ const GenderDonutChart = ({ genderData }) => {
     };
 
     return (
-        <div className="w-full max-w-sm border rounded-xl p-2 mx-auto hover:shadow-lg">
+        <div className="w-full max-w-sm border rounded-xl p-2 mx-auto hover:shadow-lg bg-white">
             {/* Heading */}
             <h3 className="text-lg font-semibold text-gray-800 text-center mb-4">
                 Population Based on Gender

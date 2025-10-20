@@ -99,9 +99,9 @@ const Index = () => {
 
             <div className="mx-auto max-w-8xl px-4 sm:px-2 md:px-4 lg:px-6 py-6">
                 <div className="mb-6">
-                    <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl shadow-sm">
-                        <div className="p-2 bg-blue-200 rounded-full">
-                            <FileSpreadsheet className="w-6 h-6 text-blue-600" />
+                    <div className="flex items-center gap-3 p-3 bg-green-100 rounded-xl shadow-sm">
+                        <div className="p-2 bg-green-200 rounded-full">
+                            <FileSpreadsheet className="w-6 h-6 text-green-600" />
                         </div>
                         <div>
                             <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
