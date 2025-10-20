@@ -55,49 +55,48 @@ const GenderDonutChart = ({ genderData }) => {
                 Population Based on Gender
             </h3>
 
-            <div className="flex flex-col items-center">
-                {/* Donut Chart */}
-                <ResponsiveContainer width={150} height={150}>
-                    <PieChart>
-                        <Pie
-                            data={chartData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={45}
-                            outerRadius={75}
-                            paddingAngle={5}
-                            dataKey="value"
-                            nameKey="name"
-                            labelLine={false}
-                        >
-                            {chartData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                            <Label
-                                value={new Intl.NumberFormat().format(totalQuantity)}
-                                position="center"
-                                className="text-lg font-bold text-gray-800"
-                            />
-                        </Pie>
-                        <Tooltip content={<CustomTooltip />} />
-                    </PieChart>
-                </ResponsiveContainer>
 
-                {/* Horizontal separator */}
-                <hr className="w-full border-gray-300 my-3" />
+            <ResponsiveContainer width='100%' height={218}>
+                <PieChart>
+                    <Pie
+                        data={chartData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={45}
+                        outerRadius={75}
+                        paddingAngle={5}
+                        dataKey="value"
+                        nameKey="name"
+                        labelLine={false}
+                    >
+                        {chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                        <Label
+                            value={new Intl.NumberFormat().format(totalQuantity)}
+                            position="center"
+                            className="text-lg font-bold text-gray-800"
+                        />
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+            </ResponsiveContainer>
 
-                {/* Icons row with totals in fixed order */}
-                <div className="flex justify-around w-full">
-                    {GENDER_ORDER.map((gender, index) => (
-                        <div key={index} className="flex flex-col items-center">
-                            {ICONS[gender]}
-                            <span className="text-base font-bold text-gray-900 mt-1">
-                                {new Intl.NumberFormat().format(dataMap[gender] || 0)}
-                            </span>
-                        </div>
-                    ))}
-                </div>
+            {/* Horizontal separator */}
+            <hr className="w-full border-gray-300 my-3" />
+
+            {/* Icons row with totals in fixed order */}
+            <div className="flex justify-around w-full">
+                {GENDER_ORDER.map((gender, index) => (
+                    <div key={index} className="flex flex-col items-center">
+                        {ICONS[gender]}
+                        <span className="text-base font-bold text-gray-900 mt-1">
+                            {new Intl.NumberFormat().format(dataMap[gender] || 0)}
+                        </span>
+                    </div>
+                ))}
             </div>
+
         </div>
     );
 };
