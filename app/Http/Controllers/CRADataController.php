@@ -70,85 +70,169 @@ class CRADataController extends Controller
             ->join('barangays', 'c_r_a_general_populations.barangay_id', '=', 'barangays.id')
             ->where('c_r_a_general_populations.cra_id', $cra->id)
             ->orderByDesc('c_r_a_general_populations.total_population')
-        )->get()->map(function ($item, $index) {
+        )
+        ->get()
+        ->map(function ($item, $index) {
             $item->number = $index + 1;
             return $item;
         });
 
-        // Gender Data
+        // ✅ Compute totals
+        $totalRow = (object) [
+            'number' => null,
+            'barangay_name' => 'TOTAL',
+            'total_population' => $populationData->sum('total_population'),
+            'total_households' => $populationData->sum('total_households'),
+            'total_families' => $populationData->sum('total_families'),
+            'barangay_id' => null,
+            'id' => null,
+        ];
+
+        // ✅ Append total row at the bottom
+        $populationData->push($totalRow);
+
+        // Gender Data (Optimized)
         $genderData = $applyBarangayFilter(
             CRAPopulationGender::query()
                 ->join('barangays', 'c_r_a_population_genders.barangay_id', '=', 'barangays.id')
                 ->selectRaw('
                     barangays.barangay_name,
                     c_r_a_population_genders.gender,
-                    SUM(c_r_a_population_genders.quantity) as total_quantity
+                    SUM(c_r_a_population_genders.quantity) AS total_quantity
                 ')
                 ->where('c_r_a_population_genders.cra_id', $cra->id)
                 ->groupBy('barangays.barangay_name', 'c_r_a_population_genders.gender')
-        )->get()->groupBy('barangay_name')
-        ->map(function ($group, $barangay) {
-            $genders = $group->map(fn($item) => [
-                'gender' => $item->gender,
-                'quantity' => (int) $item->total_quantity,
-            ])->values();
+        )->get();
 
-            $total = $genders->sum('quantity');
+        // ✅ Group by barangay and format
+        $genderData = $genderData
+            ->groupBy('barangay_name')
+            ->map(function ($group, $barangay) {
+                $genders = $group->map(fn($item) => [
+                    'gender' => $item->gender,
+                    'quantity' => (int) $item->total_quantity,
+                ])->values();
 
-            return [
-                'barangay_name' => $barangay,
-                'genders' => $genders,
-                'total' => $total,
-            ];
-        })->sortByDesc('total')
-            ->values()
-            ->map(function ($item, $index) {
-                $item['number'] = $index + 1;
-                return $item;
-            });
+                return [
+                    'barangay_name' => $barangay,
+                    'genders' => $genders,
+                    'total' => $genders->sum('quantity'),
+                ];
+            })
+            ->sortByDesc('total')
+            ->values();
 
-        // Repeat the same logic for ageDistributionData, houseBuildData, and houseOwnershipData
+        // ✅ Compute totals directly with another SQL query (faster than looping)
+        $overallGenderTotals = CRAPopulationGender::query()
+            ->where('cra_id', $cra->id)
+            ->selectRaw('gender, SUM(quantity) as total_quantity')
+            ->groupBy('gender')
+            ->get()
+            ->mapWithKeys(fn($item) => [$item->gender => (int) $item->total_quantity]);
+
+        // ✅ Build total row
+        $totalRow = [
+            'number' => null,
+            'barangay_name' => 'TOTAL',
+            'genders' => $overallGenderTotals->map(fn($qty, $gender) => [
+                'gender' => $gender,
+                'quantity' => $qty,
+            ])->values(),
+            'total' => $overallGenderTotals->sum(),
+        ];
+
+        // ✅ Add numbering and append total row
+        $genderData = $genderData->values()->map(function ($item, $index) {
+            $item['number'] = $index + 1;
+            return $item;
+        });
+
+        $genderData->push($totalRow);
+
+        // Main data
         $ageDistributionData = $applyBarangayFilter(
             CRAPopulationAgeGroup::query()
                 ->join('barangays', 'c_r_a_population_age_groups.barangay_id', '=', 'barangays.id')
                 ->selectRaw('
                     barangays.barangay_name,
                     c_r_a_population_age_groups.age_group,
-                    SUM(c_r_a_population_age_groups.male_without_disability + c_r_a_population_age_groups.male_with_disability) as total_male,
-                    SUM(c_r_a_population_age_groups.female_without_disability + c_r_a_population_age_groups.female_with_disability) as total_female,
-                    SUM(c_r_a_population_age_groups.lgbtq_without_disability + c_r_a_population_age_groups.lgbtq_with_disability) as total_lgbtq,
+                    SUM(male_without_disability + male_with_disability) AS total_male,
+                    SUM(female_without_disability + female_with_disability) AS total_female,
+                    SUM(lgbtq_without_disability + lgbtq_with_disability) AS total_lgbtq,
                     SUM(
-                        c_r_a_population_age_groups.male_without_disability + c_r_a_population_age_groups.male_with_disability +
-                        c_r_a_population_age_groups.female_without_disability + c_r_a_population_age_groups.female_with_disability +
-                        c_r_a_population_age_groups.lgbtq_without_disability + c_r_a_population_age_groups.lgbtq_with_disability
-                    ) as total_population
+                        male_without_disability + male_with_disability +
+                        female_without_disability + female_with_disability +
+                        lgbtq_without_disability + lgbtq_with_disability
+                    ) AS total_population
                 ')
                 ->where('c_r_a_population_age_groups.cra_id', $cra->id)
                 ->groupBy('barangays.barangay_name', 'c_r_a_population_age_groups.age_group')
                 ->orderBy('barangays.barangay_name')
-        )->get()->groupBy('barangay_name')
-        ->map(function ($group, $barangay) {
-            $ageGroups = $group->map(fn($item) => [
+        )->get();
+
+        // Group per barangay
+        $ageDistributionData = $ageDistributionData
+            ->groupBy('barangay_name')
+            ->map(function ($group, $barangay) {
+                $ageGroups = $group->map(fn($item) => [
+                    'age_group' => $item->age_group,
+                    'male' => (int) $item->total_male,
+                    'female' => (int) $item->total_female,
+                    'lgbtq' => (int) $item->total_lgbtq,
+                    'total' => (int) $item->total_population,
+                ])->values();
+
+                return [
+                    'barangay_name' => $barangay,
+                    'age_groups' => $ageGroups,
+                    'total' => $ageGroups->sum('total'),
+                ];
+            })
+            ->sortByDesc('total')
+            ->values();
+
+        // ✅ Get total per age group (so columns won't be 0)
+        $overallAgeGroups = CRAPopulationAgeGroup::query()
+            ->where('cra_id', $cra->id)
+            ->selectRaw('
+                age_group,
+                SUM(male_without_disability + male_with_disability) AS total_male,
+                SUM(female_without_disability + female_with_disability) AS total_female,
+                SUM(lgbtq_without_disability + lgbtq_with_disability) AS total_lgbtq,
+                SUM(
+                    male_without_disability + male_with_disability +
+                    female_without_disability + female_with_disability +
+                    lgbtq_without_disability + lgbtq_with_disability
+                ) AS total_population
+            ')
+            ->groupBy('age_group')
+            ->orderBy('age_group')
+            ->get();
+
+        // ✅ Compute grand total
+        $grandTotal = $overallAgeGroups->sum('total_population');
+
+        // ✅ Build proper total row
+        $totalRow = [
+            'number' => null,
+            'barangay_name' => 'TOTAL',
+            'age_groups' => $overallAgeGroups->map(fn($item) => [
                 'age_group' => $item->age_group,
                 'male' => (int) $item->total_male,
                 'female' => (int) $item->total_female,
                 'lgbtq' => (int) $item->total_lgbtq,
                 'total' => (int) $item->total_population,
-            ])->values();
+            ]),
+            'total' => $grandTotal,
+        ];
 
-            $total = $ageGroups->sum('total');
+        // Add numbering and append total row
+        $ageDistributionData = $ageDistributionData->map(function ($item, $index) {
+            $item['number'] = $index + 1;
+            return $item;
+        });
 
-            return [
-                'barangay_name' => $barangay,
-                'age_groups' => $ageGroups,
-                'total' => $total,
-            ];
-        })->sortByDesc('total')
-            ->values()
-            ->map(function ($item, $index) {
-                $item['number'] = $index + 1;
-                return $item;
-            });
+        $ageDistributionData->push($totalRow);
 
         // House Build Data
         $houseBuildData = $applyBarangayFilter(
@@ -238,19 +322,19 @@ class CRADataController extends Controller
         ]);
     }
 
-
-    public function livelihood(Request $request){
-        // Get the year from request or session
+    public function livelihood(Request $request)
+    {
+        // ✅ Get the year from request or session
         $year = $request->input('year') ?? session('cra_year');
 
-        // Check if CRA data exists for the given year
+        // ✅ Check if CRA data exists for the given year
         $cra = CommunityRiskAssessment::where('year', $year)->first();
 
-        // If CRA does not exist, clear the session and return empty data
         if (!$cra) {
             session()->forget('cra_year');
             return Inertia::render('CDRRMO/CRA/Livelihood', [
                 'livelihoodStats' => [],
+                'overallLivelihoodStats' => [],
                 'barangays' => [],
                 'selectedBarangay' => null,
             ]);
@@ -258,6 +342,7 @@ class CRADataController extends Controller
 
         $barangayId = $request->query('barangay_id');
 
+        // ✅ Base livelihood query
         $query = DB::table('c_r_a_livelihood_statistics as ls')
             ->join('barangays as b', 'b.id', '=', 'ls.barangay_id')
             ->select(
@@ -277,7 +362,7 @@ class CRADataController extends Controller
             )
             ->where('ls.cra_id', $cra->id);
 
-        // Apply barangay filter if selected
+        // ✅ Apply barangay filter if selected
         if ($barangayId) {
             $query->where('ls.barangay_id', $barangayId);
         }
@@ -286,42 +371,107 @@ class CRADataController extends Controller
             ->get()
             ->groupBy('barangay_name')
             ->map(function ($group, $barangayName) {
+                // Map each livelihood record
                 $livelihoods = $group->map(fn($item) => [
                     'livelihood_type' => $item->livelihood_type,
-                    'male_without_disability' => $item->male_without_disability,
-                    'male_with_disability' => $item->male_with_disability,
-                    'female_without_disability' => $item->female_without_disability,
-                    'female_with_disability' => $item->female_with_disability,
-                    'lgbtq_without_disability' => $item->lgbtq_without_disability,
-                    'lgbtq_with_disability' => $item->lgbtq_with_disability,
-                    'total' => $item->total,
-                ])->sortByDesc('total') // ✅ sort by total descending
-                ->values();
+                    'male_without_disability' => (int) $item->male_without_disability,
+                    'male_with_disability' => (int) $item->male_with_disability,
+                    'female_without_disability' => (int) $item->female_without_disability,
+                    'female_with_disability' => (int) $item->female_with_disability,
+                    'lgbtq_without_disability' => (int) $item->lgbtq_without_disability,
+                    'lgbtq_with_disability' => (int) $item->lgbtq_with_disability,
+                    'total' => (int) $item->total,
+                ])->sortByDesc('total')->values();
+
+                // Add total row at the bottom of each barangay
+                $totalRow = [
+                    'livelihood_type' => 'TOTAL',
+                    'male_without_disability' => $livelihoods->sum('male_without_disability'),
+                    'male_with_disability' => $livelihoods->sum('male_with_disability'),
+                    'female_without_disability' => $livelihoods->sum('female_without_disability'),
+                    'female_with_disability' => $livelihoods->sum('female_with_disability'),
+                    'lgbtq_without_disability' => $livelihoods->sum('lgbtq_without_disability'),
+                    'lgbtq_with_disability' => $livelihoods->sum('lgbtq_with_disability'),
+                    'total' => $livelihoods->sum('total'),
+                ];
+
+                $livelihoods->push($totalRow);
 
                 return [
-                    'number' => null, // will set after sorting
                     'barangay_name' => $barangayName,
                     'livelihoods' => $livelihoods,
-                    'total' => $livelihoods->sum('total'),
+                    'total' => $totalRow['total'], // for sorting
                 ];
             })
             ->sortByDesc('total')
-            ->values()
-            ->map(function ($item, $index) {
-                $item['number'] = $index + 1;
-                return $item;
-            });
+            ->values();
 
+        // ✅ Compute overall livelihood stats only if NO barangay is selected
+        $overallLivelihoodStats = collect();
+        if (!$barangayId) {
+            $overallLivelihoodStats = DB::table('c_r_a_livelihood_statistics as ls')
+                ->join('barangays as b', 'b.id', '=', 'ls.barangay_id')
+                ->select(
+                    'ls.livelihood_type',
+                    DB::raw('SUM(ls.male_without_disability) as male_without_disability'),
+                    DB::raw('SUM(ls.male_with_disability) as male_with_disability'),
+                    DB::raw('SUM(ls.female_without_disability) as female_without_disability'),
+                    DB::raw('SUM(ls.female_with_disability) as female_with_disability'),
+                    DB::raw('SUM(ls.lgbtq_without_disability) as lgbtq_without_disability'),
+                    DB::raw('SUM(ls.lgbtq_with_disability) as lgbtq_with_disability'),
+                    DB::raw('
+                        SUM(
+                            ls.male_without_disability + ls.male_with_disability +
+                            ls.female_without_disability + ls.female_with_disability +
+                            ls.lgbtq_without_disability + ls.lgbtq_with_disability
+                        ) as total
+                    ')
+                )
+                ->where('ls.cra_id', $cra->id)
+                ->groupBy('ls.livelihood_type')
+                ->orderByDesc('total')
+                ->get()
+                ->map(function ($item, $index) {
+                    return [
+                        'number' => $index + 1,
+                        'livelihood_type' => $item->livelihood_type,
+                        'male_without_disability' => (int) $item->male_without_disability,
+                        'male_with_disability' => (int) $item->male_with_disability,
+                        'female_without_disability' => (int) $item->female_without_disability,
+                        'female_with_disability' => (int) $item->female_with_disability,
+                        'lgbtq_without_disability' => (int) $item->lgbtq_without_disability,
+                        'lgbtq_with_disability' => (int) $item->lgbtq_with_disability,
+                        'total' => (int) $item->total,
+                    ];
+                });
+
+            // ✅ Add total row
+            $overallLivelihoodStats->push([
+                'number' => '',
+                'livelihood_type' => 'TOTAL',
+                'male_without_disability' => $overallLivelihoodStats->sum('male_without_disability'),
+                'male_with_disability' => $overallLivelihoodStats->sum('male_with_disability'),
+                'female_without_disability' => $overallLivelihoodStats->sum('female_without_disability'),
+                'female_with_disability' => $overallLivelihoodStats->sum('female_with_disability'),
+                'lgbtq_without_disability' => $overallLivelihoodStats->sum('lgbtq_without_disability'),
+                'lgbtq_with_disability' => $overallLivelihoodStats->sum('lgbtq_with_disability'),
+                'total' => $overallLivelihoodStats->sum('total'),
+            ]);
+        }
+
+        // ✅ Keep year in session
         session(['cra_year' => $cra->year]);
 
-        // Fetch all barangays for dropdown
+        // ✅ Fetch barangays for filter dropdown
         $allBarangays = DB::table('barangays')
             ->select('id', 'barangay_name as name')
             ->orderBy('barangay_name')
             ->get();
 
+        // ✅ Return data
         return Inertia::render('CDRRMO/CRA/Livelihood', [
             'livelihoodStats' => $livelihoodStats,
+            'overallLivelihoodStats' => $overallLivelihoodStats,
             'barangays' => $allBarangays,
             'selectedBarangay' => $barangayId,
         ]);
@@ -668,16 +818,17 @@ class CRADataController extends Controller
 
     public function humanResources(Request $request)
     {
-        // Get year from request or session
+        // ✅ Get year from request or session
         $year = $request->input('year') ?? session('cra_year');
 
-        // Get CRA record
+        // ✅ Get CRA record
         $cra = CommunityRiskAssessment::where('year', $year)->first();
 
         if (!$cra) {
             session()->forget('cra_year');
             return Inertia::render('CDRRMO/CRA/HumanResources', [
                 'humanResourcesData' => [],
+                'overallHumanResourcesData' => [],
                 'barangays' => [],
                 'selectedBarangay' => null,
             ]);
@@ -685,7 +836,7 @@ class CRADataController extends Controller
 
         $barangayId = $request->query('barangay_id');
 
-        // Query human resources
+        // ✅ Query human resources
         $humanResourcesData = CRAHumanResource::query()
             ->join('barangays', 'c_r_a_human_resources.barangay_id', '=', 'barangays.id')
             ->select(
@@ -704,44 +855,104 @@ class CRADataController extends Controller
             ->get()
             ->groupBy('barangay_name')
             ->map(function ($group, $barangayName) {
-                $row = [
-                    'number' => null, // will assign after sorting
-                    'barangay_name' => $barangayName,
-                    'resources' => $group->map(fn($r) => [
-                        'category' => $r->category,
-                        'resource_name' => $r->resource_name,
-                        'male_without_disability' => $r->male_without_disability,
-                        'male_with_disability' => $r->male_with_disability,
-                        'female_without_disability' => $r->female_without_disability,
-                        'female_with_disability' => $r->female_with_disability,
-                        'lgbtq_without_disability' => $r->lgbtq_without_disability,
-                        'lgbtq_with_disability' => $r->lgbtq_with_disability,
-                        'total' =>
-                            $r->male_without_disability +
-                            $r->male_with_disability +
-                            $r->female_without_disability +
-                            $r->female_with_disability +
-                            $r->lgbtq_without_disability +
-                            $r->lgbtq_with_disability,
-                    ])->values(),
-                    'total' => $group->sum(fn($r) =>
+                $resources = $group->map(fn($r) => [
+                    'category' => $r->category,
+                    'resource_name' => $r->resource_name,
+                    'male_without_disability' => (int) $r->male_without_disability,
+                    'male_with_disability' => (int) $r->male_with_disability,
+                    'female_without_disability' => (int) $r->female_without_disability,
+                    'female_with_disability' => (int) $r->female_with_disability,
+                    'lgbtq_without_disability' => (int) $r->lgbtq_without_disability,
+                    'lgbtq_with_disability' => (int) $r->lgbtq_with_disability,
+                    'total' =>
                         $r->male_without_disability +
                         $r->male_with_disability +
                         $r->female_without_disability +
                         $r->female_with_disability +
                         $r->lgbtq_without_disability +
-                        $r->lgbtq_with_disability
-                    ),
+                        $r->lgbtq_with_disability,
+                ])->values();
+
+                // Total row per barangay
+                $totalRow = [
+                    'category' => 'TOTAL',
+                    'resource_name' => '',
+                    'male_without_disability' => $resources->sum('male_without_disability'),
+                    'male_with_disability' => $resources->sum('male_with_disability'),
+                    'female_without_disability' => $resources->sum('female_without_disability'),
+                    'female_with_disability' => $resources->sum('female_with_disability'),
+                    'lgbtq_without_disability' => $resources->sum('lgbtq_without_disability'),
+                    'lgbtq_with_disability' => $resources->sum('lgbtq_with_disability'),
+                    'total' => $resources->sum('total'),
                 ];
-                return $row;
+
+                $resources->push($totalRow);
+
+                return [
+                    'number' => null, // will assign later
+                    'barangay_name' => $barangayName,
+                    'resources' => $resources,
+                    'total' => $totalRow['total'],
+                ];
             })
             ->sortByDesc('total')
             ->values()
             ->map(fn($item, $index) => array_merge($item, ['number' => $index + 1]));
 
+            // ✅ Compute overall human resources if no barangay selected
+            $overallHumanResourcesData = collect();
+            if (!$barangayId) {
+                $overallHumanResourcesData = CRAHumanResource::query()
+                    ->select(
+                        'resource_name',
+                        DB::raw('SUM(male_without_disability) as male_without_disability'),
+                        DB::raw('SUM(male_with_disability) as male_with_disability'),
+                        DB::raw('SUM(female_without_disability) as female_without_disability'),
+                        DB::raw('SUM(female_with_disability) as female_with_disability'),
+                        DB::raw('SUM(lgbtq_without_disability) as lgbtq_without_disability'),
+                        DB::raw('SUM(lgbtq_with_disability) as lgbtq_with_disability'),
+                        DB::raw('
+                            SUM(
+                                male_without_disability + male_with_disability +
+                                female_without_disability + female_with_disability +
+                                lgbtq_without_disability + lgbtq_with_disability
+                            ) as total
+                        ')
+                    )
+                    ->where('cra_id', $cra->id)
+                    ->groupBy('resource_name')
+                    ->orderByDesc('total')
+                    ->get()
+                    ->map(fn($item, $index) => [
+                        'number' => $index + 1,
+                        'resource_name' => $item->resource_name,
+                        'male_without_disability' => (int) $item->male_without_disability,
+                        'male_with_disability' => (int) $item->male_with_disability,
+                        'female_without_disability' => (int) $item->female_without_disability,
+                        'female_with_disability' => (int) $item->female_with_disability,
+                        'lgbtq_without_disability' => (int) $item->lgbtq_without_disability,
+                        'lgbtq_with_disability' => (int) $item->lgbtq_with_disability,
+                        'total' => (int) $item->total,
+                    ])->values();
+
+            // Add overall total row
+            $overallHumanResourcesData->push([
+                'number' => '',
+                'resource_name' => 'TOTAL',
+                'male_without_disability' => $overallHumanResourcesData->sum('male_without_disability'),
+                'male_with_disability' => $overallHumanResourcesData->sum('male_with_disability'),
+                'female_without_disability' => $overallHumanResourcesData->sum('female_without_disability'),
+                'female_with_disability' => $overallHumanResourcesData->sum('female_with_disability'),
+                'lgbtq_without_disability' => $overallHumanResourcesData->sum('lgbtq_without_disability'),
+                'lgbtq_with_disability' => $overallHumanResourcesData->sum('lgbtq_with_disability'),
+                'total' => $overallHumanResourcesData->sum('total'),
+            ]);
+        }
+
+        // ✅ Keep year in session
         session(['cra_year' => $cra->year]);
 
-        // Fetch all barangays for dropdown
+        // ✅ Fetch all barangays for dropdown
         $allBarangays = DB::table('barangays')
             ->select('id', 'barangay_name as name')
             ->orderBy('barangay_name')
@@ -749,6 +960,7 @@ class CRADataController extends Controller
 
         return Inertia::render('CDRRMO/CRA/HumanResources', [
             'humanResourcesData' => $humanResourcesData,
+            'overallHumanResourcesData' => $overallHumanResourcesData,
             'barangays' => $allBarangays,
             'selectedBarangay' => $barangayId,
         ]);
@@ -830,6 +1042,4 @@ class CRADataController extends Controller
             'selectedBarangay' => $barangayId,
         ]);
     }
-
-
 }

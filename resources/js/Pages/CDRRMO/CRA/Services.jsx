@@ -52,7 +52,6 @@ export default function Dashboard({
                                 // Loop through categories (use the first barangay to get all categories)
                                 servicesData[0].categories.map(
                                     (categoryRow, catIndex) => {
-                                        // Get all unique service names across barangays for this category
                                         const serviceSet = new Set();
                                         servicesData.forEach((barangayRow) => {
                                             const category =
@@ -87,7 +86,7 @@ export default function Dashboard({
                                         ];
 
                                         // Prepare data: one row per barangay
-                                        const rowData = servicesData.map(
+                                        let rowData = servicesData.map(
                                             (barangayRow) => {
                                                 const category =
                                                     barangayRow.categories.find(
@@ -103,7 +102,6 @@ export default function Dashboard({
                                                     total: category?.total || 0,
                                                 };
 
-                                                // Fill each service column
                                                 serviceColumns.forEach(
                                                     (col) => {
                                                         const service =
@@ -122,7 +120,29 @@ export default function Dashboard({
                                             }
                                         );
 
-                                        // Render column renderers
+                                        // --- Append TOTAL row only if no specific barangay is selected ---
+                                        if (!selectedBarangay) {
+                                            const totalRow = {
+                                                number: null,
+                                                barangay_name: "TOTAL",
+                                                total: rowData.reduce(
+                                                    (sum, r) => sum + r.total,
+                                                    0
+                                                ),
+                                            };
+
+                                            serviceColumns.forEach((col) => {
+                                                totalRow[col.key] =
+                                                    rowData.reduce(
+                                                        (sum, r) =>
+                                                            sum + r[col.key],
+                                                        0
+                                                    );
+                                            });
+
+                                            rowData.push(totalRow);
+                                        }
+
                                         const columnRenderers = {
                                             barangay_name: (row) => (
                                                 <span className="font-semibold text-gray-700">

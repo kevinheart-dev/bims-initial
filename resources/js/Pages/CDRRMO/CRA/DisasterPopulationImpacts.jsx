@@ -124,7 +124,27 @@ export default function Dashboard({
                                         const disasterName =
                                             disasterRows[0].disaster_name;
                                         const disasterYear =
-                                            disasterRows[0].year; // Make sure CRA year is included in the record
+                                            disasterRows[0].year;
+
+                                        // Compute TOTAL row
+                                        const totalValue = disasterRows.reduce(
+                                            (sum, r) => sum + r.value,
+                                            0
+                                        );
+                                        const totalRow = {
+                                            disaster_id: null,
+                                            disaster_name: null,
+                                            year: null,
+                                            category: "Total Affected",
+                                            value: totalValue,
+                                            source: "",
+                                        };
+
+                                        // Append TOTAL row
+                                        const rowsWithTotal = [
+                                            ...disasterRows,
+                                            totalRow,
+                                        ];
 
                                         return (
                                             <TableSection
@@ -132,13 +152,10 @@ export default function Dashboard({
                                                 icon={<Users />}
                                                 color="green"
                                                 title={`${disasterName} in ${barangay.barangay_name} (${disasterYear})`}
-                                                description={`Total affected: ${disasterRows.reduce(
-                                                    (sum, r) => sum + r.value,
-                                                    0
-                                                )}`}
+                                                description={`Total affected: ${totalValue}`}
                                                 tableProps={{
                                                     component: DynamicTable,
-                                                    passedData: disasterRows,
+                                                    passedData: rowsWithTotal,
                                                     allColumns,
                                                     columnRenderers,
                                                     visibleColumns:
