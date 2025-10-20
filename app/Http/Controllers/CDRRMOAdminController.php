@@ -6,6 +6,7 @@ use App\Models\Barangay;
 use App\Models\CommunityRiskAssessment;
 use App\Models\CRAPopulationGender;
 use App\Models\CRAGeneralPopulation;
+use App\Models\CRAHouseholdService;
 use App\Models\CRAPopulationAgeGroup;
 use App\Models\Family;
 use App\Models\Household;
@@ -41,6 +42,7 @@ class CDRRMOAdminController extends Controller
                 'genderData'        => [],
                 'barangays'         => [],
                 'topBarangays'      => [],
+                'livelihoodStatistics'   => [],
                 'selectedBarangay'  => null,
                 'selectedYear'      => null, // optional, to sync with frontend
             ]);
@@ -133,6 +135,42 @@ class CDRRMOAdminController extends Controller
                 ];
             });
 
+        // Fetch top 10 livelihood statistics (summed across barangays)
+        $livelihoodStatistics = DB::table('c_r_a_livelihood_statistics')
+            ->select(
+                'livelihood_type',
+                DB::raw('SUM(male_without_disability) as male_without_disability'),
+                DB::raw('SUM(male_with_disability) as male_with_disability'),
+                DB::raw('SUM(female_without_disability) as female_without_disability'),
+                DB::raw('SUM(female_with_disability) as female_with_disability'),
+                DB::raw('SUM(lgbtq_without_disability) as lgbtq_without_disability'),
+                DB::raw('SUM(lgbtq_with_disability) as lgbtq_with_disability'),
+                DB::raw(
+                    '
+            SUM(
+                male_without_disability + male_with_disability +
+                female_without_disability + female_with_disability +
+                lgbtq_without_disability + lgbtq_with_disability
+            ) as total_livelihood'
+                )
+            )
+            // optional: if you want to get by barangay
+            ->when($barangayId, function ($query) use ($barangayId) {
+                $query->where('barangay_id', $barangayId);
+            })
+            ->groupBy('livelihood_type')
+            ->orderByDesc('total_livelihood')
+            ->limit(10)
+            ->get();
+
+        $householdServices = CRAHouseholdService::when($barangayId, function ($query) use ($barangayId) {
+            $query->where('barangay_id', $barangayId);
+        })
+            ->select('id', 'barangay_id', 'category', 'service_name', 'households_quantity')
+            ->orderBy('category')
+            ->orderBy('id')
+            ->get();
+
         return Inertia::render('CDRRMO/Dashboard', [
             'totalPopulation' => $totalPopulation,
             'totalHouseholds' => $totalHouseholds,
@@ -141,6 +179,8 @@ class CDRRMOAdminController extends Controller
             'genderData'      => $genderData,
             'barangays'       => $allBarangays,
             'topBarangays'    => $topBarangays,
+            'livelihoodStatistics' => $livelihoodStatistics,
+            'householdServices' => $householdServices,
             'selectedBarangay' => $barangayId,
         ]);
     }

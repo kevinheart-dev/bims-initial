@@ -7,8 +7,13 @@ import Counter from "@/Components/counter";
 import { Users, House, UsersRound } from "lucide-react";
 import AgeDistributionChart from "./GraphDashboard/AgeDistributionChart";
 import GenderDonutChart from "./GraphDashboard/GenderDonutChart";
-import TopBarangaysList from "./GraphDashboard/TopBarangayList";
+import TopBarangaysList from "./GraphDashboard/CRAProgressList";
 import { router } from "@inertiajs/react";
+import Livelihood from "@/Components/CRAsteps/Livelihood";
+import LivelihoodStatisticsChart from "./GraphDashboard/LivelihoodStatisticsChart";
+import CRAProgressList from "./GraphDashboard/CRAProgressList";
+import PieChart from "./GraphDashboard/Piechart";
+import CustomPieChart from "./GraphDashboard/Piechart";
 
 const iconMap = {
     population: <Users className="w-8 h-8 text-blue-500" />,
@@ -24,10 +29,41 @@ export default function Dashboard({
     genderData = [],
     barangays = [],
     topBarangays = [],
+    livelihoodStatistics = [],
     selectedBarangay,
+    householdServices = [],
 }) {
     const breadcrumbs = [{ label: "Dashboard", showOnMobile: true }];
     const [sortOrder, setSortOrder] = useState("desc");
+
+    const groupedServices = householdServices.reduce((acc, item) => {
+        if (!acc[item.category]) acc[item.category] = {};
+
+        if (!acc[item.category][item.service_name]) {
+            acc[item.category][item.service_name] = item.households_quantity;
+        } else {
+            acc[item.category][item.service_name] += item.households_quantity;
+        }
+
+        return acc;
+    }, {});
+
+    // Convert to array format suitable for pie charts
+    const chartDataByCategory = Object.entries(groupedServices).reduce(
+        (acc, [category, services]) => {
+            acc[category] = Object.entries(services).map(([service_name, value]) => ({
+                service_name,
+                households_quantity: value,
+            }));
+            return acc;
+        },
+        {}
+    );
+
+    console.log(chartDataByCategory);
+
+
+    console.log(groupedServices);
 
     const data = [
         {
@@ -95,7 +131,6 @@ export default function Dashboard({
                         </select>
                     </div>
 
-                    {/* Main content */}
                     {isDataNull ? (
                         <div className="flex flex-col items-center justify-center mt-20">
                             <img
@@ -104,8 +139,7 @@ export default function Dashboard({
                                 className="w-48 h-48 mb-4"
                             />
                             <p className="text-gray-500 text-lg text-center">
-                                Please select a year to display the dashboard
-                                data.
+                                Please select a year to display the dashboard data.
                             </p>
                         </div>
                     ) : (
@@ -125,10 +159,7 @@ export default function Dashboard({
                                             <div className="text-right max-w-[70%]">
                                                 <CardContent className="p-0">
                                                     <p className="text-base md:text-lg font-bold text-gray-900">
-                                                        <Counter
-                                                            end={item.value}
-                                                            duration={900}
-                                                        />
+                                                        <Counter end={item.value} duration={900} />
                                                     </p>
                                                 </CardContent>
                                                 <CardHeader className="p-0 mt-0.5">
@@ -141,27 +172,37 @@ export default function Dashboard({
                                     ))}
                                 </div>
 
-                                {/* Age Distribution Chart */}
-                                <AgeDistributionChart
-                                    ageDistribution={ageDistribution}
-                                />
+                                <AgeDistributionChart ageDistribution={ageDistribution} />
+
+                                <LivelihoodStatisticsChart livelihoodStatistics={livelihoodStatistics} />
                             </div>
 
                             {/* Right column: Gender Chart */}
-                            <div className="lg:col-span-3 flex flex-col items-center gap-4">
-                                <div className="w-full max-w-xs">
-                                    <TopBarangaysList
-                                        data={topBarangays}
-                                        selectedBarangayId={selectedBarangay}
-                                    />
-                                </div>
+                            <div className="lg:col-span-3 flex flex-col items-center gap-2">
+                                <CRAProgressList
+                                    data={topBarangays}
+                                    selectedBarangayId={selectedBarangay}
+                                />
 
-                                <div className="w-full max-w-xs">
-                                    <GenderDonutChart genderData={genderData} />
-                                </div>
+                                <GenderDonutChart genderData={genderData} />
                             </div>
+
+                            {/* Pie charts full width - 5 in one row, stretch evenly */}
+                            <div className="lg:col-span-12 flex gap-2">
+                                {Object.entries(chartDataByCategory).map(([category, dataArray]) => (
+                                    <div
+                                        key={category}
+                                        className="flex-1 bg-white rounded-lg shadow p-4 border hover:shadow-xl"
+                                    >
+                                        <h3 className="text-lg font-medium mb-2">{category}</h3>
+                                        <CustomPieChart data={dataArray} />
+                                    </div>
+                                ))}
+                            </div>
+
                         </div>
                     )}
+
                 </div>
             </div>
         </AdminLayout>
