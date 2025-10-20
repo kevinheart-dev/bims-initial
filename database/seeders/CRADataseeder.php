@@ -1052,15 +1052,29 @@ class CRADataseeder extends Seeder
 
             foreach ($services as $category => $items) {
                 foreach ($items as $name => $qty) {
+
+                    // 🎲 25% chance that this service is not available in this barangay
+                    if (rand(0, 100) < 25) continue;
+
+                    // 🔄 Add random variation (±20%) for households quantity
+                    $variationPercent = rand(-20, 20); // -20% to +20%
+                    $adjustedQty = max(1, round($qty + ($qty * $variationPercent / 100)));
+
+                    // 🧮 Optionally scale based on barangay size (if available)
+                    if (isset($barangay->population)) {
+                        $scale = $barangay->population / 1000; // adjust divisor for realism
+                        $adjustedQty = max(1, round($adjustedQty * ($scale / 5))); // smaller scaling factor
+                    }
+
                     CRAHouseholdService::updateOrCreate(
                         [
                             'barangay_id' => $barangay->id,
                             'category' => $category,
                             'service_name' => $name,
-                            'cra_id'      => $cra->id,
+                            'cra_id' => $cra->id,
                         ],
                         [
-                            'households_quantity' => $qty,
+                            'households_quantity' => $adjustedQty,
                         ]
                     );
                 }
