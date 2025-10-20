@@ -9,10 +9,7 @@ import AgeDistributionChart from "./GraphDashboard/AgeDistributionChart";
 import GenderDonutChart from "./GraphDashboard/GenderDonutChart";
 import TopBarangaysList from "./GraphDashboard/CRAProgressList";
 import { router } from "@inertiajs/react";
-import Livelihood from "@/Components/CRAsteps/Livelihood";
 import LivelihoodStatisticsChart from "./GraphDashboard/LivelihoodStatisticsChart";
-import CRAProgressList from "./GraphDashboard/CRAProgressList";
-import PieChart from "./GraphDashboard/Piechart";
 import CustomPieChart from "./GraphDashboard/Piechart";
 import NoDataPlaceholder from "@/Components/NoDataPlaceholder";
 
@@ -101,7 +98,7 @@ export default function Dashboard({
             <Head title="Admin Dashboard" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
 
-            <div className="pt-2 pb-8 min-h-screen bg-white">
+            <div className="pt-2 pb-8 min-h-screen bg-gray-50">
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     {/* No Data Placeholder */}
                     {isDataNull ? (

@@ -35,8 +35,8 @@ export default function Dashboard({
             <Head title="Admin Dashboard" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
 
-            <div className="pt-8 pb-2 min-h-screen bg-white">
-                <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
+            <div className="pt-8 pb-2 min-h-screen bg-gray-50">
+                <div className="mx-auto w-full">
                     <BarangayFilterCard
                         selectedBarangay={selectedBarangay}
                         handleBarangayChange={handleBarangayChange}
@@ -44,7 +44,7 @@ export default function Dashboard({
                     />
 
                     {!selectedBarangay ? (
-                        <div className="flex flex-col items-center justify-center mt-20 bg-gradient-to-br from-gray-50 to-gray-100 p-12 rounded-3xl shadow-xl border border-gray-200 hover:border-gray-300 transition-all duration-300">
+                        <div className="flex flex-col items-center justify-center mt-15 bg-gradient-to-br from-gray-50 to-gray-100 p-12 rounded-3xl shadow-xl border border-gray-200 hover:border-gray-300 transition-all duration-300">
                             <img
                                 src="/images/chart_error.png"
                                 alt="No data"
