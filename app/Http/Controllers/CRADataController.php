@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CommunityRiskAssessment;
+use App\Models\CRADisasterPopulationImpact;
 use App\Models\CRAGeneralPopulation;
 use App\Models\CRAHouseBuild;
 use App\Models\CRAHouseholdService;
@@ -748,6 +749,83 @@ class CRADataController extends Controller
 
         return Inertia::render('CDRRMO/CRA/HumanResources', [
             'humanResourcesData' => $humanResourcesData,
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function populationimpact(Request $request)
+    {
+        // Get year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+
+        // Get CRA record
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/DisasterPopulationImpacts', [
+                'disasterImpactsData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view disaster population impacts.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+
+        // If no barangay is selected, return empty data
+        if (!$barangayId) {
+            session(['cra_year' => $cra->year]);
+
+            $allBarangays = DB::table('barangays')
+                ->select('id', 'barangay_name as name')
+                ->orderBy('barangay_name')
+                ->get();
+
+            return Inertia::render('CDRRMO/CRA/DisasterPopulationImpacts', [
+                'disasterImpactsData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+            ]);
+        }
+
+        // Optimized query using eager loading
+        $records = CRADisasterPopulationImpact::with(['disaster:id,disaster_name,year', 'barangay:id,barangay_name'])
+            ->where('cra_id', $cra->id)
+            ->where('barangay_id', $barangayId)
+            ->get(['id', 'cra_id', 'disaster_id', 'barangay_id', 'category', 'value', 'source']);
+
+        $disasterImpactsData = $records->groupBy(fn($r) => $r->barangay->barangay_name)
+            ->map(function ($group, $barangayName) {
+                $row = [
+                    'number' => null,
+                    'barangay_name' => $barangayName,
+                    'disasters' => $group->map(fn($r) => [
+                        'disaster_id' => $r->disaster_id,
+                        'disaster_name' => $r->disaster->disaster_name,
+                        'year' => $r->disaster->year,
+                        'category' => $r->category,
+                        'value' => $r->value,
+                        'source' => $r->source,
+                    ])->values(),
+                    'total' => $group->sum('value'),
+                ];
+                return $row;
+            })
+            ->sortByDesc('total')
+            ->values()
+            ->map(fn($item, $index) => array_merge($item, ['number' => $index + 1]));
+
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        return Inertia::render('CDRRMO/CRA/DisasterPopulationImpacts', [
+            'disasterImpactsData' => $disasterImpactsData,
             'barangays' => $allBarangays,
             'selectedBarangay' => $barangayId,
         ]);

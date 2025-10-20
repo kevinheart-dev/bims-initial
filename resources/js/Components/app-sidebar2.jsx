@@ -267,7 +267,7 @@ const items = [
         roles: ["barangay_officer", "admin"],
     },
     {
-        title: "Community Risk Assessment",
+        title: "Summary",
         icon: FileStack,
         roles: ["cdrrmo_admin", "barangay_officer", "admin"],
         submenu: [
@@ -326,8 +326,8 @@ const items = [
                 roles: ["cdrrmo_admin"],
             },
             {
-                title: "PARTICIPATORY COMMUNITY RISK ASSESSMENT",
-                url: "#",
+                title: "Disaster Population Impact",
+                url: "/cdrrmo_admin/populationimpact",
                 icon: Table,
                 roles: ["cdrrmo_admin"],
             },
