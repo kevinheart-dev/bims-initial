@@ -137,11 +137,11 @@ export default function Dashboard({
                     {isDataNull ? (
                         <NoDataPlaceholder tip="No data available for the selected barangay or year." />
                     ) : (
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
                             {/* Left column: Cards + Charts */}
-                            <div className="lg:col-span-9 flex flex-col gap-4">
+                            <div className="lg:col-span-9 flex flex-col gap-2">
                                 {/* Cards */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                     {data.map((item, index) => (
                                         <Card
                                             key={index}
@@ -178,17 +178,28 @@ export default function Dashboard({
                                 />
                             </div>
 
-                            {/* Right column: Gender Chart + Top Barangays */}
-                            <div className="lg:col-span-3 flex flex-col items-center gap-6">
-                                <div className="w-full max-w-xs">
+                            <div className="lg:col-span-3 flex flex-col items-center gap-2">
+                                <div className="w-full max-w-full">
                                     <TopBarangaysList
                                         data={topBarangays}
                                         selectedBarangayId={selectedBarangay}
                                     />
                                 </div>
-                                <div className="w-full max-w-xs">
+                                <div className="w-full max-w-full">
                                     <GenderDonutChart genderData={genderData} />
                                 </div>
+                            </div>
+
+                            <div className="lg:col-span-12 flex gap-2">
+                                {Object.entries(chartDataByCategory).map(([category, dataArray]) => (
+                                    <div
+                                        key={category}
+                                        className="flex-1 bg-white rounded-lg shadow p-4 border hover:shadow-xl"
+                                    >
+                                        <h3 className="text-lg font-medium mb-2">{category}</h3>
+                                        <CustomPieChart data={dataArray} />
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     )}

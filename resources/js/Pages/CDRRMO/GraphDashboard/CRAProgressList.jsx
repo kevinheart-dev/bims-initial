@@ -33,7 +33,7 @@ export default function CRAProgressList({ data = [], selectedBarangayId }) {
                 CRA Progress by Barangay
             </h2>
 
-            <div ref={scrollRef} className="max-h-[368px] overflow-y-auto pr-1">
+            <div ref={scrollRef} className="max-h-[375px] overflow-y-auto pr-1">
                 <ul className="text-sm text-gray-700 divide-y divide-gray-100">
                     {data.map((item, index) => {
                         const progress = item.cra_progress || 0; // percentage value 0–100
