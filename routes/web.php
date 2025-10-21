@@ -98,7 +98,7 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
     Route::get('family/getfamilydetails/{id}', [FamilyController::class, 'getFamilyDetails'])->name('family.getdetails');
     Route::get('family/remove/{id}', [FamilyController::class, 'remove'])->name('family.remove');
     Route::get('/family/residents-members', [FamilyController::class, 'getResidentsAndMembersJson'])
-    ->name('family.residents-members');
+        ->name('family.residents-members');
 
     // resident
     Route::get('resident/createresident', [ResidentController::class, 'createResident'])->name('resident.createresident');
@@ -122,7 +122,7 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
     Route::get('household/getlatesthead/{id}', [HouseholdController::class, 'getLatestHead'])->name('household.latesthead');
     Route::get('household/remove/{id}', [HouseholdController::class, 'remove'])->name('household.remove');
     Route::get('/household/latest-house-number', [HouseholdController::class, 'getLatestHouseNumber'])
-    ->name('household.latestHouseNumber');
+        ->name('household.latestHouseNumber');
 
     // senior
     Route::get('senior_citizen/seniordetails/{id}', [SeniorCitizenController::class, 'seniordetails'])->name('senior_citizen.details');
@@ -261,7 +261,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('/barangay_profile/update/{barangay}', [BarangayProfileController::class, 'update'])->name('barangay_profile.update');
 
     Route::patch('/user/{user}/toggle-account', [UserController::class, 'toggleAccount'])
-    ->name('user.toggle');
+        ->name('user.toggle');
 
     Route::resource('user', UserController::class);
 });
@@ -269,7 +269,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(function () {
     Route::get('/dashboard', [CDRRMOAdminController::class, 'index'])
         ->name('cdrrmo_admin.dashboard');
-        Route::get('alldatacollection', [CDRRMOAdminController::class, 'allDataCollectionSummary'])
+    Route::get('alldatacollection', [CDRRMOAdminController::class, 'allDataCollectionSummary'])
         ->name('cdrrmo_admin.datacollection');
 
     Route::post('/addCRA', [CRADataController::class, 'addCRA'])->name('cdrrmo_admin.addcra');
@@ -283,6 +283,9 @@ Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(
     Route::get('/humanResources', [CRADataController::class, 'humanResources'])->name('cdrrmo_admin.humanResources');
     Route::get('/populationimpact', [CRADataController::class, 'populationimpact'])->name('cdrrmo_admin.populationimpact');
     Route::get('/effectimpact', [CRADataController::class, 'effectimpact'])->name('cdrrmo_admin.effectimpact');
+    Route::get('/damageproperty', [CRADataController::class, 'damageproperty'])->name('cdrrmo_admin.damageproperty');
+    Route::get('/damageagri', [CRADataController::class, 'damageagri'])->name('cdrrmo_admin.damageagri');
+    Route::get('/disasterlifelines', [CRADataController::class, 'disasterlifelines'])->name('cdrrmo_admin.disasterlifelines');
 });
 
 // Super Admin-only routes
