@@ -21,7 +21,10 @@ return new class extends Migration
             $table->string('disaster_name', 55);
             $table->string('year', 35);
             $table->timestamps();
-            $table->unique(['barangay_id', 'disaster_name', 'year']); // ensures updateOrCreate works
+            $table->unique(
+                ['barangay_id', 'disaster_name', 'year', 'cra_id'],
+                'cra_disaster_unique' // <- short, under 64 chars
+            );
         });
     }
 

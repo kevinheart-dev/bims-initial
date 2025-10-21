@@ -26,7 +26,7 @@ return new class extends Migration
             $table->integer('number_of_participants')->default(0);
             $table->text('participants')->nullable();
             $table->timestamps();
-            $table->unique(['barangay_id', 'title'], 'cra_bdrrmc_trainings_unique');
+            $table->unique(['barangay_id', 'title', 'cra_id'], 'cra_bdrrmc_trainings_unique');
         });
     }
 

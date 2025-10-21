@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import Counter from "@/Components/counter";
 import { Users, House, UsersRound } from "lucide-react";
@@ -33,6 +33,7 @@ export default function Dashboard({
 }) {
     const breadcrumbs = [{ label: "Dashboard", showOnMobile: true }];
     const [sortOrder, setSortOrder] = useState("desc");
+    const { props } = usePage();
 
     const groupedServices = householdServices.reduce((acc, item) => {
         if (!acc[item.category]) acc[item.category] = {};
@@ -186,6 +187,9 @@ export default function Dashboard({
                                             data={topBarangays}
                                             selectedBarangayId={
                                                 selectedBarangay
+                                            }
+                                            year={
+                                                props.session?.cra_year || null
                                             }
                                         />
                                     </div>

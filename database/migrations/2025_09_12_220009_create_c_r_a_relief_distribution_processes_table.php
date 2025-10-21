@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('origin_of_goods', 150)->nullable(); // LGU, NGO, private, etc.
             $table->text('remarks')->nullable();
             $table->timestamps();
-            $table->unique(['barangay_id', 'step_no'], 'cra_relief_process_unique');
+            $table->unique(['barangay_id', 'step_no', 'cra_id'], 'cra_relief_process_unique');
         });
     }
 

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('lgbtq_without_disability')->default(0);
             $table->integer('lgbtq_with_disability')->default(0);
              $table->timestamps();
-            $table->unique(['barangay_id', 'age_group']); // 👈 required for upsert
+            $table->unique(['barangay_id', 'age_group', 'cra_id']); // 👈 required for upsert
             $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('cascade');
         });
     }

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Short unique index name
-            $table->unique(['barangay_id', 'disaster_id', 'category'], 'cra_dis_pop_unique');
+            $table->unique(['barangay_id', 'disaster_id', 'category', 'cra_id'], 'cra_dis_pop_unique');
         });
     }
 

@@ -24,7 +24,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Unique constraint for upsert
-            $table->unique(['barangay_id', 'item_name'], 'cra_inventory_unique');
+            $table->unique(['barangay_id', 'item_name', 'cra_id'], 'cra_inventory_unique');
         });
     }
 

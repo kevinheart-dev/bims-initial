@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('registered')->default('NO');
             $table->text('programs_services')->nullable();
             $table->timestamps();
-            $table->unique(['barangay_id', 'name']); // 👈 required
+            $table->unique(['barangay_id', 'name', 'cra_id']); // 👈 required
             $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('cascade');
         });
     }

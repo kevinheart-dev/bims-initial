@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Unique constraint to avoid duplicates per barangay + purok + indicator
-            $table->unique(['barangay_id', 'purok_number', 'indicator'], 'unique_family_risk');
+            $table->unique(['barangay_id', 'purok_number', 'indicator', 'cra_id'], 'unique_family_risk');
         });
     }
 

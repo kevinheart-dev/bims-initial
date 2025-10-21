@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('ownership_type');
             $table->integer('quantity')->default(0);
             $table->timestamps();
-            $table->unique(['barangay_id', 'ownership_type']); // 👈 required
+            $table->unique(['barangay_id', 'ownership_type', 'cra_id']); // 👈 required
             $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('cascade');
         });
     }

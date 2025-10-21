@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('transpo_type');
             $table->integer('quantity')->default(0);
             $table->timestamps();
-            $table->unique(['barangay_id', 'transpo_type']); // 👈 required
+            $table->unique(['barangay_id', 'transpo_type', 'cra_id'], 'cra_transpo_unique');
             $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('cascade');
         });
     }

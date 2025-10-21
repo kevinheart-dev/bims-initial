@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('source', 100)->nullable();
             $table->timestamps();
             $table->unique(
-    ['barangay_id', 'disaster_id', 'effect_type'],
+    ['barangay_id', 'disaster_id', 'effect_type', 'cra_id'],
                 'cra_dis_eff_unique'
             );
         });

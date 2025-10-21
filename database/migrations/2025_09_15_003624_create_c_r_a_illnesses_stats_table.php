@@ -24,7 +24,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['barangay_id', 'illness'], 'unique_illness_barangay');
+            $table->unique(['barangay_id', 'illness', 'cra_id'], 'unique_illness_barangay');
         });
     }
 

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('length_km', 8, 2)->default(0);
             $table->string('maintained_by')->nullable();
             $table->timestamps();
-            $table->unique(['barangay_id', 'road_type']); // 👈 required
+            $table->unique(['barangay_id', 'road_type', 'cra_id']); // 👈 required
             $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('cascade');
         });
     }

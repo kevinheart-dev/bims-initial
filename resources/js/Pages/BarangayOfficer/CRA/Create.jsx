@@ -55,18 +55,19 @@ export default function Index({ progress }) {
     const [errors, setErrors] = useState({});
 
     const searchParams = new URLSearchParams(window.location.search);
-    const yearFromUrl = searchParams.get("year");
-    const [year, setYear] = useState(yearFromUrl || "");
+    const yearFromUrl = searchParams.get("year") || "";
+    const [year, setYear] = useState(yearFromUrl);
 
     useEffect(() => {
-        if (year && !craData.year) {
+        // Update craData.year whenever the URL year changes
+        if (year && year !== craData.year) {
             setCraData((prev) => ({
                 ...prev,
                 year: year,
             }));
-            console.log("Year stored in craData:", year);
+            console.log("Year updated in craData:", year);
         }
-    }, [year]);
+    }, [year, craData.year]);
 
     const steps = [
         "Barangay Resource Profile ",

@@ -38,7 +38,7 @@ return new class extends Migration
 
             $table->timestamps();
             $table->unique(
-    ['barangay_id', 'hazard_id', 'purok_number'],
+    ['barangay_id', 'hazard_id', 'purok_number', 'cra_id'],
                 'cra_dis_risk_pop_unique' // short & descriptive
             );
         });

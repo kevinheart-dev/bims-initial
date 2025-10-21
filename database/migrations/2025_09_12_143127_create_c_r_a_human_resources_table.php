@@ -24,7 +24,10 @@ return new class extends Migration
             $table->integer('lgbtq_without_disability')->default(0);
             $table->integer('lgbtq_with_disability')->default(0);
             $table->timestamps();
-            $table->unique(['barangay_id', 'category', 'resource_name']); // 👈 required for upsert
+            $table->unique(
+                ['barangay_id', 'category', 'resource_name', 'cra_id'],
+                'cra_humanres_unique' // <- short, under 64 chars
+            );
             $table->foreign('barangay_id')
                 ->references('id')
                 ->on('barangays')

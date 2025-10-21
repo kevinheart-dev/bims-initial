@@ -59,7 +59,7 @@ return new class extends Migration
             $table->integer('pregnant_women')->default(0);
             $table->timestamps();
             $table->unique(
-    ['hazard_id', 'barangay_id', 'purok_number'],
+    ['hazard_id', 'barangay_id', 'purok_number', 'cra_id'],
                 'cra_pop_exposure_unique' // <-- short, descriptive name
             );
         });

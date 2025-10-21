@@ -345,6 +345,7 @@ class CRAController extends Controller
             //dd($data);
             $year = $data['year'] ?? session('cra_year');
             $cra = CommunityRiskAssessment::where('year', $year)->first();
+            //dd($year);
 
             //*================= Barangay Resource Profile =================*//
             $this->saveGeneralPopulation($brgy_id, $data, $cra);
@@ -468,7 +469,7 @@ class CRAController extends Controller
                 ['percentage' => $progressReport['percentage'], 'submitted_at' => now()]
             );
 
-            dd("Saved Successfully 🚀 CRA Progress: { $progressReport[percentage]}%");
+            //dd("Saved Successfully 🚀 CRA Progress: { $progressReport[percentage]}%");
             return redirect()->route('cra.dashboard')->with('success', 'Community Risk Assessment (CRA) saved successfully!');
 
         } catch (\Throwable $e) {
@@ -480,71 +481,71 @@ class CRAController extends Controller
     public function craProgress(Request $request)
     {
         try {
-            // 🔹 1️⃣ Validate and get year from query
-            $year = $request->query('year');
+            // 🔹 1️⃣ Determine the year
+            $year = $request->query('year') ?? session('cra_year');
 
             if (!$year) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Year parameter is required (e.g. ?year=2025).',
+                    'message' => 'Year parameter is required (e.g. ?year=2025) or must be stored in session.',
                 ], 400);
             }
 
-            // 🔹 2️⃣ Find latest CRA record for the given year
-            $cra = CommunityRiskAssessment::where('year', $year)
-                ->latest()
-                ->first();
+            // Optionally store in session for later reuse
+            session(['cra_year' => $year]);
+
+            // 🔹 2️⃣ Fetch the CRA record for that year
+            $cra = CommunityRiskAssessment::where('year', $year)->first();
 
             if (!$cra) {
                 return response()->json([
                     'success' => true,
                     'data' => [
-                        'cra_id' => null,
-                        'percentage' => 0,
-                        'status' => 'Not started',
-                        'submitted_at' => null,
-                        'last_updated' => null,
-                    ]
+                        'year' => $year,
+                        'barangays' => [],
+                        'message' => 'No CRA record found for this year.',
+                    ],
                 ]);
             }
 
-            // 🔹 3️⃣ Find latest CRA progress record for this CRA
-            $progress = CRAProgress::where('cra_id', $cra->id)
-                ->latest()
-                ->first();
+            // 🔹 3️⃣ Get all barangays
+            $barangays = Barangay::select('id', 'barangay_name')->get();
 
-            // 🔹 4️⃣ Prepare progress data
-            $progressData = $progress
-                ? [
-                    'cra_id' => $progress->cra_id,
-                    'percentage' => (float) $progress->percentage,
-                    'status' => $progress->percentage >= 100 ? 'Completed' : 'In Progress',
-                    'submitted_at' => $progress->submitted_at
-                        ? \Carbon\Carbon::parse($progress->submitted_at)->toDateTimeString()
-                        : null,
-                    'last_updated' => \Carbon\Carbon::parse($progress->updated_at)->toDateTimeString(),
-                ]
-                : [
-                    'cra_id' => $cra->id,
-                    'percentage' => 0,
-                    'status' => 'Not started',
-                    'submitted_at' => null,
-                    'last_updated' => null,
+            // 🔹 4️⃣ Attach progress for each barangay
+            $barangaysWithProgress = $barangays->map(function ($brgy) use ($cra) {
+                $progress = CRAProgress::where('cra_id', $cra->id)
+                    ->where('barangay_id', $brgy->id)
+                    ->latest()
+                    ->first();
+
+                return [
+                    'id' => $brgy->id,
+                    'barangay_name' => $brgy->barangay_name,
+                    'cra_progress' => $progress ? (float) $progress->percentage : 0,
+                    'status' => $progress
+                        ? ($progress->percentage >= 100 ? 'Completed' : 'In Progress')
+                        : 'Not started',
                 ];
+            });
 
-            // 🔹 5️⃣ Return JSON for Axios
+            // 🔹 5️⃣ Return filtered response
             return response()->json([
                 'success' => true,
-                'data' => $progressData,
+                'data' => [
+                    'year' => $cra->year,
+                    'cra_id' => $cra->id,
+                    'barangays' => $barangaysWithProgress,
+                ],
             ]);
         } catch (\Exception $e) {
-            // 🔹 6️⃣ Handle unexpected errors
+            // 🔹 6️⃣ Catch errors
             return response()->json([
                 'success' => false,
-                'message' => 'Error fetching CRA progress: ' . $e->getMessage(),
+                'message' => 'Error fetching CRA data: ' . $e->getMessage(),
             ], 500);
         }
     }
+
 
     //* ==================== PRIVATE HELPER METHODS ==================== *//
     private function saveGeneralPopulation($brgy_id, $data, $cra)
@@ -579,7 +580,6 @@ class CRAController extends Controller
     }
     private function savePopulationAgeGroup($brgy_id, $data, $cra) {
         $rows = [];
-
         foreach ($data as $item) {
             $rows[] = [
                 'barangay_id'               => $brgy_id,
@@ -594,20 +594,21 @@ class CRAController extends Controller
             ];
         }
 
-        if (!empty($rows)) {
-            CRAPopulationAgeGroup::upsert(
-                $rows,
-                ['barangay_id', 'age_group', 'cra_id'], // unique keys
-                [
-                    'male_without_disability',
-                    'male_with_disability',
-                    'female_without_disability',
-                    'female_with_disability',
-                    'lgbtq_without_disability',
-                    'lgbtq_with_disability',
-                ] // fields to update
-            );
-        }
+    if (!empty($rows)) {
+        CRAPopulationAgeGroup::upsert(
+            $rows,
+            ['barangay_id', 'age_group', 'cra_id'], // unique keys
+            [
+                'male_without_disability',
+                'male_with_disability',
+                'female_without_disability',
+                'female_with_disability',
+                'lgbtq_without_disability',
+                'lgbtq_with_disability',
+                'updated_at', // optional: update timestamp
+            ]
+        );
+    }
     }
     private function saveLivelihood($brgy_id, $data, $cra) {
         $rows = [];

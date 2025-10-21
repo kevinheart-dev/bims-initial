@@ -31,7 +31,7 @@ return new class extends Migration
             $table->text('livelihood')->nullable();
 
             $table->timestamps();
-             $table->unique(['barangay_id', 'hazard_id', 'matrix_type'], 'cra_assess_matrix_unique');
+            $table->unique(['barangay_id', 'hazard_id', 'matrix_type', 'cra_id'], 'cra_assess_matrix_unique');
         });
     }
 

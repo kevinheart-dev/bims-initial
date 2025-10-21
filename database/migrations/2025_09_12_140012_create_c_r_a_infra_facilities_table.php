@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('cascade');
 
             // Short unique index name
-            $table->unique(['barangay_id', 'category', 'infrastructure_name'], 'cra_infra_unique');
+            $table->unique(['barangay_id', 'category', 'infrastructure_name', 'cra_id'], 'cra_infra_unique');
         });
     }
 

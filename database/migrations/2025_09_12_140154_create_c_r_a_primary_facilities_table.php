@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('facility_name');
             $table->integer('quantity')->default(0);
             $table->timestamps();
-            $table->unique(['barangay_id', 'facility_name']); // 👈 required
+            $table->unique(['barangay_id', 'facility_name', 'cra_id']); // 👈 required
             $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('cascade');
         });
     }

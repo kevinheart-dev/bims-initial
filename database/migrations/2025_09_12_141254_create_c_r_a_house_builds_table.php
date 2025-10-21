@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('one_floor')->default(0);
             $table->integer('two_or_more_floors')->default(0);
             $table->timestamps();
-            $table->unique(['barangay_id', 'house_type']); // 👈 required
+            $table->unique(['barangay_id', 'house_type', 'cra_id']); // 👈 required
             $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('cascade');
         });
     }

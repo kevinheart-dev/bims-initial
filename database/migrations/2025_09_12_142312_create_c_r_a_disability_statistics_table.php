@@ -47,7 +47,7 @@ return new class extends Migration
             $table->integer('age_60up_lgbtq')->default(0);
 
             $table->timestamps();
-            $table->unique(['barangay_id', 'disability_type'], 'cra_disability_unique');
+            $table->unique(['barangay_id', 'disability_type', 'cra_id'], 'cra_disability_unique');
         });
     }
 
