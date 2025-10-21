@@ -11,8 +11,9 @@ import Hazard from "@/Components/CRAsteps/Step3/Hazard";
 import Calamities from "@/Components/CRAsteps/Step2/Calamities";
 import InventoryEvacuation from "@/Components/CRAsteps/Step4/InventoryEvacuation";
 import DisasterReadiness from "@/Components/CRAsteps/Step5/DisasterReadiness";
+import { Progress } from "@/Components/ui/progress";
 
-export default function Index() {
+export default function Index({ progress }) {
     const breadcrumbs = [
         { label: "Community Risk Assessment (CRA)", showOnMobile: false },
     ];
@@ -26,13 +27,13 @@ export default function Index() {
             return saved
                 ? JSON.parse(saved)
                 : {
-                    population: [],
-                    livelihood: [],
-                    infrastructure: [],
-                    institutions: [],
-                    hazards: [],
-                    evacuation: [],
-                };
+                      population: [],
+                      livelihood: [],
+                      infrastructure: [],
+                      institutions: [],
+                      hazards: [],
+                      evacuation: [],
+                  };
         } catch (err) {
             console.error("Error loading draft:", err);
             return {
@@ -53,11 +54,9 @@ export default function Index() {
     const [finalData, setFinalData] = useState([]);
     const [errors, setErrors] = useState({});
 
-
     const searchParams = new URLSearchParams(window.location.search);
     const yearFromUrl = searchParams.get("year");
     const [year, setYear] = useState(yearFromUrl || "");
-
 
     useEffect(() => {
         if (year && !craData.year) {
@@ -140,13 +139,65 @@ export default function Index() {
 
             <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 mt-6">
                 <div className="text-left mb-6">
-                    <h1 className="text-2xl font-bold text-gray-800">
-                        Community Risk Assessment (CRA)
-                    </h1>
-                    <p className="text-gray-600 mt-1">
-                        Step-by-step process for evaluating barangay resources,
-                        hazards, and disaster readiness
-                    </p>
+                    {/* Header + Progress Side by Side */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        {/* Title and Description */}
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-800">
+                                Community Risk Assessment (CRA)
+                            </h1>
+                            <p className="text-gray-600 mt-1">
+                                Step-by-step process for evaluating barangay
+                                resources, hazards, and disaster readiness
+                            </p>
+                        </div>
+
+                        {/* Compact Progress Section */}
+                        <div className="bg-gray-50 rounded-lg p-3 shadow-sm border border-gray-200 w-full sm:w-64">
+                            <div className="flex justify-between items-center mb-1">
+                                <h2 className="text-xs font-medium text-gray-700">
+                                    Overall Progress
+                                </h2>
+                                <span className="text-xs font-semibold text-gray-900">
+                                    {progress?.percentage ?? 0}%
+                                </span>
+                            </div>
+
+                            {/* Small Progress Bar */}
+                            <div className="relative w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                <div
+                                    className="absolute top-0 left-0 h-full rounded-full transition-all duration-500 ease-in-out"
+                                    style={{
+                                        width: `${progress?.percentage ?? 0}%`,
+                                        background:
+                                            progress?.percentage >= 100
+                                                ? "linear-gradient(to right, #16a34a, #22c55e)" // green
+                                                : "linear-gradient(to right, #3b82f6, #60a5fa)", // blue
+                                    }}
+                                ></div>
+                            </div>
+
+                            {/* Timestamps */}
+                            <div className="mt-1">
+                                <p className="text-[10px] text-gray-600">
+                                    <span className="font-medium">Status:</span>{" "}
+                                    {progress?.status ?? "Not started"}
+                                </p>
+
+                                {progress?.submitted_at && (
+                                    <p className="text-[10px] text-gray-500">
+                                        Submitted: {progress.submitted_at}
+                                    </p>
+                                )}
+
+                                {progress?.last_updated && (
+                                    <p className="text-[10px] text-gray-500">
+                                        Updated: {progress.last_updated}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="bg-blue-100 rounded-t-xl px-2 sm:px-6 lg:px-8 py-2 border-gray-200 shadow-lg flex justify-between items-center">

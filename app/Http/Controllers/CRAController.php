@@ -40,10 +40,12 @@ use App\Models\CRAPopulationExposure;
 use App\Models\CRAPopulationGender;
 use App\Models\CRAPrepositionedInventory;
 use App\Models\CRAPrimaryFacility;
+use App\Models\CRAProgress;
 use App\Models\CRAPublicTransportation;
 use App\Models\CRAReliefDistribution;
 use App\Models\CRAReliefDistributionProcess;
 use App\Models\CRARoadNetwork;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -54,10 +56,284 @@ class CRAController extends Controller
     {
         dd('yes');
     }
-    public function create()
+    public function create(Request $request)
     {
-        // here to code kvin ramos
-        return Inertia::render("BarangayOfficer/CRA/Create");
+        try {
+            $user = auth()->user();
+            $barangay_id = $user->barangay_id ?? null;
+
+            if (!$barangay_id) {
+                return Inertia::render("BarangayOfficer/CRA/Create", [
+                    'progress' => null,
+                    'error' => 'Barangay not found for this user.'
+                ]);
+            }
+
+            // 🔹 Get the year from the query string (?year=2025)
+            $year = $request->query('year');
+
+            // 🔹 Find CRA record by year (if provided), otherwise latest
+            $craQuery = CommunityRiskAssessment::query();
+            $cra = $year
+                ? $craQuery->where('year', $year)->first()
+                : $craQuery->latest('year')->first();
+
+            if (!$cra) {
+                return Inertia::render("BarangayOfficer/CRA/Create", [
+                    'progress' => [
+                        'barangay_id' => $barangay_id,
+                        'cra_id' => null,
+                        'percentage' => 0,
+                        'status' => 'Not started',
+                        'submitted_at' => null,
+                        'last_updated' => null,
+                    ],
+                    'error' => $year
+                        ? "No CRA record found for the year {$year}."
+                        : "No Community Risk Assessments available yet.",
+                ]);
+            }
+
+            // 🔹 Fetch CRA progress
+            $progress = CRAProgress::where('barangay_id', $barangay_id)
+                ->where('cra_id', $cra->id)
+                ->latest()
+                ->first();
+
+            $progressData = $progress
+                ? [
+                    'barangay_id' => $progress->barangay_id,
+                    'cra_id' => $progress->cra_id,
+                    'percentage' => (float) $progress->percentage,
+                    'status' => $progress->percentage >= 100 ? 'Completed' : 'In Progress',
+                    'submitted_at' => $progress->submitted_at
+                        ? Carbon::parse($progress->submitted_at)->toDateTimeString()
+                        : null,
+                    'last_updated' => $progress->updated_at
+                        ? Carbon::parse($progress->updated_at)->toDateTimeString()
+                        : null,
+                ]
+                : [
+                    'barangay_id' => $barangay_id,
+                    'cra_id' => $cra->id,
+                    'percentage' => 0,
+                    'status' => 'Not started',
+                    'submitted_at' => null,
+                    'last_updated' => null,
+                ];
+
+            return Inertia::render("BarangayOfficer/CRA/Create", [
+                'progress' => $progressData,
+                'year' => $cra->year,
+            ]);
+        } catch (\Exception $e) {
+            return Inertia::render("BarangayOfficer/CRA/Create", [
+                'progress' => null,
+                'error' => 'Error fetching CRA progress: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Compute a detailed CRA completion percentage.
+     *
+     * @param array $data  The request payload (all CRA sections)
+     * @param array|null $weights Optional associative array of weights per section (sum not required)
+     * @return array  ['percentage' => float, 'details' => [...], 'filled_weight' => float, 'total_weight' => float]
+     */
+    private function computeProgress(array $data, ?array $weights = null): array
+    {
+        // --- Define section checkers: each returns float between 0 and 1 ---
+        // Add or modify checkers to match the exact structure of your incoming data
+        $checkers = [
+
+            'barangayPopulation' => function ($d) {
+                if (empty($d)) return ['score' => 0.0, 'info' => 'empty'];
+                $nonEmptyCount = count(array_filter($d, fn($v) => !empty($v)));
+                $totalKeys = count($d);
+                $score = $totalKeys > 0 ? $nonEmptyCount / $totalKeys : 0;
+                return ['score' => $score, 'info' => "$nonEmptyCount of $totalKeys fields"];
+            },
+
+            // populationGender: expect array with sexes or totals
+            'populationGender' => function ($d) {
+                // if it's an array of groups, consider proportion of groups with counts
+                if (empty($d) || !is_array($d)) {
+                    return ['score' => 0.0, 'info' => 'empty'];
+                }
+                // if structure is like ['male' => x, 'female' => y, 'lgbtq' => z] or array of rows
+                if (isset($d['male']) || isset($d['female']) || isset($d['lgbtq'])) {
+                    $expected = ['male', 'female', 'lgbtq'];
+                    $found = 0;
+                    foreach ($expected as $k) {
+                        if (!empty($d[$k])) $found++;
+                    }
+                    return ['score' => $found / count($expected), 'info' => "$found of " . count($expected) . " genders"];
+                }
+                // else if array of rows, count how many rows have totals
+                $rows = collect($d);
+                if ($rows->isEmpty()) return ['score' => 0.0, 'info' => 'no rows'];
+                $valid = $rows->filter(fn($r) => !empty($r['total'] ?? $r['count'] ?? null))->count();
+                return ['score' => $valid / $rows->count(), 'info' => "$valid of {$rows->count()} rows"];
+            },
+
+            // population age groups (array of age groups) — proportion of groups filled
+            'population' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+                $rows = collect($d);
+                $valid = $rows->filter(fn($r) => !empty($r['count'] ?? null))->count();
+                return ['score' => $valid / $rows->count(), 'info' => "$valid of {$rows->count()} groups"];
+            },
+
+            // simple presence checks for list-type sections (fully complete if array non-empty)
+            'livelihood' => function ($d) {
+                if (empty($d)) return ['score' => 0.0, 'info' => 'empty'];
+                $count = count($d);
+                $score = min($count / 5, 1.0); // up to 5 entries = full score
+                return ['score' => $score, 'info' => "$count livelihoods"];
+            },
+            'infrastructure' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+            'houses' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+            'ownership' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+            'buildings' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+            'facilities' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+            'institutions' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+
+            // human_resources is usually an array of rows — compute proportion of resources that have totals
+            'human_resources' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+                $rows = collect($d);
+                $valid = $rows->filter(fn($r) => !empty($r['resource_name'] ?? null))->count();
+                return ['score' => $valid / $rows->count(), 'info' => "$valid of {$rows->count()} resources"];
+            },
+
+            // calamities / disaster history — proportion of entries that have at least date OR impact details
+            'calamities' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+                $rows = collect($d);
+                $valid = $rows->filter(fn($r) => !empty($r['date'] ?? null) || !empty($r['impact'] ?? null))->count();
+                return ['score' => $valid / $rows->count(), 'info' => "$valid of {$rows->count()} records"];
+            },
+
+            // hazards: count how many hazards exist and if risk numbers exist for each
+            'hazards' => function ($d) {
+                if (empty($d)) return ['score' => 0.0, 'info' => 'empty'];
+                $rows = collect($d);
+                $valid = $rows->filter(fn($r) =>
+                    !empty($r['probability'] ?? null) ||
+                    !empty($r['effect'] ?? null) ||
+                    !empty($r['management'] ?? null)
+                )->count();
+                return ['score' => $rows->isEmpty() ? 0.0 : $valid / $rows->count(), 'info' => "$valid of {$rows->count()} hazards"];
+            },
+
+            'exposure' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+            'pwd' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+
+            // disaster_per_purok: expect array of disasters with rows per purok
+            'disaster_per_purok' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+                $disasters = collect($d);
+                $scores = $disasters->map(function ($dis) {
+                    $rows = collect($dis['rows'] ?? []);
+                    if ($rows->isEmpty()) return 0.0;
+                    $valid = $rows->filter(fn($r) => !empty($r['lowFamilies'] ?? null || $r['lowIndividuals'] ?? null || $r['highFamilies'] ?? null))->count();
+                    return $valid / $rows->count();
+                });
+                return ['score' => $scores->avg() ?? 0.0, 'info' => "{$disasters->count()} disasters averaged"];
+            },
+
+            'illnesses' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+
+            'evacuation_list' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+                $rows = collect($d);
+                $valid = $rows->filter(fn($r) => !empty($r['name'] ?? null) && !empty($r['capacity'] ?? null))->count();
+                return ['score' => $rows->isEmpty() ? 0.0 : $valid / $rows->count(), 'info' => "$valid of {$rows->count()} centers have name+capacity"];
+            },
+
+            'evacuation_center_inventory' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+            'affected_areas' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+            'livelihood_evacuation' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+            'food_inventory' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+            'relief_goods' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+
+            'distribution_process' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+            'trainings_inventory' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+                $rows = collect($d);
+                $valid = $rows->filter(fn($r) => !empty($r['title'] ?? null))->count();
+                return ['score' => $rows->isEmpty() ? 0.0 : $valid / $rows->count(), 'info' => "$valid of {$rows->count()} trainings"];
+            },
+            'bdrrmc_directory' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+                $rows = collect($d);
+                $valid = $rows->filter(fn($r) => !empty($r['designation'] ?? null) && !empty($r['name'] ?? null))->count();
+                return ['score' => $rows->isEmpty() ? 0.0 : $valid / $rows->count(), 'info' => "$valid of {$rows->count()} directory entries"];
+            },
+            'equipment_inventory' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+            'evacuation_plan' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+        ];
+
+        // --- Default sections to evaluate (order matches your earlier list) ---
+        $sections = array_keys($checkers);
+
+        // --- Default equal weights unless provided ---
+        $weights = $weights ?? array_fill_keys($sections, 1);
+
+        // Validate weights: ensure all sections have a weight
+        foreach ($sections as $s) {
+            if (!isset($weights[$s]) || !is_numeric($weights[$s]) || $weights[$s] < 0) {
+                $weights[$s] = 1;
+            }
+        }
+
+        // --- Evaluate each section ---
+        $detailList = [];
+        $filledWeight = 0.0;
+        $totalWeight = 0.0;
+
+        foreach ($data as $key => $value) {
+            // Keep 0, false, and non-empty strings as-is (valid scalar data)
+            if (is_null($value) || $value === '') {
+                $data[$key] = [];
+            } elseif (!is_array($value)) {
+                // Wrap other scalar values (like integers, 0, etc.) into arrays
+                $data[$key] = [$value];
+            }
+        }
+
+        foreach ($sections as $s) {
+            $checker = $checkers[$s] ?? fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')];
+            $sectionData = $data[$s] ?? null;
+
+            // run checker and normalize score
+            $result = $checker($sectionData);
+            $score = isset($result['score']) ? (float) max(0, min(1, $result['score'])) : 0.0;
+            $info = $result['info'] ?? '';
+
+            $w = (float) $weights[$s];
+            $filledWeight += $score * $w;
+            $totalWeight += $w;
+
+            $detailList[$s] = [
+                'score' => round($score * 100, 2), // percent for this section
+                'weight' => $w,
+                'weighted_score' => round($score * $w * 100, 2),
+                'info' => $info,
+            ];
+        }
+
+        // --- final percentage (weighted) ---
+        $percentage = $totalWeight > 0 ? ($filledWeight / $totalWeight) * 100 : 0.0;
+        $percentage = round($percentage, 2);
+
+        return [
+            'percentage' => $percentage,
+            'details' => $detailList,
+            'filled_weight' => round($filledWeight, 4),
+            'total_weight' => round($totalWeight, 4),
+        ];
     }
 
     public function store(CRAStoreRequest $request)
@@ -184,12 +460,89 @@ class CRAController extends Controller
 
 
             DB::commit();
-            dd("Saved Successfully 🚀");
+            $progressReport = $this->computeProgress($data);
+
+            // Save numeric percentage to DB (make sure your column can hold 100)
+            CRAProgress::updateOrCreate(
+                ['barangay_id' => $brgy_id, 'cra_id' => $cra->id],
+                ['percentage' => $progressReport['percentage'], 'submitted_at' => now()]
+            );
+
+            dd("Saved Successfully 🚀 CRA Progress: { $progressReport[percentage]}%");
             return redirect()->route('cra.dashboard')->with('success', 'Community Risk Assessment (CRA) saved successfully!');
 
         } catch (\Throwable $e) {
             DB::rollBack();
             dd('error: ' . $e->getMessage());
+        }
+    }
+
+    public function craProgress(Request $request)
+    {
+        try {
+            // 🔹 1️⃣ Validate and get year from query
+            $year = $request->query('year');
+
+            if (!$year) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Year parameter is required (e.g. ?year=2025).',
+                ], 400);
+            }
+
+            // 🔹 2️⃣ Find latest CRA record for the given year
+            $cra = CommunityRiskAssessment::where('year', $year)
+                ->latest()
+                ->first();
+
+            if (!$cra) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'cra_id' => null,
+                        'percentage' => 0,
+                        'status' => 'Not started',
+                        'submitted_at' => null,
+                        'last_updated' => null,
+                    ]
+                ]);
+            }
+
+            // 🔹 3️⃣ Find latest CRA progress record for this CRA
+            $progress = CRAProgress::where('cra_id', $cra->id)
+                ->latest()
+                ->first();
+
+            // 🔹 4️⃣ Prepare progress data
+            $progressData = $progress
+                ? [
+                    'cra_id' => $progress->cra_id,
+                    'percentage' => (float) $progress->percentage,
+                    'status' => $progress->percentage >= 100 ? 'Completed' : 'In Progress',
+                    'submitted_at' => $progress->submitted_at
+                        ? \Carbon\Carbon::parse($progress->submitted_at)->toDateTimeString()
+                        : null,
+                    'last_updated' => \Carbon\Carbon::parse($progress->updated_at)->toDateTimeString(),
+                ]
+                : [
+                    'cra_id' => $cra->id,
+                    'percentage' => 0,
+                    'status' => 'Not started',
+                    'submitted_at' => null,
+                    'last_updated' => null,
+                ];
+
+            // 🔹 5️⃣ Return JSON for Axios
+            return response()->json([
+                'success' => true,
+                'data' => $progressData,
+            ]);
+        } catch (\Exception $e) {
+            // 🔹 6️⃣ Handle unexpected errors
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching CRA progress: ' . $e->getMessage(),
+            ], 500);
         }
     }
 

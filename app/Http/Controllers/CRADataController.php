@@ -28,9 +28,34 @@ class CRADataController extends Controller
 {
     public function getCRA()
     {
-        return response()->json(
-            CommunityRiskAssessment::select('id', 'year')->get()
-        );
+        try {
+            // 🔹 Fetch all CRA records
+            $cras = CommunityRiskAssessment::select('id', 'year')->get();
+
+            // 🔹 For each CRA, attach its latest progress percentage
+            $crasWithProgress = $cras->map(function ($cra) {
+                $progress = \App\Models\CRAProgress::where('cra_id', $cra->id)
+                    ->latest()
+                    ->first();
+
+                $cra->percentage = $progress ? (float) $progress->percentage : 0;
+                $cra->status = $progress
+                    ? ($progress->percentage >= 100 ? 'Completed' : 'In Progress')
+                    : 'Not started';
+
+                return $cra;
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $crasWithProgress,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching CRA list: ' . $e->getMessage(),
+            ], 500);
+        }
     }
     public function addCRA(Request $request)
     {

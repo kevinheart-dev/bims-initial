@@ -68,6 +68,7 @@ export function AppSidebar({ auth }) {
     const fetchedRef = useRef(false);
     const defaultLogo = "/images/city-of-ilagan.png";
     const [craList, setCraList] = useState([]);
+    const [craProgress, setCraProgress] = useState({});
 
     useEffect(() => {
         if (
@@ -80,7 +81,8 @@ export function AppSidebar({ auth }) {
         const fetchCRAList = async () => {
             try {
                 const res = await axios.get(`${APP_URL}/getCRA`);
-                setCraList(res.data); // expect [{id: 1, year: 2023}, {id: 2, year: 2024}]
+                const list = res.data?.data || []; // ✅ Access res.data.data
+                setCraList(list);
             } catch (err) {
                 console.error("Failed to fetch CRA list:", err);
             }
@@ -384,7 +386,6 @@ export function AppSidebar({ auth }) {
                     roles: ["cdrrmo_admin"],
                 },
             ],
-
         },
         {
             title: "Community Risk Assessment",
@@ -394,19 +395,21 @@ export function AppSidebar({ auth }) {
             submenu:
                 craList.length > 0
                     ? craList.map((cra) => ({
-                        title: `Submit CRA ${cra.year}`,
-                        url: `/cra/create?year=${cra.year}`,
-                        icon: FileInput,
-                        roles: ["barangay_officer", "admin"],
-                    }))
+                          title: `Submit CRA ${cra.year}`,
+                          url: `/cra/create?year=${cra.year}`,
+                          icon: FileInput,
+                          roles: ["barangay_officer", "admin"],
+                          year: cra.year, // ✅ store the year here
+                          progress: cra.percentage ?? 0, // ✅ direct percentage from backend
+                      }))
                     : [
-                        {
-                            title: "Loading years...",
-                            url: "#",
-                            icon: FileInput,
-                            roles: ["barangay_officer", "admin"],
-                        },
-                    ],
+                          {
+                              title: "Loading years...",
+                              url: "#",
+                              icon: FileInput,
+                              roles: ["barangay_officer", "admin"],
+                          },
+                      ],
         },
         {
             title: "CRA Settings",
@@ -499,7 +502,7 @@ export function AppSidebar({ auth }) {
                 const isDifferent =
                     !cachedDataWithoutTimestamp ||
                     JSON.stringify(cachedDataWithoutTimestamp) !==
-                    JSON.stringify(apiData);
+                        JSON.stringify(apiData);
 
                 if (isDifferent) {
                     // Update state
@@ -664,7 +667,8 @@ export function AppSidebar({ auth }) {
                                         >
                                             <a
                                                 href={item.url || "#"}
-                                                className={`flex items-center justify-between w-full my-1 px-2 py-2 rounded-lg transition-all duration-200 ${isActive(item.url) ||
+                                                className={`flex items-center justify-between w-full my-1 px-2 py-2 rounded-lg transition-all duration-200 ${
+                                                    isActive(item.url) ||
                                                     (item.submenu &&
                                                         item.submenu.some(
                                                             (sub) =>
@@ -672,9 +676,9 @@ export function AppSidebar({ auth }) {
                                                                     sub.url
                                                                 )
                                                         ))
-                                                    ? "text-gray-900 font-semibold"
-                                                    : "text-gray-700 hover:text-gray-900"
-                                                    }`}
+                                                        ? "text-gray-900 font-semibold"
+                                                        : "text-gray-700 hover:text-gray-900"
+                                                }`}
                                             >
                                                 <div className="flex items-center">
                                                     <item.icon className="mr-2 h-5 w-5" />
@@ -697,108 +701,219 @@ export function AppSidebar({ auth }) {
                                     {/* Submenu */}
                                     {item.submenu?.length > 0 && (
                                         <SidebarGroupContent
-                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${openIndex === index
-                                                ? "max-h-[1000px] opacity-100"
-                                                : "max-h-0 opacity-0"
-                                                }`}
+                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                                openIndex === index
+                                                    ? "max-h-[1000px] opacity-100"
+                                                    : "max-h-0 opacity-0"
+                                            }`}
                                         >
-                                            {/* Check if this is CRA Settings */}
-                                            {item.title === "CRA Settings" ? (
-                                                <div className="px-4 py-3">
-                                                    <label
-                                                        htmlFor="cra-year"
-                                                        className="block text-sm font-medium text-gray-600 mb-1"
-                                                    >
-                                                        Select Year
-                                                    </label>
-                                                    <select
-                                                        id="cra-year"
-                                                        name="cra-year"
-                                                        value={selectedYear}
-                                                        onChange={
-                                                            handleYearChange
-                                                        }
-                                                        className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    >
-                                                        <option
-                                                            value=""
-                                                            disabled
-                                                        >
-                                                            -- Select Year --
-                                                        </option>
-                                                        <option value="2024">
-                                                            2024
-                                                        </option>
+                                            {item.submenu?.length > 0 && (
+                                                <SidebarGroupContent
+                                                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                                        openIndex === index
+                                                            ? "max-h-[1000px] opacity-100"
+                                                            : "max-h-0 opacity-0"
+                                                    }`}
+                                                >
+                                                    {/* Check if this is CRA Settings */}
+                                                    {item.title ===
+                                                    "CRA Settings" ? (
+                                                        <div className="px-4 py-3">
+                                                            <label
+                                                                htmlFor="cra-year"
+                                                                className="block text-sm font-medium text-gray-600 mb-1"
+                                                            >
+                                                                Select Year
+                                                            </label>
+                                                            <select
+                                                                id="cra-year"
+                                                                name="cra-year"
+                                                                value={
+                                                                    selectedYear
+                                                                }
+                                                                onChange={
+                                                                    handleYearChange
+                                                                }
+                                                                className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                            >
+                                                                <option
+                                                                    value=""
+                                                                    disabled
+                                                                >
+                                                                    -- Select
+                                                                    Year --
+                                                                </option>
+                                                                <option value="2024">
+                                                                    2024
+                                                                </option>
 
-                                                        {craList.length > 0 ? (
-                                                            craList.map(
-                                                                (cra) => (
+                                                                {craList.length >
+                                                                0 ? (
+                                                                    craList.map(
+                                                                        (
+                                                                            cra
+                                                                        ) => (
+                                                                            <option
+                                                                                key={
+                                                                                    cra.id
+                                                                                }
+                                                                                value={
+                                                                                    cra.year
+                                                                                }
+                                                                            >
+                                                                                {
+                                                                                    cra.year
+                                                                                }
+                                                                            </option>
+                                                                        )
+                                                                    )
+                                                                ) : (
                                                                     <option
-                                                                        key={
-                                                                            cra.id
-                                                                        }
-                                                                        value={
-                                                                            cra.year
-                                                                        }
+                                                                        disabled
                                                                     >
-                                                                        {
-                                                                            cra.year
-                                                                        }
+                                                                        Loading
+                                                                        years...
                                                                     </option>
+                                                                )}
+                                                            </select>
+                                                            <button
+                                                                type="button"
+                                                                onClick={
+                                                                    handleAddCRA
+                                                                }
+                                                                className="mt-3 flex items-center gap-2 w-full justify-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-3 rounded-md transition-colors"
+                                                            >
+                                                                <Plus
+                                                                    size={16}
+                                                                />
+                                                                <span>
+                                                                    Add CRA
+                                                                </span>
+                                                            </button>
+                                                        </div>
+                                                    ) : item.title ===
+                                                      "Community Risk Assessment" ? (
+                                                        <div className="px-4 py-2">
+                                                            {item.submenu
+                                                                .filter((sub) =>
+                                                                    sub.roles.some(
+                                                                        (
+                                                                            role
+                                                                        ) =>
+                                                                            userRoles.includes(
+                                                                                role
+                                                                            )
+                                                                    )
+                                                                )
+                                                                .map((sub) => {
+                                                                    const percentage =
+                                                                        sub.progress ??
+                                                                        0;
+
+                                                                    return (
+                                                                        <div
+                                                                            key={
+                                                                                sub.title
+                                                                            }
+                                                                            className="mb-3"
+                                                                        >
+                                                                            <SidebarMenuItem>
+                                                                                <SidebarMenuButton
+                                                                                    asChild
+                                                                                >
+                                                                                    <a
+                                                                                        href={
+                                                                                            sub.url
+                                                                                        }
+                                                                                        className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${
+                                                                                            isActive(
+                                                                                                sub.url
+                                                                                            )
+                                                                                                ? "bg-gray-200 text-gray-900 font-semibold"
+                                                                                                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                                                                        }`}
+                                                                                    >
+                                                                                        <sub.icon className="mr-2 h-4 w-4" />
+                                                                                        <span>
+                                                                                            {
+                                                                                                sub.title
+                                                                                            }
+                                                                                        </span>
+                                                                                    </a>
+                                                                                </SidebarMenuButton>
+                                                                            </SidebarMenuItem>
+
+                                                                            {/* Progress bar */}
+                                                                            <div className="ml-10 mr-2">
+                                                                                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                                                    <div
+                                                                                        className={`h-2 rounded-full transition-all duration-500 ${
+                                                                                            percentage >=
+                                                                                            100
+                                                                                                ? "bg-green-500"
+                                                                                                : "bg-blue-500"
+                                                                                        }`}
+                                                                                        style={{
+                                                                                            width: `${percentage}%`,
+                                                                                        }}
+                                                                                    ></div>
+                                                                                </div>
+                                                                                <p className="text-xs text-gray-500 mt-1 text-right">
+                                                                                    {
+                                                                                        percentage
+                                                                                    }
+                                                                                    %
+                                                                                    Complete
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                        </div>
+                                                    ) : (
+                                                        // 🔸 Default submenu rendering
+                                                        item.submenu
+                                                            .filter((sub) =>
+                                                                sub.roles.some(
+                                                                    (role) =>
+                                                                        userRoles.includes(
+                                                                            role
+                                                                        )
                                                                 )
                                                             )
-                                                        ) : (
-                                                            <option disabled>
-                                                                Loading years...
-                                                            </option>
-                                                        )}
-                                                    </select>
-                                                    <button
-                                                        type="button"
-                                                        onClick={handleAddCRA}
-                                                        className="mt-3 flex items-center gap-2 w-full justify-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-3 rounded-md transition-colors"
-                                                    >
-                                                        <Plus size={16} />
-                                                        <span>Add CRA</span>
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                item.submenu
-                                                    .filter((sub) =>
-                                                        sub.roles.some((role) =>
-                                                            userRoles.includes(
-                                                                role
-                                                            )
-                                                        )
-                                                    )
-                                                    .map((sub) => (
-                                                        <SidebarMenuItem
-                                                            key={sub.title}
-                                                        >
-                                                            <SidebarMenuButton
-                                                                asChild
-                                                            >
-                                                                <a
-                                                                    href={
-                                                                        sub.url
+                                                            .map((sub) => (
+                                                                <SidebarMenuItem
+                                                                    key={
+                                                                        sub.title
                                                                     }
-                                                                    className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${isActive(
-                                                                        sub.url
-                                                                    )
-                                                                        ? "bg-gray-200 text-gray-900 font-semibold"
-                                                                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                                                                        }`}
                                                                 >
-                                                                    <sub.icon className="mr-2 h-4 w-4" />
-                                                                    <span>
-                                                                        {
-                                                                            sub.title
-                                                                        }
-                                                                    </span>
-                                                                </a>
-                                                            </SidebarMenuButton>
-                                                        </SidebarMenuItem>
-                                                    ))
+                                                                    <SidebarMenuButton
+                                                                        asChild
+                                                                    >
+                                                                        <a
+                                                                            href={
+                                                                                sub.url
+                                                                            }
+                                                                            className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${
+                                                                                isActive(
+                                                                                    sub.url
+                                                                                )
+                                                                                    ? "bg-gray-200 text-gray-900 font-semibold"
+                                                                                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                                                            }`}
+                                                                        >
+                                                                            <sub.icon className="mr-2 h-4 w-4" />
+                                                                            <span>
+                                                                                {
+                                                                                    sub.title
+                                                                                }
+                                                                            </span>
+                                                                        </a>
+                                                                    </SidebarMenuButton>
+                                                                </SidebarMenuItem>
+                                                            ))
+                                                    )}
+                                                </SidebarGroupContent>
                                             )}
                                         </SidebarGroupContent>
                                     )}

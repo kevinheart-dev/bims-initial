@@ -68,8 +68,8 @@ Route::get('/request-certificate', [UnauthenticatedIssuanceController::class, 'm
 Route::get('/request-certificate-documents/{id}', [UnauthenticatedIssuanceController::class, 'fetchDocuments'])->name('request.documents');
 Route::get('/request-certificate-placeholders/{id}', [DocumentController::class, 'fetchPlaceholders'])->name('request.placeholders');
 Route::post('/request-certificate/store', [UnauthenticatedIssuanceController::class, 'store'])->name('request.storerequest');
-Route::get('/getCRA', [CRADataController::class, 'getCRA'])->name('cdrrmo_admin.getcra');
-
+Route::get('/getCRA', [CRADataController::class, 'getCRA'])->name('getcra');
+Route::get('/craProgress', [CRAController::class, 'craProgress'])->name('craProgress');
 
 // Admin-only routes
 Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin'])->group(function () {
