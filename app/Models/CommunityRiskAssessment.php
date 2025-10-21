@@ -10,7 +10,6 @@ class CommunityRiskAssessment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'barangay_id',
         'year',
     ];
 

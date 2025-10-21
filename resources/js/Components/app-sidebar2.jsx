@@ -37,6 +37,8 @@ import {
     UserPen,
     Settings,
     SlidersHorizontal,
+    Plus,
+    Cloudy,
 } from "lucide-react";
 import {
     Sidebar,
@@ -55,317 +57,7 @@ import useAppUrl from "@/hooks/useAppUrl";
 import { useMemo } from "react";
 import { useRef } from "react";
 import { router } from "@inertiajs/react";
-
-const items = [
-    {
-        title: "Barangay Officer",
-        url: "/barangay_officer/dashboard",
-        icon: LayoutDashboard,
-        roles: ["barangay_officer"],
-    },
-    {
-        title: "CDRRMO Dashboard",
-        url: "/cdrrmo_admin/dashboard",
-        icon: LayoutDashboard,
-        roles: ["cdrrmo_admin"],
-    },
-    {
-        title: "Super Admin Dashboard",
-        url: "/super_admin/dashboard",
-        icon: LayoutDashboard,
-        roles: ["super_admin"],
-    },
-    {
-        title: "Admin Dashboard",
-        url: "/admin/dashboard",
-        icon: LayoutDashboard,
-        roles: ["admin"],
-    },
-    {
-        title: "Barangay Information",
-        icon: Home,
-        roles: ["barangay_officer", "admin"],
-        submenu: [
-            {
-                title: "Accounts",
-                url: "/user",
-                icon: CircleUser,
-                roles: ["admin"],
-            },
-            {
-                title: "Documents",
-                url: "/document",
-                icon: FileText,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Management",
-                url: "/barangay_management",
-                icon: Settings,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Profile",
-                url: "/barangay_profile",
-                icon: UserPen,
-                roles: ["admin"],
-            },
-        ],
-    },
-    {
-        title: "Residents Information",
-        icon: FileUser,
-        roles: ["barangay_officer", "admin"],
-        submenu: [
-            {
-                title: "Information Table",
-                url: "/resident",
-                icon: Table,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Senior Citizen",
-                url: "/senior_citizen",
-                icon: UsersRound,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Families",
-                url: "/family",
-                icon: SquareUserRound,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Households",
-                url: "/household",
-                icon: House,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Household Overview",
-                url: "/overview",
-                icon: UtilityPole,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Vehicles",
-                url: "/vehicle",
-                icon: CarFront,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Education",
-                url: "/education",
-                icon: GraduationCap,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Occupation/Livelihood",
-                url: "/occupation",
-                icon: BriefcaseBusiness,
-                roles: ["barangay_officer", "admin"],
-            },
-        ],
-    },
-    {
-        title: "Medical Information",
-        icon: HeartPulse,
-        roles: ["barangay_officer", "admin"],
-        submenu: [
-            {
-                title: "Information Table",
-                url: "/medical",
-                icon: Table,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Allergies",
-                url: "/allergy",
-                icon: Tablets,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Child Health Records",
-                url: "/child_record",
-                icon: Baby,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Medical Condition",
-                url: "/medical_condition",
-                icon: Stethoscope,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Disabilities",
-                url: "/disability",
-                icon: Accessibility,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Medications",
-                url: "/medication",
-                icon: Pill,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Pregnancy Records",
-                url: "/pregnancy",
-                icon: SquareActivity,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Vaccinations",
-                url: "/vaccination",
-                icon: Syringe,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Deaths",
-                url: "/death/index",
-                icon: PersonStanding,
-                roles: ["barangay_officer", "admin"],
-            },
-        ],
-    },
-    {
-        title: "Issuance",
-        icon: Files,
-        roles: ["barangay_officer", "admin"],
-        submenu: [
-            {
-                title: "Certificate Issuance",
-                url: "/certificate/index",
-                icon: FileText,
-                roles: ["barangay_officer", "admin"],
-            },
-        ],
-    },
-    {
-        title: "Katarungang Pambarangay",
-        icon: Scale,
-        roles: ["barangay_officer", "admin"],
-        submenu: [
-            {
-                title: "Blotter Reports",
-                url: "/blotter_report",
-                icon: ScrollText,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Summon",
-                url: "/summon",
-                icon: MessageSquareWarning,
-                roles: ["barangay_officer", "admin"],
-            },
-        ],
-    },
-    {
-        title: "Reports",
-        url: "/report",
-        icon: Flag,
-        roles: ["barangay_officer", "admin"],
-    },
-    {
-        title: "Summary",
-        icon: FileStack,
-        roles: ["cdrrmo_admin", "barangay_officer", "admin"],
-        submenu: [
-            {
-                title: "Barangay Information Table",
-                url: "/cra/dashboard",
-                icon: Table,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Create",
-                url: "/cra/create",
-                icon: Table,
-                roles: ["barangay_officer", "admin"],
-            },
-            {
-                title: "Population and Residence",
-                url: "/cdrrmo_admin/population",
-                icon: Table,
-                roles: ["cdrrmo_admin"],
-            },
-            {
-                title: "Livelihood Statistics",
-                url: "/cdrrmo_admin/livelihood",
-                icon: Table,
-                roles: ["cdrrmo_admin"],
-            },
-            {
-                title: "Household Services",
-                url: "/cdrrmo_admin/services",
-                icon: Table,
-                roles: ["cdrrmo_admin"],
-            },
-            {
-                title: "Buildings and other Infrastructures",
-                url: "/cdrrmo_admin/infraFacilities",
-                icon: Table,
-                roles: ["cdrrmo_admin"],
-            },
-            {
-                title: "Primary Facilities and Services ",
-                url: "/cdrrmo_admin/primaryFacilities",
-                icon: Table,
-                roles: ["cdrrmo_admin"],
-            },
-            {
-                title: "Inventory of Institutions",
-                url: "/cdrrmo_admin/institutions",
-                icon: Table,
-                roles: ["cdrrmo_admin"],
-            },
-            {
-                title: "Human Resources",
-                url: "/cdrrmo_admin/humanResources",
-                icon: Table,
-                roles: ["cdrrmo_admin"],
-            },
-            {
-                title: "Disaster Population Impact",
-                url: "/cdrrmo_admin/populationimpact",
-                icon: Table,
-                roles: ["cdrrmo_admin"],
-            },
-        ],
-    },
-    {
-        title: "CRA Settings",
-        icon: Settings,
-        roles: ["cdrrmo_admin"],
-        url: "#",
-        submenu: [
-            {
-                title: "Selectfield",
-                icon: SlidersHorizontal, // import this
-                url: "/cra/selectfield", // or your actual route
-                roles: ["cdrrmo_admin"], // make sure it matches your current user role
-            },
-        ],
-    },
-    {
-        title: "Certificate Issuance",
-        icon: FileStack,
-        roles: ["resident"],
-        url: "/account/certificates",
-    },
-    {
-        title: "Barangay Accounts",
-        url: "/super_admin/accounts",
-        icon: CircleUserRound,
-        roles: ["super_admin"],
-    },
-    {
-        title: "List of Barangays",
-        url: "/super_admin/barangay",
-        icon: LayoutList,
-        roles: ["super_admin"],
-    },
-];
+import { Toaster, toast } from "sonner";
 
 export function AppSidebar({ auth }) {
     const location = useLocation();
@@ -375,6 +67,348 @@ export function AppSidebar({ auth }) {
     const user = auth.user;
     const fetchedRef = useRef(false);
     const defaultLogo = "/images/city-of-ilagan.png";
+    const [craList, setCraList] = useState([]);
+
+    useEffect(() => {
+        if (
+            !["cdrrmo_admin", "barangay_officer", "admin"].some((role) =>
+                userRoles.includes(role)
+            )
+        )
+            return;
+
+        const fetchCRAList = async () => {
+            try {
+                const res = await axios.get(`${APP_URL}/getCRA`);
+                setCraList(res.data); // expect [{id: 1, year: 2023}, {id: 2, year: 2024}]
+            } catch (err) {
+                console.error("Failed to fetch CRA list:", err);
+            }
+        };
+
+        fetchCRAList();
+    }, []);
+
+    const items = [
+        {
+            title: "Barangay Officer",
+            url: "/barangay_officer/dashboard",
+            icon: LayoutDashboard,
+            roles: ["barangay_officer"],
+        },
+        {
+            title: "CDRRMO Dashboard",
+            url: "/cdrrmo_admin/dashboard",
+            icon: LayoutDashboard,
+            roles: ["cdrrmo_admin"],
+        },
+        {
+            title: "Super Admin Dashboard",
+            url: "/super_admin/dashboard",
+            icon: LayoutDashboard,
+            roles: ["super_admin"],
+        },
+        {
+            title: "Admin Dashboard",
+            url: "/admin/dashboard",
+            icon: LayoutDashboard,
+            roles: ["admin"],
+        },
+        {
+            title: "Barangay Information",
+            icon: Home,
+            roles: ["barangay_officer", "admin"],
+            submenu: [
+                {
+                    title: "Accounts",
+                    url: "/user",
+                    icon: CircleUser,
+                    roles: ["admin"],
+                },
+                {
+                    title: "Documents",
+                    url: "/document",
+                    icon: FileText,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Management",
+                    url: "/barangay_management",
+                    icon: Settings,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Profile",
+                    url: "/barangay_profile",
+                    icon: UserPen,
+                    roles: ["admin"],
+                },
+            ],
+        },
+        {
+            title: "Residents Information",
+            icon: FileUser,
+            roles: ["barangay_officer", "admin"],
+            submenu: [
+                {
+                    title: "Information Table",
+                    url: "/resident",
+                    icon: Table,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Senior Citizen",
+                    url: "/senior_citizen",
+                    icon: UsersRound,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Families",
+                    url: "/family",
+                    icon: SquareUserRound,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Households",
+                    url: "/household",
+                    icon: House,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Household Overview",
+                    url: "/overview",
+                    icon: UtilityPole,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Vehicles",
+                    url: "/vehicle",
+                    icon: CarFront,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Education",
+                    url: "/education",
+                    icon: GraduationCap,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Occupation/Livelihood",
+                    url: "/occupation",
+                    icon: BriefcaseBusiness,
+                    roles: ["barangay_officer", "admin"],
+                },
+            ],
+        },
+        {
+            title: "Medical Information",
+            icon: HeartPulse,
+            roles: ["barangay_officer", "admin"],
+            submenu: [
+                {
+                    title: "Information Table",
+                    url: "/medical",
+                    icon: Table,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Allergies",
+                    url: "/allergy",
+                    icon: Tablets,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Child Health Records",
+                    url: "/child_record",
+                    icon: Baby,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Medical Condition",
+                    url: "/medical_condition",
+                    icon: Stethoscope,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Disabilities",
+                    url: "/disability",
+                    icon: Accessibility,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Medications",
+                    url: "/medication",
+                    icon: Pill,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Pregnancy Records",
+                    url: "/pregnancy",
+                    icon: SquareActivity,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Vaccinations",
+                    url: "/vaccination",
+                    icon: Syringe,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Deaths",
+                    url: "/death/index",
+                    icon: PersonStanding,
+                    roles: ["barangay_officer", "admin"],
+                },
+            ],
+        },
+        {
+            title: "Issuance",
+            icon: Files,
+            roles: ["barangay_officer", "admin"],
+            submenu: [
+                {
+                    title: "Certificate Issuance",
+                    url: "/certificate/index",
+                    icon: FileText,
+                    roles: ["barangay_officer", "admin"],
+                },
+            ],
+        },
+        {
+            title: "Katarungang Pambarangay",
+            icon: Scale,
+            roles: ["barangay_officer", "admin"],
+            submenu: [
+                {
+                    title: "Blotter Reports",
+                    url: "/blotter_report",
+                    icon: ScrollText,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Summon",
+                    url: "/summon",
+                    icon: MessageSquareWarning,
+                    roles: ["barangay_officer", "admin"],
+                },
+            ],
+        },
+        {
+            title: "Reports",
+            url: "/report",
+            icon: Flag,
+            roles: ["barangay_officer", "admin"],
+        },
+        {
+            title: "Summary",
+            icon: FileStack,
+            roles: ["cdrrmo_admin"],
+            submenu: [
+                {
+                    title: "Population and Residence",
+                    url: "/cdrrmo_admin/population",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Livelihood Statistics",
+                    url: "/cdrrmo_admin/livelihood",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Household Services",
+                    url: "/cdrrmo_admin/services",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Buildings and other Infrastructures",
+                    url: "/cdrrmo_admin/infraFacilities",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Primary Facilities and Services ",
+                    url: "/cdrrmo_admin/primaryFacilities",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Inventory of Institutions",
+                    url: "/cdrrmo_admin/institutions",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Human Resources",
+                    url: "/cdrrmo_admin/humanResources",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Disaster Population Impact",
+                    url: "/cdrrmo_admin/populationimpact",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+            ],
+        },
+        {
+            title: "Community Risk Assessment",
+            icon: Cloudy,
+            roles: ["barangay_officer", "admin"],
+            url: "#",
+            submenu:
+                craList.length > 0
+                    ? craList.map((cra) => ({
+                          title: `Submit CRA ${cra.year}`,
+                          url: `/cra/create?year=${cra.year}`,
+                          icon: FileInput,
+                          roles: ["barangay_officer", "admin"],
+                      }))
+                    : [
+                          {
+                              title: "Loading years...",
+                              url: "#",
+                              icon: FileInput,
+                              roles: ["barangay_officer", "admin"],
+                          },
+                      ],
+        },
+        {
+            title: "CRA Settings",
+            icon: Settings,
+            roles: ["cdrrmo_admin"],
+            url: "#",
+            submenu: [
+                {
+                    title: "Selectfield",
+                    icon: SlidersHorizontal, // import this
+                    url: "/cra/selectfield", // or your actual route
+                    roles: ["cdrrmo_admin"], // make sure it matches your current user role
+                },
+            ],
+        },
+        {
+            title: "Certificate Issuance",
+            icon: FileStack,
+            roles: ["resident"],
+            url: "/account/certificates",
+        },
+        {
+            title: "Barangay Accounts",
+            url: "/super_admin/accounts",
+            icon: CircleUserRound,
+            roles: ["super_admin"],
+        },
+        {
+            title: "List of Barangays",
+            url: "/super_admin/barangay",
+            icon: LayoutList,
+            roles: ["super_admin"],
+        },
+    ];
 
     const userRoles = user.roles.map((r) => r.name);
 
@@ -500,6 +534,31 @@ export function AppSidebar({ auth }) {
         }
     }, []);
 
+    const handleAddCRA = async () => {
+        try {
+            // ✅ Find latest year from current CRA list (default to current year if empty)
+            const latestYear =
+                craList.length > 0
+                    ? Math.max(...craList.map((cra) => parseInt(cra.year)))
+                    : new Date().getFullYear();
+
+            const nextYear = latestYear + 1;
+
+            // ✅ Send the next year to backend
+            const res = await axios.post(`${APP_URL}/cdrrmo_admin/addCRA`, {
+                year: nextYear,
+            });
+
+            if (res.data.success) {
+                toast.success(`CRA for year ${nextYear} added successfully!`);
+                setCraList((prev) => [...prev, res.data.data]);
+            }
+        } catch (error) {
+            console.error("Failed to add CRA:", error);
+            toast.error("Failed to add CRA. Please try again.");
+        }
+    };
+
     const handleYearChange = (e) => {
         const year = e.target.value;
         setSelectedYear(year);
@@ -511,8 +570,10 @@ export function AppSidebar({ auth }) {
             { preserveState: true, replace: true }
         );
     };
+
     return (
         <Sidebar>
+            <Toaster richColors />
             {/* Header with blue branding */}
             <div className="bg-white px-4 py-[8px] flex items-center border-b border-gray-200">
                 <img
@@ -635,18 +696,41 @@ export function AppSidebar({ auth }) {
                                                         >
                                                             -- Select Year --
                                                         </option>
-                                                        {[
-                                                            2023, 2024, 2025,
-                                                            2026,
-                                                        ].map((year) => (
-                                                            <option
-                                                                key={year}
-                                                                value={year}
-                                                            >
-                                                                {year}
+                                                        <option value="2024">
+                                                            2024
+                                                        </option>
+
+                                                        {craList.length > 0 ? (
+                                                            craList.map(
+                                                                (cra) => (
+                                                                    <option
+                                                                        key={
+                                                                            cra.id
+                                                                        }
+                                                                        value={
+                                                                            cra.year
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            cra.year
+                                                                        }
+                                                                    </option>
+                                                                )
+                                                            )
+                                                        ) : (
+                                                            <option disabled>
+                                                                Loading years...
                                                             </option>
-                                                        ))}
+                                                        )}
                                                     </select>
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleAddCRA}
+                                                        className="mt-3 flex items-center gap-2 w-full justify-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-3 rounded-md transition-colors"
+                                                    >
+                                                        <Plus size={16} />
+                                                        <span>Add CRA</span>
+                                                    </button>
                                                 </div>
                                             ) : (
                                                 item.submenu

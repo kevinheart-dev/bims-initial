@@ -68,6 +68,7 @@ Route::get('/request-certificate', [UnauthenticatedIssuanceController::class, 'm
 Route::get('/request-certificate-documents/{id}', [UnauthenticatedIssuanceController::class, 'fetchDocuments'])->name('request.documents');
 Route::get('/request-certificate-placeholders/{id}', [DocumentController::class, 'fetchPlaceholders'])->name('request.placeholders');
 Route::post('/request-certificate/store', [UnauthenticatedIssuanceController::class, 'store'])->name('request.storerequest');
+Route::get('/getCRA', [CRADataController::class, 'getCRA'])->name('cdrrmo_admin.getcra');
 
 
 // Admin-only routes
@@ -270,6 +271,8 @@ Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(
         ->name('cdrrmo_admin.dashboard');
         Route::get('alldatacollection', [CDRRMOAdminController::class, 'allDataCollectionSummary'])
         ->name('cdrrmo_admin.datacollection');
+
+    Route::post('/addCRA', [CRADataController::class, 'addCRA'])->name('cdrrmo_admin.addcra');
 
     Route::get('/population', [CRADataController::class, 'population'])->name('cdrrmo_admin.population');
     Route::get('/livelihood', [CRADataController::class, 'livelihood'])->name('cdrrmo_admin.livelihood');

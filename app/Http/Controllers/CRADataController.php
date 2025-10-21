@@ -22,6 +22,24 @@ use Inertia\Inertia;
 
 class CRADataController extends Controller
 {
+    public function getCRA()
+    {
+        return response()->json(
+            CommunityRiskAssessment::select('id', 'year')->get()
+        );
+    }
+    public function addCRA(Request $request)
+    {
+        $cra = CommunityRiskAssessment::create([
+            'year' => $request->year,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'CRA created successfully!',
+            'data' => $cra,
+        ]);
+    }
     public function population(Request $request)
     {
         // Get the year from request or session
