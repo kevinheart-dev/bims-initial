@@ -1226,27 +1226,28 @@ class CRADataController extends Controller
             ->orderBy('barangay_name')
             ->get();
 
-        // === CASE 1: No barangay selected → show overall summary ===
+        // === CASE 1: No barangay selected → Overall summary ===
+        $overallDamagePropertyData = [];
         if (!$barangayId) {
-            $overall = CRADisasterDamage::with('disaster:id,disaster_name,year')
+            // Get all damages for the CRA year
+            $allRecords = CRADisasterDamage::with('disaster:id,disaster_name')
                 ->where('cra_id', $cra->id)
-                ->get(['damage_type', 'value', 'source', 'category', 'description', 'disaster_id']);
+                ->get(['damage_type', 'category', 'description', 'value', 'source', 'disaster_id']);
 
-            $overallDamagePropertyData = $overall->groupBy(fn($r) => $r->disaster->disaster_name)
+            // Group by disaster
+            $overallDamagePropertyData = $allRecords->groupBy(fn($r) => $r->disaster->disaster_name)
                 ->map(function ($group, $disasterName) {
-                    $damages = $group->groupBy('damage_type')->map(function ($rows, $damageType) {
-                        return [
-                            'damage_type' => $damageType,
-                            'category' => $rows->first()->category,
-                            'description' => $rows->first()->description,
-                            'value' => $rows->sum('value'),
-                            'source' => $rows->pluck('source')->filter()->unique()->implode('; '),
-                        ];
-                    })->values();
-
-                    $total = $damages->sum('value');
+                    // Map each record individually (all categories preserved)
+                    $damages = $group->map(fn($r) => [
+                        'damage_type' => $r->damage_type,
+                        'category' => $r->category,
+                        'description' => $r->description,
+                        'value' => $r->value,
+                        'source' => $r->source,
+                    ])->values();
 
                     // Add Total Damage Value
+                    $total = $damages->sum('value');
                     $damages->push([
                         'damage_type' => 'Total Damage Value',
                         'category' => null,
@@ -1259,56 +1260,76 @@ class CRADataController extends Controller
                         'disaster_name' => $disasterName,
                         'damages' => $damages,
                     ];
-                })
-                ->values();
-
-            return Inertia::render('CDRRMO/CRA/DamageToProperty', [
-                'damagePropertyData' => [],
-                'overallDamagePropertyData' => $overallDamagePropertyData,
-                'barangays' => $allBarangays,
-                'selectedBarangay' => null,
-            ]);
+                })->values();
         }
 
-        // === CASE 2: Show data for a specific barangay ===
-        $records = CRADisasterDamage::with([
-            'disaster:id,disaster_name,year',
-            'barangay:id,barangay_name'
-        ])
+        // === CASE 2: Specific barangay view ===
+        $damagePropertyData = [];
+        if ($barangayId) {
+            $records = CRADisasterDamage::with([
+                'disaster:id,disaster_name,year',
+                'barangay:id,barangay_name'
+            ])
             ->where('cra_id', $cra->id)
             ->where('barangay_id', $barangayId)
             ->get(['id', 'cra_id', 'disaster_id', 'barangay_id', 'damage_type', 'category', 'description', 'value', 'source']);
 
-        $damagePropertyData = $records->groupBy(fn($r) => $r->barangay->barangay_name)
-            ->map(function ($group, $barangayName) {
-                $row = [
-                    'number' => null,
-                    'barangay_name' => $barangayName,
-                    'disasters' => $group->map(fn($r) => [
-                        'disaster_id' => $r->disaster_id,
-                        'disaster_name' => $r->disaster->disaster_name,
-                        'year' => $r->disaster->year,
-                        'damage_type' => $r->damage_type,
-                        'category' => $r->category,
-                        'description' => $r->description,
-                        'value' => $r->value,
-                        'source' => $r->source,
-                    ])->values(),
-                    'total' => $group->sum('value'),
-                ];
-                return $row;
-            })
-            ->sortByDesc('total')
-            ->values()
-            ->map(fn($item, $index) => array_merge($item, ['number' => $index + 1]));
+            $damagePropertyData = $records->groupBy(fn($r) => $r->barangay->barangay_name)
+                ->map(function ($group, $barangayName) {
+                    // Group by disaster
+                    $disasters = $group->groupBy(fn($r) => $r->disaster->disaster_name)
+                        ->map(function ($rows, $disasterName) {
+                            $damages = $rows->map(fn($r) => [
+                                'damage_type' => $r->damage_type,
+                                'category' => $r->category,
+                                'description' => $r->description,
+                                'value' => $r->value,
+                                'source' => $r->source,
+                                'disaster_id' => $r->disaster_id,
+                                'disaster_name' => $r->disaster->disaster_name,
+                                'year' => $r->disaster->year,
+                            ])->values();
+
+                            // Add total for this disaster
+                            $total = $damages->sum('value');
+                            $damages->push([
+                                'damage_type' => 'Total Damage Value',
+                                'category' => null,
+                                'description' => null,
+                                'value' => $total,
+                                'source' => null,
+                                'disaster_id' => $rows->first()->disaster_id,
+                                'disaster_name' => $disasterName,
+                                'year' => $rows->first()->disaster->year,
+                            ]);
+
+                            return [
+                                'disaster_name' => $disasterName,
+                                'damages' => $damages,
+                            ];
+                        })->values();
+
+                    return [
+                        'number' => null,
+                        'barangay_name' => $barangayName,
+                        'disasters' => $disasters,
+                        'total' => $group->sum('value'),
+                    ];
+                })
+                ->sortByDesc('total')
+                ->values()
+                ->map(fn($item, $index) => array_merge($item, ['number' => $index + 1]));
+        }
 
         return Inertia::render('CDRRMO/CRA/DamageToProperty', [
             'damagePropertyData' => $damagePropertyData,
-            'overallDamagePropertyData' => [],
+            'overallDamagePropertyData' => $overallDamagePropertyData,
             'barangays' => $allBarangays,
             'selectedBarangay' => $barangayId,
         ]);
     }
+
+
 
     public function damageagri(Request $request)
     {
@@ -1430,7 +1451,6 @@ class CRADataController extends Controller
             session()->forget('cra_year');
             return Inertia::render('CDRRMO/CRA/DisasterLifelines', [
                 'disasterLifelineData' => [],
-                'overallDisasterLifelineData' => [],
                 'barangays' => [],
                 'selectedBarangay' => null,
                 'tip' => 'Select a barangay from the dropdown above to view disaster lifeline data.',
@@ -1445,47 +1465,17 @@ class CRADataController extends Controller
             ->orderBy('barangay_name')
             ->get();
 
-        // === CASE 1: No barangay selected → overall summary ===
+        // If no barangay is selected, return empty data
         if (!$barangayId) {
-            $overall = CRADisasterLifeline::with('disaster:id,disaster_name,year')
-                ->where('cra_id', $cra->id)
-                ->get(['category', 'description', 'value', 'source', 'disaster_id']);
-
-            // Group by disaster name
-            $overallDisasterLifelineData = $overall->groupBy(fn($r) => $r->disaster->disaster_name)
-                ->map(function ($group, $disasterName) {
-                    // Flatten lifelines by category
-                    $lifelines = collect();
-
-                    $group->groupBy('category')->each(function ($rows, $category) use (&$lifelines) {
-                        foreach ($rows as $r) {
-                            $lifelines->push([
-                                'category' => $category,
-                                'description' => $r->description,
-                                'value' => $r->value,
-                                'source' => $r->source,
-                            ]);
-                        }
-                    });
-
-                    return [
-                        'disaster_name' => $disasterName,
-                        'total_value' => $group->sum('value'),
-                        'lifelines' => $lifelines->values(),
-                    ];
-                })
-                ->values();
-
             return Inertia::render('CDRRMO/CRA/DisasterLifelines', [
                 'disasterLifelineData' => [],
-                'overallDisasterLifelineData' => $overallDisasterLifelineData,
                 'barangays' => $allBarangays,
                 'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view disaster lifeline data.',
             ]);
         }
 
-
-        // === CASE 2: Barangay selected → specific data view ===
+        // Get disaster lifeline records for selected barangay
         $records = CRADisasterLifeline::with([
             'disaster:id,disaster_name,year',
             'barangay:id,barangay_name'
@@ -1518,7 +1508,6 @@ class CRADataController extends Controller
 
         return Inertia::render('CDRRMO/CRA/DisasterLifelines', [
             'disasterLifelineData' => $disasterLifelineData,
-            'overallDisasterLifelineData' => [],
             'barangays' => $allBarangays,
             'selectedBarangay' => $barangayId,
         ]);

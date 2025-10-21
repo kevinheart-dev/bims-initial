@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Building2, Wrench } from "lucide-react";
+import { Wrench, Building2 } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -8,24 +7,18 @@ import DynamicTable from "@/Components/DynamicTable";
 import BarangayFilterCard from "@/Components/BarangayFilterCard";
 import NoDataPlaceholder from "@/Components/NoDataPlaceholder";
 
-const nf = new Intl.NumberFormat(); // default locale formatting
+const nf = new Intl.NumberFormat();
 
 export default function DamageToProperty({
-    damagePropertyData,
+    damagePropertyData = [],
     overallDamagePropertyData = [],
     barangays = [],
     selectedBarangay,
-    tip = null,
-    queryParams,
 }) {
     const breadcrumbs = [{ label: "Dashboard", showOnMobile: true }];
-    queryParams = queryParams || {};
-
     const isBarangayView = !!selectedBarangay;
-    const isBarangayDataNull =
-        !damagePropertyData || damagePropertyData.length === 0;
-    const isOverallDataNull =
-        !overallDamagePropertyData || overallDamagePropertyData.length === 0;
+    const isBarangayDataNull = !damagePropertyData.length;
+    const isOverallDataNull = !overallDamagePropertyData.length;
 
     const handleBarangayChange = (e) => {
         const barangayId = e.target.value;
@@ -34,10 +27,71 @@ export default function DamageToProperty({
             barangayId ? { barangay_id: barangayId } : {}
         );
     };
-    // safely coerce numbers
+    const toPascalCase = (str) => {
+        if (!str) return "—";
+        return str
+            .replace(/_/g, " ") // replace underscores with spaces
+            .replace(
+                /\w\S*/g,
+                (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+            );
+    };
+
     const toNumber = (v) => {
         const n = Number(v);
         return Number.isFinite(n) ? n : 0;
+    };
+
+    const allColumns = [
+        { key: "damage_type", label: "Damage Type" },
+        { key: "category", label: "Category" },
+        { key: "description", label: "Description" },
+        { key: "value", label: "Value" },
+        { key: "source", label: "Source" },
+    ];
+
+    const columnRenderers = {
+        damage_type: (row) => (
+            <span className="text-gray-800 font-medium">
+                {toPascalCase(row.damage_type)}
+            </span>
+        ),
+        category: (row) => (
+            <span className="text-gray-800">{row.category || "—"}</span>
+        ),
+        description: (row) => (
+            <span className="text-gray-700">{row.description || "—"}</span>
+        ),
+        value: (row) => (
+            <span className="text-red-600 font-semibold">
+                {nf.format(toNumber(row.value))}
+            </span>
+        ),
+        source: (row) => (
+            <span className="text-gray-700">{row.source || "—"}</span>
+        ),
+    };
+
+    const renderTable = (title, data, isBarangay = false) => {
+        const totalValue = data.reduce((sum, r) => sum + toNumber(r.value), 0);
+        return (
+            <TableSection
+                key={title}
+                icon={isBarangay ? <Wrench /> : <Building2 />}
+                color="red"
+                title={title}
+                description={`Total damage value: ${nf.format(totalValue)}`}
+                tableProps={{
+                    component: DynamicTable,
+                    passedData: data,
+                    allColumns,
+                    columnRenderers,
+                    visibleColumns: allColumns.map((c) => c.key),
+                    showTotal: false,
+                    tableHeight: "400px",
+                }}
+            />
+        );
     };
 
     return (
@@ -53,159 +107,32 @@ export default function DamageToProperty({
                         barangays={barangays}
                     />
 
-                    {/* === CASE 1: OVERALL SUMMARY === */}
                     {!isBarangayView ? (
                         isOverallDataNull ? (
                             <NoDataPlaceholder tip="No overall property damage data available for the selected year." />
                         ) : (
-                            overallDamagePropertyData.map(
-                                (disaster, dIndex) => {
-                                    const allColumns = [
-                                        { key: "category", label: "Category" },
-                                        { key: "description", label: "Description" },
-                                        { key: "value", label: "Value" },
-                                        { key: "source", label: "Source" },
-                                    ];
-
-                                    const columnRenderers = {
-                                        category: (row) => (
-                                            <span className="text-gray-800 font-medium">
-                                                {row.category || "—"}
-                                            </span>
-                                        ),
-                                        description: (row) => (
-                                            <span className="text-gray-700">
-                                                {row.description || "—"}
-                                            </span>
-                                        ),
-                                        value: (row) => (
-                                            <span
-                                                className={`${row.category === "Total Damage Value"
-                                                    ? "font-bold text-red-700"
-                                                    : "text-red-600"
-                                                    }`}
-                                            >
-                                                {nf.format(toNumber(row.value))}
-                                            </span>
-                                        ),
-                                        source: (row) => (
-                                            <span className="text-gray-700">
-                                                {row.source || "—"}
-                                            </span>
-                                        ),
-                                    };
-
-                                    const totalValue = disaster.damages?.reduce(
-                                        (sum, r) => sum + toNumber(r.value),
-                                        0
-                                    );
-
-                                    return (
-                                        <TableSection
-                                            key={dIndex}
-                                            icon={<Building2 />}
-                                            color="red"
-                                            title={`${disaster.disaster_name} (Overall Summary)`}
-                                            description={`Total property damage value across all barangays:${nf.format(
-                                                totalValue
-                                            )}`}
-                                            tableProps={{
-                                                component: DynamicTable,
-                                                passedData: disaster.damages || [],
-                                                allColumns,
-                                                columnRenderers,
-                                                visibleColumns: allColumns.map(
-                                                    (c) => c.key
-                                                ),
-                                                showTotal: true,
-                                                tableHeight: "400px",
-                                            }}
-                                        />
-                                    );
-                                }
+                            overallDamagePropertyData.map((disaster) =>
+                                renderTable(
+                                    `${disaster.disaster_name} (Overall)`,
+                                    disaster.damages
+                                )
                             )
                         )
-                    ) : // === CASE 2: BARANGAY VIEW ===
-                        isBarangayDataNull ? (
-                            <NoDataPlaceholder tip="No property damage data available for the selected barangay." />
-                        ) : (
-                            damagePropertyData.map((barangay, bIndex) => {
-                                const disastersGrouped = barangay.disasters.reduce(
-                                    (acc, d) => {
-                                        if (!acc[d.disaster_id])
-                                            acc[d.disaster_id] = [];
-                                        acc[d.disaster_id].push(d);
-                                        return acc;
-                                    },
-                                    {}
-                                );
-
-                                return Object.entries(disastersGrouped).map(
-                                    ([disasterId, damageRows], dIndex) => {
-                                        const allColumns = [
-                                            { key: "category", label: "Category" },
-                                            { key: "description", label: "Description" },
-                                            { key: "value", label: "Value" },
-                                            { key: "source", label: "Source" },
-                                        ];
-
-                                        const columnRenderers = {
-                                            category: (row) => (
-                                                <span className="text-gray-800 font-medium">
-                                                    {row.category || "—"}
-                                                </span>
-                                            ),
-                                            description: (row) => (
-                                                <span className="text-gray-700">
-                                                    {row.description || "—"}
-                                                </span>
-                                            ),
-                                            value: (row) => (
-                                                <span className="font-bold text-red-600">
-                                                    {nf.format(toNumber(row.value))}
-                                                </span>
-                                            ),
-                                            source: (row) => (
-                                                <span className="text-gray-700">
-                                                    {row.source || "—"}
-                                                </span>
-                                            ),
-                                        };
-
-                                        const disasterName =
-                                            damageRows[0].disaster_name;
-                                        const disasterYear = damageRows[0].year;
-                                        const totalValue = damageRows.reduce(
-                                            (sum, r) => sum + toNumber(r.value),
-                                            0
-                                        );
-
-                                        return (
-                                            <TableSection
-                                                key={`${bIndex}-${disasterId}`}
-                                                icon={<Wrench />}
-                                                color="red"
-                                                title={`${disasterName} in ${barangay.barangay_name} (${disasterYear})`}
-                                                description={`Total property damage value: ${nf.format(
-                                                    totalValue
-                                                )}`}
-                                                tableProps={{
-                                                    component: DynamicTable,
-                                                    passedData: damageRows,
-                                                    allColumns,
-                                                    columnRenderers,
-                                                    visibleColumns: allColumns.map(
-                                                        (c) => c.key
-                                                    ),
-                                                    showTotal: true,
-                                                    tableHeight: "400px",
-                                                }}
-                                            />
-                                        );
-                                    }
-                                );
-                            })
-                        )}
+                    ) : isBarangayDataNull ? (
+                        <NoDataPlaceholder tip="No property damage data available for the selected barangay." />
+                    ) : (
+                        damagePropertyData.flatMap((barangay) =>
+                            barangay.disasters.map((disaster) =>
+                                renderTable(
+                                    `${disaster.disaster_name} in ${
+                                        barangay.barangay_name
+                                    } (${disaster.damages[0]?.year ?? "N/A"})`,
+                                    disaster.damages,
+                                    true
+                                )
+                            )
+                        )
+                    )}
                 </div>
             </div>
         </AdminLayout>
