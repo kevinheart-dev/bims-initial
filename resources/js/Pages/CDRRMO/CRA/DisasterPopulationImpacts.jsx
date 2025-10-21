@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Cross, Activity, Home, Key } from "lucide-react";
+import { Users, ShieldUser } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -129,7 +129,7 @@ export default function Dashboard({
                                         return (
                                             <TableSection
                                                 key={`${bIndex}-${disasterId}`}
-                                                icon={<Users />}
+                                                icon={<ShieldUser />}
                                                 color="green"
                                                 title={`${disasterName} in ${barangay.barangay_name} (${disasterYear})`}
                                                 description={`Total affected: ${disasterRows.reduce(

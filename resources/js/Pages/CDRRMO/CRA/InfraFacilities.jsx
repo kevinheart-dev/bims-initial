@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Cross, Activity, Home, Key } from "lucide-react";
+import { Users, Wheat, GraduationCap, HeartPulse } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -27,6 +27,12 @@ export default function Dashboard({
             route("cdrrmo_admin.infraFacilities"),
             barangayId ? { barangay_id: barangayId } : {}
         );
+    };
+
+    const categoryMap = {
+        "Agricultural Facilities": { icon: <Wheat />, color: "green" },
+        "Educational Facilities": { icon: <GraduationCap />, color: "blue" },
+        "Health and Medical Facilities": { icon: <HeartPulse />, color: "red" },
     };
 
     return (
@@ -145,11 +151,13 @@ export default function Dashboard({
                                             ),
                                         };
 
+                                        const category = categoryMap[categoryRow.category] || { icon: <Users />, color: "gray" };
+
                                         return (
                                             <TableSection
                                                 key={catIndex}
-                                                icon={<Users />}
-                                                color="green"
+                                                icon={category.icon}
+                                                color={category.color}
                                                 title={categoryRow.category}
                                                 description={`Infrastructure facilities under ${categoryRow.category}`}
                                                 tableProps={{

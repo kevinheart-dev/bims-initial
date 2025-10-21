@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Cross, Activity, Home, Key } from "lucide-react";
+import { Users, Building2, Bus, TrafficCone } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -31,6 +31,7 @@ export default function Dashboard({
             barangayId ? { barangay_id: barangayId } : {}
         );
     };
+
 
     return (
         <AdminLayout>
@@ -135,11 +136,12 @@ export default function Dashboard({
                                         ),
                                     };
 
+
                                     return (
                                         <TableSection
                                             key="primary-facilities"
-                                            icon={<Users />}
-                                            color="green"
+                                            icon={<Building2 />}
+                                            color="blue"
                                             title="Primary Facilities"
                                             description="List of primary facilities per barangay"
                                             tableProps={{
@@ -229,8 +231,8 @@ export default function Dashboard({
                                     return (
                                         <TableSection
                                             key="public-transport"
-                                            icon={<Users />}
-                                            color="green"
+                                            icon={<Bus />}
+                                            color="yellow"
                                             title="Public Transportations"
                                             description="Quantity of available public transport per barangay"
                                             tableProps={{
@@ -334,8 +336,8 @@ export default function Dashboard({
                                     return (
                                         <TableSection
                                             key="road-networks"
-                                            icon={<Users />}
-                                            color="green"
+                                            icon={<TrafficCone />}
+                                            color="purple"
                                             title="Road Networks"
                                             description="Length of different road types per barangay"
                                             tableProps={{
