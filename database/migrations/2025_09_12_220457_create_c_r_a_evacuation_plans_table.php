@@ -23,7 +23,7 @@ return new class extends Migration
             $table->text('responsible_person')->nullable(); // Person/team responsible
             $table->text('remarks')->nullable(); // Additional notes
             $table->timestamps();
-            $table->unique(['barangay_id', 'activity_no'], 'cra_evacuation_plan_unique');
+            $table->unique(['barangay_id', 'activity_no', 'cra_id'], 'cra_evacuation_plan_unique');
         });
     }
 

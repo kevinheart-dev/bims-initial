@@ -23,6 +23,7 @@ class CRAStoreRequest extends FormRequest
     {
         return [
             // General Population
+            'year' => ['nullable'],
             'barangayPopulation'   => ['required', 'integer', 'min:0'],
             'householdsPopulation' => ['required', 'integer', 'min:0'],
             'familiesPopulation'   => ['required', 'integer', 'min:0'],

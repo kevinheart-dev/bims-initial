@@ -11,6 +11,7 @@ use App\Models\BarangayOfficialTerm;
 use App\Models\BlotterReport;
 use App\Models\CaseParticipant;
 use App\Models\ChildHealthMonitoringRecord;
+use App\Models\CommunityRiskAssessment;
 use App\Models\Deceased;
 use App\Models\Designation;
 use App\Models\Disability;
@@ -97,8 +98,8 @@ class DatabaseSeeder extends Seeder
             'is_disabled' => false,
         ])->assignRole($cdrrmoRole);
 
-        $barangays = Barangay::all();
-        //$barangays = Barangay::take(1)->get();
+        //$barangays = Barangay::all();
+        $barangays = Barangay::take(1)->get();
         //  foreach ($barangays->take(2) as $barangay)
         foreach ($barangays as $barangay) {
             // Create 7 puroks per barangay
@@ -325,8 +326,11 @@ class DatabaseSeeder extends Seeder
             // FamilyRelationSeeder::class,
             BarangayInformationSeeder::class,
         ]);
-        $this->call([
-            CRADataseeder::class,
+        // $this->call([
+        //     CRADataseeder::class,
+        // ]);
+        CommunityRiskAssessment::factory()->create([
+            'year' => 2025
         ]);
     }
 }

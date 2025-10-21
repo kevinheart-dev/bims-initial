@@ -26,7 +26,7 @@ return new class extends Migration
             $table->boolean('inspected_by_engineer')->default(false);
             $table->boolean('has_mou')->default(false);
             $table->timestamps();
-            $table->unique(['barangay_id', 'name'], 'unique_barangay_center');
+            $table->unique(['barangay_id', 'name', 'cra_id'], 'unique_barangay_center');
         });
     }
 

@@ -30,7 +30,7 @@ return new class extends Migration
             $table->decimal('average_score', 8, 2)->default(0.00);
 
             $table->timestamps();
-            $table->unique(['barangay_id', 'hazard_id']);
+            $table->unique(['barangay_id', 'hazard_id', 'cra_id']);
         });
     }
 

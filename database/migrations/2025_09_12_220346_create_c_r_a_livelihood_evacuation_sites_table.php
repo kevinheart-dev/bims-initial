@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('place_of_origin', 150)->nullable(); // where they are relocated from
             $table->string('capacity_description', 255)->nullable();
             $table->timestamps();
-            $table->unique(['barangay_id', 'livelihood_type'], 'cra_livelihood_unique');
+            $table->unique(['barangay_id', 'livelihood_type', 'cra_id'], 'cra_livelihood_unique');
         });
     }
 
