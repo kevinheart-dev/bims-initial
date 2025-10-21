@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Cross, Activity, Home, Key } from "lucide-react";
+import { Users, Building2 } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -146,7 +146,7 @@ export default function Dashboard({
                                     return (
                                         <TableSection
                                             key={index}
-                                            icon={<Users />}
+                                            icon={<Building2 />}
                                             color="green"
                                             title={`Institutions in ${barangay.barangay_name}`}
                                             description={`List of institutions and total members in ${barangay.barangay_name}`}
