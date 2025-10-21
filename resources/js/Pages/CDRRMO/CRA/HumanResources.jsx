@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Cross, Activity, Home, Key, BarChart3 } from "lucide-react";
+import { Users, Pickaxe } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -276,7 +276,7 @@ export default function Dashboard({
                                     return (
                                         <TableSection
                                             key={index}
-                                            icon={<Users />}
+                                            icon={<Pickaxe />}
                                             color="green"
                                             title={`Human Resources in ${barangay.barangay_name}`}
                                             description={`List of human resources and totals in ${barangay.barangay_name}`}

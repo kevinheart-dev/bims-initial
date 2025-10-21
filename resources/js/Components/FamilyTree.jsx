@@ -48,6 +48,7 @@ const FamilyTree = ({ familyData }) => {
                 const members = d.data.members;
                 const spacing = CARD_WIDTH + 130;
 
+
                 if (members.length === 1) {
                     positioned.push({
                         ...members[0],
@@ -313,7 +314,6 @@ const FamilyTree = ({ familyData }) => {
             }
         });
 
-        // ✅ Include "self" node in sibling group if siblings exist
         // const selfNode = positioned.find((p) => p.relation === "Self");
         if (selfNode && familyData.siblings?.data?.length > 0) {
             const parentId = "virtual-root-self";
@@ -378,64 +378,59 @@ const FamilyTree = ({ familyData }) => {
             }
         });
 
-
-
         // --- Handle Parent → Child Connection (only when couple has exactly ONE child) ---
-        root.descendants().forEach((d) => {
-            if (d.parent && d.parent.data.isCouple) {
-                const parentCouple = d.parent;
-                const parentMembers = parentCouple.data.members || [];
+        // root.descendants().forEach((d) => {
+        //     if (d.parent && d.parent.data.isCouple) {
+        //         const parentCouple = d.parent;
+        //         const parentMembers = parentCouple.data.members || [];
 
-                const parentMemberNodes = parentMembers
-                    .map((m) => positioned.find((p) => p.id === m.id))
-                    .filter(Boolean);
+        //         const parentMemberNodes = parentMembers
+        //             .map((m) => positioned.find((p) => p.id === m.id))
+        //             .filter(Boolean);
 
-                if (parentMemberNodes.length === 0) return;
+        //         if (parentMemberNodes.length === 0) return;
 
-                const children = d.parent.children || [];
-                // ✅ Only proceed if the couple has exactly ONE child
-                if (children.length !== 1) return;
+        //         const children = d.parent.children || [];
+        //         // ✅ Only proceed if the couple has exactly ONE child
+        //         if (children.length !== 1) return;
 
-                const parentXs = parentMemberNodes.map((m) => m.x + CARD_WIDTH / 2);
-                const parentCenterX =
-                    (Math.min(...parentXs) + Math.max(...parentXs)) / 2;
-                const parentBottomY = parentMemberNodes[0].y + CARD_HEIGHT / 2;
+        //         const parentXs = parentMemberNodes.map((m) => m.x + CARD_WIDTH / 2);
+        //         const parentCenterX =
+        //             (Math.min(...parentXs) + Math.max(...parentXs)) / 2;
+        //         const parentBottomY = parentMemberNodes[0].y + CARD_HEIGHT / 2;
 
-                if (d.data.isCouple && d.data.members?.length) {
-                    // Find only the 'self' inside members
-                    const selfMember = d.data.members.find(
-                        (m) => m.relation === "Self" || m.id?.startsWith("self-")
-                    );
+        //         if (d.data.isCouple && d.data.members?.length) {
+        //             // Find only the 'self' inside members
+        //             const selfMember = d.data.members.find(
+        //                 (m) => m.relation === "Self" || m.id?.startsWith("self-")
+        //             );
 
-                    const selfNodePos = positioned.find((p) => p.id === selfMember?.id);
-                    if (!selfNodePos) return;
+        //             const selfNodePos = positioned.find((p) => p.id === selfMember?.id);
+        //             if (!selfNodePos) return;
 
-                    // Connect parent couple → self node
-                    lines.push({
-                        from: { x: parentCenterX, y: parentBottomY },
-                        to: {
-                            x: selfNodePos.x + CARD_WIDTH / 2,
-                            y: selfNodePos.y,
-                        },
-                    });
-                } else {
-                    // Normal single child (non-couple)
-                    const childNodePos = positioned.find((p) => p.id === d.data.id);
-                    if (!childNodePos) return;
+        //             // Connect parent couple → self node
+        //             lines.push({
+        //                 from: { x: parentCenterX, y: parentBottomY },
+        //                 to: {
+        //                     x: selfNodePos.x + CARD_WIDTH / 2,
+        //                     y: selfNodePos.y,
+        //                 },
+        //             });
+        //         } else {
+        //             // Normal single child (non-couple)
+        //             const childNodePos = positioned.find((p) => p.id === d.data.id);
+        //             if (!childNodePos) return;
 
-                    lines.push({
-                        from: { x: parentCenterX, y: parentBottomY },
-                        to: {
-                            x: childNodePos.x + CARD_WIDTH / 2,
-                            y: childNodePos.y,
-                        },
-                    });
-                }
-            }
-        });
-
-
-
+        //             lines.push({
+        //                 from: { x: parentCenterX, y: parentBottomY },
+        //                 to: {
+        //                     x: childNodePos.x + CARD_WIDTH / 2,
+        //                     y: childNodePos.y,
+        //                 },
+        //             });
+        //         }
+        //     }
+        // });
 
         setConnections(lines);
 

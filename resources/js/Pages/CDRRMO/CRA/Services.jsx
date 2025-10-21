@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Cross, Activity, Home, Key } from "lucide-react";
+import { Users, Bath, Cable, Toilet, Trash, Droplets, } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -27,6 +27,14 @@ export default function Dashboard({
             route("cdrrmo_admin.services"),
             barangayId ? { barangay_id: barangayId } : {}
         );
+    };
+
+    const categoryMap = {
+        "Bath and Wash Area": { icon: <Bath />, color: "blue" },
+        "Electricity Source": { icon: <Cable />, color: "yellow" },
+        "Toilet": { icon: <Toilet />, color: "purple" },
+        "Waste Management": { icon: <Trash />, color: "green" },
+        "Water Source": { icon: <Droplets />, color: "blue" },
     };
 
     return (
@@ -167,11 +175,13 @@ export default function Dashboard({
                                             ),
                                         };
 
+                                        const category = categoryMap[categoryRow.category] || { icon: <Bath />, color: "gray" };
+
                                         return (
                                             <TableSection
                                                 key={catIndex}
-                                                icon={<Users />}
-                                                color="green"
+                                                icon={category.icon}
+                                                color={category.color}
                                                 title={categoryRow.category}
                                                 description={`Household services under ${categoryRow.category}`}
                                                 tableProps={{
