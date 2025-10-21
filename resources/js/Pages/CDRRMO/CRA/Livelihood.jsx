@@ -10,6 +10,7 @@ import NoDataPlaceholder from "@/Components/NoDataPlaceholder";
 
 export default function Dashboard({
     livelihoodStats,
+    overallLivelihoodStats,
     barangays = [],
     selectedBarangay,
     queryParams,
@@ -45,6 +46,138 @@ export default function Dashboard({
                                 handleBarangayChange={handleBarangayChange}
                                 barangays={barangays}
                             />
+                            {/* ✅ Overall Summary Across All Barangays */}
+                            {overallLivelihoodStats &&
+                                overallLivelihoodStats.length > 0 && (
+                                    <TableSection
+                                        icon={<BarChart3 />} // optional: different icon
+                                        color="blue"
+                                        title="Overall Livelihood Distribution (All Barangays)"
+                                        description="Total number of individuals engaged in each livelihood type across all barangays."
+                                        tableProps={{
+                                            component: DynamicTable,
+                                            passedData: overallLivelihoodStats,
+                                            allColumns: [
+                                                { key: "number", label: "No." },
+                                                {
+                                                    key: "livelihood_type",
+                                                    label: "Livelihood Type",
+                                                },
+                                                {
+                                                    key: "male_without_disability",
+                                                    label: "Male w/o Disability",
+                                                },
+                                                {
+                                                    key: "male_with_disability",
+                                                    label: "Male w/ Disability",
+                                                },
+                                                {
+                                                    key: "female_without_disability",
+                                                    label: "Female w/o Disability",
+                                                },
+                                                {
+                                                    key: "female_with_disability",
+                                                    label: "Female w/ Disability",
+                                                },
+                                                {
+                                                    key: "lgbtq_without_disability",
+                                                    label: "LGBTQ w/o Disability",
+                                                },
+                                                {
+                                                    key: "lgbtq_with_disability",
+                                                    label: "LGBTQ w/ Disability",
+                                                },
+                                                {
+                                                    key: "total",
+                                                    label: "Total",
+                                                },
+                                            ],
+                                            columnRenderers: {
+                                                number: (row) => (
+                                                    <span className="font-semibold text-gray-700">
+                                                        {row.number}
+                                                    </span>
+                                                ),
+                                                livelihood_type: (row) => (
+                                                    <span className="font-semibold text-gray-700">
+                                                        {row.livelihood_type}
+                                                    </span>
+                                                ),
+                                                male_without_disability: (
+                                                    row
+                                                ) => (
+                                                    <span className="text-gray-700">
+                                                        {
+                                                            row.male_without_disability
+                                                        }
+                                                    </span>
+                                                ),
+                                                male_with_disability: (row) => (
+                                                    <span className="text-gray-700">
+                                                        {
+                                                            row.male_with_disability
+                                                        }
+                                                    </span>
+                                                ),
+                                                female_without_disability: (
+                                                    row
+                                                ) => (
+                                                    <span className="text-gray-700">
+                                                        {
+                                                            row.female_without_disability
+                                                        }
+                                                    </span>
+                                                ),
+                                                female_with_disability: (
+                                                    row
+                                                ) => (
+                                                    <span className="text-gray-700">
+                                                        {
+                                                            row.female_with_disability
+                                                        }
+                                                    </span>
+                                                ),
+                                                lgbtq_without_disability: (
+                                                    row
+                                                ) => (
+                                                    <span className="text-gray-700">
+                                                        {
+                                                            row.lgbtq_without_disability
+                                                        }
+                                                    </span>
+                                                ),
+                                                lgbtq_with_disability: (
+                                                    row
+                                                ) => (
+                                                    <span className="text-gray-700">
+                                                        {
+                                                            row.lgbtq_with_disability
+                                                        }
+                                                    </span>
+                                                ),
+                                                total: (row) => (
+                                                    <span className="font-semibold text-blue-500">
+                                                        {row.total}
+                                                    </span>
+                                                ),
+                                            },
+                                            queryParams,
+                                            visibleColumns: [
+                                                "number",
+                                                "livelihood_type",
+                                                "male_without_disability",
+                                                "male_with_disability",
+                                                "female_without_disability",
+                                                "female_with_disability",
+                                                "lgbtq_without_disability",
+                                                "lgbtq_with_disability",
+                                                "total",
+                                            ],
+                                            showTotal: true,
+                                            tableHeight: "400px",
+                                        }}
+                                    />
+                                )}
                             {livelihoodStats.map((barangayRow) => {
                                 const allcolBarangay = [
                                     {

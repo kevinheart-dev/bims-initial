@@ -82,7 +82,7 @@ export default function Dashboard({
                                     ];
 
                                     // Prepare row data
-                                    const rowData = primaryFacilitiesData.map(
+                                    let rowData = primaryFacilitiesData.map(
                                         (barangay) => {
                                             const row = {
                                                 number: barangay.number,
@@ -105,6 +105,27 @@ export default function Dashboard({
                                             return row;
                                         }
                                     );
+
+                                    // --- Append TOTAL row if no specific barangay is selected ---
+                                    if (!selectedBarangay) {
+                                        const totalRow = {
+                                            number: null,
+                                            barangay_name: "TOTAL",
+                                            total: rowData.reduce(
+                                                (sum, r) => sum + r.total,
+                                                0
+                                            ),
+                                        };
+
+                                        facilityColumns.forEach((col) => {
+                                            totalRow[col.key] = rowData.reduce(
+                                                (sum, r) => sum + r[col.key],
+                                                0
+                                            );
+                                        });
+
+                                        rowData.push(totalRow);
+                                    }
 
                                     // Column renderers
                                     const columnRenderers = {
@@ -176,6 +197,7 @@ export default function Dashboard({
                                     }));
 
                                     const allColumns = [
+                                        { key: "number", label: "#" },
                                         {
                                             key: "barangay_name",
                                             label: "Barangay",
@@ -185,7 +207,7 @@ export default function Dashboard({
                                     ];
 
                                     // Prepare row data
-                                    const rowData = publicTransportData.map(
+                                    let rowData = publicTransportData.map(
                                         (b) => {
                                             const row = {
                                                 number: b.number,
@@ -206,8 +228,32 @@ export default function Dashboard({
                                         }
                                     );
 
+                                    // --- Append TOTAL row if no specific barangay is selected ---
+                                    if (!selectedBarangay) {
+                                        const totalRow = {
+                                            number: null,
+                                            barangay_name: "TOTAL",
+                                            total: rowData.reduce(
+                                                (sum, r) => sum + r.total,
+                                                0
+                                            ),
+                                        };
+                                        transpoColumns.forEach((col) => {
+                                            totalRow[col.key] = rowData.reduce(
+                                                (sum, r) => sum + r[col.key],
+                                                0
+                                            );
+                                        });
+                                        rowData.push(totalRow);
+                                    }
+
                                     // Column renderers
                                     const columnRenderers = {
+                                        number: (row) => (
+                                            <span className="text-gray-700">
+                                                {row.number}
+                                            </span>
+                                        ),
                                         barangay_name: (row) => (
                                             <span className="font-semibold text-gray-700">
                                                 {row.barangay_name}

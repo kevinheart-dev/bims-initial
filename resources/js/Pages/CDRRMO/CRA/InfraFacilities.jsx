@@ -105,7 +105,9 @@ export default function Dashboard({
                                                     number: barangayRow.number,
                                                     barangay_name:
                                                         barangayRow.barangay_name,
-                                                    total: category?.total || 0,
+                                                    total: Number(
+                                                        category?.total || 0
+                                                    ),
                                                 };
 
                                                 facilityColumns.forEach(
@@ -116,15 +118,37 @@ export default function Dashboard({
                                                                     f.infrastructure_name ===
                                                                     col.key
                                                             );
-                                                        row[col.key] =
+                                                        row[col.key] = Number(
                                                             facility?.quantity ||
-                                                            0;
+                                                                0
+                                                        );
                                                     }
                                                 );
 
                                                 return row;
                                             }
                                         );
+
+                                        // --- Append TOTAL row if no specific barangay is selected ---
+                                        if (!selectedBarangay) {
+                                            const totalRow = {
+                                                number: null,
+                                                barangay_name: "TOTAL",
+                                                total: rowData.reduce(
+                                                    (sum, r) => sum + r.total,
+                                                    0
+                                                ),
+                                            };
+                                            facilityColumns.forEach((col) => {
+                                                totalRow[col.key] =
+                                                    rowData.reduce(
+                                                        (sum, r) =>
+                                                            sum + r[col.key],
+                                                        0
+                                                    );
+                                            });
+                                            rowData.push(totalRow);
+                                        }
 
                                         // Column renderers
                                         const columnRenderers = {

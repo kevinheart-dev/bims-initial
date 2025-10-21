@@ -10,6 +10,7 @@ import NoDataPlaceholder from "@/Components/NoDataPlaceholder";
 
 export default function Dashboard({
     humanResourcesData,
+    overallHumanResourcesData,
     barangays = [],
     selectedBarangay,
     queryParams,
@@ -52,6 +53,139 @@ export default function Dashboard({
                                     2
                                 )}
                             </pre> */}
+                            {!selectedBarangay &&
+                                overallHumanResourcesData.length > 0 && (
+                                    <TableSection
+                                        icon={<BarChart3 />}
+                                        color="blue"
+                                        title="Overall Human Resources Summary"
+                                        description="Aggregated totals of human resources across all barangays"
+                                        tableProps={{
+                                            component: DynamicTable,
+                                            passedData:
+                                                overallHumanResourcesData,
+                                            allColumns: [
+                                                { key: "number", label: "#" },
+                                                {
+                                                    key: "resource_name",
+                                                    label: "Resource Name",
+                                                }, // <-- updated
+                                                {
+                                                    key: "male_without_disability",
+                                                    label: "Male (No Disability)",
+                                                },
+                                                {
+                                                    key: "male_with_disability",
+                                                    label: "Male (With Disability)",
+                                                },
+                                                {
+                                                    key: "female_without_disability",
+                                                    label: "Female (No Disability)",
+                                                },
+                                                {
+                                                    key: "female_with_disability",
+                                                    label: "Female (With Disability)",
+                                                },
+                                                {
+                                                    key: "lgbtq_without_disability",
+                                                    label: "LGBTQ (No Disability)",
+                                                },
+                                                {
+                                                    key: "lgbtq_with_disability",
+                                                    label: "LGBTQ (With Disability)",
+                                                },
+                                                {
+                                                    key: "total",
+                                                    label: "Total",
+                                                },
+                                            ],
+                                            columnRenderers: {
+                                                number: (row) => (
+                                                    <span className="text-gray-700">
+                                                        {row.number}
+                                                    </span>
+                                                ),
+                                                resource_name: (
+                                                    row // <-- updated
+                                                ) => (
+                                                    <span className="text-gray-700">
+                                                        {row.resource_name}
+                                                    </span>
+                                                ),
+                                                male_without_disability: (
+                                                    row
+                                                ) => (
+                                                    <span className="text-gray-700">
+                                                        {
+                                                            row.male_without_disability
+                                                        }
+                                                    </span>
+                                                ),
+                                                male_with_disability: (row) => (
+                                                    <span className="text-gray-700">
+                                                        {
+                                                            row.male_with_disability
+                                                        }
+                                                    </span>
+                                                ),
+                                                female_without_disability: (
+                                                    row
+                                                ) => (
+                                                    <span className="text-gray-700">
+                                                        {
+                                                            row.female_without_disability
+                                                        }
+                                                    </span>
+                                                ),
+                                                female_with_disability: (
+                                                    row
+                                                ) => (
+                                                    <span className="text-gray-700">
+                                                        {
+                                                            row.female_with_disability
+                                                        }
+                                                    </span>
+                                                ),
+                                                lgbtq_without_disability: (
+                                                    row
+                                                ) => (
+                                                    <span className="text-gray-700">
+                                                        {
+                                                            row.lgbtq_without_disability
+                                                        }
+                                                    </span>
+                                                ),
+                                                lgbtq_with_disability: (
+                                                    row
+                                                ) => (
+                                                    <span className="text-gray-700">
+                                                        {
+                                                            row.lgbtq_with_disability
+                                                        }
+                                                    </span>
+                                                ),
+                                                total: (row) => (
+                                                    <span className="font-bold text-blue-600">
+                                                        {row.total}
+                                                    </span>
+                                                ),
+                                            },
+                                            visibleColumns: [
+                                                "number",
+                                                "resource_name", // <-- updated
+                                                "male_without_disability",
+                                                "male_with_disability",
+                                                "female_without_disability",
+                                                "female_with_disability",
+                                                "lgbtq_without_disability",
+                                                "lgbtq_with_disability",
+                                                "total",
+                                            ],
+                                            showTotal: true,
+                                            tableHeight: "400px",
+                                        }}
+                                    />
+                                )}
                             {humanResourcesData.length > 0 &&
                                 humanResourcesData.map((barangay, index) => {
                                     const allColumns = [
