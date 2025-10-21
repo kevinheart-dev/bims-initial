@@ -282,6 +282,7 @@ Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(
     Route::get('/institutions', [CRADataController::class, 'institutions'])->name('cdrrmo_admin.institutions');
     Route::get('/humanResources', [CRADataController::class, 'humanResources'])->name('cdrrmo_admin.humanResources');
     Route::get('/populationimpact', [CRADataController::class, 'populationimpact'])->name('cdrrmo_admin.populationimpact');
+    Route::get('/effectimpact', [CRADataController::class, 'effectimpact'])->name('cdrrmo_admin.effectimpact');
 });
 
 // Super Admin-only routes

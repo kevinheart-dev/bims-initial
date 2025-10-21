@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CommunityRiskAssessment;
+use App\Models\CRADisasterEffectImpact;
 use App\Models\CRADisasterPopulationImpact;
 use App\Models\CRAGeneralPopulation;
 use App\Models\CRAHouseBuild;
@@ -1060,4 +1061,113 @@ class CRADataController extends Controller
             'selectedBarangay' => $barangayId,
         ]);
     }
+
+public function effectimpact(Request $request)
+{
+    // Get year from request or session
+    $year = $request->input('year') ?? session('cra_year');
+
+    // Get CRA record for that year
+    $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+    if (!$cra) {
+        session()->forget('cra_year');
+        return Inertia::render('CDRRMO/CRA/DisasterEffectImpact', [
+            'disasterEffectsData' => [],
+            'overallDisasterEffectsData' => [],
+            'barangays' => [],
+            'selectedBarangay' => null,
+            'tip' => 'Select a barangay from the dropdown above to view disaster effect and impact data.',
+        ]);
+    }
+
+    $barangayId = $request->query('barangay_id');
+
+    session(['cra_year' => $cra->year]);
+
+    $allBarangays = DB::table('barangays')
+        ->select('id', 'barangay_name as name')
+        ->orderBy('barangay_name')
+        ->get();
+
+    // === CASE 1: No barangay selected → show overall summary ===
+    if (!$barangayId) {
+        $overall = CRADisasterEffectImpact::with('disaster:id,disaster_name,year')
+            ->where('cra_id', $cra->id)
+            ->get(['effect_type', 'value', 'source', 'disaster_id']);
+
+        // Group by disaster
+        $overallDisasterEffectsData = $overall->groupBy(fn($r) => $r->disaster->disaster_name)
+            ->map(function ($group, $disasterName) {
+                $effects = $group->groupBy('effect_type')->map(function ($rows, $effectType) {
+                    return [
+                        'effect_type' => $effectType,
+                        'value' => $rows->sum('value'),
+                        'source' => $rows->pluck('source')->filter()->unique()->implode('; '),
+                    ];
+                })->values();
+
+                $total = $effects->sum('value');
+
+                // Add Total Impact Value
+                $effects->push([
+                    'effect_type' => 'Total Impact Value',
+                    'value' => $total,
+                    'source' => null,
+                ]);
+
+                return [
+                    'disaster_name' => $disasterName,
+                    'effects' => $effects,
+                ];
+            })
+            ->values();
+
+        return Inertia::render('CDRRMO/CRA/DisasterEffectImpact', [
+            'disasterEffectsData' => [],
+            'overallDisasterEffectsData' => $overallDisasterEffectsData,
+            'barangays' => $allBarangays,
+            'selectedBarangay' => null,
+        ]);
+    }
+
+    // === CASE 2: Show data for a specific barangay ===
+    $records = CRADisasterEffectImpact::with([
+            'disaster:id,disaster_name,year',
+            'barangay:id,barangay_name'
+        ])
+        ->where('cra_id', $cra->id)
+        ->where('barangay_id', $barangayId)
+        ->get(['id', 'cra_id', 'disaster_id', 'barangay_id', 'effect_type', 'value', 'source']);
+
+    $disasterEffectsData = $records->groupBy(fn($r) => $r->barangay->barangay_name)
+        ->map(function ($group, $barangayName) {
+            $row = [
+                'number' => null,
+                'barangay_name' => $barangayName,
+                'disasters' => $group->map(fn($r) => [
+                    'disaster_id' => $r->disaster_id,
+                    'disaster_name' => $r->disaster->disaster_name,
+                    'year' => $r->disaster->year,
+                    'effect_type' => $r->effect_type,
+                    'value' => $r->value,
+                    'source' => $r->source,
+                ])->values(),
+                'total' => $group->sum('value'),
+            ];
+            return $row;
+        })
+        ->sortByDesc('total')
+        ->values()
+        ->map(fn($item, $index) => array_merge($item, ['number' => $index + 1]));
+
+    return Inertia::render('CDRRMO/CRA/DisasterEffectImpact', [
+        'disasterEffectsData' => $disasterEffectsData,
+        'overallDisasterEffectsData' => [],
+        'barangays' => $allBarangays,
+        'selectedBarangay' => $barangayId,
+    ]);
+}
+
+
 }

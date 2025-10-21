@@ -352,6 +352,12 @@ export function AppSidebar({ auth }) {
                     icon: Table,
                     roles: ["cdrrmo_admin"],
                 },
+                {
+                    title: "Disaster Effect Impact",
+                    url: "/cdrrmo_admin/effectimpact",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
             ],
         },
         {
@@ -467,7 +473,7 @@ export function AppSidebar({ auth }) {
                 const isDifferent =
                     !cachedDataWithoutTimestamp ||
                     JSON.stringify(cachedDataWithoutTimestamp) !==
-                    JSON.stringify(apiData);
+                        JSON.stringify(apiData);
 
                 if (isDifferent) {
                     // Update state
@@ -632,17 +638,18 @@ export function AppSidebar({ auth }) {
                                         >
                                             <a
                                                 href={item.url || "#"}
-                                                className={`flex items-center justify-between w-full my-1 px-2 py-2 rounded-lg transition-all duration-200 ${isActive(item.url) ||
-                                                        (item.submenu &&
-                                                            item.submenu.some(
-                                                                (sub) =>
-                                                                    isActive(
-                                                                        sub.url
-                                                                    )
-                                                            ))
+                                                className={`flex items-center justify-between w-full my-1 px-2 py-2 rounded-lg transition-all duration-200 ${
+                                                    isActive(item.url) ||
+                                                    (item.submenu &&
+                                                        item.submenu.some(
+                                                            (sub) =>
+                                                                isActive(
+                                                                    sub.url
+                                                                )
+                                                        ))
                                                         ? "text-gray-900 font-semibold"
                                                         : "text-gray-700 hover:text-gray-900"
-                                                    }`}
+                                                }`}
                                             >
                                                 <div className="flex items-center">
                                                     <item.icon className="mr-2 h-5 w-5" />
@@ -665,10 +672,11 @@ export function AppSidebar({ auth }) {
                                     {/* Submenu */}
                                     {item.submenu?.length > 0 && (
                                         <SidebarGroupContent
-                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${openIndex === index
+                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                                openIndex === index
                                                     ? "max-h-[1000px] opacity-100"
                                                     : "max-h-0 opacity-0"
-                                                }`}
+                                            }`}
                                         >
                                             {/* Check if this is CRA Settings */}
                                             {item.title === "CRA Settings" ? (
@@ -750,12 +758,13 @@ export function AppSidebar({ auth }) {
                                                                     href={
                                                                         sub.url
                                                                     }
-                                                                    className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${isActive(
-                                                                        sub.url
-                                                                    )
+                                                                    className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${
+                                                                        isActive(
+                                                                            sub.url
+                                                                        )
                                                                             ? "bg-gray-200 text-gray-900 font-semibold"
                                                                             : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                                                                        }`}
+                                                                    }`}
                                                                 >
                                                                     <sub.icon className="mr-2 h-4 w-4" />
                                                                     <span>
