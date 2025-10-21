@@ -1,6 +1,6 @@
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, usePage, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 import Stepper from "@/Components/Stepper";
 import StepperController from "@/Components/StepperControler";
@@ -11,6 +11,7 @@ import Hazard from "@/Components/CRAsteps/Step3/Hazard";
 import Calamities from "@/Components/CRAsteps/Step2/Calamities";
 import InventoryEvacuation from "@/Components/CRAsteps/Step4/InventoryEvacuation";
 import DisasterReadiness from "@/Components/CRAsteps/Step5/DisasterReadiness";
+
 export default function Index() {
     const breadcrumbs = [
         { label: "Community Risk Assessment (CRA)", showOnMobile: false },
@@ -25,13 +26,13 @@ export default function Index() {
             return saved
                 ? JSON.parse(saved)
                 : {
-                      population: [],
-                      livelihood: [],
-                      infrastructure: [],
-                      institutions: [],
-                      hazards: [],
-                      evacuation: [],
-                  };
+                    population: [],
+                    livelihood: [],
+                    infrastructure: [],
+                    institutions: [],
+                    hazards: [],
+                    evacuation: [],
+                };
         } catch (err) {
             console.error("Error loading draft:", err);
             return {
@@ -45,13 +46,28 @@ export default function Index() {
         }
     });
 
-    // ✅ Auto-save whenever craData changes
     useEffect(() => {
         localStorage.setItem("craDataDraft", JSON.stringify(craData));
     }, [craData]);
 
     const [finalData, setFinalData] = useState([]);
     const [errors, setErrors] = useState({});
+
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const yearFromUrl = searchParams.get("year");
+    const [year, setYear] = useState(yearFromUrl || "");
+
+
+    useEffect(() => {
+        if (year && !craData.year) {
+            setCraData((prev) => ({
+                ...prev,
+                year: year,
+            }));
+            console.log("Year stored in craData:", year);
+        }
+    }, [year]);
 
     const steps = [
         "Barangay Resource Profile ",
@@ -61,7 +77,7 @@ export default function Index() {
         "Disaster Readiness",
     ];
 
-    // Display CRA step forms
+    // ✅ Display CRA step forms
     const displayStep = (step) => {
         switch (step) {
             case 1:
@@ -75,15 +91,17 @@ export default function Index() {
             case 5:
                 return <DisasterReadiness />;
             default:
+                return null;
         }
     };
 
+    // ✅ Step navigation and submission
     const handleClick = (direction) => {
         let newStep = currentStep;
 
         if (direction === "next") {
             if (currentStep === steps.length) {
-                // ✅ submit to backend
+                // ✅ Submit to backend
                 router.post(route("cra.store"), craData, {
                     onError: (errors) => {
                         setErrors(errors);
@@ -101,16 +119,7 @@ export default function Index() {
                             closeButton: true,
                         });
                     },
-                    // onSuccess: () => {
-                    //     toast.success("CRA submitted successfully!", {
-                    //         duration: 3000,
-                    //         closeButton: true,
-                    //     });
-                    //     // ✅ Clear draft after successful submit
-                    //     localStorage.removeItem("craDataDraft");
-                    // },
                 });
-
                 return;
             }
             newStep++;
@@ -139,7 +148,8 @@ export default function Index() {
                         hazards, and disaster readiness
                     </p>
                 </div>
-                <div className="bg-blue-100 rounded-t-xl px-2 sm:px-6 lg:px-8 py-2 border-gray-200 shadow-lg">
+
+                <div className="bg-blue-100 rounded-t-xl px-2 sm:px-6 lg:px-8 py-2 border-gray-200 shadow-lg flex justify-between items-center">
                     <Stepper steps={steps} currentStep={currentStep} />
                 </div>
 
@@ -153,6 +163,8 @@ export default function Index() {
                                 setFinalData,
                                 errors,
                                 setErrors,
+                                year,
+                                setYear,
                             }}
                         >
                             {displayStep(currentStep)}

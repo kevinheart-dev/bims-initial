@@ -206,10 +206,9 @@ export default function Population() {
                                     key={gender}
                                     type="number"
                                     name={`${gender}Population`}
-                                    label={`${
-                                        gender.charAt(0).toUpperCase() +
+                                    label={`${gender.charAt(0).toUpperCase() +
                                         gender.slice(1)
-                                    } Population`}
+                                        } Population`}
                                     placeholder={
                                         gender.charAt(0).toUpperCase() +
                                         gender.slice(1)
@@ -474,7 +473,7 @@ export default function Population() {
                                                     className="w-full border p-1"
                                                     value={
                                                         craData.ownership?.[
-                                                            own
+                                                        own
                                                         ] ?? ""
                                                     }
                                                     onChange={(e) =>
@@ -485,13 +484,13 @@ export default function Population() {
                                                                 [own]:
                                                                     e.target
                                                                         .value ===
-                                                                    ""
+                                                                        ""
                                                                         ? ""
                                                                         : Number(
-                                                                              e
-                                                                                  .target
-                                                                                  .value
-                                                                          ),
+                                                                            e
+                                                                                .target
+                                                                                .value
+                                                                        ),
                                                             },
                                                         }))
                                                     }
