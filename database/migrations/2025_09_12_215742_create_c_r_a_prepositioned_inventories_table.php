@@ -13,17 +13,25 @@ return new class extends Migration
     {
         Schema::create('c_r_a_prepositioned_inventories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('cra_id')->nullable()->constrained('community_risk_assessments')->onDelete('cascade');
-            $table->foreignId('barangay_id')
-                ->constrained('barangays')
+
+            $table->unsignedBigInteger('cra_id'); // must match community_risk_assessments.id
+            $table->foreign('cra_id')
+                ->references('id')
+                ->on('community_risk_assessments')
                 ->onDelete('cascade');
 
-            $table->text('item_name')->nullable();
-            $table->text('quantity')->nullable(); // can include text like "few" or "all used"
+            $table->unsignedBigInteger('barangay_id'); // must match barangays.id
+            $table->foreign('barangay_id')
+                ->references('id')
+                ->on('barangays')
+                ->onDelete('cascade');
+
+            $table->string('item_name'); // not nullable for unique index
+            $table->string('quantity')->nullable();
             $table->text('remarks')->nullable();
             $table->timestamps();
 
-            // Unique constraint for upsert
+            // Unique index (all columns must be NOT NULL)
             $table->unique(['barangay_id', 'item_name', 'cra_id'], 'cra_inventory_unique');
         });
     }
