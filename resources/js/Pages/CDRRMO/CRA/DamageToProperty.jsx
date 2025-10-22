@@ -27,10 +27,11 @@ export default function DamageToProperty({
             barangayId ? { barangay_id: barangayId } : {}
         );
     };
+
     const toPascalCase = (str) => {
         if (!str) return "—";
         return str
-            .replace(/_/g, " ") // replace underscores with spaces
+            .replace(/_/g, " ")
             .replace(
                 /\w\S*/g,
                 (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
@@ -74,6 +75,14 @@ export default function DamageToProperty({
 
     const renderTable = (title, data, isBarangay = false) => {
         const totalValue = data.reduce((sum, r) => sum + toNumber(r.value), 0);
+
+        // Exclude "description" column for overall view
+        const visibleColumns = isBarangay
+            ? allColumns.map((c) => c.key) // show all for barangay
+            : allColumns
+                  .filter((c) => c.key !== "description")
+                  .map((c) => c.key);
+
         return (
             <TableSection
                 key={title}
@@ -86,7 +95,7 @@ export default function DamageToProperty({
                     passedData: data,
                     allColumns,
                     columnRenderers,
-                    visibleColumns: allColumns.map((c) => c.key),
+                    visibleColumns,
                     showTotal: false,
                     tableHeight: "400px",
                 }}

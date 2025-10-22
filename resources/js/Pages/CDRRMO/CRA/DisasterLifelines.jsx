@@ -11,9 +11,11 @@ const nf = new Intl.NumberFormat();
 
 export default function DisasterLifelines({
     disasterLifelineData,
+    overallDisasterLifelineData,
     barangays = [],
     selectedBarangay,
     queryParams,
+    tip,
 }) {
     const breadcrumbs = [{ label: "Dashboard", showOnMobile: true }];
     queryParams = queryParams || {};
@@ -25,15 +27,44 @@ export default function DisasterLifelines({
 
     const handleBarangayChange = (e) => {
         const barangayId = e.target.value;
-        // Navigate to the same page with selected barangay
         router.get(
             route("cdrrmo_admin.disasterlifelines"),
             barangayId ? { barangay_id: barangayId } : {}
         );
     };
 
-    const isBarangayDataNull =
+    const isBarangayDataEmpty =
         !disasterLifelineData || disasterLifelineData.length === 0;
+    const isOverallDataEmpty =
+        !overallDisasterLifelineData ||
+        overallDisasterLifelineData.length === 0;
+
+    // Common table column definitions
+    const allColumns = [
+        { key: "category", label: "Category" },
+        { key: "description", label: "Description" },
+        { key: "value", label: "Value" },
+        { key: "source", label: "Source" },
+    ];
+
+    const columnRenderers = {
+        category: (row) => (
+            <span className="text-gray-800 font-medium">
+                {row.category || "—"}
+            </span>
+        ),
+        description: (row) => (
+            <span className="text-gray-700">{row.description || "—"}</span>
+        ),
+        value: (row) => (
+            <span className="font-bold text-blue-700">
+                {nf.format(toNumber(row.value))}
+            </span>
+        ),
+        source: (row) => (
+            <span className="text-gray-700">{row.source || "—"}</span>
+        ),
+    };
 
     return (
         <AdminLayout>
@@ -48,75 +79,35 @@ export default function DisasterLifelines({
                         barangays={barangays}
                     />
 
-                    {isBarangayDataNull ? (
-                        <NoDataPlaceholder tip="No disaster lifeline data available for the selected barangay." />
-                    ) : (
-                        disasterLifelineData.map((barangay, bIndex) => {
-                            const disastersGrouped = barangay.disasters.reduce(
-                                (acc, d) => {
-                                    if (!acc[d.disaster_id])
-                                        acc[d.disaster_id] = [];
-                                    acc[d.disaster_id].push(d);
-                                    return acc;
-                                },
-                                {}
-                            );
-
-                            return Object.entries(disastersGrouped).map(
-                                ([disasterId, lifelineRows], dIndex) => {
-                                    const allColumns = [
-                                        { key: "category", label: "Category" },
-                                        {
-                                            key: "description",
-                                            label: "Description",
-                                        },
-                                        { key: "value", label: "Value" },
-                                        { key: "source", label: "Source" },
-                                    ];
-
-                                    const columnRenderers = {
-                                        category: (row) => (
-                                            <span className="text-gray-800 font-medium">
-                                                {row.category || "—"}
-                                            </span>
-                                        ),
-                                        description: (row) => (
-                                            <span className="text-gray-700">
-                                                {row.description || "—"}
-                                            </span>
-                                        ),
-                                        value: (row) => (
-                                            <span className="font-bold text-blue-700">
-                                                {nf.format(toNumber(row.value))}
-                                            </span>
-                                        ),
-                                        source: (row) => (
-                                            <span className="text-gray-700">
-                                                {row.source || "—"}
-                                            </span>
-                                        ),
-                                    };
-
-                                    const disasterName =
-                                        lifelineRows[0].disaster_name;
-                                    const disasterYear = lifelineRows[0].year;
-                                    const totalValue = lifelineRows.reduce(
+                    {/* === CASE 1: OVERALL VIEW === */}
+                    {!selectedBarangay ? (
+                        isOverallDataEmpty ? (
+                            <NoDataPlaceholder
+                                tip={
+                                    tip ||
+                                    "No overall disaster lifeline data available."
+                                }
+                            />
+                        ) : (
+                            overallDisasterLifelineData.map(
+                                (disaster, index) => {
+                                    const total = disaster.lifelines.reduce(
                                         (sum, r) => sum + toNumber(r.value),
                                         0
                                     );
 
                                     return (
                                         <TableSection
-                                            key={`${bIndex}-${disasterId}`}
+                                            key={index}
                                             icon={<HeartPulse />}
                                             color="blue"
-                                            title={`${disasterName} in ${barangay.barangay_name} (${disasterYear})`}
+                                            title={`${disaster.disaster_name}`}
                                             description={`Total lifeline impact value: ${nf.format(
-                                                totalValue
+                                                total
                                             )}`}
                                             tableProps={{
                                                 component: DynamicTable,
-                                                passedData: lifelineRows,
+                                                passedData: disaster.lifelines,
                                                 allColumns,
                                                 columnRenderers,
                                                 visibleColumns: allColumns.map(
@@ -128,8 +119,46 @@ export default function DisasterLifelines({
                                         />
                                     );
                                 }
-                            );
-                        })
+                            )
+                        )
+                    ) : // === CASE 2: BARANGAY-SPECIFIC VIEW ===
+                    isBarangayDataEmpty ? (
+                        <NoDataPlaceholder tip="No disaster lifeline data available for the selected barangay." />
+                    ) : (
+                        disasterLifelineData.map((barangay, bIndex) =>
+                            barangay.disasters.map((disaster, dIndex) => {
+                                const total = disaster.lifelines.reduce(
+                                    (sum, r) => sum + toNumber(r.value),
+                                    0
+                                );
+                                const disasterName = disaster.disaster_name;
+                                const disasterYear =
+                                    disaster.lifelines[0]?.year || "—";
+
+                                return (
+                                    <TableSection
+                                        key={`${bIndex}-${dIndex}`}
+                                        icon={<HeartPulse />}
+                                        color="blue"
+                                        title={`${disasterName} in ${barangay.barangay_name} (${disasterYear})`}
+                                        description={`Total lifeline impact value: ${nf.format(
+                                            total
+                                        )}`}
+                                        tableProps={{
+                                            component: DynamicTable,
+                                            passedData: disaster.lifelines,
+                                            allColumns,
+                                            columnRenderers,
+                                            visibleColumns: allColumns.map(
+                                                (c) => c.key
+                                            ),
+                                            showTotal: true,
+                                            tableHeight: "400px",
+                                        }}
+                                    />
+                                );
+                            })
+                        )
                     )}
                 </div>
             </div>
