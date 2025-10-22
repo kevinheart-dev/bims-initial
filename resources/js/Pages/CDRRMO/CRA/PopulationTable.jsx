@@ -75,10 +75,11 @@ export default function Dashboard({
         ),
         name: (row) => (
             <span
-                className={`font-medium ${row.barangay_name === "Total"
-                    ? "text-blue-700 font-bold"
-                    : "text-gray-800"
-                    }`}
+                className={`font-medium ${
+                    row.barangay_name === "Total"
+                        ? "text-blue-700 font-bold"
+                        : "text-gray-800"
+                }`}
             >
                 {row.barangay_name || "—"}
             </span>
@@ -143,10 +144,11 @@ export default function Dashboard({
 
         name: (row) => (
             <span
-                className={`font-medium ${row.barangay_name === "Total"
-                    ? "text-blue-700 font-bold"
-                    : "text-gray-800"
-                    }`}
+                className={`font-medium ${
+                    row.barangay_name === "Total"
+                        ? "text-blue-700 font-bold"
+                        : "text-gray-800"
+                }`}
             >
                 {row.barangay_name || "—"}
             </span>
@@ -232,10 +234,11 @@ export default function Dashboard({
 
         barangay: (row) => (
             <span
-                className={`font-medium ${row.barangay_name === "Total"
-                    ? "text-blue-700 font-bold"
-                    : "text-gray-800"
-                    }`}
+                className={`font-medium ${
+                    row.barangay_name === "Total"
+                        ? "text-blue-700 font-bold"
+                        : "text-gray-800"
+                }`}
             >
                 {row.barangay_name || "—"}
             </span>
@@ -348,10 +351,11 @@ export default function Dashboard({
         // === Overall Total ===
         total: (row) => (
             <span
-                className={`text-sm font-semibold ${row.barangay_name === "Total"
-                    ? "text-blue-600"
-                    : "text-blue-500"
-                    }`}
+                className={`text-sm font-semibold ${
+                    row.barangay_name === "Total"
+                        ? "text-blue-600"
+                        : "text-blue-500"
+                }`}
             >
                 {row.total?.toLocaleString() ?? "0"}
             </span>
@@ -379,10 +383,11 @@ export default function Dashboard({
 
         barangay: (row) => (
             <span
-                className={`font-medium ${row.barangay_name === "Total"
-                    ? "text-blue-700 font-bold"
-                    : "text-gray-800"
-                    }`}
+                className={`font-medium ${
+                    row.barangay_name === "Total"
+                        ? "text-blue-700 font-bold"
+                        : "text-gray-800"
+                }`}
             >
                 {row.barangay_name || "—"}
             </span>
@@ -459,22 +464,18 @@ export default function Dashboard({
 
         total: (row) => (
             <span
-                className={`text-sm font-semibold ${row.barangay_name === "Total"
-                    ? "text-blue-600"
-                    : "text-blue-500"
-                    }`}
+                className={`text-sm font-semibold ${
+                    row.barangay_name === "Total"
+                        ? "text-blue-600"
+                        : "text-blue-500"
+                }`}
             >
                 {row.total?.toLocaleString() ?? "0"}
             </span>
         ),
     };
 
-    const isDataNull =
-        !populationData?.length ||
-        !genderData?.length ||
-        !ageDistributionData?.length ||
-        !houseBuildData?.length ||
-        !houseOwnershipData?.length;
+    const isDataNull = !populationData?.length;
 
     const handleBarangayChange = (e) => {
         const barangayId = e.target.value;

@@ -113,3 +113,35 @@
         @apply bg-background text-foreground;
     }
 }
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #cra-print-container,
+    #cra-print-container * {
+        visibility: visible;
+    }
+
+    #cra-print-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 1rem;
+    }
+
+    button,
+    .no-print {
+        display: none !important;
+    }
+
+    input,
+    select,
+    textarea {
+        border: 1px solid #000;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

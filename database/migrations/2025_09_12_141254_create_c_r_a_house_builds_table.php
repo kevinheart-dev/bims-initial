@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('c_r_a_house_builds', function (Blueprint $table) {
             $table->id();
             $table->foreignId('cra_id')->nullable()->constrained('community_risk_assessments')->onDelete('cascade');
-            $table->unsignedBigInteger('barangay_id');
-            $table->string('house_type');
+            $table->unsignedBigInteger('barangay_id')->nullable();
+            $table->string('house_type')->nullable();
             $table->integer('one_floor')->default(0);
             $table->integer('two_or_more_floors')->default(0);
             $table->timestamps();

@@ -345,6 +345,7 @@ class CRAController extends Controller
             //dd($data);
             $year = $data['year'] ?? session('cra_year');
             $cra = CommunityRiskAssessment::where('year', $year)->first();
+
             //dd($year);
 
             //*================= Barangay Resource Profile =================*//
@@ -406,8 +407,10 @@ class CRAController extends Controller
             if (!empty($data['pwd'])) {
                 $this->savePWDStat($brgy_id, $data['pwd'], $cra);
             }
-            if (!empty($data['disaster_per_purok'])) {
-                $this->saveFamilyAtRisk($brgy_id, $data['disaster_per_purok'], $cra);
+            $disasterPerPurok = $data['disaster_per_purok'] ?? null;
+
+            if (is_array($disasterPerPurok) && count($disasterPerPurok) > 0) {
+                $this->saveFamilyAtRisk($brgy_id, $disasterPerPurok, $cra);
             }
             if (!empty($data['illnesses'])) {
                 $this->saveIllnesses($brgy_id, $data['illnesses'], $cra);
@@ -470,11 +473,24 @@ class CRAController extends Controller
             );
 
             //dd("Saved Successfully 🚀 CRA Progress: { $progressReport[percentage]}%");
-            return redirect()->route('cra.dashboard')->with('success', 'Community Risk Assessment (CRA) saved successfully!');
+            return redirect()
+            ->route('cra.create', ['year' => $cra->year])
+            ->with('success', 'Community Risk Assessment (CRA) saved successfully!');
 
         } catch (\Throwable $e) {
             DB::rollBack();
-            dd('error: ' . $e->getMessage());
+
+            // Log the error
+            \Log::error('CRAController error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            // Optional: return a JSON response or redirect with an error message
+            return back()->withErrors([
+                'message' => 'An unexpected error occurred while saving data. Please try again or contact support.',
+            ]);
         }
     }
 
@@ -1077,7 +1093,7 @@ class CRAController extends Controller
             'highIndividuals' => 'high_individuals',
         ];
 
-        foreach ($data["disaster_per_purok"] as $disasterData) {
+        foreach ($data["disaster_per_purok"] ?? [] as $disasterData) {
             $hazard = $getHazard($disasterData['type']);
 
             foreach ($disasterData['rows'] as $row) {
@@ -1099,7 +1115,7 @@ class CRAController extends Controller
         }
 
         // --- Disaster Inventory ---
-        foreach ($data["disaster_inventory"] as $inventoryData) {
+        foreach ($data["disaster_inventory"] ?? [] as $inventoryData) {
             $hazard = $getHazard($inventoryData['hazard']);
 
             foreach ($inventoryData['categories'] as $categoryData) {
@@ -1137,7 +1153,7 @@ class CRAController extends Controller
                 'hazard_id'        => $hazard->id,
                 'barangay_id'      => $brgy_id,
                 'cra_id' => $cra->id,
-                'purok_number'     => $row['purok'],
+                'purok_number'     => $row['purok'] || null,
 
                 // Families & totals
                 'total_families'   => $row['families'] ?? 0,
@@ -1255,14 +1271,14 @@ class CRAController extends Controller
     private function saveFamilyAtRisk($brgy_id, $data, $cra) {
         $records = [];
         foreach ($data as $purokData) {
-            $purokNumber = $purokData['purok'];
+            $purokNumber = $purokData['purok'] ?? null;
 
-            foreach ($purokData['rowsValue'] as $row) {
+            foreach ($purokData['rowsValue'] ?? [] as $row) {
                 $records[] = [
                     'barangay_id'   => $brgy_id,
                     'cra_id' => $cra->id,
                     'purok_number'  => $purokNumber,
-                    'indicator'     => $row['value'],
+                    'indicator'     => $row['value'] || '',
                     'count'         => $row['count'] ?? 0,
                     'created_at'    => now(),
                     'updated_at'    => now(),
@@ -1461,10 +1477,10 @@ class CRAController extends Controller
                 [
                     'barangay_id' => $brgy_id,
                     'cra_id' => $cra->id,
-                    'item_name'   => $row['item'],
+                    'item_name'   => $row['item'] ?? '',
                 ],
                 [
-                    'quantity' => $row['quantity'] ?? 0,
+                    'quantity' => $row['quantity'] ?? '',
                     'remarks'  => $row['remarks'] ?? null,
                 ]
             );

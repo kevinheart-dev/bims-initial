@@ -18,8 +18,8 @@ return new class extends Migration
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            $table->integer('activity_no'); // Step/activity number
-            $table->text('things_to_do');   // Actions required
+            $table->integer('activity_no')->nullable(); // Step/activity number
+            $table->text('things_to_do')->nullable();   // Actions required
             $table->text('responsible_person')->nullable(); // Person/team responsible
             $table->text('remarks')->nullable(); // Additional notes
             $table->timestamps();

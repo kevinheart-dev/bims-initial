@@ -18,8 +18,8 @@ return new class extends Migration
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            $table->string('designation_team', 150); // e.g., Response Team, Logistics, Medical
-            $table->string('name', 150); // member’s full name
+            $table->string('designation_team', 150)->nullable(); // e.g., Response Team, Logistics, Medical
+            $table->string('name', 150)->nullable(); // member’s full name
             $table->string('contact_no', 50)->nullable(); // contact number
             $table->timestamps();
             $table->unique(['barangay_id', 'designation_team', 'cra_id'], 'cra_bdrrmc_directory_unique');

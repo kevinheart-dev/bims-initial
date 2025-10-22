@@ -18,8 +18,8 @@ return new class extends Migration
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            $table->string('item_name', 150);
-            $table->string('quantity', 100)->nullable(); // can include text like "few" or "all used"
+            $table->text('item_name')->nullable();
+            $table->text('quantity')->nullable(); // can include text like "few" or "all used"
             $table->text('remarks')->nullable();
             $table->timestamps();
 

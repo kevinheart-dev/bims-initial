@@ -21,10 +21,10 @@ return new class extends Migration
             $table->foreignId('barangay_id')
                 ->constrained('barangays')
                 ->onDelete('cascade');
-            $table->string('category', 55);
+            $table->string('category', 55)->nullable();
             $table->string('description', 255)->nullable();
-            $table->string('value', 100);    // numeric value (cost/quantity)
-            $table->string('damage_type', 50);
+            $table->string('value', 100)->nullable();    // numeric value (cost/quantity)
+            $table->string('damage_type', 50)->nullable();
             $table->string('source', 150)->nullable();
             $table->timestamps();
             $table->unique(

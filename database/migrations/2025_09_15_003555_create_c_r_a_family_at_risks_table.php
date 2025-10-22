@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('cra_id')->nullable()->constrained('community_risk_assessments')->onDelete('cascade');
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->integer('purok_number'); // Purok number
-            $table->string('indicator', 255); // The value field, e.g., "Number of Informal Settler Families"
+            $table->integer('purok_number')->nullable(); // Purok number
+            $table->string('indicator', 255)->nullable(); // The value field, e.g., "Number of Informal Settler Families"
             $table->integer('count')->default(0); // Number of families/individuals
             $table->timestamps();
 

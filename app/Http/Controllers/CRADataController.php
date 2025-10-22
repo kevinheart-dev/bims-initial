@@ -29,26 +29,42 @@ class CRADataController extends Controller
     public function getCRA()
     {
         try {
-            // 🔹 Fetch all CRA records
+            // 🔹 Get the CRA record(s)
             $cras = CommunityRiskAssessment::select('id', 'year')->get();
 
-            // 🔹 For each CRA, attach its latest progress percentage
-            $crasWithProgress = $cras->map(function ($cra) {
-                $progress = \App\Models\CRAProgress::where('cra_id', $cra->id)
-                    ->latest()
-                    ->first();
+            $result = [];
 
-                $cra->percentage = $progress ? (float) $progress->percentage : 0;
-                $cra->status = $progress
-                    ? ($progress->percentage >= 100 ? 'Completed' : 'In Progress')
-                    : 'Not started';
+            foreach ($cras as $cra) {
+                // 🔹 Get all progress entries for this CRA
+                $progressEntries = \App\Models\CRAProgress::where('cra_id', $cra->id)->get();
 
-                return $cra;
-            });
+                if ($progressEntries->isNotEmpty()) {
+                    foreach ($progressEntries as $progress) {
+                        $result[] = [
+                            'id' => $cra->id,
+                            'year' => $cra->year,
+                            'barangay_id' => $progress->barangay_id,
+                            'percentage' => (float) $progress->percentage,
+                            'status' => $progress->percentage >= 100
+                                ? 'Completed'
+                                : ($progress->percentage > 0 ? 'In Progress' : 'Not started'),
+                        ];
+                    }
+                } else {
+                    // No progress yet for this CRA
+                    $result[] = [
+                        'id' => $cra->id,
+                        'year' => $cra->year,
+                        'barangay_id' => null,
+                        'percentage' => 0,
+                        'status' => 'Not started',
+                    ];
+                }
+            }
 
             return response()->json([
                 'success' => true,
-                'data' => $crasWithProgress,
+                'data' => $result,
             ]);
         } catch (\Exception $e) {
             return response()->json([

@@ -91,6 +91,84 @@ export function AppSidebar({ auth }) {
         fetchCRAList();
     }, []);
 
+    const userRoles = user.roles.map((r) => r.name);
+
+    useEffect(() => {
+        if (
+            (!userRoles.includes("admin") &&
+                !userRoles.includes("barangay_officer")) ||
+            fetchedRef.current
+        )
+            return;
+
+        const cacheKey = "barangay_details_cache";
+        const cachedDataRaw = localStorage.getItem(cacheKey);
+        let cachedData = null;
+
+        // ✅ Use cached data immediately if available
+        if (cachedDataRaw) {
+            try {
+                cachedData = JSON.parse(cachedDataRaw);
+                setBarangay(cachedData);
+                fetchedRef.current = true;
+            } catch {
+                localStorage.removeItem(cacheKey);
+            }
+        }
+
+        const fetchBarangayDetails = async () => {
+            try {
+                const res = await axios.get(
+                    `${APP_URL}/barangay_management/barangaydetails`
+                );
+                const apiData = res.data.data;
+
+                // ✅ Compare with cached data, update if different
+                const cachedDataWithoutTimestamp = cachedData
+                    ? { ...cachedData }
+                    : null;
+                if (cachedDataWithoutTimestamp?._cachedAt) {
+                    delete cachedDataWithoutTimestamp._cachedAt;
+                }
+
+                const isDifferent =
+                    !cachedDataWithoutTimestamp ||
+                    JSON.stringify(cachedDataWithoutTimestamp) !==
+                        JSON.stringify(apiData);
+
+                if (isDifferent) {
+                    // Update state
+                    setBarangay(apiData);
+
+                    // Update cache with new data + timestamp
+                    localStorage.setItem(
+                        cacheKey,
+                        JSON.stringify({ ...apiData, _cachedAt: Date.now() })
+                    );
+                }
+
+                fetchedRef.current = true;
+            } catch (err) {
+                console.error("Failed to fetch barangay details:", err);
+            }
+        };
+
+        // Check if cache is expired (1 minute here)
+        const cacheExpiry = 1000 * 60 * 5; // 5 min
+        if (
+            !cachedData ||
+            (cachedData._cachedAt &&
+                Date.now() - cachedData._cachedAt > cacheExpiry)
+        ) {
+            fetchBarangayDetails();
+        } else {
+            // ✅ Still fetch in background to check for changes
+            fetchBarangayDetails();
+        }
+    }, [APP_URL, userRoles]);
+
+    console.log(craList);
+
     const items = [
         {
             title: "Barangay Officer",
@@ -393,21 +471,28 @@ export function AppSidebar({ auth }) {
             roles: ["barangay_officer", "admin"],
             url: "#",
             submenu:
-                craList.length > 0
-                    ? craList.map((cra) => ({
-                          title: `Submit CRA ${cra.year}`,
-                          url: `/cra/create?year=${cra.year}`,
-                          icon: FileInput,
-                          roles: ["barangay_officer", "admin"],
-                          year: cra.year, // ✅ store the year here
-                          progress: cra.percentage ?? 0, // ✅ direct percentage from backend
-                      }))
+                craList && craList.length > 0
+                    ? craList
+                          .filter(
+                              (cra) =>
+                                  cra.barangay_id === barangay?.id ||
+                                  cra.barangay_id === null
+                          )
+                          .map((cra) => ({
+                              title: `Submit CRA ${cra.year}`,
+                              url: `/cra/create?year=${cra.year}`,
+                              icon: FileInput,
+                              roles: ["barangay_officer", "admin"],
+                              year: cra.year,
+                              progress: cra.percentage ?? 0,
+                          }))
                     : [
                           {
                               title: "Loading years...",
                               url: "#",
                               icon: FileInput,
                               roles: ["barangay_officer", "admin"],
+                              progress: 0,
                           },
                       ],
         },
@@ -445,8 +530,6 @@ export function AppSidebar({ auth }) {
         },
     ];
 
-    const userRoles = user.roles.map((r) => r.name);
-
     const normalize = (u) => {
         if (!u) return "";
         let s = u.trim();
@@ -460,80 +543,6 @@ export function AppSidebar({ auth }) {
         const n = normalize(url);
         return location.pathname === n || location.pathname.startsWith(n + "/");
     };
-
-    useEffect(() => {
-        if (
-            (!userRoles.includes("admin") &&
-                !userRoles.includes("barangay_officer")) ||
-            fetchedRef.current
-        )
-            return;
-
-        const cacheKey = "barangay_details_cache";
-        const cachedDataRaw = localStorage.getItem(cacheKey);
-        let cachedData = null;
-
-        // ✅ Use cached data immediately if available
-        if (cachedDataRaw) {
-            try {
-                cachedData = JSON.parse(cachedDataRaw);
-                setBarangay(cachedData);
-                fetchedRef.current = true;
-            } catch {
-                localStorage.removeItem(cacheKey);
-            }
-        }
-
-        const fetchBarangayDetails = async () => {
-            try {
-                const res = await axios.get(
-                    `${APP_URL}/barangay_management/barangaydetails`
-                );
-                const apiData = res.data.data;
-
-                // ✅ Compare with cached data, update if different
-                const cachedDataWithoutTimestamp = cachedData
-                    ? { ...cachedData }
-                    : null;
-                if (cachedDataWithoutTimestamp?._cachedAt) {
-                    delete cachedDataWithoutTimestamp._cachedAt;
-                }
-
-                const isDifferent =
-                    !cachedDataWithoutTimestamp ||
-                    JSON.stringify(cachedDataWithoutTimestamp) !==
-                        JSON.stringify(apiData);
-
-                if (isDifferent) {
-                    // Update state
-                    setBarangay(apiData);
-
-                    // Update cache with new data + timestamp
-                    localStorage.setItem(
-                        cacheKey,
-                        JSON.stringify({ ...apiData, _cachedAt: Date.now() })
-                    );
-                }
-
-                fetchedRef.current = true;
-            } catch (err) {
-                console.error("Failed to fetch barangay details:", err);
-            }
-        };
-
-        // Check if cache is expired (1 minute here)
-        const cacheExpiry = 1000 * 60 * 5; // 5 min
-        if (
-            !cachedData ||
-            (cachedData._cachedAt &&
-                Date.now() - cachedData._cachedAt > cacheExpiry)
-        ) {
-            fetchBarangayDetails();
-        } else {
-            // ✅ Still fetch in background to check for changes
-            fetchBarangayDetails();
-        }
-    }, [APP_URL, userRoles]);
 
     // Filter items based on user roles
     const filteredItems = useMemo(() => {
@@ -747,22 +756,32 @@ export function AppSidebar({ auth }) {
                                                                     2024
                                                                 </option>
 
-                                                                {craList.length >
-                                                                0 ? (
-                                                                    craList.map(
+                                                                {craList &&
+                                                                craList.length >
+                                                                    0 ? (
+                                                                    [
+                                                                        ...new Set(
+                                                                            craList.map(
+                                                                                (
+                                                                                    cra
+                                                                                ) =>
+                                                                                    cra.year
+                                                                            )
+                                                                        ),
+                                                                    ].map(
                                                                         (
-                                                                            cra
+                                                                            year
                                                                         ) => (
                                                                             <option
                                                                                 key={
-                                                                                    cra.id
+                                                                                    year
                                                                                 }
                                                                                 value={
-                                                                                    cra.year
+                                                                                    year
                                                                                 }
                                                                             >
                                                                                 {
-                                                                                    cra.year
+                                                                                    year
                                                                                 }
                                                                             </option>
                                                                         )
@@ -862,6 +881,7 @@ export function AppSidebar({ auth }) {
                                                                                     {
                                                                                         percentage
                                                                                     }
+
                                                                                     %
                                                                                     Complete
                                                                                 </p>

@@ -1,7 +1,7 @@
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, router } from "@inertiajs/react";
-import { useState, useEffect } from "react";
+import { Head, router, usePage } from "@inertiajs/react";
+import { useState, useEffect, useRef } from "react";
 import Stepper from "@/Components/Stepper";
 import StepperController from "@/Components/StepperControler";
 import { StepperContext } from "@/context/StepperContext";
@@ -17,8 +17,10 @@ export default function Index({ progress }) {
     const breadcrumbs = [
         { label: "Community Risk Assessment (CRA)", showOnMobile: false },
     ];
-
+    const printRef = useRef(null);
     const [currentStep, setCurrentStep] = useState(1);
+    const { props } = usePage();
+    const { success, error } = props;
 
     // ✅ Load from localStorage first
     const [craData, setCraData] = useState(() => {
@@ -132,6 +134,31 @@ export default function Index({ progress }) {
         }
     };
 
+    const handlePrint = () => {
+        window.print();
+    };
+
+    useEffect(() => {
+        if (success) {
+            toast.success(success, {
+                description: "Community Risk Assesment saved.",
+                duration: 3000,
+            });
+        }
+        props.success = null;
+    }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
+
     return (
         <AdminLayout>
             <Toaster richColors />
@@ -178,24 +205,32 @@ export default function Index({ progress }) {
                                 ></div>
                             </div>
 
-                            {/* Timestamps */}
-                            <div className="mt-1">
-                                <p className="text-[10px] text-gray-600">
-                                    <span className="font-medium">Status:</span>{" "}
-                                    {progress?.status ?? "Not started"}
-                                </p>
-
-                                {progress?.submitted_at && (
-                                    <p className="text-[10px] text-gray-500">
-                                        Submitted: {progress.submitted_at}
+                            <div className="flex justify-between items-center gap-2 mt-2">
+                                <div className="mt-1 text-[10px] text-gray-600">
+                                    <p>
+                                        <span className="font-medium">
+                                            Status:
+                                        </span>{" "}
+                                        {progress?.status ?? "Not started"}
                                     </p>
-                                )}
+                                    {progress?.submitted_at && (
+                                        <p className="text-gray-500">
+                                            Submitted: {progress.submitted_at}
+                                        </p>
+                                    )}
+                                    {progress?.last_updated && (
+                                        <p className="text-gray-500">
+                                            Updated: {progress.last_updated}
+                                        </p>
+                                    )}
+                                </div>
 
-                                {progress?.last_updated && (
-                                    <p className="text-[10px] text-gray-500">
-                                        Updated: {progress.last_updated}
-                                    </p>
-                                )}
+                                <button
+                                    onClick={handlePrint}
+                                    className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-medium whitespace-nowrap"
+                                >
+                                    Print CRA
+                                </button>
                             </div>
                         </div>
                     </div>

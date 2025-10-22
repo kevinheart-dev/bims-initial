@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('cra_id')->nullable()->constrained('community_risk_assessments')->onDelete('cascade');
             $table->foreignId('disaster_id')->constrained('c_r_a_disaster_occurances')->onDelete('cascade');
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->string('category', 100);
+            $table->string('category', 100)->nullable();
             $table->integer('value')->default(0);
             $table->string('source', 150)->nullable();
             $table->timestamps();

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('cra_id')->nullable()->constrained('community_risk_assessments')->onDelete('cascade');
             $table->unsignedBigInteger('barangay_id');
-            $table->string('name'); // unique per barangay
+            $table->string('name')->nullable(); // unique per barangay
             $table->integer('male_members')->default(0);
             $table->integer('female_members')->default(0);
             $table->integer('lgbtq_members')->default(0);

@@ -18,11 +18,11 @@ return new class extends Migration
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            $table->string('name', 150);
-            $table->integer('capacity_families')->default(0);
-            $table->integer('capacity_individuals')->default(0);
+            $table->string('name', 150)->nullable();
+            $table->integer('capacity_families')->nullable()->default(0);
+            $table->integer('capacity_individuals')->nullable()->default(0);
 
-            $table->enum('owner_type', ['government', 'private']);
+            $table->enum('owner_type', ['government', 'private'])->nullable();
             $table->boolean('inspected_by_engineer')->default(false);
             $table->boolean('has_mou')->default(false);
             $table->timestamps();

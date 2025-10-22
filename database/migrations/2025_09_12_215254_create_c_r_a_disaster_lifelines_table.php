@@ -21,7 +21,7 @@ return new class extends Migration
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            $table->string('category', 100);
+            $table->string('category', 100)->nullable();
             $table->string('description', 255)->nullable();
             $table->string('value', 150)->nullable(); // can store status/value (e.g. "Partial outage", "5 transformers")
             $table->string('source', 150)->nullable();

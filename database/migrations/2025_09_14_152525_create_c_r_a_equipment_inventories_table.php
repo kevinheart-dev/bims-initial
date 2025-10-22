@@ -18,7 +18,7 @@ return new class extends Migration
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            $table->string('item', 200); // Equipment item name
+            $table->string('item', 200)->nullable(); // Equipment item name
             $table->enum('availability', ['checked', 'cross'])->default('checked'); // ✓ or ✗
             $table->string('quantity', 55)->nullable(); // Quantity available
             $table->string('location', 200)->nullable(); // Storage location

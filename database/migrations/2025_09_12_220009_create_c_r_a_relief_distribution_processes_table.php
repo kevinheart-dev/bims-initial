@@ -18,8 +18,8 @@ return new class extends Migration
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            $table->integer('step_no'); // e.g., 1, 2, 3, ...
-            $table->text('distribution_process'); // detailed step description
+            $table->integer('step_no')->nullable(); // e.g., 1, 2, 3, ...
+            $table->text('distribution_process')->nullable(); // detailed step description
             $table->string('origin_of_goods', 150)->nullable(); // LGU, NGO, private, etc.
             $table->text('remarks')->nullable();
             $table->timestamps();

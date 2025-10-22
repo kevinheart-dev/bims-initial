@@ -83,13 +83,13 @@ const DisasterPerPurok = () => {
     };
 
     // Compute totals
-    const totals =
-        craData.disaster_per_purok?.[0]?.rowsValue.map((_, idx) =>
+    const totals = (craData.disaster_per_purok?.[0]?.rowsValue || []).map(
+        (_, idx) =>
             craData.disaster_per_purok.reduce(
-                (sum, p) => sum + Number(p.rowsValue[idx].count || 0),
+                (sum, p) => sum + Number(p.rowsValue?.[idx]?.count || 0),
                 0
             )
-        ) || [];
+    );
 
     return (
         <div className="p-4">
@@ -99,16 +99,16 @@ const DisasterPerPurok = () => {
                     <thead>
                         <tr className="bg-gray-100">
                             <th className="border p-1 text-center">Purok</th>
-                            {craData.disaster_per_purok?.[0]?.rowsValue.map(
-                                (row, idx) => (
-                                    <th
-                                        key={idx}
-                                        className="border p-1 text-center"
-                                    >
-                                        {row.value}
-                                    </th>
-                                )
-                            )}
+                            {(
+                                craData.disaster_per_purok?.[0]?.rowsValue || []
+                            ).map((row, idx) => (
+                                <th
+                                    key={idx}
+                                    className="border p-1 text-center"
+                                >
+                                    {row.value}
+                                </th>
+                            ))}
                             <th className="border p-1 text-center">Actions</th>
                         </tr>
                     </thead>
@@ -129,11 +129,11 @@ const DisasterPerPurok = () => {
                                         className="w-full text-center text-xs p-1 border rounded"
                                     />
                                 </td>
-                                {purok.rowsValue.map((row, rIdx) => (
+                                {(purok.rowsValue || []).map((row, rIdx) => (
                                     <td key={rIdx} className="border p-1">
                                         <input
                                             type="text"
-                                            value={row.count}
+                                            value={row.count || ""}
                                             onChange={(e) =>
                                                 updatePurok(
                                                     pIdx,

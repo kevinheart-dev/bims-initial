@@ -22,8 +22,8 @@ return new class extends Migration
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            $table->string('category', 100);
-            $table->string('item_name', 150);
+            $table->string('category', 100)->nullable();
+            $table->string('item_name', 150)->nullable();
             $table->string('total_in_barangay', 100)->nullable();
             $table->string('percentage_at_risk', 100)->nullable();
             $table->string('location', 150)->nullable();

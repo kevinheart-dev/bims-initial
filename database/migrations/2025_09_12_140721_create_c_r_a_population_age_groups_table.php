@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('c_r_a_population_age_groups', function (Blueprint $table) {
             $table->id();
             $table->foreignId('cra_id')->nullable()->constrained('community_risk_assessments')->onDelete('cascade');
-            $table->unsignedBigInteger('barangay_id');
-            $table->string('age_group');
+            $table->unsignedBigInteger('barangay_id')->nullable();
+            $table->string('age_group')->nullable();
             $table->integer('male_without_disability')->default(0);
             $table->integer('male_with_disability')->default(0);
             $table->integer('female_without_disability')->default(0);

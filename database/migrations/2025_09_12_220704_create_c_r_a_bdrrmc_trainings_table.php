@@ -18,7 +18,7 @@ return new class extends Migration
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            $table->string('title', 200); // Training title
+            $table->string('title', 200)->nullable(); // Training title
             $table->enum('status', ['checked', 'cross'])->default('cross'); // checked = completed, cross = not yet
             $table->string('duration', 100)->nullable(); // e.g., "3 days"
             $table->text('agency')->nullable(); // training agency/organizer

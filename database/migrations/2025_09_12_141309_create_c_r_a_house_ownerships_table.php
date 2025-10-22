@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('c_r_a_house_ownerships', function (Blueprint $table) {
             $table->id();
             $table->foreignId('cra_id')->nullable()->constrained('community_risk_assessments')->onDelete('cascade');
-            $table->unsignedBigInteger('barangay_id');
-            $table->string('ownership_type');
+            $table->unsignedBigInteger('barangay_id')->nullable();
+            $table->string('ownership_type')->nullable();
             $table->integer('quantity')->default(0);
             $table->timestamps();
             $table->unique(['barangay_id', 'ownership_type', 'cra_id']); // 👈 required

@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('cra_id')->nullable()->constrained('community_risk_assessments')->onDelete('cascade');
             $table->foreignId('barangay_id')->constrained('barangays')->onDelete('cascade');
-            $table->integer('total_population')->default(0);;
-            $table->integer('total_households')->default(0);;
-            $table->integer('total_families')->default(0);;
+            $table->integer('total_population')->default(0);
+            $table->integer('total_households')->default(0);
+            $table->integer('total_families')->default(0);
             $table->timestamps();
         });
     }

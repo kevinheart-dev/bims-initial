@@ -18,7 +18,7 @@ return new class extends Migration
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            $table->string('illness', 150);
+            $table->string('illness', 150)->nullable();
             $table->integer('children')->default(0);
             $table->integer('adults')->default(0);
 

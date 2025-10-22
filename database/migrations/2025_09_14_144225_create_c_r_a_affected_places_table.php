@@ -22,7 +22,7 @@ return new class extends Migration
                 ->constrained('c_r_a_hazards')
                 ->onDelete('cascade');
 
-            $table->enum('risk_level', ['Low', 'Medium', 'High'])->default('Low');
+            $table->enum('risk_level', ['Low', 'Medium', 'High'])->nullable()->default('Low');
 
             $table->integer('purok_number')->nullable();
 

@@ -18,8 +18,8 @@ return new class extends Migration
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            $table->string('disaster_name', 55);
-            $table->string('year', 35);
+            $table->string('disaster_name', 55)->nullable();
+            $table->string('year', 35)->nullable();
             $table->timestamps();
             $table->unique(
                 ['barangay_id', 'disaster_name', 'year', 'cra_id'],

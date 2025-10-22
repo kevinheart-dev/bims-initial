@@ -19,7 +19,7 @@ return new class extends Migration
                 ->onDelete('cascade');
 
             $table->string('evacuation_center', 150)->nullable();
-            $table->string('relief_good', 150);
+            $table->string('relief_good', 150)->nullable();
             $table->string('quantity', 100)->nullable();
             $table->string('unit', 50)->nullable(); // e.g. sacks, boxes, packs
             $table->string('beneficiaries', 150)->nullable(); // e.g. household name or "100 families"

@@ -18,8 +18,8 @@ return new class extends Migration
                 ->constrained('barangays')
                 ->onDelete('cascade');
 
-            $table->string('livelihood_type', 150); // e.g., farmers, vendors, fisherfolk
-            $table->string('evacuation_site', 150); // assigned evacuation center/site
+            $table->string('livelihood_type', 150)->nullable(); // e.g., farmers, vendors, fisherfolk
+            $table->string('evacuation_site', 150)->nullable(); // assigned evacuation center/site
             $table->string('place_of_origin', 150)->nullable(); // where they are relocated from
             $table->string('capacity_description', 255)->nullable();
             $table->timestamps();
