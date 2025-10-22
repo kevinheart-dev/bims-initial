@@ -326,11 +326,11 @@ class DatabaseSeeder extends Seeder
             // FamilyRelationSeeder::class,
             BarangayInformationSeeder::class,
         ]);
-        // $this->call([
-        //     CRADataseeder::class,
-        // ]);
-        CommunityRiskAssessment::factory()->create([
-            'year' => 2025
+        $this->call([
+            CRADataseeder::class,
         ]);
+        // CommunityRiskAssessment::factory()->create([
+        //     'year' => 2025
+        // ]);
     }
 }

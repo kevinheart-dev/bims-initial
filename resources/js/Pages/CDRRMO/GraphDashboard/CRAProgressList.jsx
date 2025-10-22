@@ -100,7 +100,7 @@ export default function CRAProgressList({ selectedBarangayId }) {
                 )}
             </div>
 
-            <div ref={scrollRef} className="max-h-[375px] overflow-y-auto pr-1">
+            <div ref={scrollRef} className="max-h-[370px] overflow-y-auto pr-1">
                 <ul className="text-sm text-gray-700 divide-y divide-gray-100">
                     {data.map((item, index) => {
                         const progress = item.cra_progress ?? 0;
@@ -108,11 +108,10 @@ export default function CRAProgressList({ selectedBarangayId }) {
                             <li
                                 key={item.id}
                                 ref={(el) => (itemRefs.current[item.id] = el)}
-                                className={`py-2 px-2 rounded-md transition-colors duration-200 ${
-                                    selectedBarangayId === item.id
-                                        ? "bg-blue-50 font-semibold"
-                                        : "hover:bg-gray-50"
-                                }`}
+                                className={`py-2 px-2 rounded-md transition-colors duration-200 ${selectedBarangayId === item.id
+                                    ? "bg-blue-50 font-semibold"
+                                    : "hover:bg-gray-50"
+                                    }`}
                             >
                                 {/* Barangay name and progress */}
                                 <div className="flex justify-between items-center mb-1">
@@ -132,15 +131,14 @@ export default function CRAProgressList({ selectedBarangayId }) {
                                 {/* Progress bar */}
                                 <div className="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
                                     <div
-                                        className={`h-3 rounded-full transition-all duration-500 ${
-                                            progress >= 100
-                                                ? "bg-green-500"
-                                                : progress >= 70
+                                        className={`h-3 rounded-full transition-all duration-500 ${progress >= 100
+                                            ? "bg-green-500"
+                                            : progress >= 70
                                                 ? "bg-blue-500"
                                                 : progress >= 40
-                                                ? "bg-yellow-400"
-                                                : "bg-red-400"
-                                        }`}
+                                                    ? "bg-yellow-400"
+                                                    : "bg-red-400"
+                                            }`}
                                         style={{ width: `${progress}%` }}
                                     />
                                 </div>
@@ -150,8 +148,8 @@ export default function CRAProgressList({ selectedBarangayId }) {
                                     {progress >= 100
                                         ? "Completed"
                                         : progress > 0
-                                        ? "In Progress"
-                                        : "Not Started"}
+                                            ? "In Progress"
+                                            : "Not Started"}
                                 </p>
                             </li>
                         );
