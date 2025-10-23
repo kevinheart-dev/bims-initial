@@ -2738,4 +2738,1205 @@ class CRADataController extends Controller
         ]);
     }
 
+    public function disasterRiskPopulation(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/DisasterRiskPopulation', [
+                'disasterRiskData' => [],
+                'overallDisasterRiskData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view disaster risk population data.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        // 🟦 CASE 1: No Barangay Selected (Overall Summary by Hazard)
+        if (!$barangayId) {
+            // 🔹 Overall totals grouped by hazard (sum across all barangays)
+            $overallHazards = DB::table('c_r_a_disaster_risk_populations as r')
+                ->join('c_r_a_hazards as h', 'h.id', '=', 'r.hazard_id')
+                ->select(
+                    'h.hazard_name',
+                    DB::raw('SUM(r.low_families + r.medium_families + r.high_families) as total_families'),
+                    DB::raw('SUM(r.low_individuals + r.medium_individuals + r.high_individuals) as total_individuals'),
+                    DB::raw('SUM(r.low_families) as low_families'),
+                    DB::raw('SUM(r.medium_families) as medium_families'),
+                    DB::raw('SUM(r.high_families) as high_families'),
+                    DB::raw('SUM(r.low_individuals) as low_individuals'),
+                    DB::raw('SUM(r.medium_individuals) as medium_individuals'),
+                    DB::raw('SUM(r.high_individuals) as high_individuals')
+                )
+                ->where('r.cra_id', $cra->id)
+                ->groupBy('h.hazard_name')
+                ->orderByDesc('total_individuals')
+                ->get()
+                ->map(function ($row, $index) {
+                    return [
+                        'no' => $index + 1,
+                        'hazard_name' => $row->hazard_name,
+                        'total_families' => (int) $row->total_families,
+                        'total_individuals' => (int) $row->total_individuals,
+                        'low_families' => (int) $row->low_families,
+                        'medium_families' => (int) $row->medium_families,
+                        'high_families' => (int) $row->high_families,
+                        'low_individuals' => (int) $row->low_individuals,
+                        'medium_individuals' => (int) $row->medium_individuals,
+                        'high_individuals' => (int) $row->high_individuals,
+                    ];
+                });
+
+            // 🔹 Breakdown per hazard → barangay (sum across all puroks)
+            $hazardWiseData = DB::table('c_r_a_disaster_risk_populations as r')
+                ->join('barangays as b', 'b.id', '=', 'r.barangay_id')
+                ->join('c_r_a_hazards as h', 'h.id', '=', 'r.hazard_id')
+                ->select(
+                    'h.hazard_name',
+                    'b.barangay_name',
+                    DB::raw('SUM(r.low_families + r.medium_families + r.high_families) as total_families'),
+                    DB::raw('SUM(r.low_individuals + r.medium_individuals + r.high_individuals) as total_individuals'),
+                    DB::raw('SUM(r.low_families) as low_families'),
+                    DB::raw('SUM(r.medium_families) as medium_families'),
+                    DB::raw('SUM(r.high_families) as high_families'),
+                    DB::raw('SUM(r.low_individuals) as low_individuals'),
+                    DB::raw('SUM(r.medium_individuals) as medium_individuals'),
+                    DB::raw('SUM(r.high_individuals) as high_individuals')
+                )
+                ->where('r.cra_id', $cra->id)
+                ->groupBy('h.hazard_name', 'b.barangay_name')
+                ->orderBy('h.hazard_name')
+                ->orderByDesc('total_individuals')
+                ->get()
+                ->groupBy('hazard_name')
+                ->map(function ($records, $hazardName) {
+                    $barangays = $records->sortByDesc('total_individuals')
+                        ->values()
+                        ->map(function ($r, $i) {
+                            return [
+                                'no' => $i + 1,
+                                'barangay_name' => $r->barangay_name,
+                                'total_families' => (int) $r->total_families,
+                                'total_individuals' => (int) $r->total_individuals,
+                                'low_families' => (int) $r->low_families,
+                                'medium_families' => (int) $r->medium_families,
+                                'high_families' => (int) $r->high_families,
+                                'low_individuals' => (int) $r->low_individuals,
+                                'medium_individuals' => (int) $r->medium_individuals,
+                                'high_individuals' => (int) $r->high_individuals,
+                            ];
+                        });
+
+                    return [
+                        'hazard_name' => $hazardName,
+                        'barangays' => $barangays,
+                    ];
+                })
+                ->values();
+
+            return Inertia::render('CDRRMO/CRA/DisasterRiskPopulation', [
+                'disasterRiskData' => [],
+                'overallDisasterRiskData' => $hazardWiseData,
+                'overallHazardSummary' => $overallHazards,
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+            ]);
+        }
+
+        // 🟩 CASE 2: Barangay Selected (Detailed Breakdown per Hazard with Purok)
+        $records = DB::table('c_r_a_disaster_risk_populations as r')
+            ->join('c_r_a_hazards as h', 'h.id', '=', 'r.hazard_id')
+            ->join('barangays as b', 'b.id', '=', 'r.barangay_id')
+            ->select(
+                'b.barangay_name',
+                'h.hazard_name',
+                'r.purok_number',
+                'r.low_families',
+                'r.medium_families',
+                'r.high_families',
+                'r.low_individuals',
+                'r.medium_individuals',
+                'r.high_individuals'
+            )
+            ->where('r.cra_id', $cra->id)
+            ->where('r.barangay_id', $barangayId)
+            ->orderBy('h.hazard_name')
+            ->orderBy('r.purok_number')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/DisasterRiskPopulation', [
+                'disasterRiskData' => [],
+                'overallDisasterRiskData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No disaster risk population data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = $records->first()->barangay_name;
+
+        // Group by hazard
+        $hazardGrouped = $records->groupBy('hazard_name')->map(function ($rows, $hazardName) {
+            return [
+                'hazard_name' => $hazardName,
+                'puroks' => $rows->map(function ($r, $index) {
+                    return [
+                        'purok_number' => $r->purok_number,
+                        'low_families' => (int) $r->low_families,
+                        'medium_families' => (int) $r->medium_families,
+                        'high_families' => (int) $r->high_families,
+                        'low_individuals' => (int) $r->low_individuals,
+                        'medium_individuals' => (int) $r->medium_individuals,
+                        'high_individuals' => (int) $r->high_individuals,
+                        'total_families' => (int) ($r->low_families + $r->medium_families + $r->high_families),
+                        'total_individuals' => (int) ($r->low_individuals + $r->medium_individuals + $r->high_individuals),
+                    ];
+                })->values(),
+            ];
+        })->values();
+
+        return Inertia::render('CDRRMO/CRA/DisasterRiskPopulation', [
+            'disasterRiskData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'hazards' => $hazardGrouped,
+                ],
+            ],
+            'overallDisasterRiskData' => [],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function disasterInventories(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/DisasterInventories', [
+                'inventoryData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view disaster inventory data.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        if (!$barangayId) {
+            return Inertia::render('CDRRMO/CRA/DisasterInventories', [
+                'inventoryData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view disaster inventory data.',
+            ]);
+        }
+
+        // 🟩 Barangay Selected (Detailed per Hazard)
+        $records = DB::table('c_r_a_disaster_inventories as i')
+            ->join('c_r_a_hazards as h', 'h.id', '=', 'i.hazard_id')
+            ->select(
+                'h.hazard_name',
+                'i.category',
+                'i.item_name',
+                'i.total_in_barangay',
+                'i.percentage_at_risk',
+                'i.location'
+            )
+            ->where('i.cra_id', $cra->id)
+            ->where('i.barangay_id', $barangayId)
+            ->orderBy('h.hazard_name')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/DisasterInventories', [
+                'inventoryData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No disaster inventory data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = DB::table('barangays')->where('id', $barangayId)->value('barangay_name');
+
+        $hazardGrouped = $records->groupBy('hazard_name')->map(function ($rows, $hazardName) {
+            return [
+                'hazard_name' => $hazardName,
+                'items' => $rows->map(function ($r) {
+                    return [
+                        'category' => $r->category,
+                        'item_name' => $r->item_name,
+                        'total_in_barangay' => $r->total_in_barangay,
+                        'percentage_at_risk' => $r->percentage_at_risk,
+                        'location' => $r->location,
+                    ];
+                })->values(),
+            ];
+        })->values();
+
+        return Inertia::render('CDRRMO/CRA/DisasterInventories', [
+            'inventoryData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'hazards' => $hazardGrouped,
+                ],
+            ],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function evacuationCenters(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/EvacuationCenters', [
+                'centerData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view evacuation centers.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        if (!$barangayId) {
+            return Inertia::render('CDRRMO/CRA/EvacuationCenters', [
+                'centerData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view evacuation centers.',
+            ]);
+        }
+
+        // 🟩 Barangay Selected (Detailed evacuation centers)
+        $records = DB::table('c_r_a_evacuation_centers as e')
+            ->select(
+                'e.name',
+                'e.capacity_families',
+                'e.capacity_individuals',
+                'e.owner_type',
+                'e.inspected_by_engineer',
+                'e.has_mou'
+            )
+            ->where('e.cra_id', $cra->id)
+            ->where('e.barangay_id', $barangayId)
+            ->orderBy('e.name')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/EvacuationCenters', [
+                'centerData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No evacuation centers found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = DB::table('barangays')->where('id', $barangayId)->value('barangay_name');
+
+        $centerData = $records->values()->map(function ($r, $index) {
+            return [
+                'number' => $index + 1, // Row number starting from 1
+                'name' => $r->name,
+                'capacity_families' => $r->capacity_families,
+                'capacity_individuals' => $r->capacity_individuals,
+                'owner_type' => $r->owner_type,
+                'inspected_by_engineer' => $r->inspected_by_engineer,
+                'has_mou' => $r->has_mou,
+            ];
+        });
+
+        return Inertia::render('CDRRMO/CRA/EvacuationCenters', [
+            'centerData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'centers' => $centerData,
+                ],
+            ],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function evacuationInventories(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/EvacuationInventories', [
+                'inventoryData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view evacuation inventory per purok.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        if (!$barangayId) {
+            return Inertia::render('CDRRMO/CRA/EvacuationInventories', [
+                'inventoryData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view evacuation inventory per purok.',
+            ]);
+        }
+
+        // 🟩 Barangay Selected (Detailed per Purok)
+        $records = DB::table('c_r_a_evacuation_inventories as e')
+            ->select(
+                'e.purok_number',
+                'e.total_families',
+                'e.total_individuals',
+                'e.families_at_risk',
+                'e.individuals_at_risk',
+                'e.plan_a_center',
+                'e.plan_a_capacity_families',
+                'e.plan_a_capacity_individuals',
+                'e.plan_a_unaccommodated_families',
+                'e.plan_a_unaccommodated_individuals',
+                'e.plan_b_center',
+                'e.plan_b_unaccommodated_families',
+                'e.plan_b_unaccommodated_individuals',
+                'e.remarks'
+            )
+            ->where('e.cra_id', $cra->id)
+            ->where('e.barangay_id', $barangayId)
+            ->orderBy('e.purok_number')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/EvacuationInventories', [
+                'inventoryData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No evacuation inventory data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = DB::table('barangays')->where('id', $barangayId)->value('barangay_name');
+
+        $inventoryData = $records->values()->map(function ($r, $index) {
+            return [
+                'number' => $index + 1, // Row number
+                'purok_number' => $r->purok_number,
+                'total_families' => $r->total_families,
+                'total_individuals' => $r->total_individuals,
+                'families_at_risk' => $r->families_at_risk,
+                'individuals_at_risk' => $r->individuals_at_risk,
+                'plan_a_center' => $r->plan_a_center,
+                'plan_a_capacity_families' => $r->plan_a_capacity_families,
+                'plan_a_capacity_individuals' => $r->plan_a_capacity_individuals,
+                'plan_a_unaccommodated_families' => $r->plan_a_unaccommodated_families,
+                'plan_a_unaccommodated_individuals' => $r->plan_a_unaccommodated_individuals,
+                'plan_b_center' => $r->plan_b_center,
+                'plan_b_unaccommodated_families' => $r->plan_b_unaccommodated_families,
+                'plan_b_unaccommodated_individuals' => $r->plan_b_unaccommodated_individuals,
+                'remarks' => $r->remarks,
+            ];
+        });
+
+        return Inertia::render('CDRRMO/CRA/EvacuationInventories', [
+            'inventoryData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'puroks' => $inventoryData,
+                ],
+            ],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function affectedPlaces(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/AffectedPlaces', [
+                'affectedData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view affected places per hazard.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        if (!$barangayId) {
+            return Inertia::render('CDRRMO/CRA/AffectedPlaces', [
+                'affectedData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view affected places per hazard.',
+            ]);
+        }
+
+        // 🟩 Barangay Selected (Detailed per Purok & Hazard)
+        $records = DB::table('c_r_a_affected_places as a')
+            ->join('c_r_a_hazards as h', 'a.hazard_id', '=', 'h.id')
+            ->select(
+                'a.purok_number',
+                'h.hazard_name',
+                'a.risk_level',
+                'a.total_families',
+                'a.total_individuals',
+                'a.at_risk_families',
+                'a.at_risk_individuals',
+                'a.safe_evacuation_area'
+            )
+            ->where('a.cra_id', $cra->id)
+            ->where('a.barangay_id', $barangayId)
+            ->orderBy('a.purok_number')
+            ->orderBy('h.hazard_name')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/AffectedPlaces', [
+                'affectedData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No affected places data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = DB::table('barangays')
+            ->where('id', $barangayId)
+            ->value('barangay_name');
+
+        $affectedData = $records->values()->map(function ($r, $index) {
+            return [
+                'purok_number' => $r->purok_number,
+                'hazard_name' => $r->hazard_name,
+                'risk_level' => $r->risk_level,
+                'total_families' => $r->total_families,
+                'total_individuals' => $r->total_individuals,
+                'at_risk_families' => $r->at_risk_families,
+                'at_risk_individuals' => $r->at_risk_individuals,
+                'safe_evacuation_area' => $r->safe_evacuation_area,
+            ];
+        });
+
+        return Inertia::render('CDRRMO/CRA/AffectedPlaces', [
+            'affectedData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'places' => $affectedData,
+                ],
+            ],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+    public function livelihoodEvacuationSites(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/LivelihoodEvacuationSites', [
+                'livelihoodData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view livelihood groups and their assigned evacuation sites.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        if (!$barangayId) {
+            return Inertia::render('CDRRMO/CRA/LivelihoodEvacuationSites', [
+                'livelihoodData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view livelihood groups and their assigned evacuation sites.',
+            ]);
+        }
+
+        // 🟩 Barangay Selected (Detailed per Livelihood)
+        $records = DB::table('c_r_a_livelihood_evacuation_sites as l')
+            ->select(
+                'l.livelihood_type',
+                'l.evacuation_site',
+                'l.place_of_origin',
+                'l.capacity_description'
+            )
+            ->where('l.cra_id', $cra->id)
+            ->where('l.barangay_id', $barangayId)
+            ->orderBy('l.livelihood_type')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/LivelihoodEvacuationSites', [
+                'livelihoodData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No livelihood evacuation site data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = DB::table('barangays')
+            ->where('id', $barangayId)
+            ->value('barangay_name');
+
+        $livelihoodData = $records->values()->map(function ($r) {
+            return [
+                'livelihood_type' => $r->livelihood_type,
+                'evacuation_site' => $r->evacuation_site,
+                'place_of_origin' => $r->place_of_origin,
+                'capacity_description' => $r->capacity_description,
+            ];
+        });
+
+        return Inertia::render('CDRRMO/CRA/LivelihoodEvacuationSites', [
+            'livelihoodData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'groups' => $livelihoodData,
+                ],
+            ],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+    public function prepositionedInventories(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/PrepositionedInventories', [
+                'inventoryData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view prepositioned inventories.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        if (!$barangayId) {
+            return Inertia::render('CDRRMO/CRA/PrepositionedInventories', [
+                'inventoryData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view prepositioned inventories.',
+            ]);
+        }
+
+        // 🟩 Barangay Selected (Detailed per Inventory Item)
+        $records = DB::table('c_r_a_prepositioned_inventories as i')
+            ->select(
+                'i.item_name',
+                'i.quantity',
+                'i.remarks'
+            )
+            ->where('i.cra_id', $cra->id)
+            ->where('i.barangay_id', $barangayId)
+            ->orderBy('i.item_name')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/PrepositionedInventories', [
+                'inventoryData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No prepositioned inventory data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = DB::table('barangays')
+            ->where('id', $barangayId)
+            ->value('barangay_name');
+
+        $inventoryData = $records->values()->map(function ($r) {
+            return [
+                'item_name' => $r->item_name,
+                'quantity' => $r->quantity,
+                'remarks' => $r->remarks,
+            ];
+        });
+
+        return Inertia::render('CDRRMO/CRA/PrepositionedInventories', [
+            'inventoryData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'items' => $inventoryData,
+                ],
+            ],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+    public function reliefDistributions(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/ReliefDistributions', [
+                'distributionData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view relief distributions.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        if (!$barangayId) {
+            return Inertia::render('CDRRMO/CRA/ReliefDistributions', [
+                'distributionData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view relief distributions.',
+            ]);
+        }
+
+        // 🟩 Barangay Selected (Detailed per Distribution)
+        $records = DB::table('c_r_a_relief_distributions as r')
+            ->select(
+                'r.evacuation_center',
+                'r.relief_good',
+                'r.quantity',
+                'r.unit',
+                'r.beneficiaries',
+                'r.address'
+            )
+            ->where('r.cra_id', $cra->id)
+            ->where('r.barangay_id', $barangayId)
+            ->orderBy('r.evacuation_center')
+            ->orderBy('r.relief_good')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/ReliefDistributions', [
+                'distributionData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No relief distribution data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = DB::table('barangays')
+            ->where('id', $barangayId)
+            ->value('barangay_name');
+
+        $distributionData = $records->values()->map(function ($r) {
+            return [
+                'evacuation_center' => $r->evacuation_center,
+                'relief_good' => $r->relief_good,
+                'quantity' => $r->quantity,
+                'unit' => $r->unit,
+                'beneficiaries' => $r->beneficiaries,
+                'address' => $r->address,
+            ];
+        });
+
+        return Inertia::render('CDRRMO/CRA/ReliefDistributions', [
+            'distributionData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'items' => $distributionData,
+                ],
+            ],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function reliefDistributionProcesses(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/ReliefDistributionProcesses', [
+                'processData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view relief distribution processes.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        if (!$barangayId) {
+            return Inertia::render('CDRRMO/CRA/ReliefDistributionProcesses', [
+                'processData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view relief distribution processes.',
+            ]);
+        }
+
+        // 🟩 Barangay Selected (Detailed per Step)
+        $records = DB::table('c_r_a_relief_distribution_processes as p')
+            ->select(
+                'p.step_no',
+                'p.distribution_process',
+                'p.origin_of_goods',
+                'p.remarks'
+            )
+            ->where('p.cra_id', $cra->id)
+            ->where('p.barangay_id', $barangayId)
+            ->orderBy('p.step_no')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/ReliefDistributionProcesses', [
+                'processData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No relief distribution process data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = DB::table('barangays')
+            ->where('id', $barangayId)
+            ->value('barangay_name');
+
+        $processData = $records->values()->map(function ($r) {
+            return [
+                'step_no' => $r->step_no,
+                'distribution_process' => $r->distribution_process,
+                'origin_of_goods' => $r->origin_of_goods,
+                'remarks' => $r->remarks,
+            ];
+        });
+
+        return Inertia::render('CDRRMO/CRA/ReliefDistributionProcesses', [
+            'processData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'steps' => $processData,
+                ],
+            ],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function bdrrmcTrainings(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/BdrrmcTrainings', [
+                'trainingData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view BDRRMC trainings.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        if (!$barangayId) {
+            return Inertia::render('CDRRMO/CRA/BdrrmcTrainings', [
+                'trainingData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view BDRRMC trainings.',
+            ]);
+        }
+
+        // 🟩 Barangay Selected (Detailed per Training)
+        $records = DB::table('c_r_a_bdrrmc_trainings as t')
+            ->select(
+                't.title',
+                't.status',
+                't.duration',
+                't.agency',
+                't.inclusive_dates',
+                't.number_of_participants',
+                't.participants'
+            )
+            ->where('t.cra_id', $cra->id)
+            ->where('t.barangay_id', $barangayId)
+            ->orderBy('t.title')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/BdrrmcTrainings', [
+                'trainingData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No BDRRMC training data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = DB::table('barangays')
+            ->where('id', $barangayId)
+            ->value('barangay_name');
+
+        $trainingData = $records->values()->map(function ($r) {
+            return [
+                'title' => $r->title,
+                'status' => $r->status,
+                'duration' => $r->duration,
+                'agency' => $r->agency,
+                'inclusive_dates' => $r->inclusive_dates,
+                'number_of_participants' => $r->number_of_participants,
+                'participants' => $r->participants,
+            ];
+        });
+
+        return Inertia::render('CDRRMO/CRA/BdrrmcTrainings', [
+            'trainingData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'trainings' => $trainingData,
+                ],
+            ],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function equipmentInventories(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/EquipmentInventories', [
+                'inventoryData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view equipment inventories.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        if (!$barangayId) {
+            return Inertia::render('CDRRMO/CRA/EquipmentInventories', [
+                'inventoryData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view equipment inventories.',
+            ]);
+        }
+
+        // 🟩 Barangay Selected (Detailed per Item)
+        $records = DB::table('c_r_a_equipment_inventories as e')
+            ->select(
+                'e.item',
+                'e.availability',
+                'e.quantity',
+                'e.location',
+                'e.remarks'
+            )
+            ->where('e.cra_id', $cra->id)
+            ->where('e.barangay_id', $barangayId)
+            ->orderBy('e.item')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/EquipmentInventories', [
+                'inventoryData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No equipment inventory data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = DB::table('barangays')
+            ->where('id', $barangayId)
+            ->value('barangay_name');
+
+        $inventoryData = $records->values()->map(function ($r) {
+            return [
+                'item' => $r->item,
+                'availability' => $r->availability,
+                'quantity' => $r->quantity,
+                'location' => $r->location,
+                'remarks' => $r->remarks,
+            ];
+        });
+
+        return Inertia::render('CDRRMO/CRA/EquipmentInventories', [
+            'inventoryData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'items' => $inventoryData,
+                ],
+            ],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function bdrrmcDirectories(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/BdrrmcDirectories', [
+                'directoryData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view BDRRMC directories.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        if (!$barangayId) {
+            return Inertia::render('CDRRMO/CRA/BdrrmcDirectories', [
+                'directoryData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view BDRRMC directories.',
+            ]);
+        }
+
+        // 🟩 Barangay Selected (Detailed per Team)
+        $records = DB::table('c_r_a_bdrrmc_directories as d')
+            ->select(
+                'd.designation_team',
+                'd.name',
+                'd.contact_no'
+            )
+            ->where('d.cra_id', $cra->id)
+            ->where('d.barangay_id', $barangayId)
+            ->orderBy('d.designation_team')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/BdrrmcDirectories', [
+                'directoryData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No BDRRMC directory data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = DB::table('barangays')
+            ->where('id', $barangayId)
+            ->value('barangay_name');
+
+        $directoryData = $records->values()->map(function ($r) {
+            return [
+                'designation_team' => $r->designation_team,
+                'name' => $r->name,
+                'contact_no' => $r->contact_no,
+            ];
+        });
+
+        return Inertia::render('CDRRMO/CRA/BdrrmcDirectories', [
+            'directoryData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'members' => $directoryData,
+                ],
+            ],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function evacuationPlans(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/EvacuationPlans', [
+                'planData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view evacuation plans.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        if (!$barangayId) {
+            return Inertia::render('CDRRMO/CRA/EvacuationPlans', [
+                'planData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view evacuation plans.',
+            ]);
+        }
+
+        // 🟩 Barangay Selected (Detailed per Activity)
+        $records = DB::table('c_r_a_evacuation_plans as e')
+            ->select(
+                'e.activity_no',
+                'e.things_to_do',
+                'e.responsible_person',
+                'e.remarks'
+            )
+            ->where('e.cra_id', $cra->id)
+            ->where('e.barangay_id', $barangayId)
+            ->orderBy('e.activity_no')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/EvacuationPlans', [
+                'planData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No evacuation plan data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = DB::table('barangays')
+            ->where('id', $barangayId)
+            ->value('barangay_name');
+
+        $planData = $records->values()->map(function ($r) {
+            return [
+                'activity_no' => $r->activity_no,
+                'things_to_do' => $r->things_to_do,
+                'responsible_person' => $r->responsible_person,
+                'remarks' => $r->remarks,
+            ];
+        });
+
+        return Inertia::render('CDRRMO/CRA/EvacuationPlans', [
+            'planData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'activities' => $planData,
+                ],
+            ],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+
 }

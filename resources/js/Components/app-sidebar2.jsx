@@ -39,6 +39,7 @@ import {
     SlidersHorizontal,
     Plus,
     Cloudy,
+    User2,
 } from "lucide-react";
 import {
     Sidebar,
@@ -167,7 +168,7 @@ export function AppSidebar({ auth }) {
         }
     }, [APP_URL, userRoles]);
 
-    console.log(craList);
+    // console.log(craList);
 
     const items = [
         {
@@ -380,7 +381,7 @@ export function AppSidebar({ auth }) {
             roles: ["barangay_officer", "admin"],
         },
         {
-            title: "Summary",
+            title: "Demographic Summary",
             icon: FileStack,
             roles: ["cdrrmo_admin"],
             submenu: [
@@ -447,7 +448,7 @@ export function AppSidebar({ auth }) {
             ],
         },
         {
-            title: "PCRA",
+            title: "Participartory Community Risk Assessment",
             icon: FileStack,
             roles: ["cdrrmo_admin"],
             submenu: [
@@ -502,6 +503,100 @@ export function AppSidebar({ auth }) {
                 {
                     title: "Population Exposure",
                     url: "/cdrrmo_admin/populationexposure",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Disaster Risk Population",
+                    url: "/cdrrmo_admin/disasterpopulation",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+            ],
+        },
+        {
+            title: "Inventories and Evcuations",
+            icon: FileStack,
+            roles: ["cdrrmo_admin"],
+            url: "#",
+            submenu: [
+                {
+                    title: "Disaster and Hazard Inventory",
+                    url: "/cdrrmo_admin/disasterinventory",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Designated Evacuation Centers",
+                    url: "/cdrrmo_admin/evacuationcenters",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Inventory of Evacuation Centers",
+                    url: "/cdrrmo_admin/evacuationinven",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Places/Areas of Evacuation",
+                    url: "/cdrrmo_admin/affectedPlaces",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Livelihood Evacuation",
+                    url: "/cdrrmo_admin/livelihoodEvacuationSites",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Inventory of Prepositioned Food",
+                    url: "/cdrrmo_admin/prepositionedInventories",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Distribution Sites",
+                    url: "/cdrrmo_admin/reliefDistributions",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Distribution Process",
+                    url: "/cdrrmo_admin/reliefProcess",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Inventory of Trainings",
+                    url: "/cdrrmo_admin/bdrrmcTrainings",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Inventory of Response Equipment ",
+                    url: "/cdrrmo_admin/equipmentInventories",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+            ],
+        },
+        {
+            title: "Barangay  Directories",
+            icon: FileStack,
+            roles: ["cdrrmo_admin"],
+            url: "#",
+            submenu: [
+                {
+                    title: "BDRRMC DIRECTORY",
+                    url: "/cdrrmo_admin/bdrrmcDirectories",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "BARANGAY EVACUATION PLAN",
+                    url: "/cdrrmo_admin/evacuationPlans",
                     icon: Table,
                     roles: ["cdrrmo_admin"],
                 },

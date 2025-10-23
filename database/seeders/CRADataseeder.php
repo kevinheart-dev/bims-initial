@@ -1270,7 +1270,6 @@ class CRADataseeder extends Seeder
         }
 
         foreach ($barangays as $barangay) {
-
             foreach ($hazards as $hazardName) {
                 $hazard = CRAHazard::firstOrCreate(['hazard_name' => $hazardName]);
 
@@ -1483,9 +1482,8 @@ class CRADataseeder extends Seeder
             }
         }
 
+        $hazards = CRAHazard::all();
         foreach ($barangays as $barangay) {
-
-            $hazards = CRAHazard::all();
             foreach ($hazards as $hazard) {
                 foreach ($categories as $category => $items) {
                     foreach ($items as $item) {
@@ -1600,10 +1598,7 @@ class CRADataseeder extends Seeder
         }
 
         foreach ($hazards as $hazardName) {
-            $hazard = CRAHazard::firstOrCreate(['hazard_name' => $hazardName]);
-
             foreach ($barangays as $barangay) {
-
                 foreach (range(1, 7) as $purok) {
                     $totalFamilies = rand(100, 350);
                     $totalIndividuals = $totalFamilies * rand(3, 5);
@@ -1615,7 +1610,7 @@ class CRADataseeder extends Seeder
                     $riskLevels = ['Low', 'Medium', 'High'];
 
                     // Randomly pick a risk level with weights based on hazard type
-                    if ($hazardName === 'Typhoon') {
+                    if ($hazardName->hazard_name === 'Typhoon') {
                         // Typhoon: mostly Low, some Medium, rarely High
                         $riskLevel = $faker->randomElement(array_merge(
                             array_fill(0, 70, 'Low'),    // 70% chance
@@ -1639,7 +1634,7 @@ class CRADataseeder extends Seeder
                     CRAAffectedPlaces::updateOrCreate(
                         [
                             'barangay_id' => $barangay->id,
-                            'hazard_id' => $hazard->id,
+                            'hazard_id' => $hazardName->id,
                             'purok_number' => $purok,
                             'cra_id'      => $cra->id,
                         ],
@@ -1766,6 +1761,96 @@ class CRADataseeder extends Seeder
                 );
             }
         }
+
+        $inventories = [
+            // Infrastructures
+            ['category' => 'Infrastructures', 'item_name' => 'Bridge/s', 'total_in_barangay' => 1, 'percentage_at_risk' => '10%', 'location' => 'Purok 5'],
+            ['category' => 'Infrastructures', 'item_name' => 'Barangay Hall', 'total_in_barangay' => 1, 'percentage_at_risk' => '0%', 'location' => 'Purok 6'],
+            ['category' => 'Infrastructures', 'item_name' => 'Multi-purpose Building', 'total_in_barangay' => 1, 'percentage_at_risk' => '0%', 'location' => 'Purok 6'],
+            ['category' => 'Infrastructures', 'item_name' => 'Houses', 'total_in_barangay' => 1299, 'percentage_at_risk' => '4%', 'location' => 'Purok 1-7'],
+            ['category' => 'Infrastructures', 'item_name' => 'Purok', 'total_in_barangay' => 7, 'percentage_at_risk' => '0%', 'location' => 'Purok 1-7'],
+            ['category' => 'Infrastructures', 'item_name' => 'School/s', 'total_in_barangay' => 2, 'percentage_at_risk' => '0%', 'location' => 'Purok 1 & 6'],
+            ['category' => 'Infrastructures', 'item_name' => 'Child Development Center', 'total_in_barangay' => 3, 'percentage_at_risk' => '0%', 'location' => '2 CDC in Purok 1 & 1 CDC in Purok 7'],
+
+            // Establishments
+            ['category' => 'Establishments', 'item_name' => 'Store', 'total_in_barangay' => 55, 'percentage_at_risk' => '1%', 'location' => 'Purok 1-7'],
+            ['category' => 'Establishments', 'item_name' => 'Eatery', 'total_in_barangay' => 11, 'percentage_at_risk' => '0%', 'location' => 'Purok 1-7'],
+            ['category' => 'Establishments', 'item_name' => 'Bakery', 'total_in_barangay' => 3, 'percentage_at_risk' => '0%', 'location' => 'Purok 1, 4 & 6'],
+
+            // Facilities
+            ['category' => 'Facilities', 'item_name' => 'Water', 'total_in_barangay' => 4, 'percentage_at_risk' => '0%', 'location' => 'Purok 1 & 2'],
+            ['category' => 'Facilities', 'item_name' => 'Electricity', 'total_in_barangay' => 1, 'percentage_at_risk' => '0%', 'location' => 'Purok 2'],
+            ['category' => 'Facilities', 'item_name' => 'Telephone/Mobile service', 'total_in_barangay' => 3, 'percentage_at_risk' => '0%', 'location' => 'Purok 1 & 2'],
+            ['category' => 'Facilities', 'item_name' => 'Roads', 'total_in_barangay' => 0, 'percentage_at_risk' => '0%', 'location' => ''],
+            ['category' => 'Facilities', 'item_name' => 'Hospitals', 'total_in_barangay' => 1, 'percentage_at_risk' => '0%', 'location' => 'Purok 7'],
+            ['category' => 'Facilities', 'item_name' => 'Barangay Health Center', 'total_in_barangay' => 2, 'percentage_at_risk' => '0%', 'location' => 'Purok 1 & 2'],
+
+            // Livelihood
+            ['category' => 'Livelihood', 'item_name' => 'Rice/Corn Field', 'total_in_barangay' => null, 'percentage_at_risk' => '3%', 'location' => 'Purok 4,5,7'],
+            ['category' => 'Livelihood', 'item_name' => 'Vegetables', 'total_in_barangay' => 4, 'percentage_at_risk' => '1%', 'location' => 'Purok 2-7'],
+            ['category' => 'Livelihood', 'item_name' => 'Boats', 'total_in_barangay' => 10, 'percentage_at_risk' => '1%', 'location' => 'Purok 2-7'],
+            ['category' => 'Livelihood', 'item_name' => 'Fish Nets', 'total_in_barangay' => null, 'percentage_at_risk' => '1%', 'location' => 'Purok 2-7'],
+            ['category' => 'Livelihood', 'item_name' => 'Fish Ponds', 'total_in_barangay' => 6, 'percentage_at_risk' => '1%', 'location' => 'Purok 2,5 & 7'],
+
+            // Nature
+            ['category' => 'Nature', 'item_name' => 'Mountain/s', 'total_in_barangay' => 1, 'percentage_at_risk' => '0%', 'location' => 'Purok 5,7'],
+            ['category' => 'Nature', 'item_name' => 'Mangroves', 'total_in_barangay' => 0, 'percentage_at_risk' => '0%', 'location' => ''],
+        ];
+
+        $hazardMapping = [
+            'Infrastructures' => 1,
+            'Establishments' => 2,
+            'Facilities' => 3,
+            'Livelihood' => 4,
+            'Nature' => 5,
+        ];
+
+        foreach ($barangays as $barangay) {
+            // Assuming each barangay has Puroks 1-7 for demo
+            $puroks = range(1, 7);
+
+            foreach ($inventories as $entry) {
+                // Randomize total_in_barangay if numeric
+                $total = $entry['total_in_barangay'];
+                if (is_numeric($total)) {
+                    $total = rand(max(0, $total - floor($total * 0.3)), $total + floor($total * 0.3));
+                } else {
+                    // If null or non-numeric, assign small random number
+                    $total = rand(1, 10);
+                }
+
+                // Randomize percentage_at_risk
+                $percent = $entry['percentage_at_risk'];
+                if (preg_match('/\d+/', $percent, $matches)) {
+                    $num = (int)$matches[0];
+                    $num = rand(max(0, $num - 3), $num + 3);
+                    $percent = $num . '%';
+                } else {
+                    $percent = rand(0, 5) . '%';
+                }
+
+                // Randomize location by selecting 1-3 Puroks
+                shuffle($puroks);
+                $selectedPuroks = array_slice($puroks, 0, rand(1, min(3, count($puroks))));
+                $location = 'Purok ' . implode(',', $selectedPuroks);
+
+                CRADisasterInventory::firstOrCreate(
+                    [
+                        'cra_id' => $cra->id,
+                        'barangay_id' => $barangay->id,
+                        'hazard_id' => $hazardMapping[$entry['category']] ?? 1,
+                        'category' => $entry['category'],
+                        'item_name' => $entry['item_name'],
+                    ],
+                    [
+                        'total_in_barangay' => $total,
+                        'percentage_at_risk' => $percent,
+                        'location' => $location,
+                    ]
+                );
+            }
+        }
+
         foreach ($barangays as $barangay) {
 
             foreach ($trainings as $training) {

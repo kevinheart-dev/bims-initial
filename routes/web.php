@@ -293,6 +293,19 @@ Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(
     Route::get('/disabilities', [CRADataController::class, 'disabilityStatistics'])->name('cdrrmo_admin.disabilities');
     Route::get('/familiesatrisk', [CRADataController::class, 'familyAtRisk'])->name('cdrrmo_admin.familiesatrisk');
     Route::get('/illnessesstats', [CRADataController::class, 'illnessStatistics'])->name('cdrrmo_admin.illnessesstats');
+    Route::get('/disasterpopulation', [CRADataController::class, 'disasterRiskPopulation'])->name('cdrrmo_admin.disasterpopulation');
+    Route::get('/disasterinventory', [CRADataController::class, 'disasterInventories'])->name('cdrrmo_admin.disasterinventory');
+    Route::get('/evacuationcenters', [CRADataController::class, 'evacuationCenters'])->name('cdrrmo_admin.evacuationcenters');
+    Route::get('/evacuationinven', [CRADataController::class, 'evacuationInventories'])->name('cdrrmo_admin.evacuationinven');
+    Route::get('/affectedPlaces', [CRADataController::class, 'affectedPlaces'])->name('cdrrmo_admin.affectedPlaces');
+    Route::get('/livelihoodEvacuationSites', [CRADataController::class, 'livelihoodEvacuationSites'])->name('cdrrmo_admin.livelihoodEvacuationSites');
+    Route::get('/prepositionedInventories', [CRADataController::class, 'prepositionedInventories'])->name('cdrrmo_admin.prepositionedInventories');
+    Route::get('/reliefDistributions', [CRADataController::class, 'reliefDistributions'])->name('cdrrmo_admin.reliefDistributions');
+    Route::get('/reliefProcess', [CRADataController::class, 'reliefDistributionProcesses'])->name('cdrrmo_admin.reliefProcess');
+    Route::get('/bdrrmcTrainings', [CRADataController::class, 'bdrrmcTrainings'])->name('cdrrmo_admin.bdrrmcTrainings');
+    Route::get('/equipmentInventories', [CRADataController::class, 'equipmentInventories'])->name('cdrrmo_admin.equipmentInventories');
+    Route::get('/bdrrmcDirectories', [CRADataController::class, 'bdrrmcDirectories'])->name('cdrrmo_admin.bdrrmcDirectories');
+    Route::get('/evacuationPlans', [CRADataController::class, 'evacuationPlans'])->name('cdrrmo_admin.evacuationPlans');
 });
 
 // Super Admin-only routes
