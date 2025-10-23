@@ -117,13 +117,13 @@ class CRAStoreRequest extends FormRequest
             // Population impact
             'calamities.*.population'             => ['nullable', 'array', 'min:1'],
             'calamities.*.population.*.category'  => ['nullable', 'string'],
-            'calamities.*.population.*.value'     => ['nullable', 'numeric', 'min:0'],
+            'calamities.*.population.*.value'     => ['nullable', 'string'],
             'calamities.*.population.*.source'    => ['nullable', 'string'],
 
             // Effect impacts
             'calamities.*.impacts'                => ['nullable', 'array', 'min:1'],
             'calamities.*.impacts.*.effect_type'  => ['nullable', 'string'],
-            'calamities.*.impacts.*.value'        => ['nullable', 'numeric', 'min:0'],
+            'calamities.*.impacts.*.value'        => ['nullable', 'string'],
             'calamities.*.impacts.*.source'       => ['nullable', 'string'],
 
             // Property & Structure damages
@@ -138,13 +138,13 @@ class CRAStoreRequest extends FormRequest
             'calamities.*.structure.*.category'                   => ['nullable', 'string'],
             'calamities.*.structure.*.descriptions'               => ['nullable', 'array', 'min:1'],
             'calamities.*.structure.*.descriptions.*.description' => ['nullable', 'string'],
-            'calamities.*.structure.*.descriptions.*.value'       => ['nullable', 'numeric', 'min:0'],
+            'calamities.*.structure.*.descriptions.*.value'       => ['nullable', 'string'],
             'calamities.*.structure.*.descriptions.*.source'      => ['nullable', 'string'],
 
             // Agriculture damages
             'calamities.*.agriculture'             => ['nullable', 'array', 'min:1'],
             'calamities.*.agriculture.*.description' => ['nullable', 'string'],
-            'calamities.*.agriculture.*.value'       => ['nullable', 'numeric', 'min:0'],
+            'calamities.*.agriculture.*.value'       => ['nullable', 'string'],
             'calamities.*.agriculture.*.source'      => ['nullable', 'string'],
 
             // Lifelines
@@ -332,7 +332,7 @@ class CRAStoreRequest extends FormRequest
             // Food Inventory / Prepositioned Items
             'food_inventory'                         => ['nullable', 'array', 'min:1'],
             'food_inventory.*.item'                  => ['nullable', 'string'],
-            'food_inventory.*.quantity'              => ['nullable', 'integer', 'min:0'],
+            'food_inventory.*.quantity'              => ['nullable', 'string'],
             'food_inventory.*.remarks'               => ['nullable', 'string'],
 
             // Relief Goods Distribution
@@ -370,7 +370,7 @@ class CRAStoreRequest extends FormRequest
             'equipment_inventory' => ['nullable', 'array', 'min:1'],
             'equipment_inventory.*.item' => ['nullable', 'string', 'max:255'],
             'equipment_inventory.*.status' => ['nullable', 'in:yes,no,checked,cross'],
-            'equipment_inventory.*.quantity' => ['nullable', 'integer', 'min:0'],
+            'equipment_inventory.*.quantity' => ['nullable', 'string'],
             'equipment_inventory.*.location' => ['nullable', 'string', 'max:255'],
             'equipment_inventory.*.remarks' => ['nullable', 'string'],
 
