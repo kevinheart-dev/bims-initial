@@ -825,11 +825,15 @@ export default function Calamities() {
                         </span>
                     </button>
                 </div>
+                <div className="overflow-x-auto">
+                    <div className="min-w-max">
+                        <CalamityTable
+                            calamities={craData.calamities || []}
+                            updateCell={updateCell}
+                        />
+                    </div>
+                </div>
 
-                <CalamityTable
-                    calamities={craData.calamities || []}
-                    updateCell={updateCell}
-                />
             </Accordion>
         </div>
     );

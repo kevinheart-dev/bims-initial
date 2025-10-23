@@ -67,11 +67,11 @@ const sumGrand = (rows) => rows.reduce((acc, r) => acc + sumRow(r), 0);
 
 function HumanResourcesTable({ category, catIdx, updateCategoryName, updateRow, removeRow, addRow, removeCategory }) {
     return (
-        <div className="overflow-x-auto border rounded-lg shadow-sm mb-4">
-            <div className="bg-gray-100 px-2 py-1 font-semibold flex items-center justify-between">
+        <div className="overflow-x-auto border rounded-lg shadow-sm mb-4 bg-white">
+            <div className="px-2 py-1 font-semibold flex items-center justify-between">
                 <input
                     type="text"
-                    className="w-full border-none p-1 text-lg font-semibold bg-gray-100"
+                    className="w-[300px] p-1 text-lg font-semibold border rounded m-2"
                     value={category.category}
                     onChange={(e) => updateCategoryName(catIdx, e.target.value)}
                     placeholder="Enter category name"
@@ -145,7 +145,14 @@ function HumanResourcesTable({ category, catIdx, updateCategoryName, updateRow, 
                     </tr>
                 </tfoot>
             </table>
-            <button className="mt-3 text-blue-600 hover:underline" onClick={() => addRow(catIdx)}>+ Add new row</button>
+            <div className="p-2 m-auto">
+                <button
+                    onClick={() => addRow(catIdx)}
+                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm mt-3"
+                >
+                    <span className="text-sm font-bold">+</span> Add new row
+                </button>
+            </div>
         </div>
     );
 }
@@ -237,9 +244,14 @@ function InstitutionsTable({ institutions, instIdx, updateField, removeInstituti
                     ))}
                 </tbody>
             </table>
-            <button className="mt-3 text-blue-600 hover:underline" onClick={() => addInstitution(instIdx)}>
-                + Add new row
-            </button>
+            <div className="p-2 mt-auto">
+                <button
+                    onClick={() => addInstitution(instIdx)}
+                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm mt-3"
+                >
+                    <span className="text-sm font-bold">+</span> Add new row
+                </button>
+            </div>
         </div>
     );
 }
@@ -339,21 +351,29 @@ const InstitutionHuman = () => {
 
 
             <Accordion title="G. Inventory of Human Resources">
-                {(craData.human_resources || []).map((cat, i) => (
-                    <HumanResourcesTable
-                        key={i}
-                        category={cat}
-                        catIdx={i}
-                        updateCategoryName={updateCategoryName}
-                        updateRow={updateRow}
-                        removeRow={removeRow}
-                        addRow={addRow}
-                        removeCategory={removeCategory}
-                    />
-                ))}
-                <button className="mt-3 text-green-600 hover:underline" onClick={addCategory}>
-                    + Add new category
-                </button>
+                <div className="mb-10 border-2 border-purple-300 rounded-xl p-5 bg-purple-50 shadow-sm">
+                    {(craData.human_resources || []).map((cat, i) => (
+                        <HumanResourcesTable
+                            key={i}
+                            category={cat}
+                            catIdx={i}
+                            updateCategoryName={updateCategoryName}
+                            updateRow={updateRow}
+                            removeRow={removeRow}
+                            addRow={addRow}
+                            removeCategory={removeCategory}
+                        />
+                    ))}
+                </div>
+
+                <div className="p-2 m-auto">
+                    <button
+                        onClick={addCategory}
+                        className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium border border-green-500 text-green-600 rounded-md hover:bg-green-500 hover:text-white transition-colors duration-200 shadow-sm mt-3"
+                    >
+                        <span className="text-sm font-bold">+</span> Add new category
+                    </button>
+                </div>
             </Accordion>
         </div>
     );

@@ -54,10 +54,10 @@ const LivelihoodEvacuation = () => {
                 <table className="border border-collapse w-full text-xs">
                     <thead>
                         <tr className="bg-gray-100">
-                            <th className="border px-2 py-1">Type</th>
-                            <th className="border px-2 py-1">Evacuation</th>
-                            <th className="border px-2 py-1">Origin</th>
-                            <th className="border px-2 py-1">Items</th>
+                            <th className="border px-2 py-1">Types of Livelihoods</th>
+                            <th className="border px-2 py-1">Evacuation Site/Area (Purok)</th>
+                            <th className="border px-2 py-1">Place of Origin (Purok)</th>
+                            <th className="border px-2 py-1">Number of items that can be accommodated</th>
                             <th className="border px-2 py-1 text-center"></th>
                         </tr>
                     </thead>
@@ -120,10 +120,11 @@ const LivelihoodEvacuation = () => {
 
             <button
                 onClick={addRow}
-                className="mt-3 px-3 py-1 bg-blue-500 text-white rounded text-xs"
+                className="inline-flex items-center gap-1 mt-3 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
             >
-                + Add Row
+                <span className="text-sm font-bold">+</span> Add Row
             </button>
+
         </div>
     );
 };

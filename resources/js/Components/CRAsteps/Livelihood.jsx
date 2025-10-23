@@ -148,7 +148,14 @@ const LivelihoodTable = React.memo(function LivelihoodTable({ data, updateRow, u
                     </tr>
                 </tfoot>
             </table>
-            <button className="mt-3 text-blue-600 hover:underline" onClick={addRow}>+ Add new row</button>
+            <div className="p-2 mt-auto">
+                <button
+                    onClick={addRow}
+                    className="text-xs px-2 py-1 border border-blue-500 text-blue-600 rounded-md font-medium hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
+                >
+                    + Add new row
+                </button>
+            </div>
         </section>
     );
 });
@@ -202,8 +209,15 @@ const InfraTable = React.memo(function InfraTable({ category, catIdx, updateRow,
                 </table>
             </div>
             <div className="p-2 mt-auto">
-                <button className="text-blue-600 hover:underline" onClick={() => addRow(catIdx)}>+ Add new row</button>
+                <button
+                    onClick={() => addRow(catIdx)}
+                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
+                >
+                    <span className="text-sm font-bold">+</span> Add new row
+                </button>
             </div>
+
+
         </div>
     );
 });

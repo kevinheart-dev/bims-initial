@@ -77,10 +77,10 @@ const defaultFacilities = [
     {
         category: "Road Types",
         rows: [
-            { type: "Concrete", length: "", maitained_by: "" },
-            { type: "Asphalt", length: "", maitained_by: "" },
-            { type: "Gravel", length: "", maitained_by: "" },
-            { type: "Natural Earth Surface", length: "", maitained_by: "" },
+            { type: "Concrete", length: "", maintained_by: "" },
+            { type: "Asphalt", length: "", maintained_by: "" },
+            { type: "Gravel", length: "", maintained_by: "" },
+            { type: "Natural Earth Surface", length: "", maintained_by: "" },
 
         ],
     },
@@ -136,8 +136,15 @@ function BuildingTable({ category, catIdx, updateRow, removeRow, addRow }) {
                 </table>
             </div>
             <div className="p-2 mt-auto">
-                <button className="text-blue-600 hover:underline" onClick={() => addRow(catIdx)}>+ Add new row</button>
+                <button
+                    onClick={() => addRow(catIdx)}
+                    className="text-xs px-2 py-1 border border-blue-500 text-blue-600 rounded-md font-medium hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
+                >
+                    + Add new row
+                </button>
             </div>
+
+
         </div>
     );
 }
@@ -145,14 +152,14 @@ function BuildingTable({ category, catIdx, updateRow, removeRow, addRow }) {
 // ------------------------------------------------------
 // Facilities & Services Table Component
 function FacilitiesServicesTable({ category, catIdx, updateRow, removeRow, addRow }) {
-    // detect which keys exist in the row (other than `type`)
     const extraFields = Object.keys(category.rows[0] || {}).filter(k => k !== "type");
-
+    console.log(extraFields);
     const fieldLabels = {
         quantity: "Quantity",
         length: "Length of Road (km)",
-        maintained_by: "Who Maintains the Road Network"
+        maintained_by: "Who Maintains the Road Network",
     };
+
 
     return (
         <div className="flex flex-col border rounded">
@@ -206,12 +213,13 @@ function FacilitiesServicesTable({ category, catIdx, updateRow, removeRow, addRo
             </div>
             <div className="p-2 mt-auto">
                 <button
-                    className="text-blue-600 hover:underline"
                     onClick={() => addRow(catIdx)}
+                    className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
                 >
-                    + Add new row
+                    <span className="text-sm font-bold">+</span> Add new row
                 </button>
             </div>
+
         </div>
     );
 }
@@ -269,15 +277,42 @@ export default function Buildings() {
     };
 
     const addFacilityRow = (catIdx) => {
-        const updated = [...craData.facilities];
-        const rowTemplate = Object.keys(updated[catIdx].rows[0]).reduce(
-            (acc, key) => ({ ...acc, [key]: "" }),
-            {}
-        );
-        updated[catIdx].rows.push(rowTemplate);
-        setCraData((prev) => ({ ...prev, facilities: updated }));
-        toast.success(`New row added to "${updated[catIdx].category}"`);
+        setCraData((prev) => {
+            const updated = [...prev.facilities];
+            const category = updated[catIdx]?.category;
+            const firstRow = updated[catIdx]?.rows?.[0];
+
+            let rowTemplate = {};
+
+
+            if (firstRow && Object.keys(firstRow).length > 0) {
+                rowTemplate = Object.keys(firstRow).reduce((acc, key) => {
+                    acc[key] = "";
+                    return acc;
+                }, {});
+            }
+
+            else {
+                if (category === "Facilities and Services" || category === "Public Transportation") {
+                    rowTemplate = { type: "", quantity: "" };
+                } else if (category === "Road Types") {
+                    rowTemplate = { type: "", length: "", maintained_by: "" };
+                } else {
+                    // Generic fallback for any other category
+                    rowTemplate = { type: "", quantity: "" };
+                }
+            }
+            if (!Array.isArray(updated[catIdx].rows)) {
+                updated[catIdx].rows = [];
+            }
+
+            updated[catIdx].rows.push(rowTemplate);
+
+            return { ...prev, facilities: updated };
+        });
     };
+
+
 
     const removeFacilityRow = (catIdx, rowIdx) => {
         const updated = [...craData.facilities];

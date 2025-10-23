@@ -109,110 +109,115 @@ const EffectDisaster = () => {
                 4.1 Number of Families and Individuals at Risk of Hazards per Purok
                 based on the following categories:
             </p>
+            <div className="mb-10 border-2 border-purple-300 rounded-xl p-5 bg-purple-50 shadow-sm">
+                {disasterData.map((hazard, hIdx) => (
+                    <div key={hIdx} className="mb-8 border rounded p-4 bg-white shadow-sm">
+                        {/* Hazard type and remove button */}
+                        <div className="flex justify-between items-center mb-3">
+                            <input
+                                type="text"
+                                placeholder="Enter Hazard Type (e.g., Typhoon)"
+                                value={hazard.type || ""} // Add fallback for hazard.type
+                                onChange={(e) => updateHazardType(hIdx, e.target.value)}
+                                className="border px-3 py-2 rounded w-1/2 text-sm"
+                            />
+                            <button
+                                onClick={() => removeHazard(hIdx)}
+                                className="ml-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-100 text-red-500 hover:bg-red-500 hover:text-white"
+                                title="Remove Category"
+                            >
+                                ✕
+                            </button>
+                        </div>
 
-            {disasterData.map((hazard, hIdx) => (
-                <div key={hIdx} className="mb-8 border rounded p-4 bg-white shadow-sm">
-                    {/* Hazard type and remove button */}
-                    <div className="flex justify-between items-center mb-3">
-                        <input
-                            type="text"
-                            placeholder="Enter Hazard Type (e.g., Typhoon)"
-                            value={hazard.type || ""} // Add fallback for hazard.type
-                            onChange={(e) => updateHazardType(hIdx, e.target.value)}
-                            className="border px-3 py-2 rounded w-1/2 text-sm"
-                        />
-                        <button
-                            onClick={() => removeHazard(hIdx)}
-                            className="ml-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-100 text-red-500 hover:bg-red-500 hover:text-white"
-                            title="Remove Category"
-                        >
-                            ✕
-                        </button>
-                    </div>
-
-                    {/* Table */}
-                    <div className="overflow-x-auto">
-                        <table className="border border-collapse w-full text-xs">
-                            <thead>
-                                <tr className="bg-gray-100">
-                                    <th rowSpan="2" className="border px-2 py-1">
-                                        Areas affected (Purok)
-                                    </th>
-                                    {["Low Risk", "Medium Risk", "High Risk"].map((group) => (
-                                        <th
-                                            key={group}
-                                            colSpan="2"
-                                            className="border px-2 py-1 text-center"
-                                        >
-                                            {group}
+                        {/* Table */}
+                        <div className="overflow-x-auto">
+                            <table className="border border-collapse w-full text-xs">
+                                <thead>
+                                    <tr className="bg-gray-100">
+                                        <th rowSpan="2" className="border px-2 py-1">
+                                            Areas affected (Purok)
                                         </th>
-                                    ))}
-                                    <th rowSpan="2" className="border px-2 py-1 text-center" />
-                                </tr>
-                                <tr className="bg-gray-100">
-                                    {RISK_FIELDS.map(({ label }, idx) => (
-                                        <th key={idx} className="border px-2 py-1">
-                                            {label}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {(hazard.rows || []).map((row, rIdx) => ( // <--- This is the key fix
-                                    <tr key={rIdx}>
-                                        <td className="border px-2 py-1 text-center">
-                                            <input
-                                                type="text"
-                                                value={row.purok || ""} // Add fallback for row.purok
-                                                onChange={(e) =>
-                                                    updateCell(hIdx, rIdx, "purok", e.target.value)
-                                                }
-                                                className="border w-full px-2 py-1 text-center text-xs"
-                                            />
-                                        </td>
-                                        {RISK_FIELDS.map(({ key }, i) => (
-                                            <td key={i} className="border px-2 py-1 text-center">
+                                        {["Low Risk", "Medium Risk", "High Risk"].map((group) => (
+                                            <th
+                                                key={group}
+                                                colSpan="2"
+                                                className="border px-2 py-1 text-center"
+                                            >
+                                                {group}
+                                            </th>
+                                        ))}
+                                        <th rowSpan="2" className="border px-2 py-1 text-center" />
+                                    </tr>
+                                    <tr className="bg-gray-100">
+                                        {RISK_FIELDS.map(({ label }, idx) => (
+                                            <th key={idx} className="border px-2 py-1">
+                                                {label}
+                                            </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(hazard.rows || []).map((row, rIdx) => ( // <--- This is the key fix
+                                        <tr key={rIdx}>
+                                            <td className="border px-2 py-1 text-center">
                                                 <input
-                                                    type="number"
-                                                    value={row[key] || ""} // Add fallback for row[key]
+                                                    type="text"
+                                                    value={row.purok || ""} // Add fallback for row.purok
                                                     onChange={(e) =>
-                                                        updateCell(hIdx, rIdx, key, e.target.value)
+                                                        updateCell(hIdx, rIdx, "purok", e.target.value)
                                                     }
                                                     className="border w-full px-2 py-1 text-center text-xs"
                                                 />
                                             </td>
-                                        ))}
-                                        <td className="border px-2 py-1 text-center">
-                                            <button
-                                                className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-red-200"
-                                                onClick={() => removePurok(hIdx, rIdx)}
-                                            >
-                                                ✕
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                            {RISK_FIELDS.map(({ key }, i) => (
+                                                <td key={i} className="border px-2 py-1 text-center">
+                                                    <input
+                                                        type="number"
+                                                        value={row[key] || ""} // Add fallback for row[key]
+                                                        onChange={(e) =>
+                                                            updateCell(hIdx, rIdx, key, e.target.value)
+                                                        }
+                                                        className="border w-full px-2 py-1 text-center text-xs"
+                                                    />
+                                                </td>
+                                            ))}
+                                            <td className="border px-2 py-1 text-center">
+                                                <button
+                                                    className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-red-200"
+                                                    onClick={() => removePurok(hIdx, rIdx)}
+                                                >
+                                                    ✕
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
 
-                    {/* Add purok row button */}
-                    <button
-                        onClick={() => addPurok(hIdx)}
-                        className="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-xs"
-                    >
-                        + Add Purok
-                    </button>
-                </div>
-            ))}
+                        {/* Add purok row button */}
+                        <button
+                            onClick={() => addPurok(hIdx)}
+                            className="inline-flex items-center gap-1 mt-2 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
+                        >
+                            <span className="text-sm font-bold">+</span> Add Purok
+                        </button>
+
+                    </div>
+                ))}
+            </div>
+
+
 
             {/* Add hazard table button */}
             <button
                 onClick={addHazard}
-                className="mt-0 px-4 py-2 bg-green-500 text-white rounded text-sm"
+                className="inline-flex items-center gap-1 mt-0 mb-4 px-3 py-1.5 text-xs font-medium border border-green-500 text-green-600 rounded-md hover:bg-green-500 hover:text-white transition-colors duration-200 shadow-sm"
             >
-                + Add Hazard Category
+                <span className="text-sm font-bold">+</span> Add Hazard Category
             </button>
+
         </div>
     );
 };

@@ -144,11 +144,10 @@ const ResponsiveEuipInventory = () => {
                                             onClick={() =>
                                                 updateCell(idx, "status", "yes")
                                             }
-                                            className={`p-1 rounded-full ${
-                                                row.status === "yes"
+                                            className={`p-1 rounded-full ${row.status === "yes"
                                                     ? "bg-green-500 text-white"
                                                     : "bg-gray-200 text-gray-500"
-                                            }`}
+                                                }`}
                                         >
                                             <Check size={14} />
                                         </button>
@@ -156,11 +155,10 @@ const ResponsiveEuipInventory = () => {
                                             onClick={() =>
                                                 updateCell(idx, "status", "no")
                                             }
-                                            className={`p-1 rounded-full ${
-                                                row.status === "no"
+                                            className={`p-1 rounded-full ${row.status === "no"
                                                     ? "bg-red-500 text-white"
                                                     : "bg-gray-200 text-gray-500"
-                                            }`}
+                                                }`}
                                         >
                                             <X size={14} />
                                         </button>
@@ -176,9 +174,9 @@ const ResponsiveEuipInventory = () => {
                                         >
                                             <textarea
                                                 ref={(el) =>
-                                                    (textareaRefs.current[
-                                                        idx * 5 + (fIdx + 1)
-                                                    ] = el)
+                                                (textareaRefs.current[
+                                                    idx * 5 + (fIdx + 1)
+                                                ] = el)
                                                 }
                                                 rows={1}
                                                 value={row[field]}
@@ -219,10 +217,11 @@ const ResponsiveEuipInventory = () => {
 
             <button
                 onClick={addRow}
-                className="mt-3 px-3 py-1 bg-blue-500 text-white rounded text-xs"
+                className="inline-flex items-center gap-1 mt-3 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
             >
-                + Add Row
+                <span className="text-sm font-bold">+</span> Add Row
             </button>
+
         </div>
     );
 };

@@ -79,7 +79,7 @@ function ExposureTable({
     ];
 
     return (
-        <div className="border rounded-lg shadow-sm mb-4 p-2 relative">
+        <div className="border rounded-lg shadow-sm mb-4 p-2 relative bg-white">
             <div className="absolute top-2 right-2 mb-4">
                 <button
                     className="w-6 h-6 flex items-center justify-center rounded-full bg-red-100 text-red-500 hover:bg-red-200 transition"
@@ -399,12 +399,12 @@ function ExposureTable({
             </table>
 
             <button
-                className="m-2 flex items-center gap-2 px-3 py-1 bg-blue-300 text-white rounded-full shadow hover:bg-blue-700 transition"
                 onClick={() => addPurokRow(tableId)}
+                className="inline-flex items-center gap-1 mt-3 px-4 py-1.4 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
             >
-                <Plus className="w-2 h-2" />
-                <span className="text-xs">Add Purok</span>
+                <span className="text-sm font-bold">+</span> Add Purok
             </button>
+
         </div>
     );
 }
@@ -506,28 +506,37 @@ const ExposureDatabase = () => {
                 {JSON.stringify(craData, null, 2)}
             </pre> */}
 
-            {tables.map((table, idx) => (
-                <React.Fragment key={idx}>
-                    <ExposureTable
-                        tableId={idx}
-                        riskType={table.riskType}
-                        purokData={table.purokData}
-                        updateRiskType={updateRiskType}
-                        updatePurokField={updatePurokField}
-                        addPurokRow={addPurokRow}
-                        removePurokRow={removePurokRow}
-                        removeTable={removeTable}
-                        tableIndex={idx}
-                    />
-                    <button
-                        className="m-2 flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-full shadow hover:bg-green-600 transition"
-                        onClick={addTable}
-                    >
-                        <Plus className="w-4 h-4" />
-                        <span className="text-xs">Add New Risk Table</span>
-                    </button>
-                </React.Fragment>
-            ))}
+
+            <div className="mb-4 border-2 border-purple-300 rounded-xl p-5 bg-purple-50 shadow-sm">
+                {tables.map((table, idx) => (
+                    <React.Fragment key={idx}>
+
+                        <ExposureTable
+                            tableId={idx}
+                            riskType={table.riskType}
+                            purokData={table.purokData}
+                            updateRiskType={updateRiskType}
+                            updatePurokField={updatePurokField}
+                            addPurokRow={addPurokRow}
+                            removePurokRow={removePurokRow}
+                            removeTable={removeTable}
+                            tableIndex={idx}
+                        />
+
+                    </React.Fragment>
+                ))}
+            </div>
+
+            {/* Button outside the div */}
+            <div className="mb-10 flex justify-start">
+                <button
+                    onClick={addTable}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium border border-green-500 text-green-600 rounded-md hover:bg-green-500 hover:text-white transition-colors duration-200 shadow-sm"
+                >
+                    <span className="text-sm font-bold">+</span> Add New Risk Table
+                </button>
+            </div>
+
 
             <p className="text-md font-bold">
                 3.2 Deatailed Number of Persons with Disabilities

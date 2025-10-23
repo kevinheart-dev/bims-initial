@@ -35,6 +35,16 @@ export default function Population() {
         "60_plus_yrs",
     ];
 
+    const formatAgeGroup = (text) => {
+        return text
+            .replace(/_/g, " ") // replace underscores
+            .replace("0 6", "0–6") // optional: replace with dash for range
+            .replace("60 plus", "60+") // optional: cleaner
+            .replace(/\bmos\b/, "mos.") // optional: add dot
+            .replace(/\byrs\b/, "yrs."); // optional: add dot
+    };
+
+
     // Initialize CRA data
     useEffect(() => {
         console.log("CRA Data:", craData);
@@ -144,7 +154,7 @@ export default function Population() {
                         <h2 className="text-lg font-semibold mb-0">
                             General Population
                         </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
                             <InputField
                                 type="number"
                                 name="barangayPopulation"
@@ -291,9 +301,7 @@ export default function Population() {
                         <tbody>
                             {craData.population?.map((groupObj, idx) => (
                                 <tr key={idx}>
-                                    <td className="border px-2 py-1">
-                                        {groupObj.ageGroup}
-                                    </td>
+                                    <td className="border px-2 py-1">{formatAgeGroup(groupObj.ageGroup)}</td>
                                     {Object.keys(groupObj)
                                         .filter((key) => key !== "ageGroup")
                                         .map((field, i) => (
@@ -303,7 +311,7 @@ export default function Population() {
                                             >
                                                 <input
                                                     type="number"
-                                                    className="w-full border p-1"
+                                                    className="w-full border p-1 text-center"
                                                     value={
                                                         groupObj[field] ?? ""
                                                     }
@@ -389,7 +397,7 @@ export default function Population() {
                                             <td className="border px-2 py-1">
                                                 <input
                                                     type="number"
-                                                    className="w-full border p-1"
+                                                    className="w-full border p-1 text-center"
                                                     value={house.oneFloor ?? ""}
                                                     onChange={(e) =>
                                                         updateHouse(
@@ -403,7 +411,7 @@ export default function Population() {
                                             <td className="border px-2 py-1">
                                                 <input
                                                     type="number"
-                                                    className="w-full border p-1"
+                                                    className="w-full border p-1 text-center"
                                                     value={
                                                         house.multiFloor ?? ""
                                                     }
@@ -470,7 +478,7 @@ export default function Population() {
                                             <td className="border px-2 py-1">
                                                 <input
                                                     type="number"
-                                                    className="w-full border p-1"
+                                                    className="w-full border p-1 text-center"
                                                     value={
                                                         craData.ownership?.[
                                                         own
