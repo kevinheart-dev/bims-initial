@@ -50,11 +50,16 @@ export default function DisasterAgriDamage({
                     {/* === CASE 1: OVERALL SUMMARY (no barangay selected) === */}
                     {!isBarangayView ? (
                         isOverallDataNull ? (
-                            <NoDataPlaceholder tip="No overall agricultural damage data available for the selected year." />
+                            <div className="w-full px-2 sm:px-4 lg:px-6">
+                                <NoDataPlaceholder tip="No overall agricultural damage data available for the selected year." />
+                            </div>
                         ) : (
                             overallDisasterAgriData.map((disaster, dIndex) => {
                                 const allColumns = [
-                                    { key: "description", label: "Description" },
+                                    {
+                                        key: "description",
+                                        label: "Description",
+                                    },
                                     { key: "value", label: "Value" },
                                     { key: "source", label: "Source" },
                                 ];
@@ -62,22 +67,24 @@ export default function DisasterAgriDamage({
                                 const columnRenderers = {
                                     description: (row) => (
                                         <span
-                                            className={`${row.description ===
+                                            className={`${
+                                                row.description ===
                                                 "Total Damage Value"
-                                                ? "font-bold text-gray-900"
-                                                : "text-gray-700"
-                                                }`}
+                                                    ? "font-bold text-gray-900"
+                                                    : "text-gray-700"
+                                            }`}
                                         >
                                             {row.description}
                                         </span>
                                     ),
                                     value: (row) => (
                                         <span
-                                            className={`${row.description ===
+                                            className={`${
+                                                row.description ===
                                                 "Total Damage Value"
-                                                ? "font-bold text-green-700"
-                                                : "text-green-600"
-                                                }`}
+                                                    ? "font-bold text-green-700"
+                                                    : "text-green-600"
+                                            }`}
                                         >
                                             {row.value}
                                         </span>
@@ -117,95 +124,95 @@ export default function DisasterAgriDamage({
                             })
                         )
                     ) : // === CASE 2: BARANGAY VIEW ===
-                        isBarangayDataNull ? (
-                            <NoDataPlaceholder tip="No agricultural damage data available for the selected barangay." />
-                        ) : (
-                            disasterAgriData.map((barangay, bIndex) => {
-                                const disastersGrouped = barangay.disasters.reduce(
-                                    (acc, d) => {
-                                        if (!acc[d.disaster_id])
-                                            acc[d.disaster_id] = [];
-                                        acc[d.disaster_id].push(d);
-                                        return acc;
-                                    },
-                                    {}
-                                );
+                    isBarangayDataNull ? (
+                        <NoDataPlaceholder tip="No agricultural damage data available for the selected barangay." />
+                    ) : (
+                        disasterAgriData.map((barangay, bIndex) => {
+                            const disastersGrouped = barangay.disasters.reduce(
+                                (acc, d) => {
+                                    if (!acc[d.disaster_id])
+                                        acc[d.disaster_id] = [];
+                                    acc[d.disaster_id].push(d);
+                                    return acc;
+                                },
+                                {}
+                            );
 
-                                return Object.entries(disastersGrouped).map(
-                                    ([disasterId, damageRows], dIndex) => {
-                                        const allColumns = [
-                                            {
-                                                key: "description",
-                                                label: "Description",
-                                            },
-                                            { key: "value", label: "Value" },
-                                            { key: "source", label: "Source" },
-                                        ];
+                            return Object.entries(disastersGrouped).map(
+                                ([disasterId, damageRows], dIndex) => {
+                                    const allColumns = [
+                                        {
+                                            key: "description",
+                                            label: "Description",
+                                        },
+                                        { key: "value", label: "Value" },
+                                        { key: "source", label: "Source" },
+                                    ];
 
-                                        const columnRenderers = {
-                                            description: (row) => (
-                                                <span className="text-gray-700">
-                                                    {row.description}
-                                                </span>
-                                            ),
-                                            value: (row) => (
-                                                <span className="font-bold text-green-600">
-                                                    {row.value}
-                                                </span>
-                                            ),
-                                            source: (row) => (
-                                                <span className="text-gray-700">
-                                                    {row.source}
-                                                </span>
-                                            ),
-                                        };
+                                    const columnRenderers = {
+                                        description: (row) => (
+                                            <span className="text-gray-700">
+                                                {row.description}
+                                            </span>
+                                        ),
+                                        value: (row) => (
+                                            <span className="font-bold text-green-600">
+                                                {row.value}
+                                            </span>
+                                        ),
+                                        source: (row) => (
+                                            <span className="text-gray-700">
+                                                {row.source}
+                                            </span>
+                                        ),
+                                    };
 
-                                        const disasterName =
-                                            damageRows[0].disaster_name;
-                                        const disasterYear = damageRows[0].year;
+                                    const disasterName =
+                                        damageRows[0].disaster_name;
+                                    const disasterYear = damageRows[0].year;
 
-                                        const totalValue = damageRows.reduce(
-                                            (sum, r) => sum + r.value,
-                                            0
-                                        );
-                                        const totalRow = {
-                                            disaster_id: null,
-                                            disaster_name: null,
-                                            year: null,
-                                            description: "Total Damage Value",
-                                            value: totalValue,
-                                            source: "",
-                                        };
+                                    const totalValue = damageRows.reduce(
+                                        (sum, r) => sum + r.value,
+                                        0
+                                    );
+                                    const totalRow = {
+                                        disaster_id: null,
+                                        disaster_name: null,
+                                        year: null,
+                                        description: "Total Damage Value",
+                                        value: totalValue,
+                                        source: "",
+                                    };
 
-                                        const rowsWithTotal = [
-                                            ...damageRows,
-                                            totalRow,
-                                        ];
+                                    const rowsWithTotal = [
+                                        ...damageRows,
+                                        totalRow,
+                                    ];
 
-                                        return (
-                                            <TableSection
-                                                key={`${bIndex}-${disasterId}`}
-                                                icon={<Sprout />}
-                                                color="emerald"
-                                                title={`${disasterName} in ${barangay.barangay_name} (${disasterYear})`}
-                                                description={`Total damage value: ${totalValue}`}
-                                                tableProps={{
-                                                    component: DynamicTable,
-                                                    passedData: rowsWithTotal,
-                                                    allColumns,
-                                                    columnRenderers,
-                                                    visibleColumns: allColumns.map(
-                                                        (c) => c.key
-                                                    ),
-                                                    showTotal: true,
-                                                    tableHeight: "400px",
-                                                }}
-                                            />
-                                        );
-                                    }
-                                );
-                            })
-                        )}
+                                    return (
+                                        <TableSection
+                                            key={`${bIndex}-${disasterId}`}
+                                            icon={<Sprout />}
+                                            color="emerald"
+                                            title={`${disasterName} in ${barangay.barangay_name} (${disasterYear})`}
+                                            description={`Total damage value: ${totalValue}`}
+                                            tableProps={{
+                                                component: DynamicTable,
+                                                passedData: rowsWithTotal,
+                                                allColumns,
+                                                columnRenderers,
+                                                visibleColumns: allColumns.map(
+                                                    (c) => c.key
+                                                ),
+                                                showTotal: true,
+                                                tableHeight: "400px",
+                                            }}
+                                        />
+                                    );
+                                }
+                            );
+                        })
+                    )}
                 </div>
             </div>
         </AdminLayout>

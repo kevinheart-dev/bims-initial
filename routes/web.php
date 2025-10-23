@@ -286,6 +286,13 @@ Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(
     Route::get('/damageproperty', [CRADataController::class, 'damageproperty'])->name('cdrrmo_admin.damageproperty');
     Route::get('/damageagri', [CRADataController::class, 'damageagri'])->name('cdrrmo_admin.damageagri');
     Route::get('/disasterlifelines', [CRADataController::class, 'disasterlifelines'])->name('cdrrmo_admin.disasterlifelines');
+    Route::get('/hazardrisks', [CRADataController::class, 'hazardRisks'])->name('cdrrmo_admin.hazardrisks');
+    Route::get('/riskmatrix', [CRADataController::class, 'riskMatrix'])->name('cdrrmo_admin.riskmatrix');
+    Route::get('/vulnerabilitymatrix', [CRADataController::class, 'vulnerabilityMatrix'])->name('cdrrmo_admin.vulnerabilitymatrix');
+    Route::get('/populationexposure', [CRADataController::class, 'populationExposure'])->name('cdrrmo_admin.populationexposure');
+    Route::get('/disabilities', [CRADataController::class, 'disabilityStatistics'])->name('cdrrmo_admin.disabilities');
+    Route::get('/familiesatrisk', [CRADataController::class, 'familyAtRisk'])->name('cdrrmo_admin.familiesatrisk');
+    Route::get('/illnessesstats', [CRADataController::class, 'illnessStatistics'])->name('cdrrmo_admin.illnessesstats');
 });
 
 // Super Admin-only routes

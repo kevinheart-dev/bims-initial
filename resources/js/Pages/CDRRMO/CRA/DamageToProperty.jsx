@@ -118,7 +118,9 @@ export default function DamageToProperty({
 
                     {!isBarangayView ? (
                         isOverallDataNull ? (
-                            <NoDataPlaceholder tip="No overall property damage data available for the selected year." />
+                            <div className="w-full px-2 sm:px-4 lg:px-6">
+                                <NoDataPlaceholder tip="No overall property damage data available for the selected year." />
+                            </div>
                         ) : (
                             overallDamagePropertyData.map((disaster) =>
                                 renderTable(
@@ -128,7 +130,9 @@ export default function DamageToProperty({
                             )
                         )
                     ) : isBarangayDataNull ? (
-                        <NoDataPlaceholder tip="No property damage data available for the selected barangay." />
+                        <div className="w-full px-2 sm:px-4 lg:px-6">
+                            <NoDataPlaceholder tip="No property damage data available for the selected barangay." />
+                        </div>
                     ) : (
                         damagePropertyData.flatMap((barangay) =>
                             barangay.disasters.map((disaster) =>

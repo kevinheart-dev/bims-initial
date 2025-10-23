@@ -76,7 +76,9 @@ export default function Dashboard({
                             </button>
                         </div>
                     ) : isDataNull ? (
-                        <NoDataPlaceholder tip="No disaster impact data available for the selected barangay." />
+                        <div className="w-full px-2 sm:px-4 lg:px-6">
+                            <NoDataPlaceholder tip="Use the year selector above to navigate to a year with available data." />
+                        </div>
                     ) : (
                         <>
                             {disasterImpactsData.map((barangay, bIndex) => {

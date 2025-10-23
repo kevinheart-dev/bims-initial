@@ -49,7 +49,9 @@ export default function DisasterEffectImpacts({
                     {/* === CASE 1: OVERALL SUMMARY (no barangay selected) === */}
                     {!isBarangayView ? (
                         isOverallDataNull ? (
-                            <NoDataPlaceholder tip="No overall disaster impact data available for the selected year." />
+                            <div className="w-full px-2 sm:px-4 lg:px-6">
+                                <NoDataPlaceholder tip="No overall disaster impact data available for the selected year." />
+                            </div>
                         ) : (
                             overallDisasterEffectsData.map(
                                 (disaster, dIndex) => {

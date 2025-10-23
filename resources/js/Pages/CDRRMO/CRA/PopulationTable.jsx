@@ -495,7 +495,9 @@ export default function Dashboard({
             <div className="pt-8 pb-2 min-h-screen bg-gray-50">
                 <div className="mx-auto w-full">
                     {isDataNull ? (
-                        <NoDataPlaceholder tip="Use the year selector above to navigate to a year with available data." />
+                        <div className="w-full px-2 sm:px-4 lg:px-6">
+                            <NoDataPlaceholder tip="Use the year selector above to navigate to a year with available data." />
+                        </div>
                     ) : (
                         <>
                             <BarangayFilterCard

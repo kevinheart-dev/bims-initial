@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Bath, Cable, Toilet, Trash, Droplets, } from "lucide-react";
+import { Users, Bath, Cable, Toilet, Trash, Droplets } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -32,7 +32,7 @@ export default function Dashboard({
     const categoryMap = {
         "Bath and Wash Area": { icon: <Bath />, color: "blue" },
         "Electricity Source": { icon: <Cable />, color: "yellow" },
-        "Toilet": { icon: <Toilet />, color: "purple" },
+        Toilet: { icon: <Toilet />, color: "purple" },
         "Waste Management": { icon: <Trash />, color: "green" },
         "Water Source": { icon: <Droplets />, color: "blue" },
     };
@@ -45,7 +45,9 @@ export default function Dashboard({
             <div className="pt-8 pb-2 min-h-screen bg-gray-50">
                 <div className="mx-auto w-full">
                     {isDataNull ? (
-                        <NoDataPlaceholder tip="Use the year selector above to navigate to a year with available data." />
+                        <div className="w-full px-2 sm:px-4 lg:px-6">
+                            <NoDataPlaceholder tip="Use the year selector above to navigate to a year with available data." />
+                        </div>
                     ) : (
                         <>
                             <BarangayFilterCard
@@ -175,7 +177,9 @@ export default function Dashboard({
                                             ),
                                         };
 
-                                        const category = categoryMap[categoryRow.category] || { icon: <Bath />, color: "gray" };
+                                        const category = categoryMap[
+                                            categoryRow.category
+                                        ] || { icon: <Bath />, color: "gray" };
 
                                         return (
                                             <TableSection

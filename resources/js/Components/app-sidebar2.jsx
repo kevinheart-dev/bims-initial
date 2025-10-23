@@ -426,6 +426,24 @@ export function AppSidebar({ auth }) {
                     icon: Table,
                     roles: ["cdrrmo_admin"],
                 },
+                {
+                    title: "Families At Risk",
+                    url: "/cdrrmo_admin/familiesatrisk",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Persons with Disabilities",
+                    url: "/cdrrmo_admin/disabilities",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Illnesses Statistics",
+                    url: "/cdrrmo_admin/illnessesstats",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
             ],
         },
         {
@@ -460,6 +478,30 @@ export function AppSidebar({ auth }) {
                 {
                     title: "Disaster Lifelines",
                     url: "/cdrrmo_admin/disasterlifelines",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Hazard Risks",
+                    url: "/cdrrmo_admin/hazardrisks",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Risk Assessment Matrix",
+                    url: "/cdrrmo_admin/riskmatrix",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Vulnerability Assessment Matrix",
+                    url: "/cdrrmo_admin/vulnerabilitymatrix",
+                    icon: Table,
+                    roles: ["cdrrmo_admin"],
+                },
+                {
+                    title: "Population Exposure",
+                    url: "/cdrrmo_admin/populationexposure",
                     icon: Table,
                     roles: ["cdrrmo_admin"],
                 },

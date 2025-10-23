@@ -1213,7 +1213,6 @@ class CRADataController extends Controller
         ]);
     }
 
-    //Problem in fetching all of the data only two rows shows
     public function damageproperty(Request $request)
     {
         $year = $request->input('year') ?? session('cra_year');
@@ -1348,7 +1347,6 @@ class CRADataController extends Controller
         ]);
     }
 
-
     public function damageagri(Request $request)
     {
         // Get year from request or session
@@ -1456,7 +1454,6 @@ class CRADataController extends Controller
         ]);
     }
 
-    // data is too large hinde ko alam gagawin dito
     public function disasterlifelines(Request $request)
     {
         // Get year from request or session
@@ -1593,6 +1590,1149 @@ class CRADataController extends Controller
         return Inertia::render('CDRRMO/CRA/DisasterLifelines', [
             'disasterLifelineData' => $disasterLifelineData,
             'overallDisasterLifelineData' => [],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function hazardRisks(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/HazardRisks', [
+                'hazardRiskData' => [],
+                'overallHazardRiskData' => [],
+                'barangayTopHazards' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view hazard risk data.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        // 2️⃣ CASE 1: No barangay selected → Overall Summary
+        if (!$barangayId) {
+            // --- Aggregated summary for all hazards ---
+            $aggregated = DB::table('c_r_a_hazard_risks as r')
+                ->join('c_r_a_hazards as h', 'h.id', '=', 'r.hazard_id')
+                ->selectRaw('
+                    h.hazard_name,
+                    ROUND(AVG(r.probability_no), 2) AS avg_probability,
+                    ROUND(AVG(r.effect_no), 2) AS avg_effect,
+                    ROUND(AVG(r.management_no), 2) AS avg_management,
+                    ROUND(AVG(r.average_score), 2) AS avg_score,
+                    GROUP_CONCAT(DISTINCT r.basis SEPARATOR "; ") AS bases
+                ')
+                ->where('r.cra_id', $cra->id)
+                ->groupBy('h.hazard_name')
+                ->orderByDesc('avg_score')
+                ->orderBy('h.hazard_name')
+                ->get();
+
+            // Add ranking
+            $ranked = $aggregated->map(function ($item, $index) {
+                return [
+                    'number' => $index + 1,
+                    'rank' => $index + 1,
+                    'hazard_name' => $item->hazard_name,
+                    'avg_probability' => (float) $item->avg_probability,
+                    'avg_effect' => (float) $item->avg_effect,
+                    'avg_management' => (float) $item->avg_management,
+                    'avg_score' => (float) $item->avg_score,
+                    'bases' => $item->bases,
+                ];
+            });
+
+            // --- NEW: Top hazard per barangay ---
+           $barangayTopHazards = DB::table('c_r_a_hazard_risks as r')
+            ->join('barangays as b', 'b.id', '=', 'r.barangay_id')
+            ->join('c_r_a_hazards as h', 'h.id', '=', 'r.hazard_id')
+            ->select(
+                'b.barangay_name',
+                'h.hazard_name as top_hazard',
+                'r.average_score',
+                'r.probability_no',
+                'r.effect_no',
+                'r.management_no'
+            )
+            ->where('r.cra_id', $cra->id)
+            ->whereRaw('r.average_score = (
+                SELECT MAX(r2.average_score)
+                FROM c_r_a_hazard_risks r2
+                WHERE r2.barangay_id = r.barangay_id
+                AND r2.cra_id = r.cra_id
+            )')
+            ->orderBy('b.barangay_name')
+            ->get()
+            ->values() // ensures proper indexing
+            ->map(function ($item, $index) {
+                return [
+                    'number' => $index + 1, // ✅ add sequential numbering
+                    'barangay_name' => $item->barangay_name,
+                    'top_hazard' => $item->top_hazard,
+                    'probability_no' => (float) $item->probability_no,
+                    'effect_no' => (float) $item->effect_no,
+                    'management_no' => (float) $item->management_no,
+                    'average_score' => (float) $item->average_score,
+                ];
+            });
+
+            return Inertia::render('CDRRMO/CRA/HazardRisks', [
+                'hazardRiskData' => [],
+                'overallHazardRiskData' => $ranked,
+                'barangayTopHazards' => $barangayTopHazards,
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+            ]);
+        }
+
+        // 3️⃣ CASE 2: Barangay-specific
+        $records = DB::table('c_r_a_hazard_risks as r')
+            ->join('c_r_a_hazards as h', 'h.id', '=', 'r.hazard_id')
+            ->join('barangays as b', 'b.id', '=', 'r.barangay_id')
+            ->select(
+                'b.barangay_name',
+                'h.hazard_name',
+                'r.probability_no',
+                'r.effect_no',
+                'r.management_no',
+                'r.average_score',
+                'r.basis'
+            )
+            ->where('r.cra_id', $cra->id)
+            ->where('r.barangay_id', $barangayId)
+            ->orderByDesc('r.average_score')
+            ->orderBy('h.hazard_name')
+            ->get();
+
+        $hazardRiskData = $records
+            ->groupBy('barangay_name')
+            ->map(function ($group, $barangayName) {
+                $sorted = $group->sortByDesc('average_score')->values();
+
+                $hazards = $sorted->map(function ($r, $index) {
+                    return [
+                        'no' => $index + 1,
+                        'rank' => $index + 1,
+                        'hazard_name' => $r->hazard_name,
+                        'probability_no' => (int) $r->probability_no,
+                        'effect_no' => (int) $r->effect_no,
+                        'management_no' => (int) $r->management_no,
+                        'average_score' => (float) $r->average_score,
+                        'basis' => $r->basis,
+                    ];
+                });
+
+                $totalAvgScore = round($hazards->avg('average_score'), 2);
+
+                return [
+                    'barangay_name' => $barangayName,
+                    'hazards' => $hazards,
+                    'total_avg_score' => $totalAvgScore,
+                ];
+            })
+            ->values();
+
+        return Inertia::render('CDRRMO/CRA/HazardRisks', [
+            'hazardRiskData' => $hazardRiskData,
+            'overallHazardRiskData' => [],
+            'barangayTopHazards' => [],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function riskMatrix(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/RiskMatrix', [
+                'riskMatrixData' => [],
+                'overallRiskMatrixData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view risk matrix data.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        // 🟦 CASE 1: No Barangay Selected (Overall Summary View)
+        if (!$barangayId) {
+            $hazards = DB::table('c_r_a_hazards')->pluck('hazard_name');
+
+            // 🔹 1st Table: Hazard totals across all barangays
+            $overallHazards = DB::table('c_r_a_assessment_matrices as m')
+                ->join('c_r_a_hazards as h', 'h.id', '=', 'm.hazard_id')
+                ->select('h.hazard_name', DB::raw('SUM(m.people) as total_people'))
+                ->where('m.matrix_type', 'risk')
+                ->where('m.cra_id', $cra->id)
+                ->groupBy('h.hazard_name')
+                ->orderByDesc('total_people')
+                ->get()
+                ->map(function ($row, $index) {
+                    return [
+                        'no' => $index + 1,
+                        'hazard_name' => $row->hazard_name,
+                        'total_people' => (int) $row->total_people,
+                        'overall_rank' => $index + 1,
+                    ];
+                });
+
+            // 🔹 2nd Table: Breakdown per barangay per hazard
+            $barangayData = DB::table('c_r_a_assessment_matrices as m')
+                ->join('barangays as b', 'b.id', '=', 'm.barangay_id')
+                ->join('c_r_a_hazards as h', 'h.id', '=', 'm.hazard_id')
+                ->select('b.barangay_name', 'h.hazard_name', DB::raw('SUM(m.people) as total_people'))
+                ->where('m.matrix_type', 'risk')
+                ->where('m.cra_id', $cra->id)
+                ->groupBy('b.barangay_name', 'h.hazard_name')
+                ->get()
+                ->groupBy('barangay_name')
+                ->map(function ($records, $barangayName) use ($hazards) {
+                    $row = ['barangay_name' => $barangayName];
+                    $total = 0;
+
+                    foreach ($hazards as $hazard) {
+                        $count = $records->firstWhere('hazard_name', $hazard)->total_people ?? 0;
+                        $row[$hazard] = (int) $count;
+                        $total += $count;
+                    }
+
+                    $row['total_people'] = $total;
+                    return $row;
+                })
+                ->values();
+
+            // Rank barangays by total people
+            $rankedBarangays = $barangayData
+                ->sortByDesc('total_people')
+                ->values()
+                ->map(function ($row, $index) {
+                    $row['no'] = $index + 1;
+                    $row['overall_rank'] = $index + 1;
+                    return $row;
+                });
+
+            return Inertia::render('CDRRMO/CRA/RiskMatrix', [
+                'riskMatrixData' => [],
+                'overallRiskMatrixData' => $rankedBarangays,
+                'overallHazardSummary' => $overallHazards,
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+            ]);
+        }
+
+        // 🟩 CASE 2: Barangay Selected (Show per-hazard breakdown)
+        $records = DB::table('c_r_a_assessment_matrices as m')
+            ->join('c_r_a_hazards as h', 'h.id', '=', 'm.hazard_id')
+            ->join('barangays as b', 'b.id', '=', 'm.barangay_id')
+            ->select(
+                'b.barangay_name',
+                'h.hazard_name',
+                'm.people',
+                'm.properties',
+                'm.services',
+                'm.environment',
+                'm.livelihood'
+            )
+            ->where('m.matrix_type', 'risk')
+            ->where('m.cra_id', $cra->id)
+            ->where('m.barangay_id', $barangayId)
+            ->orderBy('h.hazard_name')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/RiskMatrix', [
+                'riskMatrixData' => [],
+                'overallRiskMatrixData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No risk assessment data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = $records->first()->barangay_name;
+
+        $hazardList = $records->map(function ($r, $index) {
+            return [
+                'no' => $index + 1,
+                'hazard_name' => $r->hazard_name,
+                'people' => (int) $r->people, // numeric
+                'properties' => $r->properties, // text
+                'services' => $r->services,     // text
+                'environment' => $r->environment, // text
+                'livelihood' => $r->livelihood,   // text
+            ];
+        });
+
+        // ✅ Return correct structure expected by frontend
+        return Inertia::render('CDRRMO/CRA/RiskMatrix', [
+            'riskMatrixData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'hazards' => $hazardList,
+                ],
+            ],
+            'overallRiskMatrixData' => [],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function vulnerabilityMatrix(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/VulnerabilityMatrix', [
+                'vulnerabilityMatrixData' => [],
+                'overallVulnerabilityMatrixData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view vulnerability matrix data.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        // 🟦 CASE 1: No Barangay Selected (Overall Summary View)
+        if (!$barangayId) {
+            $hazards = DB::table('c_r_a_hazards')->pluck('hazard_name');
+
+            // 🔹 1st Table: Hazard totals across all barangays
+            $overallHazards = DB::table('c_r_a_assessment_matrices as m')
+                ->join('c_r_a_hazards as h', 'h.id', '=', 'm.hazard_id')
+                ->select('h.hazard_name', DB::raw('SUM(m.people) as total_people'))
+                ->where('m.matrix_type', 'vulnerability')
+                ->where('m.cra_id', $cra->id)
+                ->groupBy('h.hazard_name')
+                ->orderByDesc('total_people')
+                ->get()
+                ->map(function ($row, $index) {
+                    return [
+                        'no' => $index + 1,
+                        'hazard_name' => $row->hazard_name,
+                        'total_people' => (int) $row->total_people,
+                        'overall_rank' => $index + 1,
+                    ];
+                });
+
+            // 🔹 2nd Table: Breakdown per barangay per hazard
+            $barangayData = DB::table('c_r_a_assessment_matrices as m')
+                ->join('barangays as b', 'b.id', '=', 'm.barangay_id')
+                ->join('c_r_a_hazards as h', 'h.id', '=', 'm.hazard_id')
+                ->select('b.barangay_name', 'h.hazard_name', DB::raw('SUM(m.people) as total_people'))
+                ->where('m.matrix_type', 'vulnerability')
+                ->where('m.cra_id', $cra->id)
+                ->groupBy('b.barangay_name', 'h.hazard_name')
+                ->get()
+                ->groupBy('barangay_name')
+                ->map(function ($records, $barangayName) use ($hazards) {
+                    $row = ['barangay_name' => $barangayName];
+                    $total = 0;
+
+                    foreach ($hazards as $hazard) {
+                        $count = $records->firstWhere('hazard_name', $hazard)->total_people ?? 0;
+                        $row[$hazard] = (int) $count;
+                        $total += $count;
+                    }
+
+                    $row['total_people'] = $total;
+                    return $row;
+                })
+                ->values();
+
+            // Rank barangays by total people
+            $rankedBarangays = $barangayData
+                ->sortByDesc('total_people')
+                ->values()
+                ->map(function ($row, $index) {
+                    $row['no'] = $index + 1;
+                    $row['overall_rank'] = $index + 1;
+                    return $row;
+                });
+
+            return Inertia::render('CDRRMO/CRA/VulnerabilityMatrix', [
+                'vulnerabilityMatrixData' => [],
+                'overallVulnerabilityMatrixData' => $rankedBarangays,
+                'overallHazardSummary' => $overallHazards,
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+            ]);
+        }
+
+        // 🟩 CASE 2: Barangay Selected (Show per-hazard breakdown)
+        $records = DB::table('c_r_a_assessment_matrices as m')
+            ->join('c_r_a_hazards as h', 'h.id', '=', 'm.hazard_id')
+            ->join('barangays as b', 'b.id', '=', 'm.barangay_id')
+            ->select(
+                'b.barangay_name',
+                'h.hazard_name',
+                'm.people',
+                'm.properties',
+                'm.services',
+                'm.environment',
+                'm.livelihood'
+            )
+            ->where('m.matrix_type', 'vulnerability')
+            ->where('m.cra_id', $cra->id)
+            ->where('m.barangay_id', $barangayId)
+            ->orderBy('h.hazard_name')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/VulnerabilityMatrix', [
+                'vulnerabilityMatrixData' => [],
+                'overallVulnerabilityMatrixData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No vulnerability assessment data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = $records->first()->barangay_name;
+
+        $hazardList = $records->map(function ($r, $index) {
+            return [
+                'no' => $index + 1,
+                'hazard_name' => $r->hazard_name,
+                'people' => (int) $r->people,
+                'properties' => $r->properties,
+                'services' => $r->services,
+                'environment' => $r->environment,
+                'livelihood' => $r->livelihood,
+            ];
+        });
+
+        // ✅ Return correct structure expected by frontend
+        return Inertia::render('CDRRMO/CRA/VulnerabilityMatrix', [
+            'vulnerabilityMatrixData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'hazards' => $hazardList,
+                ],
+            ],
+            'overallVulnerabilityMatrixData' => [],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+
+    public function populationExposure(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/PopulationExposure', [
+                'populationExposureData' => [],
+                'overallPopulationExposureData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view population exposure data.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        // 🟦 CASE 1: No Barangay Selected (Overall Summary by Hazard)
+        if (!$barangayId) {
+            // 🔹 Overall totals grouped by hazard (sum across all barangays)
+            $overallHazards = DB::table('c_r_a_population_exposures as e')
+            ->join('c_r_a_hazards as h', 'h.id', '=', 'e.hazard_id')
+            ->select(
+                'h.hazard_name',
+                DB::raw('SUM(e.total_families) as total_families'),
+                DB::raw('SUM(e.total_individuals) as total_individuals'),
+                DB::raw('SUM(e.individuals_male) as male'),
+                DB::raw('SUM(e.individuals_female) as female'),
+                DB::raw('SUM(e.individuals_lgbtq) as lgbtq'),
+                DB::raw('SUM(e.pwd_male) as pwd_male'),
+                DB::raw('SUM(e.pwd_female) as pwd_female'),
+                DB::raw('SUM(e.diseases_male) as diseases_male'),
+                DB::raw('SUM(e.diseases_female) as diseases_female'),
+                DB::raw('SUM(e.pregnant_women) as pregnant'),
+
+                // Age group breakdowns separate male/female
+                DB::raw('SUM(e.age_0_6_male) as age_0_6_male'),
+                DB::raw('SUM(e.age_0_6_female) as age_0_6_female'),
+                DB::raw('SUM(e.age_7m_2y_male) as age_7m_2y_male'),
+                DB::raw('SUM(e.age_7m_2y_female) as age_7m_2y_female'),
+                DB::raw('SUM(e.age_3_5_male) as age_3_5_male'),
+                DB::raw('SUM(e.age_3_5_female) as age_3_5_female'),
+                DB::raw('SUM(e.age_6_12_male) as age_6_12_male'),
+                DB::raw('SUM(e.age_6_12_female) as age_6_12_female'),
+                DB::raw('SUM(e.age_13_17_male) as age_13_17_male'),
+                DB::raw('SUM(e.age_13_17_female) as age_13_17_female'),
+                DB::raw('SUM(e.age_18_59_male) as age_18_59_male'),
+                DB::raw('SUM(e.age_18_59_female) as age_18_59_female'),
+                DB::raw('SUM(e.age_60_up_male) as age_60_up_male'),
+                DB::raw('SUM(e.age_60_up_female) as age_60_up_female')
+            )
+            ->where('e.cra_id', $cra->id)
+            ->groupBy('h.hazard_name')
+            ->orderByDesc('total_individuals')
+            ->get()
+            ->map(function ($row, $index) {
+                return [
+                    'no' => $index + 1,
+                    'hazard_name' => $row->hazard_name,
+                    'total_families' => (int) $row->total_families,
+                    'total_individuals' => (int) $row->total_individuals,
+                    'male' => (int) $row->male,
+                    'female' => (int) $row->female,
+                    'lgbtq' => (int) $row->lgbtq,
+                    'pwd_male' => (int) $row->pwd_male,
+                    'pwd_female' => (int) $row->pwd_female,
+                    'diseases_male' => (int) $row->diseases_male,
+                    'diseases_female' => (int) $row->diseases_female,
+                    'pregnant' => (int) $row->pregnant,
+                    'overall_rank' => $index + 1,
+                    'age_groups' => [
+                        'age_0_6' => ['male' => (int) $row->age_0_6_male, 'female' => (int) $row->age_0_6_female],
+                        'age_7m_2y' => ['male' => (int) $row->age_7m_2y_male, 'female' => (int) $row->age_7m_2y_female],
+                        'age_3_5' => ['male' => (int) $row->age_3_5_male, 'female' => (int) $row->age_3_5_female],
+                        'age_6_12' => ['male' => (int) $row->age_6_12_male, 'female' => (int) $row->age_6_12_female],
+                        'age_13_17' => ['male' => (int) $row->age_13_17_male, 'female' => (int) $row->age_13_17_female],
+                        'age_18_59' => ['male' => (int) $row->age_18_59_male, 'female' => (int) $row->age_18_59_female],
+                        'age_60_up' => ['male' => (int) $row->age_60_up_male, 'female' => (int) $row->age_60_up_female],
+                    ],
+                ];
+            });
+
+            // 🔹 Breakdown per hazard → barangay (sum across all puroks)
+            $hazardWiseData = DB::table('c_r_a_population_exposures as e')
+            ->join('barangays as b', 'b.id', '=', 'e.barangay_id')
+            ->join('c_r_a_hazards as h', 'h.id', '=', 'e.hazard_id')
+            ->leftJoin('puroks as p', 'p.purok_number', '=', 'e.purok_number')
+            ->select(
+                'h.hazard_name',
+                'b.barangay_name',
+                DB::raw('SUM(e.total_families) as total_families'),
+                DB::raw('SUM(e.total_individuals) as total_individuals'),
+                DB::raw('SUM(e.individuals_male) as male'),
+                DB::raw('SUM(e.individuals_female) as female'),
+                DB::raw('SUM(e.individuals_lgbtq) as lgbtq'),
+                DB::raw('SUM(e.pwd_male) as pwd_male'),
+                DB::raw('SUM(e.pwd_female) as pwd_female'),
+                DB::raw('SUM(e.diseases_male) as diseases_male'),
+                DB::raw('SUM(e.diseases_female) as diseases_female'),
+                DB::raw('SUM(e.pregnant_women) as pregnant'),
+
+                // ✅ Age group breakdowns separate male and female
+                DB::raw('SUM(e.age_0_6_male) as age_0_6_male'),
+                DB::raw('SUM(e.age_0_6_female) as age_0_6_female'),
+                DB::raw('SUM(e.age_7m_2y_male) as age_7m_2y_male'),
+                DB::raw('SUM(e.age_7m_2y_female) as age_7m_2y_female'),
+                DB::raw('SUM(e.age_3_5_male) as age_3_5_male'),
+                DB::raw('SUM(e.age_3_5_female) as age_3_5_female'),
+                DB::raw('SUM(e.age_6_12_male) as age_6_12_male'),
+                DB::raw('SUM(e.age_6_12_female) as age_6_12_female'),
+                DB::raw('SUM(e.age_13_17_male) as age_13_17_male'),
+                DB::raw('SUM(e.age_13_17_female) as age_13_17_female'),
+                DB::raw('SUM(e.age_18_59_male) as age_18_59_male'),
+                DB::raw('SUM(e.age_18_59_female) as age_18_59_female'),
+                DB::raw('SUM(e.age_60_up_male) as age_60_up_male'),
+                DB::raw('SUM(e.age_60_up_female) as age_60_up_female')
+            )
+            ->where('e.cra_id', $cra->id)
+            ->groupBy('h.hazard_name', 'b.barangay_name')
+            ->orderBy('h.hazard_name')
+            ->orderByDesc('total_individuals')
+            ->get()
+            ->groupBy('hazard_name')
+            ->map(function ($records, $hazardName) {
+                $barangays = $records->sortByDesc('total_individuals')
+                    ->values()
+                    ->map(function ($r, $i) {
+                        return [
+                            'no' => $i + 1,
+                            'barangay_name' => $r->barangay_name,
+                            'total_families' => (int) $r->total_families,
+                            'total_individuals' => (int) $r->total_individuals,
+                            'male' => (int) $r->male,
+                            'female' => (int) $r->female,
+                            'lgbtq' => (int) $r->lgbtq,
+                            'pwd_male' => (int) $r->pwd_male,
+                            'pwd_female' => (int) $r->pwd_female,
+                            'diseases_male' => (int) $r->diseases_male,
+                            'diseases_female' => (int) $r->diseases_female,
+                            'pregnant' => (int) $r->pregnant,
+                            // ✅ Separate male/female for age groups
+                            'age_groups' => [
+                                'age_0_6' => ['male' => (int) $r->age_0_6_male, 'female' => (int) $r->age_0_6_female],
+                                'age_7m_2y' => ['male' => (int) $r->age_7m_2y_male, 'female' => (int) $r->age_7m_2y_female],
+                                'age_3_5' => ['male' => (int) $r->age_3_5_male, 'female' => (int) $r->age_3_5_female],
+                                'age_6_12' => ['male' => (int) $r->age_6_12_male, 'female' => (int) $r->age_6_12_female],
+                                'age_13_17' => ['male' => (int) $r->age_13_17_male, 'female' => (int) $r->age_13_17_female],
+                                'age_18_59' => ['male' => (int) $r->age_18_59_male, 'female' => (int) $r->age_18_59_female],
+                                'age_60_up' => ['male' => (int) $r->age_60_up_male, 'female' => (int) $r->age_60_up_female],
+                            ],
+                        ];
+                    });
+
+                return [
+                    'hazard_name' => $hazardName,
+                    'barangays' => $barangays,
+                ];
+            })
+            ->values();
+
+            return Inertia::render('CDRRMO/CRA/PopulationExposure', [
+                'populationExposureData' => [],
+                'overallPopulationExposureData' => $hazardWiseData, // ✅ grouped by hazard, barangays summed by purok
+                'overallHazardSummary' => $overallHazards,
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+            ]);
+        }
+
+        // 🟩 CASE 2: Barangay Selected (Detailed Breakdown per Hazard with Purok)
+        $records = DB::table('c_r_a_population_exposures as e')
+            ->join('c_r_a_hazards as h', 'h.id', '=', 'e.hazard_id')
+            ->join('barangays as b', 'b.id', '=', 'e.barangay_id')
+            ->select(
+                'b.barangay_name',
+                'h.hazard_name',
+                'e.purok_number',
+                'e.total_families',
+                'e.total_individuals',
+                'e.individuals_male',
+                'e.individuals_female',
+                'e.individuals_lgbtq',
+                'e.pwd_male',
+                'e.pwd_female',
+                'e.diseases_male',
+                'e.diseases_female',
+                'e.pregnant_women',
+                'e.age_0_6_male',
+                'e.age_0_6_female',
+                'e.age_7m_2y_male',
+                'e.age_7m_2y_female',
+                'e.age_3_5_male',
+                'e.age_3_5_female',
+                'e.age_6_12_male',
+                'e.age_6_12_female',
+                'e.age_13_17_male',
+                'e.age_13_17_female',
+                'e.age_18_59_male',
+                'e.age_18_59_female',
+                'e.age_60_up_male',
+                'e.age_60_up_female'
+            )
+            ->where('e.cra_id', $cra->id)
+            ->where('e.barangay_id', $barangayId)
+            ->orderBy('h.hazard_name')
+            ->orderBy('e.purok_number')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/PopulationExposure', [
+                'populationExposureData' => [],
+                'overallPopulationExposureData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No population exposure data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = $records->first()->barangay_name;
+
+        // Group by hazard
+        $hazardGrouped = $records->groupBy('hazard_name')->map(function ($rows, $hazardName) {
+            return [
+                'hazard_name' => $hazardName,
+                'puroks' => $rows->map(function ($r, $index) {
+            return [
+                'no' => $index + 1,
+                'purok_number' => $r->purok_number,
+                'total_families' => (int) $r->total_families,
+                'total_individuals' => (int) $r->total_individuals,
+                'male' => (int) $r->individuals_male,
+                'female' => (int) $r->individuals_female,
+                'lgbtq' => (int) $r->individuals_lgbtq,
+                'pwd_male' => (int) $r->pwd_male,
+                'pwd_female' => (int) $r->pwd_female,
+                'diseases_male' => (int) $r->diseases_male,
+                'diseases_female' => (int) $r->diseases_female,
+                'pregnant' => (int) $r->pregnant_women,
+
+                // Age groups separated by gender
+                'age_0_6_male' => (int) $r->age_0_6_male,
+                'age_0_6_female' => (int) $r->age_0_6_female,
+                'age_7m_2y_male' => (int) $r->age_7m_2y_male,
+                'age_7m_2y_female' => (int) $r->age_7m_2y_female,
+                'age_3_5_male' => (int) $r->age_3_5_male,
+                'age_3_5_female' => (int) $r->age_3_5_female,
+                'age_6_12_male' => (int) $r->age_6_12_male,
+                'age_6_12_female' => (int) $r->age_6_12_female,
+                'age_13_17_male' => (int) $r->age_13_17_male,
+                'age_13_17_female' => (int) $r->age_13_17_female,
+                'age_18_59_male' => (int) $r->age_18_59_male,
+                'age_18_59_female' => (int) $r->age_18_59_female,
+                'age_60_up_male' => (int) $r->age_60_up_male,
+                'age_60_up_female' => (int) $r->age_60_up_female,
+            ];
+        })->values(),
+            ];
+        })->values(); // reset keys
+
+        return Inertia::render('CDRRMO/CRA/PopulationExposure', [
+            'populationExposureData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'hazards' => $hazardGrouped,
+                ],
+            ],
+            'overallPopulationExposureData' => [], // you can also compute overall here if needed
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function disabilityStatistics(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/DisabilityStatistics', [
+                'disabilityData' => [],
+                'overallDisabilityData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view disability statistics.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        // 🟦 CASE 1: No Barangay Selected (Overall Summary by Disability Type)
+        if (!$barangayId) {
+            $orderExpression = '
+                SUM(age_0_6_male + age_7m_2y_male + age_3_5_male + age_6_12_male + age_13_17_male + age_18_59_male + age_60up_male) +
+                SUM(age_0_6_female + age_7m_2y_female + age_3_5_female + age_6_12_female + age_13_17_female + age_18_59_female + age_60up_female) +
+                SUM(age_6_12_lgbtq + age_13_17_lgbtq + age_18_59_lgbtq + age_60up_lgbtq)
+            ';
+
+            $overallDisabilities = DB::table('c_r_a_disability_statistics as d')
+                ->join('barangays as b', 'b.id', '=', 'd.barangay_id')
+                ->select(
+                    'd.disability_type',
+                    DB::raw('SUM(age_0_6_male + age_0_6_female) as age_0_6'),
+                    DB::raw('SUM(age_7m_2y_male + age_7m_2y_female) as age_7m_2y'),
+                    DB::raw('SUM(age_3_5_male + age_3_5_female) as age_3_5'),
+                    DB::raw('SUM(age_6_12_male + age_6_12_female + age_6_12_lgbtq) as age_6_12'),
+                    DB::raw('SUM(age_13_17_male + age_13_17_female + age_13_17_lgbtq) as age_13_17'),
+                    DB::raw('SUM(age_18_59_male + age_18_59_female + age_18_59_lgbtq) as age_18_59'),
+                    DB::raw('SUM(age_60up_male + age_60up_female + age_60up_lgbtq) as age_60_up'),
+                    DB::raw('SUM(age_0_6_male + age_7m_2y_male + age_3_5_male + age_6_12_male + age_13_17_male + age_18_59_male + age_60up_male) as male_total'),
+                    DB::raw('SUM(age_0_6_female + age_7m_2y_female + age_3_5_female + age_6_12_female + age_13_17_female + age_18_59_female + age_60up_female) as female_total'),
+                    DB::raw('SUM(age_6_12_lgbtq + age_13_17_lgbtq + age_18_59_lgbtq + age_60up_lgbtq) as lgbtq_total')
+                )
+                ->where('d.cra_id', $cra->id)
+                ->groupBy('d.disability_type')
+                ->orderByDesc(DB::raw($orderExpression))
+                ->get();
+
+            // 🔹 Breakdown per disability → barangay
+            $disabilityByBarangay = DB::table('c_r_a_disability_statistics as d')
+                ->join('barangays as b', 'b.id', '=', 'd.barangay_id')
+                ->select(
+                    'd.disability_type',
+                    'b.barangay_name',
+                    'd.age_0_6_male',
+                    'd.age_0_6_female',
+                    'd.age_7m_2y_male',
+                    'd.age_7m_2y_female',
+                    'd.age_3_5_male',
+                    'd.age_3_5_female',
+                    'd.age_6_12_male',
+                    'd.age_6_12_female',
+                    'd.age_6_12_lgbtq',
+                    'd.age_13_17_male',
+                    'd.age_13_17_female',
+                    'd.age_13_17_lgbtq',
+                    'd.age_18_59_male',
+                    'd.age_18_59_female',
+                    'd.age_18_59_lgbtq',
+                    'd.age_60up_male',
+                    'd.age_60up_female',
+                    'd.age_60up_lgbtq'
+                )
+                ->where('d.cra_id', $cra->id)
+                ->orderBy('d.disability_type')
+                ->orderByDesc(DB::raw('
+                    age_0_6_male + age_0_6_female + age_7m_2y_male + age_7m_2y_female +
+                    age_3_5_male + age_3_5_female + age_6_12_male + age_6_12_female + age_6_12_lgbtq +
+                    age_13_17_male + age_13_17_female + age_13_17_lgbtq +
+                    age_18_59_male + age_18_59_female + age_18_59_lgbtq +
+                    age_60up_male + age_60up_female + age_60up_lgbtq
+                '))
+                ->get()
+                ->groupBy('disability_type')
+                ->map(function ($records, $disability) {
+                    $barangays = $records->map(function ($r, $i) {
+                        return [
+                            'no' => $i + 1,
+                            'barangay_name' => $r->barangay_name,
+                            'age_groups' => [
+                                'age_0_6' => ['male' => $r->age_0_6_male, 'female' => $r->age_0_6_female],
+                                'age_7m_2y' => ['male' => $r->age_7m_2y_male, 'female' => $r->age_7m_2y_female],
+                                'age_3_5' => ['male' => $r->age_3_5_male, 'female' => $r->age_3_5_female],
+                                'age_6_12' => ['male' => $r->age_6_12_male, 'female' => $r->age_6_12_female, 'lgbtq' => $r->age_6_12_lgbtq],
+                                'age_13_17' => ['male' => $r->age_13_17_male, 'female' => $r->age_13_17_female, 'lgbtq' => $r->age_13_17_lgbtq],
+                                'age_18_59' => ['male' => $r->age_18_59_male, 'female' => $r->age_18_59_female, 'lgbtq' => $r->age_18_59_lgbtq],
+                                'age_60_up' => ['male' => $r->age_60up_male, 'female' => $r->age_60up_female, 'lgbtq' => $r->age_60up_lgbtq],
+                            ],
+                        ];
+                    });
+
+                    return [
+                        'disability_type' => $disability,
+                        'barangays' => $barangays,
+                    ];
+                })
+                ->values();
+
+            return Inertia::render('CDRRMO/CRA/DisabilityStatistics', [
+                'disabilityData' => [],
+                'overallDisabilityData' => $disabilityByBarangay,
+                'overallSummary' => $overallDisabilities,
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+            ]);
+        }
+
+        // 🟩 CASE 2: Barangay Selected (Detailed Breakdown)
+        $records = DB::table('c_r_a_disability_statistics as d')
+            ->where('d.cra_id', $cra->id)
+            ->where('d.barangay_id', $barangayId)
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/DisabilityStatistics', [
+                'disabilityData' => [],
+                'overallDisabilityData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No disability statistics found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = DB::table('barangays')->where('id', $barangayId)->value('barangay_name');
+
+        $disabilityGrouped = $records->groupBy('disability_type')->map(function ($rows, $disabilityType) {
+            return [
+                'disability_type' => $disabilityType,
+                'age_groups' => $rows->map(function ($r) {
+                    return [
+                        'age_0_6' => ['male' => $r->age_0_6_male, 'female' => $r->age_0_6_female],
+                        'age_7m_2y' => ['male' => $r->age_7m_2y_male, 'female' => $r->age_7m_2y_female],
+                        'age_3_5' => ['male' => $r->age_3_5_male, 'female' => $r->age_3_5_female],
+                        'age_6_12' => ['male' => $r->age_6_12_male, 'female' => $r->age_6_12_female, 'lgbtq' => $r->age_6_12_lgbtq],
+                        'age_13_17' => ['male' => $r->age_13_17_male, 'female' => $r->age_13_17_female, 'lgbtq' => $r->age_13_17_lgbtq],
+                        'age_18_59' => ['male' => $r->age_18_59_male, 'female' => $r->age_18_59_female, 'lgbtq' => $r->age_18_59_lgbtq],
+                        'age_60_up' => ['male' => $r->age_60up_male, 'female' => $r->age_60up_female, 'lgbtq' => $r->age_60up_lgbtq],
+                    ];
+                })->first(),
+            ];
+        })->values();
+
+        return Inertia::render('CDRRMO/CRA/DisabilityStatistics', [
+            'disabilityData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'disabilities' => $disabilityGrouped,
+                ],
+            ],
+            'overallDisabilityData' => [],
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function familyAtRisk(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/FamilyAtRisk', [
+                'familyAtRiskData' => [],
+                'overallFamilyAtRiskData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view family at risk data.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        // 🟦 CASE 1: No Barangay Selected (Overall Summary)
+        if (!$barangayId) {
+            $overallData = DB::table('c_r_a_family_at_risks as f')
+                ->join('barangays as b', 'b.id', '=', 'f.barangay_id')
+                ->select(
+                    'b.id as barangay_id',
+                    'b.barangay_name',
+                    'f.indicator',
+                    DB::raw('SUM(f.count) as total_count')
+                )
+                ->where('f.cra_id', $cra->id)
+                ->groupBy('b.id', 'b.barangay_name', 'f.indicator')
+                ->orderBy('b.barangay_name')
+                ->orderByDesc('total_count')
+                ->get()
+                ->groupBy('barangay_name')
+                ->map(function ($rows, $barangayName) {
+                    return [
+                        'barangay_name' => $barangayName,
+                        'indicators' => $rows->values()->map(function ($row, $index) {
+                            return [
+                                'no' => $index + 1,
+                                'indicator' => $row->indicator,
+                                'total_count' => (int) $row->total_count,
+                            ];
+                        }),
+                    ];
+                });
+
+            return Inertia::render('CDRRMO/CRA/FamilyAtRisk', [
+                'familyAtRiskData' => [],
+                'overallFamilyAtRiskData' => $overallData,
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+            ]);
+        }
+
+        // 🟩 CASE 2: Barangay Selected (Detailed Breakdown per Purok)
+        $records = DB::table('c_r_a_family_at_risks as f')
+            ->join('barangays as b', 'b.id', '=', 'f.barangay_id')
+            ->select(
+                'b.barangay_name',
+                'f.purok_number',
+                'f.indicator',
+                'f.count'
+            )
+            ->where('f.cra_id', $cra->id)
+            ->where('f.barangay_id', $barangayId)
+            ->orderBy('f.indicator')
+            ->orderBy('f.purok_number')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/FamilyAtRisk', [
+                'familyAtRiskData' => [],
+                'overallFamilyAtRiskData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No family at risk data found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = $records->first()->barangay_name;
+
+        // Group by indicator
+        $indicatorGrouped = $records->groupBy('indicator')->map(function ($rows, $indicator) {
+            return [
+                'indicator' => $indicator,
+                'puroks' => $rows->map(function ($r, $index) {
+                    return [
+                        'no' => $index + 1,
+                        'purok_number' => $r->purok_number,
+                        'count' => (int) $r->count,
+                    ];
+                })->values(),
+                'total_count' => $rows->sum('count'), // ✅ total per indicator
+            ];
+        })->values();
+
+        return Inertia::render('CDRRMO/CRA/FamilyAtRisk', [
+            'familyAtRiskData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'indicators' => $indicatorGrouped,
+                ],
+            ],
+            'overallFamilyAtRiskData' => [], // optional: compute overall totals here if needed
+            'barangays' => $allBarangays,
+            'selectedBarangay' => $barangayId,
+        ]);
+    }
+
+    public function illnessStatistics(Request $request)
+    {
+        // 1️⃣ Get CRA year from request or session
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            session()->forget('cra_year');
+            return Inertia::render('CDRRMO/CRA/IllnessStatistics', [
+                'illnessData' => [],
+                'overallIllnessData' => [],
+                'barangays' => [],
+                'selectedBarangay' => null,
+                'tip' => 'Select a barangay from the dropdown above to view illness statistics.',
+            ]);
+        }
+
+        $barangayId = $request->query('barangay_id');
+        session(['cra_year' => $cra->year]);
+
+        $allBarangays = DB::table('barangays')
+            ->select('id', 'barangay_name as name')
+            ->orderBy('barangay_name')
+            ->get();
+
+        // 🟦 CASE 1: No Barangay Selected (Overall Summary by Illness)
+        if (!$barangayId) {
+            $overallIllnesses = DB::table('c_r_a_illnesses_stats as i')
+                ->join('barangays as b', 'b.id', '=', 'i.barangay_id')
+                ->select(
+                    'i.illness',
+                    DB::raw('SUM(children) as children_total'),
+                    DB::raw('SUM(adults) as adults_total'),
+                    DB::raw('SUM(children + adults) as total')
+                )
+                ->where('i.cra_id', $cra->id)
+                ->groupBy('i.illness')
+                ->orderByDesc('total')
+                ->get();
+
+            // 🔹 Breakdown per illness → barangay
+            $illnessByBarangay = DB::table('c_r_a_illnesses_stats as i')
+                ->join('barangays as b', 'b.id', '=', 'i.barangay_id')
+                ->select('i.illness', 'b.barangay_name', 'i.children', 'i.adults')
+                ->where('i.cra_id', $cra->id)
+                ->orderBy('i.illness')
+                ->orderByDesc(DB::raw('children + adults'))
+                ->get()
+                ->groupBy('illness')
+                ->map(function ($records, $illness) {
+                    $barangays = $records->map(function ($r, $i) {
+                        return [
+                            'no' => $i + 1,
+                            'barangay_name' => $r->barangay_name,
+                            'children' => $r->children,
+                            'adults' => $r->adults,
+                            'total' => $r->children + $r->adults,
+                        ];
+                    });
+
+                    return [
+                        'illness' => $illness,
+                        'barangays' => $barangays,
+                    ];
+                })
+                ->values();
+
+            return Inertia::render('CDRRMO/CRA/IllnessStatistics', [
+                'illnessData' => [],
+                'overallIllnessData' => $illnessByBarangay,
+                'overallSummary' => $overallIllnesses,
+                'barangays' => $allBarangays,
+                'selectedBarangay' => null,
+            ]);
+        }
+
+        // 🟩 CASE 2: Barangay Selected (Detailed Breakdown)
+        $records = DB::table('c_r_a_illnesses_stats as i')
+            ->where('i.cra_id', $cra->id)
+            ->where('i.barangay_id', $barangayId)
+            ->get();
+
+        if ($records->isEmpty()) {
+            return Inertia::render('CDRRMO/CRA/IllnessStatistics', [
+                'illnessData' => [],
+                'overallIllnessData' => [],
+                'barangays' => $allBarangays,
+                'selectedBarangay' => $barangayId,
+                'tip' => 'No illness statistics found for the selected barangay.',
+            ]);
+        }
+
+        $barangayName = DB::table('barangays')->where('id', $barangayId)->value('barangay_name');
+
+        $illnessGrouped = $records->groupBy('illness')->map(function ($rows, $illness) {
+            $row = $rows->first();
+            return [
+                'illness' => $illness,
+                'children' => $row->children,
+                'adults' => $row->adults,
+                'total' => $row->children + $row->adults,
+            ];
+        })->values();
+
+        return Inertia::render('CDRRMO/CRA/IllnessStatistics', [
+            'illnessData' => [
+                [
+                    'barangay_name' => $barangayName,
+                    'barangay_id' => $barangayId,
+                    'illnesses' => $illnessGrouped,
+                ],
+            ],
+            'overallIllnessData' => [],
             'barangays' => $allBarangays,
             'selectedBarangay' => $barangayId,
         ]);

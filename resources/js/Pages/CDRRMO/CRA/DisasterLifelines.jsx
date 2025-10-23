@@ -82,12 +82,14 @@ export default function DisasterLifelines({
                     {/* === CASE 1: OVERALL VIEW === */}
                     {!selectedBarangay ? (
                         isOverallDataEmpty ? (
-                            <NoDataPlaceholder
-                                tip={
-                                    tip ||
-                                    "No overall disaster lifeline data available."
-                                }
-                            />
+                            <div className="w-full px-2 sm:px-4 lg:px-6">
+                                <NoDataPlaceholder
+                                    tip={
+                                        tip ||
+                                        "No overall disaster lifeline data available."
+                                    }
+                                />
+                            </div>
                         ) : (
                             overallDisasterLifelineData.map(
                                 (disaster, index) => {
