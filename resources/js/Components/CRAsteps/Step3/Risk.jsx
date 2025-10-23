@@ -108,12 +108,14 @@ function MatrixTable({
                     ))}
                 </tbody>
             </table>
-            <button
-                className="mt-3 text-blue-600 hover:underline"
-                onClick={addRow}
-            >
-                + Add new row
-            </button>
+            <div className="p-2 m-auto">
+                <button
+                    onClick={addRow}
+                    className="inline-flex items-center gap-1 mt-3 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
+                >
+                    <span className="text-sm font-bold">+</span> Add new row
+                </button>
+            </div>
         </div>
     );
 }

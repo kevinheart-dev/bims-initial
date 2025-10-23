@@ -61,13 +61,15 @@ const DisasterTable = ({ disaster, updateDisaster, removeDisaster }) => {
                     value={disaster.name}
                     onChange={(e) => updateDisaster({ ...disaster, name: e.target.value })}
                     className="text-md font-bold bg-transparent border-none focus:outline-none w-full"
+                    placeholder="Enter new Disater"
                 />
                 <button
-                    className="ml-3 text-red-500 text-xs hover:underline whitespace-nowrap"
                     onClick={removeDisaster}
+                    className="w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 hover:text-white transition-colors duration-200"
                 >
-                    Remove Disaster
+                    ✕
                 </button>
+
             </div>
 
             <div className="overflow-x-auto">
@@ -209,10 +211,11 @@ const DisasterTable = ({ disaster, updateDisaster, removeDisaster }) => {
 
             <button
                 onClick={addRow}
-                className="mt-3 px-3 py-1 bg-blue-500 text-white rounded text-xs"
+                className="inline-flex items-center gap-1 mt-3 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
             >
-                + Add Row
+                <span className="text-sm font-bold">+</span> Add Row
             </button>
+
         </div>
     );
 };
@@ -223,7 +226,7 @@ const AffectedAreas = () => {
     const addDisaster = () => {
         const newDisaster = {
             id: Date.now(),
-            name: "New Disaster",
+            name: "",
             rows: getDefaultRows(),
         };
         setCraData({
@@ -262,21 +265,25 @@ const AffectedAreas = () => {
 
     return (
         <div>
-            {(craData.affected_areas || []).map((disaster) => (
-                <DisasterTable
-                    key={disaster.id}
-                    disaster={disaster}
-                    updateDisaster={(updated) => updateDisaster(disaster.id, updated)}
-                    removeDisaster={() => removeDisaster(disaster.id)}
-                />
-            ))}
+            <div className="mb-10 border-2 border-purple-300 rounded-xl p-5 bg-purple-50 shadow-sm">
+                {(craData.affected_areas || []).map((disaster) => (
+                    <DisasterTable
+                        key={disaster.id}
+                        disaster={disaster}
+                        updateDisaster={(updated) => updateDisaster(disaster.id, updated)}
+                        removeDisaster={() => removeDisaster(disaster.id)}
+                    />
+                ))}
+
+            </div>
 
             <button
                 onClick={addDisaster}
-                className="mt-3 px-3 py-1 bg-green-500 text-white rounded text-xs"
+                className="inline-flex items-center gap-1 mt-0 mb-3 px-2 py-1 text-xs font-medium border border-green-500 text-green-600 rounded-md hover:bg-green-500 hover:text-white transition-colors duration-200 shadow-sm"
             >
-                + Add Disaster
+                <span className="text-sm font-bold">+</span> Add Disaster
             </button>
+
         </div>
     );
 };

@@ -172,12 +172,13 @@ const DisasterPerPurok = () => {
                 </table>
             </div>
             <button
-                className="m-2 flex items-center gap-2 px-3 py-1 bg-blue-300 text-white rounded-full shadow hover:bg-blue-700 transition"
                 onClick={addPurok}
+                className="inline-flex items-center gap-1 m-2 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
             >
-                <Plus className="w-2 h-2" />
-                <span className="text-xs">Add Purok</span>
+                <span className="text-sm font-bold">+</span> Add Purok
             </button>
+
+
         </div>
     );
 };

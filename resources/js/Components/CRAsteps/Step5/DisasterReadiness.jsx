@@ -8,7 +8,7 @@ import BarangayEvacuationPlan from './BarangayEvacuationPlan'
 const DisasterReadiness = () => {
     return (
         <div>
-            <Accordion title="11. istribution of Relief Goods to Affected Families and Individuals">
+            <Accordion title="11. Distribution of Relief Goods to Affected Families and Individuals">
                 <DistributionProcess />
             </Accordion>
             <Accordion title="12. Inventory of Tranings Attended by the Members of BDRRMC">

@@ -205,14 +205,12 @@ export default function PwdTable() {
             </div>
 
             <button
-                className="mt-2 flex items-center gap-2 px-3 py-1 bg-blue-500 text-white rounded-full shadow hover:bg-blue-600 transition"
                 onClick={addDisabilityRow}
+                className="inline-flex items-center gap-1 mt-2 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
             >
-                <Plus className="w-4 h-4" />
-                <span className="text-xs">
-                    Add Disability
-                </span>
+                <span className="text-sm font-bold">+</span> Add Disability
             </button>
+
         </div>
     );
 }

@@ -166,10 +166,11 @@ const Evacuation = () => {
 
             <button
                 onClick={addRow}
-                className="mt-2 flex items-center px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+                className="inline-flex items-center gap-1 mt-2 px-4 py-1.4 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
             >
-                <Plus className="w-4 h-4 mr-1" /> Add Row
+                <span className="text-sm font-bold">+</span> Add Row
             </button>
+
         </div>
     );
 };

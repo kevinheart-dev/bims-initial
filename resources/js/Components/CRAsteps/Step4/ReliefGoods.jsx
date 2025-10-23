@@ -118,10 +118,11 @@ const ReliefGoods = () => {
 
             <button
                 onClick={addRow}
-                className="mt-3 px-3 py-1 bg-blue-500 text-white rounded text-xs"
+                className="inline-flex items-center gap-1 mt-3 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
             >
-                + Add Row
+                <span className="text-sm font-bold">+</span> Add Row
             </button>
+
         </div>
     );
 };

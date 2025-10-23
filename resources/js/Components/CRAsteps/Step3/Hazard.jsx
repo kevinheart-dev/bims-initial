@@ -152,12 +152,14 @@ function HazardTable({ hazards, updateField, addHazard, removeHazard }) {
                     ))}
                 </tbody>
             </table>
-            <button
-                className="mt-3 text-blue-600 hover:underline"
-                onClick={addHazard}
-            >
-                + Add new row
-            </button>
+            <div className="p-2 m-auto">
+                <button
+                    onClick={addHazard}
+                    className="inline-flex items-center gap-1 mt-3 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
+                >
+                    <span className="text-sm font-bold">+</span> Add new row
+                </button>
+            </div>
         </div>
     );
 }
@@ -186,8 +188,8 @@ const Hazard = () => {
         const updated = [...craData.hazards];
         updated[idx][field] =
             field === "probability" ||
-            field === "effect" ||
-            field === "management"
+                field === "effect" ||
+                field === "management"
                 ? val === ""
                     ? ""
                     : Number(val)

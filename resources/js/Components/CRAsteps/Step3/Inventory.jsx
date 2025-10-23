@@ -102,14 +102,13 @@ const Inventory = () => {
         });
 
     // Actions
-    // Actions
     const addHazard = () => {
         setCraData((prev) => ({
             ...prev,
             disaster_inventory: [
                 ...prev.disaster_inventory,
                 {
-                    hazard: "New Hazard",
+                    hazard: "",
                     categories: DEFAULT_HAZARDS[0].categories.map((cat) => ({
                         ...cat,
                         rows: cat.rows.map((row) => ({ ...row })), // clone rows
@@ -133,7 +132,7 @@ const Inventory = () => {
         updateHazard(hIdx, (hazard) => ({
             categories: [
                 ...hazard.categories,
-                { type: "New Category", rows: [{ ...ITEM_TEMPLATE }] },
+                { type: "", rows: [{ ...ITEM_TEMPLATE }] },
             ],
         }));
         toast.success("New category added!");
@@ -181,7 +180,7 @@ const Inventory = () => {
                         <div>
                             <button
                                 onClick={() => removeHazard(hIdx)}
-                                className="ml-2 px-3 py-1 rounded bg-red-500 text-white text-xs"
+                                className="ml-2 px-2 py-1 rounded-full bg-red-500 text-white text-xs"
                             >
                                 ✕
                             </button>
@@ -207,7 +206,7 @@ const Inventory = () => {
                                 />
                                 <button
                                     onClick={() => removeCategory(hIdx, cIdx)}
-                                    className="ml-2 px-2 py-1 rounded bg-red-400 text-white text-xs"
+                                    className="ml-2 px-2 py-1 bg-red-400 text-white text-xs rounded-full"
                                 >
                                     ✕
                                 </button>
@@ -249,8 +248,6 @@ const Inventory = () => {
                                                             value={row[field]}
                                                             onChange={(e) => {
                                                                 let val = e.target.value;
-
-                                                                // Auto-append % only for percent column
                                                                 if (field === "percent") {
                                                                     // Prevent multiple % symbols
                                                                     val = val.replace(/%/g, "");
@@ -282,30 +279,33 @@ const Inventory = () => {
                             {/* Add row button */}
                             <button
                                 onClick={() => addRow(hIdx, cIdx)}
-                                className="mt-3 px-3 py-1 bg-blue-500 text-white rounded text-xs"
+                                className="inline-flex items-center gap-1 mt-3 px-4 py-1.4 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
                             >
-                                + Add Item
+                                <span className="text-sm font-bold">+</span> Add Item
                             </button>
+
                         </div>
                     ))}
 
                     {/* Add category button */}
                     <button
                         onClick={() => addCategory(hIdx)}
-                        className="mt-2 px-3 py-1 bg-green-500 text-white rounded text-xs"
+                        className="inline-flex items-center gap-1 mt-3 px-3 py-1.5 text-xs font-medium border border-green-500 text-green-600 rounded-md hover:bg-green-500 hover:text-white transition-colors duration-200 shadow-sm"
                     >
-                        + Add Category
+                        <span className="text-sm font-bold">+</span> Add Category
                     </button>
+
                 </div>
             ))}
 
             {/* Add hazard button */}
             <button
                 onClick={addHazard}
-                className="mt-4 px-4 py-2 bg-purple-600 text-white rounded text-sm"
+                className="inline-flex items-center gap-1 mt-0 mb-3 px-5 py-1.5 text-xs font-medium border border-purple-500 text-purple-600 rounded-md hover:bg-purple-600 hover:text-white transition-colors duration-200 shadow-sm"
             >
-                + Add Hazard
+                <span className="text-sm font-bold">+</span> Add Hazard
             </button>
+
         </div>
     );
 };
