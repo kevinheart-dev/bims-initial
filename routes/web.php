@@ -306,6 +306,10 @@ Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(
     Route::get('/equipmentInventories', [CRADataController::class, 'equipmentInventories'])->name('cdrrmo_admin.equipmentInventories');
     Route::get('/bdrrmcDirectories', [CRADataController::class, 'bdrrmcDirectories'])->name('cdrrmo_admin.bdrrmcDirectories');
     Route::get('/evacuationPlans', [CRADataController::class, 'evacuationPlans'])->name('cdrrmo_admin.evacuationPlans');
+    Route::delete('/cra/delete/{year}', [CRADataController::class, 'destroy'])->name('cdrrmo_admin.destroy');
+
+    // reports
+
 });
 
 // Super Admin-only routes

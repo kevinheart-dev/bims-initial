@@ -5,7 +5,8 @@ import BarangayFilterCard from "@/Components/BarangayFilterCard";
 import DynamicTable from "@/Components/DynamicTable";
 import TableSection from "@/Components/TableSection";
 import NoDataPlaceholder from "@/Components/NoDataPlaceholder";
-import { AlertTriangle, Users } from "lucide-react";
+import { AlertTriangle, FileSpreadsheet, Users } from "lucide-react";
+import { Button } from "@/Components/ui/button";
 
 export default function PopulationExposure({
     populationExposureData = [],
@@ -305,9 +306,23 @@ export default function PopulationExposure({
                                             ),
                                         };
 
+                                        const handleDownload = () => {
+                                            const year =
+                                                sessionStorage.getItem(
+                                                    "cra_year"
+                                                ) ||
+                                                selectedYear ||
+                                                new Date().getFullYear();
+
+                                            alert(year);
+                                        };
+
                                         return (
                                             <TableSection
-                                                key={`hazard-${hazardIndex}`}
+                                                key={`hazard-${
+                                                    hazard.hazard_name ||
+                                                    hazardIndex
+                                                }`}
                                                 icon={<Users />}
                                                 color="blue"
                                                 title={`Population Exposure - ${hazard.hazard_name}`}
@@ -324,7 +339,15 @@ export default function PopulationExposure({
                                                     showTotal: true,
                                                     tableHeight: "500px",
                                                 }}
-                                            />
+                                            >
+                                                <Button
+                                                    onClick={handleDownload}
+                                                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-sm transition duration-200"
+                                                >
+                                                    <FileSpreadsheet className="w-5 h-5" />
+                                                    Export Data
+                                                </Button>
+                                            </TableSection>
                                         );
                                     }
                                 )}

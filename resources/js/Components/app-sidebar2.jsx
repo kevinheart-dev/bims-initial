@@ -57,8 +57,9 @@ import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import { useMemo } from "react";
 import { useRef } from "react";
-import { router } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { Toaster, toast } from "sonner";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 export function AppSidebar({ auth }) {
     const location = useLocation();
@@ -70,6 +71,20 @@ export function AppSidebar({ auth }) {
     const defaultLogo = "/images/city-of-ilagan.png";
     const [craList, setCraList] = useState([]);
     const [craProgress, setCraProgress] = useState({});
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [recordToDelete, setRecordToDelete] = useState(null);
+    const props = usePage().props;
+    const success = props?.success ?? null;
+
+    const fetchCRAList = async () => {
+        try {
+            const res = await axios.get(`${APP_URL}/getCRA`);
+            const list = res.data?.data || []; // ✅ Access res.data.data
+            setCraList(list);
+        } catch (err) {
+            console.error("Failed to fetch CRA list:", err);
+        }
+    };
 
     useEffect(() => {
         if (
@@ -78,16 +93,6 @@ export function AppSidebar({ auth }) {
             )
         )
             return;
-
-        const fetchCRAList = async () => {
-            try {
-                const res = await axios.get(`${APP_URL}/getCRA`);
-                const list = res.data?.data || []; // ✅ Access res.data.data
-                setCraList(list);
-            } catch (err) {
-                console.error("Failed to fetch CRA list:", err);
-            }
-        };
 
         fetchCRAList();
     }, []);
@@ -752,6 +757,31 @@ export function AppSidebar({ auth }) {
         );
     };
 
+    const handleDeleteClick = (id) => {
+        setRecordToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        router.delete(route("cdrrmo_admin.destroy", recordToDelete));
+        setIsDeleteModalOpen(false);
+    };
+
+    useEffect(() => {
+        if (success) {
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                closeButton: true,
+            });
+
+            // ✅ Refresh data or reload the component
+            fetchCRAList(); // ⬅️ Call your data fetcher again
+
+            // ❌ Don't mutate props directly (React props are read-only)
+            // props.success = null;
+        }
+    }, [success]);
     return (
         <Sidebar>
             <Toaster richColors />
@@ -871,6 +901,8 @@ export function AppSidebar({ auth }) {
                                                             >
                                                                 Select Year
                                                             </label>
+
+                                                            {/* Select Year Dropdown */}
                                                             <select
                                                                 id="cra-year"
                                                                 name="cra-year"
@@ -889,6 +921,7 @@ export function AppSidebar({ auth }) {
                                                                     -- Select
                                                                     Year --
                                                                 </option>
+
                                                                 <option value="2024">
                                                                     2024
                                                                 </option>
@@ -932,6 +965,8 @@ export function AppSidebar({ auth }) {
                                                                     </option>
                                                                 )}
                                                             </select>
+
+                                                            {/* Add Button */}
                                                             <button
                                                                 type="button"
                                                                 onClick={
@@ -946,6 +981,61 @@ export function AppSidebar({ auth }) {
                                                                     Add CRA
                                                                 </span>
                                                             </button>
+
+                                                            {/* List of CRA Years */}
+                                                            <div className="mt-4 border-t pt-3">
+                                                                <h3 className="text-sm font-medium text-gray-700 mb-2">
+                                                                    Existing CRA
+                                                                    Years
+                                                                </h3>
+                                                                {craList &&
+                                                                craList.length >
+                                                                    0 ? (
+                                                                    [
+                                                                        ...new Set(
+                                                                            craList.map(
+                                                                                (
+                                                                                    cra
+                                                                                ) =>
+                                                                                    cra.year
+                                                                            )
+                                                                        ),
+                                                                    ].map(
+                                                                        (
+                                                                            year
+                                                                        ) => (
+                                                                            <div
+                                                                                key={
+                                                                                    year
+                                                                                }
+                                                                                className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-md px-3 py-2 mb-2"
+                                                                            >
+                                                                                <span className="text-sm text-gray-700">
+                                                                                    {
+                                                                                        year
+                                                                                    }
+                                                                                </span>
+                                                                                <button
+                                                                                    onClick={() =>
+                                                                                        handleDeleteClick(
+                                                                                            year
+                                                                                        )
+                                                                                    }
+                                                                                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+                                                                                >
+                                                                                    Delete
+                                                                                </button>
+                                                                            </div>
+                                                                        )
+                                                                    )
+                                                                ) : (
+                                                                    <p className="text-xs text-gray-500 italic">
+                                                                        No CRA
+                                                                        years
+                                                                        available.
+                                                                    </p>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     ) : item.title ===
                                                       "Community Risk Assessment" ? (
@@ -1085,6 +1175,14 @@ export function AppSidebar({ auth }) {
             <SidebarFooter className="bg-white border-t border-gray-200">
                 <NavUser user={user} auth={auth} />
             </SidebarFooter>
+            <DeleteConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                }}
+                onConfirm={confirmDelete}
+                residentId={recordToDelete}
+            />
         </Sidebar>
     );
 }

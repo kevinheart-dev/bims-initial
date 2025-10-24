@@ -15,6 +15,7 @@ use App\Models\CRAInstitution;
 use App\Models\CRAPopulationAgeGroup;
 use App\Models\CRAPopulationGender;
 use App\Models\CRAPrimaryFacility;
+use App\Models\CRAProgress;
 use App\Models\CRAPublicTransportation;
 use App\Models\CRARoadNetwork;
 use App\Models\CRADisasterLifeline;
@@ -3938,5 +3939,27 @@ class CRADataController extends Controller
         ]);
     }
 
+    public function destroy($year)
+    {
+        DB::beginTransaction();
 
+        try {
+            // Find the CRA by year
+            $cra = CommunityRiskAssessment::where('year', $year)->firstOrFail();
+
+            // Delete related CRA progress records (cascade will also handle this, but we do it explicitly)
+            CRAProgress::where('cra_id', $cra->id)->delete();
+
+            // Delete the CRA record itself
+            $cra->delete();
+
+            DB::commit();
+
+            return redirect()->route('cdrrmo_admin.dashboard')
+                ->with('success', "Community Risk Assessment for year {$year} deleted successfully!");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'CRA record could not be deleted: ' . $e->getMessage());
+        }
+    }
 }

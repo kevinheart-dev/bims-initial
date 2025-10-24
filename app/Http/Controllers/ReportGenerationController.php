@@ -11,6 +11,7 @@ use App\Exports\HouseholdExport;
 use App\Exports\HouseholdMembersExport;
 use App\Exports\MedicalInformationExport;
 use App\Exports\OccupationExport;
+use App\Exports\PopulationExposureOverallExport;
 use App\Exports\SeniorCitizenExport;
 use App\Exports\SummonExport;
 use App\Exports\VehicleExport;
