@@ -17,25 +17,24 @@ export default function Index({ progress }) {
     const breadcrumbs = [
         { label: "Community Risk Assessment (CRA)", showOnMobile: false },
     ];
-    const printRef = useRef(null);
+    // const printRef = useRef(null);
     const [currentStep, setCurrentStep] = useState(1);
     const { props } = usePage();
     const { success, error } = props;
 
-    // ✅ Load from localStorage first
     const [craData, setCraData] = useState(() => {
         try {
             const saved = localStorage.getItem("craDataDraft");
             return saved
                 ? JSON.parse(saved)
                 : {
-                      population: [],
-                      livelihood: [],
-                      infrastructure: [],
-                      institutions: [],
-                      hazards: [],
-                      evacuation: [],
-                  };
+                    population: [],
+                    livelihood: [],
+                    infrastructure: [],
+                    institutions: [],
+                    hazards: [],
+                    evacuation: [],
+                };
         } catch (err) {
             console.error("Error loading draft:", err);
             return {
@@ -61,7 +60,6 @@ export default function Index({ progress }) {
     const [year, setYear] = useState(yearFromUrl);
 
     useEffect(() => {
-        // Update craData.year whenever the URL year changes
         if (year && year !== craData.year) {
             setCraData((prev) => ({
                 ...prev,
@@ -79,7 +77,6 @@ export default function Index({ progress }) {
         "Disaster Readiness",
     ];
 
-    // ✅ Display CRA step forms
     const displayStep = (step) => {
         switch (step) {
             case 1:
@@ -97,7 +94,6 @@ export default function Index({ progress }) {
         }
     };
 
-    // ✅ Step navigation and submission
     const handleClick = (direction) => {
         let newStep = currentStep;
 
@@ -135,8 +131,17 @@ export default function Index({ progress }) {
     };
 
     const handlePrint = () => {
-        window.print();
+        if (!year) {
+            toast.error("Year not set for CRA.");
+            return;
+        }
+
+        // Open CRA PDF from backend
+        const url = route("cra.pdf", { id: year }); // pass CRA id or year
+        window.open(url, "_blank");
     };
+
+
 
     useEffect(() => {
         if (success) {
@@ -167,12 +172,10 @@ export default function Index({ progress }) {
 
             <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 mt-6">
                 <div className="text-left mb-6">
-                    {/* Header + Progress Side by Side */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        {/* Title and Description */}
                         <div>
                             <h1 className="text-2xl font-bold text-gray-800">
-                                Community Risk Assessment (CRA)
+                                Community Risk Assessment {year} (CRA)
                             </h1>
                             <p className="text-gray-600 mt-1">
                                 Step-by-step process for evaluating barangay

@@ -19,6 +19,7 @@ use App\Http\Controllers\CDRRMOSuperAdminController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\ChildHealthMonitoringController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CRA\PDFController;
 use App\Http\Controllers\CRAController;
 use App\Http\Controllers\CRADataController;
 use App\Http\Controllers\DashboardController;
@@ -179,6 +180,11 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
     Route::get('cra/dashboard', [CRAController::class, 'dashboard'])->name('cra.dashboard');
     Route::get('cra/datacollection', [CRAController::class, 'brgyDataCollection'])->name('cra.datacollection');
     Route::post('cra/store', [CRAController::class, 'store'])->name('cra.store');
+
+    // CRA PDF route
+    Route::get('/cra/pdf/{id}', [PDFController::class, 'download'])
+        ->name('cra.pdf');
+
 
     // death
     Route::get('death/index', [DeathController::class, 'index'])->name('death.index');

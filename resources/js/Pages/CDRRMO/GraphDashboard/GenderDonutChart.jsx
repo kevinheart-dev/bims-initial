@@ -18,9 +18,17 @@ const GenderDonutChart = ({ genderData }) => {
         return <div className="p-4 text-center text-gray-500">No gender data available.</div>;
     }
 
+    // Normalize gender names to match GENDER_ORDER
+    const normalizedData = genderData.map(item => ({
+        gender: item.gender.toLowerCase() === 'male' ? 'Male'
+            : item.gender.toLowerCase() === 'female' ? 'Female'
+                : 'LGBTQ+',
+        total_quantity: Number(item.total_quantity)
+    }));
+
     // Map data into an object for easy access by name
-    const dataMap = genderData.reduce((acc, item) => {
-        acc[item.gender] = Number(item.total_quantity);
+    const dataMap = normalizedData.reduce((acc, item) => {
+        acc[item.gender] = item.total_quantity;
         return acc;
     }, {});
 
@@ -55,8 +63,7 @@ const GenderDonutChart = ({ genderData }) => {
                 Population Based on Gender
             </h3>
 
-
-            <ResponsiveContainer width='100%' height={218}>
+            <ResponsiveContainer width="100%" height={218}>
                 <PieChart>
                     <Pie
                         data={chartData}
@@ -85,7 +92,6 @@ const GenderDonutChart = ({ genderData }) => {
             {/* Horizontal separator */}
             <hr className="w-full border-gray-300 my-3" />
 
-            {/* Icons row with totals in fixed order */}
             <div className="flex justify-around w-full">
                 {GENDER_ORDER.map((gender, index) => (
                     <div key={index} className="flex flex-col items-center">
@@ -96,7 +102,6 @@ const GenderDonutChart = ({ genderData }) => {
                     </div>
                 ))}
             </div>
-
         </div>
     );
 };
