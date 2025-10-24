@@ -16,7 +16,10 @@ use App\Exports\SeniorCitizenExport;
 use App\Exports\SummonExport;
 use App\Exports\VehicleExport;
 use App\Models\Barangay;
+use App\Models\CommunityRiskAssessment;
 use App\Models\Resident;
+use Barryvdh\DomPDF\Facade\Pdf;
+use DB;
 use Illuminate\Http\Request;
 use App\Exports\ResidentsExport;
 use Inertia\Inertia;
@@ -112,5 +115,72 @@ class ReportGenerationController extends Controller
     {
         $fileName = $this->setfilename("Resident_Medical_Information_Report");
         return Excel::download(new MedicalInformationExport(), $fileName);
+    }
+
+    public function exportPopulationExposureSummary(Request $request)
+    {
+        $year = $request->input('year') ?? session('cra_year');
+        $hazardName = $request->input('hazard');
+
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            return back()->with('error', 'CRA record not found for the selected year.');
+        }
+
+        $hazard = DB::table('c_r_a_hazards')->where('hazard_name', $hazardName)->first();
+        if (!$hazard) {
+            return back()->with('error', 'Selected hazard not found.');
+        }
+
+        $exposures = DB::table('c_r_a_population_exposures as e')
+            ->join('barangays as b', 'b.id', '=', 'e.barangay_id')
+            ->select(
+                'b.barangay_name',
+                'e.purok_number',
+                DB::raw('SUM(e.total_families) as families'),
+                DB::raw('SUM(e.individuals_male) as male'),
+                DB::raw('SUM(e.individuals_female) as female'),
+                DB::raw('SUM(e.individuals_lgbtq) as lgbtq')
+            )
+            ->where('e.cra_id', $cra->id)
+            ->where('e.hazard_id', $hazard->id)
+            ->groupBy('b.barangay_name', 'e.purok_number')
+            ->orderBy('b.barangay_name')
+            ->orderBy('e.purok_number')
+            ->get();
+
+        $grouped = [];
+        foreach ($exposures as $row) {
+            $barangay = $row->barangay_name;
+            $purok = $row->purok_number;
+
+            if (!isset($grouped[$barangay])) {
+                $grouped[$barangay] = [];
+                for ($i = 1; $i <= 7; $i++) {
+                    $grouped[$barangay][$i] = [
+                        'families' => 0,
+                        'male' => 0,
+                        'female' => 0,
+                        'lgbtq' => 0,
+                    ];
+                }
+            }
+
+            $grouped[$barangay][$purok] = [
+                'families' => $row->families,
+                'male' => $row->male,
+                'female' => $row->female,
+                'lgbtq' => $row->lgbtq,
+            ];
+        }
+
+        $pdf = Pdf::loadView('pdf.population_exposure_summary', [
+            'year' => $cra->year,
+            'hazardName' => $hazardName,
+            'grouped' => $grouped,
+        ])->setPaper('legal', 'landscape'); // ✅ Fits all columns better
+
+        return $pdf->stream('Population_Exposure_Summary_'.$hazardName.'_'.$cra->year.'.pdf');
     }
 }

@@ -315,7 +315,8 @@ Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(
     Route::delete('/cra/delete/{year}', [CRADataController::class, 'destroy'])->name('cdrrmo_admin.destroy');
 
     // reports
-
+    Route::get('/cra/population-exposure-summary/pdf', [ReportGenerationController::class, 'exportPopulationExposureSummary'])
+    ->name('population.exposure.summary.pdf');
 });
 
 // Super Admin-only routes

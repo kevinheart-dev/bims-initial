@@ -305,8 +305,7 @@ export default function PopulationExposure({
                                                 </div>
                                             ),
                                         };
-
-                                        const handleDownload = () => {
+                                        const handleExport = () => {
                                             const year =
                                                 sessionStorage.getItem(
                                                     "cra_year"
@@ -314,7 +313,17 @@ export default function PopulationExposure({
                                                 selectedYear ||
                                                 new Date().getFullYear();
 
-                                            alert(year);
+                                            const selectedHazard =
+                                                hazard.hazard_name || "Flood"; // <-- use your hazard state variable here
+
+                                            const baseUrl =
+                                                window.location.origin;
+                                            const exportUrl = `${baseUrl}/cdrrmo_admin/cra/population-exposure-summary/pdf?year=${year}&hazard=${encodeURIComponent(
+                                                selectedHazard
+                                            )}`;
+
+                                            // 🧾 Open the generated PDF in a new tab
+                                            window.open(exportUrl, "_blank");
                                         };
 
                                         return (
@@ -341,7 +350,7 @@ export default function PopulationExposure({
                                                 }}
                                             >
                                                 <Button
-                                                    onClick={handleDownload}
+                                                    onClick={handleExport}
                                                     className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-sm transition duration-200"
                                                 >
                                                     <FileSpreadsheet className="w-5 h-5" />
