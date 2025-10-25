@@ -154,7 +154,71 @@
         2.Identifying Possible Risks or Dangers that could affect the Barangay
     </p>
 
+    <div style="padding: 10px; background-color: #f3f3f3; border-bottom: 1px solid #000; font-size: 12px;">
+        <h3 style="font-weight: bold; margin-bottom: 8px;">Legend</h3>
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <tr>
+                <!-- Probability Column -->
+                <td style="vertical-align: top; padding-right: 20px;">
+                    <p style="font-weight: bold; margin: 0 0 4px 0;">Probability</p>
+                    <p style="margin: 0;">1 – Most Unlikely</p>
+                    <p style="margin: 0;">2 – Low Probability</p>
+                    <p style="margin: 0;">3 – Perhaps</p>
+                    <p style="margin: 0;">4 – High Probability</p>
+                    <p style="margin: 0;">5 – Almost Certain</p>
+                </td>
+
+                <!-- Effect Column -->
+                <td style="vertical-align: top; padding-right: 20px;">
+                    <p style="font-weight: bold; margin: 0 0 4px 0;">Effect</p>
+                    <p style="margin: 0;">1 – Negligible</p>
+                    <p style="margin: 0;">2 – Low Impact</p>
+                    <p style="margin: 0;">3 – Maintain Impact</p>
+                    <p style="margin: 0;">4 – High Impact</p>
+                    <p style="margin: 0;">5 – Devastating</p>
+                </td>
+
+                <!-- Management Column -->
+                <td style="vertical-align: top;">
+                    <p style="font-weight: bold; margin: 0 0 4px 0;">Management</p>
+                    <p style="margin: 0;">1 – Most Manageable</p>
+                    <p style="margin: 0;">2 – Manageable</p>
+                    <p style="margin: 0;">3 – Most Extensive</p>
+                    <p style="margin: 0;">4 – Most Frequent</p>
+                    <p style="margin: 0;">5 – Most Severe</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+
     @include('cra.pcra.hazard_risk', ['hazardRisk' => $cra->hazardRisk])
+
+
+    <p class="section-title">
+        2.1 Public Health - Risk Assessment Matrix
+    </p>
+    @include('cra.pcra.asssesment_matrix', ['assessmentMatrix' => $cra->assessmentMatrix])
+
+
+    {{-- cannot get the puroks data --}}
+    <p class="section-title">
+        3. Developing an exposure database of those that can be directly affected by risks and hazards
+    </p>
+    <p class="section-title">
+        3.1 Population
+    </p>
+    @include('cra.pcra.population_exposure', ['populationExposure' => $cra->populationExposure])
+
+
+    <p class="section-title">
+        3.2 Detailed Number of Persons with Disabilities
+    </p>
+    @include('cra.pcra.detailed_disabilities', ['disabilityStatistic' => $cra->disabilityStatistic])
+
+    <p class="section-title">
+        3.3 Number of Families at Risk of Hazards and Disasters per Purok
+    </p>
+    @include('cra.pcra.family_at_risk', ['familyatRisk' => $cra->familyatRisk])
 </body>
 
 </html>

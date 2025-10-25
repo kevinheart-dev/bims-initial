@@ -15,7 +15,7 @@ class CommunityRiskAssessment extends Model
 
     public function barangay()
     {
-        return $this->belongsTo(Barangay::class, 'cra_id');
+        return $this->belongsTo(Barangay::class, 'barangay_id');
     }
 
     public function populationAgeGroups()
@@ -117,5 +117,25 @@ class CommunityRiskAssessment extends Model
     public function hazardRisk()
     {
         return $this->hasMany(CRAHazardRisk::class, 'cra_id');
+    }
+
+    public function assessmentMatrix()
+    {
+        return $this->hasMany(CRAAssessmentMatrix::class, 'cra_id');
+    }
+
+    public function populationExposure()
+    {
+        return $this->hasMany(CRAPopulationExposure::class, 'cra_id');
+    }
+
+    public function disabilityStatistic()
+    {
+        return $this->hasMany(CRADisabilityStatistic::class, 'cra_id');
+    }
+
+    public function familyatRisk()
+    {
+        return $this->hasMany(CRADisabilityStatistic::class, 'cra_id');
     }
 }
