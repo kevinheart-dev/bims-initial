@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -137,8 +138,44 @@ class CommunityRiskAssessment extends Model
         return $this->hasMany(CRADisabilityStatistic::class, 'cra_id');
     }
 
-    public function familyatRisk()
+    public function getOverallFamilyAtRisk($year = null)
     {
-        return $this->hasMany(CRAFamilyAtRisk::class, 'cra_id');
+        $year = $year ?? $this->year;
+
+        $cra = $this->where('year', $year)->first();
+
+        if (!$cra) {
+            return collect();
+        }
+
+        // Overall summary grouped by barangay and indicator
+        $overallData = DB::table('c_r_a_family_at_risks as f')
+            ->join('barangays as b', 'b.id', '=', 'f.barangay_id')
+            ->select(
+                'b.id as barangay_id',
+                'b.barangay_name',
+                'f.indicator',
+                DB::raw('SUM(f.count) as total_count')
+            )
+            ->where('f.cra_id', $cra->id)
+            ->groupBy('b.id', 'b.barangay_name', 'f.indicator')
+            ->orderBy('b.barangay_name')
+            ->orderByDesc('total_count')
+            ->get()
+            ->groupBy('barangay_name')
+            ->map(function ($rows, $barangayName) {
+                return [
+                    'barangay_name' => $barangayName,
+                    'indicators' => $rows->values()->map(function ($row, $index) {
+                        return [
+                            'no' => $index + 1,
+                            'indicator' => $row->indicator,
+                            'total_count' => (int) $row->total_count,
+                        ];
+                    }),
+                ];
+            });
+
+        return $overallData;
     }
 }

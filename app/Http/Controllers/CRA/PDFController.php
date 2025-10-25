@@ -49,14 +49,17 @@ class PDFController extends Controller
             'assessmentMatrix'    => fn($q) => $q->where('barangay_id', $barangayId),
             'populationExposure'  => fn($q) => $q->where('barangay_id', $barangayId),
             'disabilityStatistic' => fn($q) => $q->where('barangay_id', $barangayId),
-            'familyatRisk'        => fn($q) => $q->where('barangay_id', $barangayId),
         ])
             ->whereHas('progress', fn($q) => $q->where('barangay_id', $barangayId))
             ->where('year', $year)
             ->first();
 
+
         if (!$cra) {
             abort(404, 'CRA not found for this barangay and year.');
+        }
+        if ($cra) {
+            $cra->setRelation('familyAtRiskData', collect($cra->getOverallFamilyAtRisk($year)->toArray()));
         }
 
         $populationGender = $cra->populationGender->keyBy(function ($item) {
@@ -69,7 +72,7 @@ class PDFController extends Controller
         ]);
         $pdf->setPaper('A4', 'portrait');
 
-        dd($cra->familyatRisk->toArray());
+        dd($cra);
 
         return $pdf->download("CRA_{$cra->year}.pdf");
     }
