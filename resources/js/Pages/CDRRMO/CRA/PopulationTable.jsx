@@ -15,6 +15,7 @@ import DynamicTable from "@/Components/DynamicTable";
 import NoDataPlaceholder from "@/Components/NoDataPlaceholder";
 import SelectField from "@/Components/SelectField";
 import BarangayFilterCard from "@/Components/BarangayFilterCard";
+import { Button } from "@/Components/ui/button";
 
 export default function Dashboard({
     populationData,
@@ -494,6 +495,16 @@ export default function Dashboard({
         );
     };
 
+    const handleExportOverview = () => {
+        const year =
+            sessionStorage.getItem("cra_year") || new Date().getFullYear();
+
+        const baseUrl = window.location.origin;
+        const exportUrl = `${baseUrl}/cdrrmo_admin/cra/population-overview-summary/pdf?year=${year}`;
+
+        // 🧾 Open the generated PDF in a new tab
+        window.open(exportUrl, "_blank");
+    };
     return (
         <AdminLayout>
             <Head title="Admin Dashboard" />
@@ -534,7 +545,20 @@ export default function Dashboard({
                                     showTotal: true,
                                     tableHeight: "500px",
                                 }}
-                            />
+                            >
+                                <Button
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                                    onClick={handleExportOverview}
+                                >
+                                    <Download className="w-4 h-4" />
+                                    Export General Overview
+                                </Button>
+
+                                <Button className="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded transition">
+                                    <Download className="w-4 h-4" />
+                                    Export Overall Population
+                                </Button>
+                            </TableSection>
 
                             <TableSection
                                 icon={<VenusAndMars />}

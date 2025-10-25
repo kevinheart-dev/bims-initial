@@ -317,6 +317,8 @@ Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(
     // reports
     Route::get('/cra/population-exposure-summary/pdf', [ReportGenerationController::class, 'exportPopulationExposureSummary'])
     ->name('population.exposure.summary.pdf');
+    Route::get('/cra/population-overview-summary/pdf', [ReportGenerationController::class, 'exportPopulationOverviewSummary'])
+    ->name('population.overview.summary.pdf');
 });
 
 // Super Admin-only routes

@@ -17,6 +17,9 @@ use App\Exports\SummonExport;
 use App\Exports\VehicleExport;
 use App\Models\Barangay;
 use App\Models\CommunityRiskAssessment;
+use App\Models\CRAGeneralPopulation;
+use App\Models\CRAPopulationAgeGroup;
+use App\Models\CRAPopulationGender;
 use App\Models\Resident;
 use Barryvdh\DomPDF\Facade\Pdf;
 use DB;
@@ -117,6 +120,7 @@ class ReportGenerationController extends Controller
         return Excel::download(new MedicalInformationExport(), $fileName);
     }
 
+    //** ========================================= DOM PDF ========================================== **//
     public function exportPopulationExposureSummary(Request $request)
     {
         $year = $request->input('year') ?? session('cra_year');
@@ -183,4 +187,111 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream('Population_Exposure_Summary_'.$hazardName.'_'.$cra->year.'.pdf');
     }
+
+    public function exportPopulationOverviewSummary(Request $request)
+    {
+        $year = $request->input('year') ?? session('cra_year');
+
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            return back()->with('error', 'CRA record not found for the selected year.');
+        }
+
+        // Get all barangays
+        $barangays = DB::table('barangays')->orderBy('barangay_name')->get();
+
+        // Get all age groups in order
+        $allAgeGroups = CRAPopulationAgeGroup::where('cra_id', $cra->id)
+            ->select('age_group')
+            ->distinct()
+            ->orderByRaw("
+                FIELD(age_group,
+                    '0-6 months','7 months-2 years','3-5 years','6-12 years',
+                    '13-18 years','19-35 years','36-59 years','60-79 years','80+ years'
+                )
+            ")
+            ->pluck('age_group')
+            ->toArray();
+
+        $grouped = [];
+
+        foreach ($barangays as $barangay) {
+            // General population & households
+            $population = CRAGeneralPopulation::where('cra_id', $cra->id)
+                ->where('barangay_id', $barangay->id)
+                ->first();
+
+            $totalPopulation = $population->total_population ?? 0;
+            $totalHouseholds = $population->total_households ?? 0;
+            $totalFamilies = $population->total_families ?? 0;
+
+            // Gender totals
+            $genderData = CRAPopulationGender::where('cra_id', $cra->id)
+                ->where('barangay_id', $barangay->id)
+                ->select(
+                    DB::raw("SUM(CASE WHEN gender='Male' THEN quantity ELSE 0 END) as male"),
+                    DB::raw("SUM(CASE WHEN gender='Female' THEN quantity ELSE 0 END) as female"),
+                    DB::raw("SUM(CASE WHEN gender='LGBTQ' THEN quantity ELSE 0 END) as lgbtq")
+                )
+                ->first();
+
+            // Age groups breakdown
+            $ageGroups = CRAPopulationAgeGroup::where('cra_id', $cra->id)
+                ->where('barangay_id', $barangay->id)
+                ->get()
+                ->keyBy('age_group') // Key by age group for easy lookup
+                ->map(function ($item) {
+                    return [
+                        'male_without_disability' => $item->male_without_disability,
+                        'male_with_disability' => $item->male_with_disability,
+                        'female_without_disability' => $item->female_without_disability,
+                        'female_with_disability' => $item->female_with_disability,
+                        'lgbtq_without_disability' => $item->lgbtq_without_disability,
+                        'lgbtq_with_disability' => $item->lgbtq_with_disability,
+                        'total' => $item->male_without_disability + $item->male_with_disability +
+                                $item->female_without_disability + $item->female_with_disability +
+                                $item->lgbtq_without_disability + $item->lgbtq_with_disability,
+                    ];
+                });
+
+            // Ensure all age groups exist even if zero
+            $ageGroupData = [];
+            foreach ($allAgeGroups as $ageGroup) {
+                $ageGroupData[$ageGroup] = $ageGroups->has($ageGroup)
+                    ? $ageGroups[$ageGroup]
+                    : [
+                        'male_without_disability' => 0,
+                        'male_with_disability' => 0,
+                        'female_without_disability' => 0,
+                        'female_with_disability' => 0,
+                        'lgbtq_without_disability' => 0,
+                        'lgbtq_with_disability' => 0,
+                        'total' => 0,
+                    ];
+            }
+
+            $grouped[$barangay->barangay_name] = [
+                'total_population' => $totalPopulation,
+                'total_households' => $totalHouseholds,
+                'total_families' => $totalFamilies,
+                'gender' => [
+                    'male' => $genderData->male ?? 0,
+                    'female' => $genderData->female ?? 0,
+                    'lgbtq' => $genderData->lgbtq ?? 0,
+                ],
+                'age_groups' => $ageGroupData,
+            ];
+        }
+
+        // Generate PDF
+        $pdf = Pdf::loadView('pdf.population_overview_summary', [
+            'year' => $cra->year,
+            'grouped' => $grouped,
+            'ageGroups' => $allAgeGroups,
+        ])->setPaper('legal', 'landscape');
+
+        return $pdf->stream('Population_Overview_Summary_' . $cra->year . '.pdf');
+    }
+
 }
