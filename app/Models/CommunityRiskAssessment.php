@@ -139,6 +139,6 @@ class CommunityRiskAssessment extends Model
 
     public function familyatRisk()
     {
-        return $this->hasMany(CRADisabilityStatistic::class, 'cra_id');
+        return $this->hasMany(CRAFamilyAtRisk::class, 'cra_id');
     }
 }
