@@ -879,6 +879,15 @@ class CRADataseeder extends Seeder
 
         $barangays = Barangay::all();
         //$barangays = Barangay::take(5)->get();
+        CommunityRiskAssessment::factory()->create([
+            'year' => 2022
+        ]);
+                CommunityRiskAssessment::factory()->create([
+            'year' => 2023
+        ]);
+                CommunityRiskAssessment::factory()->create([
+            'year' => 2024
+        ]);
         $cra = CommunityRiskAssessment::factory()->create([
             'year' => 2025
         ]);

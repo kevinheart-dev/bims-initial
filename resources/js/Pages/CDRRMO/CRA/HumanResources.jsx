@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Users, Pickaxe, BarChart3 } from "lucide-react";
+import { Users, Pickaxe, BarChart3, FileSpreadsheet } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -7,6 +7,7 @@ import TableSection from "@/Components/TableSection";
 import DynamicTable from "@/Components/DynamicTable";
 import BarangayFilterCard from "@/Components/BarangayFilterCard";
 import NoDataPlaceholder from "@/Components/NoDataPlaceholder";
+import { Button } from "@/Components/ui/button";
 
 export default function Dashboard({
     humanResourcesData,
@@ -28,6 +29,18 @@ export default function Dashboard({
             route("cdrrmo_admin.humanResources"),
             barangayId ? { barangay_id: barangayId } : {}
         );
+    };
+    const handleExport = () => {
+        const year =
+            sessionStorage.getItem("cra_year") ||
+            selectedYear ||
+            new Date().getFullYear();
+
+        const baseUrl = window.location.origin;
+        const exportUrl = `${baseUrl}/cdrrmo_admin/cra/hr-summary/pdf?year=${year}`;
+
+        // 🧾 Open the generated PDF in a new tab
+        window.open(exportUrl, "_blank");
     };
 
     return (
@@ -186,7 +199,16 @@ export default function Dashboard({
                                             showTotal: true,
                                             tableHeight: "400px",
                                         }}
-                                    />
+                                    >
+                                        {" "}
+                                        <Button
+                                            onClick={handleExport}
+                                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-sm transition duration-200"
+                                        >
+                                            <FileSpreadsheet className="w-5 h-5" />
+                                            Export Data
+                                        </Button>
+                                    </TableSection>
                                 )}
                             {humanResourcesData.length > 0 &&
                                 humanResourcesData.map((barangay, index) => {
