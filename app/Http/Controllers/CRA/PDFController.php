@@ -24,7 +24,7 @@ class PDFController extends Controller
         $cra = CommunityRiskAssessment::with([
             'progress' => function ($q) use ($barangayId) {
                 $q->where('barangay_id', $barangayId)
-                ->with('barangay'); // load the barangay details
+                    ->with('barangay'); // load the barangay details
             },
             'populationAgeGroups' => fn($q) => $q->where('barangay_id', $barangayId),
             'generalPopulation'   => fn($q) => $q->where('barangay_id', $barangayId),
@@ -35,9 +35,9 @@ class PDFController extends Controller
             'houseService'        => fn($q) => $q->where('barangay_id', $barangayId),
             'infraFacility'       => fn($q) => $q->where('barangay_id', $barangayId),
             'primaryFacility'     => fn($q) => $q->where('barangay_id', $barangayId),
-            'publicTransportation'=> fn($q) => $q->where('barangay_id', $barangayId),
+            'publicTransportation' => fn($q) => $q->where('barangay_id', $barangayId),
             'roadNetwork'         => fn($q) => $q->where('barangay_id', $barangayId),
-            'institutionInventory'=> fn($q) => $q->where('barangay_id', $barangayId),
+            'institutionInventory' => fn($q) => $q->where('barangay_id', $barangayId),
             'humanResources'      => fn($q) => $q->where('barangay_id', $barangayId),
             'populationImpact'    => fn($q) => $q->where('barangay_id', $barangayId),
             'effectImpact'        => fn($q) => $q->where('barangay_id', $barangayId),
@@ -51,9 +51,9 @@ class PDFController extends Controller
             'disabilityStatistic' => fn($q) => $q->where('barangay_id', $barangayId),
             'familyatRisk'        => fn($q) => $q->where('barangay_id', $barangayId),
         ])
-        ->whereHas('progress', fn($q) => $q->where('barangay_id', $barangayId))
-        ->where('year', $year)
-        ->first();
+            ->whereHas('progress', fn($q) => $q->where('barangay_id', $barangayId))
+            ->where('year', $year)
+            ->first();
 
         if (!$cra) {
             abort(404, 'CRA not found for this barangay and year.');
@@ -68,6 +68,8 @@ class PDFController extends Controller
             'populationGender' => $populationGender,
         ]);
         $pdf->setPaper('A4', 'portrait');
+
+        dd($cra->familyatRisk->toArray());
 
         return $pdf->download("CRA_{$cra->year}.pdf");
     }
