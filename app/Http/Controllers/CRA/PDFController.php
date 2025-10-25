@@ -18,7 +18,7 @@ class PDFController extends Controller
      */
     public function download($craId)
     {
-        // 1️⃣ Fetch the CRA record and eager load all related data
+        // get it by barangay being log in
         $cra = CommunityRiskAssessment::with([
             'barangay',
             'populationAgeGroups',
@@ -43,28 +43,24 @@ class PDFController extends Controller
             'lifelines',
             'disasterOccurance',
 
-            'hazardRisk'
+            'hazardRisk',
+            'assessmentMatrix',
+            'populationExposure',
+            'disabilityStatistic',
+            'familyatRisk',
         ])->where('year', $craId)->first();
 
 
-        // 2️⃣ Normalize populationGender by gender (lowercase keys)
         $populationGender = $cra->populationGender->keyBy(function ($item) {
             return strtolower($item->gender);
         });
 
-        // 3️⃣ Pass the normalized data to the Blade view
         $pdf = Pdf::loadView('cra.pdf', [
             'cra' => $cra,
             'populationGender' => $populationGender,
         ]);
-
-        // Optional: set paper size and orientation
         $pdf->setPaper('A4', 'portrait');
 
-        // $disasters = $cra->disasterOccurance;
-        // dd($disasters);
-
-        // 4️⃣ Return the PDF as download
         return $pdf->download("CRA_{$cra->year}.pdf");
     }
 }
