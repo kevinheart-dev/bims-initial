@@ -11,13 +11,16 @@ class CommunityRiskAssessment extends Model
 
     protected $fillable = [
         'year',
+        'barangay_id', // make sure this is fillable
     ];
-
+    public function progress()
+    {
+        return $this->hasMany(CRAProgress::class, 'cra_id');
+    }
     public function barangay()
     {
         return $this->belongsTo(Barangay::class, 'barangay_id');
     }
-
     public function populationAgeGroups()
     {
         return $this->hasMany(CRAPopulationAgeGroup::class, 'cra_id');

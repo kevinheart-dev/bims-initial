@@ -17,4 +17,14 @@ class CRAProgress extends Model
         'percentage',
         'submitted_at',
     ];
+
+    public function barangay()
+    {
+        return $this->belongsTo(Barangay::class, 'barangay_id');
+    }
+
+    public function communityRiskAssessment()
+    {
+        return $this->belongsTo(CommunityRiskAssessment::class, 'cra_id');
+    }
 }

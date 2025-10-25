@@ -42,7 +42,7 @@
 </head>
 
 <body>
-    <h4>BARANGAY {{ $cra->barangay->barangay_name ?? '_______________________' }}</h4>
+    <h4>BARANGAY {{ $cra->progress[0]->barangay->barangay_name ?? '_______________________' }}</h4>
     <h4>CRA {{ $cra->year }} </h4>
 
     <p class="section-title">A. Information on Population and Residence</p>

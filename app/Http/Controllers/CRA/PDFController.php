@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\CRA;
 
 use App\Http\Controllers\Controller;
+use App\Models\Barangay;
 use App\Models\CommunityRiskAssessment;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\CRAPopulationGender;
@@ -16,40 +17,47 @@ class PDFController extends Controller
      * @param int $craId
      * @return \Illuminate\Http\Response
      */
-    public function download($craId)
+    public function download($year)
     {
-        // get it by barangay being log in
+        $barangayId = auth()->user()->barangay_id; // or passed $brgy_id
+
         $cra = CommunityRiskAssessment::with([
-            'barangay',
-            'populationAgeGroups',
-            'generalPopulation',
-            'populationGender',
-            'houseBuild',
-            'houseOwnership',
-            'primaryLivelihood',
-            'houseService',
-            'infraFacility',
-            'primaryFacility',
-            'publicTransportation',
-            'roadNetwork',
-            'institutionInventory',
-            'humanResources',
+            'progress' => function ($q) use ($barangayId) {
+                $q->where('barangay_id', $barangayId)
+                ->with('barangay'); // load the barangay details
+            },
+            'populationAgeGroups' => fn($q) => $q->where('barangay_id', $barangayId),
+            'generalPopulation'   => fn($q) => $q->where('barangay_id', $barangayId),
+            'populationGender'    => fn($q) => $q->where('barangay_id', $barangayId),
+            'houseBuild'          => fn($q) => $q->where('barangay_id', $barangayId),
+            'houseOwnership'      => fn($q) => $q->where('barangay_id', $barangayId),
+            'primaryLivelihood'   => fn($q) => $q->where('barangay_id', $barangayId),
+            'houseService'        => fn($q) => $q->where('barangay_id', $barangayId),
+            'infraFacility'       => fn($q) => $q->where('barangay_id', $barangayId),
+            'primaryFacility'     => fn($q) => $q->where('barangay_id', $barangayId),
+            'publicTransportation'=> fn($q) => $q->where('barangay_id', $barangayId),
+            'roadNetwork'         => fn($q) => $q->where('barangay_id', $barangayId),
+            'institutionInventory'=> fn($q) => $q->where('barangay_id', $barangayId),
+            'humanResources'      => fn($q) => $q->where('barangay_id', $barangayId),
+            'populationImpact'    => fn($q) => $q->where('barangay_id', $barangayId),
+            'effectImpact'        => fn($q) => $q->where('barangay_id', $barangayId),
+            'disasterDamage'      => fn($q) => $q->where('barangay_id', $barangayId),
+            'agriDamage'          => fn($q) => $q->where('barangay_id', $barangayId),
+            'lifelines'           => fn($q) => $q->where('barangay_id', $barangayId),
+            'disasterOccurance'   => fn($q) => $q->where('barangay_id', $barangayId),
+            'hazardRisk'          => fn($q) => $q->where('barangay_id', $barangayId),
+            'assessmentMatrix'    => fn($q) => $q->where('barangay_id', $barangayId),
+            'populationExposure'  => fn($q) => $q->where('barangay_id', $barangayId),
+            'disabilityStatistic' => fn($q) => $q->where('barangay_id', $barangayId),
+            'familyatRisk'        => fn($q) => $q->where('barangay_id', $barangayId),
+        ])
+        ->whereHas('progress', fn($q) => $q->where('barangay_id', $barangayId))
+        ->where('year', $year)
+        ->first();
 
-
-            'populationImpact',
-            'effectImpact',
-            'disasterDamage',
-            'agriDamage',
-            'lifelines',
-            'disasterOccurance',
-
-            'hazardRisk',
-            'assessmentMatrix',
-            'populationExposure',
-            'disabilityStatistic',
-            'familyatRisk',
-        ])->where('year', $craId)->first();
-
+        if (!$cra) {
+            abort(404, 'CRA not found for this barangay and year.');
+        }
 
         $populationGender = $cra->populationGender->keyBy(function ($item) {
             return strtolower($item->gender);
@@ -63,4 +71,68 @@ class PDFController extends Controller
 
         return $pdf->download("CRA_{$cra->year}.pdf");
     }
+
+    //     public function download($year)
+    // {
+    //     $brgy_id = auth()->user()->barangay_id;
+
+    //     // get it by barangay being log in
+    //     $cra = Barangay::with([
+    //         'generalPopulation',
+    //         'bdrrmcDirectories',
+    //         'bdrrmcTrainings',
+    //         'populationGenders',
+    //         'populationAgeGroups',
+    //         'populationExposures',
+    //         'disasterOccurances',
+    //         'disasterAgriDamages',
+    //         'disasterDamages',
+    //         'disasterEffectImpacts',
+    //         'disasterInventories',
+    //         'disasterLifelines',
+    //         'disasterPopulationImpacts',
+    //         'disasterRiskPopulations',
+    //         'primaryFacilities',
+    //         'infraFacilities',
+    //         'institutions',
+    //         'roadNetworks',
+    //         'publicTransportations',
+    //         'houseBuilds',
+    //         'houseOwnerships',
+    //         'householdServices',
+    //         'livelihoodStatistics',
+    //         'livelihoodEvacuationSites',
+    //         'reliefDistributions',
+    //         'reliefDistributionProcesses',
+    //         'equipmentInventories',
+    //         'evacuationCenters',
+    //         'evacuationInventories',
+    //         'evacuationPlans',
+    //         'familiesAtRisk',
+    //         'hazardRisks',
+    //         'illnessesStats',
+    //         'disabilityStatistics',
+    //         'humanResources',
+    //         'affectedPlaces',
+    //         'prepositionedInventories',
+    //         'communityriskassessment' // eager load the CRA as well
+    //     ])
+    //     ->whereHas('communityriskassessment', function ($query) use ($year) {
+    //         $query->where('year', $year);
+    //     })
+    //     ->findOrFail($brgy_id);
+
+
+    //     $populationGender = $cra->populationGender->keyBy(function ($item) {
+    //         return strtolower($item->gender);
+    //     });
+
+    //     $pdf = Pdf::loadView('cra.pdf', [
+    //         'cra' => $cra,
+    //         'populationGender' => $populationGender,
+    //     ]);
+    //     $pdf->setPaper('A4', 'portrait');
+
+    //     return $pdf->download("CRA_{$cra->year}.pdf");
+    // }
 }

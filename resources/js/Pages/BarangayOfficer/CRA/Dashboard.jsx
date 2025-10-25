@@ -24,8 +24,6 @@ export default function Dashboard() {
         staleTime: 1000 * 60 * 5,
     });
 
-
-
     useEffect(() => {
         if (isLoading) {
             console.log("Fetching data...");

@@ -222,9 +222,26 @@ class Barangay extends Model
     {
         return $this->hasMany(CRARoadNetwork::class);
     }
-    public function communityriskassessment()
+    // public function communityriskassessment()
+    // {
+    //     return $this->hasOne(CommunityRiskAssessment::class, 'barangay_id');
+    // }
+
+    public function craProgress()
     {
-        return $this->hasOne(CommunityRiskAssessment::class, 'barangay_id');
+        return $this->hasMany(CRAProgress::class, 'barangay_id');
+    }
+
+    public function communityRiskAssessments()
+    {
+        return $this->hasManyThrough(
+            CommunityRiskAssessment::class,
+            CRAProgress::class,
+            'barangay_id', // Foreign key on CRAProgress table
+            'id',          // Foreign key on CRA table
+            'id',          // Local key on Barangay
+            'cra_id'       // Local key on CRAProgress pointing to CRA
+        );
     }
     public function dataCollection()
     {
