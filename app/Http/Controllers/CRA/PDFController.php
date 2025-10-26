@@ -50,6 +50,20 @@ class PDFController extends Controller
             'populationExposure'  => fn($q) => $q->where('barangay_id', $barangayId),
             'disabilityStatistic' => fn($q) => $q->where('barangay_id', $barangayId),
             'familyatRisk'        => fn($q) => $q->where('barangay_id', $barangayId),
+            'illnessesStat'       => fn($q) => $q->where('barangay_id', $barangayId),
+            'riskPopulation'      => fn($q) => $q->where('barangay_id', $barangayId),
+            'disasterInventory'   => fn($q) => $q->where('barangay_id', $barangayId),
+            'evacuationCenter'    => fn($q) => $q->where('barangay_id', $barangayId),
+            'evacuationInventory' => fn($q) => $q->where('barangay_id', $barangayId),
+            'affectedArea'        => fn($q) => $q->where('barangay_id', $barangayId),
+            'livelihoodEvacuation' => fn($q) => $q->where('barangay_id', $barangayId),
+            'prepositionedInventory' => fn($q) => $q->where('barangay_id', $barangayId),
+            'reliefDistribution'  => fn($q) => $q->where('barangay_id', $barangayId),
+            'distributionProcess' => fn($q) => $q->where('barangay_id', $barangayId),
+            'bdrrmcTraining'      => fn($q) => $q->where('barangay_id', $barangayId),
+            'equipmentInventory'  => fn($q) => $q->where('barangay_id', $barangayId),
+            'bdrrmcDirectory'     => fn($q) => $q->where('barangay_id', $barangayId),
+            'evacuationPlan'      => fn($q) => $q->where('barangay_id', $barangayId),
         ])
             ->whereHas('progress', fn($q) => $q->where('barangay_id', $barangayId))
             ->where('year', $year)
@@ -69,9 +83,12 @@ class PDFController extends Controller
         ]);
         $pdf->setPaper('A4', 'portrait');
 
-        dd($cra->familyatRisk->toArray());
+        $barangayName = strtoupper(optional($cra->progress->first()->barangay)->barangay_name ?? 'UNKNOWN BARANGAY');
 
-        return $pdf->download("CRA_{$cra->year}.pdf");
+        $fileName = "{$barangayName} CRA {$cra->year}.pdf";
+        // dd($cra->familyatRisk->toArray());
+
+        return $pdf->download($fileName);
     }
 
     //     public function download($year)

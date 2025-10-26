@@ -70,7 +70,6 @@ const IllnessesTable = () => {
                             <th className="border p-1 text-center">Illness/Disease</th>
                             <th className="border p-1 text-center">Children (17 and below)</th>
                             <th className="border p-1 text-center">Adults (18 and above)</th>
-                            <th className="border p-1 text-center"></th>
                         </tr>
                     </thead>
                     <tbody>
