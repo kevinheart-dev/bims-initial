@@ -1094,6 +1094,10 @@ class CRAController extends Controller
         ];
 
         foreach ($data["disaster_per_purok"] ?? [] as $disasterData) {
+            if (empty($disasterData['type']) || empty($disasterData['rows'])) {
+                continue; // Skip if type or rows are missing
+            }
+
             $hazard = $getHazard($disasterData['type']);
 
             foreach ($disasterData['rows'] as $row) {
@@ -1104,10 +1108,10 @@ class CRAController extends Controller
 
                 CRADisasterRiskPopulation::updateOrCreate(
                     [
-                        'barangay_id'   => $brgy_id,
-                        'hazard_id'     => $hazard->id,
-                        'purok_number'  => $row['purok'],
-                        'cra_id' => $cra->id,
+                        'barangay_id'  => $brgy_id,
+                        'hazard_id'    => $hazard->id,
+                        'purok_number' => $row['purok'],
+                        'cra_id'       => $cra->id,
                     ],
                     $updateData
                 );
@@ -1268,28 +1272,34 @@ class CRAController extends Controller
             ]
         );
     }
-    private function saveFamilyAtRisk($brgy_id, $data, $cra) {
+    private function saveFamilyAtRisk($brgy_id, $data, $cra)
+    {
         $records = [];
+
         foreach ($data as $purokData) {
             $purokNumber = $purokData['purok'] ?? null;
 
             foreach ($purokData['rowsValue'] ?? [] as $row) {
+                // Ensure valid structure
+                if (empty($row['value'])) continue;
+
                 $records[] = [
-                    'barangay_id'   => $brgy_id,
-                    'cra_id' => $cra->id,
-                    'purok_number'  => $purokNumber,
-                    'indicator'     => $row['value'] || '',
-                    'count'         => $row['count'] ?? 0,
-                    'created_at'    => now(),
-                    'updated_at'    => now(),
+                    'barangay_id'  => $brgy_id,
+                    'cra_id'       => $cra->id,
+                    'purok_number' => $purokNumber,
+                    'indicator'    => $row['value'] ?? '',
+                    'count'        => (int) ($row['count'] ?? 0),
+                    'created_at'   => now(),
+                    'updated_at'   => now(),
                 ];
             }
         }
+
         if (!empty($records)) {
             CRAFamilyAtRisk::upsert(
                 $records,
                 ['barangay_id', 'purok_number', 'indicator', 'cra_id'], // unique keys
-                ['count', 'updated_at'] // fields to update if duplicate exists
+                ['count', 'updated_at'] // update fields if duplicate exists
             );
         }
     }
