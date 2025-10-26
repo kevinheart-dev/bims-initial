@@ -178,4 +178,74 @@ class CommunityRiskAssessment extends Model
 
         return $overallData;
     }
+
+    public function illnessesStat()
+    {
+        return $this->hasMany(CRAIllnessesStat::class, 'cra_id');
+    }
+
+    public function riskPopulation()
+    {
+        return $this->hasMany(CRADisasterRiskPopulation::class, 'cra_id');
+    }
+
+    public function disasterInventory()
+    {
+        return $this->hasMany(CRADisasterInventory::class, 'cra_id');
+    }
+
+    public function evacuationCenter()
+    {
+        return $this->hasMany(CRAEvacuationCenter::class, 'cra_id');
+    }
+
+    public function evacuationInventory()
+    {
+        return $this->hasMany(CRAEvacuationInventory::class, 'cra_id');
+    }
+
+    public function affectedArea()
+    {
+        return $this->hasMany(CRAAffectedPlaces::class, 'cra_id');
+    }
+
+    public function livelihoodEvacuation()
+    {
+        return $this->hasMany(CRALivelihoodEvacuationSite::class, 'cra_id');
+    }
+
+    public function prepositionedInventory()
+    {
+        return $this->hasMany(CRAPrepositionedInventory::class, 'cra_id');
+    }
+
+    public function reliefDistribution()
+    {
+        return $this->hasMany(CRAReliefDistribution::class, 'cra_id');
+    }
+
+    public function distributionProcess()
+    {
+        return $this->hasMany(CRAReliefDistributionProcess::class, 'cra_id');
+    }
+
+    public function bdrrmcTraining()
+    {
+        return $this->hasMany(CRABdrrmcTraining::class, 'cra_id');
+    }
+
+    public function equipmentInventory()
+    {
+        return $this->hasMany(CRAEquipmentInventory::class, 'cra_id');
+    }
+
+    public function bdrrmcDirectory()
+    {
+        return $this->hasMany(CRABdrrmcDirectory::class, 'cra_id');
+    }
+
+    public function evacuationPlan()
+    {
+        return $this->hasMany(CRAEvacuationPlan::class, 'cra_id');
+    }
 }

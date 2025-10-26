@@ -219,6 +219,92 @@
         3.3 Number of Families at Risk of Hazards and Disasters per Purok
     </p>
     @include('cra.pcra.family_at_risk', ['familyatRisk' => $cra->familyatRisk])
+
+
+    <p class="section-title">
+        3.4 Number of Persons with Illnesses or Communicable Diseases (Based on Data from the Health Center/CHO)
+    </p>
+    @include('cra.pcra.illnesses_statistic', ['illnessesStat' => $cra->illnessesStat])
+
+
+    <p class="section-title">
+        4. Effects of Hazards or Disasters
+    </p>
+    <p class="section-title">
+        4.1 Number of Families and Individuals at Risk of Hazard per Purok based on the following categories:
+    </p>
+    @include('cra.pcra.disaster_risk_population', ['riskPopulation' => $cra->riskPopulation])
+
+    <p class="section-title">
+        4.2 Inventory of Equipment, Infrastructures, Establishments, Facilities and Livelihood that are at Risk during
+        Hazards and Disasters
+    </p>
+    @include('cra.pcra.inventory_disaster', ['disasterInventory' => $cra->disasterInventory])
+
+    <p class="section-title">
+        5. List of Designated Evacuation Center and Temporary Isolation Facilities in the Barangay and City (whether
+        owned by the government or private sector)
+    </p>
+    @include('cra.pcra.evacuationCenter', ['evacuationCenter' => $cra->evacuationCenter])
+
+
+    <p class="section-title">
+        6. Inventory of Evacuation Centers where Families can Relocate or Stay During Disasters
+    </p>
+    @include('cra.pcra.evacuation_inventory', ['evacuationInventory' => $cra->evacuationInventory])
+
+    {{-- thead problem --}}
+    <p class="section-title">
+        7. List of Places/Areas where affected residents can evacuate during times of impending or current disaster
+    </p>
+    @include('cra.pcra.affected_areas', ['affectedArea' => $cra->affectedArea])
+
+
+    <p class="section-title">
+        8. List of Places/Areas where Sources of Livelihood can be evacuated
+    </p>
+    @include('cra.pcra.livelihood_evacuation', ['livelihoodEvacuation' => $cra->livelihoodEvacuation])
+
+
+    <p class="section-title">
+        9. Inventory of Prepositioned Food and Non-food Items
+    </p>
+    @include('cra.pcra.prepositioned_inventory', [
+        'prepositionedInventory' => $cra->prepositionedInventory,
+    ])
+
+    <p class="section-title">
+        10. List of Designated Evacuation Centers that will serve as Distribution Sites for Relief Goods (Food and
+        Non-Food Items)
+    </p>
+    @include('cra.pcra.relief_distribution', [
+        'reliefDistribution' => $cra->reliefDistribution,
+    ])
+
+    <p class="section-title">
+        11.Distribution Process of Relief Goods to Affected Families and Individuals
+    </p>
+    @include('cra.pcra.distribution_process', ['distributionProcess' => $cra->distributionProcess])
+
+    <p class="section-title">
+        12.Inventory of Trainings Attended by the members of BDRRMC
+    </p>
+    @include('cra.pcra.bdrrmc_training', ['bdrrmcTraining' => $cra->bdrrmcTraining])
+
+    <p class="section-title">
+        13.Inventory of Response Equipment that can be utilized during Calamities and Disasters
+    </p>
+    @include('cra.pcra.equipment_inventory', ['equipmentInventory' => $cra->equipmentInventory])
+
+    <p class="section-title">
+        BDRRMC DIRECTORY
+    </p>
+    @include('cra.pcra.bdrrmc_directory', ['bdrrmcDirectory' => $cra->bdrrmcDirectory])
+
+    <p class="section-title">
+        BARANGAY EVACUATION PLAN
+    </p>
+    @include('cra.pcra.barangay_evacuation_plan', ['evacuationPlan' => $cra->evacuationPlan])
 </body>
 
 </html>
