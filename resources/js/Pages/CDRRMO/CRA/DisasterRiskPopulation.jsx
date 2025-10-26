@@ -5,7 +5,8 @@ import BarangayFilterCard from "@/Components/BarangayFilterCard";
 import DynamicTable from "@/Components/DynamicTable";
 import TableSection from "@/Components/TableSection";
 import NoDataPlaceholder from "@/Components/NoDataPlaceholder";
-import { AlertTriangle, Users } from "lucide-react";
+import { AlertTriangle, FileSpreadsheet, Users } from "lucide-react";
+import { Button } from "@/Components/ui/button";
 
 export default function DisasterRiskPopulation({
     disasterRiskData = [],
@@ -37,6 +38,31 @@ export default function DisasterRiskPopulation({
                 disasterRiskData.filter(
                     (b) => b.barangay_id === selectedBarangay
                 ).length === 0));
+
+    const handleExport = () => {
+        const year =
+            sessionStorage.getItem("cra_year") || new Date().getFullYear();
+
+        const baseUrl = window.location.origin;
+        const exportUrl = `${baseUrl}/cdrrmo_admin/cra/disaster-risk-population-summary/pdf?year=${year}`;
+
+        // 🧾 Open the generated PDF in a new tab
+        window.open(exportUrl, "_blank");
+    };
+
+    const handleExportHazard = (hazardName) => {
+        const year =
+            sessionStorage.getItem("cra_year") || new Date().getFullYear();
+        const baseUrl = window.location.origin;
+
+        // Encode the hazard name to handle spaces/special characters
+        const encodedHazard = encodeURIComponent(hazardName);
+
+        const exportUrl = `${baseUrl}/cdrrmo_admin/cra/per-disaster-risk-population-summary/pdf?year=${year}&hazard=${encodedHazard}`;
+
+        // 🧾 Open the generated PDF in a new tab
+        window.open(exportUrl, "_blank");
+    };
 
     return (
         <AdminLayout>
@@ -159,7 +185,17 @@ export default function DisasterRiskPopulation({
                                         showTotal: true,
                                         tableHeight: "500px",
                                     }}
-                                />
+                                >
+                                    <Button
+                                        variant="default"
+                                        size="sm"
+                                        onClick={handleExport}
+                                        className="bg-green-600 text-white hover:bg-green-700 ml-2"
+                                    >
+                                        {<FileSpreadsheet />}Export Disaster
+                                        Risk Population
+                                    </Button>
+                                </TableSection>
                             )}
 
                             {overallDisasterRiskData.length > 0 &&
@@ -251,7 +287,25 @@ export default function DisasterRiskPopulation({
                                             showTotal: true,
                                             tableHeight: "500px",
                                         }}
-                                    />
+                                    >
+                                        {" "}
+                                        {/* Add a button in the TableSection footer or header */}
+                                        <div className="flex justify-end mt-2">
+                                            <Button
+                                                variant="destructive" // red style
+                                                size="sm"
+                                                onClick={() =>
+                                                    handleExportHazard(
+                                                        hazard.hazard_name
+                                                    )
+                                                }
+                                                className="ml-2"
+                                            >
+                                                <FileSpreadsheet className="mr-1 h-4 w-4" />
+                                                Export {hazard.hazard_name} Data
+                                            </Button>
+                                        </div>
+                                    </TableSection>
                                 ))}
 
                             {/* 🟩 Barangay-specific view */}

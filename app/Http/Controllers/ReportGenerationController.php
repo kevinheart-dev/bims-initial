@@ -186,7 +186,9 @@ class ReportGenerationController extends Controller
             'grouped' => $grouped,
         ])->setPaper('legal', 'landscape'); // ✅ Fits all columns better
 
-        return $pdf->stream('Population_Exposure_Summary_'.$hazardName.'_'.$cra->year.'.pdf');
+        $sanitizedHazard = str_replace(['/', '\\'], '-', $hazardName);
+
+        return $pdf->stream('Population_Exposure_Summary_' . $sanitizedHazard . '_' . $cra->year . '.pdf');
     }
 
     public function exportPopulationOverviewSummary(Request $request)
@@ -543,4 +545,253 @@ class ReportGenerationController extends Controller
         return $pdf->stream("HumanResources_Summary_Top5_{$cra->year}.pdf");
     }
 
+    public function exportOverallDisasterRiskPopulationSummary(Request $request)
+    {
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            return back()->with('error', 'CRA record not found for the selected year.');
+        }
+
+        $records = DB::table('c_r_a_disaster_risk_populations as r')
+            ->join('barangays as b', 'b.id', '=', 'r.barangay_id')
+            ->join('c_r_a_hazards as h', 'h.id', '=', 'r.hazard_id')
+            ->select(
+                'b.barangay_name',
+                'h.hazard_name',
+                DB::raw('SUM(r.low_families) as low_families'),
+                DB::raw('SUM(r.medium_families) as medium_families'),
+                DB::raw('SUM(r.high_families) as high_families'),
+                DB::raw('SUM(r.low_individuals) as low_individuals'),
+                DB::raw('SUM(r.medium_individuals) as medium_individuals'),
+                DB::raw('SUM(r.high_individuals) as high_individuals')
+            )
+            ->where('r.cra_id', $cra->id)
+            ->groupBy('b.barangay_name', 'h.hazard_name')
+            ->orderBy('b.barangay_name')
+            ->orderBy('h.hazard_name')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return back()->with('error', 'No disaster risk population data found.');
+        }
+
+        // 🧮 Transform into [barangay => [hazard => values]]
+        $data = [];
+        foreach ($records as $row) {
+            $barangay = $row->barangay_name;
+            $hazard = $row->hazard_name;
+
+            if (!isset($data[$barangay])) {
+                $data[$barangay] = [];
+            }
+
+            $data[$barangay][$hazard] = [
+                'low_families' => (int) $row->low_families,
+                'low_individuals' => (int) $row->low_individuals,
+                'medium_families' => (int) $row->medium_families,
+                'medium_individuals' => (int) $row->medium_individuals,
+                'high_families' => (int) $row->high_families,
+                'high_individuals' => (int) $row->high_individuals,
+            ];
+        }
+
+        // 🧾 Collect all unique hazards
+        $hazards = $records->pluck('hazard_name')->unique()->values();
+
+        // 🧹 Sanitize filename
+        $filename = str_replace(['/', '\\'], '_', 'Disaster_Risk_Population_Summary_Overall_' . $cra->year . '.pdf');
+
+        // 🧩 Generate PDF
+        $pdf = Pdf::loadView('pdf.disaster_risk_population_overall_summary', [
+            'year' => $cra->year,
+            'data' => $data,      // ✅ renamed from grouped → data
+            'hazards' => $hazards // ✅ now defined and passed
+        ])->setPaper('legal', 'landscape');
+
+        return $pdf->stream($filename);
+    }
+
+    public function exportPerHazardDisasterRiskPopulationSummary(Request $request)
+    {
+        $year = $request->input('year') ?? session('cra_year');
+        $hazardName = $request->input('hazard') ?? session('selected_hazard'); // Get hazard from request or session
+
+        if (!$hazardName) {
+            return back()->with('error', 'No hazard selected.');
+        }
+
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            return back()->with('error', 'CRA record not found for the selected year.');
+        }
+
+        $records = DB::table('c_r_a_disaster_risk_populations as r')
+            ->join('barangays as b', 'b.id', '=', 'r.barangay_id')
+            ->join('c_r_a_hazards as h', 'h.id', '=', 'r.hazard_id')
+            ->select(
+                'b.barangay_name',
+                DB::raw('SUM(r.low_families) as low_families'),
+                DB::raw('SUM(r.medium_families) as medium_families'),
+                DB::raw('SUM(r.high_families) as high_families'),
+                DB::raw('SUM(r.low_individuals) as low_individuals'),
+                DB::raw('SUM(r.medium_individuals) as medium_individuals'),
+                DB::raw('SUM(r.high_individuals) as high_individuals')
+            )
+            ->where('r.cra_id', $cra->id)
+            ->where('h.hazard_name', $hazardName) // Filter by selected hazard
+            ->groupBy('b.barangay_name')
+            ->orderBy('b.barangay_name')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return back()->with('error', 'No disaster risk population data found for the selected hazard.');
+        }
+
+        // Transform into [barangay => values]
+        $data = [];
+        foreach ($records as $row) {
+            $data[$row->barangay_name] = [
+                'low_families' => (int) $row->low_families,
+                'low_individuals' => (int) $row->low_individuals,
+                'medium_families' => (int) $row->medium_families,
+                'medium_individuals' => (int) $row->medium_individuals,
+                'high_families' => (int) $row->high_families,
+                'high_individuals' => (int) $row->high_individuals,
+                'total_families' => (int) ($row->low_families + $row->medium_families + $row->high_families),
+                'total_individuals' => (int) ($row->low_individuals + $row->medium_individuals + $row->high_individuals),
+            ];
+        }
+
+        $filename = str_replace(['/', '\\'], '_', 'Disaster_Risk_Population_' . $hazardName . '_' . $cra->year . '.pdf');
+
+        $hazardClass = strtolower($hazardName) . '-header';
+
+        $pdf = Pdf::loadView('pdf.disaster_risk_population_per_hazard', [
+            'year' => $cra->year,
+            'hazard' => $hazardName,
+            'hazardClass' => $hazardClass,  // ✅ pass this to the view
+            'barangays' => $data
+        ])->setPaper('legal', 'landscape');
+
+        return $pdf->stream($filename);
+    }
+
+    public function exportOverallRiskMatrixSummary(Request $request)
+    {
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            return back()->with('error', 'CRA record not found for the selected year.');
+        }
+
+        // Get all hazards
+        $hazards = DB::table('c_r_a_hazards')->pluck('hazard_name');
+
+        // Get overall data: total people per barangay per hazard
+        $records = DB::table('c_r_a_assessment_matrices as m')
+            ->join('barangays as b', 'b.id', '=', 'm.barangay_id')
+            ->join('c_r_a_hazards as h', 'h.id', '=', 'm.hazard_id')
+            ->select('b.barangay_name', 'h.hazard_name', DB::raw('SUM(m.people) as total_people'))
+            ->where('m.matrix_type', 'risk')
+            ->where('m.cra_id', $cra->id)
+            ->groupBy('b.barangay_name', 'h.hazard_name')
+            ->orderBy('b.barangay_name')
+            ->orderBy('h.hazard_name')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return back()->with('error', 'No risk matrix data found.');
+        }
+
+        // ✅ Unique hazards from records
+        $hazards = $records->pluck('hazard_name')->unique()->values();
+
+        // ✅ All barangays
+        $allBarangays = $records->pluck('barangay_name')->unique();
+
+        // ✅ Initialize data array
+        $data = [];
+        foreach ($allBarangays as $barangay) {
+            foreach ($hazards as $hazard) {
+                $data[$barangay][$hazard] = 0;
+            }
+        }
+
+        // ✅ Fill actual counts
+        foreach ($records as $row) {
+            $data[$row->barangay_name][$row->hazard_name] = (int) $row->total_people;
+        }
+
+        $filename = str_replace(['/', '\\'], '_', "Risk_Matrix_Overall_{$cra->year}.pdf");
+
+        $pdf = Pdf::loadView('pdf.risk_matrix_overall', [
+            'year' => $cra->year,
+            'data' => $data,
+            'hazards' => $hazards,
+        ])->setPaper('legal', 'landscape');
+
+        return $pdf->stream($filename);
+    }
+
+    public function exportOverallVulnerabilityMatrixSummary(Request $request)
+    {
+        $year = $request->input('year') ?? session('cra_year');
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            return back()->with('error', 'CRA record not found for the selected year.');
+        }
+
+        // Get all hazards
+        $hazards = DB::table('c_r_a_hazards')->pluck('hazard_name');
+
+        // Get overall data: total people per barangay per hazard
+        $records = DB::table('c_r_a_assessment_matrices as m')
+            ->join('barangays as b', 'b.id', '=', 'm.barangay_id')
+            ->join('c_r_a_hazards as h', 'h.id', '=', 'm.hazard_id')
+            ->select('b.barangay_name', 'h.hazard_name', DB::raw('SUM(m.people) as total_people'))
+            ->where('m.matrix_type', 'vulnerability')
+            ->where('m.cra_id', $cra->id)
+            ->groupBy('b.barangay_name', 'h.hazard_name')
+            ->orderBy('b.barangay_name')
+            ->orderBy('h.hazard_name')
+            ->get();
+
+        if ($records->isEmpty()) {
+            return back()->with('error', 'No risk matrix data found.');
+        }
+
+        // ✅ Unique hazards from records
+        $hazards = $records->pluck('hazard_name')->unique()->values();
+
+        // ✅ All barangays
+        $allBarangays = $records->pluck('barangay_name')->unique();
+
+        // ✅ Initialize data array
+        $data = [];
+        foreach ($allBarangays as $barangay) {
+            foreach ($hazards as $hazard) {
+                $data[$barangay][$hazard] = 0;
+            }
+        }
+
+        // ✅ Fill actual counts
+        foreach ($records as $row) {
+            $data[$row->barangay_name][$row->hazard_name] = (int) $row->total_people;
+        }
+
+        $filename = str_replace(['/', '\\'], '_', "Vulnerability_Matrix_Overall_{$cra->year}.pdf");
+
+        $pdf = Pdf::loadView('pdf.vulnerability_matrix_overall', [
+            'year' => $cra->year,
+            'data' => $data,
+            'hazards' => $hazards,
+        ])->setPaper('legal', 'landscape');
+
+        return $pdf->stream($filename);
+    }
 }

@@ -325,6 +325,12 @@ Route::middleware(['auth', 'role:cdrrmo_admin'])->prefix('cdrrmo_admin')->group(
     ->name('livelihood.summary.pdf');
     Route::get('/cra/hr-summary/pdf', [ReportGenerationController::class, 'exportHumanResourcesSummary'])
     ->name('hr.summary.pdf');
+    Route::get('/cra/disaster-risk-population-summary/pdf', [ReportGenerationController::class, 'exportOverallDisasterRiskPopulationSummary'])
+    ->name('disasterriskpopulation.summary.pdf');
+    Route::get('/cra/risk-assessment-summary/pdf', [ReportGenerationController::class, 'exportOverallRiskMatrixSummary'])
+    ->name('riskassessment.summary.pdf');
+    Route::get('/cra/vulnerability-assessment-summary/pdf', [ReportGenerationController::class, 'exportOverallVulnerabilityMatrixSummary'])
+    ->name('vulnerabilityassessment.summary.pdf');
 });
 
 // Super Admin-only routes

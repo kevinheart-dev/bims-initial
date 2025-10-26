@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShieldAlert, BarChart3, Table } from "lucide-react";
+import { ShieldAlert, BarChart3, Table, FileSpreadsheet } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -7,6 +7,7 @@ import TableSection from "@/Components/TableSection";
 import DynamicTable from "@/Components/DynamicTable";
 import NoDataPlaceholder from "@/Components/NoDataPlaceholder";
 import BarangayFilterCard from "@/Components/BarangayFilterCard";
+import { Button } from "@/Components/ui/button";
 
 export default function RiskMatrixDashboard({
     riskMatrixData = [],
@@ -31,6 +32,17 @@ export default function RiskMatrixDashboard({
             overallHazardSummary.length === 0 &&
             overallRiskMatrixData.length === 0) ||
         (selectedBarangay && riskMatrixData.length === 0);
+
+    const handleExport = () => {
+        const year =
+            sessionStorage.getItem("cra_year") || new Date().getFullYear();
+
+        const baseUrl = window.location.origin;
+        const exportUrl = `${baseUrl}/cdrrmo_admin/cra/risk-assessment-summary/pdf?year=${year}`;
+
+        // 🧾 Open the generated PDF in a new tab
+        window.open(exportUrl, "_blank");
+    };
 
     return (
         <AdminLayout>
@@ -141,6 +153,7 @@ export default function RiskMatrixDashboard({
                                         }}
                                     />
                                 ))}
+
                             {overallHazardSummary?.length > 0 && (
                                 <TableSection
                                     icon={<BarChart3 />}
@@ -199,6 +212,7 @@ export default function RiskMatrixDashboard({
                                     }}
                                 />
                             )}
+
                             {overallRiskMatrixData?.length > 0 && (
                                 <TableSection
                                     icon={<Table />}
@@ -340,7 +354,17 @@ export default function RiskMatrixDashboard({
                                         ],
                                         tableHeight: "500px",
                                     }}
-                                />
+                                >
+                                    <Button
+                                        variant="default"
+                                        size="sm"
+                                        onClick={handleExport}
+                                        className="bg-green-600 text-white hover:bg-green-700 ml-2"
+                                    >
+                                        {<FileSpreadsheet />}Export Risk
+                                        Assessment Summary
+                                    </Button>
+                                </TableSection>
                             )}
                         </>
                     )}

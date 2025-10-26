@@ -99,7 +99,7 @@ class DatabaseSeeder extends Seeder
         ])->assignRole($cdrrmoRole);
 
         // $barangays = Barangay::all();
-        $barangays = Barangay::take(5)->get();
+        $barangays = Barangay::take(10)->get();
         //  foreach ($barangays->take(2) as $barangay)
         foreach ($barangays as $barangay) {
             // Create 7 puroks per barangay
@@ -326,11 +326,20 @@ class DatabaseSeeder extends Seeder
             // FamilyRelationSeeder::class,
             BarangayInformationSeeder::class,
         ]);
-        $this->call([
-            CRADataseeder::class,
-        ]);
-        // CommunityRiskAssessment::factory()->create([
-        //     'year' => 2025
+        // $this->call([
+        //     CRADataseeder::class,
         // ]);
+        CommunityRiskAssessment::factory()->create([
+            'year' => 2022
+        ]);
+                CommunityRiskAssessment::factory()->create([
+            'year' => 2023
+        ]);
+                CommunityRiskAssessment::factory()->create([
+            'year' => 2024
+        ]);
+        CommunityRiskAssessment::factory()->create([
+            'year' => 2025
+        ]);
     }
 }

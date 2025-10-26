@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Overall Risk Matrix Summary - {{ $year }}</title>
+    <style>
+        body { font-family: sans-serif; font-size: 10px; margin: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+        th, td { border: 1px solid #333; padding: 4px; text-align: center; font-size: 9px; vertical-align: middle; }
+        th { background: #eee; word-wrap: break-word; max-width: 80px; } /* wrap long header text */
+        td { word-wrap: break-word; max-width: 80px; } /* wrap long values if necessary */
+        h2, h3 { text-align: center; margin: 0; word-wrap: break-word; }
+        h2 { font-size: 16px; text-transform: uppercase; margin-bottom: 4px; }
+        h3 { font-size: 12px; margin-bottom: 4px; }
+
+        .totals { font-weight: bold; background: #FFE5B4; font-size: 10px; }
+
+        /* Optional hazard color headers */
+        .flood-header { background-color: #b3e5fc; }
+        .landslide-header { background-color: #d7ccc8; }
+        .earthquake-header { background-color: #cfd8dc; }
+        .fire-header { background-color: #ffcdd2; }
+        .typhoon-header { background-color: #c8e6c9; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <table style="width:100%; margin-bottom:6px; border:none;">
+        <tr>
+            <td style="width:80px; border:none; text-align:left;">
+                <img src="{{ public_path('images/city-of-ilagan.png') }}" style="width:60px; height:60px; object-fit:contain;">
+            </td>
+            <td style="border:none; text-align:center; vertical-align:middle;">
+                <div style="line-height:1.3; font-size:12px;">
+                    <strong>Republic of the Philippines</strong><br>
+                    <strong>CITY OF ILAGAN</strong><br>
+                    <strong>Province of Isabela</strong><br>
+                    <strong>CITY DISASTER RISK REDUCTION AND MANAGEMENT OFFICE</strong><br>
+                    CDRRMO Building, LGU Compound, Rizal Street, San Vicente, City of Ilagan, Isabela, 3300
+                </div>
+            </td>
+            <td style="width:80px; border:none; text-align:right;">
+                <img src="{{ public_path('images/cdrrmo.png') }}" style="width:60px; height:60px; object-fit:contain;">
+            </td>
+        </tr>
+    </table>
+
+    <h2>Overall Risk Matrix Summary</h2>
+    <h3>Community Risk Assessment ({{ $year }})</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Barangay</th>
+                @foreach ($hazards as $hazard)
+                    @php $hazardClass = strtolower($hazard) . '-header'; @endphp
+                    <th class="{{ $hazardClass }}">{{ strtoupper($hazard) }}</th>
+                @endforeach
+                <th class="totals">Grand Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php
+                $hazardGrandTotals = [];
+                foreach ($hazards as $hazard) {
+                    $hazardGrandTotals[$hazard] = 0;
+                }
+                $grandTotalOverall = 0;
+            @endphp
+
+            @foreach ($data as $barangay => $hazardData)
+                @php $barangayTotal = 0; @endphp
+                <tr>
+                    <td style="text-align:left;">{{ $barangay }}</td>
+                    @foreach ($hazards as $hazard)
+                        @php
+                            $count = $hazardData[$hazard] ?? 0;
+                            $barangayTotal += $count;
+                            $hazardGrandTotals[$hazard] += $count;
+                        @endphp
+                        <td>{{ $count }}</td>
+                    @endforeach
+                    <td class="totals">{{ $barangayTotal }}</td>
+                    @php $grandTotalOverall += $barangayTotal; @endphp
+                </tr>
+            @endforeach
+
+            <!-- Grand Total Row -->
+            <tr class="totals">
+                <td><strong>GRAND TOTAL</strong></td>
+                @foreach ($hazards as $hazard)
+                    <td>{{ $hazardGrandTotals[$hazard] }}</td>
+                @endforeach
+                <td>{{ $grandTotalOverall }}</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
