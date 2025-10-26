@@ -138,7 +138,7 @@ class CommunityRiskAssessment extends Model
         return $this->hasMany(CRADisabilityStatistic::class, 'cra_id');
     }
 
-    public function getOverallFamilyAtRisk($year = null)
+    public function getOverallFamilyAtRisk($year = null, $barangayId = null)
     {
         $year = $year ?? $this->year;
 
@@ -148,8 +148,7 @@ class CommunityRiskAssessment extends Model
             return collect();
         }
 
-        // Overall summary grouped by barangay and indicator
-        $overallData = DB::table('c_r_a_family_at_risks as f')
+        $query = DB::table('c_r_a_family_at_risks as f')
             ->join('barangays as b', 'b.id', '=', 'f.barangay_id')
             ->select(
                 'b.id as barangay_id',
@@ -157,26 +156,34 @@ class CommunityRiskAssessment extends Model
                 'f.indicator',
                 DB::raw('SUM(f.count) as total_count')
             )
-            ->where('f.cra_id', $cra->id)
+            ->where('f.cra_id', $cra->id);
+
+        // 🔹 Filter by specific barangay if provided
+        if ($barangayId) {
+            $query->where('f.barangay_id', $barangayId);
+        }
+
+        $results = $query
             ->groupBy('b.id', 'b.barangay_name', 'f.indicator')
             ->orderBy('b.barangay_name')
             ->orderByDesc('total_count')
-            ->get()
-            ->groupBy('barangay_name')
-            ->map(function ($rows, $barangayName) {
-                return [
-                    'barangay_name' => $barangayName,
-                    'indicators' => $rows->values()->map(function ($row, $index) {
-                        return [
-                            'no' => $index + 1,
-                            'indicator' => $row->indicator,
-                            'total_count' => (int) $row->total_count,
-                        ];
-                    }),
-                ];
-            });
+            ->get();
 
-        return $overallData;
+        // 🔹 Format grouped data
+        $grouped = $results->groupBy('barangay_name')->map(function ($rows, $barangayName) {
+            return [
+                'barangay_name' => $barangayName,
+                'indicators' => $rows->values()->map(function ($row, $index) {
+                    return [
+                        'no' => $index + 1,
+                        'indicator' => $row->indicator,
+                        'total_count' => (int) $row->total_count,
+                    ];
+                }),
+            ];
+        });
+
+        return $grouped;
     }
 
     public function illnessesStat()

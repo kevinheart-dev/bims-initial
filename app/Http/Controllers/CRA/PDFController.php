@@ -73,7 +73,10 @@ class PDFController extends Controller
             abort(404, 'CRA not found for this barangay and year.');
         }
         if ($cra) {
-            $cra->setRelation('familyAtRiskData', collect($cra->getOverallFamilyAtRisk($year)->toArray()));
+            $cra->setRelation(
+                'familyAtRiskData',
+                collect($cra->getOverallFamilyAtRisk($year, $barangayId ?? null)->toArray())
+            );
         }
 
         $populationGender = $cra->populationGender->keyBy(function ($item) {
@@ -89,7 +92,7 @@ class PDFController extends Controller
         $barangayName = strtoupper(optional($cra->progress->first()->barangay)->barangay_name ?? 'UNKNOWN BARANGAY');
 
         $fileName = "{$barangayName} CRA {$cra->year}.pdf";
-        // dd($cra["familyAtRiskData"]);
+        dd($cra["familyAtRiskData"]);
 
         return $pdf->download($fileName);
     }
