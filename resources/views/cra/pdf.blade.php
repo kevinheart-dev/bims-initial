@@ -69,28 +69,43 @@
         </tbody>
     </table>
     <p class="section-title">1. Population based on Gender/Sex</p>
-    <table>
-        <thead>
+    <table style="width:100%; border-collapse:collapse; font-size:10px;" border="1">
+        <thead style="background-color:#f3f3f3;">
             <tr>
-                <th>GENDER/SEX</th>
-                <th>TOTAL NUMBER</th>
+                <th style="border:1px solid #000; padding:4px;">GENDER/SEX</th>
+                <th style="border:1px solid #000; padding:4px;">TOTAL NUMBER</th>
             </tr>
         </thead>
         <tbody>
+            @php
+                $female = (int) ($populationGender['female']->quantity ?? 0);
+                $male = (int) ($populationGender['male']->quantity ?? 0);
+                $lgbtq = (int) ($populationGender['lgbtq']->quantity ?? 0);
+
+                $totalGender = $female + $male + $lgbtq;
+            @endphp
+
             <tr>
-                <td>Female</td>
-                <td>{{ $populationGender['female']->quantity ?? '0' }}</td>
+                <td style="border:1px solid #000; padding:4px;">Female</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">{{ $female }}</td>
             </tr>
             <tr>
-                <td>Male</td>
-                <td>{{ $populationGender['male']->quantity ?? '0' }}</td>
+                <td style="border:1px solid #000; padding:4px;">Male</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">{{ $male }}</td>
             </tr>
             <tr>
-                <td>Members of the LGBTQ+ Sector</td>
-                <td>{{ $populationGender['lgbtq']->quantity ?? '0' }}</td>
+                <td style="border:1px solid #000; padding:4px;">Members of the LGBTQ+ Sector</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">{{ $lgbtq }}</td>
+            </tr>
+
+            {{-- Total row --}}
+            <tr style="font-weight:bold; background-color:#f9f9f9;">
+                <td style="border:1px solid #000; padding:4px; text-align:right;">TOTAL</td>
+                <td style="border:1px solid #000; padding:4px; text-align:center;">{{ $totalGender }}</td>
             </tr>
         </tbody>
     </table>
+
 
     <p class="section-title">2. Population by Age Group</p>
     @include('cra.partials.age_group_table', ['ageGroups' => $cra->populationAgeGroups])

@@ -49,7 +49,6 @@ class PDFController extends Controller
             'assessmentMatrix'    => fn($q) => $q->where('barangay_id', $barangayId),
             'populationExposure'  => fn($q) => $q->where('barangay_id', $barangayId),
             'disabilityStatistic' => fn($q) => $q->where('barangay_id', $barangayId),
-            'familyatRisk'        => fn($q) => $q->where('barangay_id', $barangayId),
             'illnessesStat'       => fn($q) => $q->where('barangay_id', $barangayId),
             'riskPopulation'      => fn($q) => $q->where('barangay_id', $barangayId),
             'disasterInventory'   => fn($q) => $q->where('barangay_id', $barangayId),
@@ -90,7 +89,7 @@ class PDFController extends Controller
         $barangayName = strtoupper(optional($cra->progress->first()->barangay)->barangay_name ?? 'UNKNOWN BARANGAY');
 
         $fileName = "{$barangayName} CRA {$cra->year}.pdf";
-        // dd($cra->familyatRisk->toArray());
+        // dd($cra["familyAtRiskData"]);
 
         return $pdf->download($fileName);
     }
