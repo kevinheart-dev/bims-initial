@@ -1,10 +1,11 @@
 @if ($humanResources && count($humanResources) > 0)
     <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 15px; page-break-inside: auto;">
-        <thead style="background-color: #f3f3f3; display: table-row-group;">
+        <thead style="background-color: #f3f3f3; display: table-header-group;">
             <tr>
-                <th rowspan="3" style="border: 1px solid #000; padding: 4px; width: 250px; text-align: center;">HUMAN
-                    RESOURCES</th>
-                <th colspan="6" style="border: 1px solid #000; padding: 4px; text-align: center; ">NUMBER</th>
+                <th rowspan="3" style="border: 1px solid #000; padding: 4px; width: 250px; text-align: center;">
+                    HUMAN RESOURCES
+                </th>
+                <th colspan="6" style="border: 1px solid #000; padding: 4px; text-align: center;">NUMBER</th>
             </tr>
             <tr>
                 <th colspan="2" style="border: 1px solid #000; padding: 4px; text-align: center;">Male</th>
@@ -29,7 +30,7 @@
 
             @foreach ($grouped as $category => $resources)
                 {{-- Category Header --}}
-                <tr style="font-weight: bold; background-color: #f9f9f9;">
+                <tr style="font-weight: bold; background-color: #f9f9f9; page-break-inside: avoid;">
                     <td colspan="7" style="border: 1px solid #000; padding: 4px;">
                         {{ $counter++ }}. {{ $category }}
                     </td>
