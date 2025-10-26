@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, BarChart3 } from "lucide-react";
+import { AlertTriangle, BarChart3, FileSpreadsheet } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router } from "@inertiajs/react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -7,6 +7,7 @@ import TableSection from "@/Components/TableSection";
 import DynamicTable from "@/Components/DynamicTable";
 import NoDataPlaceholder from "@/Components/NoDataPlaceholder";
 import BarangayFilterCard from "@/Components/BarangayFilterCard";
+import { Button } from "@/Components/ui/button";
 
 export default function HazardRiskDashboard({
     hazardRiskData = [],
@@ -85,6 +86,19 @@ export default function HazardRiskDashboard({
         basis: (row) => (
             <span className="text-sm text-gray-600">{row.basis || "—"}</span>
         ),
+    };
+
+    const handleExport = () => {
+        const year =
+            sessionStorage.getItem("cra_year") ||
+            selectedYear ||
+            new Date().getFullYear();
+
+        const baseUrl = window.location.origin;
+        const exportUrl = `${baseUrl}/cdrrmo_admin/cra/top-hazard/pdf?year=${year}`;
+
+        // 🧾 Open the generated PDF in a new tab
+        window.open(exportUrl, "_blank");
     };
 
     // =======================
@@ -245,7 +259,15 @@ export default function HazardRiskDashboard({
                                         ],
                                         tableHeight: "450px",
                                     }}
-                                />
+                                >
+                                    <Button
+                                        onClick={handleExport} // define this function to export your table data
+                                        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-sm transition duration-200"
+                                    >
+                                        <FileSpreadsheet className="w-5 h-5" />
+                                        Export Data
+                                    </Button>
+                                </TableSection>
                             )}
 
                             {barangayTopHazards?.length > 0 && (

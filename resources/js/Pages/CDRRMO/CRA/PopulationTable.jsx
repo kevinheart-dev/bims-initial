@@ -547,16 +547,11 @@ export default function Dashboard({
                                 }}
                             >
                                 <Button
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-red-500 text-white rounded hover:bg-red-600 transition"
                                     onClick={handleExportOverview}
                                 >
                                     <Download className="w-4 h-4" />
-                                    Export General Overview
-                                </Button>
-
-                                <Button className="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded transition">
-                                    <Download className="w-4 h-4" />
-                                    Export Overall Population
+                                    Export Data
                                 </Button>
                             </TableSection>
 

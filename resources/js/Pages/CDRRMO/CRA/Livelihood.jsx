@@ -7,6 +7,7 @@ import {
     Key,
     Tractor,
     BarChart3,
+    FileSpreadsheet,
 } from "lucide-react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router } from "@inertiajs/react";
@@ -15,6 +16,7 @@ import TableSection from "@/Components/TableSection";
 import DynamicTable from "@/Components/DynamicTable";
 import BarangayFilterCard from "@/Components/BarangayFilterCard";
 import NoDataPlaceholder from "@/Components/NoDataPlaceholder";
+import { Button } from "@/Components/ui/button";
 
 export default function Dashboard({
     livelihoodStats,
@@ -36,6 +38,19 @@ export default function Dashboard({
             route("cdrrmo_admin.livelihood"),
             barangayId ? { barangay_id: barangayId } : {}
         );
+    };
+
+    const handleExport = () => {
+        const year =
+            sessionStorage.getItem("cra_year") ||
+            selectedYear ||
+            new Date().getFullYear();
+
+        const baseUrl = window.location.origin;
+        const exportUrl = `${baseUrl}/cdrrmo_admin/cra/livelihood-summary/pdf?year=${year}`;
+
+        // 🧾 Open the generated PDF in a new tab
+        window.open(exportUrl, "_blank");
     };
 
     return (
@@ -184,109 +199,122 @@ export default function Dashboard({
                                             showTotal: true,
                                             tableHeight: "400px",
                                         }}
-                                    />
+                                    >
+                                        {" "}
+                                        <Button
+                                            onClick={handleExport}
+                                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-sm transition duration-200"
+                                        >
+                                            <FileSpreadsheet className="w-5 h-5" />
+                                            Export Data
+                                        </Button>
+                                    </TableSection>
                                 )}
-                            {livelihoodStats.map((barangayRow) => {
-                                const allcolBarangay = [
-                                    {
-                                        key: "livelihood_type",
-                                        label: "Livelihood Type",
-                                    },
-                                    {
-                                        key: "male_without_disability",
-                                        label: "Male w/o Disability",
-                                    },
-                                    {
-                                        key: "male_with_disability",
-                                        label: "Male w/ Disability",
-                                    },
-                                    {
-                                        key: "female_without_disability",
-                                        label: "Female w/o Disability",
-                                    },
-                                    {
-                                        key: "female_with_disability",
-                                        label: "Female w/ Disability",
-                                    },
-                                    {
-                                        key: "lgbtq_without_disability",
-                                        label: "LGBTQ w/o Disability",
-                                    },
-                                    {
-                                        key: "lgbtq_with_disability",
-                                        label: "LGBTQ w/ Disability",
-                                    },
-                                    {
-                                        key: "total",
-                                        label: "Total",
-                                    },
-                                ];
+                            {selectedBarangay &&
+                                livelihoodStats.map((barangayRow) => {
+                                    const allcolBarangay = [
+                                        {
+                                            key: "livelihood_type",
+                                            label: "Livelihood Type",
+                                        },
+                                        {
+                                            key: "male_without_disability",
+                                            label: "Male w/o Disability",
+                                        },
+                                        {
+                                            key: "male_with_disability",
+                                            label: "Male w/ Disability",
+                                        },
+                                        {
+                                            key: "female_without_disability",
+                                            label: "Female w/o Disability",
+                                        },
+                                        {
+                                            key: "female_with_disability",
+                                            label: "Female w/ Disability",
+                                        },
+                                        {
+                                            key: "lgbtq_without_disability",
+                                            label: "LGBTQ w/o Disability",
+                                        },
+                                        {
+                                            key: "lgbtq_with_disability",
+                                            label: "LGBTQ w/ Disability",
+                                        },
+                                        {
+                                            key: "total",
+                                            label: "Total",
+                                        },
+                                    ];
 
-                                const colrenderBarangay = {
-                                    livelihood_type: (row) => (
-                                        <span className="font-semibold text-gray-700">
-                                            {row.livelihood_type}
-                                        </span>
-                                    ),
-                                    male_without_disability: (row) => (
-                                        <span className="text-gray-700">
-                                            {row.male_without_disability}
-                                        </span>
-                                    ),
-                                    male_with_disability: (row) => (
-                                        <span className="text-gray-700">
-                                            {row.male_with_disability}
-                                        </span>
-                                    ),
-                                    female_without_disability: (row) => (
-                                        <span className="text-gray-700">
-                                            {row.female_without_disability}
-                                        </span>
-                                    ),
-                                    female_with_disability: (row) => (
-                                        <span className="text-gray-700">
-                                            {row.female_with_disability}
-                                        </span>
-                                    ),
-                                    lgbtq_without_disability: (row) => (
-                                        <span className="text-gray-700">
-                                            {row.lgbtq_without_disability}
-                                        </span>
-                                    ),
-                                    lgbtq_with_disability: (row) => (
-                                        <span className="text-gray-700">
-                                            {row.lgbtq_with_disability}
-                                        </span>
-                                    ),
-                                    total: (row) => (
-                                        <span className="font-semibold text-blue-500">
-                                            {row.total}
-                                        </span>
-                                    ),
-                                };
+                                    const colrenderBarangay = {
+                                        livelihood_type: (row) => (
+                                            <span className="font-semibold text-gray-700">
+                                                {row.livelihood_type}
+                                            </span>
+                                        ),
+                                        male_without_disability: (row) => (
+                                            <span className="text-gray-700">
+                                                {row.male_without_disability}
+                                            </span>
+                                        ),
+                                        male_with_disability: (row) => (
+                                            <span className="text-gray-700">
+                                                {row.male_with_disability}
+                                            </span>
+                                        ),
+                                        female_without_disability: (row) => (
+                                            <span className="text-gray-700">
+                                                {row.female_without_disability}
+                                            </span>
+                                        ),
+                                        female_with_disability: (row) => (
+                                            <span className="text-gray-700">
+                                                {row.female_with_disability}
+                                            </span>
+                                        ),
+                                        lgbtq_without_disability: (row) => (
+                                            <span className="text-gray-700">
+                                                {row.lgbtq_without_disability}
+                                            </span>
+                                        ),
+                                        lgbtq_with_disability: (row) => (
+                                            <span className="text-gray-700">
+                                                {row.lgbtq_with_disability}
+                                            </span>
+                                        ),
+                                        total: (row) => (
+                                            <span className="font-semibold text-blue-500">
+                                                {row.total}
+                                            </span>
+                                        ),
+                                    };
 
-                                return (
-                                    <TableSection
-                                        key={`${barangayRow.barangay_name}-${barangayRow.number}`}
-                                        icon={<Tractor />}
-                                        color="green"
-                                        title={`Livelihoods - ${barangayRow.barangay_name}`}
-                                        description={`Detailed livelihood statistics for ${barangayRow.barangay_name}`}
-                                        tableProps={{
-                                            component: DynamicTable,
-                                            passedData: barangayRow.livelihoods,
-                                            allColumns: allcolBarangay,
-                                            columnRenderers: colrenderBarangay,
-                                            queryParams,
-                                            visibleColumns: allcolBarangay.map(
-                                                (c) => c.key
-                                            ),
-                                            showTotal: true,
-                                            tableHeight: "400px",
-                                        }}
-                                    />
-                                );
-                            })}
+                                    return (
+                                        <TableSection
+                                            key={`${barangayRow.barangay_name}-${barangayRow.number}`}
+                                            icon={<Tractor />}
+                                            color="green"
+                                            title={`Livelihoods - ${barangayRow.barangay_name}`}
+                                            description={`Detailed livelihood statistics for ${barangayRow.barangay_name}`}
+                                            tableProps={{
+                                                component: DynamicTable,
+                                                passedData:
+                                                    barangayRow.livelihoods,
+                                                allColumns: allcolBarangay,
+                                                columnRenderers:
+                                                    colrenderBarangay,
+                                                queryParams,
+                                                visibleColumns:
+                                                    allcolBarangay.map(
+                                                        (c) => c.key
+                                                    ),
+                                                showTotal: true,
+                                                tableHeight: "400px",
+                                            }}
+                                        />
+                                    );
+                                })}
                         </>
                     )}
                 </div>

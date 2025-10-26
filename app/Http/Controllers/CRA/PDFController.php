@@ -69,8 +69,12 @@ class PDFController extends Controller
             ->where('year', $year)
             ->first();
 
+
         if (!$cra) {
             abort(404, 'CRA not found for this barangay and year.');
+        }
+        if ($cra) {
+            $cra->setRelation('familyAtRiskData', collect($cra->getOverallFamilyAtRisk($year)->toArray()));
         }
 
         $populationGender = $cra->populationGender->keyBy(function ($item) {

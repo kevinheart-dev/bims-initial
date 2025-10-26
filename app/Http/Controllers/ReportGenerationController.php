@@ -18,6 +18,7 @@ use App\Exports\VehicleExport;
 use App\Models\Barangay;
 use App\Models\CommunityRiskAssessment;
 use App\Models\CRAGeneralPopulation;
+use App\Models\CRAHumanResource;
 use App\Models\CRAPopulationAgeGroup;
 use App\Models\CRAPopulationGender;
 use App\Models\Resident;
@@ -292,6 +293,254 @@ class ReportGenerationController extends Controller
         ])->setPaper('legal', 'landscape');
 
         return $pdf->stream('Population_Overview_Summary_' . $cra->year . '.pdf');
+    }
+
+    public function exportTopHazardsSummary(Request $request)
+    {
+        $year = $request->input('year') ?? session('cra_year');
+
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+
+        if (!$cra) {
+            return back()->with('error', 'CRA record not found for the selected year.');
+        }
+
+        // Get all barangays
+        $barangays = DB::table('barangays')->orderBy('barangay_name')->get();
+
+        $grouped = [];
+
+        foreach ($barangays as $barangay) {
+            // Get top 10 hazards for this barangay
+            $hazards = DB::table('c_r_a_hazard_risks as r')
+                ->join('c_r_a_hazards as h', 'h.id', '=', 'r.hazard_id')
+                ->where('r.cra_id', $cra->id)
+                ->where('r.barangay_id', $barangay->id)
+                ->select('h.hazard_name')
+                ->orderByDesc('r.average_score')
+                ->limit(10)
+                ->get();
+
+            $hazardList = $hazards->map(function ($h, $index) {
+                return [
+                    'no' => $index + 1,
+                    'rank' => $index + 1,
+                    'hazard_name' => $h->hazard_name,
+                ];
+            });
+
+            $grouped[$barangay->barangay_name] = [
+                'top_hazards' => $hazardList,
+            ];
+        }
+
+        // Generate PDF
+        $pdf = Pdf::loadView('pdf.top_hazard_summary', [
+            'year' => $cra->year,
+            'grouped' => $grouped,
+        ])->setPaper('legal', 'landscape');
+
+        return $pdf->stream('Top_Hazards_Summary_' . $cra->year . '.pdf');
+    }
+
+    public function exportLivelihoodSummary(Request $request)
+    {
+        $year = $request->input('year') ?? session('cra_year');
+
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+        if (!$cra) {
+            return back()->with('error', 'CRA record not found for the selected year.');
+        }
+
+        $barangayId = $request->query('barangay_id');
+
+        // 🟩 BASE QUERY
+        $data = DB::table('c_r_a_livelihood_statistics as ls')
+            ->join('barangays as b', 'b.id', '=', 'ls.barangay_id')
+            ->where('ls.cra_id', $cra->id)
+            ->when($barangayId, fn($q) => $q->where('ls.barangay_id', $barangayId))
+            ->select(
+                'b.id as barangay_id',
+                'b.barangay_name',
+                'ls.livelihood_type',
+                'ls.male_without_disability',
+                'ls.male_with_disability',
+                'ls.female_without_disability',
+                'ls.female_with_disability',
+                'ls.lgbtq_without_disability',
+                'ls.lgbtq_with_disability',
+                DB::raw('(
+                    ls.male_without_disability +
+                    ls.male_with_disability +
+                    ls.female_without_disability +
+                    ls.female_with_disability +
+                    ls.lgbtq_without_disability +
+                    ls.lgbtq_with_disability
+                ) as total')
+            )
+            ->orderByDesc('total')
+            ->get();
+
+        if ($data->isEmpty()) {
+            return back()->with('error', 'No livelihood records found for this year.');
+        }
+
+        // 🟦 Top 5 livelihood types across all barangays
+        $livelihoodTypes = $data
+            ->groupBy('livelihood_type')
+            ->map(fn($group, $type) => [
+                'type' => $type,
+                'total' => $group->sum('total')
+            ])
+            ->sortByDesc('total')
+            ->take(5)
+            ->pluck('type')
+            ->values();
+
+        // 🟧 Build Barangay Rows
+        $barangayRows = $data->groupBy('barangay_id')->map(function ($group) use ($livelihoodTypes) {
+            $barangayName = $group->first()->barangay_name;
+            $barangayTotal = 0;
+
+            $row = ['barangay_name' => $barangayName];
+
+            foreach ($livelihoodTypes as $type) {
+                $entry = $group->firstWhere('livelihood_type', $type);
+                $row[$type] = [
+                    'male_without_disability' => (int) ($entry->male_without_disability ?? 0),
+                    'male_with_disability' => (int) ($entry->male_with_disability ?? 0),
+                    'female_without_disability' => (int) ($entry->female_without_disability ?? 0),
+                    'female_with_disability' => (int) ($entry->female_with_disability ?? 0),
+                    'lgbtq_without_disability' => (int) ($entry->lgbtq_without_disability ?? 0),
+                    'lgbtq_with_disability' => (int) ($entry->lgbtq_with_disability ?? 0),
+                ];
+                $barangayTotal += array_sum($row[$type]);
+            }
+
+            $row['total'] = $barangayTotal;
+
+            return $row;
+        })->values();
+
+        // 🟨 Overall total row
+        $overallRow = ['barangay_name' => 'TOTAL', 'total' => 0];
+        foreach ($livelihoodTypes as $type) {
+            $overallRow[$type] = [
+                'male_without_disability' => $barangayRows->sum(fn($r) => $r[$type]['male_without_disability'] ?? 0),
+                'male_with_disability' => $barangayRows->sum(fn($r) => $r[$type]['male_with_disability'] ?? 0),
+                'female_without_disability' => $barangayRows->sum(fn($r) => $r[$type]['female_without_disability'] ?? 0),
+                'female_with_disability' => $barangayRows->sum(fn($r) => $r[$type]['female_with_disability'] ?? 0),
+                'lgbtq_without_disability' => $barangayRows->sum(fn($r) => $r[$type]['lgbtq_without_disability'] ?? 0),
+                'lgbtq_with_disability' => $barangayRows->sum(fn($r) => $r[$type]['lgbtq_with_disability'] ?? 0),
+            ];
+            $overallRow['total'] += array_sum($overallRow[$type]);
+        }
+        $barangayRows->push($overallRow);
+
+        // 🟩 Generate PDF
+        $pdf = Pdf::loadView('pdf.livelihood_summary', [
+            'year' => $cra->year,
+            'livelihoodTypes' => $livelihoodTypes,
+            'barangayRows' => $barangayRows,
+        ])->setPaper('legal', 'landscape');
+
+        return $pdf->stream("Livelihood_Summary_Top5_{$cra->year}.pdf");
+    }
+
+    public function exportHumanResourcesSummary(Request $request)
+    {
+        $year = $request->input('year') ?? session('cra_year');
+
+        $cra = CommunityRiskAssessment::where('year', $year)->first();
+        if (!$cra) {
+            return back()->with('error', 'CRA record not found for the selected year.');
+        }
+
+        $barangayId = $request->query('barangay_id');
+
+        // 🟩 Base Query
+        $data = CRAHumanResource::query()
+            ->join('barangays', 'c_r_a_human_resources.barangay_id', '=', 'barangays.id')
+            ->where('cra_id', $cra->id)
+            ->when($barangayId, fn($q) => $q->where('c_r_a_human_resources.barangay_id', $barangayId))
+            ->select(
+                'barangays.id as barangay_id',
+                'barangays.barangay_name',
+                'c_r_a_human_resources.resource_name',
+                'c_r_a_human_resources.male_without_disability',
+                'c_r_a_human_resources.male_with_disability',
+                'c_r_a_human_resources.female_without_disability',
+                'c_r_a_human_resources.female_with_disability',
+                'c_r_a_human_resources.lgbtq_without_disability',
+                'c_r_a_human_resources.lgbtq_with_disability',
+                DB::raw('(
+                    male_without_disability + male_with_disability +
+                    female_without_disability + female_with_disability +
+                    lgbtq_without_disability + lgbtq_with_disability
+                ) as total')
+            )
+            ->get();
+
+        if ($data->isEmpty()) {
+            return back()->with('error', 'No human resources data found for this year.');
+        }
+
+        // 🟦 Get Top 5 resource_names across all barangays
+        $topResources = $data->groupBy('resource_name')
+            ->reject(fn($group, $name) => empty($name) || $name === 'Not mentioned above (Specify)')
+            ->map(fn($group, $name) => ['resource_name' => $name, 'total' => $group->sum('total')])
+            ->sortByDesc('total')
+            ->take(5)
+            ->pluck('resource_name')
+            ->values();
+
+        // 🟧 Prepare Barangay rows
+        $barangayRows = $data->groupBy('barangay_id')->map(function ($group) use ($topResources) {
+            $barangayName = $group->first()->barangay_name;
+            $barangayTotal = 0;
+
+            $row = ['barangay_name' => $barangayName];
+
+            foreach ($topResources as $resource) {
+                $entry = $group->firstWhere('resource_name', $resource);
+                $row[$resource] = [
+                    'male_without_disability' => (int) ($entry->male_without_disability ?? 0),
+                    'male_with_disability' => (int) ($entry->male_with_disability ?? 0),
+                    'female_without_disability' => (int) ($entry->female_without_disability ?? 0),
+                    'female_with_disability' => (int) ($entry->female_with_disability ?? 0),
+                    'lgbtq_without_disability' => (int) ($entry->lgbtq_without_disability ?? 0),
+                    'lgbtq_with_disability' => (int) ($entry->lgbtq_with_disability ?? 0),
+                ];
+                $barangayTotal += array_sum($row[$resource]);
+            }
+
+            $row['total'] = $barangayTotal;
+            return $row;
+        })->values();
+
+        // 🟨 Overall total row
+        $overallRow = ['barangay_name' => 'TOTAL', 'total' => 0];
+        foreach ($topResources as $resource) {
+            $overallRow[$resource] = [
+                'male_without_disability' => $barangayRows->sum(fn($r) => $r[$resource]['male_without_disability'] ?? 0),
+                'male_with_disability' => $barangayRows->sum(fn($r) => $r[$resource]['male_with_disability'] ?? 0),
+                'female_without_disability' => $barangayRows->sum(fn($r) => $r[$resource]['female_without_disability'] ?? 0),
+                'female_with_disability' => $barangayRows->sum(fn($r) => $r[$resource]['female_with_disability'] ?? 0),
+                'lgbtq_without_disability' => $barangayRows->sum(fn($r) => $r[$resource]['lgbtq_without_disability'] ?? 0),
+                'lgbtq_with_disability' => $barangayRows->sum(fn($r) => $r[$resource]['lgbtq_with_disability'] ?? 0),
+            ];
+            $overallRow['total'] += array_sum($overallRow[$resource]);
+        }
+        $barangayRows->push($overallRow);
+
+        // 🟩 Generate PDF
+        $pdf = Pdf::loadView('pdf.hr_summary', [
+            'year' => $cra->year,
+            'resources' => $topResources,
+            'barangayRows' => $barangayRows,
+        ])->setPaper('legal', 'landscape');
+
+        return $pdf->stream("HumanResources_Summary_Top5_{$cra->year}.pdf");
     }
 
 }
