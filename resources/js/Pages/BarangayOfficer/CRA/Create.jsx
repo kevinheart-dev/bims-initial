@@ -28,13 +28,13 @@ export default function Index({ progress }) {
             return saved
                 ? JSON.parse(saved)
                 : {
-                    population: [],
-                    livelihood: [],
-                    infrastructure: [],
-                    institutions: [],
-                    hazards: [],
-                    evacuation: [],
-                };
+                      population: [],
+                      livelihood: [],
+                      infrastructure: [],
+                      institutions: [],
+                      hazards: [],
+                      evacuation: [],
+                  };
         } catch (err) {
             console.error("Error loading draft:", err);
             return {
@@ -141,14 +141,9 @@ export default function Index({ progress }) {
         window.open(url, "_blank");
     };
 
-
-
     useEffect(() => {
         if (success) {
-            toast.success(success, {
-                description: "Community Risk Assesment saved.",
-                duration: 3000,
-            });
+            window.location.reload(); // <-- call the function
         }
         props.success = null;
     }, [success]);

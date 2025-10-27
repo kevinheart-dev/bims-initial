@@ -145,6 +145,7 @@ class CRAController extends Controller
     {
         // --- Define section checkers: each returns float between 0 and 1 ---
         // Add or modify checkers to match the exact structure of your incoming data
+        //dd($data['affected_areas']);
         $checkers = [
 
             'barangayPopulation' => function ($d) {
@@ -154,37 +155,30 @@ class CRAController extends Controller
                 $score = $totalKeys > 0 ? $nonEmptyCount / $totalKeys : 0;
                 return ['score' => $score, 'info' => "$nonEmptyCount of $totalKeys fields"];
             },
-
-            // populationGender: expect array with sexes or totals
             'populationGender' => function ($d) {
-                // if it's an array of groups, consider proportion of groups with counts
-                if (empty($d) || !is_array($d)) {
-                    return ['score' => 0.0, 'info' => 'empty'];
-                }
-                // if structure is like ['male' => x, 'female' => y, 'lgbtq' => z] or array of rows
-                if (isset($d['male']) || isset($d['female']) || isset($d['lgbtq'])) {
-                    $expected = ['male', 'female', 'lgbtq'];
-                    $found = 0;
-                    foreach ($expected as $k) {
-                        if (!empty($d[$k])) $found++;
-                    }
-                    return ['score' => $found / count($expected), 'info' => "$found of " . count($expected) . " genders"];
-                }
-                // else if array of rows, count how many rows have totals
-                $rows = collect($d);
-                if ($rows->isEmpty()) return ['score' => 0.0, 'info' => 'no rows'];
-                $valid = $rows->filter(fn($r) => !empty($r['total'] ?? $r['count'] ?? null))->count();
-                return ['score' => $valid / $rows->count(), 'info' => "$valid of {$rows->count()} rows"];
-            },
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
 
-            // population age groups (array of age groups) — proportion of groups filled
+                $rows = collect($d);
+                $valid = $rows->filter(fn($r) => !empty($r['value']) && is_numeric($r['value']) && $r['value'] > 0)->count();
+
+                $score = $rows->count() > 0 ? $valid / $rows->count() : 0.0;
+                return [
+                    'score' => $score,
+                    'info' => "$valid of {$rows->count()} rows have numeric values"
+                ];
+            },
             'population' => function ($d) {
                 if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
                 $rows = collect($d);
-                $valid = $rows->filter(fn($r) => !empty($r['count'] ?? null))->count();
-                return ['score' => $valid / $rows->count(), 'info' => "$valid of {$rows->count()} groups"];
+                $valid = $rows->filter(function ($r) {
+                    foreach ($r as $k => $v) {
+                        if (is_numeric($v) && $v > 0) return true;
+                    }
+                    return false;
+                })->count();
+                $score = $rows->count() > 0 ? $valid / $rows->count() : 0.0;
+                return ['score' => $score, 'info' => "$valid of {$rows->count()} groups have numeric counts"];
             },
-
             // simple presence checks for list-type sections (fully complete if array non-empty)
             'livelihood' => function ($d) {
                 if (empty($d)) return ['score' => 0.0, 'info' => 'empty'];
@@ -192,30 +186,139 @@ class CRAController extends Controller
                 $score = min($count / 5, 1.0); // up to 5 entries = full score
                 return ['score' => $score, 'info' => "$count livelihoods"];
             },
-            'infrastructure' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
-            'houses' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
-            'ownership' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
-            'buildings' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
-            'facilities' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
-            'institutions' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+            'infrastructure' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
 
-            // human_resources is usually an array of rows — compute proportion of resources that have totals
+                $totalRows = 0;
+                $filledRows = 0;
+
+                foreach ($d as $category) {
+                    $rows = $category['rows'] ?? [];
+                    $totalRows += count($rows);
+                    foreach ($rows as $r) {
+                        // count as filled if 'type' exists and 'households' is numeric
+                        if (!empty($r['type'] ?? null) && isset($r['households']) && is_numeric($r['households'])) {
+                            $filledRows++;
+                        }
+                    }
+                }
+
+                $score = $totalRows > 0 ? $filledRows / $totalRows : 0;
+                return ['score' => $score, 'info' => "$filledRows of $totalRows rows filled"];
+            },
+            'houses' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+                $filled = 0;
+                foreach ($d as $h) {
+                    if (!empty($h['houseType'] ?? null)) $filled++;
+                }
+                $score = count($d) > 0 ? $filled / count($d) : 0;
+                return ['score' => $score, 'info' => "$filled of ".count($d)." house types filled"];
+            },
+            'ownership' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+                $nonEmpty = count(array_filter($d, fn($v) => $v !== null && $v !== ''));
+                $score = count($d) > 0 ? $nonEmpty / count($d) : 0;
+                return ['score' => $score, 'info' => "$nonEmpty of ".count($d)." ownership entries filled"];
+            },
+            'buildings' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+                $total = 0; $filled = 0;
+                foreach ($d as $cat) {
+                    $rows = $cat['rows'] ?? [];
+                    $total += count($rows);
+                    foreach ($rows as $r) {
+                        if (!empty($r['type'] ?? null) && isset($r['households'])) $filled++;
+                    }
+                }
+                $score = $total > 0 ? $filled / $total : 0;
+                return ['score' => $score, 'info' => "$filled of $total rows filled"];
+            },
+            'facilities' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+
+                $total = 0;
+                $filled = 0;
+
+                foreach ($d as $cat) {
+                    $rows = $cat['rows'] ?? [];
+                    $total += count($rows);
+
+                    foreach ($rows as $r) {
+                        if (!empty($r['type'] ?? null)) {
+                            // count row as filled if it has a numeric field (quantity or length) defined
+                            $numericFieldExists = false;
+                            foreach (['quantity', 'length'] as $field) {
+                                if (isset($r[$field]) && is_numeric($r[$field])) {
+                                    $numericFieldExists = true;
+                                    break;
+                                }
+                            }
+
+                            if ($numericFieldExists) $filled++;
+                        }
+                    }
+                }
+
+                $score = $total > 0 ? $filled / $total : 0;
+                return ['score' => $score, 'info' => "$filled of $total rows filled"];
+            },
+            'institutions' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+                $filled = 0;
+                foreach ($d as $inst) {
+                    if (!empty($inst['name'] ?? null) && !empty($inst['head'] ?? null)) $filled++;
+                }
+                $score = count($d) > 0 ? $filled / count($d) : 0;
+                return ['score' => $score, 'info' => "$filled of ".count($d)." institutions filled"];
+            },
             'human_resources' => function ($d) {
                 if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
-                $rows = collect($d);
-                $valid = $rows->filter(fn($r) => !empty($r['resource_name'] ?? null))->count();
-                return ['score' => $valid / $rows->count(), 'info' => "$valid of {$rows->count()} resources"];
-            },
 
-            // calamities / disaster history — proportion of entries that have at least date OR impact details
+                $total = 0;
+                $filled = 0;
+
+                foreach ($d as $category) {
+                    $rows = $category['rows'] ?? [];
+                    $total += count($rows);
+
+                    foreach ($rows as $r) {
+                        if (!empty($r['type'] ?? null)) {
+                            // consider row filled if any of the numeric fields exist
+                            $numericFields = ['male_no_dis', 'male_dis', 'female_no_dis', 'female_dis', 'lgbtq_no_dis', 'lgbtq_dis'];
+                            $hasValue = false;
+
+                            foreach ($numericFields as $field) {
+                                if (isset($r[$field]) && is_numeric($r[$field])) {
+                                    $hasValue = true;
+                                    break;
+                                }
+                            }
+
+                            if ($hasValue) $filled++;
+                        }
+                    }
+                }
+
+                $score = $total > 0 ? ($filled / $total) * 100 : 0;
+                return ['score' => $score, 'info' => "$filled of $total resources filled"];
+            },
             'calamities' => function ($d) {
                 if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
-                $rows = collect($d);
-                $valid = $rows->filter(fn($r) => !empty($r['date'] ?? null) || !empty($r['impact'] ?? null))->count();
-                return ['score' => $valid / $rows->count(), 'info' => "$valid of {$rows->count()} records"];
-            },
 
-            // hazards: count how many hazards exist and if risk numbers exist for each
+                $total = count($d);
+                $filled = 0;
+
+                foreach ($d as $record) {
+                    // Consider a record filled if it has a disaster name and year
+                    if (!empty($record['disaster_name']) && !empty($record['year'])) {
+                        $filled++;
+                    }
+                }
+
+                $score = $total > 0 ? ($filled / $total) * 100 : 0;
+                return ['score' => $score, 'info' => "$filled of $total records filled"];
+            },
             'hazards' => function ($d) {
                 if (empty($d)) return ['score' => 0.0, 'info' => 'empty'];
                 $rows = collect($d);
@@ -226,37 +329,219 @@ class CRAController extends Controller
                 )->count();
                 return ['score' => $rows->isEmpty() ? 0.0 : $valid / $rows->count(), 'info' => "$valid of {$rows->count()} hazards"];
             },
+            'exposure' => function ($d) {
+                if (empty($d) || !is_array($d)) {
+                    return ['score' => 0.0, 'info' => 'empty'];
+                }
 
-            'exposure' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
-            'pwd' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+                $riskEntries = collect($d);
+                $filledCounts = $riskEntries->map(function ($risk) {
+                    $puroks = collect($risk['purokData'] ?? []);
+                    if ($puroks->isEmpty()) return 0.0;
 
-            // disaster_per_purok: expect array of disasters with rows per purok
+                    $validPuroks = $puroks->filter(function ($p) {
+                        // sum all numeric fields except 'purok' itself
+                        $total = 0;
+                        foreach ($p as $k => $v) {
+                            if ($k !== 'purok' && is_numeric($v)) {
+                                $total += 1; // just check presence
+                            }
+                        }
+                        return $total > 0;
+                    })->count();
+
+                    return $validPuroks / max(1, $puroks->count());
+                });
+
+                $score = $filledCounts->avg() ?? 0.0;
+
+                return ['score' => $score, 'info' => $score === 1.0 ? 'all puroks filled' : 'partial'];
+            },
+            'pwd' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+
+                $total = 0;
+                $filled = 0;
+
+                foreach ($d as $row) {
+                    foreach ($row as $key => $value) {
+                        // skip the 'type' field
+                        if ($key === 'type') continue;
+                        $total++;
+                        // treat null as 0, so any field counts as filled
+                        $filled++;
+                    }
+                }
+
+                $score = $total > 0 ? ($filled / $total) * 100 : 0;
+                return ['score' => $score, 'info' => "$filled of $total fields filled"];
+            },
             'disaster_per_purok' => function ($d) {
                 if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
-                $disasters = collect($d);
-                $scores = $disasters->map(function ($dis) {
-                    $rows = collect($dis['rows'] ?? []);
-                    if ($rows->isEmpty()) return 0.0;
-                    $valid = $rows->filter(fn($r) => !empty($r['lowFamilies'] ?? null || $r['lowIndividuals'] ?? null || $r['highFamilies'] ?? null))->count();
-                    return $valid / $rows->count();
-                });
-                return ['score' => $scores->avg() ?? 0.0, 'info' => "{$disasters->count()} disasters averaged"];
+
+                $scores = [];
+                foreach ($d as $disaster) {
+                    $total = 0;
+                    $filled = 0;
+                    foreach ($disaster['rows'] ?? [] as $row) {
+                        foreach (['lowFamilies','lowIndividuals','mediumFamilies','mediumIndividuals','highFamilies','highIndividuals'] as $key) {
+                            $total++;
+                            // consider null as 0 (so it counts as filled)
+                            $filled++;
+                        }
+                    }
+                    $scores[] = $total > 0 ? ($filled / $total) * 100 : 0;
+                }
+
+                // average across all disasters
+                $avgScore = count($scores) > 0 ? array_sum($scores) / count($scores) : 0;
+                return ['score' => $avgScore, 'info' => count($scores) . ' disasters averaged'];
             },
+            'illnesses' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
 
-            'illnesses' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+                $totalCells = 0;
+                $filledCells = 0;
 
+                foreach ($d as $row) {
+                    foreach ($row as $key => $value) {
+                        if ($key === 'illness') continue; // skip the illness name
+                        $totalCells++;
+                        // consider null as 0 (so every numeric field counts as filled)
+                        $filledCells++;
+                    }
+                }
+
+                $score = $totalCells > 0 ? ($filledCells / $totalCells) * 100 : 0;
+                return ['score' => $score, 'info' => "$filledCells of $totalCells fields filled"];
+            },
             'evacuation_list' => function ($d) {
                 if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+
                 $rows = collect($d);
-                $valid = $rows->filter(fn($r) => !empty($r['name'] ?? null) && !empty($r['capacity'] ?? null))->count();
-                return ['score' => $rows->isEmpty() ? 0.0 : $valid / $rows->count(), 'info' => "$valid of {$rows->count()} centers have name+capacity"];
+                $valid = $rows->filter(fn($r) =>
+                    !empty($r['name'] ?? null) &&
+                    (!empty($r['families'] ?? null) || !empty($r['individuals'] ?? null))
+                )->count();
+
+                $score = $rows->isEmpty() ? 0.0 : ($valid / $rows->count()) * 100;
+                return [
+                    'score' => $score,
+                    'info' => "$valid of {$rows->count()} centers have name + families/individuals filled"
+                ];
+            },
+            'evacuation_center_inventory' => function ($data) {
+                if (empty($data) || !is_array($data)) {
+                    return ['score' => 0.0, 'info' => 'empty', 'weighted_score' => 0.0];
+                }
+
+                $totalCells = 0;
+                $filledCells = 0;
+
+                foreach ($data as $row) {
+                    foreach ($row as $key => $value) {
+                        if ($key === 'remarks') continue; // skip remarks
+                        $totalCells++;
+
+                        // Treat null, empty string, or "0" as empty
+                        if ($value !== null && $value !== '' && $value !== '0') {
+                            $filledCells++;
+                        }
+                    }
+                }
+
+                $score = $totalCells > 0 ? ($filledCells / $totalCells) * 100 : 0;
+
+                return [
+                    'score' => $score,
+                    'weighted_score' => $score,
+                    'info' => "$filledCells of $totalCells fields filled"
+                ];
+            },
+            'affected_areas' => function ($data) {
+                if (empty($data) || !is_array($data)) {
+                    return ['score' => 0.0, 'info' => 'empty', 'weighted_score' => 0.0];
+                }
+
+                $totalFields = 0;
+                $filledFields = 0;
+
+                foreach ($data as $disaster) {
+                    $rows = $disaster['rows'] ?? [];
+                    foreach ($rows as $row) {
+                        foreach ($row as $key => $value) {
+                            if ($key === 'purok' || $key === 'riskLevel' || $key === 'safeEvacuationArea') {
+                                continue; // optionally skip these metadata fields
+                            }
+                            $totalFields++;
+                            if (!empty($value) && $value !== '0') {
+                                $filledFields++;
+                            }
+                        }
+                    }
+                }
+
+                $score = $totalFields > 0 ? ($filledFields / $totalFields) * 100 : 0;
+
+                return [
+                    'score' => $score,
+                    'weighted_score' => $score,
+                    'info' => "$filledFields of $totalFields fields filled"
+                ];
             },
 
-            'evacuation_center_inventory' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
-            'affected_areas' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
-            'livelihood_evacuation' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
-            'food_inventory' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
-            'relief_goods' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+            'livelihood_evacuation' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+
+                $totalCells = 0;
+                $filledCells = 0;
+
+                foreach ($d as $row) {
+                    foreach ($row as $key => $value) {
+                        if ($key === 'type') continue;
+                        $totalCells++;
+                        if (!empty($value)) $filledCells++;
+                    }
+                }
+
+                $score = $totalCells > 0 ? $filledCells / $totalCells : 0;
+                return ['score' => $score, 'info' => "$filledCells of $totalCells fields filled"];
+            },
+            'food_inventory' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+
+                $totalCells = 0;
+                $filledCells = 0;
+
+                foreach ($d as $row) {
+                    foreach ($row as $key => $value) {
+                        if ($key === 'item') continue; // skip item name
+                        $totalCells++;
+                        if ($value !== null && $value !== '') $filledCells++; // count 0 as filled
+                    }
+                }
+
+                $score = $totalCells > 0 ? $filledCells / $totalCells : 0;
+                return ['score' => $score, 'info' => "$filledCells of $totalCells fields filled"];
+            },
+
+            'relief_goods' => function ($d) {
+                if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
+
+                $totalCells = 0;
+                $filledCells = 0;
+
+                foreach ($d as $row) {
+                    foreach ($row as $key => $value) {
+                        if (in_array($key, ['evacuationCenter', 'address'])) continue;
+                        $totalCells++;
+                        if (!empty($value)) $filledCells++;
+                    }
+                }
+
+                $score = $totalCells > 0 ? $filledCells / $totalCells : 0;
+                return ['score' => $score, 'info' => "$filledCells of $totalCells fields filled"];
+            },
 
             'distribution_process' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
             'trainings_inventory' => function ($d) {
@@ -272,7 +557,25 @@ class CRAController extends Controller
                 return ['score' => $rows->isEmpty() ? 0.0 : $valid / $rows->count(), 'info' => "$valid of {$rows->count()} directory entries"];
             },
             'equipment_inventory' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
-            'evacuation_plan' => fn($d) => ['score' => (!empty($d) ? 1.0 : 0.0), 'info' => (!empty($d) ? 'filled' : 'empty')],
+            'evacuation_plan' => function ($d) {
+                if (empty($d) || !is_array($d)) {
+                    return ['score' => 0.0, 'info' => 'empty'];
+                }
+
+                $rows = collect($d);
+                $valid = $rows->filter(fn($r) =>
+                    !empty($r['task'] ?? null) &&
+                    !empty($r['responsible'] ?? null) &&
+                    !empty($r['remarks'] ?? null)
+                )->count();
+
+                $score = $rows->isEmpty() ? 0.0 : $valid / $rows->count();
+
+                return [
+                    'score' => $score,
+                    'info' => "$valid of {$rows->count()} tasks filled"
+                ];
+            },
         ];
 
         // --- Default sections to evaluate (order matches your earlier list) ---
@@ -327,7 +630,7 @@ class CRAController extends Controller
         // --- final percentage (weighted) ---
         $percentage = $totalWeight > 0 ? ($filledWeight / $totalWeight) * 100 : 0.0;
         $percentage = round($percentage, 2);
-
+        //dd($detailList);
         return [
             'percentage' => $percentage,
             'details' => $detailList,
@@ -341,7 +644,7 @@ class CRAController extends Controller
         DB::beginTransaction();
         try {
             $brgy_id = auth()->user()->barangay_id;
-            $data    = $request->all();
+            $data    = $request->validated();
             //dd($data);
             $year = $data['year'] ?? session('cra_year');
             $cra = CommunityRiskAssessment::where('year', $year)->first();
@@ -1013,7 +1316,6 @@ class CRAController extends Controller
             }
         }
     }
-
     private function saveHazards($brgy_id, $data, $cra) {
         // --- Hazard + Risk + Vulnerability + Disasters ---
 
@@ -1432,7 +1734,6 @@ class CRAController extends Controller
                     'updated_at' => now(),
                 ];
             }
-
             // 3. Batch insert/update
             CRAAffectedPlaces::upsert(
                 $affectedRecords,
