@@ -1,24 +1,36 @@
 @if ($humanResources && count($humanResources) > 0)
     <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 15px; page-break-inside: auto;">
-        <thead style="background-color: #f3f3f3; display: table-header-group;">
+        <thead style="background-color: #f3f3f3;">
+            {{-- First row: Main header --}}
             <tr>
-                <th rowspan="3" style="border: 1px solid #000; padding: 4px; width: 250px; text-align: center;">
-                    HUMAN RESOURCES
-                </th>
+                <th rowspan="3"
+                    style="border: 1px solid #000; padding: 4px; width: 250px; text-align: center; vertical-align: middle;">
+                    HUMAN RESOURCES</th>
                 <th colspan="6" style="border: 1px solid #000; padding: 4px; text-align: center;">NUMBER</th>
             </tr>
+            {{-- Second row: Gender headers --}}
             <tr>
                 <th colspan="2" style="border: 1px solid #000; padding: 4px; text-align: center;">Male</th>
                 <th colspan="2" style="border: 1px solid #000; padding: 4px; text-align: center;">Female</th>
                 <th colspan="2" style="border: 1px solid #000; padding: 4px; text-align: center;">LGBTQ+</th>
             </tr>
+            {{-- Third row: Disability status headers (ensure even width distribution) --}}
             <tr>
-                <th style="border: 1px solid #000; padding: 4px;">Without Disability</th>
-                <th style="border: 1px solid #000; padding: 4px;">With Disability</th>
-                <th style="border: 1px solid #000; padding: 4px;">Without Disability</th>
-                <th style="border: 1px solid #000; padding: 4px;">With Disability</th>
-                <th style="border: 1px solid #000; padding: 4px;">Without Disability</th>
-                <th style="border: 1px solid #000; padding: 4px;">With Disability</th>
+                {{-- Male --}}
+                <th style="border: 1px solid #000; padding: 4px; text-align: center; width: calc((100% - 250px) / 6);">
+                    Without Disability</th>
+                <th style="border: 1px solid #000; padding: 4px; text-align: center; width: calc((100% - 250px) / 6);">
+                    With Disability</th>
+                {{-- Female --}}
+                <th style="border: 1px solid #000; padding: 4px; text-align: center; width: calc((100% - 250px) / 6);">
+                    Without Disability</th>
+                <th style="border: 1px solid #000; padding: 4px; text-align: center; width: calc((100% - 250px) / 6);">
+                    With Disability</th>
+                {{-- LGBTQ+ --}}
+                <th style="border: 1px solid #000; padding: 4px; text-align: center; width: calc((100% - 250px) / 6);">
+                    Without Disability</th>
+                <th style="border: 1px solid #000; padding: 4px; text-align: center; width: calc((100% - 250px) / 6);">
+                    With Disability</th>
             </tr>
         </thead>
 

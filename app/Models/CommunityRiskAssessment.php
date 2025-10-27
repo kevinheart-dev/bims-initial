@@ -153,6 +153,7 @@ class CommunityRiskAssessment extends Model
             ->select(
                 'b.id as barangay_id',
                 'b.barangay_name',
+                'f.purok_number',
                 'f.indicator',
                 DB::raw('SUM(f.count) as total_count')
             )
@@ -164,20 +165,25 @@ class CommunityRiskAssessment extends Model
         }
 
         $results = $query
-            ->groupBy('b.id', 'b.barangay_name', 'f.indicator')
+            ->groupBy('b.id', 'b.barangay_name', 'f.purok_number', 'f.indicator')
             ->orderBy('b.barangay_name')
-            ->orderByDesc('total_count')
+            ->orderBy('f.purok_number')
             ->get();
 
-        // 🔹 Format grouped data
+        // 🔹 Group data: Barangay → Purok → Indicators
         $grouped = $results->groupBy('barangay_name')->map(function ($rows, $barangayName) {
             return [
                 'barangay_name' => $barangayName,
-                'indicators' => $rows->values()->map(function ($row, $index) {
+                'puroks' => $rows->groupBy('purok_number')->map(function ($purokRows, $purokNumber) {
                     return [
-                        'no' => $index + 1,
-                        'indicator' => $row->indicator,
-                        'total_count' => (int) $row->total_count,
+                        'purok_number' => $purokNumber,
+                        'indicators' => $purokRows->values()->map(function ($row, $index) {
+                            return [
+                                'no' => $index + 1,
+                                'indicator' => $row->indicator,
+                                'total_count' => (int) $row->total_count,
+                            ];
+                        }),
                     ];
                 }),
             ];
@@ -185,6 +191,7 @@ class CommunityRiskAssessment extends Model
 
         return $grouped;
     }
+
 
     public function illnessesStat()
     {
