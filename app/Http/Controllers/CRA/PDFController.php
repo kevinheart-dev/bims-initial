@@ -92,7 +92,7 @@ class PDFController extends Controller
         $barangayName = strtoupper(optional($cra->progress->first()->barangay)->barangay_name ?? 'UNKNOWN BARANGAY');
 
         $fileName = "{$barangayName} CRA {$cra->year}.pdf";
-        dd($cra["populationImpact"]);
+        // dd($cra["disasterOccurance"]);
 
         return $pdf->download($fileName);
     }

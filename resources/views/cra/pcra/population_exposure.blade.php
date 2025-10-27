@@ -1,6 +1,5 @@
 @if (isset($populationExposure) && $populationExposure->isNotEmpty())
     @php
-        // Group data by hazard
         $hazardGroups = $populationExposure->groupBy('hazard_id');
     @endphp
 
