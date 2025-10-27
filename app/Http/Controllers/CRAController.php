@@ -1152,13 +1152,12 @@ class CRAController extends Controller
         );
 
         $upsertData = [];
-
         foreach ($exposure['purokData'] as $row) {
             $upsertData[] = [
                 'hazard_id'        => $hazard->id,
                 'barangay_id'      => $brgy_id,
                 'cra_id' => $cra->id,
-                'purok_number'     => $row['purok'] || null,
+                'purok_number'     => $row['purok'],
 
                 // Families & totals
                 'total_families'   => $row['families'] ?? 0,

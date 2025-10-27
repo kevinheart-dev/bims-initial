@@ -1217,7 +1217,6 @@ class CRADataController extends Controller
     public function damageproperty(Request $request)
     {
         $year = $request->input('year') ?? session('cra_year');
-
         $cra = CommunityRiskAssessment::where('year', $year)->first();
 
         if (!$cra) {
@@ -1239,36 +1238,41 @@ class CRADataController extends Controller
             ->orderBy('barangay_name')
             ->get();
 
-        // === CASE 1: Overall Summary (no barangay selected) ===
+        // Helper function for numeric-safe summation
+        $numericValue = function ($value) {
+            if (!$value) return 0;
+
+            // Match all integers or decimals globally
+            if (preg_match_all('/\d+(?:\.\d+)?/', $value, $matches)) {
+                return array_sum(array_map('floatval', $matches[0]));
+            }
+
+            return 0;
+        };
+        // === CASE 1: Overall Summary ===
         $overallDamagePropertyData = [];
         if (!$barangayId) {
-            // Aggregate at SQL level to improve speed
-            $aggregated = DB::table('c_r_a_disaster_damages as d')
+            $records = DB::table('c_r_a_disaster_damages as d')
                 ->join('c_r_a_disaster_occurances as o', 'o.id', '=', 'd.disaster_id')
-                ->select(
-                    'o.disaster_name',
-                    'd.damage_type',
-                    'd.category',
-                    DB::raw('SUM(CAST(d.value AS DECIMAL(20,2))) as total_value'),
-                    DB::raw('GROUP_CONCAT(DISTINCT d.source SEPARATOR ", ") as sources')
-                )
+                ->select('o.disaster_name', 'd.damage_type', 'd.category', 'd.value', 'd.source')
                 ->where('d.cra_id', $cra->id)
-                ->groupBy('o.disaster_name', 'd.damage_type', 'd.category')
                 ->orderBy('o.disaster_name')
                 ->get();
 
-            // Group by disaster and format data
-            $overallDamagePropertyData = collect($aggregated)
+            $overallDamagePropertyData = $records
                 ->groupBy('disaster_name')
-                ->map(function ($group, $disasterName) {
-                    $damages = $group->map(fn($r) => [
-                        'damage_type' => $r->damage_type,
-                        'category' => $r->category,
-                        'value' => (float)$r->total_value,
-                        'source' => $r->sources,
-                    ])->values();
+                ->map(function ($group, $disasterName) use ($numericValue) {
+                    $damages = $group->map(function ($r) {
+                        return [
+                            'damage_type' => $r->damage_type,
+                            'category' => $r->category,
+                            'value' => $r->value,
+                            'source' => $r->source,
+                        ];
+                    });
 
-                    $total = $damages->sum('value');
+                    $total = $group->sum(fn($r) => $numericValue($r->value));
+
                     $damages->push([
                         'damage_type' => 'Total Damage Value',
                         'category' => null,
@@ -1278,13 +1282,13 @@ class CRADataController extends Controller
 
                     return [
                         'disaster_name' => $disasterName,
-                        'damages' => $damages,
+                        'damages' => $damages->values(),
                     ];
                 })
                 ->values();
         }
 
-        // === CASE 2: Specific Barangay View ===
+        // === CASE 2: Specific Barangay ===
         $damagePropertyData = [];
         if ($barangayId) {
             $records = CRADisasterDamage::with([
@@ -1296,21 +1300,24 @@ class CRADataController extends Controller
             ->get(['id', 'cra_id', 'disaster_id', 'barangay_id', 'damage_type', 'category', 'description', 'value', 'source']);
 
             $damagePropertyData = $records->groupBy(fn($r) => $r->barangay->barangay_name)
-                ->map(function ($group, $barangayName) {
+                ->map(function ($group, $barangayName) use ($numericValue) {
                     $disasters = $group->groupBy(fn($r) => $r->disaster->disaster_name)
-                        ->map(function ($rows, $disasterName) {
-                            $damages = $rows->map(fn($r) => [
-                                'damage_type' => $r->damage_type,
-                                'category' => $r->category,
-                                'description' => $r->description,
-                                'value' => (float)$r->value,
-                                'source' => $r->source,
-                                'disaster_id' => $r->disaster_id,
-                                'disaster_name' => $r->disaster->disaster_name,
-                                'year' => $r->disaster->year,
-                            ])->values();
+                        ->map(function ($rows, $disasterName) use ($numericValue) {
+                            $damages = $rows->map(function ($r) {
+                                return [
+                                    'damage_type' => $r->damage_type,
+                                    'category' => $r->category,
+                                    'description' => $r->description,
+                                    'value' => $r->value,
+                                    'source' => $r->source,
+                                    'disaster_id' => $r->disaster_id,
+                                    'disaster_name' => $r->disaster->disaster_name,
+                                    'year' => $r->disaster->year,
+                                ];
+                            });
 
-                            $total = $damages->sum('value');
+                            $total = $rows->sum(fn($r) => $numericValue($r->value));
+
                             $damages->push([
                                 'damage_type' => 'Total Damage Value',
                                 'category' => null,
@@ -1324,15 +1331,18 @@ class CRADataController extends Controller
 
                             return [
                                 'disaster_name' => $disasterName,
-                                'damages' => $damages,
+                                'damages' => $damages->values(),
                             ];
-                        })->values();
+                        })
+                        ->values();
+
+                    $total = $group->sum(fn($r) => $numericValue($r->value));
 
                     return [
                         'number' => null,
                         'barangay_name' => $barangayName,
                         'disasters' => $disasters,
-                        'total' => $group->sum('value'),
+                        'total' => $total,
                     ];
                 })
                 ->sortByDesc('total')
@@ -1347,6 +1357,7 @@ class CRADataController extends Controller
             'selectedBarangay' => $barangayId,
         ]);
     }
+
 
     public function damageagri(Request $request)
     {

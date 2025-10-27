@@ -39,8 +39,19 @@ export default function DamageToProperty({
     };
 
     const toNumber = (v) => {
-        const n = Number(v);
-        return Number.isFinite(n) ? n : 0;
+        if (!v) return 0;
+
+        // Convert to string
+        const str = String(v);
+
+        // Replace all non-digit/dot characters with spaces (this will handle ; , () etc.)
+        const cleanStr = str.replace(/[^0-9.]+/g, " ");
+
+        // Match all numbers (integers or decimals)
+        const matches = cleanStr.match(/\d+(\.\d+)?/g);
+
+        // Sum them
+        return matches ? matches.reduce((sum, n) => sum + parseFloat(n), 0) : 0;
     };
 
     const allColumns = [
@@ -63,19 +74,26 @@ export default function DamageToProperty({
         description: (row) => (
             <span className="text-gray-700">{row.description || "—"}</span>
         ),
-        value: (row) => (
-            <span className="text-red-600 font-semibold">
-                {nf.format(toNumber(row.value))}
-            </span>
-        ),
+        value: (row) => {
+            const numericValue = toNumber(row.value);
+            const hasNumbers = numericValue > 0;
+
+            return (
+                <span
+                    className={`font-semibold ${
+                        hasNumbers ? "text-red-600" : "text-gray-700 italic"
+                    }`}
+                >
+                    {row.value || "—"}
+                </span>
+            );
+        },
         source: (row) => (
             <span className="text-gray-700">{row.source || "—"}</span>
         ),
     };
 
     const renderTable = (title, data, isBarangay = false) => {
-        const totalValue = data.reduce((sum, r) => sum + toNumber(r.value), 0);
-
         // Exclude "description" column for overall view
         const visibleColumns = isBarangay
             ? allColumns.map((c) => c.key) // show all for barangay
@@ -89,7 +107,7 @@ export default function DamageToProperty({
                 icon={isBarangay ? <Wrench /> : <Building2 />}
                 color="red"
                 title={title}
-                description={`Total damage value: ${nf.format(totalValue)}`}
+                description="Breakdown of property damages by category" // static text
                 tableProps={{
                     component: DynamicTable,
                     passedData: data,
@@ -115,7 +133,6 @@ export default function DamageToProperty({
                         handleBarangayChange={handleBarangayChange}
                         barangays={barangays}
                     />
-
                     {!isBarangayView ? (
                         isOverallDataNull ? (
                             <div className="w-full px-2 sm:px-4 lg:px-6">

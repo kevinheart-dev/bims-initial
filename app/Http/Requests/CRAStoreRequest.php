@@ -211,7 +211,7 @@ class CRAStoreRequest extends FormRequest
             'disaster_inventory.*.categories.*.rows.*.item'    => ['nullable', 'string'],
 
             // ✅ totals come as string but numeric → allow both
-            'disaster_inventory.*.categories.*.rows.*.total'   => ['nullable', 'numeric', 'min:0'],
+            'disaster_inventory.*.categories.*.rows.*.total'   => ['nullable', 'string'],
 
             // ✅ percents include "%" → treat as string
             'disaster_inventory.*.categories.*.rows.*.percent' => ['nullable', 'string'],
