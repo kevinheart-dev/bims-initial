@@ -163,13 +163,9 @@ export default function Index({ progress }) {
         window.open(url, "_blank");
     };
 
-    // ✅ Notifications
     useEffect(() => {
         if (success) {
-            toast.success(success, {
-                description: "Community Risk Assessment saved.",
-                duration: 3000,
-            });
+            window.location.reload(); // <-- call the function
         }
         props.success = null;
     }, [success]);
