@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { StepperContext } from "@/context/StepperContext";
+import { toTitleCase } from '@/utils/stringFormat';
 
 const ROW_TEMPLATE = {
     riskLevel: "",
@@ -52,6 +53,15 @@ const DisasterTable = ({ disaster, updateDisaster, removeDisaster }) => {
         { families: 0, individuals: 0, atRiskFamilies: 0, atRiskIndividuals: 0 }
     );
 
+    // ✅ Define placeholders
+    const placeholders = {
+        totalFamilies: "Enter # of families",
+        totalIndividuals: "Enter # of individuals",
+        atRiskFamilies: "Enter # of at-risk families",
+        atRiskIndividuals: "Enter # of at-risk individuals",
+        safeEvacuationArea: "Enter safe evacuation area",
+    };
+
     return (
         <div className="mb-8">
             {/* Disaster Name */}
@@ -61,15 +71,14 @@ const DisasterTable = ({ disaster, updateDisaster, removeDisaster }) => {
                     value={disaster.name}
                     onChange={(e) => updateDisaster({ ...disaster, name: e.target.value })}
                     className="text-md font-bold bg-transparent border-none focus:outline-none w-full"
-                    placeholder="Enter new Disater"
+                    placeholder="Enter new Disaster"
                 />
                 <button
                     onClick={removeDisaster}
-                    className="w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 hover:text-white transition-colors duration-200"
+                    className="w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors duration-200"
                 >
                     ✕
                 </button>
-
             </div>
 
             <div className="overflow-x-auto">
@@ -78,12 +87,8 @@ const DisasterTable = ({ disaster, updateDisaster, removeDisaster }) => {
                         <tr className="bg-gray-100">
                             <th className="border px-2 py-1 w-32">Risk Level</th>
                             <th className="border px-2 py-1">Purok</th>
-                            <th colSpan="2" className="border px-2 py-1 text-center">
-                                Total Population
-                            </th>
-                            <th colSpan="2" className="border px-2 py-1 text-center">
-                                At-Risk Population
-                            </th>
+                            <th colSpan="2" className="border px-2 py-1 text-center">Total Population</th>
+                            <th colSpan="2" className="border px-2 py-1 text-center">At-Risk Population</th>
                             <th className="border px-2 py-1">Safe Evacuation Area</th>
                             <th className="border px-2 py-1 text-center"></th>
                         </tr>
@@ -124,6 +129,7 @@ const DisasterTable = ({ disaster, updateDisaster, removeDisaster }) => {
                                         type="number"
                                         value={row.totalFamilies}
                                         onChange={(e) => updateCell(rIdx, "totalFamilies", e.target.value)}
+                                        placeholder={placeholders.totalFamilies} // ✅
                                         className="border w-full px-2 py-1 text-xs text-center"
                                     />
                                 </td>
@@ -133,9 +139,8 @@ const DisasterTable = ({ disaster, updateDisaster, removeDisaster }) => {
                                     <input
                                         type="number"
                                         value={row.totalIndividuals}
-                                        onChange={(e) =>
-                                            updateCell(rIdx, "totalIndividuals", e.target.value)
-                                        }
+                                        onChange={(e) => updateCell(rIdx, "totalIndividuals", e.target.value)}
+                                        placeholder={placeholders.totalIndividuals} // ✅
                                         className="border w-full px-2 py-1 text-xs text-center"
                                     />
                                 </td>
@@ -145,9 +150,8 @@ const DisasterTable = ({ disaster, updateDisaster, removeDisaster }) => {
                                     <input
                                         type="number"
                                         value={row.atRiskFamilies}
-                                        onChange={(e) =>
-                                            updateCell(rIdx, "atRiskFamilies", e.target.value)
-                                        }
+                                        onChange={(e) => updateCell(rIdx, "atRiskFamilies", e.target.value)}
+                                        placeholder={placeholders.atRiskFamilies} // ✅
                                         className="border w-full px-2 py-1 text-xs text-center"
                                     />
                                 </td>
@@ -157,9 +161,8 @@ const DisasterTable = ({ disaster, updateDisaster, removeDisaster }) => {
                                     <input
                                         type="number"
                                         value={row.atRiskIndividuals}
-                                        onChange={(e) =>
-                                            updateCell(rIdx, "atRiskIndividuals", e.target.value)
-                                        }
+                                        onChange={(e) => updateCell(rIdx, "atRiskIndividuals", e.target.value)}
+                                        placeholder={placeholders.atRiskIndividuals} // ✅
                                         className="border w-full px-2 py-1 text-xs text-center"
                                     />
                                 </td>
@@ -170,13 +173,14 @@ const DisasterTable = ({ disaster, updateDisaster, removeDisaster }) => {
                                         type="text"
                                         value={row.safeEvacuationArea}
                                         onChange={(e) =>
-                                            updateCell(rIdx, "safeEvacuationArea", e.target.value)
+                                            updateCell(rIdx, "safeEvacuationArea", toTitleCase(e.target.value))
                                         }
+                                        placeholder={placeholders.safeEvacuationArea} // ✅
                                         className="border w-full px-2 py-1 text-xs text-center"
                                     />
                                 </td>
 
-                                {/* Remove button */}
+                                {/* Remove Button */}
                                 <td className="px-2 py-1 text-center !border-0">
                                     <button
                                         className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 text-gray-300 hover:bg-gray-200"
@@ -188,20 +192,14 @@ const DisasterTable = ({ disaster, updateDisaster, removeDisaster }) => {
                             </tr>
                         ))}
 
-                        {/* Totals */}
+                        {/* Totals Row */}
                         <tr className="bg-gray-50 font-semibold">
                             <td className="border px-2 py-1 text-center">Total</td>
                             <td className="border px-2 py-1 text-center"></td>
                             <td className="border px-2 py-1 text-center">{totals.families}</td>
-                            <td className="border px-2 py-1 text-center">
-                                {totals.individuals}
-                            </td>
-                            <td className="border px-2 py-1 text-center">
-                                {totals.atRiskFamilies}
-                            </td>
-                            <td className="border px-2 py-1 text-center">
-                                {totals.atRiskIndividuals}
-                            </td>
+                            <td className="border px-2 py-1 text-center">{totals.individuals}</td>
+                            <td className="border px-2 py-1 text-center">{totals.atRiskFamilies}</td>
+                            <td className="border px-2 py-1 text-center">{totals.atRiskIndividuals}</td>
                             <td className="border px-2 py-1 text-center"></td>
                             <td className="border px-2 py-1 text-center"></td>
                         </tr>
@@ -215,10 +213,10 @@ const DisasterTable = ({ disaster, updateDisaster, removeDisaster }) => {
             >
                 <span className="text-sm font-bold">+</span> Add Row
             </button>
-
         </div>
     );
 };
+
 
 const AffectedAreas = () => {
     const { craData, setCraData } = useContext(StepperContext);

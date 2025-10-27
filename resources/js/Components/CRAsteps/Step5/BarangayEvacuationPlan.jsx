@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import toast from "react-hot-toast";
+import { toUpperCase } from "@/utils/stringFormat";
 
 const ROW_TEMPLATE = { task: "", responsible: "", remarks: "" };
 
@@ -72,35 +73,50 @@ const BarangayEvacuationPlan = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {rows.map((row, idx) => (
-                            <tr key={idx}>
-                                <td className="border px-2 py-1">{idx + 1}</td>
+                        {rows.map((row, idx) => {
+                            // Define placeholders for each column
+                            const placeholders = {
+                                task: "Enter task or activity",
+                                responsible: "Enter responsible person",
+                                remarks: "Enter remarks or notes",
+                            };
 
-                                {["task", "responsible", "remarks"].map((field, fIdx) => (
-                                    <td key={field} className="border px-2 py-1">
-                                        <textarea
-                                            ref={(el) => (textareaRefs.current[idx * 3 + fIdx] = el)}
-                                            rows={1}
-                                            value={row[field]}
-                                            onChange={(e) => {
-                                                updateCell(idx, field, e.target.value);
-                                                autoResize(e);
-                                            }}
-                                            className="border w-full px-2 py-1 text-left resize-none overflow-hidden"
-                                        />
+                            return (
+                                <tr key={idx}>
+                                    <td className="border px-2 py-1">{idx + 1}</td>
+
+                                    {["task", "responsible", "remarks"].map((field, fIdx) => (
+                                        <td key={field} className="border px-2 py-1">
+                                            <textarea
+                                                ref={(el) => (textareaRefs.current[idx * 3 + fIdx] = el)}
+                                                rows={1}
+                                                value={row[field]}
+                                                onChange={(e) => {
+                                                    let value = e.target.value;
+                                                    if (field === "responsible") {
+                                                        value = value.toUpperCase(); // Convert responsible to uppercase
+                                                    }
+                                                    updateCell(idx, field, value); // Save transformed value
+                                                    autoResize(e);
+                                                }}
+                                                placeholder={placeholders[field]} // ✅ Placeholder added here
+                                                className="border w-full px-2 py-1 text-left resize-none overflow-hidden"
+                                            />
+                                        </td>
+                                    ))}
+
+                                    <td className="px-2 py-1 text-center !border-0">
+                                        <button
+                                            onClick={() => removeRow(idx)}
+                                            className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 text-gray-300 hover:bg-gray-200"
+                                        >
+                                            ✕
+                                        </button>
                                     </td>
-                                ))}
+                                </tr>
+                            );
+                        })}
 
-                                <td className="px-2 py-1 text-center !border-0">
-                                    <button
-                                        onClick={() => removeRow(idx)}
-                                        className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 text-gray-300 hover:bg-gray-200"
-                                    >
-                                        ✕
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
                     </tbody>
                 </table>
             </div>

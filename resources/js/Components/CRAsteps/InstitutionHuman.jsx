@@ -2,6 +2,7 @@ import { useContext, useEffect } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import toast from "react-hot-toast";
 import Accordion from "../Accordion";
+import { toTitleCase } from '@/utils/stringFormat';
 
 const createRow = (type) => ({
     type,
@@ -73,7 +74,7 @@ function HumanResourcesTable({ category, catIdx, updateCategoryName, updateRow, 
                     type="text"
                     className="w-[300px] p-1 text-lg font-semibold border rounded m-2"
                     value={category.category}
-                    onChange={(e) => updateCategoryName(catIdx, e.target.value)}
+                    onChange={(e) => updateCategoryName(catIdx, toTitleCase(e.target.value))}
                     placeholder="Enter category name"
                 />
                 <button

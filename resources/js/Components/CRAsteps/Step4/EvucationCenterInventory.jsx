@@ -24,12 +24,14 @@ const EvacuationCenterInventory = () => {
 
     useEffect(() => {
         if (!craData.evacuation_center_inventory) {
+            // Generate 7 default rows
+            const defaultRows = Array.from({ length: 7 }, () => ({ ...ROW_TEMPLATE }));
             setCraData({
                 ...craData,
-                evacuation_center_inventory: [{ ...ROW_TEMPLATE }],
+                evacuation_center_inventory: defaultRows,
             });
         }
-    }, []);
+    }, []); // Run only once on mount
 
     const rows = craData.evacuation_center_inventory || [];
 
@@ -71,7 +73,6 @@ const EvacuationCenterInventory = () => {
 
     return (
         <div className="mb-8">
-
             <div className="overflow-x-auto">
                 <table className="border border-collapse w-full text-xs text-center">
                     <thead>
@@ -104,7 +105,6 @@ const EvacuationCenterInventory = () => {
                         {rows.map((row, idx) => (
                             <tr key={idx}>
                                 <td className="border px-2 py-1">{idx + 1}</td>
-
                                 {[
                                     "totalFamilies",
                                     "totalIndividuals",
@@ -133,7 +133,6 @@ const EvacuationCenterInventory = () => {
                                         />
                                     </td>
                                 ))}
-
                                 <td className="px-2 py-1 text-center !border-0">
                                     <button
                                         onClick={() => removeRow(idx)}
@@ -154,7 +153,6 @@ const EvacuationCenterInventory = () => {
             >
                 <span className="text-sm font-bold">+</span> Add Row
             </button>
-
         </div>
     );
 };

@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useCallback } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import toast from "react-hot-toast";
+import { toTitleCase } from '@/utils/stringFormat';
 
 const ITEM_TEMPLATE = {
     item: "",
@@ -169,14 +170,30 @@ const Inventory = () => {
                     {/* Hazard Header */}
                     <div className="flex justify-between items-center mb-4">
                         <input
+                            list={`hazardList-${hIdx}`}
                             type="text"
-                            value={hazard.hazard}
+                            value={hazard.hazard || ""}
                             onChange={(e) =>
-                                updateHazard(hIdx, () => ({ hazard: e.target.value }))
+                                updateHazard(hIdx, () => ({ hazard: toTitleCase(e.target.value) }))
                             }
                             className="text-lg font-semibold text-purple-700 bg-transparent border-b border-purple-300 focus:outline-none px-1"
                             placeholder="Enter Hazard"
                         />
+                        <datalist id={`hazardList-${hIdx}`}>
+                            {[
+                                "Typhoon",
+                                "Flood",
+                                "Rain-induced Landslide",
+                                "Fire",
+                                "Drought",
+                                "Earthquake",
+                                "Vehicular Incident",
+                                "Pandemic / Emerging and Re-emerging Diseases"
+                            ].map((hazard, i) => (
+                                <option key={i} value={hazard} />
+                            ))}
+                        </datalist>
+
                         <div>
                             <button
                                 onClick={() => removeHazard(hIdx)}
@@ -199,7 +216,7 @@ const Inventory = () => {
                                     type="text"
                                     value={category.type}
                                     onChange={(e) =>
-                                        updateCategory(hIdx, cIdx, () => ({ type: e.target.value }))
+                                        updateCategory(hIdx, cIdx, () => ({ type: toTitleCase(e.target.value) }))
                                     }
                                     className="font-medium text-gray-700 bg-transparent border-b border-gray-300 focus:outline-none px-1"
                                     placeholder="Enter Category"
@@ -235,7 +252,7 @@ const Inventory = () => {
                                                         type="text"
                                                         value={row.item}
                                                         onChange={(e) =>
-                                                            updateCell(hIdx, cIdx, rIdx, "item", e.target.value)
+                                                            updateCell(hIdx, cIdx, rIdx, "item", toTitleCase(e.target.value))
                                                         }
                                                         className="border w-full px-2 py-1 text-xs text-center rounded"
                                                         placeholder="Enter Item"

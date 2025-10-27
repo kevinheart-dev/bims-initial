@@ -6,6 +6,7 @@ import { Plus, Minus } from "lucide-react";
 import PwdTable from "./PwdTable";
 import DisasterPerPurok from "./DisasterPerPurok";
 import IllinessesTable from "./IllinessesTable";
+import { toTitleCase } from '@/utils/stringFormat';
 
 // Helper function
 const createEmptyPurokRow = (purokNum = "") => {
@@ -94,12 +95,27 @@ function ExposureTable({
                     Kind of Risk:
                 </label>
                 <input
+                    list={`hazardOptions-${tableId}`}
                     type="text"
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm"
                     value={riskType}
-                    onChange={(e) => updateRiskType(tableId, e.target.value)}
-                    placeholder="e.g., TYPHOON, FLOOD, EARTHQUAKE"
+                    onChange={(e) => updateRiskType(tableId, toTitleCase(e.target.value))}
+                    placeholder="Select or type hazard"
                 />
+                <datalist id={`hazardOptions-${tableId}`}>
+                    {[
+                        "Typhoon",
+                        "Flood",
+                        "Rain-induced Landslide",
+                        "Fire",
+                        "Drought",
+                        "Earthquake",
+                        "Vehicular Incident",
+                        "Pandemic / Emerging and Re-emerging Diseases"
+                    ].map((hazard, i) => (
+                        <option key={i} value={hazard} />
+                    ))}
+                </datalist>
             </div>
 
             <h3 className="text-sm font-semibold mb-2 text-gray-800">

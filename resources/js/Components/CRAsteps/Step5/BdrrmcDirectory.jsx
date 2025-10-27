@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import toast from "react-hot-toast";
+import { toSentenceCase, toUpperCase } from "@/utils/stringFormat";
 
 const DEFAULT_DESIGNATIONS = [
     "BDRRMC Chairman",
@@ -109,10 +110,11 @@ const BdrrmcDirectory = () => {
                                         rows={1}
                                         value={row.designation}
                                         onChange={(e) => {
-                                            updateCell(idx, "designation", e.target.value);
+                                            updateCell(idx, "designation", toSentenceCase(e.target.value));
                                             autoResize(e);
                                         }}
                                         className="border w-full px-2 py-1 text-left resize-none overflow-hidden"
+                                        placeholder="Enter Designation/team"
                                     />
                                 </td>
 
@@ -123,10 +125,11 @@ const BdrrmcDirectory = () => {
                                         rows={1}
                                         value={row.name}
                                         onChange={(e) => {
-                                            updateCell(idx, "name", e.target.value);
+                                            updateCell(idx, "name", toUpperCase(e.target.value));
                                             autoResize(e);
                                         }}
                                         className="border w-full px-2 py-1 text-center resize-none overflow-hidden"
+                                        placeholder="Enter Name"
                                     />
                                 </td>
 
@@ -141,6 +144,7 @@ const BdrrmcDirectory = () => {
                                             autoResize(e);
                                         }}
                                         className="border w-full px-2 py-1 text-center resize-none overflow-hidden"
+                                        placeholder="Enter contact number"
                                     />
                                 </td>
 

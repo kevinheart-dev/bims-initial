@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import toast from "react-hot-toast";
 import { Check, X } from "lucide-react";
+import { toTitleCase } from '@/utils/stringFormat';
 
 const TRAINING_TITLES = [
     "Training on RA 10121 (Philippine Disaster Risk Reduction and Management Act)",
@@ -122,77 +123,92 @@ const TrainingsInventory = () => {
 
                     </thead>
                     <tbody>
-                        {rows.map((row, idx) => (
-                            <tr key={idx}>
-                                {/* Title */}
-                                <td className="border px-2 py-1">
-                                    <textarea
-                                        ref={(el) => (textareaRefs.current[idx * 6 + 0] = el)}
-                                        rows={1}
-                                        value={row.title}
-                                        onChange={(e) => {
-                                            updateCell(idx, "title", e.target.value);
-                                            autoResize(e);
-                                        }}
-                                        className="border w-full px-2 py-1 text-md text-left resize-none overflow-hidden"
-                                    />
-                                </td>
+                        {rows.map((row, idx) => {
+                            // Define placeholders for each textarea
+                            const placeholders = {
+                                title: "Enter title or activity",
+                                duration: "Enter duration",
+                                agency: "Enter agency name",
+                                dates: "Enter date(s)",
+                                participants: "Enter number of participants",
+                                names: "Enter participant names",
+                            };
 
-                                {/* Applies Column */}
-                                <td className="border px-2 py-1 w-[80px]">
-                                    <div className="flex justify-center gap-1">
-                                        <button
-                                            onClick={() => updateCell(idx, "applies", "yes")}
-                                            className={`p-1 rounded-full ${row.applies === "yes"
-                                                ? "bg-green-500 text-white"
-                                                : "bg-gray-200 text-gray-500"
-                                                }`}
-                                        >
-                                            <Check size={14} />
-                                        </button>
-                                        <button
-                                            onClick={() => updateCell(idx, "applies", "no")}
-                                            className={`p-1 rounded-full ${row.applies === "no"
-                                                ? "bg-red-500 text-white"
-                                                : "bg-gray-200 text-gray-500"
-                                                }`}
-                                        >
-                                            <X size={14} />
-                                        </button>
-                                    </div>
-                                </td>
+                            return (
+                                <tr key={idx}>
+                                    {/* Title */}
+                                    <td className="border px-2 py-1">
+                                        <textarea
+                                            ref={(el) => (textareaRefs.current[idx * 6 + 0] = el)}
+                                            rows={1}
+                                            value={row.title}
+                                            onChange={(e) => {
+                                                updateCell(idx, "title", e.target.value);
+                                                autoResize(e);
+                                            }}
+                                            placeholder={placeholders.title} // ✅ placeholder added
+                                            className="border w-full px-2 py-1 text-md text-left resize-none overflow-hidden"
+                                        />
+                                    </td>
 
-                                {/* Other Columns */}
-                                {["duration", "agency", "dates", "participants", "names"].map(
-                                    (field, fIdx) => (
+                                    {/* Applies Column */}
+                                    <td className="border px-2 py-1 w-[80px]">
+                                        <div className="flex justify-center gap-1">
+                                            <button
+                                                onClick={() => updateCell(idx, "applies", "yes")}
+                                                className={`p-1 rounded-full ${row.applies === "yes"
+                                                        ? "bg-green-500 text-white"
+                                                        : "bg-gray-200 text-gray-500"
+                                                    }`}
+                                            >
+                                                <Check size={14} />
+                                            </button>
+                                            <button
+                                                onClick={() => updateCell(idx, "applies", "no")}
+                                                className={`p-1 rounded-full ${row.applies === "no"
+                                                        ? "bg-red-500 text-white"
+                                                        : "bg-gray-200 text-gray-500"
+                                                    }`}
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    </td>
+
+                                    {/* Other Columns */}
+                                    {["duration", "agency", "dates", "participants", "names"].map((field, fIdx) => (
                                         <td key={field} className="border px-2 py-1">
                                             <textarea
-                                                ref={(el) =>
-                                                    (textareaRefs.current[idx * 6 + (fIdx + 1)] = el)
-                                                }
+                                                ref={(el) => (textareaRefs.current[idx * 6 + (fIdx + 1)] = el)}
                                                 rows={1}
                                                 value={row[field]}
                                                 onChange={(e) => {
-                                                    updateCell(idx, field, e.target.value);
+                                                    let value = e.target.value;
+                                                    if (field === "dates" || field === "names") {
+                                                        value = toTitleCase(value);
+                                                    }
+                                                    updateCell(idx, field, value);
                                                     autoResize(e);
                                                 }}
+                                                placeholder={placeholders[field]} // ✅ dynamic placeholder
                                                 className="border w-full px-2 py-1 text-md text-center resize-none overflow-hidden"
                                             />
                                         </td>
-                                    )
-                                )}
+                                    ))}
 
-                                {/* Remove Button */}
-                                <td className="px-2 py-1 text-center !border-0">
-                                    <button
-                                        onClick={() => removeRow(idx)}
-                                        className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 text-gray-300 hover:bg-gray-200"
-                                    >
-                                        ✕
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                                    {/* Remove Button */}
+                                    <td className="px-2 py-1 text-center !border-0">
+                                        <button
+                                            onClick={() => removeRow(idx)}
+                                            className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 text-gray-300 hover:bg-gray-200"
+                                        >
+                                            ✕
+                                        </button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+
                     </tbody>
                 </table>
             </div>
