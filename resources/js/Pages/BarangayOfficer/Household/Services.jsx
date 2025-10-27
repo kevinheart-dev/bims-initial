@@ -429,6 +429,12 @@ export default function Service({
                                         setShowFilters((prev) => !prev)
                                     }
                                 />
+                                <ExportButton
+                                    url="report/export-householdoverview-pdf"
+                                    queryParams={queryParams}
+                                    label="Export Households Services as PDF"
+                                    type="pdf"
+                                />
                             </div>
 
                             <div className="flex items-center gap-2 flex-wrap justify-end">

@@ -284,10 +284,22 @@ export default function Index({ households, puroks, streets, queryParams }) {
                                     label="Export Households as XLSX"
                                 />
                                 <ExportButton
+                                    url="report/export-household-pdf"
+                                    queryParams={queryParams}
+                                    label="Export Households as PDF"
+                                    type="pdf"
+                                />
+                                <ExportButton
                                     url="report/export-householdmembers-excel"
                                     queryParams={queryParams}
                                     icon={<FileUser />}
                                     label="Export Household Members as XLSX"
+                                />
+                                <ExportButton
+                                    url="report/export-householdmembers-pdf"
+                                    queryParams={queryParams}
+                                    label="Export Households as PDF"
+                                    type="pdf"
                                 />
                             </div>
 

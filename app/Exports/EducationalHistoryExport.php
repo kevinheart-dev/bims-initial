@@ -30,13 +30,27 @@ class EducationalHistoryExport implements FromCollection, WithHeadings, ShouldAu
     {
         $brgy_id = auth()->user()->barangay_id;
 
+        // ✅ Base query
         $query = EducationalHistory::with([
-            'resident:id,firstname,lastname,middlename,suffix,purok_number,barangay_id'
-        ])->whereHas('resident', function ($q) use ($brgy_id) {
-            $q->where('barangay_id', $brgy_id);
-        });
+            'resident:id,firstname,lastname,middlename,suffix,purok_number,barangay_id,is_deceased'
+        ])
+            ->select(
+                'id',
+                'resident_id',
+                'school_name',
+                'school_type',
+                'educational_attainment',
+                'education_status',
+                'year_started',
+                'year_ended',
+                'program'
+            )
+            ->whereHas('resident', function ($q) use ($brgy_id) {
+                $q->where('barangay_id', $brgy_id)
+                ->where('is_deceased', false);
+            });
 
-        // Filters
+        // ✅ Latest education only
         if (request()->filled('latest_education') && request('latest_education') === '1') {
             $query = EducationalHistory::select('educational_histories.*')
                 ->join(DB::raw('(
@@ -45,12 +59,18 @@ class EducationalHistoryExport implements FromCollection, WithHeadings, ShouldAu
                     GROUP BY resident_id
                 ) AS latest'), function ($join) {
                     $join->on('educational_histories.resident_id', '=', 'latest.resident_id')
-                         ->on('educational_histories.year_ended', '=', 'latest.max_year');
+                        ->on('educational_histories.year_ended', '=', 'latest.max_year');
                 })
-                ->with(['resident:id,firstname,lastname,middlename,suffix,purok_number,barangay_id'])
-                ->whereHas('resident', fn($q) => $q->where('barangay_id', auth()->user()->barangay_id));
+                ->with([
+                    'resident:id,firstname,lastname,middlename,suffix,purok_number,barangay_id,is_deceased'
+                ])
+                ->whereHas('resident', function ($q) use ($brgy_id) {
+                    $q->where('barangay_id', $brgy_id)
+                    ->where('is_deceased', false);
+                });
         }
 
+        // ✅ Search by name or school/program
         if (request()->filled('name')) {
             $search = request('name');
             $query->where(function ($q) use ($search) {
@@ -65,20 +85,26 @@ class EducationalHistoryExport implements FromCollection, WithHeadings, ShouldAu
             });
         }
 
-        // Additional filters
-        foreach (['purok', 'educational_attainment', 'educational_status', 'school_type', 'year_started', 'year_ended'] as $field) {
+        // ✅ Dynamic filters
+        $filters = [
+            'purok' => fn($q, $v) => $q->whereHas('resident', fn($r) => $r->where('purok_number', $v)),
+            'educational_attainment' => fn($q, $v) => $q->where('educational_attainment', $v),
+            'education_status' => fn($q, $v) => $q->where('education_status', $v),
+            'school_type' => fn($q, $v) => $q->where('school_type', $v),
+            'year_started' => fn($q, $v) => $q->where('year_started', $v),
+            'year_ended' => fn($q, $v) => $q->where('year_ended', $v),
+        ];
+
+        foreach ($filters as $field => $apply) {
             if (request()->filled($field) && request($field) !== 'All') {
-                if ($field === 'purok') {
-                    $query->whereHas('resident', fn($q) => $q->where('purok_number', request($field)));
-                } else {
-                    $query->where($field, request($field));
-                }
+                $apply($query, request($field));
             }
         }
 
+        // ✅ Fetch data
         $educations = $query->get();
 
-        // Map for export
+        // ✅ Map for export
         $exportData = $educations->map(function ($education) {
             $resident = $education->resident;
             $fullName = trim("{$resident->firstname} {$resident->middlename} {$resident->lastname} {$resident->suffix}");
@@ -99,7 +125,6 @@ class EducationalHistoryExport implements FromCollection, WithHeadings, ShouldAu
         $this->totalRecords = $exportData->count();
         return $exportData;
     }
-
     public function headings(): array
     {
         return [

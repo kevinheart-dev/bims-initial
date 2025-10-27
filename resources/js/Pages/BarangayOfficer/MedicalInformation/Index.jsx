@@ -325,6 +325,12 @@ export default function Index({ medical_information, puroks, queryParams }) {
                                         queryParams={queryParams}
                                         label="Export Summon Records as XLSX"
                                     />
+                                    <ExportButton
+                                        url="report/export-medical-pdf"
+                                        queryParams={queryParams}
+                                        label="Export Education Histories as PDF"
+                                        type="pdf"
+                                    />
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap justify-end">
                                     <form

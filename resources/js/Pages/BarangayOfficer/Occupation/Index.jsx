@@ -155,8 +155,9 @@ export default function Index({
         name: (row) => {
             const { firstname, middlename, lastname, suffix } =
                 row.resident ?? {};
-            const fullName = `${firstname ?? ""} ${middlename ?? ""} ${lastname ?? ""
-                } ${suffix ?? ""}`.trim();
+            const fullName = `${firstname ?? ""} ${middlename ?? ""} ${
+                lastname ?? ""
+            } ${suffix ?? ""}`.trim();
             return fullName || "—";
         },
 
@@ -182,12 +183,12 @@ export default function Index({
                 value === "active"
                     ? "bg-green-100 text-green-800"
                     : value === "inactive"
-                        ? "bg-red-100 text-red-800"
-                        : value === "retired"
-                            ? "bg-gray-100 text-gray-700"
-                            : value === "ended"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-gray-100 text-gray-700";
+                    ? "bg-red-100 text-red-800"
+                    : value === "retired"
+                    ? "bg-gray-100 text-gray-700"
+                    : value === "ended"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : "bg-gray-100 text-gray-700";
 
             return (
                 <span
@@ -211,20 +212,22 @@ export default function Index({
 
         is_ofw: (row) => (
             <span
-                className={`px-2 py-0.5 rounded-md text-xs font-medium ${row.is_ofw
-                    ? "bg-green-100 text-green-800"
-                    : "bg-gray-100 text-gray-700"
-                    }`}
+                className={`px-2 py-0.5 rounded-md text-xs font-medium ${
+                    row.is_ofw
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-700"
+                }`}
             >
                 {row.is_ofw ? "Yes" : "No"}
             </span>
         ),
         is_main: (row) => (
             <span
-                className={`px-2 py-0.5 rounded-md text-xs font-medium ${row.is_main_livelihood
-                    ? "bg-green-100 text-green-800"
-                    : "bg-gray-100 text-gray-700"
-                    }`}
+                className={`px-2 py-0.5 rounded-md text-xs font-medium ${
+                    row.is_main_livelihood
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-700"
+                }`}
             >
                 {row.is_main_livelihood ? "Yes" : "No"}
             </span>
@@ -275,8 +278,9 @@ export default function Index({
 
     // list of residents for dropdown
     const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
-            }`,
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
+            res.suffix ?? ""
+        }`,
         value: res.id.toString(),
     }));
 
@@ -333,8 +337,9 @@ export default function Index({
             setOccupation(occupation);
             setData({
                 resident_id: occupation.resident.id,
-                resident_name: `${occupation.resident.firstname} ${occupation.resident.middlename ?? ""
-                    } ${occupation.resident.lastname}`,
+                resident_name: `${occupation.resident.firstname} ${
+                    occupation.resident.middlename ?? ""
+                } ${occupation.resident.lastname}`,
                 resident_image: occupation.resident.image ?? null,
                 birthdate: occupation.resident.birthdate ?? null,
                 purok_number: occupation.resident.purok_number ?? null,
@@ -445,10 +450,16 @@ export default function Index({
                                         Occupation Records
                                     </h1>
                                     <p className="text-sm text-gray-500">
-                                        Manage and track resident occupations, including employment type, work
-                                        arrangement, and status. Use the tools below to
-                                        <span className="font-medium"> search, filter, and export</span> records
-                                        for reporting and labor insights.
+                                        Manage and track resident occupations,
+                                        including employment type, work
+                                        arrangement, and status. Use the tools
+                                        below to
+                                        <span className="font-medium">
+                                            {" "}
+                                            search, filter, and export
+                                        </span>{" "}
+                                        records for reporting and labor
+                                        insights.
                                     </p>
                                 </div>
                             </div>
@@ -468,6 +479,12 @@ export default function Index({
                                     url="report/export-occupations-excel"
                                     queryParams={queryParams}
                                     label="Export Resident Occupations as XLSX"
+                                />
+                                <ExportButton
+                                    url="report/export-occupations-pdf"
+                                    queryParams={queryParams}
+                                    label="Export Education Histories as PDF"
+                                    type="pdf"
                                 />
                             </div>
                             <div className="flex items-center gap-2 flex-wrap justify-end">
@@ -554,8 +571,8 @@ export default function Index({
                     modalState === "add" && occupationDetails
                         ? "Edit Occupation"
                         : modalState === "add"
-                            ? "Add Occupation"
-                            : "View Resident"
+                        ? "Add Occupation"
+                        : "View Resident"
                 }
             >
                 {modalState === "add" && (
@@ -740,7 +757,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.occupation`
+                                                            `occupations.${occIndex}.occupation`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -787,7 +804,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.employment_type`
+                                                            `occupations.${occIndex}.employment_type`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -838,7 +855,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.occupation_status`
+                                                            `occupations.${occIndex}.occupation_status`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -877,7 +894,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.work_arrangement`
+                                                            `occupations.${occIndex}.work_arrangement`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -904,7 +921,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.employer`
+                                                            `occupations.${occIndex}.employer`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -929,7 +946,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.started_at`
+                                                            `occupations.${occIndex}.started_at`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -958,7 +975,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.ended_at`
+                                                            `occupations.${occIndex}.ended_at`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -984,7 +1001,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.income`
+                                                            `occupations.${occIndex}.income`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -1031,7 +1048,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.income_frequency`
+                                                            `occupations.${occIndex}.income_frequency`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -1065,7 +1082,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.is_ofw`
+                                                            `occupations.${occIndex}.is_ofw`
                                                         ]
                                                     }
                                                     className="mt-2"
@@ -1100,7 +1117,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `occupations.${occIndex}.is_main_livelihood`
+                                                            `occupations.${occIndex}.is_main_livelihood`
                                                         ]
                                                     }
                                                     className="mt-2"

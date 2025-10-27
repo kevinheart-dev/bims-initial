@@ -89,6 +89,8 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
     Route::post('certificate/store', [CertificateController::class, 'storeFromPost'])->name('certificate.store');
     Route::get('certificate/export-certificates-excel', [ReportGenerationController::class, 'exportCertificates'])
         ->name('certificate.export');
+    Route::get('certificate/export-certificates-pdf', [ReportGenerationController::class, 'exportCertificatesPdf'])
+        ->name('certificate.export.pdf');
     Route::post('/certificate/issue/{id}', [CertificateController::class, 'issue'])
         ->name('certificate.issue');
 
@@ -170,6 +172,34 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
         ->name('report.summon');
     Route::get('report/export-medical-excel', [ReportGenerationController::class, 'exportMedical'])
         ->name('report.medical');
+
+    // reports 2.0
+    Route::get('report/export-resident-pdf', [ReportGenerationController::class, 'exportResidentInfoPdf'])
+        ->name('report.resident.pdf');
+    Route::get('report/export-seniorcitizen-pdf', [ReportGenerationController::class, 'exportSeniorCitizensPdf'])
+        ->name('report.seniorcitizen.pdf');
+    Route::get('report/export-family-pdf', [ReportGenerationController::class, 'exportFamilyPdf'])
+        ->name('report.family.pdf');
+    Route::get('report/export-familymembers-pdf', [ReportGenerationController::class, 'exportFamilyMembersPdf'])
+        ->name('report.familymembers.pdf');
+    Route::get('report/export-household-pdf', [ReportGenerationController::class, 'exportHouseholdPdf'])
+        ->name('report.household.pdf');
+    Route::get('report/export-householdmembers-pdf', [ReportGenerationController::class, 'exportHouseholdMembersPdf'])
+        ->name('report.householdmembers.pdf');
+    Route::get('report/export-householdoverview-pdf', [ReportGenerationController::class, 'exportHouseholdOverviewPDF'])
+        ->name('report.householdoverview.pdf');
+    Route::get('report/export-vehicle-pdf', [ReportGenerationController::class, 'exportVehicleInfoPdf'])
+        ->name('report.vehicle.pdf');
+    Route::get('report/export-education-pdf', [ReportGenerationController::class, 'exportEducationalHistoryPdf'])
+        ->name('report.education.pdf');
+    Route::get('report/export-occupations-pdf', [ReportGenerationController::class, 'exportOccupationPdf'])
+        ->name('report.occupations.pdf');
+    Route::get('report/export-medical-pdf', [ReportGenerationController::class, 'exportMedicalInformationPdf'])
+        ->name('report.medical.pdf');
+    Route::get('report/export-blotter-reports-pdf', [ReportGenerationController::class, 'exportBlotterReportsPdf'])
+        ->name('report.blotter.pdf');
+    Route::get('report/export-summon-pdf', [ReportGenerationController::class, 'exportSummonsPdf'])
+        ->name('report.summon.pdf');
 
     // pregnancy
     Route::get('pregnancy/details/{id}', [PregnancyRecordController::class, 'pregnancyDetails'])->name('pregnancy.details');

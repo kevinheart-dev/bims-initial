@@ -24,6 +24,8 @@ import {
     School,
     RotateCcw,
     FileUser,
+    Sheet,
+    FileText,
 } from "lucide-react";
 import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
@@ -499,16 +501,28 @@ export default function Index({ families, queryParams = null, puroks }) {
                                         setShowFilters((prev) => !prev)
                                     }
                                 />
+
                                 <ExportButton
                                     url="report/export-family-excel"
                                     queryParams={queryParams}
                                     label="Export Family as XLSX"
                                 />
                                 <ExportButton
+                                    url="report/export-family-pdf"
+                                    queryParams={queryParams}
+                                    label="Export Family as PDF"
+                                    type="pdf"
+                                />
+                                <ExportButton
                                     url="report/export-familymembers-excel"
                                     queryParams={queryParams}
-                                    icon={<FileUser />}
                                     label="Export Family Members as XLSX"
+                                />
+                                <ExportButton
+                                    url="report/export-familymembers-pdf"
+                                    queryParams={queryParams}
+                                    label="Export Family Members as PDF"
+                                    type="pdf"
                                 />
                             </div>
                             {/* Search, and other buttons */}

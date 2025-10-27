@@ -342,6 +342,12 @@ export default function Index({ blotters, queryParams, incident_types }) {
                                     queryParams={queryParams}
                                     label="Export Blotter Reports as XLSX"
                                 />
+                                <ExportButton
+                                    url="report/export-blotter-reports-pdf"
+                                    queryParams={queryParams}
+                                    label="Export Blotter Reports as PDF"
+                                    type="pdf"
+                                />
                             </div>
 
                             <div className="flex items-center gap-2 flex-wrap justify-end">

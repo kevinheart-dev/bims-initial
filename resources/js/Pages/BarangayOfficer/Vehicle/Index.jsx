@@ -171,8 +171,9 @@ export default function Index({
             const statusLabel = VEHICLE_USAGE_TEXT[vehicle.usage_status];
             return (
                 <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${VEHICLE_USAGE_STYLES[vehicle.usage_status]
-                        }`}
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        VEHICLE_USAGE_STYLES[vehicle.usage_status]
+                    }`}
                 >
                     {statusLabel}
                 </span>
@@ -223,8 +224,9 @@ export default function Index({
     };
 
     const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
-            }`,
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
+            res.suffix ?? ""
+        }`,
         value: res.id.toString(),
     }));
 
@@ -260,8 +262,9 @@ export default function Index({
             setVehicleDetails(vehicle);
             setData({
                 resident_id: vehicle.resident.id,
-                resident_name: `${vehicle.resident.firstname} ${vehicle.resident.middlename ?? ""
-                    } ${vehicle.resident.lastname}`,
+                resident_name: `${vehicle.resident.firstname} ${
+                    vehicle.resident.middlename ?? ""
+                } ${vehicle.resident.lastname}`,
                 resident_image: vehicle.resident.image ?? null,
                 birthdate: vehicle.resident.birthdate ?? null,
                 purok_number: vehicle.resident.purok_number ?? null,
@@ -337,8 +340,11 @@ export default function Index({
                                             Vehicle Records
                                         </h1>
                                         <p className="text-sm text-gray-500">
-                                            Manage community vehicle data including ownership, type, and usage.
-                                            Use the tools below to search, filter, or export vehicle records.
+                                            Manage community vehicle data
+                                            including ownership, type, and
+                                            usage. Use the tools below to
+                                            search, filter, or export vehicle
+                                            records.
                                         </p>
                                     </div>
                                 </div>
@@ -356,6 +362,12 @@ export default function Index({
                                         url="report/export-vehicles-excel"
                                         queryParams={queryParams}
                                         label="Export Vehicles as XLSX"
+                                    />
+                                    <ExportButton
+                                        url="report/export-vehicle-pdf"
+                                        queryParams={queryParams}
+                                        label="Export Households as PDF"
+                                        type="pdf"
                                     />
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap justify-end">

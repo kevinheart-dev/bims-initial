@@ -646,6 +646,12 @@ export default function Index({
                                         queryParams={queryParams}
                                         label="Export Certificates as XLSX"
                                     />
+                                    <ExportButton
+                                        url="/certificate/export-certificates-pdf"
+                                        queryParams={queryParams}
+                                        label="Export Certificates as PDF"
+                                        type="pdf"
+                                    />
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap justify-end">
                                     <form
