@@ -386,7 +386,7 @@ export default function Index({ summons, queryParams, incident_types }) {
                                 <ExportButton
                                     url="report/export-summon-pdf"
                                     queryParams={queryParams}
-                                    label="Export Summon Summay as PDF"
+                                    label="Export Summon Summary as PDF"
                                     type="pdf"
                                 />
                             </div>

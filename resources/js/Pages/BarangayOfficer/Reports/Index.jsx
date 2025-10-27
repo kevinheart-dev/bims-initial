@@ -17,6 +17,7 @@ const Index = () => {
                 "A detailed report listing all registered residents in the barangay, including personal details, household associations, and demographic information.",
             lastGenerated: "Not yet generated",
             url: "report/export-residents-excel",
+            pdfUrl: "report/export-resident-pdf",
         },
         {
             id: "seniorcitizen",
@@ -25,6 +26,7 @@ const Index = () => {
                 "A summary of all senior citizens within the community, including age, household connections, and eligibility for assistance programs.",
             lastGenerated: "Not yet generated",
             url: "report/export-seniorcitizen-excel",
+            pdfUrl: "report/export-seniorcitizen-pdf",
         },
         {
             id: "family",
@@ -33,6 +35,7 @@ const Index = () => {
                 "An overview of families, highlighting their composition, relationships, and address information within the barangay records.",
             lastGenerated: "Not yet generated",
             url: "report/export-family-excel",
+            pdfUrl: "report/export-family-pdf",
         },
         {
             id: "household",
@@ -41,6 +44,7 @@ const Index = () => {
                 "A complete listing of households, their members, and classification details for record-keeping and barangay statistics.",
             lastGenerated: "Not yet generated",
             url: "report/export-household-excel",
+            pdfUrl: "report/export-household-pdf",
         },
         {
             id: "vehicles",
@@ -49,6 +53,7 @@ const Index = () => {
                 "An organized list of vehicles registered by residents, including ownership details, type, and classification.",
             lastGenerated: "Not yet generated",
             url: "report/export-vehicles-excel",
+            pdfUrl: "report/export-vehicle-pdf",
         },
         {
             id: "occupation",
@@ -57,6 +62,7 @@ const Index = () => {
                 "A comprehensive report of residents' occupations, employment status, and related livelihood information within the barangay.",
             lastGenerated: "Not yet generated",
             url: "report/export-occupations-excel",
+            pdfUrl: "report/export-occupations-pdf",
         },
         {
             id: "education",
@@ -65,6 +71,7 @@ const Index = () => {
                 "A record of residents' educational attainment, school enrollment, and academic progress within the barangay.",
             lastGenerated: "Not yet generated",
             url: "report/export-education-excel",
+            pdfUrl: "report/export-education-pdf",
         },
         {
             id: "blotter",
@@ -73,6 +80,7 @@ const Index = () => {
                 "Incident and blotter records filed within the barangay, including case details, parties involved, and resolution status.",
             lastGenerated: "Not yet generated",
             url: "report/export-blotter-reports-excel",
+            pdfUrl: "report/export-blotter-reports-pdf",
         },
         {
             id: "summon",
@@ -81,6 +89,7 @@ const Index = () => {
                 "A detailed listing of summons issued by the barangay, including parties involved, hearing schedules, and case status.",
             lastGenerated: "Not yet generated",
             url: "report/export-summon-excel",
+            pdfUrl: "report/export-summon-pdf",
         },
         {
             id: "medical",
@@ -89,6 +98,7 @@ const Index = () => {
                 "Comprehensive health-related records of residents, including medical conditions, disabilities, allergies, vaccinations, and medications.",
             lastGenerated: "Not yet generated",
             url: "report/export-medical-excel",
+            pdfUrl: "report/export-medical-pdf",
         },
     ];
 
@@ -110,37 +120,32 @@ const Index = () => {
                             <p className="text-sm text-gray-500">
                                 Generate and download detailed records of
                                 residents, households, families, vehicles, and
-                                blotter cases. Use the tools below to
-                                <span className="font-medium">
-                                    {" "}
-                                    export
-                                </span>{" "}
-                                data for documentation and analytics.
+                                blotter cases. Use the tools below to{" "}
+                                <span className="font-medium">export</span> data
+                                for documentation and analytics.
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {reports.map((report) => (
                         <Card
                             key={report.id}
-                            className="border rounded-xl shadow-sm hover:shadow-md transition flex flex-col h-64"
+                            className="flex flex-col h-full border rounded-xl shadow-sm hover:shadow-lg transition-all duration-300"
                         >
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-base font-medium">
+                            <CardHeader className="bg-green-50 border-b px-4 py-3 rounded-t-xl">
+                                <CardTitle className="flex items-center gap-2 text-base font-semibold text-gray-900">
                                     <FileSpreadsheet className="h-5 w-5 text-green-600" />
                                     {report.title}
                                 </CardTitle>
                             </CardHeader>
 
-                            <CardContent className="flex flex-col flex-1">
-                                {/* Description with text truncation */}
-                                <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                            <CardContent className="flex flex-col flex-1 px-4 py-3">
+                                <p className="text-gray-700 text-sm mb-4 line-clamp-3">
                                     {report.description}
                                 </p>
 
-                                {/* Last generated */}
                                 <div className="flex items-center gap-2 text-xs text-gray-500 mb-4">
                                     <Clock className="h-4 w-4" />
                                     <span>
@@ -148,16 +153,23 @@ const Index = () => {
                                     </span>
                                 </div>
 
-                                {/* Button pinned at bottom */}
-                                <div className="mt-auto">
+                                <div className="mt-auto flex flex-col gap-2">
                                     <a
                                         href={report.url}
-                                        className="block"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     >
-                                        <Button className="w-full bg-green-600 hover:bg-green-700 text-white text-sm">
+                                        <Button className="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm transition">
                                             Download Excel
+                                        </Button>
+                                    </a>
+                                    <a
+                                        href={report.pdfUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm transition">
+                                            Download PDF
                                         </Button>
                                     </a>
                                 </div>
