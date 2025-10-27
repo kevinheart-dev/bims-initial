@@ -157,12 +157,12 @@
     </p>
 
     @include('cra.pcra.calamities', [
+        'disasterOccurance' => $cra->disasterOccurance,
         'populationImpact' => $cra->populationImpact,
         'effectImpact' => $cra->effectImpact,
         'disasterDamage' => $cra->disasterDamage,
         'agriDamage' => $cra->agriDamage,
         'lifelines' => $cra->lifelines,
-        'disasterOccurance' => $cra->disasterOccurance,
     ])
 
     <p class="section-title">
@@ -233,7 +233,7 @@
     <p class="section-title">
         3.3 Number of Families at Risk of Hazards and Disasters per Purok
     </p>
-    @include('cra.pcra.family_at_risk', ['familyatRisk' => $cra->familyatRisk])
+    @include('cra.pcra.family_at_risk', ['familyatRisk' => $cra->familyAtRiskData])
 
 
     <p class="section-title">

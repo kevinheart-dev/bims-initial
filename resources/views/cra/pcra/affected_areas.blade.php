@@ -18,23 +18,23 @@
         <table
             style="width:100%; border-collapse:collapse; font-size:10px; table-layout:fixed; word-wrap:break-word; margin-bottom:10px;"
             border="1">
-            <thead>
-                <tr style="background-color:#f3f3f3; font-weight:bold;">
-                    <th rowspan="2" style="border:1px solid #000; padding:2px; width:80px;">Risk Level</th>
-                    <th rowspan="2" style="border:1px solid #000; padding:2px;">Purok</th>
-                    <th colspan="2" style="border:1px solid #000; padding:2px; text-align:center;">Total Population
-                    </th>
-                    <th colspan="2" style="border:1px solid #000; padding:2px; text-align:center;">At-Risk Population
-                    </th>
-                    <th rowspan="2" style="border:1px solid #000; padding:2px;">Safe Evacuation Area</th>
-                </tr>
-                <tr style="background-color:#f3f3f3; font-weight:bold;">
-                    <th style="border:1px solid #000; padding:2px; text-align:center;">Families</th>
-                    <th style="border:1px solid #000; padding:2px; text-align:center;">Individuals</th>
-                    <th style="border:1px solid #000; padding:2px; text-align:center;">Families</th>
-                    <th style="border:1px solid #000; padding:2px; text-align:center;">Individuals</th>
-                </tr>
-            </thead>
+
+            <tr style="background-color:#f3f3f3; font-weight:bold;">
+                <th rowspan="2" style="border:1px solid #000; padding:2px; width:80px;">Risk Level</th>
+                <th rowspan="2" style="border:1px solid #000; padding:2px;">Purok</th>
+                <th colspan="2" style="border:1px solid #000; padding:2px; text-align:center;">Total Population
+                </th>
+                <th colspan="2" style="border:1px solid #000; padding:2px; text-align:center;">At-Risk Population
+                </th>
+                <th rowspan="2" style="border:1px solid #000; padding:2px;">Safe Evacuation Area</th>
+            </tr>
+            <tr style="background-color:#f3f3f3; font-weight:bold;">
+                <th style="border:1px solid #000; padding:2px; text-align:center;">Families</th>
+                <th style="border:1px solid #000; padding:2px; text-align:center;">Individuals</th>
+                <th style="border:1px solid #000; padding:2px; text-align:center;">Families</th>
+                <th style="border:1px solid #000; padding:2px; text-align:center;">Individuals</th>
+            </tr>
+
 
 
             {{-- Data rows --}}
