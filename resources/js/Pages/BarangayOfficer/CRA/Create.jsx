@@ -1,7 +1,7 @@
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router, usePage } from "@inertiajs/react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Stepper from "@/Components/Stepper";
 import StepperController from "@/Components/StepperControler";
 import { StepperContext } from "@/context/StepperContext";
@@ -17,14 +17,20 @@ export default function Index({ progress }) {
     const breadcrumbs = [
         { label: "Community Risk Assessment (CRA)", showOnMobile: false },
     ];
-    // const printRef = useRef(null);
+
     const [currentStep, setCurrentStep] = useState(1);
     const { props } = usePage();
     const { success, error } = props;
 
+    // ✅ Get year from URL
+    const searchParams = new URLSearchParams(window.location.search);
+    const yearFromUrl = searchParams.get("year") || "default";
+    const [year, setYear] = useState(yearFromUrl);
+
+    // ✅ Initialize craData with year-specific localStorage key
     const [craData, setCraData] = useState(() => {
         try {
-            const saved = localStorage.getItem("craDataDraft");
+            const saved = localStorage.getItem(`craDataDraft_${yearFromUrl}`);
             return saved
                 ? JSON.parse(saved)
                 : {
@@ -34,6 +40,7 @@ export default function Index({ progress }) {
                     institutions: [],
                     hazards: [],
                     evacuation: [],
+                    year: yearFromUrl,
                 };
         } catch (err) {
             console.error("Error loading draft:", err);
@@ -44,30 +51,40 @@ export default function Index({ progress }) {
                 institutions: [],
                 hazards: [],
                 evacuation: [],
+                year: yearFromUrl,
             };
         }
     });
 
+    // ✅ Save per year draft to localStorage
     useEffect(() => {
-        localStorage.setItem("craDataDraft", JSON.stringify(craData));
-    }, [craData]);
+        if (year) {
+            localStorage.setItem(`craDataDraft_${year}`, JSON.stringify(craData));
+        }
+    }, [craData, year]);
+
+    // ✅ When switching year, load or reset data
+    useEffect(() => {
+        if (year) {
+            const saved = localStorage.getItem(`craDataDraft_${year}`);
+            if (saved) {
+                setCraData(JSON.parse(saved));
+            } else {
+                setCraData({
+                    population: [],
+                    livelihood: [],
+                    infrastructure: [],
+                    institutions: [],
+                    hazards: [],
+                    evacuation: [],
+                    year,
+                });
+            }
+        }
+    }, [year]);
 
     const [finalData, setFinalData] = useState([]);
     const [errors, setErrors] = useState({});
-
-    const searchParams = new URLSearchParams(window.location.search);
-    const yearFromUrl = searchParams.get("year") || "";
-    const [year, setYear] = useState(yearFromUrl);
-
-    useEffect(() => {
-        if (year && year !== craData.year) {
-            setCraData((prev) => ({
-                ...prev,
-                year: year,
-            }));
-            console.log("Year updated in craData:", year);
-        }
-    }, [year, craData.year]);
 
     const steps = [
         "Barangay Resource Profile ",
@@ -94,6 +111,7 @@ export default function Index({ progress }) {
         }
     };
 
+    // ✅ Step navigation and submission
     const handleClick = (direction) => {
         let newStep = currentStep;
 
@@ -101,6 +119,11 @@ export default function Index({ progress }) {
             if (currentStep === steps.length) {
                 // ✅ Submit to backend
                 router.post(route("cra.store"), craData, {
+                    onSuccess: () => {
+                        // ✅ Remove local draft after successful submission
+                        localStorage.removeItem(`craDataDraft_${year}`);
+                        toast.success("CRA submitted successfully!");
+                    },
                     onError: (errors) => {
                         setErrors(errors);
                         console.error("Validation Errors:", errors);
@@ -130,23 +153,21 @@ export default function Index({ progress }) {
         }
     };
 
+    // ✅ Handle print CRA PDF
     const handlePrint = () => {
         if (!year) {
             toast.error("Year not set for CRA.");
             return;
         }
-
-        // Open CRA PDF from backend
-        const url = route("cra.pdf", { id: year }); // pass CRA id or year
+        const url = route("cra.pdf", { id: year });
         window.open(url, "_blank");
     };
 
-
-
+    // ✅ Notifications
     useEffect(() => {
         if (success) {
             toast.success(success, {
-                description: "Community Risk Assesment saved.",
+                description: "Community Risk Assessment saved.",
                 duration: 3000,
             });
         }
@@ -194,7 +215,7 @@ export default function Index({ progress }) {
                                 </span>
                             </div>
 
-                            {/* Small Progress Bar */}
+                            {/* Progress Bar */}
                             <div className="relative w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                                 <div
                                     className="absolute top-0 left-0 h-full rounded-full transition-all duration-500 ease-in-out"
@@ -202,8 +223,8 @@ export default function Index({ progress }) {
                                         width: `${progress?.percentage ?? 0}%`,
                                         background:
                                             progress?.percentage >= 100
-                                                ? "linear-gradient(to right, #16a34a, #22c55e)" // green
-                                                : "linear-gradient(to right, #3b82f6, #60a5fa)", // blue
+                                                ? "linear-gradient(to right, #16a34a, #22c55e)"
+                                                : "linear-gradient(to right, #3b82f6, #60a5fa)",
                                     }}
                                 ></div>
                             </div>
@@ -211,9 +232,7 @@ export default function Index({ progress }) {
                             <div className="flex justify-between items-center gap-2 mt-2">
                                 <div className="mt-1 text-[10px] text-gray-600">
                                     <p>
-                                        <span className="font-medium">
-                                            Status:
-                                        </span>{" "}
+                                        <span className="font-medium">Status:</span>{" "}
                                         {progress?.status ?? "Not started"}
                                     </p>
                                     {progress?.submitted_at && (
