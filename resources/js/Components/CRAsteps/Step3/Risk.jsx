@@ -2,6 +2,7 @@ import { useContext, useEffect } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import Accordion from "@/Components/Accordion";
 import toast from "react-hot-toast";
+import { toTitleCase } from "@/utils/stringFormat";
 
 function MatrixTable({
     data,
@@ -37,26 +38,34 @@ function MatrixTable({
                         <tr key={idx}>
                             <td className="border px-2 py-1">
                                 <input
+                                    list={`hazardOptions-${idx}`}
                                     type="text"
                                     className="w-full border p-1"
                                     value={r.hazard === "None" ? "" : r.hazard}
                                     onChange={(e) =>
-                                        updateField(
-                                            idx,
-                                            "hazard",
-                                            e.target.value
-                                        )
+                                        updateField(idx, "hazard", toTitleCase(e.target.value))
                                     }
                                     onBlur={(e) =>
-                                        handleBlur(
-                                            idx,
-                                            "hazard",
-                                            e.target.value
-                                        )
+                                        handleBlur(idx, "hazard", e.target.value)
                                     }
-                                    placeholder="e.g., Typhoon"
+                                    placeholder="Select or type hazard"
                                 />
+                                <datalist id={`hazardOptions-${idx}`}>
+                                    {[
+                                        "Typhoon",
+                                        "Flood",
+                                        "Rain-induced Landslide",
+                                        "Fire",
+                                        "Drought",
+                                        "Earthquake",
+                                        "Vehicular Incident",
+                                        "Pandemic / Emerging and Re-emerging Diseases"
+                                    ].map((hazard, i) => (
+                                        <option key={i} value={hazard} />
+                                    ))}
+                                </datalist>
                             </td>
+
 
                             <td className="border px-2 py-1">
                                 <input

@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useCallback } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import toast from "react-hot-toast";
+import { toTitleCase } from '@/utils/stringFormat';
 
 // Default purok row template
 const PUROK_TEMPLATE = {
@@ -115,12 +116,28 @@ const EffectDisaster = () => {
                         {/* Hazard type and remove button */}
                         <div className="flex justify-between items-center mb-3">
                             <input
+                                list={`hazardOptions-${hIdx}`}
                                 type="text"
-                                placeholder="Enter Hazard Type (e.g., Typhoon)"
+                                placeholder="Select or type hazard"
                                 value={hazard.type || ""} // Add fallback for hazard.type
-                                onChange={(e) => updateHazardType(hIdx, e.target.value)}
+                                onChange={(e) => updateHazardType(hIdx, toTitleCase(e.target.value))}
                                 className="border px-3 py-2 rounded w-1/2 text-sm"
                             />
+                            <datalist id={`hazardOptions-${hIdx}`}>
+                                {[
+                                    "Typhoon",
+                                    "Flood",
+                                    "Rain-induced Landslide",
+                                    "Fire",
+                                    "Drought",
+                                    "Earthquake",
+                                    "Vehicular Incident",
+                                    "Pandemic / Emerging and Re-emerging Diseases"
+                                ].map((hazard, i) => (
+                                    <option key={i} value={hazard} />
+                                ))}
+                            </datalist>
+
                             <button
                                 onClick={() => removeHazard(hIdx)}
                                 className="ml-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-100 text-red-500 hover:bg-red-500 hover:text-white"

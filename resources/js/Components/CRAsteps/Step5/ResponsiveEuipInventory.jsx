@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import toast from "react-hot-toast";
 import { Check, X } from "lucide-react";
+import { toTitleCase } from '@/utils/stringFormat';
 
 const EQUIPMENT_ITEMS = [
     "Spine Board",
@@ -133,6 +134,7 @@ const ResponsiveEuipInventory = () => {
                                             );
                                             autoResize(e);
                                         }}
+                                        placeholder="Enter Equipment"
                                         className="border w-full px-2 py-1 text-left resize-none overflow-hidden"
                                     />
                                 </td>
@@ -145,8 +147,8 @@ const ResponsiveEuipInventory = () => {
                                                 updateCell(idx, "status", "yes")
                                             }
                                             className={`p-1 rounded-full ${row.status === "yes"
-                                                    ? "bg-green-500 text-white"
-                                                    : "bg-gray-200 text-gray-500"
+                                                ? "bg-green-500 text-white"
+                                                : "bg-gray-200 text-gray-500"
                                                 }`}
                                         >
                                             <Check size={14} />
@@ -156,8 +158,8 @@ const ResponsiveEuipInventory = () => {
                                                 updateCell(idx, "status", "no")
                                             }
                                             className={`p-1 rounded-full ${row.status === "no"
-                                                    ? "bg-red-500 text-white"
-                                                    : "bg-gray-200 text-gray-500"
+                                                ? "bg-red-500 text-white"
+                                                : "bg-gray-200 text-gray-500"
                                                 }`}
                                         >
                                             <X size={14} />
@@ -184,7 +186,7 @@ const ResponsiveEuipInventory = () => {
                                                     updateCell(
                                                         idx,
                                                         field,
-                                                        e.target.value
+                                                        toTitleCase(e.target.value)
                                                     );
                                                     autoResize(e);
                                                 }}

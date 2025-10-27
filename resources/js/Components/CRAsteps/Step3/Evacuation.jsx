@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import { Plus, Check, Square } from "lucide-react";
-
+import { toTitleCase } from '@/utils/stringFormat';
 const Evacuation = () => {
     const { craData, setCraData } = useContext(StepperContext);
 
@@ -95,7 +95,7 @@ const Evacuation = () => {
                                 <input
                                     type="text"
                                     value={row.name}
-                                    onChange={(e) => handleChange(idx, "name", e.target.value)}
+                                    onChange={(e) => handleChange(idx, "name", toTitleCase(e.target.value))}
                                     className="w-full border px-1 py-0.5 text-sm text-center"
                                     placeholder="Enter Facility"
                                 />

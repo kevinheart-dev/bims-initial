@@ -7,6 +7,7 @@ import ExposureDatabase from "./ExposureDatabase";
 import EffectDisaster from "./EffectDisaster";
 import Inventory from "./Inventory";
 import Evacuation from "./Evacuation";
+import { toTitleCase } from '@/utils/stringFormat';
 const computeAverage = (h) => {
     if (h.probability === "" || h.effect === "" || h.management === "")
         return "";
@@ -74,18 +75,31 @@ function HazardTable({ hazards, updateField, addHazard, removeHazard }) {
                         <tr key={h.index}>
                             <td className="border px-2 py-1">
                                 <input
+                                    list={`hazardOptions-${h.index}`}
                                     type="text"
                                     className="w-full border p-1"
                                     value={h.hazard}
                                     onChange={(e) =>
-                                        updateField(
-                                            h.index,
-                                            "hazard",
-                                            e.target.value
-                                        )
+                                        updateField(h.index, "hazard", toTitleCase(e.target.value))
                                     }
+                                    placeholder="Select or type hazard"
                                 />
+                                <datalist id={`hazardOptions-${h.index}`}>
+                                    {[
+                                        "Typhoon",
+                                        "Flood",
+                                        "Landslide",
+                                        "Fire",
+                                        "Drought",
+                                        "Earthquake",
+                                        "Vehicular Incident",
+                                        "Pandemic / Emerging and Re-emerging Diseases"
+                                    ].map((hazard, idx) => (
+                                        <option key={idx} value={hazard} />
+                                    ))}
+                                </datalist>
                             </td>
+
                             {["probability", "effect", "management"].map(
                                 (f) => (
                                     <td key={f} className="border px-2 py-1">
@@ -121,6 +135,7 @@ function HazardTable({ hazards, updateField, addHazard, removeHazard }) {
                                             e.target.value
                                         )
                                     }
+                                    placeholder="Enter Basis"
                                 />
                             </td>
                             <td className="border px-2 py-1 text-center bg-gray-50 font-semibold">

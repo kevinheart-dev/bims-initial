@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import toast from "react-hot-toast";
+import { toTitleCase } from '@/utils/stringFormat';
 
 const ROW_TEMPLATE = {
     item: "",
@@ -65,13 +66,14 @@ const FoodInventory = () => {
                                 <td className="border px-2 py-1">
                                     <textarea
                                         value={row.item}
-                                        onChange={(e) => updateCell(idx, "item", e.target.value)}
+                                        onChange={(e) => updateCell(idx, "item", toTitleCase(e.target.value))}
                                         className="border w-full px-2 py-1 text-md text-center resize-none overflow-hidden"
                                         rows={1}
                                         onInput={(e) => {
                                             e.target.style.height = "auto"; // reset height
                                             e.target.style.height = e.target.scrollHeight + "px"; // grow to fit
                                         }}
+                                        placeholder="Enter Item"
                                     />
                                 </td>
                                 <td className="border px-2 py-1">
@@ -84,18 +86,20 @@ const FoodInventory = () => {
                                             e.target.style.height = "auto";
                                             e.target.style.height = e.target.scrollHeight + "px";
                                         }}
+                                        placeholder="Enter Quantity"
                                     />
                                 </td>
                                 <td className="border px-2 py-1">
                                     <textarea
                                         value={row.remarks}
-                                        onChange={(e) => updateCell(idx, "remarks", e.target.value)}
+                                        onChange={(e) => updateCell(idx, "remarks", toTitleCase(e.target.value))}
                                         className="border w-full px-2 py-1 text-md text-center resize-none overflow-hidden"
                                         rows={1}
                                         onInput={(e) => {
                                             e.target.style.height = "auto";
                                             e.target.style.height = e.target.scrollHeight + "px";
                                         }}
+                                        placeholder="Enter Remarks"
                                     />
                                 </td>
 

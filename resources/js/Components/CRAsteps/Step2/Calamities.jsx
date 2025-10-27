@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import React from "react";
 import { Plus, Minus } from "lucide-react";
 import Accordion from "@/Components/Accordion";
-
+import { toTitleCase } from '@/utils/stringFormat';
 // Fixed categories
 const populationCategories = [
     "With Disability",
@@ -189,7 +189,7 @@ const CalamityTable = ({ calamities, updateCell }) => {
                                         updateCell(
                                             idx,
                                             "disaster_name",
-                                            e.target.value
+                                            toTitleCase(e.target.value)
                                         )
                                     }
                                 />

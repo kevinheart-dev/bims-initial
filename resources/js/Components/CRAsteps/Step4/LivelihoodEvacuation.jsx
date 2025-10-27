@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import toast from "react-hot-toast";
+import { toTitleCase } from '@/utils/stringFormat';
 
 const ROW_TEMPLATE = {
     type: "",
@@ -69,9 +70,10 @@ const LivelihoodEvacuation = () => {
                                         type="text"
                                         value={row.type}
                                         onChange={(e) =>
-                                            updateCell(rIdx, "type", e.target.value)
+                                            updateCell(rIdx, "type", toTitleCase(e.target.value))
                                         }
                                         className="border w-full px-2 py-1 text-xs text-center"
+                                        placeholder="Enter livelihood"
                                     />
                                 </td>
                                 <td className="border px-2 py-1">
@@ -82,6 +84,7 @@ const LivelihoodEvacuation = () => {
                                             updateCell(rIdx, "evacuation", e.target.value)
                                         }
                                         className="border w-full px-2 py-1 text-xs text-center"
+                                        placeholder="Enter purok"
                                     />
                                 </td>
                                 <td className="border px-2 py-1">
@@ -92,6 +95,7 @@ const LivelihoodEvacuation = () => {
                                             updateCell(rIdx, "origin", e.target.value)
                                         }
                                         className="border w-full px-2 py-1 text-xs text-center"
+                                        placeholder="Enter purok"
                                     />
                                 </td>
                                 <td className="border px-2 py-1">
@@ -102,6 +106,7 @@ const LivelihoodEvacuation = () => {
                                             updateCell(rIdx, "items", e.target.value)
                                         }
                                         className="border w-full px-2 py-1 text-xs text-center"
+                                        placeholder="Enter number of items"
                                     />
                                 </td>
                                 <td className="px-2 py-1 text-center !border-0">

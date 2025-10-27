@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import toast from "react-hot-toast";
+import { toTitleCase } from '@/utils/stringFormat';
 
 const ROW_TEMPLATE = {
     evacuationCenter: "",
@@ -79,39 +80,53 @@ const ReliefGoods = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {rows.map((row, idx) => (
-                            <tr key={idx}>
-                                {[
-                                    "evacuationCenter",
-                                    "typeOfGoods",
-                                    "quantity",
-                                    "unit",
-                                    "beneficiaries",
-                                    "address",
-                                ].map((field) => (
-                                    <td key={field} className="border px-2 py-1">
-                                        <textarea
-                                            rows={1}
-                                            value={row[field]}
-                                            onChange={(e) => {
-                                                updateCell(idx, field, e.target.value);
-                                                autoResize(e.target);
-                                            }}
-                                            ref={(el) => autoResize(el)} // 👈 ensures it resizes on mount
-                                            className="border w-full px-2 py-1 text-md text-center resize-none overflow-hidden"
-                                        />
+                        {rows.map((row, idx) => {
+                            // Define placeholder text for each field
+                            const placeholders = {
+                                evacuationCenter: "Enter evacuation center",
+                                typeOfGoods: "Enter type of goods",
+                                quantity: "Enter quantity",
+                                unit: "Enter unit",
+                                beneficiaries: "Enter beneficiaries",
+                                address: "Enter address",
+                            };
+
+                            return (
+                                <tr key={idx}>
+                                    {[
+                                        "evacuationCenter",
+                                        "typeOfGoods",
+                                        "quantity",
+                                        "unit",
+                                        "beneficiaries",
+                                        "address",
+                                    ].map((field) => (
+                                        <td key={field} className="border px-2 py-1">
+                                            <textarea
+                                                rows={1}
+                                                value={row[field]}
+                                                placeholder={placeholders[field]}
+                                                onChange={(e) => {
+                                                    updateCell(idx, field, toTitleCase(e.target.value));
+                                                    autoResize(e.target);
+                                                }}
+                                                ref={(el) => autoResize(el)}
+                                                className="border w-full px-2 py-1 text-md text-center resize-none overflow-hidden"
+                                            />
+                                        </td>
+                                    ))}
+                                    <td className="px-2 py-1 text-center !border-0">
+                                        <button
+                                            onClick={() => removeRow(idx)}
+                                            className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 text-gray-300 hover:bg-gray-200"
+                                        >
+                                            ✕
+                                        </button>
                                     </td>
-                                ))}
-                                <td className="px-2 py-1 text-center !border-0">
-                                    <button
-                                        onClick={() => removeRow(idx)}
-                                        className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 text-gray-300 hover:bg-gray-200"
-                                    >
-                                        ✕
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                                </tr>
+                            );
+                        })}
+
                     </tbody>
                 </table>
             </div>

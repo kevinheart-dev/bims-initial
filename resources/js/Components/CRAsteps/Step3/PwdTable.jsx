@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from "react";
 import { Plus, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { StepperContext } from "@/context/StepperContext";
+import { toTitleCase } from '@/utils/stringFormat';
 
 const defaultDisabilities = [
     "Deaf/Hard of Hearing",
@@ -81,7 +82,7 @@ const DisabilityRow = ({ row, rowIdx, updateField, removeRow, inputRefs }) => {
                         type="text"
                         value={row.type}
                         className="w-full border p-1 text-sm"
-                        onChange={(e) => updateField(rowIdx, "type", e.target.value)}
+                        onChange={(e) => updateField(rowIdx, "type", toTitleCase(e.target.value))}
                         placeholder="Enter Disability"
                     />
                 ) : (

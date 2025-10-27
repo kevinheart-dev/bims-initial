@@ -2,6 +2,7 @@ import React, { useEffect, useContext } from "react";
 import { Plus } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { StepperContext } from "@/context/StepperContext";
+import { toTitleCase } from '@/utils/stringFormat';
 
 const DEFAULT_ILLNESSES = [
     { illness: "Hypertension", children: "", adults: "" },
@@ -79,7 +80,7 @@ const IllnessesTable = () => {
                                     <input
                                         type="text"
                                         value={item.illness}
-                                        onChange={(e) => updateIllness(idx, "illness", e.target.value)}
+                                        onChange={(e) => updateIllness(idx, "illness", toTitleCase(e.target.value))}
                                         className="w-full text-center text-xs p-1 border rounded"
                                     />
                                 </td>
