@@ -23,7 +23,7 @@ return new class extends Migration
                 ->onDelete('cascade');
 
             $table->string('effect_type', 100)->nullable(); // e.g. economic loss, agricultural damage, power outage, etc.
-            $table->integer('value')->default(0);
+            $table->string('value', 255);
             $table->string('source', 100)->nullable();
             $table->timestamps();
             $table->unique(

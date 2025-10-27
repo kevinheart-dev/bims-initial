@@ -882,6 +882,7 @@ class CRAController extends Controller
             $disaster = CRADisasterOccurance::updateOrCreate(
                 [
                     'barangay_id'   => $brgy_id,
+                    'cra_id' => $cra->id,
                     'disaster_name' => $calamity['disaster_name'],
                     'year'          => $calamity['year'],
                 ],
