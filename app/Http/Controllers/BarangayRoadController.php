@@ -8,6 +8,7 @@ use App\Http\Requests\StoreBarangayRoadRequest;
 use App\Http\Requests\UpdateBarangayRoadRequest;
 use DB;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 use Str;
 
 class BarangayRoadController extends Controller
@@ -17,42 +18,54 @@ class BarangayRoadController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->barangay_id;
-        $query = BarangayRoad::query()->where('barangay_id', $brgy_id);
+        $brgy_id = auth()->user()->barangay_id;
 
-        if ($status = request('road_type')) {
-            if ($status !== 'All') {
-                $query->where('road_type', $status);
-            }
+        // Base query
+        $query = BarangayRoad::query()
+            ->where('barangay_id', $brgy_id)
+            ->orderBy('created_at', 'desc');
+
+        // Optional filters
+        if (request()->filled('road_type') && request('road_type') !== 'All') {
+            $query->where('road_type', request('road_type'));
         }
-        if ($status = request('maintained_by')) {
-            if ($status !== 'All') {
-                $query->where('maintained_by', $status);
-            }
+
+        if (request()->filled('maintained_by') && request('maintained_by') !== 'All') {
+            $query->where('maintained_by', request('maintained_by'));
         }
-        if ($status = request('status')) {
-            if ($status !== 'All') {
-                $query->where('status', $status);
-            }
+
+        if (request()->filled('status') && request('status') !== 'All') {
+            $query->where('status', request('status'));
         }
-        if ($condition = request('condition')) {
-            if ($condition !== 'All') {
-                $query->where('condition', $condition);
-            }
+
+        if (request()->filled('condition') && request('condition') !== 'All') {
+            $query->where('condition', request('condition'));
         }
+
         if (request('name')) {
             $query->where(function ($q) {
                 $q->where('length', 'like', '%' . request('name') . '%');
             });
         }
 
+        // Paginate and keep query string
         $roads = $query->paginate(10)->withQueryString();
-        $types = BarangayRoad::where('barangay_id', $brgy_id)->distinct()->pluck('road_type');
-        $maintains = BarangayRoad::where('barangay_id', $brgy_id)->distinct()->pluck('maintained_by');
-        return response()->json([
+
+        // Distinct dropdown filters
+        $types = BarangayRoad::where('barangay_id', $brgy_id)
+            ->distinct()
+            ->pluck('road_type');
+
+        $maintains = BarangayRoad::where('barangay_id', $brgy_id)
+            ->distinct()
+            ->pluck('maintained_by');
+
+        // Return Inertia page instead of JSON
+        return Inertia::render('BarangayOfficer/BarangayProfile/BarangayRoad/RoadIndex', [
             'roads' => $roads,
             'types' => $types,
-            'maintains' => $maintains
+            'maintains' => $maintains,
+            'queryParams' => request()->query() ?: null,
         ]);
     }
 
@@ -98,11 +111,8 @@ class BarangayRoadController extends Controller
             }
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success'   => 'Road(s) saved successfully.',
-                    'activeTab' => 'roads',
-                ]);
+                ->route('barangay_road.index')
+                ->with('success' ,'Road(s) saved successfully.');
         } catch (\Exception $e) {
             return back()->with(
                 'error',
@@ -176,11 +186,8 @@ class BarangayRoadController extends Controller
             }
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success'   => 'Road updated successfully.',
-                    'activeTab' => 'roads',
-                ]);
+                ->route('barangay_road.index')
+                ->with('success' ,'Road(s) updated successfully.');
         } catch (\Exception $e) {
             return back()->with(
                 'error',
@@ -214,11 +221,8 @@ class BarangayRoadController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success'   => 'Road deleted successfully!',
-                    'activeTab' => 'roads',
-                ]);
+                ->route('barangay_road.index')
+                ->with('success' ,'Road(s) deleted successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
 

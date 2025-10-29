@@ -8,6 +8,7 @@ use App\Http\Requests\StoreBarangayFacilityRequest;
 use App\Http\Requests\UpdateBarangayFacilityRequest;
 use DB;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 use Str;
 
 class BarangayFacilityController extends Controller
@@ -17,9 +18,14 @@ class BarangayFacilityController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->barangay_id;
-        $query = BarangayFacility::query()->where('barangay_id', $brgy_id);
+        $brgy_id = auth()->user()->barangay_id;
 
+        // Base query
+        $query = BarangayFacility::query()
+            ->where('barangay_id', $brgy_id)
+            ->orderBy('created_at', 'desc');
+
+        // Optional filters
         if (request()->filled('faci_name') && request('faci_name') !== 'All') {
             $query->where('name', request('faci_name'));
         }
@@ -31,19 +37,23 @@ class BarangayFacilityController extends Controller
         if (request('name')) {
             $query->where(function ($q) {
                 $q->where('name', 'like', '%' . request('name') . '%')
-                    ->orWhere('facility_type', 'like', '%' . request('name') . '%');
+                ->orWhere('facility_type', 'like', '%' . request('name') . '%');
             });
         }
 
+        // Paginate and preserve query string
         $facilities = $query->paginate(10)->withQueryString();
 
+        // Distinct dropdown filters (with both id and name for React keys)
         $names = BarangayFacility::where('barangay_id', $brgy_id)->distinct()->pluck('name');
         $types = BarangayFacility::where('barangay_id', $brgy_id)->distinct()->pluck('facility_type');
 
-        return response()->json([
+        // Return Inertia page instead of JSON
+        return Inertia::render('BarangayOfficer/BarangayProfile/BarangayFacility/FacilityIndex', [
             'facilities' => $facilities,
             'names' => $names,
-            'types' => $types
+            'types' => $types,
+            'queryParams' => request()->query() ?: null,
         ]);
     }
 
@@ -88,11 +98,8 @@ class BarangayFacilityController extends Controller
             }
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success'   => 'Facility(ies) saved successfully.',
-                    'activeTab' => 'facilities'
-                ]);
+                ->route('barangay_facility.index')
+                ->with( 'success', 'Facility(ies) saved successfully.');
         } catch (\Exception $e) {
             return back()->with(
                 'error',
@@ -181,11 +188,8 @@ class BarangayFacilityController extends Controller
             }
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success'   => 'Facility(ies) updated successfully.',
-                    'activeTab' => 'facilities'
-                ]);
+                ->route('barangay_facility.index')
+                ->with('success','Facility(ies) updated successfully.');
         } catch (\Exception $e) {
             return back()->with(
                 'error',
@@ -220,11 +224,8 @@ class BarangayFacilityController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success'   => 'Facility deleted successfully!',
-                    'activeTab' => 'facilities',
-                ]);
+                ->route('barangay_facility.index')
+                ->with('success'   , 'Facility deleted successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
 

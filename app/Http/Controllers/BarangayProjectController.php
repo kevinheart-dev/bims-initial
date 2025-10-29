@@ -10,6 +10,7 @@ use App\Models\BarangayProject;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 use Str;
 
 class BarangayProjectController extends Controller
@@ -19,7 +20,7 @@ class BarangayProjectController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->barangay_id;
+        $brgy_id = auth()->user()->barangay_id;
 
         // Base query with eager loading
         $query = BarangayProject::with('institution')
@@ -27,22 +28,18 @@ class BarangayProjectController extends Controller
             ->orderBy('start_date', 'desc');
 
         // === Apply Filters ===
-
-        // Status filter
         if ($status = request('project_status')) {
             if ($status !== 'All') {
                 $query->where('status', $status);
             }
         }
 
-        // Category filter
         if ($category = request('project_category')) {
             if ($category !== 'All') {
                 $query->where('category', $category);
             }
         }
 
-        // Responsible institution filter
         if ($responsible = request('responsible_inti')) {
             if ($responsible !== 'All') {
                 $query->whereHas('institution', function ($q) use ($responsible) {
@@ -51,25 +48,26 @@ class BarangayProjectController extends Controller
             }
         }
 
-        // Date filters
         if ($startDate = request('start_date')) {
             $query->whereDate('start_date', '>=', $startDate);
         }
+
         if ($endDate = request('end_date')) {
             $query->whereDate('end_date', '<=', $endDate);
         }
+
         if (request('name')) {
             $query->where(function ($q) {
                 $q->where('title', 'like', '%' . request('name') . '%')
-                    ->orWhere('description', 'like', '%' . request('name') . '%');
+                ->orWhere('description', 'like', '%' . request('name') . '%');
             });
         }
-        // Paginate and keep query string
+
+        // Paginate and preserve query string
         $projects = $query->paginate(10)->withQueryString();
 
-        // For dropdowns
-        $institutions = BarangayInstitution::query()
-            ->where('barangay_id', $brgy_id)
+        // Distinct dropdown filters
+        $institutions = BarangayInstitution::where('barangay_id', $brgy_id)
             ->select('id', 'name')
             ->distinct()
             ->get();
@@ -78,10 +76,12 @@ class BarangayProjectController extends Controller
             ->distinct()
             ->pluck('category');
 
-        return response()->json([
+        // Return Inertia page
+        return Inertia::render('BarangayOfficer/BarangayProfile/BarangayProjects/ProjectIndex', [
             'projects' => $projects,
             'institutions' => $institutions,
-            'categories' => $categories
+            'categories' => $categories,
+            'queryParams' => request()->query() ?: null,
         ]);
     }
 
@@ -132,11 +132,8 @@ class BarangayProjectController extends Controller
             }
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success'   => 'Project(s) saved successfully.',
-                    'activeTab' => 'projects'
-                ]);
+                ->route('barangay_project.index')
+                ->with('success' ,'Project(s) saved successfully.');
         } catch (\Exception $e) {
             return back()->with(
                 'error',
@@ -215,11 +212,8 @@ class BarangayProjectController extends Controller
             }
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success'   => 'Project updated successfully.',
-                    'activeTab' => 'projects'
-                ]);
+                ->route('barangay_project.index')
+                ->with('success','Project updated successfully.');
         } catch (\Exception $e) {
             return back()->with(
                 'error',
@@ -253,11 +247,8 @@ class BarangayProjectController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success'   => 'Project deleted successfully!',
-                    'activeTab' => 'projects',
-                ]);
+                ->route('barangay_project.index')
+                ->with('success' , 'Project deleted successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
 

@@ -17,23 +17,26 @@ class InventoryController extends Controller
     {
         $brgy_id = auth()->user()->barangay_id;
 
-        $query = Inventory::query()->where("barangay_id", $brgy_id);
+        // Base query
+        $query = Inventory::query()
+            ->where('barangay_id', $brgy_id)
+            ->orderBy('received_date', 'desc');
 
-        // ✅ Apply filters if present
-        if (request()->filled("status") && request()->status !== "All") {
-            $query->where("status", request()->status);
+        // Optional filters
+        if (request()->filled('status') && request('status') !== 'All') {
+            $query->where('status', request('status'));
         }
 
-        if (request()->filled("item_category") && request()->item_category !== "All") {
-            $query->where("item_category", request()->item_category);
+        if (request()->filled('item_category') && request('item_category') !== 'All') {
+            $query->where('item_category', request('item_category'));
         }
 
-        if (request()->filled("unit") && request()->unit !== "All") {
-            $query->where("unit", request()->unit);
+        if (request()->filled('unit') && request('unit') !== 'All') {
+            $query->where('unit', request('unit'));
         }
 
-        if (request()->filled("date_recieved")) {
-            $query->whereDate("received_date", request()->date_recieved);
+        if (request()->filled('date_recieved')) {
+            $query->whereDate('received_date', request('date_recieved'));
         }
 
         if (request('name')) {
@@ -42,17 +45,24 @@ class InventoryController extends Controller
             });
         }
 
-        // ✅ Paginate results
+        // Paginate and keep query string
         $inventory_items = $query->paginate(10)->withQueryString();
 
-        // ✅ Distinct categories & units for dropdowns
-        $categories = Inventory::where("barangay_id", $brgy_id)
+        // Distinct dropdown filters
+        $categories = Inventory::where('barangay_id', $brgy_id)
             ->distinct()
-            ->pluck("item_category");
+            ->pluck('item_category');
 
-        return response()->json([
+        $units = Inventory::where('barangay_id', $brgy_id)
+            ->distinct()
+            ->pluck('unit');
+
+        // Return Inertia page instead of JSON
+        return Inertia::render('BarangayOfficer/BarangayProfile/BarangayInventory/InventoryIndex', [
             'inventory_items' => $inventory_items,
             'categories' => $categories,
+            'units' => $units,
+            'queryParams' => request()->query() ?: null,
         ]);
     }
 
@@ -89,11 +99,8 @@ class InventoryController extends Controller
             }
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success' => 'Inventory item(s) saved successfully.',
-                    'activeTab' => 'inventories'
-                ]);
+                ->route('inventory.index')
+                ->with('success','Inventory item(s) saved successfully.');
         } catch (\Exception $e) {
             return back()->with(
                 'error',
@@ -141,11 +148,8 @@ class InventoryController extends Controller
             }
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success'   => 'Inventory item updated successfully.',
-                    'activeTab' => 'inventories'
-                ]);
+                ->route('inventory.index')
+                ->with('success','Inventory item updated successfully.');
         } catch (\Exception $e) {
             return back()->with(
                 'error',
@@ -164,11 +168,8 @@ class InventoryController extends Controller
             $inventory->delete();
             DB::commit();
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success'   => 'Inventory item deleted successfully.',
-                    'activeTab' => 'inventories'
-                ]);
+                ->route('inventory.index')
+                ->with('success','Inventory item deleted successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Inventory item could not be deleted: ' . $e->getMessage());

@@ -4,8 +4,10 @@ import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import { Skeleton } from "@/Components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
+import AdminLayout from "@/Layouts/AdminLayout";
 import {
     Eye,
+    Home,
     ListPlus,
     Plus,
     RotateCcw,
@@ -17,7 +19,7 @@ import ActionMenu from "@/Components/ActionMenu";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
-import { Link, router, useForm, usePage } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import { PROJECT_STATUS_CLASS, PROJECT_STATUS_TEXT } from "@/constants";
 import SidebarModal from "@/Components/SidebarModal";
@@ -34,40 +36,25 @@ import {
 import { Toaster, toast } from "sonner";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import InputLabel from "@/Components/InputLabel";
+import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 
-const ProjectIndex = () => {
+const ProjectIndex = ({ projects, institutions, categories, queryParams }) => {
+    const breadcrumbs = [
+        { label: "Barangay Resources", showOnMobile: false },
+        { label: "Infrastructures", showOnMobile: true },
+    ];
     const APP_URL = useAppUrl();
+    queryParams = queryParams || {};
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalState, setModalState] = useState("");
     const [projectDetails, setProjectDetails] = useState(null);
-    const props = usePage().props;
-    const Toasterror = props?.error ?? null;
-    const [queryParams, setQueryParams] = useState({});
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
     const [projectToDelete, setProjectToDelete] = useState(null); //delete
 
-    const {
-        data: getData,
-        isLoading,
-        isError,
-        error,
-        refetch,
-    } = useQuery({
-        queryKey: ["projects", queryParams],
-        queryFn: async () => {
-            const { data } = await axios.get(`${APP_URL}/barangay_project`, {
-                params: queryParams,
-            });
-            return data; // should already include "institution"
-        },
-        keepPreviousData: true,
-        staleTime: 1000 * 60 * 5, // 5 minutes cache
-    });
-
-    const projects = getData?.projects;
-    const institutions = getData?.institutions;
-    const categories = getData?.categories;
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
 
     const allColumns = [
         { key: "id", label: "ID" },
@@ -90,6 +77,13 @@ const ProjectIndex = () => {
         return saved ? JSON.parse(saved) : defaultVisibleCols;
     });
 
+    useEffect(() => {
+        localStorage.setItem(
+            "projects_visible_columns",
+            JSON.stringify(visibleColumns)
+        );
+    }, [visibleColumns]);
+
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
             [
@@ -102,21 +96,12 @@ const ProjectIndex = () => {
             value &&
             value !== ""
     );
-
-    const [showFilters, setShowFilters] = useState(hasActiveFilter);
-
     useEffect(() => {
         if (hasActiveFilter) {
             setShowFilters(true);
         }
     }, [hasActiveFilter]);
-
-    useEffect(() => {
-        localStorage.setItem(
-            "projects_visible_columns",
-            JSON.stringify(visibleColumns)
-        );
-    }, [visibleColumns]);
+    const [showFilters, setShowFilters] = useState(hasActiveFilter);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -124,20 +109,16 @@ const ProjectIndex = () => {
     };
 
     const searchFieldName = (field, value) => {
-        setQueryParams((prev) => {
-            const updated = { ...prev };
+        if (value && value.trim() !== "") {
+            queryParams[field] = value;
+        } else {
+            delete queryParams[field];
+        }
 
-            if (value && value.trim() !== "" && value !== "All") {
-                updated[field] = value;
-            } else {
-                delete updated[field]; // remove filter if blank or "All"
-            }
-
-            // reset pagination when searching
-            delete updated.page;
-
-            return updated; // React Query will refetch automatically
-        });
+        if (queryParams.page) {
+            delete queryParams.page;
+        }
+        router.get(route("barangay_project.index", queryParams));
     };
 
     const onKeyPressed = (field, e) => {
@@ -317,10 +298,6 @@ const ProjectIndex = () => {
                     closeButton: true,
                 });
             },
-            onSuccess: () => {
-                refetch();
-                handleModalClose();
-            },
         });
     };
 
@@ -381,10 +358,6 @@ const ProjectIndex = () => {
                     closeButton: true,
                 });
             },
-            onSuccess: () => {
-                refetch();
-                handleModalClose();
-            },
         });
     };
 
@@ -408,523 +381,559 @@ const ProjectIndex = () => {
                     closeButton: true,
                 });
             },
-            onSuccess: () => {
-                refetch();
-                handleModalClose();
-            },
         });
         setIsDeleteModalOpen(false);
     };
 
     useEffect(() => {
-        if (Toasterror) {
-            toast.error(Toasterror, {
+        if (success) {
+            handleModalClose();
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.success = null;
+    }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
                 description: "Operation failed!",
                 duration: 3000,
                 closeButton: true,
             });
         }
         props.error = null;
-    }, [Toasterror]);
-
-    if (isLoading) {
-        return (
-            <div className="gap-2 space-y-4">
-                <Skeleton className="h-[20px] w-[100px] rounded-full" />
-                <Skeleton className="h-[10px] w-[100px] rounded-full" />
-            </div>
-        );
-    }
-    if (isError) {
-        return <div className="text-red-500">Error: {error.message}</div>;
-    }
+    }, [error]);
     return (
-        <div className="p-2 md:px-2 md:py-2">
+        <AdminLayout>
+            <Head title="Barangay Infrastructure" />
+            <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <Toaster richColors />
-            <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                {/* <pre>{JSON.stringify(projects, undefined, 3)}</pre> */}
-                <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <DynamicTableControls
-                            allColumns={allColumns}
-                            visibleColumns={visibleColumns}
-                            setVisibleColumns={setVisibleColumns}
-                            showFilters={showFilters}
-                            toggleShowFilters={() =>
-                                setShowFilters((prev) => !prev)
-                            }
-                        />
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap justify-end">
-                        <form
-                            onSubmit={handleSubmit}
-                            className="flex w-[300px] max-w-lg items-center space-x-1"
-                        >
-                            <Input
-                                type="text"
-                                placeholder="Search title or description "
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                onKeyDown={(e) =>
-                                    onKeyPressed("name", e.target.value)
-                                }
-                                className="ml-4"
-                            />
-                            <Button
-                                type="submit"
-                                className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
-                                variant="outline"
-                            >
-                                <Search />
-                            </Button>
-                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                Search
+            <div className="pt-4 mb-10">
+                <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
+                    <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                        <div className="mb-6">
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl shadow-sm">
+                                <div className="p-2 bg-indigo-100 rounded-full">
+                                    <Home className="w-6 h-6 text-indigo-600" />
+                                </div>
+                                <div>
+                                    <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+                                        Barangay Projects Overview
+                                    </h1>
+                                    <p className="text-sm text-gray-500">
+                                        Review, filter, and manage ongoing and
+                                        completed projects implemented by
+                                        barangay institutions.
+                                    </p>
+                                </div>
                             </div>
-                        </form>
+                        </div>
 
-                        <div className="relative group z-50">
-                            <Button
-                                variant="outline"
-                                className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                onClick={handleAddProject}
-                            >
-                                <ListPlus className="w-4 h-4" />
-                            </Button>
-                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                Add a Project
+                        <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                            <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <DynamicTableControls
+                                        allColumns={allColumns}
+                                        visibleColumns={visibleColumns}
+                                        setVisibleColumns={setVisibleColumns}
+                                        showFilters={showFilters}
+                                        toggleShowFilters={() =>
+                                            setShowFilters((prev) => !prev)
+                                        }
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2 flex-wrap justify-end">
+                                    <form
+                                        onSubmit={handleSubmit}
+                                        className="flex w-[300px] max-w-lg items-center space-x-1"
+                                    >
+                                        <Input
+                                            type="text"
+                                            placeholder="Search title or description "
+                                            value={query}
+                                            onChange={(e) =>
+                                                setQuery(e.target.value)
+                                            }
+                                            onKeyDown={(e) =>
+                                                onKeyPressed(
+                                                    "name",
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="ml-4"
+                                        />
+                                        <Button
+                                            type="submit"
+                                            className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
+                                            variant="outline"
+                                        >
+                                            <Search />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Search
+                                        </div>
+                                    </form>
+
+                                    <div className="relative group z-50">
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                            onClick={handleAddProject}
+                                        >
+                                            <ListPlus className="w-4 h-4" />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Add a Project
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                            {showFilters && (
+                                <FilterToggle
+                                    queryParams={queryParams}
+                                    searchFieldName={searchFieldName}
+                                    visibleFilters={[
+                                        "project_status",
+                                        "project_category",
+                                        "responsible_inti",
+                                        "start_date",
+                                        "end_date",
+                                    ]}
+                                    categories={categories}
+                                    institutions={institutions}
+                                    clearRouteName="barangay_project.index"
+                                    clearRouteParams={{}}
+                                    showFilters={showFilters}
+                                />
+                            )}
+                            <DynamicTable
+                                queryParams={queryParams}
+                                passedData={projects}
+                                allColumns={allColumns}
+                                columnRenderers={columnRenderers}
+                                visibleColumns={visibleColumns}
+                                showTotal={true}
+                            />
                         </div>
                     </div>
                 </div>
-                <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                    {showFilters && (
-                        <FilterToggle
-                            queryParams={queryParams}
-                            searchFieldName={searchFieldName}
-                            visibleFilters={[
-                                "project_status",
-                                "project_category",
-                                "responsible_inti",
-                                "start_date",
-                                "end_date",
-                            ]}
-                            showFilters={true}
-                            categories={categories}
-                            institutions={institutions}
-                            setQueryParams={setQueryParams}
-                            setQuery={setQuery}
-                            clearRouteAxios={true}
-                        />
-                    )}
-                    <DynamicTable
-                        passedData={projects}
-                        allColumns={allColumns}
-                        columnRenderers={columnRenderers}
-                        visibleColumns={visibleColumns}
-                        showTotal={true}
-                    />
-                </div>
-            </div>
-            <SidebarModal
-                isOpen={isModalOpen}
-                onClose={() => {
-                    handleModalClose();
-                }}
-                title={modalState == "add" ? "Add Project" : "Edit Project"}
-            >
-                <form
-                    className="bg-gray-50 p-4 rounded-lg"
-                    onSubmit={
-                        projectDetails
-                            ? handleUpdateProject
-                            : handleSubmitProject
-                    }
+                <SidebarModal
+                    isOpen={isModalOpen}
+                    onClose={() => {
+                        handleModalClose();
+                    }}
+                    title={modalState == "add" ? "Add Project" : "Edit Project"}
                 >
-                    <h3 className="text-2xl font-medium text-gray-700">
-                        Barangay Development Projects
-                    </h3>
-                    <p className="text-sm text-gray-500 mb-8">
-                        Please provide details about barangay projects, their
-                        status, funding, and responsible institutions.
-                    </p>
+                    <form
+                        className="bg-gray-50 p-4 rounded-lg"
+                        onSubmit={
+                            projectDetails
+                                ? handleUpdateProject
+                                : handleSubmitProject
+                        }
+                    >
+                        <h3 className="text-2xl font-medium text-gray-700">
+                            Barangay Development Projects
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-8">
+                            Please provide details about barangay projects,
+                            their status, funding, and responsible institutions.
+                        </p>
 
-                    {Array.isArray(data.projects) &&
-                        data.projects.map((project, projIdx) => (
-                            <div
-                                key={projIdx}
-                                className="border p-4 mb-4 rounded-md relative bg-gray-50"
-                            >
-                                <div className="grid grid-cols-1 md:grid-cols-6 mb-6 gap-4">
-                                    {/* Title */}
-                                    <div className="md:col-span-2 flex flex-col items-center space-y-2">
-                                        <InputLabel
-                                            htmlFor={`facility_image_${projIdx}`}
-                                            value="Facility Photo"
-                                        />
+                        {Array.isArray(data.projects) &&
+                            data.projects.map((project, projIdx) => (
+                                <div
+                                    key={projIdx}
+                                    className="border p-4 mb-4 rounded-md relative bg-gray-50"
+                                >
+                                    <div className="grid grid-cols-1 md:grid-cols-6 mb-6 gap-4">
+                                        {/* Title */}
+                                        <div className="md:col-span-2 flex flex-col items-center space-y-2">
+                                            <InputLabel
+                                                htmlFor={`facility_image_${projIdx}`}
+                                                value="Facility Photo"
+                                            />
 
-                                        <img
-                                            src={
-                                                project.previewImage ||
-                                                "/images/default-avatar.jpg"
-                                            }
-                                            alt="Project Image"
-                                            className="w-32 h-32 object-cover rounded-sm border border-gray-200"
-                                        />
-
-                                        <input
-                                            id={`facility_image_${projIdx}`}
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => {
-                                                const file = e.target.files[0];
-                                                if (file) {
-                                                    handleProjectFieldChange(
-                                                        file,
-                                                        projIdx,
-                                                        "project_image"
-                                                    );
+                                            <img
+                                                src={
+                                                    project.previewImage ||
+                                                    "/images/default-avatar.jpg"
                                                 }
-                                            }}
-                                            className="block w-full text-sm text-gray-500
+                                                alt="Project Image"
+                                                className="w-32 h-32 object-cover rounded-sm border border-gray-200"
+                                            />
+
+                                            <input
+                                                id={`facility_image_${projIdx}`}
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    const file =
+                                                        e.target.files[0];
+                                                    if (file) {
+                                                        handleProjectFieldChange(
+                                                            file,
+                                                            projIdx,
+                                                            "project_image"
+                                                        );
+                                                    }
+                                                }}
+                                                className="block w-full text-sm text-gray-500
                                                                                                                                 file:mr-2 file:py-1 file:px-3
                                                                                                                                 file:rounded file:border-0
                                                                                                                                 file:text-xs file:font-semibold
                                                                                                                                 file:bg-blue-50 file:text-blue-700
                                                                                                                                 hover:file:bg-blue-100"
-                                        />
-                                        <InputError
-                                            message={
-                                                errors[
-                                                `projects.${projIdx}.project_image`
-                                                ]
-                                            }
-                                            className="mt-2"
-                                        />
-                                    </div>
-                                    <div className="md:col-span-4 space-y-4">
-                                        <div className="md:col-span-3">
-                                            <InputField
-                                                label="Project Title"
-                                                name="title"
-                                                value={project.title || ""}
-                                                onChange={(e) =>
-                                                    handleProjectFieldChange(
-                                                        e.target.value,
-                                                        projIdx,
-                                                        "title"
-                                                    )
-                                                }
-                                                placeholder="e.g. Barangay Health Center Construction"
                                             />
                                             <InputError
                                                 message={
                                                     errors[
-                                                    `projects.${projIdx}.title`
+                                                        `projects.${projIdx}.project_image`
+                                                    ]
+                                                }
+                                                className="mt-2"
+                                            />
+                                        </div>
+                                        <div className="md:col-span-4 space-y-4">
+                                            <div className="md:col-span-3">
+                                                <InputField
+                                                    label="Project Title"
+                                                    name="title"
+                                                    value={project.title || ""}
+                                                    onChange={(e) =>
+                                                        handleProjectFieldChange(
+                                                            e.target.value,
+                                                            projIdx,
+                                                            "title"
+                                                        )
+                                                    }
+                                                    placeholder="e.g. Barangay Health Center Construction"
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `projects.${projIdx}.title`
+                                                        ]
+                                                    }
+                                                    className="mt-1"
+                                                />
+                                            </div>
+
+                                            {/* Category */}
+                                            <div className="md:col-span-3">
+                                                <DropdownInputField
+                                                    label="Category"
+                                                    name="category"
+                                                    value={
+                                                        project.category || ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        handleProjectFieldChange(
+                                                            e.target.value,
+                                                            projIdx,
+                                                            "category"
+                                                        )
+                                                    }
+                                                    placeholder="Select category"
+                                                    items={[
+                                                        {
+                                                            label: "Infrastructure",
+                                                            value: "infrastructure",
+                                                        },
+                                                        {
+                                                            label: "Health",
+                                                            value: "health",
+                                                        },
+                                                        {
+                                                            label: "Education",
+                                                            value: "education",
+                                                        },
+                                                        {
+                                                            label: "Livelihood",
+                                                            value: "livelihood",
+                                                        },
+                                                        {
+                                                            label: "Others",
+                                                            value: "others",
+                                                        },
+                                                    ]}
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors[
+                                                            `projects.${projIdx}.category`
+                                                        ]
+                                                    }
+                                                    className="mt-1"
+                                                />
+                                            </div>
+                                        </div>
+                                        {/* Description */}
+                                        <div className="md:col-span-6">
+                                            <Textarea
+                                                label="Description"
+                                                name="description"
+                                                value={
+                                                    project.description || ""
+                                                }
+                                                onChange={(e) =>
+                                                    handleProjectFieldChange(
+                                                        e.target.value,
+                                                        projIdx,
+                                                        "description"
+                                                    )
+                                                }
+                                                className={"text-gray-600"}
+                                                placeholder="Brief description of the project..."
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `projects.${projIdx}.description`
                                                     ]
                                                 }
                                                 className="mt-1"
                                             />
                                         </div>
-
-                                        {/* Category */}
-                                        <div className="md:col-span-3">
-                                            <DropdownInputField
-                                                label="Category"
-                                                name="category"
-                                                value={project.category || ""}
+                                        {/* Status */}
+                                        <div className="md:col-span-2">
+                                            <SelectField
+                                                label="Status"
+                                                name="status"
+                                                value={project.status || ""}
                                                 onChange={(e) =>
                                                     handleProjectFieldChange(
                                                         e.target.value,
                                                         projIdx,
-                                                        "category"
+                                                        "status"
                                                     )
                                                 }
-                                                placeholder="Select category"
                                                 items={[
                                                     {
-                                                        label: "Infrastructure",
-                                                        value: "infrastructure",
+                                                        label: "Planning",
+                                                        value: "planning",
                                                     },
                                                     {
-                                                        label: "Health",
-                                                        value: "health",
+                                                        label: "Ongoing",
+                                                        value: "ongoing",
                                                     },
                                                     {
-                                                        label: "Education",
-                                                        value: "education",
+                                                        label: "Completed",
+                                                        value: "completed",
                                                     },
                                                     {
-                                                        label: "Livelihood",
-                                                        value: "livelihood",
-                                                    },
-                                                    {
-                                                        label: "Others",
-                                                        value: "others",
+                                                        label: "Cancelled",
+                                                        value: "cancelled",
                                                     },
                                                 ]}
                                             />
                                             <InputError
                                                 message={
                                                     errors[
-                                                    `projects.${projIdx}.category`
+                                                        `projects.${projIdx}.status`
+                                                    ]
+                                                }
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+                                        {/* Responsible Institution */}
+                                        <div className="md:col-span-4">
+                                            <DropdownInputField
+                                                label="Responsible Institution"
+                                                name="responsible_institution"
+                                                value={
+                                                    project.responsible_institution ||
+                                                    ""
+                                                }
+                                                onChange={(e) =>
+                                                    handleProjectFieldChange(
+                                                        e.target.value,
+                                                        projIdx,
+                                                        "responsible_institution"
+                                                    )
+                                                }
+                                                placeholder="Enter institution"
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `projects.${projIdx}.responsible_institution`
+                                                    ]
+                                                }
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+                                        {/* Budget */}
+                                        <div className="md:col-span-2">
+                                            <InputField
+                                                type="number"
+                                                step="0.01"
+                                                label="Budget (₱)"
+                                                name="budget"
+                                                value={project.budget || ""}
+                                                onChange={(e) =>
+                                                    handleProjectFieldChange(
+                                                        e.target.value,
+                                                        projIdx,
+                                                        "budget"
+                                                    )
+                                                }
+                                                placeholder="e.g. 500000"
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `projects.${projIdx}.budget`
+                                                    ]
+                                                }
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+                                        {/* Funding Source */}
+                                        <div className="md:col-span-4">
+                                            <InputField
+                                                label="Funding Source"
+                                                name="funding_source"
+                                                value={
+                                                    project.funding_source || ""
+                                                }
+                                                onChange={(e) =>
+                                                    handleProjectFieldChange(
+                                                        e.target.value,
+                                                        projIdx,
+                                                        "funding_source"
+                                                    )
+                                                }
+                                                placeholder="e.g. LGU, NGO, National Government"
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `projects.${projIdx}.funding_source`
+                                                    ]
+                                                }
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+                                        {/* Start Date */}
+                                        <div className="md:col-span-3">
+                                            <InputField
+                                                type="date"
+                                                label="Start Date"
+                                                name="start_date"
+                                                value={project.start_date || ""}
+                                                onChange={(e) =>
+                                                    handleProjectFieldChange(
+                                                        e.target.value,
+                                                        projIdx,
+                                                        "start_date"
+                                                    )
+                                                }
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `projects.${projIdx}.start_date`
+                                                    ]
+                                                }
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+                                        {/* End Date */}
+                                        <div className="md:col-span-3">
+                                            <InputField
+                                                type="date"
+                                                label="End Date"
+                                                name="end_date"
+                                                value={project.end_date || ""}
+                                                onChange={(e) =>
+                                                    handleProjectFieldChange(
+                                                        e.target.value,
+                                                        projIdx,
+                                                        "end_date"
+                                                    )
+                                                }
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `projects.${projIdx}.end_date`
                                                     ]
                                                 }
                                                 className="mt-1"
                                             />
                                         </div>
                                     </div>
-                                    {/* Description */}
-                                    <div className="md:col-span-6">
-                                        <Textarea
-                                            label="Description"
-                                            name="description"
-                                            value={project.description || ""}
-                                            onChange={(e) =>
-                                                handleProjectFieldChange(
-                                                    e.target.value,
-                                                    projIdx,
-                                                    "description"
-                                                )
-                                            }
-                                            className={"text-gray-600"}
-                                            placeholder="Brief description of the project..."
-                                        />
-                                        <InputError
-                                            message={
-                                                errors[
-                                                `projects.${projIdx}.description`
-                                                ]
-                                            }
-                                            className="mt-1"
-                                        />
-                                    </div>
-                                    {/* Status */}
-                                    <div className="md:col-span-2">
-                                        <SelectField
-                                            label="Status"
-                                            name="status"
-                                            value={project.status || ""}
-                                            onChange={(e) =>
-                                                handleProjectFieldChange(
-                                                    e.target.value,
-                                                    projIdx,
-                                                    "status"
-                                                )
-                                            }
-                                            items={[
-                                                {
-                                                    label: "Planning",
-                                                    value: "planning",
-                                                },
-                                                {
-                                                    label: "Ongoing",
-                                                    value: "ongoing",
-                                                },
-                                                {
-                                                    label: "Completed",
-                                                    value: "completed",
-                                                },
-                                                {
-                                                    label: "Cancelled",
-                                                    value: "cancelled",
-                                                },
-                                            ]}
-                                        />
-                                        <InputError
-                                            message={
-                                                errors[
-                                                `projects.${projIdx}.status`
-                                                ]
-                                            }
-                                            className="mt-1"
-                                        />
-                                    </div>
 
-                                    {/* Responsible Institution */}
-                                    <div className="md:col-span-4">
-                                        <DropdownInputField
-                                            label="Responsible Institution"
-                                            name="responsible_institution"
-                                            value={
-                                                project.responsible_institution ||
-                                                ""
+                                    {/* Remove button */}
+                                    {projectDetails === null && (
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                removeProject(projIdx)
                                             }
-                                            onChange={(e) =>
-                                                handleProjectFieldChange(
-                                                    e.target.value,
-                                                    projIdx,
-                                                    "responsible_institution"
-                                                )
-                                            }
-                                            placeholder="Enter institution"
-                                        />
-                                        <InputError
-                                            message={
-                                                errors[
-                                                `projects.${projIdx}.responsible_institution`
-                                                ]
-                                            }
-                                            className="mt-1"
-                                        />
-                                    </div>
-
-                                    {/* Budget */}
-                                    <div className="md:col-span-2">
-                                        <InputField
-                                            type="number"
-                                            step="0.01"
-                                            label="Budget (₱)"
-                                            name="budget"
-                                            value={project.budget || ""}
-                                            onChange={(e) =>
-                                                handleProjectFieldChange(
-                                                    e.target.value,
-                                                    projIdx,
-                                                    "budget"
-                                                )
-                                            }
-                                            placeholder="e.g. 500000"
-                                        />
-                                        <InputError
-                                            message={
-                                                errors[
-                                                `projects.${projIdx}.budget`
-                                                ]
-                                            }
-                                            className="mt-1"
-                                        />
-                                    </div>
-
-                                    {/* Funding Source */}
-                                    <div className="md:col-span-4">
-                                        <InputField
-                                            label="Funding Source"
-                                            name="funding_source"
-                                            value={project.funding_source || ""}
-                                            onChange={(e) =>
-                                                handleProjectFieldChange(
-                                                    e.target.value,
-                                                    projIdx,
-                                                    "funding_source"
-                                                )
-                                            }
-                                            placeholder="e.g. LGU, NGO, National Government"
-                                        />
-                                        <InputError
-                                            message={
-                                                errors[
-                                                `projects.${projIdx}.funding_source`
-                                                ]
-                                            }
-                                            className="mt-1"
-                                        />
-                                    </div>
-
-                                    {/* Start Date */}
-                                    <div className="md:col-span-3">
-                                        <InputField
-                                            type="date"
-                                            label="Start Date"
-                                            name="start_date"
-                                            value={project.start_date || ""}
-                                            onChange={(e) =>
-                                                handleProjectFieldChange(
-                                                    e.target.value,
-                                                    projIdx,
-                                                    "start_date"
-                                                )
-                                            }
-                                        />
-                                        <InputError
-                                            message={
-                                                errors[
-                                                `projects.${projIdx}.start_date`
-                                                ]
-                                            }
-                                            className="mt-1"
-                                        />
-                                    </div>
-
-                                    {/* End Date */}
-                                    <div className="md:col-span-3">
-                                        <InputField
-                                            type="date"
-                                            label="End Date"
-                                            name="end_date"
-                                            value={project.end_date || ""}
-                                            onChange={(e) =>
-                                                handleProjectFieldChange(
-                                                    e.target.value,
-                                                    projIdx,
-                                                    "end_date"
-                                                )
-                                            }
-                                        />
-                                        <InputError
-                                            message={
-                                                errors[
-                                                `projects.${projIdx}.end_date`
-                                                ]
-                                            }
-                                            className="mt-1"
-                                        />
-                                    </div>
+                                            className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
+                                        >
+                                            <IoIosCloseCircleOutline className="text-2xl" />
+                                        </button>
+                                    )}
                                 </div>
+                            ))}
 
-                                {/* Remove button */}
-                                {projectDetails === null && (
-                                    <button
-                                        type="button"
-                                        onClick={() => removeProject(projIdx)}
-                                        className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
-                                    >
-                                        <IoIosCloseCircleOutline className="text-2xl" />
-                                    </button>
-                                )}
-                            </div>
-                        ))}
-
-                    <div className="flex justify-between items-center p-3">
-                        {projectDetails === null ? (
-                            <button
-                                type="button"
-                                onClick={addProject}
-                                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
-                            >
-                                <IoIosAddCircleOutline className="text-2xl" />
-                                <span>Add Project</span>
-                            </button>
-                        ) : (
-                            <div></div>
-                        )}
-
-                        <div className="flex justify-end items-center text-end mt-5 gap-4">
-                            {projectDetails == null && (
-                                <Button type="button" onClick={() => reset()}>
-                                    <RotateCcw /> Reset
-                                </Button>
+                        <div className="flex justify-between items-center p-3">
+                            {projectDetails === null ? (
+                                <button
+                                    type="button"
+                                    onClick={addProject}
+                                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
+                                >
+                                    <IoIosAddCircleOutline className="text-2xl" />
+                                    <span>Add Project</span>
+                                </button>
+                            ) : (
+                                <div></div>
                             )}
 
-                            <Button
-                                className="bg-blue-700 hover:bg-blue-400"
-                                type={"submit"}
-                            >
-                                {projectDetails ? "Update" : "Add"}{" "}
-                                <IoIosArrowForward />
-                            </Button>
+                            <div className="flex justify-end items-center text-end mt-5 gap-4">
+                                {projectDetails == null && (
+                                    <Button
+                                        type="button"
+                                        onClick={() => reset()}
+                                    >
+                                        <RotateCcw /> Reset
+                                    </Button>
+                                )}
+
+                                <Button
+                                    className="bg-blue-700 hover:bg-blue-400"
+                                    type={"submit"}
+                                >
+                                    {projectDetails ? "Update" : "Add"}{" "}
+                                    <IoIosArrowForward />
+                                </Button>
+                            </div>
                         </div>
-                    </div>
-                </form>
-            </SidebarModal>
-            <DeleteConfirmationModal
-                isOpen={isDeleteModalOpen}
-                onClose={() => {
-                    setIsDeleteModalOpen(false);
-                }}
-                onConfirm={confirmDelete}
-                residentId={projectToDelete}
-            />
-        </div>
+                    </form>
+                </SidebarModal>
+                <DeleteConfirmationModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => {
+                        setIsDeleteModalOpen(false);
+                    }}
+                    onConfirm={confirmDelete}
+                    residentId={projectToDelete}
+                />
+            </div>
+        </AdminLayout>
     );
 };
 

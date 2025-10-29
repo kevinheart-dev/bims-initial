@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import DynamicTable from "@/Components/DynamicTable";
 import axios from "axios";
+import AdminLayout from "@/Layouts/AdminLayout";
 import useAppUrl from "@/hooks/useAppUrl";
-import { Skeleton } from "@/Components/ui/skeleton";
-import { useQuery } from "@tanstack/react-query";
 import ActionMenu from "@/Components/ActionMenu";
 import {
     Eye,
@@ -14,11 +13,12 @@ import {
     Search,
     SquarePen,
     Trash2,
+    UsersRound,
 } from "lucide-react";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
-import { Link, router, useForm, usePage } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import { INSTITUTION_STATUS_TEXT, INSTITUTION_TYPE_TEXT } from "@/constants";
 import InputField from "@/Components/InputField";
@@ -35,37 +35,26 @@ import { Textarea } from "@/Components/ui/textarea";
 import { Toaster, toast } from "sonner";
 import SelectField from "@/Components/SelectField";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
+import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 
-const InstitutionIndex = () => {
+const InstitutionIndex = ({ institutions, institutionNames, queryParams }) => {
+    const breadcrumbs = [
+        { label: "Barangay Resources", showOnMobile: false },
+        { label: "Insititutions", showOnMobile: true },
+    ];
+
     const APP_URL = useAppUrl();
+    queryParams = queryParams || {};
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalState, setModalState] = useState("");
     const [institutionDetails, setInstitutionDetails] = useState(null);
-    const props = usePage().props;
-    const Toasterror = props?.error ?? null;
-    const [queryParams, setQueryParams] = useState({});
     const [query, setQuery] = useState(queryParams["name"] ?? "");
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
     const [institutionToDelete, setInstitutionToDelete] = useState(null); //delete
 
-    const {
-        data: institutions,
-        isLoading,
-        isError,
-        error,
-        refetch,
-    } = useQuery({
-        queryKey: ["institutions", queryParams],
-        queryFn: async () => {
-            const { data } = await axios.get(
-                `${APP_URL}/barangay_institution`,
-                { params: queryParams }
-            );
-            return data.institutions;
-        },
-        keepPreviousData: true,
-        staleTime: 1000 * 60 * 5,
-    });
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
 
     const allColumns = [
         { key: "id", label: "ID" },
@@ -86,17 +75,6 @@ const InstitutionIndex = () => {
         return saved ? JSON.parse(saved) : defaultVisibleCols;
     });
 
-    const hasActiveFilter = Object.entries(queryParams || {}).some(
-        ([key, value]) => ["institution"].includes(key) && value && value !== ""
-    );
-
-    const [showFilters, setShowFilters] = useState(hasActiveFilter);
-
-    useEffect(() => {
-        if (hasActiveFilter) {
-            setShowFilters(true);
-        }
-    }, [hasActiveFilter]);
     useEffect(() => {
         localStorage.setItem(
             "instutions_visible_columns",
@@ -104,25 +82,33 @@ const InstitutionIndex = () => {
         );
     }, [visibleColumns]);
 
+    const hasActiveFilter = Object.entries(queryParams || {}).some(
+        ([key, value]) => ["institution"].includes(key) && value && value !== ""
+    );
+
+    useEffect(() => {
+        if (hasActiveFilter) {
+            setShowFilters(true);
+        }
+    }, [hasActiveFilter]);
+
+    const [showFilters, setShowFilters] = useState(hasActiveFilter);
+
     const handleSubmit = (e) => {
         e.preventDefault();
         searchFieldName("name", query);
     };
     const searchFieldName = (field, value) => {
-        setQueryParams((prev) => {
-            const updated = { ...prev };
+        if (value && value.trim() !== "") {
+            queryParams[field] = value;
+        } else {
+            delete queryParams[field];
+        }
 
-            if (value && value.trim() !== "") {
-                updated[field] = value;
-            } else {
-                delete updated[field];
-            }
-
-            // reset pagination when searching
-            delete updated.page;
-
-            return updated; // React Query will refetch automatically
-        });
+        if (queryParams.page) {
+            delete queryParams.page;
+        }
+        router.get(route("barangay_institution.index", queryParams));
     };
     const onKeyPressed = (field, e) => {
         if (e.key === "Enter") {
@@ -149,8 +135,9 @@ const InstitutionIndex = () => {
         head: (row) => {
             const res = row?.head?.resident;
             return res
-                ? `${res.firstname} ${res.middlename ?? ""} ${res.lastname} ${res.suffix ?? ""
-                }`
+                ? `${res.firstname} ${res.middlename ?? ""} ${res.lastname} ${
+                      res.suffix ?? ""
+                  }`
                 : "No assigned head";
         },
 
@@ -174,8 +161,9 @@ const InstitutionIndex = () => {
             };
             return (
                 <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[row.status] || "bg-gray-100 text-gray-800"
-                        }`}
+                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        statusColors[row.status] || "bg-gray-100 text-gray-800"
+                    }`}
                 >
                     {INSTITUTION_STATUS_TEXT[row.status] || "—"}
                 </span>
@@ -186,12 +174,12 @@ const InstitutionIndex = () => {
             <span className="text-sm text-gray-500">
                 {row.created_at
                     ? new Date(row.created_at).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    })
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                      })
                     : "—"}
             </span>
         ),
@@ -200,12 +188,12 @@ const InstitutionIndex = () => {
             <span className="text-sm text-gray-500">
                 {row.updated_at
                     ? new Date(row.updated_at).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    })
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                      })
                     : "—"}
             </span>
         ),
@@ -291,10 +279,6 @@ const InstitutionIndex = () => {
                     closeButton: true,
                 });
             },
-            onSuccess: () => {
-                refetch();
-                handleModalClose();
-            },
         });
     };
 
@@ -343,10 +327,6 @@ const InstitutionIndex = () => {
                     closeButton: true,
                 });
             },
-            onSuccess: () => {
-                refetch();
-                handleModalClose();
-            },
         });
     };
 
@@ -374,371 +354,399 @@ const InstitutionIndex = () => {
                         closeButton: true,
                     });
                 },
-                onSuccess: () => {
-                    refetch();
-                    handleModalClose();
-                },
             }
         );
         setIsDeleteModalOpen(false);
     };
 
     useEffect(() => {
-        if (Toasterror) {
-            toast.error(Toasterror, {
+        if (success) {
+            handleModalClose();
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.success = null;
+    }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
                 description: "Operation failed!",
                 duration: 3000,
                 closeButton: true,
             });
         }
         props.error = null;
-    }, [Toasterror]);
-
-    if (isLoading) {
-        return (
-            <div className="gap-2 space-y-4">
-                <Skeleton className="h-[20px] w-[100px] rounded-full" />
-                <Skeleton className="h-[10px] w-[100px] rounded-full" />
-            </div>
-        );
-    }
-    if (isError) {
-        return <div className="text-red-500">Error: {error.message}</div>;
-    }
+    }, [error]);
     return (
-        <div className="p-2 md:px-2 md:py-2">
+        <AdminLayout>
+            <Head title="Barangay Infrastructure" />
+            <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <Toaster richColors />
-            <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
-                {/* <pre>{JSON.stringify(institutions, undefined, 3)}</pre> */}
-                <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <DynamicTableControls
-                            allColumns={allColumns}
-                            visibleColumns={visibleColumns}
-                            setVisibleColumns={setVisibleColumns}
-                            showFilters={showFilters}
-                            toggleShowFilters={() =>
-                                setShowFilters((prev) => !prev)
-                            }
-                        />
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap justify-end">
-                        <form
-                            onSubmit={handleSubmit}
-                            className="flex w-[300px] max-w-lg items-center space-x-1"
-                        >
-                            <Input
-                                type="text"
-                                placeholder="Search institutions"
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                onKeyDown={(e) =>
-                                    onKeyPressed("name", e.target.value)
-                                }
-                                className="ml-4"
-                            />
-                            <Button
-                                type="submit"
-                                className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
-                                variant="outline"
-                            >
-                                <Search />
-                            </Button>
-                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                Search
-                            </div>
-                        </form>
-
-                        <div className="relative group z-50">
-                            <Button
-                                variant="outline"
-                                className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                onClick={handleAddInstitution}
-                            >
-                                <ListPlus className="w-4 h-4" />
-                            </Button>
-                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                Add an Institution
+            <div className="pt-4 mb-10">
+                <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
+                    <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                        <div className="mb-6">
+                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl shadow-sm">
+                                <div className="p-2 bg-green-100 rounded-full">
+                                    <UsersRound className="w-6 h-6 text-green-600" />
+                                </div>
+                                <div>
+                                    <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+                                        Barangay Institution Overview
+                                    </h1>
+                                    <p className="text-sm text-gray-500">
+                                        Review, filter, and manage existing
+                                        barangay institutions efficiently.
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                    {showFilters && (
-                        <FilterToggle
-                            queryParams={queryParams}
-                            searchFieldName={searchFieldName}
-                            visibleFilters={["institution"]}
-                            showFilters={true}
-                            institutions={institutions.data}
-                            setQueryParams={setQueryParams}
-                            setQuery={setQuery}
-                            clearRouteAxios={true}
-                        />
-                    )}
-                    <DynamicTable
-                        passedData={institutions}
-                        allColumns={allColumns}
-                        columnRenderers={columnRenderers}
-                        visibleColumns={visibleColumns}
-                        showTotal={true}
-                    />
-                </div>
-            </div>
-            <SidebarModal
-                isOpen={isModalOpen}
-                onClose={() => {
-                    handleModalClose();
-                }}
-                title={
-                    modalState == "add" ? "Add Institution" : "Edit Institution"
-                }
-            >
-                <form
-                    className="bg-gray-50 p-4 rounded-lg"
-                    onSubmit={
-                        institutionDetails
-                            ? handleUpdateInstitution
-                            : handleSubmitInstitution
-                    }
-                >
-                    <h3 className="text-2xl font-medium text-gray-700">
-                        Barangay Institutions / Groups
-                    </h3>
-                    <p className="text-sm text-gray-500 mb-8">
-                        Please provide details about existing institutions,
-                        organizations, or groups within the barangay.
-                    </p>
-
-                    {Array.isArray(data.institutions) &&
-                        data.institutions.map((institution, instIdx) => (
-                            <div
-                                key={instIdx}
-                                className="border p-4 mb-4 rounded-md relative bg-gray-50"
-                            >
-                                <div className="grid grid-cols-1 md:grid-cols-6 mb-6 gap-4">
-                                    {/* Institution Name */}
-                                    <div className="md:col-span-3">
-                                        <InputField
-                                            label="Institution Name"
-                                            name="name"
-                                            value={institution.name || ""}
+                        <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                            <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <DynamicTableControls
+                                        allColumns={allColumns}
+                                        visibleColumns={visibleColumns}
+                                        setVisibleColumns={setVisibleColumns}
+                                        showFilters={showFilters}
+                                        toggleShowFilters={() =>
+                                            setShowFilters((prev) => !prev)
+                                        }
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2 flex-wrap justify-end">
+                                    <form
+                                        onSubmit={handleSubmit}
+                                        className="flex w-[300px] max-w-lg items-center space-x-1"
+                                    >
+                                        <Input
+                                            type="text"
+                                            placeholder="Search institutions"
+                                            value={query}
                                             onChange={(e) =>
-                                                handleInstitutionFieldChange(
-                                                    e.target.value,
-                                                    instIdx,
-                                                    "name"
+                                                setQuery(e.target.value)
+                                            }
+                                            onKeyDown={(e) =>
+                                                onKeyPressed(
+                                                    "name",
+                                                    e.target.value
                                                 )
                                             }
-                                            placeholder="e.g. Fisherfolk Association"
+                                            className="ml-4"
                                         />
-                                        <InputError
-                                            message={
-                                                errors[
-                                                `institutions.${instIdx}.name`
-                                                ]
-                                            }
-                                            className="mt-1"
-                                        />
-                                    </div>
+                                        <Button
+                                            type="submit"
+                                            className="border active:bg-blue-900 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center gap-2 bg-transparent"
+                                            variant="outline"
+                                        >
+                                            <Search />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Search
+                                        </div>
+                                    </form>
 
-                                    {/* Type */}
-                                    <div className="md:col-span-3">
-                                        <DropdownInputField
-                                            label="Institution Type"
-                                            name="type"
-                                            value={institution.type || ""}
-                                            onChange={(e) =>
-                                                handleInstitutionFieldChange(
-                                                    e.target.value,
-                                                    instIdx,
-                                                    "type"
-                                                )
-                                            }
-                                            placeholder="Select or enter type"
-                                            items={[
-                                                {
-                                                    label: "Youth Organization",
-                                                    value: "youth_org",
-                                                },
-                                                {
-                                                    label: "Cooperative",
-                                                    value: "coop",
-                                                },
-                                                {
-                                                    label: "Religious Group",
-                                                    value: "religious",
-                                                },
-                                                {
-                                                    label: "Farmers Association",
-                                                    value: "farmers",
-                                                },
-                                                {
-                                                    label: "Transport Group",
-                                                    value: "transport",
-                                                },
-                                            ]}
-                                        />
-                                        <InputError
-                                            message={
-                                                errors[
-                                                `institutions.${instIdx}.type`
-                                                ]
-                                            }
-                                            className="mt-1"
-                                        />
-                                    </div>
-
-                                    {/* Description */}
-                                    <div className="md:col-span-6">
-                                        <Textarea
-                                            label="Description"
-                                            name="description"
-                                            value={
-                                                institution.description || ""
-                                            }
-                                            onChange={(e) =>
-                                                handleInstitutionFieldChange(
-                                                    e.target.value,
-                                                    instIdx,
-                                                    "description"
-                                                )
-                                            }
-                                            className={"text-gray-600"}
-                                            placeholder="Brief description of the institution..."
-                                        />
-                                        <InputError
-                                            message={
-                                                errors[
-                                                `institutions.${instIdx}.description`
-                                                ]
-                                            }
-                                            className="mt-1"
-                                        />
-                                    </div>
-
-                                    {/* Year & Status */}
-                                    <div className="md:col-span-3">
-                                        <YearDropdown
-                                            label="Year Established"
-                                            name="year_established"
-                                            value={
-                                                institution.year_established ||
-                                                ""
-                                            }
-                                            onChange={(e) =>
-                                                handleInstitutionFieldChange(
-                                                    e.target.value,
-                                                    instIdx,
-                                                    "year_established"
-                                                )
-                                            }
-                                            placeholder="YYYY"
-                                        />
-                                        <InputError
-                                            message={
-                                                errors[
-                                                `institutions.${instIdx}.year_established`
-                                                ]
-                                            }
-                                            className="mt-1"
-                                        />
-                                    </div>
-
-                                    <div className="md:col-span-3">
-                                        <SelectField
-                                            label="Status"
-                                            name="status"
-                                            value={institution.status || ""}
-                                            onChange={(e) =>
-                                                handleInstitutionFieldChange(
-                                                    e.target.value,
-                                                    instIdx,
-                                                    "status"
-                                                )
-                                            }
-                                            items={[
-                                                {
-                                                    label: "Active",
-                                                    value: "active",
-                                                },
-                                                {
-                                                    label: "Inactive",
-                                                    value: "inactive",
-                                                },
-                                                {
-                                                    label: "Dissolved",
-                                                    value: "dissolved",
-                                                },
-                                            ]}
-                                        />
-                                        <InputError
-                                            message={
-                                                errors[
-                                                `institutions.${instIdx}.status`
-                                                ]
-                                            }
-                                            className="mt-1"
-                                        />
+                                    <div className="relative group z-50">
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                            onClick={handleAddInstitution}
+                                        >
+                                            <ListPlus className="w-4 h-4" />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Add an Institution
+                                        </div>
                                     </div>
                                 </div>
-
-                                {/* Remove button */}
-                                {institutionDetails === null && (
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            removeInstitution(instIdx)
-                                        }
-                                        className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
-                                    >
-                                        <IoIosCloseCircleOutline className="text-2xl" />
-                                    </button>
-                                )}
                             </div>
-                        ))}
-
-                    <div className="flex justify-between items-center p-3">
-                        {institutionDetails === null ? (
-                            <button
-                                type="button"
-                                onClick={addInstitution}
-                                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
-                            >
-                                <IoIosAddCircleOutline className="text-2xl" />
-                                <span>Add Institution</span>
-                            </button>
-                        ) : (
-                            <div></div>
-                        )}
-
-                        <div className="flex justify-end items-center text-end mt-5 gap-4">
-                            {institutionDetails == null && (
-                                <Button type="button" onClick={() => reset()}>
-                                    <RotateCcw /> Reset
-                                </Button>
+                            {showFilters && (
+                                <FilterToggle
+                                    queryParams={queryParams}
+                                    searchFieldName={searchFieldName}
+                                    visibleFilters={["institution"]}
+                                    institutions={institutionNames}
+                                    clearRouteName="barangay_institution.index"
+                                    clearRouteParams={{}}
+                                    showFilters={showFilters}
+                                />
                             )}
-
-                            <Button
-                                className="bg-blue-700 hover:bg-blue-400"
-                                type={"submit"}
-                            >
-                                {institutionDetails ? "Update" : "Add"}{" "}
-                                <IoIosArrowForward />
-                            </Button>
+                            <DynamicTable
+                                queryParams={queryParams}
+                                passedData={institutions}
+                                allColumns={allColumns}
+                                columnRenderers={columnRenderers}
+                                visibleColumns={visibleColumns}
+                                showTotal={true}
+                            />
                         </div>
                     </div>
-                </form>
-            </SidebarModal>
-            <DeleteConfirmationModal
-                isOpen={isDeleteModalOpen}
-                onClose={() => {
-                    setIsDeleteModalOpen(false);
-                }}
-                onConfirm={confirmDelete}
-                residentId={institutionToDelete}
-            />
-        </div>
+                </div>
+                <SidebarModal
+                    isOpen={isModalOpen}
+                    onClose={() => {
+                        handleModalClose();
+                    }}
+                    title={
+                        modalState == "add"
+                            ? "Add Institution"
+                            : "Edit Institution"
+                    }
+                >
+                    <form
+                        className="bg-gray-50 p-4 rounded-lg"
+                        onSubmit={
+                            institutionDetails
+                                ? handleUpdateInstitution
+                                : handleSubmitInstitution
+                        }
+                    >
+                        <h3 className="text-2xl font-medium text-gray-700">
+                            Barangay Institutions / Groups
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-8">
+                            Please provide details about existing institutions,
+                            organizations, or groups within the barangay.
+                        </p>
+
+                        {Array.isArray(data.institutions) &&
+                            data.institutions.map((institution, instIdx) => (
+                                <div
+                                    key={instIdx}
+                                    className="border p-4 mb-4 rounded-md relative bg-gray-50"
+                                >
+                                    <div className="grid grid-cols-1 md:grid-cols-6 mb-6 gap-4">
+                                        {/* Institution Name */}
+                                        <div className="md:col-span-3">
+                                            <InputField
+                                                label="Institution Name"
+                                                name="name"
+                                                value={institution.name || ""}
+                                                onChange={(e) =>
+                                                    handleInstitutionFieldChange(
+                                                        e.target.value,
+                                                        instIdx,
+                                                        "name"
+                                                    )
+                                                }
+                                                placeholder="e.g. Fisherfolk Association"
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `institutions.${instIdx}.name`
+                                                    ]
+                                                }
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+                                        {/* Type */}
+                                        <div className="md:col-span-3">
+                                            <DropdownInputField
+                                                label="Institution Type"
+                                                name="type"
+                                                value={institution.type || ""}
+                                                onChange={(e) =>
+                                                    handleInstitutionFieldChange(
+                                                        e.target.value,
+                                                        instIdx,
+                                                        "type"
+                                                    )
+                                                }
+                                                placeholder="Select or enter type"
+                                                items={[
+                                                    {
+                                                        label: "Youth Organization",
+                                                        value: "youth_org",
+                                                    },
+                                                    {
+                                                        label: "Cooperative",
+                                                        value: "coop",
+                                                    },
+                                                    {
+                                                        label: "Religious Group",
+                                                        value: "religious",
+                                                    },
+                                                    {
+                                                        label: "Farmers Association",
+                                                        value: "farmers",
+                                                    },
+                                                    {
+                                                        label: "Transport Group",
+                                                        value: "transport",
+                                                    },
+                                                ]}
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `institutions.${instIdx}.type`
+                                                    ]
+                                                }
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+                                        {/* Description */}
+                                        <div className="md:col-span-6">
+                                            <Textarea
+                                                label="Description"
+                                                name="description"
+                                                value={
+                                                    institution.description ||
+                                                    ""
+                                                }
+                                                onChange={(e) =>
+                                                    handleInstitutionFieldChange(
+                                                        e.target.value,
+                                                        instIdx,
+                                                        "description"
+                                                    )
+                                                }
+                                                className={"text-gray-600"}
+                                                placeholder="Brief description of the institution..."
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `institutions.${instIdx}.description`
+                                                    ]
+                                                }
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+                                        {/* Year & Status */}
+                                        <div className="md:col-span-3">
+                                            <YearDropdown
+                                                label="Year Established"
+                                                name="year_established"
+                                                value={
+                                                    institution.year_established ||
+                                                    ""
+                                                }
+                                                onChange={(e) =>
+                                                    handleInstitutionFieldChange(
+                                                        e.target.value,
+                                                        instIdx,
+                                                        "year_established"
+                                                    )
+                                                }
+                                                placeholder="YYYY"
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `institutions.${instIdx}.year_established`
+                                                    ]
+                                                }
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+                                        <div className="md:col-span-3">
+                                            <SelectField
+                                                label="Status"
+                                                name="status"
+                                                value={institution.status || ""}
+                                                onChange={(e) =>
+                                                    handleInstitutionFieldChange(
+                                                        e.target.value,
+                                                        instIdx,
+                                                        "status"
+                                                    )
+                                                }
+                                                items={[
+                                                    {
+                                                        label: "Active",
+                                                        value: "active",
+                                                    },
+                                                    {
+                                                        label: "Inactive",
+                                                        value: "inactive",
+                                                    },
+                                                    {
+                                                        label: "Dissolved",
+                                                        value: "dissolved",
+                                                    },
+                                                ]}
+                                            />
+                                            <InputError
+                                                message={
+                                                    errors[
+                                                        `institutions.${instIdx}.status`
+                                                    ]
+                                                }
+                                                className="mt-1"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Remove button */}
+                                    {institutionDetails === null && (
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                removeInstitution(instIdx)
+                                            }
+                                            className="absolute top-1 right-2 flex items-center gap-1 text-sm text-red-400 hover:text-red-800 font-medium mt-1 mb-5 transition-colors duration-200"
+                                        >
+                                            <IoIosCloseCircleOutline className="text-2xl" />
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+
+                        <div className="flex justify-between items-center p-3">
+                            {institutionDetails === null ? (
+                                <button
+                                    type="button"
+                                    onClick={addInstitution}
+                                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium mt-4 transition-colors duration-200"
+                                >
+                                    <IoIosAddCircleOutline className="text-2xl" />
+                                    <span>Add Institution</span>
+                                </button>
+                            ) : (
+                                <div></div>
+                            )}
+
+                            <div className="flex justify-end items-center text-end mt-5 gap-4">
+                                {institutionDetails == null && (
+                                    <Button
+                                        type="button"
+                                        onClick={() => reset()}
+                                    >
+                                        <RotateCcw /> Reset
+                                    </Button>
+                                )}
+
+                                <Button
+                                    className="bg-blue-700 hover:bg-blue-400"
+                                    type={"submit"}
+                                >
+                                    {institutionDetails ? "Update" : "Add"}{" "}
+                                    <IoIosArrowForward />
+                                </Button>
+                            </div>
+                        </div>
+                    </form>
+                </SidebarModal>
+                <DeleteConfirmationModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => {
+                        setIsDeleteModalOpen(false);
+                    }}
+                    onConfirm={confirmDelete}
+                    residentId={institutionToDelete}
+                />
+            </div>
+        </AdminLayout>
     );
 };
 

@@ -1269,13 +1269,16 @@ const FilterToggle = ({
                     }
                     value={queryParams?.institution ?? ""}
                 >
-                    <SelectTrigger className="w-[200px]">
+                    <SelectTrigger className="w-[400px]">
                         <SelectValue placeholder="Name of Institution" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="All">All</SelectItem>
-                        {institutions.map((option) => (
-                            <SelectItem key={option.id} value={option.name}>
+                        {institutions.map((option, index) => (
+                            <SelectItem
+                                key={option.id ?? `${option.name}-${index}`}
+                                value={option.name}
+                            >
                                 {option.name}
                             </SelectItem>
                         ))}
@@ -1288,7 +1291,7 @@ const FilterToggle = ({
                     onValueChange={(faci) => searchFieldName("faci_name", faci)}
                     value={queryParams?.faci_name ?? ""}
                 >
-                    <SelectTrigger className="w-[200px]">
+                    <SelectTrigger className="w-[370px]">
                         <SelectValue placeholder="Facility Name" />
                     </SelectTrigger>
                     <SelectContent>

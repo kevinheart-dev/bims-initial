@@ -268,7 +268,6 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
 
     // barangay
     Route::resource('barangay_official', BarangayOfficialController::class);
-    Route::resource('barangay_management', BarangayManagementController::class);
     Route::resource('barangay_project', BarangayProjectController::class);
     Route::resource('barangay_infrastructure', BarangayInfrastructureController::class);
     Route::resource('barangay_facility', BarangayFacilityController::class);

@@ -28,7 +28,8 @@ const OfficialCard = ({
                 <X className="w-3 h-3 sm:w-5 sm:h-5" />
             </button>
 
-            <div className="w-full h-[140px] sm:h-[160px] md:h-[180px] overflow-hidden">
+            {/* Profile Image */}
+            <div className="flex justify-center mt-4">
                 <img
                     src={
                         image instanceof File
@@ -37,39 +38,39 @@ const OfficialCard = ({
                             ? `/storage/${image}`
                             : "/images/default-avatar.jpg"
                     }
-                    alt="Official Image"
-                    className="w-full h-full object-cover"
+                    alt={name}
+                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-indigo-100 object-cover"
                 />
             </div>
 
             {/* Details */}
-            <div className="px-3 py-2">
+            <div className="px-4 py-3 text-center">
                 <h2 className="text-sm sm:text-base font-bold text-gray-900 truncate">
                     {name}
                 </h2>
-                <p className="text-blue-700 font-semibold text-xs sm:text-sm">
+                <p className="text-indigo-600 font-semibold text-xs sm:text-sm">
                     {position}
                 </p>
                 <p className="text-gray-500 text-[9px] sm:text-[10px]">
                     Designation: Purok {purok}
                 </p>
-                <p className="text-gray-500 text-[9px] sm:text-[10px] mb-1">
+                <p className="text-gray-500 text-[9px] sm:text-[10px] mb-2">
                     Term: {term}
                 </p>
 
                 {/* Contact Info */}
                 <div className="space-y-1 text-[9px] sm:text-xs">
                     {phone && (
-                        <p className="flex items-center space-x-2 overflow-hidden">
-                            <Phone className="text-blue-600 w-3.5 h-3.5 flex-shrink-0" />
+                        <p className="flex items-center justify-center space-x-2 overflow-hidden">
+                            <Phone className="text-indigo-600 w-3.5 h-3.5 flex-shrink-0" />
                             <span className="text-gray-600 truncate">
                                 {phone}
                             </span>
                         </p>
                     )}
                     {email && (
-                        <p className="flex items-center space-x-2 overflow-hidden">
-                            <Mail className="text-blue-600 w-3.5 h-3.5 flex-shrink-0" />
+                        <p className="flex items-center justify-center space-x-2 overflow-hidden">
+                            <Mail className="text-indigo-600 w-3.5 h-3.5 flex-shrink-0" />
                             <span className="text-gray-600 truncate">
                                 {email}
                             </span>
@@ -78,18 +79,18 @@ const OfficialCard = ({
                 </div>
 
                 {/* Action Buttons */}
-                <div className="mt-3 flex gap-2">
+                <div className="mt-4 flex gap-2">
                     <button
                         onClick={() => onEdit(id)}
-                        className="flex-1 border border-blue-600 text-blue-600 hover:bg-blue-50 text-xs sm:text-xs font-semibold py-1 rounded-lg transition-colors duration-200"
+                        className="flex-1 border border-indigo-600 text-indigo-600 hover:bg-indigo-50 text-xs sm:text-sm font-semibold py-1 rounded-lg transition-colors duration-200"
                     >
-                        Edit Profile
+                        Edit
                     </button>
                     <button
                         onClick={() => onView(id)}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-xs font-semibold py-1 rounded-lg transition-colors duration-200"
+                        className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold py-1 rounded-lg transition-colors duration-200"
                     >
-                        View Profile
+                        View
                     </button>
                 </div>
             </div>

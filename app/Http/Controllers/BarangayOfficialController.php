@@ -23,6 +23,7 @@ class BarangayOfficialController extends Controller
     {
         $brgy_id = auth()->user()->barangay_id;
 
+        // Fetch officials with relationships
         $officials = BarangayOfficial::with([
             'resident.barangay',
             'resident.street.purok',
@@ -33,20 +34,44 @@ class BarangayOfficialController extends Controller
         ->whereHas('resident', fn($q) => $q->where('barangay_id', $brgy_id))
         ->get();
 
-        $residents = Resident::where('barangay_id', $brgy_id)->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'birthdate', 'email', 'contact_number')->get();
+        $priorityOrder = [
+            'barangay_captain',
+            'barangay_secretary',
+            'barangay_treasurer',
+            'barangay_kagawad',
+            'sk_chairman',
+            'sk_kagawad',
+            'health_worker',
+            'tanod',
+        ];
 
-        $puroks = Purok::where('barangay_id', operator: $brgy_id)
+        $officials = $officials->sortBy(function($official) use ($priorityOrder) {
+            return array_search($official->position, $priorityOrder);
+        })->values();
+
+        // Residents dropdown or selection
+        $residents = Resident::where('barangay_id', $brgy_id)
+            ->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'birthdate', 'email', 'contact_number')
+            ->get();
+
+        // Purok numbers for filtering
+        $puroks = Purok::where('barangay_id', $brgy_id)
             ->orderBy('purok_number', 'asc')
             ->pluck('purok_number');
 
+        // Active official terms
+        $activeterms = BarangayOfficialTerm::query()
+            ->where('barangay_id', $brgy_id)
+            ->where('status', 'active')
+            ->get();
 
-        $activeterms = BarangayOfficialTerm::query()->where('barangay_id', $brgy_id)->where("status", 'active')->get();
-        //dd($officials);
-        return response()->json([
+        // Return Inertia page
+        return Inertia::render('BarangayOfficer/BarangayProfile/BarangayOfficials/BarangayOfficials', [
             'officials'   => $officials,
             'residents'   => $residents,
             'puroks'      => $puroks,
             'activeterms' => $activeterms,
+            'queryParams' => request()->query() ?: null,
         ]);
     }
 
@@ -101,11 +126,8 @@ class BarangayOfficialController extends Controller
             }
             DB::commit();
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success' => 'Barangay Official successfully added.',
-                    'activeTab' => 'officials'
-                ]);
+                ->route('barangay_official.index')
+                ->with('success','Barangay Official successfully added.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Barangay Official could not be added: ' . $e->getMessage());
@@ -135,47 +157,43 @@ class BarangayOfficialController extends Controller
     {
         try {
             $data = $request->validated();
-            //dd($data);
-            // If appointment type is not "appointed", remove the appointed_by and appointment_reason
+
+            // Clear appointed fields if not appointed
             if ($data['appointment_type'] !== 'appointed') {
                 $data['appointed_by'] = null;
                 $data['appointment_reason'] = null;
             }
 
-            // Update Barangay Official
+            // Update official
             $barangayOfficial->update([
                 'resident_id'        => $data['resident_id'],
                 'position'           => $data['position'],
                 'appointment_type'   => $data['appointment_type'],
                 'appointed_by'       => $data['appointed_by'] ?? null,
                 'appointment_reason' => $data['appointment_reason'] ?? null,
-                'term'            => $data['term'] ?? null,
+                'term_id'            => $data['term'] ?? null,
                 'remarks'            => $data['remarks'] ?? null,
             ]);
 
+            // Update designations if provided
             if (!empty($data['designations'])) {
-                // Remove existing designations
                 $barangayOfficial->designation()->delete();
 
-                // Add new ones
                 foreach ($data['designations'] as $des) {
                     $barangayOfficial->designation()->create([
                         'purok_id'   => $des['designation'],
-                        'started_at' => $des['term_start'], // just the year
-                        'ended_at'   => $des['term_end'],   // just the year
+                        'started_at' => $des['term_start'],
+                        'ended_at'   => $des['term_end'],
                     ]);
                 }
             }
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success' => 'Barangay Official successfully updated.',
-                    'activeTab' => 'officials'
-                ]);
+                ->route('barangay_official.index')
+                ->with('success','Barangay Official successfully updated.');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to update Barangay Official: ' . $e->getMessage());
+            return back()->with('error','Failed to update Barangay Official: ' . $e->getMessage());
         }
     }
 
@@ -184,7 +202,28 @@ class BarangayOfficialController extends Controller
      */
     public function destroy(BarangayOfficial $barangayOfficial)
     {
-        //
+        DB::beginTransaction();
+
+        try {
+            // Delete related designations first
+            $barangayOfficial->designation()->delete();
+
+            // Delete the barangay official record
+            $barangayOfficial->delete();
+
+            DB::commit();
+
+            return redirect()
+                ->route('barangay_official.index')
+                ->with('success', 'Barangay Official deleted successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return back()->with(
+                'error',
+                'Failed to delete Barangay Official: ' . $e->getMessage()
+            );
+        }
     }
 
     public function getOfficialInformation($id)

@@ -40,6 +40,15 @@ import {
     Plus,
     Cloudy,
     User2,
+    Building2,
+    Users,
+    School,
+    Hammer,
+    ListChecks,
+    BusFront,
+    ContactRound,
+    Waves,
+    Mountain,
 } from "lucide-react";
 import {
     Sidebar,
@@ -218,16 +227,71 @@ export function AppSidebar({ auth }) {
                     roles: ["barangay_officer", "admin"],
                 },
                 {
-                    title: "Management",
-                    url: "/barangay_management",
-                    icon: Settings,
-                    roles: ["barangay_officer", "admin"],
-                },
-                {
                     title: "Profile",
                     url: "/barangay_profile",
                     icon: UserPen,
                     roles: ["admin"],
+                },
+            ],
+        },
+        {
+            title: "Barangay Resources",
+            icon: Home,
+            roles: ["barangay_officer", "admin"],
+            submenu: [
+                {
+                    title: "Infrastructure",
+                    url: "/barangay_infrastructure",
+                    icon: Building2,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Institutions",
+                    url: "/barangay_institution",
+                    icon: Users,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Facilities",
+                    url: "/barangay_facility",
+                    icon: School,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Projects",
+                    url: "/barangay_project",
+                    icon: Hammer,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Inventories",
+                    url: "/inventory",
+                    icon: ListChecks,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Roads",
+                    url: "/barangay_road",
+                    icon: BusFront,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Officials",
+                    url: "/barangay_official",
+                    icon: ContactRound,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Bodies of Water",
+                    url: "#",
+                    icon: Waves,
+                    roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Bodies of Land",
+                    url: "#",
+                    icon: Mountain,
+                    roles: ["barangay_officer", "admin"],
                 },
             ],
         },
@@ -767,24 +831,24 @@ export function AppSidebar({ auth }) {
         setIsDeleteModalOpen(false);
     };
 
-    useEffect(() => {
-        if (success) {
-            toast.success(success, {
-                description: "Operation successful!",
-                duration: 3000,
-                closeButton: true,
-            });
+    // useEffect(() => {
+    //     if (success) {
+    //         toast.success(success, {
+    //             description: "Operation successful!",
+    //             duration: 3000,
+    //             closeButton: true,
+    //         });
 
-            // ✅ Refresh data or reload the component
-            fetchCRAList(); // ⬅️ Call your data fetcher again
+    //         // ✅ Refresh data or reload the component
+    //         fetchCRAList(); // ⬅️ Call your data fetcher again
 
-            // ❌ Don't mutate props directly (React props are read-only)
-            // props.success = null;
-        }
-    }, [success]);
+    //         // ❌ Don't mutate props directly (React props are read-only)
+    //         // props.success = null;
+    //     }
+    // }, [success]);
     return (
         <Sidebar>
-            <Toaster richColors />
+            {/* <Toaster richColors /> */}
             {/* Header with blue branding */}
             <div className="bg-white px-4 py-[8px] flex items-center border-b border-gray-200">
                 <img

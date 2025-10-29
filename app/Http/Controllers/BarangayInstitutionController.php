@@ -18,13 +18,15 @@ class BarangayInstitutionController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->barangay_id;
+        $brgy_id = auth()->user()->barangay_id;
+
+        // Base query
         $query = BarangayInstitution::query()
-        ->where('barangay_id', $brgy_id)
-        ->with(['head.resident:id,firstname,lastname,middlename,suffix']) // 👈 eager load head and its resident
-        ->distinct();
+            ->where('barangay_id', $brgy_id)
+            ->with(['head.resident:id,firstname,lastname,middlename,suffix']) // eager load head and its resident
+            ->distinct();
 
-
+        // Optional filters
         if (request()->filled('institution') && request('institution') !== 'All') {
             $query->where('name', request('institution'));
         }
@@ -35,9 +37,20 @@ class BarangayInstitutionController extends Controller
             });
         }
 
+        // Paginate and keep query string
         $institutions = $query->paginate(10)->withQueryString();
-        return response()->json([
+
+        // Distinct dropdown filters
+        $institutionsnames = BarangayInstitution::where('barangay_id', $brgy_id)
+            ->select('id', 'name')
+            ->distinct()
+            ->get();
+
+        // Return Inertia page
+        return Inertia::render('BarangayOfficer/BarangayProfile/BarangayInstitution/InstitutionIndex', [
             'institutions' => $institutions,
+            'institutionNames' => $institutionsnames,
+            'queryParams' => request()->query() ?: null,
         ]);
     }
 
@@ -71,11 +84,8 @@ class BarangayInstitutionController extends Controller
             }
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success' => 'Institution(s) saved successfully.',
-                    'activeTab' => 'institutions'
-                ]);
+                ->route('barangay_institution.index')
+                ->with('success', 'Institution created successfully!');
         } catch (\Exception $e) {
             return back()->with(
                 'error',
@@ -141,11 +151,8 @@ class BarangayInstitutionController extends Controller
             }
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success' => 'Institution updated successfully.',
-                    'activeTab' => 'institutions'
-                ]);
+                ->route('barangay_institution.index')
+                ->with('success', 'Institution updated successfully!');
         } catch (\Exception $e) {
             return back()->with(
                 'error',
@@ -164,11 +171,8 @@ class BarangayInstitutionController extends Controller
             $barangayInstitution->delete();
             DB::commit();
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success' => 'Institution deleted successfully!',
-                    'activeTab' => 'institutions'
-                ]);
+                ->route('barangay_institution.index')
+                ->with('success', 'Institution deleted successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Institution could not be deleted: ' . $e->getMessage());

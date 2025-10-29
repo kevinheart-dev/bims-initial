@@ -19,7 +19,7 @@ class BarangayInfrastructureController extends Controller
      */
     public function index()
     {
-        $brgy_id = Auth()->user()->barangay_id;
+        $brgy_id = auth()->user()->barangay_id;
 
         // Base query
         $query = BarangayInfrastructure::query()
@@ -49,8 +49,11 @@ class BarangayInfrastructureController extends Controller
                     ->orWhere('infrastructure_category', 'like', '%' . request('name') . '%');
             });
         }
+
         // Paginate and keep query string
         $infrastructure = $query->paginate(10)->withQueryString();
+
+        // Distinct dropdown filters
         $types = BarangayInfrastructure::where('barangay_id', $brgy_id)
             ->distinct()
             ->pluck('infrastructure_type');
@@ -58,11 +61,12 @@ class BarangayInfrastructureController extends Controller
         $categories = BarangayInfrastructure::where('barangay_id', $brgy_id)
             ->distinct()
             ->pluck('infrastructure_category');
-
-        return response()->json([
+        // Return Inertia page instead of JSON
+        return Inertia::render('BarangayOfficer/BarangayProfile/BarangayInfrastructure/BarangayInfrastucture', [
             'infrastructure' => $infrastructure,
             'types' => $types,
-            'categories' => $categories
+            'categories' => $categories,
+            'queryParams' => request()->query() ?: null,
         ]);
     }
 
@@ -105,11 +109,8 @@ class BarangayInfrastructureController extends Controller
             }
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success' => 'Infrastructure(s) saved successfully.',
-                    'activeTab' => 'infrastructure'
-                ]);
+                ->route('barangay_infrastructure.index')
+                ->with('success','Infrastructure(s) saved successfully.');
         } catch (\Exception $e) {
             return back()->with(
                 'error',
@@ -190,11 +191,8 @@ class BarangayInfrastructureController extends Controller
             }
 
             return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success' => 'Infrastructure(s) updated successfully.',
-                    'activeTab' => 'infrastructure'
-                ]);
+                ->route('barangay_infrastructure.index')
+                ->with('success','Infrastructure(s) saved successfully.');
         } catch (\Exception $e) {
             return back()->with(
                 'error',
@@ -223,11 +221,8 @@ class BarangayInfrastructureController extends Controller
             $barangayInfrastructure->delete();
 
         return redirect()
-                ->route('barangay_profile.index')
-                ->with([
-                    'success' => 'Infrastructure deleted successfully!',
-                    'activeTab' => 'infrastructure'
-                ]);
+                ->route('barangay_infrastructure.index')
+                ->with('success','Infrastructure(s) saved successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Infrastructure could not be deleted: ' . $e->getMessage());
