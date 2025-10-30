@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('bodies_of_waters', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('barangay_id')
+                ->constrained('barangays')
+                ->onDelete('cascade');
+            $table->string('type', 55);
+            $table->boolean('exists')->default(false);
+            $table->string('name', 100);
             $table->timestamps();
         });
     }

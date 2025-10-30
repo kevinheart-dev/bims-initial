@@ -283,13 +283,13 @@ export function AppSidebar({ auth }) {
                 },
                 {
                     title: "Bodies of Water",
-                    url: "#",
+                    url: "/water",
                     icon: Waves,
                     roles: ["barangay_officer", "admin"],
                 },
                 {
                     title: "Bodies of Land",
-                    url: "#",
+                    url: "/land",
                     icon: Mountain,
                     roles: ["barangay_officer", "admin"],
                 },

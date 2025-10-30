@@ -9,4 +9,11 @@ class BodiesOfWater extends Model
 {
     /** @use HasFactory<\Database\Factories\BodiesOfWaterFactory> */
     use HasFactory;
+        public $timestamps = true;
+    protected $fillable = [
+        'barangay_id',
+        'name',
+        'exists',
+        'type',
+    ];
 }

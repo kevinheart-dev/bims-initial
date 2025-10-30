@@ -36,6 +36,7 @@ use App\Http\Controllers\HouseholdController;
 use App\Http\Controllers\IBIMSController;
 use App\Http\Controllers\InstitutionMemberController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\LandController;
 use App\Http\Controllers\LivelihoodController;
 use App\Http\Controllers\MedicalInformationController;
 use App\Http\Controllers\OccupationController;
@@ -53,6 +54,7 @@ use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\UnauthenticatedIssuanceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\WaterController;
 use App\Models\BarangayInfrastructure;
 use App\Models\BarangayInstitution;
 use App\Models\User;
@@ -141,6 +143,12 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
 
     // vehicle
     Route::get('vehicle/details/{id}', [VehicleController::class, 'vehicleDetails'])->name('vehicle.details');
+
+    Route::get('water/details/{id}', [WaterController::class, 'waterDetails'])
+    ->name('water.details');
+    Route::get('land/details/{id}', [LandController::class, 'landDetails'])
+    ->name('land.details');
+
 
     // user
     Route::post('user/confirmpassword', [UserController::class, 'confirmPassword'])->name('user.confirm');
@@ -237,7 +245,6 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
     Route::get('/overview', [HouseholdController::class, 'householdOverview'])->name('household.overview');
 
     // residents
-
     Route::resource('resident', ResidentController::class);
     Route::resource('document', DocumentController::class);
     Route::resource('household', HouseholdController::class);
@@ -256,6 +263,8 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
     Route::resource('allergy', AllergyController::class);
     Route::resource('pregnancy', PregnancyRecordController::class);
     Route::resource('child_record', ChildHealthMonitoringController::class);
+    Route::resource('water', WaterController::class);
+    Route::resource('land', LandController::class);
 
     // Katarungnang Pambarangay
     Route::get('summon/elevate/{id}', [SummonController::class, 'elevate'])->name('summon.elevate');

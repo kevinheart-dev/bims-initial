@@ -9,6 +9,8 @@ use App\Models\BarangayInstitutionMember;
 use App\Models\BarangayOfficial;
 use App\Models\BarangayOfficialTerm;
 use App\Models\BlotterReport;
+use App\Models\BodiesOfLand;
+use App\Models\BodiesOfWater;
 use App\Models\CaseParticipant;
 use App\Models\ChildHealthMonitoringRecord;
 use App\Models\CommunityRiskAssessment;
@@ -98,8 +100,8 @@ class DatabaseSeeder extends Seeder
             'is_disabled' => false,
         ])->assignRole($cdrrmoRole);
 
-        // $barangays = Barangay::all();
-        $barangays = Barangay::take(1)->get();
+        $barangays = Barangay::all();
+        //$barangays = Barangay::take(1)->get();
         //  foreach ($barangays->take(2) as $barangay)
         foreach ($barangays as $barangay) {
             // Create 7 puroks per barangay
@@ -318,6 +320,95 @@ class DatabaseSeeder extends Seeder
                     $previousDate = $hearingDate;
                 }
             });
+
+            // ----- Bodies of Water -----
+            $waterTypes = [
+                'Sea',
+                'River',
+                'Gulf (Inlet)',
+                'Lake',
+                'Spring',
+                'Falls',
+                'Creek',
+                'Not mentioned above (Specify)',
+            ];
+
+            $waterNames = [
+                'Sea' => ['San Miguel Sea', 'Dalisay Sea', 'Maligaya Coast', 'Bayanihan Bay'],
+                'River' => ['San Roque River', 'Mabini River', 'Katipunan River', 'Bulusan River'],
+                'Gulf (Inlet)' => ['Agila Gulf', 'Luna Gulf', 'Esperanza Inlet', 'Rizal Inlet'],
+                'Lake' => ['Banahaw Lake', 'Makiling Lake', 'Maharlika Lake'],
+                'Spring' => ['Mapula Spring', 'Tagumpay Spring', 'Maligaya Spring', 'Sampaguita Spring'],
+                'Falls' => ['Maria Falls', 'Tinago Falls', 'Bulusan Falls', 'Mayumi Falls'],
+                'Creek' => ['Tinago Creek', 'Katipunan Creek', 'Maligaya Creek', 'San Roque Creek'],
+                'Not mentioned above (Specify)' => ['Underground Stream', 'Hidden Pond', 'Mystic Basin'],
+            ];
+
+            $numWaters = rand(0, 4);
+
+            if ($numWaters === 0) {
+                BodiesOfWater::create([
+                    'barangay_id' => $barangay->id,
+                    'type' => 'None',
+                    'exists' => false,
+                    'name' => 'N/A',
+                ]);
+            } else {
+                $selectedWaterTypes = collect($waterTypes)->random($numWaters);
+                foreach ($selectedWaterTypes as $type) {
+                    BodiesOfWater::create([
+                        'barangay_id' => $barangay->id,
+                        'type' => $type,
+                        'exists' => true,
+                        'name' => fake()->randomElement($waterNames[$type]),
+                    ]);
+                }
+            }
+
+            // ----- Bodies of Land -----
+            $landTypes = [
+                'Mountain',
+                'Hill',
+                'Plateau',
+                'Valley',
+                'Plain',
+                'Forest',
+                'Cave',
+                'Not mentioned above (Specify)',
+            ];
+
+            $landNames = [
+                'Mountain' => ['Mt. Banahaw', 'Mt. Makiling', 'Mt. Dalisay', 'Mt. Kalayaan'],
+                'Hill' => ['Tagumpay Hill', 'San Isidro Hill', 'Mabini Hill'],
+                'Plateau' => ['Luntian Plateau', 'Esperanza Plateau', 'Bayanihan Plateau'],
+                'Valley' => ['Mapayapa Valley', 'Katipunan Valley', 'Luna Valley'],
+                'Plain' => ['Maligaya Plain', 'Sampaguita Plain', 'San Roque Plain'],
+                'Forest' => ['Bayanihan Forest', 'Katipunan Forest', 'Maligaya Forest', 'Esperanza Woods'],
+                'Cave' => ['San Pedro Cave', 'Tagumpay Cave', 'Bulusan Cave', 'Dalisay Cave'],
+                'Not mentioned above (Specify)' => ['Rock Formation', 'Underground Ridge', 'Hidden Plateau'],
+            ];
+
+            $numLands = rand(0, 4);
+
+            if ($numLands === 0) {
+                BodiesOfLand::create([
+                    'barangay_id' => $barangay->id,
+                    'type' => 'None',
+                    'exists' => false,
+                    'name' => 'N/A',
+                ]);
+            } else {
+                $selectedLandTypes = collect($landTypes)->random($numLands);
+                foreach ($selectedLandTypes as $type) {
+                    BodiesOfLand::create([
+                        'barangay_id' => $barangay->id,
+                        'type' => $type,
+                        'exists' => true,
+                        'name' => fake()->randomElement($landNames[$type]),
+                    ]);
+                }
+            }
+
         }
         // Call lookup/fix seeders
         $this->call([
@@ -326,9 +417,9 @@ class DatabaseSeeder extends Seeder
             // FamilyRelationSeeder::class,
             BarangayInformationSeeder::class,
         ]);
-        $this->call([
-            CRADataseeder::class,
-        ]);
+        // $this->call([
+        //     CRADataseeder::class,
+        // ]);
         // CommunityRiskAssessment::factory()->create([
         //     'year' => 2022
         // ]);
