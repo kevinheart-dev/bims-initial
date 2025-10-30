@@ -44,6 +44,7 @@ import {
     IoIosArrowForward,
     IoIosCloseCircleOutline,
 } from "react-icons/io";
+import ExportButton from "@/Components/ExportButton";
 
 export default function Index({
     pregnancy_records,
@@ -242,8 +243,9 @@ export default function Index({
 
     const handleResidentChange = useResidentChangeHandler(residents, setData);
     const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${res.suffix ?? ""
-            }`,
+        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
+            res.suffix ?? ""
+        }`,
         value: res.id.toString(),
     }));
 
@@ -314,9 +316,11 @@ export default function Index({
             setData({
                 resident_id: record.resident_id || null,
                 resident_name: record.resident
-                    ? `${record.resident.firstname} ${record.resident.middlename ?? ""
-                        } ${record.resident.lastname} ${record.resident.suffix ?? ""
-                        }`.trim()
+                    ? `${record.resident.firstname} ${
+                          record.resident.middlename ?? ""
+                      } ${record.resident.lastname} ${
+                          record.resident.suffix ?? ""
+                      }`.trim()
                     : "",
                 resident_image: record.resident?.resident_picture_path || null,
                 birthdate: record.resident?.birthdate || null,
@@ -446,14 +450,19 @@ export default function Index({
                                             Pregnancy Records
                                         </h1>
                                         <p className="text-sm text-gray-500">
-                                            Manage and track residents’ <span className="font-medium">pregnancy records</span>.
-                                            Use the tools below to search, filter, or export data for better maternal care monitoring.
+                                            Manage and track residents’{" "}
+                                            <span className="font-medium">
+                                                pregnancy records
+                                            </span>
+                                            . Use the tools below to search,
+                                            filter, or export data for better
+                                            maternal care monitoring.
                                         </p>
                                     </div>
                                 </div>
                             </div>
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                                <div className="flex items-center gap-2 flex-wrap">
+                                <div className="flex items-start gap-2 flex-wrap">
                                     <DynamicTableControls
                                         allColumns={allColumns}
                                         visibleColumns={visibleColumns}
@@ -462,6 +471,12 @@ export default function Index({
                                         toggleShowFilters={() =>
                                             setShowFilters((prev) => !prev)
                                         }
+                                    />
+                                    <ExportButton
+                                        url="report/export-pregnancy-pdf"
+                                        queryParams={queryParams}
+                                        label="Export Medical Condition Records as PDF"
+                                        type="pdf"
                                     />
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap justify-end">
@@ -548,8 +563,8 @@ export default function Index({
                         modalState == "view"
                             ? "Resident Details"
                             : modalState == "add"
-                                ? "Add Pregnancy Records"
-                                : "Edit Pregnancy Record"
+                            ? "Add Pregnancy Records"
+                            : "Edit Pregnancy Record"
                     }
                 >
                     {modalState == "view" && (
@@ -622,7 +637,7 @@ export default function Index({
                                                 name="sex"
                                                 value={
                                                     RESIDENT_GENDER_TEXT2[
-                                                    data.sex || ""
+                                                        data.sex || ""
                                                     ]
                                                 }
                                                 placeholder="Select a resident"
@@ -682,7 +697,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `pregnancyRecords.${idx}.status`
+                                                            `pregnancyRecords.${idx}.status`
                                                         ]
                                                     }
                                                     className="mt-1"
@@ -710,7 +725,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `pregnancyRecords.${idx}.expected_due_date`
+                                                            `pregnancyRecords.${idx}.expected_due_date`
                                                         ]
                                                     }
                                                     className="mt-1"
@@ -738,7 +753,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `pregnancyRecords.${idx}.delivery_date`
+                                                            `pregnancyRecords.${idx}.delivery_date`
                                                         ]
                                                     }
                                                     className="mt-1"
@@ -764,7 +779,7 @@ export default function Index({
                                                 <InputError
                                                     message={
                                                         errors[
-                                                        `pregnancyRecords.${idx}.notes`
+                                                            `pregnancyRecords.${idx}.notes`
                                                         ]
                                                     }
                                                     className="mt-1"

@@ -29,6 +29,7 @@ import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
+import ExportButton from "@/Components/ExportButton";
 
 export default function Index({ vaccinations, puroks, queryParams }) {
     const breadcrumbs = [
@@ -287,15 +288,20 @@ export default function Index({ vaccinations, puroks, queryParams }) {
                                             Vaccination Records
                                         </h1>
                                         <p className="text-sm text-gray-500">
-                                            Manage and track residents’ <span className="font-medium">vaccination information</span>.
-                                            Use the tools below to search, filter, or export records for immunization programs and services.
+                                            Manage and track residents’{" "}
+                                            <span className="font-medium">
+                                                vaccination information
+                                            </span>
+                                            . Use the tools below to search,
+                                            filter, or export records for
+                                            immunization programs and services.
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                                <div className="flex items-center gap-2 flex-wrap">
+                                <div className="flex items-start gap-2 flex-wrap">
                                     <DynamicTableControls
                                         allColumns={allColumns}
                                         visibleColumns={visibleColumns}
@@ -304,6 +310,12 @@ export default function Index({ vaccinations, puroks, queryParams }) {
                                         toggleShowFilters={() =>
                                             setShowFilters((prev) => !prev)
                                         }
+                                    />
+                                    <ExportButton
+                                        url="report/export-vaccination-pdf"
+                                        queryParams={queryParams}
+                                        label="Export Medical Condition Records as PDF"
+                                        type="pdf"
                                     />
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap justify-end">

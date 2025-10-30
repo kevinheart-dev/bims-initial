@@ -24,6 +24,11 @@ class AllergyController extends Controller
             ->pluck('purok_number');
 
         $query = Allergy::query()
+            ->selectRaw("
+                resident_id,
+                GROUP_CONCAT(allergy_name SEPARATOR ', ') AS allergy_name,
+                GROUP_CONCAT(reaction_description SEPARATOR '; ') AS reaction_description
+            ")
             ->with([
                 'resident:id,firstname,lastname,suffix,birthdate,purok_number,sex',
                 'resident.medicalInformation:id,resident_id'
@@ -93,7 +98,7 @@ class AllergyController extends Controller
                             break;
                     }
                 }
-            });
+            })->groupBy('resident_id');
 
         // 🔹 Filter by Allergy Name
         if (!empty($filters['allergy'])) {
@@ -124,19 +129,23 @@ class AllergyController extends Controller
 
         $allergies = $query->paginate(10)->withQueryString();
 
-        // 🔹 Group by resident_id and concatenate allergy info
+        // Add numbering based on pagination offset
+        $startNumber = ($allergies->currentPage() - 1) * $allergies->perPage() + 1;
+
         $grouped = $allergies->getCollection()
             ->groupBy('resident_id')
-            ->map(function ($items) {
+            ->values()
+            ->map(function ($items, $index) use ($startNumber) {
                 $first = $items->first();
+
                 $first->allergy_name = $items->pluck('allergy_name')->filter()->join(', ');
                 $first->reaction_description = $items->pluck('reaction_description')->filter()->join('; ');
+                $first->number = $startNumber + $index; // ✅ Add number
+
                 return $first;
             });
 
-        // Replace the paginated collection with grouped data
-        $allergies->setCollection($grouped->values());
-
+        $allergies->setCollection($grouped);
         return Inertia::render("BarangayOfficer/MedicalInformation/Allergy/Index", [
             "allergies" => $allergies,
             "puroks" => $puroks,

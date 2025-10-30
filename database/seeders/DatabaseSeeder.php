@@ -79,6 +79,51 @@ class DatabaseSeeder extends Seeder
         $cdrrmoRole = Role::firstOrCreate(['name' => 'cdrrmo_admin']);
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
 
+        // ----- Bodies of Water -----
+        $waterTypes = [
+            'Sea',
+            'River',
+            'Gulf (Inlet)',
+            'Lake',
+            'Spring',
+            'Falls',
+            'Creek',
+            'Not mentioned above (Specify)',
+        ];
+
+        $waterNames = [
+            'Sea' => ['San Miguel Sea', 'Dalisay Sea', 'Maligaya Coast', 'Bayanihan Bay'],
+            'River' => ['San Roque River', 'Mabini River', 'Katipunan River', 'Bulusan River'],
+            'Gulf (Inlet)' => ['Agila Gulf', 'Luna Gulf', 'Esperanza Inlet', 'Rizal Inlet'],
+            'Lake' => ['Banahaw Lake', 'Makiling Lake', 'Maharlika Lake'],
+            'Spring' => ['Mapula Spring', 'Tagumpay Spring', 'Maligaya Spring', 'Sampaguita Spring'],
+            'Falls' => ['Maria Falls', 'Tinago Falls', 'Bulusan Falls', 'Mayumi Falls'],
+            'Creek' => ['Tinago Creek', 'Katipunan Creek', 'Maligaya Creek', 'San Roque Creek'],
+            'Not mentioned above (Specify)' => ['Underground Stream', 'Hidden Pond', 'Mystic Basin'],
+        ];
+        // ----- Bodies of Land -----
+        $landTypes = [
+            'Mountain',
+            'Hill',
+            'Plateau',
+            'Valley',
+            'Plain',
+            'Forest',
+            'Cave',
+            'Not mentioned above (Specify)',
+        ];
+
+        $landNames = [
+            'Mountain' => ['Mt. Banahaw', 'Mt. Makiling', 'Mt. Dalisay', 'Mt. Kalayaan'],
+            'Hill' => ['Tagumpay Hill', 'San Isidro Hill', 'Mabini Hill'],
+            'Plateau' => ['Luntian Plateau', 'Esperanza Plateau', 'Bayanihan Plateau'],
+            'Valley' => ['Mapayapa Valley', 'Katipunan Valley', 'Luna Valley'],
+            'Plain' => ['Maligaya Plain', 'Sampaguita Plain', 'San Roque Plain'],
+            'Forest' => ['Bayanihan Forest', 'Katipunan Forest', 'Maligaya Forest', 'Esperanza Woods'],
+            'Cave' => ['San Pedro Cave', 'Tagumpay Cave', 'Bulusan Cave', 'Dalisay Cave'],
+            'Not mentioned above (Specify)' => ['Rock Formation', 'Underground Ridge', 'Hidden Plateau'],
+        ];
+
         // System users
         User::factory()->create([
             'username' => 'Super Admin',
@@ -273,12 +318,18 @@ class DatabaseSeeder extends Seeder
             }
 
             // Blotters, participants, summons
-            BlotterReport::factory(20)->create()->each(function ($blotter) {
-                $participants = CaseParticipant::factory(rand(2, 5))
-                    ->state(['blotter_id' => $blotter->id])
-                    ->create();
+            BlotterReport::factory(20)
+                ->create(['barangay_id' => $barangay->id])
+                ->each(function ($blotter) use ($barangay) {
 
-                $summon = Summon::factory()->state(['blotter_id' => $blotter->id])->create();
+                    // Assign random participants from same barangay
+                    $participants = CaseParticipant::factory(rand(2, 5))
+                        ->state(['blotter_id' => $blotter->id])
+                        ->create();
+
+                    $summon = Summon::factory()->state([
+                        'blotter_id' => $blotter->id,
+                    ])->create();
 
                 $previousDate = null;
                 for ($i = 1; $i <= rand(1, 3); $i++) {
@@ -321,29 +372,6 @@ class DatabaseSeeder extends Seeder
                 }
             });
 
-            // ----- Bodies of Water -----
-            $waterTypes = [
-                'Sea',
-                'River',
-                'Gulf (Inlet)',
-                'Lake',
-                'Spring',
-                'Falls',
-                'Creek',
-                'Not mentioned above (Specify)',
-            ];
-
-            $waterNames = [
-                'Sea' => ['San Miguel Sea', 'Dalisay Sea', 'Maligaya Coast', 'Bayanihan Bay'],
-                'River' => ['San Roque River', 'Mabini River', 'Katipunan River', 'Bulusan River'],
-                'Gulf (Inlet)' => ['Agila Gulf', 'Luna Gulf', 'Esperanza Inlet', 'Rizal Inlet'],
-                'Lake' => ['Banahaw Lake', 'Makiling Lake', 'Maharlika Lake'],
-                'Spring' => ['Mapula Spring', 'Tagumpay Spring', 'Maligaya Spring', 'Sampaguita Spring'],
-                'Falls' => ['Maria Falls', 'Tinago Falls', 'Bulusan Falls', 'Mayumi Falls'],
-                'Creek' => ['Tinago Creek', 'Katipunan Creek', 'Maligaya Creek', 'San Roque Creek'],
-                'Not mentioned above (Specify)' => ['Underground Stream', 'Hidden Pond', 'Mystic Basin'],
-            ];
-
             $numWaters = rand(0, 4);
 
             if ($numWaters === 0) {
@@ -364,29 +392,6 @@ class DatabaseSeeder extends Seeder
                     ]);
                 }
             }
-
-            // ----- Bodies of Land -----
-            $landTypes = [
-                'Mountain',
-                'Hill',
-                'Plateau',
-                'Valley',
-                'Plain',
-                'Forest',
-                'Cave',
-                'Not mentioned above (Specify)',
-            ];
-
-            $landNames = [
-                'Mountain' => ['Mt. Banahaw', 'Mt. Makiling', 'Mt. Dalisay', 'Mt. Kalayaan'],
-                'Hill' => ['Tagumpay Hill', 'San Isidro Hill', 'Mabini Hill'],
-                'Plateau' => ['Luntian Plateau', 'Esperanza Plateau', 'Bayanihan Plateau'],
-                'Valley' => ['Mapayapa Valley', 'Katipunan Valley', 'Luna Valley'],
-                'Plain' => ['Maligaya Plain', 'Sampaguita Plain', 'San Roque Plain'],
-                'Forest' => ['Bayanihan Forest', 'Katipunan Forest', 'Maligaya Forest', 'Esperanza Woods'],
-                'Cave' => ['San Pedro Cave', 'Tagumpay Cave', 'Bulusan Cave', 'Dalisay Cave'],
-                'Not mentioned above (Specify)' => ['Rock Formation', 'Underground Ridge', 'Hidden Plateau'],
-            ];
 
             $numLands = rand(0, 4);
 

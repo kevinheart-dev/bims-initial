@@ -24,13 +24,18 @@ use App\Models\CRAGeneralPopulation;
 use App\Models\CRAHumanResource;
 use App\Models\CRAPopulationAgeGroup;
 use App\Models\CRAPopulationGender;
+use App\Models\Disability;
 use App\Models\EducationalHistory;
 use App\Models\Family;
 use App\Models\Household;
 use App\Models\HouseholdResident;
 use App\Models\MedicalInformation;
 use App\Models\Occupation;
+use App\Models\PregnancyRecords;
 use App\Models\Resident;
+use App\Models\ResidentMedicalCondition;
+use App\Models\ResidentMedication;
+use App\Models\ResidentVaccination;
 use App\Models\Summon;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -2214,5 +2219,589 @@ class ReportGenerationController extends Controller
         return $pdf->stream('Allergy_Information_List.pdf');
     }
 
+    public function exportMedicalConditionPdf(Request $request)
+    {
+        $brgy_id = auth()->user()->barangay_id;
+        $filters = $request->only(['purok', 'sex', 'age_group', 'condition_status']);
 
+        $query = ResidentMedicalCondition::with([
+            'resident:id,firstname,lastname,middlename,suffix,birthdate,purok_number,sex,barangay_id'
+        ])
+        ->select(
+            'id',
+            'resident_id',
+            'condition',
+            'status',
+            'diagnosed_date',
+            'resolved_date'
+        )
+        ->whereHas('resident', function ($q) use ($brgy_id, $filters) {
+            $q->where('barangay_id', $brgy_id);
+
+            // ✅ Filter by Purok
+            if (!empty($filters['purok']) && $filters['purok'] !== "All") {
+                $q->where('purok_number', $filters['purok']);
+            }
+
+            // ✅ Filter by Sex
+            if (!empty($filters['sex']) && $filters['sex'] !== "All") {
+                $q->where('sex', $filters['sex']);
+            }
+
+            // ✅ Filter by Age Group
+            if (!empty($filters['age_group']) && $filters['age_group'] !== "All") {
+                $today = now();
+
+                switch ($filters['age_group']) {
+                    case '0_6_months':
+                        $q->whereBetween('birthdate', [$today->copy()->subMonths(6), $today]);
+                        break;
+                    case '7mos_2yrs':
+                        $q->whereBetween('birthdate', [$today->copy()->subYears(2), $today->copy()->subMonths(7)]);
+                        break;
+                    case '3_5yrs':
+                        $q->whereBetween('birthdate', [$today->copy()->subYears(5), $today->copy()->subYears(3)]);
+                        break;
+                    case '6_12yrs':
+                        $q->whereBetween('birthdate', [$today->copy()->subYears(12), $today->copy()->subYears(6)]);
+                        break;
+                    case '13_17yrs':
+                        $q->whereBetween('birthdate', [$today->copy()->subYears(17), $today->copy()->subYears(13)]);
+                        break;
+                    case '18_59yrs':
+                        $q->whereBetween('birthdate', [$today->copy()->subYears(59), $today->copy()->subYears(18)]);
+                        break;
+                    case '60_above':
+                        $q->where('birthdate', '<=', $today->copy()->subYears(60));
+                        break;
+                }
+            }
+        });
+
+        // ✅ Filter by Condition Status
+        if (!empty($filters['condition_status']) && $filters['condition_status'] !== "All") {
+            $query->where('status', $filters['condition_status']);
+        }
+
+        // ✅ Search Name or Condition
+        if ($search = trim($request->input('name', ''))) {
+            $terms = preg_split('/\s+/', $search);
+            $query->where(function ($q) use ($terms, $search) {
+                $q->where('condition', 'like', "%{$search}%")
+                ->orWhereHas('resident', function ($r) use ($terms) {
+                    foreach ($terms as $term) {
+                        $r->where(function ($r2) use ($term) {
+                            $like = "%{$term}%";
+                            $r2->where('firstname', 'like', $like)
+                            ->orWhere('middlename', 'like', $like)
+                            ->orWhere('lastname', 'like', $like)
+                            ->orWhere('suffix', 'like', $like);
+                        });
+                    }
+                });
+            });
+        }
+
+        $medical = $query->get();
+
+        // ✅ Map Data for PDF
+        $data = $medical->map(function ($m) {
+            $r = $m->resident;
+            $fullName = trim("{$r->firstname} {$r->middlename} {$r->lastname} {$r->suffix}");
+            $age = \Carbon\Carbon::parse($r->birthdate)->age;
+
+            return [
+                'Resident ID' => $r->id,
+                'Full Name'   => $fullName,
+                'Age'         => $age,                  // ✅ Added Age
+                'Purok'       => $r->purok_number,
+                'Sex'         => ucfirst($r->sex),
+                'Condition'   => $m->condition,
+                'Status'      => ucfirst($m->status),
+                'Diagnosed'   => $m->diagnosed_date,
+                'Resolved'    => $m->resolved_date ?? 'N/A',
+            ];
+        });
+
+        $barangay = auth()->user()->barangay()->first();
+
+        // ✅ Generate PDF
+        $pdf = Pdf::loadView('bims.medical_condition_summary', [
+            'medicalConditions' => $data, // ✅ correct variable name
+            'barangayName'      => $barangay->barangay_name ?? 'Barangay',
+            'barangayLogo'      => $barangay->logo_path ?? null,
+            'total'             => $data->count(),
+            'generatedAt'       => now('Asia/Manila')->format('F d, Y h:i A'),
+        ])->setPaper('legal', 'landscape');
+
+        return $pdf->stream('Medical_Conditions_List.pdf');
+    }
+
+    public function exportDisabilitiesPdf(Request $request)
+    {
+        $brgy_id = auth()->user()->barangay_id;
+        $filters = $request->only(['purok', 'sex', 'age_group', 'disability_type']);
+
+        $query = Disability::query()
+            ->with([
+                'resident:id,firstname,lastname,middlename,suffix,birthdate,purok_number,sex,barangay_id',
+                'resident.medicalInformation:id,resident_id,pwd_id_number'
+            ])
+            ->whereHas('resident', function ($q) use ($brgy_id, $filters) {
+                $q->where('barangay_id', $brgy_id);
+
+            // ✅ Filter by Purok
+            if (!empty($filters['purok']) && $filters['purok'] !== "All") {
+                $q->where('purok_number', $filters['purok']);
+            }
+
+            // ✅ Filter by Sex
+            if (!empty($filters['sex']) && $filters['sex'] !== "All") {
+                $q->where('sex', $filters['sex']);
+            }
+
+            // ✅ Filter by Age Group
+            if (!empty($filters['age_group']) && $filters['age_group'] !== "All") {
+                $today = now();
+
+                switch ($filters['age_group']) {
+                    case '0_6_months':
+                        $q->whereBetween('birthdate', [$today->copy()->subMonths(6), $today]);
+                        break;
+                    case '7mos_2yrs':
+                        $q->whereBetween('birthdate', [$today->copy()->subYears(2), $today->copy()->subMonths(7)]);
+                        break;
+                    case '3_5yrs':
+                        $q->whereBetween('birthdate', [$today->copy()->subYears(5), $today->copy()->subYears(3)]);
+                        break;
+                    case '6_12yrs':
+                        $q->whereBetween('birthdate', [$today->copy()->subYears(12), $today->copy()->subYears(6)]);
+                        break;
+                    case '13_17yrs':
+                        $q->whereBetween('birthdate', [$today->copy()->subYears(17), $today->copy()->subYears(13)]);
+                        break;
+                    case '18_59yrs':
+                        $q->whereBetween('birthdate', [$today->copy()->subYears(59), $today->copy()->subYears(18)]);
+                        break;
+                    case '60_above':
+                        $q->where('birthdate', '<=', $today->copy()->subYears(60));
+                        break;
+                }
+            }
+        });
+
+        // ✅ Filter by Disability Type
+        if (!empty($filters['disability_type']) && $filters['disability_type'] !== "All") {
+            $query->where('disability_type', $filters['disability_type']);
+        }
+
+        // ✅ Search Name or Disability
+        if ($search = trim($request->input('name', ''))) {
+            $terms = preg_split('/\s+/', $search);
+            $query->where(function ($q) use ($terms) {
+                $q->orWhereHas('resident', function ($r) use ($terms) {
+                    foreach ($terms as $term) {
+                        $r->where(function ($r2) use ($term) {
+                            $like = "%{$term}%";
+                            $r2->where('firstname', 'like', $like)
+                            ->orWhere('middlename', 'like', $like)
+                            ->orWhere('lastname', 'like', $like)
+                            ->orWhere('suffix', 'like', $like);
+                        });
+                    }
+                })
+                ->orWhere('disability_type', 'like', "%".request('name')."%");
+            });
+        }
+
+        $disabilities = $query->get();
+
+        // ✅ Map Data for PDF
+        $data = $disabilities->map(function ($d, $index) {
+            $r = $d->resident;
+            $fullName = trim("{$r->firstname} {$r->middlename} {$r->lastname} {$r->suffix}");
+            $age = \Carbon\Carbon::parse($r->birthdate)->age;
+
+            return [
+                'No'                => $index + 1,
+                'FullName'          => $fullName,
+                'Age'               => $age,
+                'Sex'               => ucfirst($r->sex),
+                'Disability Type'   => $d->disability_type,
+                'PWD ID Number'     => optional($r->medicalInformation)->pwd_id_number ?? 'N/A',
+                'Purok Number'      => $r->purok_number,
+            ];
+        });
+
+        $barangay = auth()->user()->barangay()->first();
+
+        $summary = [
+            'male'        => $data->where('Sex', 'Male')->count(),
+            'female'      => $data->where('Sex', 'Female')->count(),
+            'with_id'     => $data->where('PWD ID Number', '!=', 'N/A')->count(),
+            'without_id'  => $data->where('PWD ID Number', 'N/A')->count(),
+        ];
+
+        // ✅ Generate PDF
+        $pdf = Pdf::loadView('bims.disabilities_summary', [
+            'disabilities'  => $data,
+            'barangayName'  => $barangay->barangay_name ?? 'Barangay',
+            'barangayLogo'  => $barangay->logo_path ?? null,
+            'total'         => $data->count(),
+            'generatedAt'   => now('Asia/Manila')->format('F d, Y h:i A'),
+            'summary'       => $summary, // ✅ add this
+        ])->setPaper('legal', 'landscape');
+
+        return $pdf->stream('PWD_Disability_List.pdf');
+    }
+
+    public function exportMedicationsPdf(Request $request)
+    {
+        $brgy_id = auth()->user()->barangay_id;
+        $filters = $request->only(['purok', 'sex', 'age_group', 'medication']);
+
+        $query = ResidentMedication::query()
+            ->with([
+                'resident:id,firstname,middlename,lastname,suffix,birthdate,purok_number,sex,barangay_id',
+            ])
+            ->whereHas('resident', function ($q) use ($brgy_id, $filters) {
+                $q->where('barangay_id', $brgy_id);
+
+                // ✅ Filter by Purok
+                if (!empty($filters['purok']) && $filters['purok'] !== "All") {
+                    $q->where('purok_number', $filters['purok']);
+                }
+
+                // ✅ Filter by Sex
+                if (!empty($filters['sex']) && $filters['sex'] !== "All") {
+                    $q->where('sex', $filters['sex']);
+                }
+
+                // ✅ Filter by Age Group
+                if (!empty($filters['age_group']) && $filters['age_group'] !== "All") {
+                    $today = now();
+
+                    switch ($filters['age_group']) {
+                        case '0_6_months':
+                            $q->whereBetween('birthdate', [$today->copy()->subMonths(6), $today]);
+                            break;
+                        case '7mos_2yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(2), $today->copy()->subMonths(7)]);
+                            break;
+                        case '3_5yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(5), $today->copy()->subYears(3)]);
+                            break;
+                        case '6_12yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(12), $today->copy()->subYears(6)]);
+                            break;
+                        case '13_17yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(17), $today->copy()->subYears(13)]);
+                            break;
+                        case '18_59yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(59), $today->copy()->subYears(18)]);
+                            break;
+                        case '60_above':
+                            $q->where('birthdate', '<=', $today->copy()->subYears(60));
+                            break;
+                    }
+                }
+            });
+
+        // ✅ Filter by medication name
+        if (!empty($filters['medication']) && $filters['medication'] !== "All") {
+            $query->where('medication_name', $filters['medication']);
+        }
+
+        // ✅ Date Filter
+        if ($startDate = $request->start_date) {
+            $query->whereDate('start_date', '>=', $startDate);
+        }
+
+        if ($endDate = $request->end_date) {
+            $query->whereDate('end_date', '<=', $endDate);
+        }
+
+        // ✅ Search Name or Medication
+        if ($search = trim($request->input('search', ''))) {
+            $terms = preg_split('/\s+/', $search);
+
+            $query->where(function ($q) use ($terms, $search) {
+                $q->orWhereHas('resident', function ($r) use ($terms) {
+                    foreach ($terms as $term) {
+                        $like = "%{$term}%";
+                        $r->where('firstname', 'like', $like)
+                        ->orWhere('middlename', 'like', $like)
+                        ->orWhere('lastname', 'like', $like)
+                        ->orWhere('suffix', 'like', $like);
+                    }
+                })
+                ->orWhere('medication_name', 'like', "%{$search}%");
+            });
+        }
+
+        $records = $query->get();
+
+        // ✅ Map data for PDF rows
+        $data = $records->map(function ($m, $index) {
+            $r = $m->resident;
+            $fullName = trim("{$r->firstname} {$r->middlename} {$r->lastname} {$r->suffix}");
+            $age = \Carbon\Carbon::parse($r->birthdate)->age;
+
+            return [
+                'No'            => $index + 1,
+                'FullName'      => $fullName,
+                'Age'           => $age,
+                'Sex'           => ucfirst($r->sex),
+                'Medication'    => $m->medication ?? $m->medication ?? 'N/A', // ✅ fallback
+                'Purok Number'  => $r->purok_number,
+                'Start Date'    => $m->start_date ? \Carbon\Carbon::parse($m->start_date)->format('M d, Y') : 'N/A',
+                'End Date'      => $m->end_date ? \Carbon\Carbon::parse($m->end_date)->format('M d, Y') : 'N/A',
+            ];
+        });
+
+        // ✅ Summary counts
+        $summary = [
+            'male'        => $data->where('Sex', 'Male')->count(),
+            'female'      => $data->where('Sex', 'Female')->count(),
+            'unique_meds' => $data->pluck('Medication')->unique()->count(),
+            'total'       => $data->count(),
+        ];
+
+        $barangay = auth()->user()->barangay()->first();
+
+        $pdf = Pdf::loadView('bims.medications_summary', [
+            'medications' => $data,
+            'barangayName' => $barangay->barangay_name ?? 'Barangay',
+            'barangayLogo' => $barangay->logo_path ?? null,
+            'generatedAt'  => now('Asia/Manila')->format('F d, Y h:i A'),
+            'summary'      => $summary,
+        ])->setPaper('legal', 'landscape');
+
+        return $pdf->stream('Medication_List.pdf');
+    }
+    public function exportPregnancyPdf(Request $request)
+    {
+        $brgy_id = auth()->user()->barangay_id;
+        $filters = $request->only(['purok', 'sex', 'age_group', 'pregnancy_status', 'expected_due_date', 'delivery_date', 'search']);
+
+        $query = PregnancyRecords::query()
+            ->with([
+                'resident:id,firstname,middlename,lastname,suffix,birthdate,purok_number,sex,barangay_id'
+            ])
+            ->whereHas('resident', function ($q) use ($brgy_id, $filters) {
+                $q->where('barangay_id', $brgy_id);
+
+                // ✅ Filter by Purok
+                if (!empty($filters['purok']) && $filters['purok'] !== "All") {
+                    $q->where('purok_number', $filters['purok']);
+                }
+
+                // ✅ Filter by Sex
+                if (!empty($filters['sex']) && $filters['sex'] !== "All") {
+                    $q->where('sex', $filters['sex']);
+                }
+
+                // ✅ Filter by Age Group
+                if (!empty($filters['age_group']) && $filters['age_group'] !== "All") {
+                    $today = now();
+                    switch ($filters['age_group']) {
+                        case '13_17yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(17), $today->copy()->subYears(13)]);
+                            break;
+                        case '18_59yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(59), $today->copy()->subYears(18)]);
+                            break;
+                        case '60_above':
+                            $q->where('birthdate', '<=', $today->copy()->subYears(60));
+                            break;
+                    }
+                }
+
+                // ✅ Search by Name
+                if (!empty($filters['search'])) {
+                    $search = $filters['search'];
+                    $q->where(function ($r) use ($search) {
+                        $r->where('firstname', 'like', "%$search%")
+                        ->orWhere('middlename', 'like', "%$search%")
+                        ->orWhere('lastname', 'like', "%$search%")
+                        ->orWhere('suffix', 'like', "%$search%");
+                    });
+                }
+            });
+
+        // ✅ Pregnancy Status
+        if (!empty($filters['pregnancy_status']) && $filters['pregnancy_status'] !== "All") {
+            $query->where('status', $filters['pregnancy_status']);
+        }
+
+        // ✅ Expected Due Date Filter
+        if (!empty($filters['expected_due_date'])) {
+            $query->whereDate('expected_due_date', $filters['expected_due_date']);
+        }
+
+        // ✅ Delivery Date Filter
+        if (!empty($filters['delivery_date'])) {
+            $query->whereDate('delivery_date', $filters['delivery_date']);
+        }
+
+        $records = $query->get();
+
+        // ✅ Prepare Data for PDF
+        $data = $records->map(function ($m, $index) {
+            $r = $m->resident;
+            $fullName = trim("{$r->firstname} {$r->middlename} {$r->lastname} {$r->suffix}");
+            $age = Carbon::parse($r->birthdate)->age;
+
+            return [
+                'No'               => $index + 1,
+                'FullName'         => $fullName,
+                'Age'              => $age,
+                'Sex'              => ucfirst($r->sex),
+                'Purok Number'     => $r->purok_number,
+                'Status'           => ucfirst($m->status),
+                'Expected Due Date'=> $m->expected_due_date ? Carbon::parse($m->expected_due_date)->format('M d, Y') : 'N/A',
+                'Delivery Date'    => $m->delivery_date ? Carbon::parse($m->delivery_date)->format('M d, Y') : 'N/A',
+            ];
+        });
+
+        // ✅ Summary Counts
+        $summary = [
+            'ongoing'   => $data->where('Status', 'Ongoing')->count(),
+            'delivered' => $data->where('Status', 'Delivered')->count(),
+            'miscarried'=> $data->where('Status', 'Miscarried')->count(),
+            'aborted'   => $data->where('Status', 'Aborted')->count(),
+            'total'     => $data->count(),
+        ];
+
+        $barangay = auth()->user()->barangay()->first();
+
+        $pdf = Pdf::loadView('bims.pregnancy_summary', [
+            'pregnancies'  => $data, // ✅ change key name
+            'barangayName' => $barangay->barangay_name ?? 'Barangay',
+            'barangayLogo' => $barangay->logo_path ?? null,
+            'generatedAt'  => now('Asia/Manila')->format('F d, Y h:i A'),
+            'summary'      => $summary,
+            'total'        => $data->count(), // ✅ recommended
+        ])->setPaper('legal', 'landscape');
+
+        return $pdf->stream('Pregnancy_Records.pdf');
+    }
+    public function exportVaccinationPdf(Request $request)
+    {
+        $brgy_id = auth()->user()->barangay_id;
+        $filters = $request->only(['purok', 'sex', 'age_group', 'vaccine', 'vaccination_date', 'search']);
+
+        $query = ResidentVaccination::query()
+            ->with([
+                'resident:id,firstname,middlename,lastname,suffix,birthdate,purok_number,sex,barangay_id'
+            ])
+            ->whereHas('resident', function ($q) use ($brgy_id, $filters) {
+                $q->where('barangay_id', $brgy_id);
+
+                // ✅ Filter by Purok
+                if (!empty($filters['purok']) && $filters['purok'] !== "All") {
+                    $q->where('purok_number', $filters['purok']);
+                }
+
+                // ✅ Filter by Sex
+                if (!empty($filters['sex']) && $filters['sex'] !== "All") {
+                    $q->where('sex', $filters['sex']);
+                }
+
+                // ✅ Filter by Age Group
+                if (!empty($filters['age_group']) && $filters['age_group'] !== "All") {
+                    $today = now();
+
+                    switch ($filters['age_group']) {
+                        case '0_6_months':
+                            $q->whereBetween('birthdate', [$today->copy()->subMonths(6), $today]);
+                            break;
+                        case '7mos_2yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(2), $today->copy()->subMonths(7)]);
+                            break;
+                        case '3_5yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(5), $today->copy()->subYears(3)]);
+                            break;
+                        case '6_12yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(12), $today->copy()->subYears(6)]);
+                            break;
+                        case '13_17yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(17), $today->copy()->subYears(13)]);
+                            break;
+                        case '18_59yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(59), $today->copy()->subYears(18)]);
+                            break;
+                        case '60_above':
+                            $q->where('birthdate', '<=', $today->copy()->subYears(60));
+                            break;
+                    }
+                }
+
+                // ✅ Search by Name
+                if (!empty($filters['search'])) {
+                    $search = $filters['search'];
+                    $q->where(function ($r) use ($search) {
+                        $r->where('firstname', 'like', "%$search%")
+                        ->orWhere('middlename', 'like', "%$search%")
+                        ->orWhere('lastname', 'like', "%$search%")
+                        ->orWhere('suffix', 'like', "%$search%");
+                    });
+                }
+            });
+
+        // ✅ Vaccine filter
+        if (!empty($filters['vaccine']) && $filters['vaccine'] !== "All") {
+            $query->where('vaccine', $filters['vaccine']);
+        }
+
+        // ✅ Vaccination Date filter
+        if (!empty($filters['vaccination_date'])) {
+            $query->whereDate('vaccination_date', $filters['vaccination_date']);
+        }
+
+        $records = $query->get();
+
+        // ✅ Prepare Data for PDF
+        $data = $records->map(function ($m, $index) {
+            $r = $m->resident;
+            $fullName = trim("{$r->firstname} {$r->middlename} {$r->lastname} {$r->suffix}");
+            $age = Carbon::parse($r->birthdate)->age;
+
+            return [
+                'No'               => $index + 1,
+                'FullName'         => $fullName,
+                'Age'              => $age,
+                'Sex'              => ucfirst($r->sex),
+                'Purok Number'     => $r->purok_number,
+                'Vaccine'          => $m->vaccine,
+                'Vaccination Date' => Carbon::parse($m->vaccination_date)->format('M d, Y'),
+            ];
+        });
+
+        // ✅ Count per vaccine
+        $vaccineCounts = $data
+            ->groupBy('Vaccine')
+            ->map(fn($group) => $group->count())
+            ->toArray();
+
+        // ✅ Summary
+        $summary = [
+            'total'     => $data->count(),
+            'male'      => $data->where('Sex', 'Male')->count(),
+            'female'    => $data->where('Sex', 'Female')->count(),
+            'vaccines'  => $vaccineCounts, // ✅ vaccine summary added
+        ];
+
+        $barangay = auth()->user()->barangay()->first();
+
+        $pdf = Pdf::loadView('bims.vaccination_summary', [
+            'vaccinations' => $data,
+            'barangayName' => $barangay->barangay_name ?? 'Barangay',
+            'barangayLogo' => $barangay->logo_path ?? null,
+            'generatedAt'  => now('Asia/Manila')->format('F d, Y h:i A'),
+            'summary'      => $summary,
+        ])->setPaper('legal', 'landscape');
+
+        return $pdf->stream('Vaccination_Records.pdf');
+    }
 }

@@ -85,7 +85,7 @@ export default function Index({ allergies, puroks, queryParams }) {
     };
 
     const allColumns = [
-        { key: "id", label: "ID" },
+        { key: "no", label: "No." },
         { key: "name", label: "Resident Name" },
         { key: "age", label: "Age" },
         { key: "sex", label: "Sex" },
@@ -114,8 +114,7 @@ export default function Index({ allergies, puroks, queryParams }) {
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
 
     const columnRenderers = {
-        id: (row) => row.id,
-
+        no: (row) => row.number ?? "-",
         name: (row) => {
             const r = row.resident ?? {};
             return (
