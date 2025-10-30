@@ -124,6 +124,19 @@ class AllergyController extends Controller
 
         $allergies = $query->paginate(10)->withQueryString();
 
+        // 🔹 Group by resident_id and concatenate allergy info
+        $grouped = $allergies->getCollection()
+            ->groupBy('resident_id')
+            ->map(function ($items) {
+                $first = $items->first();
+                $first->allergy_name = $items->pluck('allergy_name')->filter()->join(', ');
+                $first->reaction_description = $items->pluck('reaction_description')->filter()->join('; ');
+                return $first;
+            });
+
+        // Replace the paginated collection with grouped data
+        $allergies->setCollection($grouped->values());
+
         return Inertia::render("BarangayOfficer/MedicalInformation/Allergy/Index", [
             "allergies" => $allergies,
             "puroks" => $puroks,

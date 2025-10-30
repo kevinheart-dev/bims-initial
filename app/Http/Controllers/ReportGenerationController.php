@@ -15,6 +15,7 @@ use App\Exports\PopulationExposureOverallExport;
 use App\Exports\SeniorCitizenExport;
 use App\Exports\SummonExport;
 use App\Exports\VehicleExport;
+use App\Models\Allergy;
 use App\Models\Barangay;
 use App\Models\BlotterReport;
 use App\Models\Certificate;
@@ -201,7 +202,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream('Population_Exposure_Summary_' . $sanitizedHazard . '_' . $cra->year . '.pdf');
     }
-
     public function exportPopulationOverviewSummary(Request $request)
     {
         $year = $request->input('year') ?? session('cra_year');
@@ -307,7 +307,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream('Population_Overview_Summary_' . $cra->year . '.pdf');
     }
-
     public function exportTopHazardsSummary(Request $request)
     {
         $year = $request->input('year') ?? session('cra_year');
@@ -355,7 +354,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream('Top_Hazards_Summary_' . $cra->year . '.pdf');
     }
-
     public function exportLivelihoodSummary(Request $request)
     {
         $year = $request->input('year') ?? session('cra_year');
@@ -459,7 +457,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream("Livelihood_Summary_Top5_{$cra->year}.pdf");
     }
-
     public function exportHumanResourcesSummary(Request $request)
     {
         $year = $request->input('year') ?? session('cra_year');
@@ -555,7 +552,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream("HumanResources_Summary_Top5_{$cra->year}.pdf");
     }
-
     public function exportOverallDisasterRiskPopulationSummary(Request $request)
     {
         $year = $request->input('year') ?? session('cra_year');
@@ -623,7 +619,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream($filename);
     }
-
     public function exportPerHazardDisasterRiskPopulationSummary(Request $request)
     {
         $year = $request->input('year') ?? session('cra_year');
@@ -689,7 +684,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream($filename);
     }
-
     public function exportOverallRiskMatrixSummary(Request $request)
     {
         $year = $request->input('year') ?? session('cra_year');
@@ -747,7 +741,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream($filename);
     }
-
     public function exportOverallVulnerabilityMatrixSummary(Request $request)
     {
         $year = $request->input('year') ?? session('cra_year');
@@ -805,7 +798,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream($filename);
     }
-
     public function exportResidentInfoPdf(Request $request)
     {
         $brgy_id = auth()->user()->barangay_id;
@@ -920,7 +912,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream('Resident_Information_List.pdf');
     }
-
     public function exportSeniorCitizensPdf(Request $request)
     {
         $brgy_id = auth()->user()->barangay_id;
@@ -1013,7 +1004,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream('Senior_Citizens_List.pdf');
     }
-
     private const INCOME_CATEGORY_TEXT = [
         'below_5000'    => 'Survival',
         '5001_10000'    => 'Poor',
@@ -1023,7 +1013,6 @@ class ReportGenerationController extends Controller
         '70001_120000'  => 'Upper Middle Income',
         'above_120001'  => 'High Income',
     ];
-
     private const INCOME_BRACKET_TEXT = [
         'below_5000'    => 'Below 5,000 PHP',
         '5001_10000'    => '5,001 - 10,000 PHP',
@@ -1081,7 +1070,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream('Family_Information_List.pdf');
     }
-
     public function exportFamilyMembersPdf()
     {
         $barangay = auth()->user()->barangay()->first();
@@ -1389,7 +1377,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream("{$barangayName}-Household-Overview.pdf");
     }
-
     public function exportVehicleInfoPdf(Request $request)
     {
         $brgy_id = auth()->user()->barangay_id;
@@ -1467,7 +1454,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream('Vehicle_Information_List.pdf');
     }
-
     public function exportEducationalHistoryPdf(Request $request)
     {
         $brgy_id = auth()->user()->barangay_id;
@@ -1737,8 +1723,7 @@ class ReportGenerationController extends Controller
         $query = MedicalInformation::with([
             'resident:id,firstname,middlename,lastname,suffix,purok_number,sex,is_pwd,barangay_id',
             'resident.disabilities'
-        ])
-        ->whereHas('resident', function ($q) use ($brgy_id) {
+        ])->whereHas('resident', function ($q) use ($brgy_id) {
             $q->where('barangay_id', $brgy_id)
             ->where('is_deceased', false);
         });
@@ -1758,21 +1743,15 @@ class ReportGenerationController extends Controller
         }
 
         if ($request->filled('purok') && $request->input('purok') !== 'All') {
-            $query->whereHas('resident', function ($q) use ($request) {
-                $q->where('purok_number', $request->input('purok'));
-            });
+            $query->whereHas('resident', fn($q) => $q->where('purok_number', $request->input('purok')));
         }
 
         if ($request->filled('sex') && $request->input('sex') !== 'All') {
-            $query->whereHas('resident', function ($q) use ($request) {
-                $q->where('sex', $request->input('sex'));
-            });
+            $query->whereHas('resident', fn($q) => $q->where('sex', $request->input('sex')));
         }
 
         if ($request->filled('is_pwd') && $request->input('is_pwd') !== 'All') {
-            $query->whereHas('resident', function ($q) use ($request) {
-                $q->where('is_pwd', $request->input('is_pwd'));
-            });
+            $query->whereHas('resident', fn($q) => $q->where('is_pwd', $request->input('is_pwd')));
         }
 
         if ($request->filled('blood_type') && $request->input('blood_type') !== 'All') {
@@ -1801,22 +1780,26 @@ class ReportGenerationController extends Controller
         $data = $medicalRecords->map(function ($record) {
             $r = $record->resident;
             $fullName = trim("{$r->firstname} {$r->middlename} {$r->lastname} {$r->suffix}");
-            $disabilities = $r->disabilities->pluck('name')->join(', ');
-
             return [
-                'Resident ID' => $r->id,
-                'Full Name' => $fullName,
-                'Purok' => $r->purok_number,
-                'Sex' => $r->sex,
-                'Is PWD' => $r->is_pwd ? 'Yes' : 'No',
-                'Disabilities' => $disabilities ?: 'None',
-                'Blood Type' => $record->blood_type ?? 'N/A',
+                'Resident Name' => $fullName,
+                'Weight (kg)' => $record->weight_kg ?? 'N/A',
+                'Height (cm)' => $record->height_cm ?? 'N/A',
+                'Sex' => ucfirst($r->sex ?? 'N/A'),
                 'Nutritional Status' => $record->nutrition_status ?? 'N/A',
-                'Smoker' => $record->is_smoker ? 'Yes' : 'No',
-                'Alcohol User' => $record->is_alcohol_user ? 'Yes' : 'No',
-                'PhilHealth' => $record->has_philhealth ? 'Yes' : 'No',
+                'Blood Type' => $record->blood_type ?? 'N/A',
+                'Emergency Contact Number' => $record->emergency_contact_number ?? 'N/A', // ✅ from medical_information
+                'Is PWD?' => $r->is_pwd ? 'Yes' : 'No',
+                'Purok Number' => $r->purok_number ?? 'N/A',
             ];
         });
+
+        // ------------------- Summary Computation -------------------
+        $summary = [
+            'male' => $medicalRecords->filter(fn($m) => optional($m->resident)->sex === 'male')->count(),
+            'female' => $medicalRecords->filter(fn($m) => optional($m->resident)->sex === 'female')->count(),
+            'pwd' => $medicalRecords->filter(fn($m) => optional($m->resident)->is_pwd)->count(),
+            'philhealth' => $medicalRecords->filter(fn($m) => $m->has_philhealth)->count(),
+        ];
 
         $barangay = auth()->user()->barangay()->first();
 
@@ -1825,6 +1808,7 @@ class ReportGenerationController extends Controller
             'medicalRecords' => $data,
             'barangayName' => $barangay->barangay_name ?? 'Barangay',
             'barangayLogo' => $barangay->logo_path ?? null,
+            'summary' => $summary,
             'total' => $data->count(),
             'generatedAt' => now('Asia/Manila')->format('F d, Y h:i A'),
         ])->setPaper('legal', 'landscape');
@@ -1921,7 +1905,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream('Certificates_List.pdf');
     }
-
     public function exportBlotterReportsPdf(Request $request)
     {
         $brgy_id = auth()->user()->barangay_id;
@@ -2013,7 +1996,6 @@ class ReportGenerationController extends Controller
 
         return $pdf->stream('Blotter_Reports_List.pdf');
     }
-
     public function exportSummonsPdf(Request $request)
     {
         $brgy_id = auth()->user()->barangay_id;
@@ -2127,6 +2109,109 @@ class ReportGenerationController extends Controller
         ])->setPaper('legal', 'landscape');
 
         return $pdf->stream('Summons_Reports_List.pdf');
+    }
+
+    // OTHER MEDICAL INFO
+    public function exportAllergyPdf(Request $request)
+    {
+        $brgy_id = auth()->user()->barangay_id;
+        $filters = $request->all();
+
+        // Base query: only select necessary columns
+        $query = Allergy::select('id', 'resident_id', 'allergy_name', 'reaction_description')
+            ->with([
+                'resident:id,firstname,middlename,lastname,suffix,purok_number,sex,birthdate',
+            ])
+            ->whereHas('resident', function ($q) use ($brgy_id, $filters) {
+                $q->where('barangay_id', $brgy_id)
+                ->where('is_deceased', false);
+
+                if (!empty($filters['purok']) && $filters['purok'] !== 'All') {
+                    $q->where('purok_number', $filters['purok']);
+                }
+
+                if (!empty($filters['sex']) && $filters['sex'] !== 'All') {
+                    $q->where('sex', $filters['sex']);
+                }
+
+                if (!empty($filters['age_group']) && $filters['age_group'] !== 'All') {
+                    $today = now();
+                    switch ($filters['age_group']) {
+                        case '0_6_months':
+                            $q->whereBetween('birthdate', [$today->copy()->subMonths(6), $today]);
+                            break;
+                        case '7mos_2yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(2), $today->copy()->subMonths(7)]);
+                            break;
+                        case '3_5yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(5), $today->copy()->subYears(3)]);
+                            break;
+                        case '6_12yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(12), $today->copy()->subYears(6)]);
+                            break;
+                        case '13_17yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(17), $today->copy()->subYears(13)]);
+                            break;
+                        case '18_59yrs':
+                            $q->whereBetween('birthdate', [$today->copy()->subYears(59), $today->copy()->subYears(18)]);
+                            break;
+                        case '60_above':
+                            $q->where('birthdate', '<=', $today->copy()->subYears(60));
+                            break;
+                    }
+                }
+            });
+
+        if (!empty($filters['allergy'])) {
+            $query->where(function($q) use ($filters) {
+                $q->where('allergy_name', 'like', '%' . $filters['allergy'] . '%')
+                ->orWhere('reaction_description', 'like', '%' . $filters['allergy'] . '%');
+            });
+        }
+
+        if ($name = trim($request->input('name'))) {
+            $like = "%{$name}%";
+            $query->where(function ($q) use ($like) {
+                $q->whereHas('resident', fn($sub) => $sub->whereRaw(
+                    "CONCAT_WS(' ', firstname, middlename, lastname, suffix) LIKE ?", [$like]
+                ));
+            });
+        }
+
+        // Fetch all allergies
+        $allergies = $query->get();
+
+        // Group by resident
+        $grouped = $allergies->groupBy('resident_id');
+
+        // Map for PDF
+        $data = $grouped->values()->map(function ($group, $index) {
+            $resident = $group->first()->resident;
+            $allergyNames = $group->pluck('allergy_name')->filter()->unique()->implode(', ');
+            $descriptions = $group->pluck('reaction_description')->filter()->unique()->implode('; ');
+
+            return [
+                'No' => $index + 1,
+                'Resident Name' => trim("{$resident->firstname} {$resident->middlename} {$resident->lastname} {$resident->suffix}"),
+                'Age' => $resident->age ?? 'N/A',
+                'Sex' => ucfirst($resident->sex ?? 'N/A'),
+                'Allergy Name' => $allergyNames ?: 'N/A',
+                'Description' => $descriptions ?: 'N/A',
+                'Purok Number' => $resident->purok_number ?? 'N/A',
+            ];
+        });
+
+        $barangay = auth()->user()->barangay()->first();
+
+        $pdf = Pdf::loadView('bims.allergy_summary', [
+            'allergies' => $data,
+            'barangayName' => $barangay->barangay_name ?? 'Barangay',
+            'barangayLogo' => $barangay->logo_path ?? null,
+            'total' => $data->count(),
+            'generatedAt' => now('Asia/Manila')->format('F d, Y h:i A'),
+        ])->setPaper('legal', 'landscape');
+
+        return $pdf->stream('Allergy_Information_List.pdf');
     }
 
 

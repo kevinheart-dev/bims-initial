@@ -208,6 +208,9 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
         ->name('report.blotter.pdf');
     Route::get('report/export-summon-pdf', [ReportGenerationController::class, 'exportSummonsPdf'])
         ->name('report.summon.pdf');
+    Route::get('report/export-allergy-pdf', [ReportGenerationController::class, 'exportAllergyPdf'])
+        ->name('report.allergy.pdf');
+
 
     // pregnancy
     Route::get('pregnancy/details/{id}', [PregnancyRecordController::class, 'pregnancyDetails'])->name('pregnancy.details');

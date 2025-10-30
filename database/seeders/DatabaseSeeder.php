@@ -420,17 +420,17 @@ class DatabaseSeeder extends Seeder
         // $this->call([
         //     CRADataseeder::class,
         // ]);
-        // CommunityRiskAssessment::factory()->create([
-        //     'year' => 2022
-        // ]);
-        //         CommunityRiskAssessment::factory()->create([
-        //     'year' => 2023
-        // ]);
-        //         CommunityRiskAssessment::factory()->create([
-        //     'year' => 2024
-        // ]);
-        // CommunityRiskAssessment::factory()->create([
-        //     'year' => 2025
-        // ]);
+        CommunityRiskAssessment::factory()->create([
+            'year' => 2022
+        ]);
+                CommunityRiskAssessment::factory()->create([
+            'year' => 2023
+        ]);
+                CommunityRiskAssessment::factory()->create([
+            'year' => 2024
+        ]);
+        CommunityRiskAssessment::factory()->create([
+            'year' => 2025
+        ]);
     }
 }

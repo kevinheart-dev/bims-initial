@@ -12,12 +12,12 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 4px;
+            margin-top: 6px;
         }
 
         th, td {
             border: 1px solid #333;
-            padding: 4px;
+            padding: 5px;
             text-align: center;
             font-size: 9px;
             vertical-align: middle;
@@ -59,21 +59,21 @@
         }
 
         .summary-table {
-            width: 60%;
+            width: 50%;
             border-collapse: collapse;
             margin-top: 12px;
             font-size: 10px;
         }
 
         .summary-table th, .summary-table td {
-            border:1px solid #333;
-            padding:6px 8px;
-            text-align:left;
+            border: 1px solid #333;
+            padding: 6px 8px;
+            text-align: left;
         }
 
         .summary-table th {
             background: #E0F7E9;
-            font-weight:bold;
+            font-weight: bold;
         }
 
         .totals {
@@ -84,7 +84,7 @@
     </style>
 </head>
 <body>
-    <!-- Official Header -->
+    <!-- Header -->
     <table class="header-table">
         <tr>
             <td style="width:80px; text-align:left;">
@@ -113,52 +113,47 @@
     <h2>{{ $barangayName }} Medical Information Summary</h2>
     <h3>Year {{ $year ?? 2025 }}</h3>
 
-    <!-- Data Table -->
+    <!-- Main Data Table -->
     <table>
         <thead>
             <tr>
                 <th style="width: 30px;">No.</th>
-                <th style="width: 60px;">Resident ID</th>
-                <th>Full Name</th>
-                <th style="width: 50px;">Purok</th>
-                <th style="width: 40px;">Sex</th>
-                <th style="width: 60px;">Blood Type</th>
-                <th style="width: 50px;">Is PWD</th>
-                <th>Nutrition Status</th>
-                <th style="width: 50px;">Smoker</th>
-                <th style="width: 60px;">Alcohol User</th>
-                <th style="width: 60px;">PhilHealth</th>
-                <th>Medical Conditions</th>
-                <th>Disabilities</th>
+                <th>Resident Name</th>
+                <th style="width: 70px;">Weight (kg)</th>
+                <th style="width: 70px;">Height (cm)</th>
+                <th style="width: 50px;">Sex</th>
+                <th>Nutritional Status</th>
+                <th style="width: 70px;">Blood Type</th>
+                <th>Emergency Contact Number</th>
+                <th style="width: 60px;">Is PWD?</th>
+                <th style="width: 70px;">Purok Number</th>
             </tr>
         </thead>
         <tbody>
             @forelse($medicalRecords as $index => $med)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $med['Resident ID'] ?? 'N/A' }}</td>
-                    <td style="text-align:left;">{{ $med['Full Name'] ?? 'N/A' }}</td>
-                    <td>{{ $med['Purok'] ?? 'N/A' }}</td>
+                    <td style="text-align:left;">{{ $med['Resident Name'] ?? 'N/A' }}</td>
+                    <td>{{ $med['Weight (kg)'] ?? 'N/A' }}</td>
+                    <td>{{ $med['Height (cm)'] ?? 'N/A' }}</td>
                     <td>{{ $med['Sex'] ?? 'N/A' }}</td>
+                    <td style="text-align:left;">{{ $med['Nutritional Status'] ?? 'N/A' }}</td>
                     <td>{{ $med['Blood Type'] ?? 'N/A' }}</td>
-                    <td>{{ $med['Is PWD'] ?? 'N/A' }}</td>
-                    <td style="text-align:left;">{{ $med['Nutrition Status'] ?? 'N/A' }}</td>
-                    <td>{{ $med['Smoker'] ?? 'N/A' }}</td>
-                    <td>{{ $med['Alcohol User'] ?? 'N/A' }}</td>
-                    <td>{{ $med['PhilHealth'] ?? 'N/A' }}</td>
-                    <td style="text-align:left;">{{ $med['Medical Conditions'] ?? 'N/A' }}</td>
-                    <td style="text-align:left;">{{ $med['Disabilities'] ?? 'N/A' }}</td>
+                    <td>{{ $med['Emergency Contact Number'] ?? 'N/A' }}</td>
+                    <td>{{ $med['Is PWD?'] ?? 'N/A' }}</td>
+                    <td>{{ $med['Purok Number'] ?? 'N/A' }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="13" style="text-align:center; font-style:italic;">No records found.</td>
+                    <td colspan="10" style="text-align:center; font-style:italic;">No records found.</td>
                 </tr>
             @endforelse
         </tbody>
         <tfoot>
             <tr class="totals">
-                <td colspan="13" style="text-align:left; font-style:italic; font-size:10px;">
-                    Report generated on: {{ $generatedAt ?? now('Asia/Manila')->format('F d, Y h:i A') }} | Total Records: {{ $total ?? $medicalRecords->count() }}
+                <td colspan="10" style="text-align:left; font-style:italic;">
+                    Report generated on: {{ $generatedAt ?? now('Asia/Manila')->format('F d, Y h:i A') }}
+                    | Total Records: {{ $total ?? $medicalRecords->count() }}
                 </td>
             </tr>
         </tfoot>

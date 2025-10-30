@@ -29,6 +29,7 @@ import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
+import ExportButton from "@/Components/ExportButton";
 
 export default function Index({ allergies, puroks, queryParams }) {
     const breadcrumbs = [
@@ -277,16 +278,21 @@ export default function Index({ allergies, puroks, queryParams }) {
                                             Allergy Records
                                         </h1>
                                         <p className="text-sm text-gray-500">
-                                            Manage and track resident allergy information to ensure safety and
-                                            proper medical assistance. Use the tools below to{" "}
-                                            <span className="font-medium">search, filter, and export</span> records
-                                            for healthcare monitoring and programs.
+                                            Manage and track resident allergy
+                                            information to ensure safety and
+                                            proper medical assistance. Use the
+                                            tools below to{" "}
+                                            <span className="font-medium">
+                                                search, filter, and export
+                                            </span>{" "}
+                                            records for healthcare monitoring
+                                            and programs.
                                         </p>
                                     </div>
                                 </div>
                             </div>
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                                <div className="flex items-center gap-2 flex-wrap">
+                                <div className="flex items-start gap-2 flex-wrap">
                                     <DynamicTableControls
                                         allColumns={allColumns}
                                         visibleColumns={visibleColumns}
@@ -295,6 +301,12 @@ export default function Index({ allergies, puroks, queryParams }) {
                                         toggleShowFilters={() =>
                                             setShowFilters((prev) => !prev)
                                         }
+                                    />
+                                    <ExportButton
+                                        url="report/export-allergy-pdf"
+                                        queryParams={queryParams}
+                                        label="Export Allergy Records as PDF"
+                                        type="pdf"
                                     />
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap justify-end">

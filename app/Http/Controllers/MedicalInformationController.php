@@ -121,7 +121,7 @@ class MedicalInformationController extends Controller
         // 🔹 Fetch residents list for dropdowns, etc.
         $residents = Resident::where('barangay_id', $brgy_id)
         ->whereDoesntHave('medicalInformation') // no record in medical_informations
-        ->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'gender','birthdate')
+        ->select('id', 'firstname', 'lastname', 'middlename', 'suffix', 'resident_picture_path', 'purok_number', 'sex','birthdate')
         ->get();
 
         return Inertia::render("BarangayOfficer/MedicalInformation/Create", [
