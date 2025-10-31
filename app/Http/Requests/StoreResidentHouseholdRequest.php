@@ -133,7 +133,7 @@ class StoreResidentHouseholdRequest extends FormRequest
 
             // occupations
             'household.families.*.members.*.occupations' => ['nullable', 'array'],
-            'household.families.*.members.*.occupations.*.employment_status' => ['required', Rule::in(['employed', 'unemployed', 'under_employed', 'retired'])],
+            'household.families.*.members.*.occupations.*.employment_status' => ['required', Rule::in(['employed', 'unemployed', 'self_employed', 'student', 'under_employed','child','retired','homemaker'])],
             'household.families.*.members.*.occupations.*.occupation' => ['nullable', 'string', 'max:100'],
             'household.families.*.members.*.occupations.*.employment_type' => ['nullable', Rule::in(['full_time', 'part_time', 'seasonal', 'contractual', 'self_employed'])],
             'household.families.*.members.*.occupations.*.occupation_status' => ['nullable', Rule::in(['active', 'inactive', 'ended', 'retired','terminated', 'resigned'])],

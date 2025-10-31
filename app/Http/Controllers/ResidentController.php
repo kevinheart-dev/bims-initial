@@ -211,7 +211,7 @@ class ResidentController extends Controller
     {
         // Get the barangay ID of the currently authenticated admin
         $barangayId = Auth()->user()->barangay_id;
-
+        DB::beginTransaction();
         try {
             // Validate all request inputs using the form request rules
             $data = $request->validated();
@@ -250,7 +250,7 @@ class ResidentController extends Controller
                 'birthplace' => $data['birthplace'],
                 'civil_status' => $data['civil_status'],
                 'citizenship' => $data['citizenship'],
-                'employment_status' => $data['employment_status'],
+                'employment_status' => $data['employment_status'] ?? 'unemployed',
                 'religion' => $data['religion'],
                 'contact_number' => $data['contactNumber'] ?? null,
                 'registered_voter' => $data['registered_voter'],
@@ -535,13 +535,14 @@ class ResidentController extends Controller
                     'income_category' => $incomeCategory,
                 ]);
             }
-
+            DB::commit();
             // Redirect back with success message
             return redirect()->route('resident.index')
                 ->with('success', 'Resident ' . ucwords($resident->full_name) . ' created successfully!');
 
         } catch (\Exception $e) {
             // Handle any unexpected error
+            DB::rollBack();
             return back()->with('error', 'Resident could not be created: ' . $e->getMessage());
         }
     }
@@ -551,7 +552,7 @@ class ResidentController extends Controller
     {
         // Get barangay ID of the authenticated user
         $barangayId = Auth()->user()->barangay_id;
-
+        DB::beginTransaction();
         try {
             // Validate all incoming form data
             $data = $request->validated();
@@ -776,7 +777,7 @@ class ResidentController extends Controller
                                 foreach ($member['occupations'] ?? [] as $occupationData) {
                                     $resident->occupations()->create([
                                         'occupation' => $occupationData['occupation'] ?? null,
-                                        'employment_type' => $occupationData['employment_type'] ?? "null",
+                                        'employment_type' => $occupationData['employment_type'] ?? null,
                                         'occupation_status' => $occupationData['occupation_status'] ?? null,
                                         'work_arrangement' => $occupationData['work_arrangement'] ?? null,
                                         'employer' => $occupationData['employer'] ?? null,
@@ -879,9 +880,11 @@ class ResidentController extends Controller
                 }
             }
 
+            DB::commit();
             // --- SUCCESS RESPONSE ---
             return redirect()->route('resident.index')->with('success', 'Residents Household created successfully!');
         } catch (\Exception $e) {
+            DB::rollBack();
             // Handle and return any error that occurred
             return back()->with('error', 'Residents Household could not be created: ' . $e->getMessage());
         }

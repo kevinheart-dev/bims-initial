@@ -412,7 +412,6 @@ const Section1 = ({
                                 name="contactNumber"
                                 value={data.contactNumber || ""}
                                 placeholder="Enter contact number"
-                                required
                                 onChange={(e) =>
                                     setData("contactNumber", e.target.value)
                                 }
@@ -434,7 +433,6 @@ const Section1 = ({
                                 value={data.email || ""}
                                 placeholder="Enter email"
                                 type="email"
-                                required
                                 onChange={(e) =>
                                     setData("email", e.target.value)
                                 }

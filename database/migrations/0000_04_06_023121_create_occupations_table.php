@@ -21,15 +21,15 @@ return new class extends Migration
                 'seasonal',
                 'contractual',
                 'self_employed',
-            ]);
-            $table->enum('work_arrangement', ['remote', 'on_site', 'hybrid']);
+            ])->nullable();
+            $table->enum('work_arrangement', ['remote', 'on_site', 'hybrid'])->nullable();
             $table->string('employer', 155)->nullable();
-            $table->enum('occupation_status', ['active', 'inactive', 'ended', 'retired', 'terminated', 'resigned']);
-            $table->boolean('is_ofw')->default(false);
-            $table->boolean('is_main_livelihood')->default(false);
-            $table->year('started_at');
+            $table->enum('occupation_status', ['active', 'inactive', 'ended', 'retired', 'terminated', 'resigned'])->nullable();
+            $table->boolean('is_ofw')->nullable()->default(false);
+            $table->boolean('is_main_livelihood')->nullable()->default(false);
+            $table->year('started_at')->nullable();
             $table->year('ended_at')->nullable();
-            $table->decimal('monthly_income', 11, 2);
+            $table->decimal('monthly_income', 11, 2)->nullable();
             $table->timestamps();
         });
     }
