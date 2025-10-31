@@ -303,8 +303,9 @@ class DatabaseSeeder extends Seeder
                 });
 
             // Sample resident users (take first 10 for each barangay)
-            foreach ($residents->take(10) as $index => $res) {
+            foreach ($residents->take(5) as $index => $res) {
                 $user = User::factory()->create([
+                    'barangay_id' => $barangay->id,
                     'resident_id' => $res->id,
                     'username' => 'Sample Resident ' . $index,
                     'email' => 'user' . $barangay->id . "_" . $index + 1 . '@example.com',

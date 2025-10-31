@@ -17,6 +17,7 @@ use App\Models\Resident;
 use App\Http\Requests\StoreResidentRequest;
 use App\Http\Requests\UpdateResidentRequest;
 use App\Models\Street;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
@@ -1784,6 +1785,32 @@ class ResidentController extends Controller
         return response()->json([
             'residents' => $residents,
         ]);
+    }
+
+    public function exportResidentInfo($id)
+    {
+        $resident = Resident::with([
+            'barangay',
+            'street',
+            'latestHousehold',   // ✅ don't chain .household
+            'latestOccupation',
+            'latestEducation',
+            'votingInformation',
+            'socialwelfareprofile',
+            'seniorcitizen',
+            'medicalInformation'
+        ])->findOrFail($id);
+
+        $barangayName = $resident->barangay->barangay_name ?? 'Barangay';
+        $barangayLogo = $resident->barangay->logo_path ?? null;
+        $year = now()->year;
+
+        //dd($resident);
+        $pdf = Pdf::loadView('bims.resident_info_summary', compact(
+            'resident', 'barangayName', 'barangayLogo', 'year'
+        ))->setPaper('A4', 'portrait');
+
+        return $pdf->stream("Resident-{$resident->lastname}.pdf");
     }
 
 }

@@ -12,7 +12,6 @@ export default function Index({
     households,
     barangays,
     resident = null,
-    familyHeads,
 }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
@@ -46,7 +45,6 @@ export default function Index({
                                 households={households}
                                 barangays={barangays}
                                 resident={resident.data}
-                                familyHeads={familyHeads}
                             />
                         </div>
                     </div>

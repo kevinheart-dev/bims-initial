@@ -52,13 +52,6 @@ const EditPersonalInformation = ({
         value: house.household.id.toString(),
     }));
 
-    const familyHeadList = familyHeads.map((head) => ({
-        label: [head.firstname, head.middlename, head.lastname, head.suffix]
-            .filter(Boolean) // removes null/undefined/empty strings
-            .join(" "), // join with spaces
-        value: head.id.toString(),
-    }));
-
     const initial = {
         resident_image: null,
         lastname: resident?.lastname || "",

@@ -73,6 +73,7 @@ Route::get('/request-certificate-placeholders/{id}', [DocumentController::class,
 Route::post('/request-certificate/store', [UnauthenticatedIssuanceController::class, 'store'])->name('request.storerequest');
 Route::get('/getCRA', [CRADataController::class, 'getCRA'])->name('getcra');
 Route::get('/craProgress', [CRAController::class, 'craProgress'])->name('craProgress');
+Route::patch('/user/{user}/toggle-account', [UserController::class, 'toggleAccount'])->name('user.toggle');
 
 // Admin-only routes
 Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin'])->group(function () {
@@ -95,6 +96,7 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
         ->name('certificate.export.pdf');
     Route::post('/certificate/issue/{id}', [CertificateController::class, 'issue'])
         ->name('certificate.issue');
+    Route::get('/certificates/pending', [CertificateController::class, 'getPendingCertificates'])->name('certificate.pending');;
 
     // family
     Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('resident.familytree');
@@ -255,6 +257,8 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
 
     // households
     Route::get('/overview', [HouseholdController::class, 'householdOverview'])->name('household.overview');
+    Route::get('/export-resident-pdf/{id}', [ResidentController::class, 'exportResidentInfo'])
+    ->name('resident.export.pdf');
 
     // residents
     Route::resource('resident', ResidentController::class);
@@ -315,9 +319,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/barangay_profile', [BarangayProfileController::class, 'index'])->name('barangay_profile.index');
     Route::put('/barangay_profile/update/{barangay}', [BarangayProfileController::class, 'update'])->name('barangay_profile.update');
-
-    Route::patch('/user/{user}/toggle-account', [UserController::class, 'toggleAccount'])
-        ->name('user.toggle');
 
     Route::resource('user', UserController::class);
 });

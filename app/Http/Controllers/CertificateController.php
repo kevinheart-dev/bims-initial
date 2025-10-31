@@ -104,6 +104,29 @@ class CertificateController extends Controller
         return $this->store($template, $resident, $request->all());
     }
 
+    public function getPendingCertificates()
+    {
+        try {
+            $barangayId = auth()->user()->barangay_id;
+
+            $count = Certificate::where('request_status', 'pending')
+                ->where('barangay_id', $barangayId)
+                ->count();
+
+            return response()->json([
+                'success' => true,
+                'count' => $count,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve pending certificate count.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     // public function store(Document $template, Resident $resident, array $data)
     // {
     //     $barangay_id = auth()->user()->resident->barangay_id;

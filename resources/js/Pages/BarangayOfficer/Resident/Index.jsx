@@ -12,6 +12,7 @@ import {
     Network,
     Eye,
     Table,
+    FileText,
 } from "lucide-react";
 import * as CONSTANTS from "@/constants";
 import axios from "axios";
@@ -258,7 +259,10 @@ export default function Index({
         setResidentToDelete(id);
         setIsDeleteModalOpen(true);
     };
-
+    const handleExportPdf = (id) => {
+        const fullUrl = `/export-resident-pdf/${id}`;
+        window.open(fullUrl, "_blank");
+    };
     // Memoize confirmDelete to ensure it's stable
     const confirmDelete = useMemo(
         () => () => {
@@ -391,6 +395,11 @@ export default function Index({
                             onClick: () => handleView(resident.id),
                         },
                         {
+                            label: "Export to PDF",
+                            icon: <FileText className="w-4 h-4 text-red-600" />,
+                            onClick: () => handleExportPdf(resident.id),
+                        },
+                        {
                             label: "Edit",
                             icon: (
                                 <SquarePen className="w-4 h-4 text-green-500" />
@@ -412,7 +421,13 @@ export default function Index({
                 />
             ),
         }),
-        [calculateAge, handleView, handleDeleteClick, handleEdit]
+        [
+            calculateAge,
+            handleView,
+            handleDeleteClick,
+            handleEdit,
+            handleExportPdf,
+        ]
     ); // Dependencies for columnRenderers
 
     const [showAll, setShowAll] = useState(currentQueryParams.all === "true");
