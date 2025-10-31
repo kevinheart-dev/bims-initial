@@ -9,6 +9,7 @@ import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import { toast } from "react-hot-toast";
 import SelectField from "../SelectField";
 import InputError from "../InputError";
+import { toTitleCase } from "@/utils/stringFormat";
 
 function EducationandOccupation({ occupationTypes }) {
     const { userData, setUserData, errors } = useContext(StepperContext);
@@ -32,15 +33,16 @@ function EducationandOccupation({ occupationTypes }) {
         const member = updatedFamilies[familyIndex].members[memberIndex];
         const educations = [...(member.educations || [])];
 
+        const formattedValue = name === "school_name" ? toTitleCase(value) : value;
+
         educations[educationIndex] = {
             ...educations[educationIndex],
-            [name]: value,
+            [name]: formattedValue,
         };
 
         member.educations = educations;
         updateHousehold(updatedFamilies);
     };
-
 
     /** 🔹 Add / Remove Education */
     const addEducation = (familyIndex, memberIndex) => {
@@ -62,14 +64,19 @@ function EducationandOccupation({ occupationTypes }) {
         toast.success("Education removed.");
     };
 
-    /** 🔹 Handle Occupation Change */
+
     const handleOccupationChange = (familyIndex, memberIndex, occupationIndex, e) => {
         const { name, value } = e.target;
         const updatedFamilies = [...families];
         const member = updatedFamilies[familyIndex].members[memberIndex];
         const occupations = [...(member.occupations || [])];
 
-        const occupation = { ...occupations[occupationIndex], [name]: value };
+        const formattedValue = ["employer", "occupation"].includes(name)
+            ? toTitleCase(value)
+            : value;
+
+
+        const occupation = { ...occupations[occupationIndex], [name]: formattedValue };
 
         // 🔹 Monthly income conversion factors
         const conversionFactors = {
@@ -94,6 +101,7 @@ function EducationandOccupation({ occupationTypes }) {
 
         updateHousehold(updatedFamilies);
     };
+
 
     useEffect(() => {
         const families = userData.household?.families || [];

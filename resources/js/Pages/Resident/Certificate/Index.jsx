@@ -47,7 +47,7 @@ export default function Index({
     ];
     const APP_URL = useAppUrl();
     const [disableSubmit, setDisableSubmit] = useState(false);
-    const defaultPlacehodlers = [
+    const defaultPlaceholders = [
         "fullname",
         "fullname_2",
         "day",
@@ -65,10 +65,6 @@ export default function Index({
         "issued_on",
     ];
 
-    const toPascalCase = (str) =>
-        str
-            .toLowerCase()
-            .replace(/(?:^|_)([a-z])/g, (_, char) => char.toUpperCase());
 
     const { data, setData, post, errors, setError, reset, clearErrors } =
         useForm({
@@ -478,7 +474,7 @@ export default function Index({
                                 handleDocumentChange={handleDocumentChange}
                                 handleRequest={handleRequest}
                                 reset={reset}
-                                defaultPlacehodlers={defaultPlacehodlers}
+                                defaultPlaceholders={defaultPlaceholders}
                             />
                         )}
                     </SidebarModal>

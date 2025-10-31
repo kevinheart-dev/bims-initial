@@ -7,6 +7,7 @@ import RadioGroup from "../RadioGroup";
 import SelectField from "../SelectField";
 import YearDropdown from "../YearDropdown";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
+import { toTitleCase } from "@/utils/stringFormat";
 
 const Section1 = ({
     data,
@@ -58,7 +59,7 @@ const Section1 = ({
                             data.resident_image instanceof File
                                 ? URL.createObjectURL(data.resident_image)
                                 : existingImagePath ||
-                                  "/images/default-avatar.jpg"
+                                "/images/default-avatar.jpg"
                         }
                         alt="Resident Image"
                         className="w-32 h-32 object-cover rounded-full border border-gray-200 shadow-sm"
@@ -87,9 +88,8 @@ const Section1 = ({
                 <div className="md:col-span-5 space-y-4">
                     {/* Names */}
                     <div
-                        className={`grid gap-3 grid-cols-1 sm:grid-cols-2 md:${
-                            showMaidenMiddleName ? "grid-cols-4" : "grid-cols-3"
-                        }`}
+                        className={`grid gap-3 grid-cols-1 sm:grid-cols-2 md:${showMaidenMiddleName ? "grid-cols-4" : "grid-cols-3"
+                            }`}
                     >
                         <div>
                             <InputField
@@ -98,7 +98,7 @@ const Section1 = ({
                                 value={data.lastname || ""}
                                 placeholder="Enter last name"
                                 onChange={(e) =>
-                                    setData("lastname", e.target.value)
+                                    setData("lastname", toTitleCase(e.target.value))
                                 }
                                 required
                             />
@@ -114,7 +114,7 @@ const Section1 = ({
                                 value={data.firstname || ""}
                                 placeholder="Enter first name"
                                 onChange={(e) =>
-                                    setData("firstname", e.target.value)
+                                    setData("firstname", toTitleCase(e.target.value))
                                 }
                                 required
                             />
@@ -130,7 +130,7 @@ const Section1 = ({
                                 value={data.middlename || ""}
                                 placeholder="Enter middle name"
                                 onChange={(e) =>
-                                    setData("middlename", e.target.value)
+                                    setData("middlename", toTitleCase(e.target.value))
                                 }
                             />
                             <InputError
@@ -148,7 +148,7 @@ const Section1 = ({
                                     onChange={(e) =>
                                         setData(
                                             "maiden_middle_name",
-                                            e.target.value
+                                            toTitleCase(e.target.value)
                                         )
                                     }
                                 />
@@ -302,7 +302,7 @@ const Section1 = ({
                             placeholder="Enter birth place"
                             required
                             onChange={(e) =>
-                                setData("birthplace", e.target.value)
+                                setData("birthplace", toTitleCase(e.target.value))
                             }
                         />
                         <InputError
@@ -330,7 +330,7 @@ const Section1 = ({
                             placeholder="Select religion"
                             required
                             onChange={(e) =>
-                                setData("religion", e.target.value)
+                                setData("religion", toTitleCase(e.target.value))
                             }
                         />
                         <InputError
@@ -357,7 +357,7 @@ const Section1 = ({
                             placeholder="Select ethnicity"
                             required
                             onChange={(e) =>
-                                setData("ethnicity", e.target.value)
+                                setData("ethnicity", toTitleCase(e.target.value))
                             }
                         />
                         <InputError
@@ -379,7 +379,7 @@ const Section1 = ({
                             placeholder="Select citizenship"
                             required
                             onChange={(e) =>
-                                setData("citizenship", e.target.value)
+                                setData("citizenship", toTitleCase(e.target.value))
                             }
                         />
                         <InputError
@@ -565,11 +565,10 @@ const Section1 = ({
 
                 {/* Primary Program Fields */}
                 <div
-                    className={`grid grid-cols-1 sm:grid-cols-2 ${
-                        data.is_solo_parent == 1
-                            ? "md:grid-cols-4"
-                            : "md:grid-cols-3"
-                    } gap-4`}
+                    className={`grid grid-cols-1 sm:grid-cols-2 ${data.is_solo_parent == 1
+                        ? "md:grid-cols-4"
+                        : "md:grid-cols-3"
+                        } gap-4`}
                 >
                     {/* 4Ps Beneficiary */}
                     <div>
@@ -941,7 +940,7 @@ const Section1 = ({
                                         <InputError
                                             message={
                                                 errors[
-                                                    `vehicles.${vecIndex}.vehicle_type`
+                                                `vehicles.${vecIndex}.vehicle_type`
                                                 ]
                                             }
                                             className="mt-1"
@@ -980,7 +979,7 @@ const Section1 = ({
                                         <InputError
                                             message={
                                                 errors[
-                                                    `vehicles.${vecIndex}.vehicle_class`
+                                                `vehicles.${vecIndex}.vehicle_class`
                                                 ]
                                             }
                                             className="mt-1"
@@ -1024,7 +1023,7 @@ const Section1 = ({
                                         <InputError
                                             message={
                                                 errors[
-                                                    `vehicles.${vecIndex}.usage_status`
+                                                `vehicles.${vecIndex}.usage_status`
                                                 ]
                                             }
                                             className="mt-1"
@@ -1059,7 +1058,7 @@ const Section1 = ({
                                         <InputError
                                             message={
                                                 errors[
-                                                    `vehicles.${vecIndex}.is_registered`
+                                                `vehicles.${vecIndex}.is_registered`
                                                 ]
                                             }
                                             className="mt-1"

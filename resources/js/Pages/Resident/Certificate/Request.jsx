@@ -14,7 +14,7 @@ const Request = ({
     handleDocumentChange,
     handleRequest,
     reset,
-    defaultPlacehodlers = [],
+    defaultPlaceholders = [],
 }) => {
     return (
         <div className="bg-white shadow-xl rounded-2xl p-8 my-8 border border-gray-100">
@@ -102,7 +102,7 @@ const Request = ({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                         {data.placeholders
-                            .filter((p) => !defaultPlacehodlers.includes(p))
+                            .filter((p) => !defaultPlaceholders.includes(p))
                             .map((placeholder, i) => (
                                 <div key={i}>
                                     <InputField
