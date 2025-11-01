@@ -11,6 +11,7 @@ import SelectField from "@/Components/SelectField";
 import { Textarea } from "@/Components/ui/textarea";
 import { ParticipantSection } from "@/Components/ParticipantSection";
 import { Toaster, toast } from "sonner";
+import { toSentenceCase, toTitleCase } from "@/utils/stringFormat";
 
 export default function Create({ residents }) {
     const breadcrumbs = [
@@ -70,9 +71,8 @@ export default function Create({ residents }) {
 
     const residentsList = residents.map((r) => ({
         value: r.id,
-        label: `${r.firstname} ${r.middlename ? r.middlename + " " : ""}${
-            r.lastname
-        }${r.suffix ? ", " + r.suffix : ""}`,
+        label: `${r.firstname} ${r.middlename ? r.middlename + " " : ""}${r.lastname
+            }${r.suffix ? ", " + r.suffix : ""}`,
         ...r, // keep all original fields
     }));
 
@@ -144,7 +144,7 @@ export default function Create({ residents }) {
                                                 onChange={(e) =>
                                                     setData(
                                                         "type_of_incident",
-                                                        e.target.value
+                                                        toTitleCase(e.target.value)
                                                     )
                                                 }
                                                 placeholder="Ex: Theft, Violence"
@@ -184,7 +184,7 @@ export default function Create({ residents }) {
                                                 onChange={(e) =>
                                                     setData(
                                                         "location",
-                                                        e.target.value
+                                                        toTitleCase(e.target.value)
                                                     )
                                                 }
                                                 placeholder="Incident Location"
@@ -241,7 +241,7 @@ export default function Create({ residents }) {
                                                 onChange={(e) =>
                                                     setData(
                                                         "narrative_details",
-                                                        e.target.value
+                                                        toSentenceCase(e.target.value)
                                                     )
                                                 }
                                                 placeholder="Describe what happened in details..."
@@ -263,7 +263,7 @@ export default function Create({ residents }) {
                                                 onChange={(e) =>
                                                     setData(
                                                         "actions_taken",
-                                                        e.target.value
+                                                        toSentenceCase(e.target.value)
                                                     )
                                                 }
                                                 placeholder="What immediate actions were taken?"
@@ -283,7 +283,7 @@ export default function Create({ residents }) {
                                                 onChange={(e) =>
                                                     setData(
                                                         "resolution",
-                                                        e.target.value
+                                                        toSentenceCase(e.target.value)
                                                     )
                                                 }
                                                 placeholder="Resolution or settlement details..."
@@ -303,7 +303,7 @@ export default function Create({ residents }) {
                                                 onChange={(e) =>
                                                     setData(
                                                         "recommendations",
-                                                        e.target.value
+                                                        toSentenceCase(e.target.value)
                                                     )
                                                 }
                                                 placeholder="Any recommendations for next steps..."

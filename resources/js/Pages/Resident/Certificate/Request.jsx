@@ -5,6 +5,7 @@ import InputField from "@/components/InputField";
 import DropdownInputField from "@/components/DropdownInputField";
 import InputError from "@/components/InputError";
 import { RotateCcw, FileWarning } from "lucide-react";
+import { toTitleCase } from "@/utils/stringFormat";
 
 const Request = ({
     data,
@@ -78,7 +79,7 @@ const Request = ({
                         <InputField
                             label="Purpose"
                             value={data.purpose || ""}
-                            onChange={(e) => setData("purpose", e.target.value)}
+                            onChange={(e) => setData("purpose", toTitleCase(e.target.value))}
                         />
                         <InputError message={errors.purpose} className="mt-1" />
                         <p className="text-xs text-gray-400 mt-1">
@@ -109,7 +110,7 @@ const Request = ({
                                         label={toPascalCase(placeholder)}
                                         value={data[placeholder] || ""}
                                         onChange={(e) =>
-                                            setData(placeholder, e.target.value)
+                                            setData(placeholder, toTitleCase(e.target.value))
                                         }
                                     />
                                     <InputError
