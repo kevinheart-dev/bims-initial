@@ -499,102 +499,119 @@ class CertificateController extends Controller
 
 
     // RESIDENT ISSUANCE
-public function issue($id)
-{
-    // Fetch certificate and related models
-    $certificate = Certificate::where('id', $id)
-        ->where('request_status', 'pending')
-        ->firstOrFail();
+    public function issue($id)
+    {
+        // Fetch certificate and related models
+        $certificate = Certificate::where('id', $id)
+            ->where('request_status', 'pending')
+            ->firstOrFail();
 
-    $template = Document::findOrFail($certificate->document_id);
-    $resident = Resident::findOrFail($certificate->resident_id);
+        $template = Document::findOrFail($certificate->document_id);
+        $resident = Resident::findOrFail($certificate->resident_id);
 
-    // Get authenticated user and their barangay safely
-    $userAccount  = auth()->user();
-    $barangay     = $userAccount?->barangay;
+        // Get authenticated user and their barangay safely
+        $userAccount  = auth()->user();
+        $barangay     = $userAccount?->barangay;
 
-    if (!$userAccount || !$barangay) {
-        return response()->json([
-            'error'   => 'Unauthorized',
-            'message' => 'Missing user or barangay information.',
-        ], 401);
-    }
-
-    $barangayName = $barangay->barangay_name;
-
-    // Find officer, null-safe
-    $officer   = BarangayOfficial::where('resident_id', $userAccount->resident_id)->first();
-    $issuedBy  = $officer?->id;
-
-    DB::beginTransaction();
-
-    try {
-        // Load template
-        $templateProcessor = $this->loadTemplate($template->file_path);
-
-        // Prepare certificate values
-        $values = $this->prepareValues($resident, ['purpose' => $certificate->purpose]);
-
-        // Merge dynamic values if they exist
-        $dynamicValues = $certificate->dynamic_values ?? [];
-        if (is_array($dynamicValues)) {
-            $values = $values->merge($dynamicValues);
+        if (!$userAccount || !$barangay) {
+            return response()->json([
+                'error'   => 'Unauthorized',
+                'message' => 'Missing user or barangay information.',
+            ], 401);
         }
 
-        // Fill placeholder for second resident (blank lines)
-        $blank2 = collect([
-            'fullname_2'    => str_repeat("_", 40),
-            'civil_status_2'=> str_repeat("_", 10),
-            'gender_2'      => str_repeat("_", 8),
-            'purpose_2'     => str_repeat("_", 50),
-            'purok_2'       => str_repeat("_", 3),
-            'day_2'         => str_repeat("_", 5),
-            'month_2'       => str_repeat("_", 12),
-            'year_2'        => str_repeat("_", 8),
-            'issued_on'     => str_repeat("_", 30),
-        ]);
-        $values = $values->merge($blank2);
+        $barangayName = $barangay->barangay_name;
 
-        // Fill template placeholders
-        foreach ($templateProcessor->getVariables() as $placeholder) {
-            $templateProcessor->setValue($placeholder, $values[$placeholder] ?? '');
+        // Find officer, null-safe
+        $officer   = BarangayOfficial::where('resident_id', $userAccount->resident_id)->first();
+        $issuedBy  = $officer?->id;
+
+        DB::beginTransaction();
+
+        try {
+            // Load template
+            $templateProcessor = $this->loadTemplate($template->file_path);
+
+            // Prepare certificate values
+            $values = $this->prepareValues($resident, ['purpose' => $certificate->purpose]);
+
+            // Merge dynamic values if they exist
+            $dynamicValues = $certificate->dynamic_values ?? [];
+            if (is_array($dynamicValues)) {
+                $values = $values->merge($dynamicValues);
+            }
+
+            // Fill placeholder for second resident (blank lines)
+            $blank2 = collect([
+                'fullname_2'    => str_repeat("_", 40),
+                'civil_status_2'=> str_repeat("_", 10),
+                'gender_2'      => str_repeat("_", 8),
+                'purpose_2'     => str_repeat("_", 50),
+                'purok_2'       => str_repeat("_", 3),
+                'day_2'         => str_repeat("_", 5),
+                'month_2'       => str_repeat("_", 12),
+                'year_2'        => str_repeat("_", 8),
+                'issued_on'     => str_repeat("_", 30),
+            ]);
+            $values = $values->merge($blank2);
+
+            // Fill template placeholders
+            foreach ($templateProcessor->getVariables() as $placeholder) {
+                $templateProcessor->setValue($placeholder, $values[$placeholder] ?? '');
+            }
+
+            // Generate file names and temp paths
+            $baseName    = $this->generateBaseName($resident, $template->name);
+            $docxFilename= "{$baseName}.docx";
+            $tempDocx    = storage_path("app/temp/{$docxFilename}");
+
+            $this->ensureTempDirectory(dirname($tempDocx));
+            $templateProcessor->saveAs($tempDocx);
+
+            // Store in public storage
+            $barangaySlug = Str::slug($barangayName);
+            $docxRelative = "certificates/{$barangaySlug}/docx/{$docxFilename}";
+            $this->storeFiles($tempDocx,  $docxRelative); // PDF not used here
+
+            // Update certificate record
+            $certificate->update([
+                'request_status' => 'issued',
+                'issued_at'      => now(),
+                'issued_by'      => $issuedBy,
+                'docx_path'      => $docxRelative,
+                'control_number' => $values['ctrl_no'] ?? null,
+            ]);
+
+            DB::commit();
+
+            // Return the DOCX as a download
+            return Storage::disk('public')->download($docxRelative, $docxFilename);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            report($e);
+
+            return response()->json([
+                'error'   => 'Issuance failed.',
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        // Generate file names and temp paths
-        $baseName    = $this->generateBaseName($resident, $template->name);
-        $docxFilename= "{$baseName}.docx";
-        $tempDocx    = storage_path("app/temp/{$docxFilename}");
-
-        $this->ensureTempDirectory(dirname($tempDocx));
-        $templateProcessor->saveAs($tempDocx);
-
-        // Store in public storage
-        $barangaySlug = Str::slug($barangayName);
-        $docxRelative = "certificates/{$barangaySlug}/docx/{$docxFilename}";
-        $this->storeFiles($tempDocx,  $docxRelative); // PDF not used here
-
-        // Update certificate record
-        $certificate->update([
-            'request_status' => 'issued',
-            'issued_at'      => now(),
-            'issued_by'      => $issuedBy,
-            'docx_path'      => $docxRelative,
-            'control_number' => $values['ctrl_no'] ?? null,
-        ]);
-
-        DB::commit();
-
-        // Return the DOCX as a download
-        return Storage::disk('public')->download($docxRelative, $docxFilename);
-
-    } catch (\Throwable $e) {
-        DB::rollBack();
-        report($e);
-
-        return response()->json([
-            'error'   => 'Issuance failed.',
-            'message' => $e->getMessage(),
-        ], 500);
     }
-}
+
+    // Deny
+    public function denyRequest($id){
+        DB::beginTransaction();
+        $certificate = Certificate::findOrFail($id);
+        try {
+            $certificate->delete();
+            DB::commit();
+            return  redirect()->route('certificate.index')->with('success', 'Certificate request denied successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Certificate request failed: ' . $e->getMessage());
+            return back()->with(
+                'error','Certificate request could not be denied: ' . $e->getMessage()
+            );
+        }
+    }
 }

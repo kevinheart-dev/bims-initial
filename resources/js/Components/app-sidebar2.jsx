@@ -49,6 +49,7 @@ import {
     ContactRound,
     Waves,
     Mountain,
+    UserSquare,
 } from "lucide-react";
 import {
     Sidebar,
@@ -756,6 +757,12 @@ export function AppSidebar({ auth }) {
             icon: FileStack,
             roles: ["resident"],
             url: "/account/certificates",
+        },
+        {
+            title: "Basic Information",
+            icon: UserSquare,
+            roles: ["resident"],
+            url: "/account/user/basic-information",
         },
         {
             title: "Barangay Accounts",

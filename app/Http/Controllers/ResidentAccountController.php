@@ -7,8 +7,11 @@ use App\Models\Certificate;
 use App\Models\Document;
 use App\Models\Family;
 use App\Models\Household;
+use App\Models\Purok;
 use App\Models\Resident;
 use App\Models\SeniorCitizen;
+use App\Models\Street;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -205,6 +208,15 @@ class ResidentAccountController extends Controller
             $user = auth()->user();
             $resident = $user->resident;
 
+            // Count today's certificate requests for this resident
+            $todayRequests = Certificate::where('resident_id', $resident->id)
+                ->whereDate('created_at', Carbon::today())
+                ->count();
+
+            if ($todayRequests >= 3) {
+                return back()->with('error', 'You can only submit up to 3 certificate requests per day.');
+            }
+
             $validated = $request->validated();
 
             $certificate = Certificate::create([
@@ -221,7 +233,7 @@ class ResidentAccountController extends Controller
                 'dynamic_values' => json_encode($validated['placeholders'] ?? []),
             ]);
 
-            // Send email notification
+            // Send email notification to resident
             app(EmailController::class)->sendCertificateRequestEmail(
                 $resident->email,
                 "{$resident->firstname} {$resident->lastname}",
@@ -229,7 +241,7 @@ class ResidentAccountController extends Controller
             );
 
             // Send email notification to barangay
-            $barangayEmail = $resident->barangay->email; // make sure your Barangay model has an email field
+            $barangayEmail = $resident->barangay->email;
             if ($barangayEmail) {
                 app(EmailController::class)->sendBarangayCertificateNotification(
                     $barangayEmail,
@@ -238,14 +250,45 @@ class ResidentAccountController extends Controller
                 );
             }
 
-            return  redirect()->route('resident_account.certificates')->with('success', 'Certificate request submitted successfully.');
+            return redirect()->route('resident_account.certificates')
+                ->with('success', 'Certificate request submitted successfully.');
+
         } catch (\Exception $e) {
             \Log::error('Certificate request failed: ' . $e->getMessage());
-            return back()->with(
-                'error','Certificate request could not be submitted: ' . $e->getMessage()
-            );
+            return back()->with('error', 'Certificate request could not be submitted: ' . $e->getMessage());
         }
     }
 
+    public function basicInformation() {
+        $residentId = auth()->user()->resident_id;
+
+        $resident = Resident::with(
+            'educationalHistories',
+            'occupations',
+            'medicalInformation',
+            'seniorcitizen',
+            'socialwelfareprofile',
+            'disabilities',
+            'barangay',
+            'street',
+            'street.purok'
+        )->findOrFail($residentId);
+
+        $barangayId = $resident->barangay_id;
+
+        $puroks = Purok::where('barangay_id', $barangayId)
+            ->orderBy('purok_number')
+            ->get(['id', 'purok_number']);
+
+        $streets = Street::whereIn('purok_id', $puroks->pluck('id'))
+            ->orderBy('street_name')
+            ->get(['id', 'street_name', 'purok_id']);
+
+        return Inertia::render("Resident/BasicInfo/Index", [
+            'details' => $resident,
+            'puroks'  => $puroks,
+            'streets' => $streets,
+        ]);
+    }
 
 }

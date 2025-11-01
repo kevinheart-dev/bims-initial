@@ -497,6 +497,10 @@ export default function Index({
         ),
     };
 
+    const handleCertificateDeny = (id) => {
+        router.delete(route("certificate.deny", id));
+    };
+
     // adding of certificate
     const handleAddCertificate = () => {
         setModalState("add");

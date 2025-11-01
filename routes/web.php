@@ -102,7 +102,8 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
         ->name('certificate.export.pdf');
     Route::post('/certificate/issue/{id}', [CertificateController::class, 'issue'])
         ->name('certificate.issue');
-    Route::get('/certificates/pending', [CertificateController::class, 'getPendingCertificates'])->name('certificate.pending');;
+    Route::get('/certificates/pending', [CertificateController::class, 'getPendingCertificates'])->name('certificate.pending');
+    Route::delete('/certificates/deny/{id}', [CertificateController::class, 'denyRequest'])->name('certificate.deny');;
 
     // family
     Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('resident.familytree');
@@ -409,6 +410,7 @@ Route::middleware(['auth', 'role:resident'])->prefix('account')->group(function 
     Route::post('/certificate-request', [ResidentAccountController::class, 'requestCertificate'])
         ->name('resident.certificate.store');
     Route::delete('/certificate/cancel/{id}', [ResidentAccountController::class, 'destroy'])->name('resident_account.certificate.destroy');
+    Route::get('/user/basic-information', [ResidentAccountController::class, 'basicInformation'])->name('resident_account.basic.info');
 });
 
 // Routes accessible to both resident and admin users (verified users)
