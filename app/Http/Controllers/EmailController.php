@@ -97,7 +97,7 @@ class EmailController extends Controller
                 ],
             ];
 
-            $mail->setFrom(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
+            $mail->setFrom(config('mail.from.address'), config('mail.from.name'));
             $mail->addAddress($residentEmail, $residentName);
 
             $mail->isHTML(true);
@@ -137,7 +137,7 @@ class EmailController extends Controller
                 ],
             ];
 
-            $mail->setFrom(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'));
+            $mail->setFrom(config('mail.from.address'), config('mail.from.name'));
             $mail->addAddress($barangayEmail, 'Barangay Office');
 
             $mail->isHTML(true);

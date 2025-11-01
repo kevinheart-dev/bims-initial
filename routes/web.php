@@ -75,16 +75,22 @@ Route::get('/getCRA', [CRADataController::class, 'getCRA'])->name('getcra');
 Route::get('/craProgress', [CRAController::class, 'craProgress'])->name('craProgress');
 Route::patch('/user/{user}/toggle-account', [UserController::class, 'toggleAccount'])->name('user.toggle');
 
+// axios documents
+Route::get('/document/preview/{id}', [DocumentController::class, 'preview'])->name('document.preview');
+Route::get('/document/fetchdocuments', [DocumentController::class, 'fetchDocuments'])->name('document.fetchdocs');
+Route::get('/document/fetchdocumentpath/{id}', [DocumentController::class, 'fetchDocumentPath'])->name('document.documentpath');
+Route::get('/document/fetchplaceholders/{id}', [DocumentController::class, 'fetchPlaceholders'])->name('document.placeholders');
+Route::get('/test-mail-env', function () {
+    return [
+        'username' => env('MAIL_USERNAME'),
+        'password' => env('MAIL_PASSWORD'),
+    ];
+});
+
 // Admin-only routes
 Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin'])->group(function () {
     Route::get('/document/fill/{resident}/{template}', [DocumentGenerationController::class, 'generateFilledDocument'])
         ->name('document.fill');
-
-    // axios documents
-    Route::get('/document/preview/{id}', [DocumentController::class, 'preview'])->name('document.preview');
-    Route::get('/document/fetchdocuments', [DocumentController::class, 'fetchDocuments'])->name('document.fetchdocs');
-    Route::get('/document/fetchdocumentpath/{id}', [DocumentController::class, 'fetchDocumentPath'])->name('document.documentpath');
-    Route::get('/document/fetchplaceholders/{id}', [DocumentController::class, 'fetchPlaceholders'])->name('document.placeholders');
 
     Route::get('certificate/{id}/download', [CertificateController::class, 'download'])->name('certificate.download');
     Route::get('certificate/{id}/print', [CertificateController::class, 'print'])->name('certificate.print');
@@ -402,6 +408,7 @@ Route::middleware(['auth', 'role:resident'])->prefix('account')->group(function 
         ->name('resident.document.placeholders');
     Route::post('/certificate-request', [ResidentAccountController::class, 'requestCertificate'])
         ->name('resident.certificate.store');
+    Route::delete('/certificate/cancel/{id}', [ResidentAccountController::class, 'destroy'])->name('resident_account.certificate.destroy');
 });
 
 // Routes accessible to both resident and admin users (verified users)

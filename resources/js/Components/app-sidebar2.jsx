@@ -123,6 +123,12 @@ export function AppSidebar({ auth }) {
     };
 
     useEffect(() => {
+        if (
+            !["barangay_officer", "admin"].some((role) =>
+                userRoles.includes(role)
+            )
+        )
+            return;
         fetchPendingCertificateCount();
     }, []);
 

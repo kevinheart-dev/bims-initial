@@ -311,11 +311,9 @@ class CertificateController extends Controller
                                 $template->name,
                                 $secondResident ?? null
                             );
-            [$docxFilename, $pdfFilename] = ["{$baseName}.docx", "{$baseName}.pdf"];
-            [$tempDocx, $tempPdf]         = [
-                storage_path("app/temp/{$docxFilename}"),
-                storage_path("app/temp/{$pdfFilename}")
-            ];
+
+            $docxFilename = "{$baseName}.docx";
+            $tempDocx     = storage_path("app/temp/{$docxFilename}");
 
             $this->ensureTempDirectory(dirname($tempDocx));
 
@@ -326,7 +324,7 @@ class CertificateController extends Controller
             $barangaySlug = Str::slug($barangayName);
             $docxRelative = "certificates/{$barangaySlug}/docx/{$docxFilename}";
 
-            $this->storeFiles($tempDocx, $tempPdf, $docxRelative);
+            $this->storeFiles($tempDocx, $docxRelative);
 
             // Save DB record (still tied to primary resident)
             $certificate = Certificate::create([
@@ -464,7 +462,7 @@ class CertificateController extends Controller
         }
     }
 
-    protected function storeFiles(string $docxPath, string $pdfPath, string $docxRelative): void
+    protected function storeFiles(string $docxPath, string $docxRelative): void
     {
         Storage::disk('public')->putFileAs(dirname($docxRelative), new File($docxPath), basename($docxRelative));
         @unlink($docxPath);
@@ -501,88 +499,102 @@ class CertificateController extends Controller
 
 
     // RESIDENT ISSUANCE
-    public function issue($id)
-    {
-        $certificate = Certificate::where('id', $id)
-            ->where('request_status', 'pending')
-            ->firstOrFail();
+public function issue($id)
+{
+    // Fetch certificate and related models
+    $certificate = Certificate::where('id', $id)
+        ->where('request_status', 'pending')
+        ->firstOrFail();
 
-        $template = Document::findOrFail($certificate->document_id);
-        $resident = Resident::findOrFail($certificate->resident_id);
+    $template = Document::findOrFail($certificate->document_id);
+    $resident = Resident::findOrFail($certificate->resident_id);
 
-        $user = auth()->user()->resident;
-        $barangayName = $user->barangay->barangay_name;
-        $officer = BarangayOfficial::where('resident_id', $user->id)->firstOrFail();
+    // Get authenticated user and their barangay safely
+    $userAccount  = auth()->user();
+    $barangay     = $userAccount?->barangay;
 
-        DB::beginTransaction();
-
-        try {
-            $templateProcessor = $this->loadTemplate($template->file_path);
-
-            $values = $this->prepareValues($resident, ['purpose' => $certificate->purpose]);
-
-            $dynamicValues = $certificate->dynamic_values ?? [];
-            if (is_array($dynamicValues)) {
-                $values = $values->merge($dynamicValues);
-            }
-            $blank2 = collect([
-                'fullname_2' => str_repeat("_", 40),      // line for name
-                'civil_status_2' => str_repeat("_", 10),  // line for civil status
-                'gender_2' => str_repeat("_", 8),         // line for gender
-                'purpose_2' => str_repeat("_", 50),       // line for purpose
-                'purok_2' => str_repeat("_", 3),          // line for purok
-                'day_2' => str_repeat("_", 5),            // line for day
-                'month_2' => str_repeat("_", 12),         // line for month
-                'year_2' => str_repeat("_", 8),           // line for year
-                'issued_on' => str_repeat("_", 30),       // line for issued date
-            ]);
-            $values = $values->merge($blank2);
-
-            foreach ($templateProcessor->getVariables() as $placeholder) {
-                $templateProcessor->setValue($placeholder, $values[$placeholder] ?? '');
-            }
-
-            $baseName = $this->generateBaseName($resident, $template->name);
-            $docxFilename = "{$baseName}.docx";
-            $pdfFilename  = "{$baseName}.pdf";
-            $tempDocx = storage_path("app/temp/{$docxFilename}");
-            $tempPdf  = storage_path("app/temp/{$pdfFilename}");
-
-            $this->ensureTempDirectory(dirname($tempDocx));
-            $templateProcessor->saveAs($tempDocx);
-
-            if (!$this->convertDocxToPdf($tempDocx, $tempPdf)) {
-                throw new \Exception('Failed to convert certificate to PDF.');
-            }
-
-            $barangaySlug = Str::slug($barangayName);
-            $docxRelative = "certificates/{$barangaySlug}/docx/{$docxFilename}";
-            $pdfRelative  = "certificates/{$barangaySlug}/pdf/{$pdfFilename}";
-
-            $this->storeFiles($tempDocx, $tempPdf, $docxRelative, $pdfRelative);
-
-            $certificate->update([
-                'request_status' => 'issued',
-                'issued_at'      => now(),
-                'issued_by'      => $officer->id,
-                'docx_path'      => $docxRelative,
-                'pdf_path'       => $pdfRelative,
-                'control_number' => $values['ctrl_no'] ?? null,
-            ]);
-
-            DB::commit();
-
-            // Return the DOCX as a download response (this will set Content-Disposition properly)
-            return Storage::disk('public')->download($docxRelative, $docxFilename);
-
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            report($e);
-
-            return response()->json([
-                'error' => 'Issuance failed.',
-                'message' => $e->getMessage(),
-            ], 500);
-        }
+    if (!$userAccount || !$barangay) {
+        return response()->json([
+            'error'   => 'Unauthorized',
+            'message' => 'Missing user or barangay information.',
+        ], 401);
     }
+
+    $barangayName = $barangay->barangay_name;
+
+    // Find officer, null-safe
+    $officer   = BarangayOfficial::where('resident_id', $userAccount->resident_id)->first();
+    $issuedBy  = $officer?->id;
+
+    DB::beginTransaction();
+
+    try {
+        // Load template
+        $templateProcessor = $this->loadTemplate($template->file_path);
+
+        // Prepare certificate values
+        $values = $this->prepareValues($resident, ['purpose' => $certificate->purpose]);
+
+        // Merge dynamic values if they exist
+        $dynamicValues = $certificate->dynamic_values ?? [];
+        if (is_array($dynamicValues)) {
+            $values = $values->merge($dynamicValues);
+        }
+
+        // Fill placeholder for second resident (blank lines)
+        $blank2 = collect([
+            'fullname_2'    => str_repeat("_", 40),
+            'civil_status_2'=> str_repeat("_", 10),
+            'gender_2'      => str_repeat("_", 8),
+            'purpose_2'     => str_repeat("_", 50),
+            'purok_2'       => str_repeat("_", 3),
+            'day_2'         => str_repeat("_", 5),
+            'month_2'       => str_repeat("_", 12),
+            'year_2'        => str_repeat("_", 8),
+            'issued_on'     => str_repeat("_", 30),
+        ]);
+        $values = $values->merge($blank2);
+
+        // Fill template placeholders
+        foreach ($templateProcessor->getVariables() as $placeholder) {
+            $templateProcessor->setValue($placeholder, $values[$placeholder] ?? '');
+        }
+
+        // Generate file names and temp paths
+        $baseName    = $this->generateBaseName($resident, $template->name);
+        $docxFilename= "{$baseName}.docx";
+        $tempDocx    = storage_path("app/temp/{$docxFilename}");
+
+        $this->ensureTempDirectory(dirname($tempDocx));
+        $templateProcessor->saveAs($tempDocx);
+
+        // Store in public storage
+        $barangaySlug = Str::slug($barangayName);
+        $docxRelative = "certificates/{$barangaySlug}/docx/{$docxFilename}";
+        $this->storeFiles($tempDocx,  $docxRelative); // PDF not used here
+
+        // Update certificate record
+        $certificate->update([
+            'request_status' => 'issued',
+            'issued_at'      => now(),
+            'issued_by'      => $issuedBy,
+            'docx_path'      => $docxRelative,
+            'control_number' => $values['ctrl_no'] ?? null,
+        ]);
+
+        DB::commit();
+
+        // Return the DOCX as a download
+        return Storage::disk('public')->download($docxRelative, $docxFilename);
+
+    } catch (\Throwable $e) {
+        DB::rollBack();
+        report($e);
+
+        return response()->json([
+            'error'   => 'Issuance failed.',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
 }

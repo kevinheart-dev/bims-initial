@@ -160,6 +160,7 @@ const DynamicTable = ({
                                                                       "admin",
                                                                       "super_admin",
                                                                       "cdrrmo_admin",
+                                                                      "resident",
                                                                   ];
 
                                                               // If user role is NOT allowed, filter out the Delete action

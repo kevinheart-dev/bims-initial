@@ -282,12 +282,13 @@ export default function Index({
     // for resident approval
     const handleCertificateIssue = async (id) => {
         try {
-            toast.loading("Issuing document...");
-
             const response = await axios.post(
                 route("certificate.issue", id),
                 {},
-                { responseType: "blob" }
+                {
+                    responseType: "blob",
+                    withCredentials: true, // ✅ REQUIRED for Laravel session
+                }
             );
 
             const blob = new Blob([response.data], {
@@ -306,6 +307,9 @@ export default function Index({
             link.click();
             link.remove();
 
+            toast.success("Document issued successfully!");
+
+            // ✅ This is optional but okay
             router.get(route("certificate.index", { success: true }));
         } catch (error) {
             console.error("Issuance failed", error);

@@ -1,5 +1,5 @@
 import AdminLayout from "@/Layouts/AdminLayout";
-import { Head, Link, router, useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm, usePage } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import {
     Eye,
@@ -8,6 +8,7 @@ import {
     FileText,
     FileUp,
     FileWarning,
+    OctagonX,
     PrinterIcon,
     RotateCcw,
     Search,
@@ -38,15 +39,40 @@ export default function Index({
     residents,
     certificates,
     queryParams = null,
-    success = null,
-    error = null,
 }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
         { label: "Certificate Issuance", showOnMobile: true },
     ];
+
+    const props = usePage().props;
+    const success = props?.success ?? null;
+    const error = props?.error ?? null;
+
+    useEffect(() => {
+        if (success) {
+            handleModalClose();
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.success = null;
+    }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
+
     const APP_URL = useAppUrl();
-    const [disableSubmit, setDisableSubmit] = useState(false);
     const defaultPlaceholders = [
         "fullname",
         "fullname_2",
@@ -64,7 +90,6 @@ export default function Index({
         "year_2",
         "issued_on",
     ];
-
 
     const { data, setData, post, errors, setError, reset, clearErrors } =
         useForm({
@@ -167,7 +192,7 @@ export default function Index({
         if (queryParams.page) {
             delete queryParams.page;
         }
-        router.get(route("certificate.index", queryParams));
+        router.get(route("resident_account.certificates", queryParams));
     };
     const onKeyPressed = (field, e) => {
         if (e.key === "Enter") {
@@ -209,13 +234,11 @@ export default function Index({
     ];
 
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
-    const toggleShowFilters = () => setShowFilters((prev) => !prev);
     const handlePrint = () => {
         window.print();
     };
     const [isPaginated, setIsPaginated] = useState(true);
     const [showAll, setShowAll] = useState(false);
-    const [selectedResident, setSelectedResident] = useState(null);
 
     const defaultVisibleCols = allColumns.map((col) => col.key);
     const [visibleColumns, setVisibleColumns] = useState(() => {
@@ -243,10 +266,11 @@ export default function Index({
         ),
         request_status: (row) => (
             <span
-                className={`text-xs font-medium ${CONSTANTS.CERTIFICATE_REQUEST_STATUS_CLASS[
-                    row.request_status
-                ]
-                    }`}
+                className={`text-xs font-medium ${
+                    CONSTANTS.CERTIFICATE_REQUEST_STATUS_CLASS[
+                        row.request_status
+                    ]
+                }`}
             >
                 {CONSTANTS.CERTIFICATE_REQUEST_STATUS_TEXT[
                     row.request_status
@@ -278,13 +302,17 @@ export default function Index({
             <ActionMenu
                 actions={[
                     {
-                        label: "Delete",
-                        icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(row.id),
+                        label: "Cancel Request",
+                        icon: <OctagonX className="w-4 h-4 text-red-600" />,
+                        onClick: () => handleCancel(row.id),
                     },
                 ]}
             />
         ),
+    };
+
+    const handleCancel = (id) => {
+        router.delete(route("resident_account.certificate.destroy", id));
     };
 
     // adding of certificate
@@ -299,53 +327,14 @@ export default function Index({
         setModalState("");
         reset();
         clearErrors();
-        setDisableSubmit(false);
     };
-
-    // success catching
-    useEffect(() => {
-        if (success) {
-            handleModalClose();
-            toast.success(success, {
-                description: "Operation successful!",
-                duration: 3000,
-                className: "bg-green-100 text-green-800",
-            });
-            const url = new URL(window.location.href);
-            url.searchParams.delete("success");
-            window.history.replaceState({}, "", url.pathname + url.search);
-        }
-    }, [success]);
-
-    // error catching
-    useEffect(() => {
-        if (!error) return;
-
-        handleModalClose();
-
-        const message =
-            typeof error === "string"
-                ? error
-                : error.message || "An error occurred.";
-
-        toast.error(message, {
-            description: "Operation failed!",
-            duration: 3000,
-            className: "bg-red-100 text-red-800",
-        });
-
-        // Optionally clear the error so it doesn't re-fire if the prop sticks around
-        if (typeof clearError === "function") {
-            clearError(); // e.g., a prop or state setter to reset `error`
-        }
-    }, [error]);
 
     return (
         <AdminLayout>
             <Head title="Certificate Issuance" />
+            <Toaster richColors />
             <div>
                 <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-                <Toaster richColors />
                 <div className="p-2 md:p-4">
                     <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                         {/* <pre>{JSON.stringify(certificates, undefined, 3)}</pre> */}
@@ -443,7 +432,7 @@ export default function Index({
                                     certificateTypes={documentsList}
                                     showFilters={true}
                                     months={months}
-                                    clearRouteName="certificate.index"
+                                    clearRouteName="resident_account.certificates"
                                     clearRouteParams={{}}
                                 />
                             )}

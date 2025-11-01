@@ -10,6 +10,7 @@ use App\Models\Household;
 use App\Models\Resident;
 use App\Models\SeniorCitizen;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ResidentAccountController extends Controller
@@ -64,9 +65,21 @@ class ResidentAccountController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        DB::beginTransaction();
+        $certificate = Certificate::findOrFail($id);
+        try {
+            $certificate->delete();
+            DB::commit();
+            return  redirect()->route('resident_account.certificates')->with('success', 'Certificate request cancelled successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Certificate request failed: ' . $e->getMessage());
+            return back()->with(
+                'error','Certificate request could not be cancelled: ' . $e->getMessage()
+            );
+        }
     }
 
     public function dashboard(){
@@ -171,22 +184,18 @@ class ResidentAccountController extends Controller
                 $q->where('purpose', 'like', "%{$search}%")
                 ->orWhereHas('document', function ($d) use ($search) {
                     $d->where('name', 'like', "%{$search}%");
-                });
+                })->orWhere('control_number', 'like', "%{$search}%");
             });
         }
 
 
-        $certificates = $query->get();
+        $certificates = $query->paginate(10)->withQueryString();
 
-        if (request()->boolean('success')) {
-            session()->flash('success', 'Certificate issued successfully.');
-        }
         return Inertia::render('Resident/Certificate/Index', [
             'documents' => $documents,
             'queryParams' => request()->query() ?: null,
             'certificates' => $certificates,
-            'success' => session('success'),
-            'error' => session('error'),
+
         ]);
     }
 
@@ -229,12 +238,9 @@ class ResidentAccountController extends Controller
                 );
             }
 
-            return redirect()->route('resident_account.certificates')
-                            ->with('success', 'Certificate request submitted successfully.');
-
+            return  redirect()->route('resident_account.certificates')->with('success', 'Certificate request submitted successfully.');
         } catch (\Exception $e) {
             \Log::error('Certificate request failed: ' . $e->getMessage());
-
             return back()->with(
                 'error','Certificate request could not be submitted: ' . $e->getMessage()
             );
