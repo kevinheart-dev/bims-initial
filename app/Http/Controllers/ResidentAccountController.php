@@ -14,6 +14,7 @@ use App\Models\Street;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Str;
@@ -220,6 +221,7 @@ class ResidentAccountController extends Controller
             }
 
             $validated = $request->validated();
+            //dd($validated);
 
             $certificate = Certificate::create([
                 'resident_id'    => $validated['resident_id'] ?? $resident->id,
@@ -232,8 +234,9 @@ class ResidentAccountController extends Controller
                 'docx_path'      => null,
                 'pdf_path'       => null,
                 'control_number' => null,
-                'dynamic_values' => json_encode($validated['placeholders'] ?? []),
+                'dynamic_values' => $validated['dynamicValues'] ?? [],
             ]);
+            $certificate->load('document');
 
             // Send email notification to resident
             app(EmailController::class)->sendCertificateRequestEmail(
@@ -337,10 +340,26 @@ class ResidentAccountController extends Controller
             $image = $validated['resident_image'] ?? null;
 
             if ($image instanceof \Illuminate\Http\UploadedFile) {
-                $folder = 'residents/' . $validated['lastname'] . $validated['firstname'] . Str::random(6);
-                $path = $image->store($folder, 'public');
+
+                // ✅ Delete old image if exists
+                if (!empty($resident->resident_picture_path) && Storage::disk('public')->exists($resident->resident_picture_path)) {
+                    Storage::disk('public')->delete($resident->resident_picture_path);
+                }
+
+                // ✅ Get barangay name folder
+                $barangayName = Str::slug($resident->barangay->barangay_name); // e.g. "centro-san-antonio"
+
+                // ✅ Create filename lastname-firstname.ext
+                $filename = Str::slug($validated['lastname'].'-'.$validated['firstname']).'.'.$image->getClientOriginalExtension();
+
+                // ✅ Folder structure: resident/barangay-name/
+                $folder = "resident/{$barangayName}/";
+
+                // ✅ Store image
+                $path = $image->storeAs($folder, $filename, 'public');
+
             } else {
-                $path = $resident->resident_picture_path; // keep old image
+                $path = $resident->resident_picture_path; // ✅ Keep old image
             }
 
             // ✅ Format data for update

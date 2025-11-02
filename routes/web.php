@@ -103,7 +103,8 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
     Route::post('/certificate/issue/{id}', [CertificateController::class, 'issue'])
         ->name('certificate.issue');
     Route::get('/certificates/pending', [CertificateController::class, 'getPendingCertificates'])->name('certificate.pending');
-    Route::delete('/certificates/deny/{id}', [CertificateController::class, 'denyRequest'])->name('certificate.deny');;
+    Route::delete('/certificates/deny/{id}', [CertificateController::class, 'denyRequest'])->name('certificate.deny');
+    Route::delete('/certificates/delete/{id}', [CertificateController::class, 'destroy'])->name('certificate.destroy');
 
     // family
     Route::get('familytree/{resident}', [ResidentController::class, 'getFamilyTree'])->name('resident.familytree');

@@ -103,6 +103,7 @@ export default function Index({
             resident_image: "",
             purpose: "",
             placeholders: null,
+            dynamicValues: [], // ✅ MUST EXIST
         });
 
     const months = [

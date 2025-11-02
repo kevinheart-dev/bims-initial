@@ -4,12 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Certificate extends Model
 {
     /** @use HasFactory<\Database\Factories\CertificateFactory> */
     use HasFactory;
     public $timestamps = true;
+    protected $casts = [
+        'dynamic_values' => 'array', // store as array
+    ];
     protected $fillable = [
         'resident_id',
         'document_id',
@@ -21,7 +25,17 @@ class Certificate extends Model
         'docx_path',
         'pdf_path',
         'control_number',
+        'dynamic_values'
     ];
+
+    protected static function booted()
+    {
+        static::deleting(function ($certificate) {
+            if ($certificate->docx_path && Storage::disk('public')->exists($certificate->docx_path)) {
+                Storage::disk('public')->delete($certificate->docx_path);
+            }
+        });
+    }
 
     public function resident()
     {

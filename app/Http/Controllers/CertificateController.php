@@ -555,6 +555,7 @@ class CertificateController extends Controller
             ->where('request_status', 'pending')
             ->firstOrFail();
 
+
         $template = Document::findOrFail($certificate->document_id);
         $resident = Resident::findOrFail($certificate->resident_id);
 
@@ -586,9 +587,17 @@ class CertificateController extends Controller
 
             // Merge dynamic values if they exist
             $dynamicValues = $certificate->dynamic_values ?? [];
+            $flatDynamicValues = collect();
+
             if (is_array($dynamicValues)) {
-                $values = $values->merge($dynamicValues);
+                foreach ($dynamicValues as $field) {
+                    if (!empty($field['key'])) {
+                        $flatDynamicValues[$field['key']] = $field['value'] ?? '';
+                    }
+                }
             }
+
+            $values = $values->merge($flatDynamicValues);
 
             // Fill placeholder for second resident (blank lines)
             $blank2 = collect([
@@ -630,9 +639,19 @@ class CertificateController extends Controller
                 'docx_path'      => $docxRelative,
                 'control_number' => $values['ctrl_no'] ?? null,
             ]);
-
+            $certificate->load('document');
             DB::commit();
+            // ✅ Send email notification that certificate is ready for pickup
+            try {
+                app(EmailController::class)->sendCertificateReadyEmail(
+    $resident->email,
+    "{$resident->firstname} {$resident->lastname}",
+    $certificate,
 
+            );
+            } catch (\Exception $ex) {
+                \Log::error("Certificate ready email failed: " . $ex->getMessage());
+            }
             // Return the DOCX as a download
             return Storage::disk('public')->download($docxRelative, $docxFilename);
 
@@ -651,15 +670,42 @@ class CertificateController extends Controller
     public function denyRequest($id){
         DB::beginTransaction();
         $certificate = Certificate::findOrFail($id);
+        $resident = Resident::findOrFail($certificate->resident_id);
+        $certificate->load('document');
         try {
             $certificate->delete();
             DB::commit();
+            try {
+                app(EmailController::class)->sendCertificateDeniedEmail(
+    $resident->email,
+    "{$resident->firstname} {$resident->lastname}",
+    $certificate,
+            );
+            } catch (\Exception $ex) {
+                \Log::error("Certificate ready email failed: " . $ex->getMessage());
+            }
             return  redirect()->route('certificate.index')->with('success', 'Certificate request denied successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Certificate request failed: ' . $e->getMessage());
             return back()->with(
                 'error','Certificate request could not be denied: ' . $e->getMessage()
+            );
+        }
+    }
+
+    public function destroy($id){
+        DB::beginTransaction();
+        $certificate = Certificate::findOrFail($id);
+        try {
+            $certificate->delete();
+            DB::commit();
+            return  redirect()->route('certificate.index')->with('success', 'Certificate record deleted successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Certificate request failed: ' . $e->getMessage());
+            return back()->with(
+                'error','Certificate request could not be deleted: ' . $e->getMessage()
             );
         }
     }

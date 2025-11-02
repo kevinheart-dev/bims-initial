@@ -31,6 +31,7 @@ import DynamicTable from "@/Components/DynamicTable";
 import ActionMenu from "@/Components/ActionMenu";
 import SidebarModal from "@/Components/SidebarModal";
 import ExportButton from "@/Components/ExportButton";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 
 export default function Index({
     documents,
@@ -46,6 +47,8 @@ export default function Index({
     ];
     const APP_URL = useAppUrl();
     const [disableSubmit, setDisableSubmit] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
+    const [certToDelete, setCertToDelete] = useState(null); //delete
     const defaultPlacehodlers = [
         "fullname",
         "fullname_2",
@@ -478,7 +481,7 @@ export default function Index({
                     {
                         label: "Delete",
                         icon: <Trash2 className="w-4 h-4 text-red-600" />,
-                        onClick: () => handleDelete(row.id),
+                        onClick: () => handleDeleteClick(row.id),
                     },
                     {
                         label: "Download as DOCX",
@@ -566,6 +569,30 @@ export default function Index({
         reset();
         clearErrors();
         setDisableSubmit(false);
+    };
+
+    // delete
+    const handleDeleteClick = (id) => {
+        setCertToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        router.delete(route("certificate.destroy", certToDelete), {
+            onError: (errors) => {
+                console.error("Validation Errors:", errors);
+
+                const allErrors = Object.values(errors).join("<br />");
+                toast.error("Validation Error", {
+                    description: (
+                        <span dangerouslySetInnerHTML={{ __html: allErrors }} />
+                    ),
+                    duration: 3000,
+                    closeButton: true,
+                });
+            },
+        });
+        setIsDeleteModalOpen(false);
     };
 
     // success catching
@@ -970,8 +997,12 @@ export default function Index({
                             </div>
                         )}
                     </SidebarModal>
-                    {/*
-                     */}
+                    <DeleteConfirmationModal
+                        isOpen={isDeleteModalOpen}
+                        onClose={() => setIsDeleteModalOpen(false)}
+                        onConfirm={confirmDelete}
+                        residentId={certToDelete}
+                    />
                 </div>
             </div>
         </AdminLayout>

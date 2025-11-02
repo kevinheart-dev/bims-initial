@@ -27,6 +27,7 @@ class StoreCertificateRequest extends FormRequest
             'document_id'   => 'required|exists:documents,id',
             'purpose'       => 'required|string|max:255',
             'placeholders'  => 'nullable|array',
+            'dynamicValues'  => 'nullable|array',
         ];
     }
 

@@ -218,14 +218,31 @@ class ResidentController extends Controller
             $data = $request->validated();
 
             /**
-             * @var $image \Illuminate\Http\UploadedFile
+             * @var $image \Illuminate\Http\UploadedFile|null
              */
             $image = $data['resident_image'] ?? null;
 
-            // If an image is uploaded, store it in a dynamically named folder
-            if ($image) {
-                $folder = 'resident/' . $data['lastname'] . $data['firstname'] . Str::random(10);
-                $data['resident_image'] = $image->store($folder, 'public');
+            if ($image instanceof \Illuminate\Http\UploadedFile) {
+
+                // ✅ Get barangay name (for new record, use validated data)
+                $barangayName = Str::slug($data['barangay_name'] ?? Auth()->user()->barangay->barangay_name);
+
+                // ✅ File name e.g. dela-cruz-juan.jpg
+                $filename = Str::slug($data['lastname'] . '-' . $data['firstname'])
+                    . '.' . $image->getClientOriginalExtension();
+
+                // ✅ Folder: resident/{barangay-name}/
+                $folder = "resident/{$barangayName}/";
+
+                // ✅ Store file
+                $storedPath = $image->storeAs($folder, $filename, 'public');
+
+                // ✅ Save path in DB
+                $data['resident_image'] = $storedPath;
+
+            } else {
+                // If no image uploaded, set null (new record)
+                $data['resident_image'] = null;
             }
 
             // Get the selected household and corresponding family ID

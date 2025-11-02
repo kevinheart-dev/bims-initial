@@ -17,6 +17,28 @@ const Request = ({
     reset,
     defaultPlaceholders = [],
 }) => {
+    const updateDynamicValue = (key, value) => {
+        setData((prev) => {
+            const dynamicValues = prev.dynamicValues ?? []; // ✅ fallback to empty array
+
+            const exists = dynamicValues.find((item) => item.key === key);
+
+            let updatedDynamicValues;
+            if (exists) {
+                updatedDynamicValues = dynamicValues.map((item) =>
+                    item.key === key ? { ...item, value } : item
+                );
+            } else {
+                updatedDynamicValues = [...dynamicValues, { key, value }];
+            }
+
+            return {
+                ...prev,
+                dynamicValues: updatedDynamicValues,
+            };
+        });
+    };
+
     return (
         <div className="bg-white shadow-xl rounded-2xl p-8 my-8 border border-gray-100">
             {/* Certificate Selection */}
@@ -79,7 +101,9 @@ const Request = ({
                         <InputField
                             label="Purpose"
                             value={data.purpose || ""}
-                            onChange={(e) => setData("purpose", toTitleCase(e.target.value))}
+                            onChange={(e) =>
+                                setData("purpose", toTitleCase(e.target.value))
+                            }
                         />
                         <InputError message={errors.purpose} className="mt-1" />
                         <p className="text-xs text-gray-400 mt-1">
@@ -107,11 +131,18 @@ const Request = ({
                             .map((placeholder, i) => (
                                 <div key={i}>
                                     <InputField
-                                        label={toPascalCase(placeholder)}
+                                        label={toTitleCase(placeholder)}
                                         value={data[placeholder] || ""}
-                                        onChange={(e) =>
-                                            setData(placeholder, toTitleCase(e.target.value))
-                                        }
+                                        onChange={(e) => {
+                                            const val = toTitleCase(
+                                                e.target.value
+                                            );
+                                            setData(placeholder, val); // Keep form controlled
+                                            updateDynamicValue(
+                                                placeholder,
+                                                val
+                                            ); // ✅ Store into array
+                                        }}
                                     />
                                     <InputError
                                         message={errors[placeholder]}
@@ -120,7 +151,7 @@ const Request = ({
                                     <p className="text-xs text-gray-400 mt-1">
                                         Provide information for{" "}
                                         <span className="font-medium">
-                                            {toPascalCase(placeholder)}
+                                            {toTitleCase(placeholder)}
                                         </span>
                                         .
                                     </p>
