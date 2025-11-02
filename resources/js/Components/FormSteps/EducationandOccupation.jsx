@@ -501,7 +501,8 @@ function EducationandOccupation({ occupationTypes }) {
                                                                     onChange={(e) => handleOccupationChange(fIndex, mIndex, occIndex, e)}
                                                                     placeholder="Select or Enter Occupation"
                                                                     items={occupations_types}
-                                                                    disabled={occupation.employment_status === "unemployed"}
+                                                                    disabled={occupation.employment_status === "unemployed" || occupation.employment_status === "not_applicable"}
+
                                                                 />
                                                             </div>
 
@@ -520,7 +521,7 @@ function EducationandOccupation({ occupationTypes }) {
                                                                         { label: "Contractual", value: "contractual" },
                                                                         { label: "Self-employed", value: "self_employed" },
                                                                     ]}
-                                                                    disabled={occupation.employment_status === "unemployed"}
+                                                                    disabled={occupation.employment_status === "unemployed" || occupation.employment_status === "not_applicable"}
                                                                 />
                                                             </div>
 
@@ -540,7 +541,8 @@ function EducationandOccupation({ occupationTypes }) {
                                                                         { label: "Terminated", value: "terminated" },
                                                                         { label: "Resigned", value: "resigned" },
                                                                     ]}
-                                                                    disabled={occupation.employment_status === "unemployed"}
+                                                                    disabled={occupation.employment_status === "unemployed" || occupation.employment_status === "not_applicable"}
+
                                                                 />
                                                             </div>
 
@@ -556,7 +558,8 @@ function EducationandOccupation({ occupationTypes }) {
                                                                         { label: "Onsite", value: "on_site" },
                                                                         { label: "Hybrid", value: "hybrid" },
                                                                     ]}
-                                                                    disabled={occupation.employment_status === "unemployed"}
+                                                                    disabled={occupation.employment_status === "unemployed" || occupation.employment_status === "not_applicable"}
+
                                                                 />
                                                             </div>
 
@@ -569,7 +572,8 @@ function EducationandOccupation({ occupationTypes }) {
                                                                     value={occupation.employer || ""}
                                                                     onChange={(e) => handleOccupationChange(fIndex, mIndex, occIndex, e)}
                                                                     placeholder="Enter employer name"
-                                                                    disabled={occupation.employment_status === "unemployed"}
+                                                                    disabled={occupation.employment_status === "unemployed" || occupation.employment_status === "not_applicable"}
+
                                                                 />
                                                             </div>
 
@@ -580,7 +584,8 @@ function EducationandOccupation({ occupationTypes }) {
                                                                     name="started_at"
                                                                     value={occupation.started_at || ""}
                                                                     onChange={(e) => handleOccupationChange(fIndex, mIndex, occIndex, e)}
-                                                                    disabled={occupation.employment_status === "unemployed"}
+                                                                    disabled={occupation.employment_status === "unemployed" || occupation.employment_status === "not_applicable"}
+
                                                                 />
                                                             </div>
 
@@ -594,7 +599,8 @@ function EducationandOccupation({ occupationTypes }) {
                                                                     disabled={
                                                                         occupation.occupation_status === "active" ||
                                                                         occupation.occupation_status === "inactive" ||
-                                                                        occupation.employment_status === "unemployed"
+                                                                        occupation.employment_status === "unemployed" ||
+                                                                        occupation.employment_status === "not_applicable"
                                                                     }
                                                                 />
                                                             </div>
@@ -614,7 +620,8 @@ function EducationandOccupation({ occupationTypes }) {
                                                                         { label: "Annually", value: "annually" },
                                                                     ]}
                                                                     placeholder="Select frequency"
-                                                                    disabled={occupation.employment_status === "unemployed"}
+                                                                    disabled={occupation.employment_status === "unemployed" || occupation.employment_status === "not_applicable"}
+
                                                                 />
                                                             </div>
 
@@ -627,7 +634,8 @@ function EducationandOccupation({ occupationTypes }) {
                                                                     value={occupation.income || ""}
                                                                     onChange={(e) => handleOccupationChange(fIndex, mIndex, occIndex, e)}
                                                                     placeholder="Enter income"
-                                                                    disabled={occupation.employment_status === "unemployed"}
+                                                                    disabled={occupation.employment_status === "unemployed" || occupation.employment_status === "not_applicable"}
+
                                                                 />
                                                             </div>
 
@@ -655,7 +663,7 @@ function EducationandOccupation({ occupationTypes }) {
                                                                     ]}
                                                                     onChange={(e) => handleOccupationChange(fIndex, mIndex, occIndex, e)}
                                                                     required
-                                                                    disabled={occupation.employment_status === "unemployed"}
+                                                                    disabled={occupation.employment_status === "unemployed" || occupation.employment_status === "not_applicable"}
                                                                 />
 
                                                             </div>
@@ -672,7 +680,7 @@ function EducationandOccupation({ occupationTypes }) {
                                                                     ]}
                                                                     onChange={(e) => handleOccupationChange(fIndex, mIndex, occIndex, e)}
                                                                     required
-                                                                    disabled={occupation.employment_status === "unemployed"}
+
                                                                 />
                                                             </div>
 
