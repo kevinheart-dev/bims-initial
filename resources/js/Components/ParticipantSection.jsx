@@ -64,6 +64,7 @@ export const ParticipantSection = ({
 
     return (
         <div className="mb-6">
+            {/* <pre>{JSON.stringify(dataArray, undefined, 2)}</pre> */}
             <h3 className="text-xl font-bold text-gray-800 mb-1">{title}</h3>
             <p className="text-sm text-gray-600 mb-3">
                 Select participants involved. You may choose from existing
@@ -191,7 +192,7 @@ export const ParticipantSection = ({
                         />
                     </div>
 
-                    {dataArray.length > 1 && (
+                    {(title !== "Complainants" || dataArray.length > 1) && (
                         <button
                             type="button"
                             onClick={() => removeItem(index)}

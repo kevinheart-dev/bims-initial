@@ -5,12 +5,17 @@ import InputLabel from "@/Components/InputLabel";
 import { Button } from "@/Components/ui/button";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router, usePage, useForm } from "@inertiajs/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CalendarCheck, Plus, RotateCcw } from "lucide-react";
 import SelectField from "@/Components/SelectField";
 import { Textarea } from "@/Components/ui/textarea";
 import { ParticipantSection } from "@/Components/ParticipantSection";
 import { Toaster, toast } from "sonner";
+import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
+import useAppUrl from "@/hooks/useAppUrl";
+import axios from "axios";
+import SidebarModal from "@/Components/SidebarModal";
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 
 export default function Elevate({ residents, blotter_details }) {
     const breadcrumbs = [
@@ -28,9 +33,13 @@ export default function Elevate({ residents, blotter_details }) {
         { label: "Elevate to Summon", showOnMobile: true },
     ];
 
+    const APP_URL = useAppUrl();
     const props = usePage().props;
     const success = props?.success ?? null;
     const error = props?.error ?? null;
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
+    const [sessionToDelete, setSessionToDelete] = useState(null); //delete
 
     const mapParticipants = (participants, role) => {
         return (
@@ -40,7 +49,7 @@ export default function Elevate({ residents, blotter_details }) {
                     resident_id: p.resident_id || "",
                     resident_name: p.name || p.display_name || "",
                     birthdate: p.resident?.birthdate || "",
-                    gender: p.resident?.gender || "",
+                    sex: p.resident?.sex || "",
                     purok_number: p.resident?.purok_number || "",
                     email: p.resident?.email || "",
                     contact_number: p.resident?.contact_number || "",
@@ -91,11 +100,27 @@ export default function Elevate({ residents, blotter_details }) {
         blotter_id: blotter_details.id,
     });
 
-    const residentsList = residents.map((res) => ({
-        label: `${res.firstname} ${res.middlename} ${res.lastname} ${
-            res.suffix ?? ""
-        }`,
-        value: res.id.toString(),
+    const {
+        data: sessionData,
+        setData: setSessionData,
+        post: postSession,
+        errors: sessionErrors,
+        reset: resetSession,
+    } = useForm({
+        session_number: "",
+        hearing_date: "",
+        session_status: "scheduled",
+        session_remarks: "",
+        session_id: null,
+        _method: "PUT",
+    });
+
+    const residentsList = residents.map((r) => ({
+        value: r.id,
+        label: `${r.firstname} ${r.middlename ? r.middlename + " " : ""}${
+            r.lastname
+        }${r.suffix ? ", " + r.suffix : ""}`,
+        ...r, // keep all original fields
     }));
 
     const onSubmit = (e) => {
@@ -140,6 +165,91 @@ export default function Elevate({ residents, blotter_details }) {
     // Only show the new session form if neither condition is true
     const showNewSessionForm =
         !hasOriginallyScheduledSession && !maxSessionNumberReached;
+
+    // const edit session
+    const handleEdit = async (sessionId) => {
+        try {
+            const response = await axios.get(
+                `${APP_URL}/summon/session/${sessionId}`
+            );
+            const session = response.data.session;
+
+            // Populate the session useForm
+            setSessionData({
+                session_number: session.session_number || "",
+                hearing_date: session.hearing_date || "",
+                session_status: session.session_status || "scheduled",
+                session_remarks: session.session_remarks || "",
+                session_id: session.id,
+            });
+
+            setIsModalOpen(true); // open modal
+        } catch (error) {
+            console.error("Error fetching summon session details:", error);
+            toast.error("Failed to fetch session details. Please try again.");
+        }
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+        setInfrastructureDetails(null);
+        reset();
+        clearErrors();
+    };
+
+    const handleSubmitSession = (e) => {
+        e.preventDefault();
+
+        postSession(
+            route("summon.update.details", sessionData.session_id),
+            sessionData,
+            {
+                onSuccess: () => {
+                    // Optionally update the main summons array
+                    setSessionData("summons", [...data.summons, sessionData]);
+                    resetSession();
+                    setIsModalOpen(false);
+                },
+                onError: (errors) => {
+                    console.error("Validation Errors:", errors);
+
+                    const allErrors = Object.values(errors).join("<br />");
+                    toast.error("Validation Error", {
+                        description: (
+                            <span
+                                dangerouslySetInnerHTML={{ __html: allErrors }}
+                            />
+                        ),
+                        duration: 3000,
+                        closeButton: true,
+                    });
+                },
+            }
+        );
+    };
+
+    const handleDeleteClick = (id) => {
+        setSessionToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        router.delete(route("summon.delete.details", sessionToDelete), {
+            onError: (errors) => {
+                console.error("Validation Errors:", errors);
+
+                const allErrors = Object.values(errors).join("<br />");
+                toast.error("Validation Error", {
+                    description: (
+                        <span dangerouslySetInnerHTML={{ __html: allErrors }} />
+                    ),
+                    duration: 3000,
+                    closeButton: true,
+                });
+            },
+        });
+        setIsDeleteModalOpen(false);
+    };
 
     useEffect(() => {
         if (success) {
@@ -439,7 +549,6 @@ export default function Elevate({ residents, blotter_details }) {
                                             }
                                         />
                                     </div>
-
                                     {data.summons &&
                                         data.summons.length > 0 && (
                                             <div className="mt-8 p-6 bg-gray-50 border-l-4 border-gray-400 rounded-xl space-y-4 shadow-sm">
@@ -469,12 +578,24 @@ export default function Elevate({ residents, blotter_details }) {
                                                                     const wasOriginallyScheduled =
                                                                         session.originallyScheduled;
 
+                                                                    const isLatestSession =
+                                                                        sIndex ===
+                                                                            data
+                                                                                .summons
+                                                                                .length -
+                                                                                1 &&
+                                                                        tIndex ===
+                                                                            summon
+                                                                                .takes
+                                                                                .length -
+                                                                                1;
+
                                                                     return (
                                                                         <div
                                                                             key={
                                                                                 tIndex
                                                                             }
-                                                                            className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-3 p-4 bg-white rounded-lg shadow"
+                                                                            className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-3 p-4 bg-white rounded-lg shadow relative"
                                                                         >
                                                                             {/* Session # */}
                                                                             <div>
@@ -660,6 +781,39 @@ export default function Elevate({ residents, blotter_details }) {
                                                                                     </p>
                                                                                 )}
                                                                             </div>
+
+                                                                            {/* Edit & Delete buttons */}
+                                                                            <div className="absolute top-2 right-2 flex gap-2">
+                                                                                {/* Edit - always visible */}
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() =>
+                                                                                        handleEdit(
+                                                                                            session.id
+                                                                                        )
+                                                                                    }
+                                                                                    className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-600 rounded-md text-sm font-medium hover:bg-blue-100 hover:text-blue-700 transition"
+                                                                                >
+                                                                                    <IoIosAddCircleOutline className="w-4 h-4" />
+                                                                                    Edit
+                                                                                </button>
+
+                                                                                {/* Delete - only latest summon */}
+                                                                                {isLatestSession && (
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        onClick={() =>
+                                                                                            handleDeleteClick(
+                                                                                                session.id
+                                                                                            )
+                                                                                        }
+                                                                                        className="flex items-center gap-1 px-2 py-1 bg-red-50 text-red-600 rounded-md text-sm font-medium hover:bg-red-100 hover:text-red-700 transition"
+                                                                                    >
+                                                                                        <IoIosCloseCircleOutline className="w-4 h-4" />
+                                                                                        Delete
+                                                                                    </button>
+                                                                                )}
+                                                                            </div>
                                                                         </div>
                                                                     );
                                                                 }
@@ -839,6 +993,175 @@ export default function Elevate({ residents, blotter_details }) {
                                 </form>
                             </div>
                         </div>
+                        <SidebarModal
+                            isOpen={isModalOpen}
+                            onClose={() => {
+                                handleModalClose();
+                            }}
+                            title={"Edit Summon Session"}
+                        >
+                            <form
+                                className="bg-gray-50 p-6 rounded-xl shadow-md border border-gray-200"
+                                onSubmit={handleSubmitSession}
+                            >
+                                <h3 className="text-3xl font-semibold text-gray-800 mb-2">
+                                    {sessionData.session_id
+                                        ? "Edit Summon Session"
+                                        : "New Summon Session"}
+                                </h3>
+                                <p className="text-gray-600 mb-6 text-sm">
+                                    Please provide the details for this summon
+                                    session. Fields marked below are required.
+                                    <span className="block mt-1 text-gray-400 text-xs">
+                                        Session number cannot be changed once
+                                        created.
+                                    </span>
+                                </p>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
+                                    {/* Session Number */}
+                                    <div>
+                                        <InputLabel
+                                            htmlFor="session_number"
+                                            value="Session #"
+                                        />
+                                        <InputField
+                                            id="session_number"
+                                            type="number"
+                                            value={sessionData.session_number}
+                                            disabled={true}
+                                            placeholder="Session number (auto-assigned)"
+                                            className="w-full rounded-lg border-gray-300 shadow-sm bg-gray-100 cursor-not-allowed text-gray-600 focus:ring focus:ring-indigo-200 focus:border-indigo-500"
+                                        />
+                                        <InputError
+                                            message={
+                                                sessionErrors.session_number
+                                            }
+                                            className="mt-1"
+                                        />
+                                    </div>
+
+                                    {/* Hearing Date */}
+                                    <div>
+                                        <InputLabel
+                                            htmlFor="hearing_date"
+                                            value="Hearing Date"
+                                        />
+                                        <InputField
+                                            id="hearing_date"
+                                            type="date"
+                                            value={sessionData.hearing_date}
+                                            onChange={(e) =>
+                                                setSessionData(
+                                                    "hearing_date",
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-500"
+                                        />
+                                        <InputError
+                                            message={sessionErrors.hearing_date}
+                                            className="mt-1"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Session Status */}
+                                <div className="mb-5">
+                                    <InputLabel value="Session Status" />
+                                    <SelectField
+                                        value={sessionData.session_status}
+                                        onChange={(valueOrEvent) => {
+                                            const value =
+                                                valueOrEvent?.target?.value ??
+                                                valueOrEvent;
+                                            setSessionData(
+                                                "session_status",
+                                                value
+                                            );
+                                        }}
+                                        items={[
+                                            {
+                                                label: "Scheduled",
+                                                value: "scheduled",
+                                            },
+                                            {
+                                                label: "In Progress",
+                                                value: "in_progress",
+                                            },
+                                            {
+                                                label: "Completed",
+                                                value: "completed",
+                                            },
+                                            {
+                                                label: "Adjourned",
+                                                value: "adjourned",
+                                            },
+                                            {
+                                                label: "Cancelled",
+                                                value: "cancelled",
+                                            },
+                                            {
+                                                label: "No Show",
+                                                value: "no_show",
+                                            },
+                                        ]}
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-500"
+                                    />
+                                    <InputError
+                                        message={sessionErrors.session_status}
+                                        className="mt-1"
+                                    />
+                                </div>
+
+                                {/* Remarks */}
+                                <div className="mb-6">
+                                    <InputLabel value="Remarks / Notes" />
+                                    <Textarea
+                                        value={sessionData.session_remarks}
+                                        onChange={(e) =>
+                                            setSessionData(
+                                                "session_remarks",
+                                                e.target.value
+                                            )
+                                        }
+                                        placeholder="Optional notes about the session, e.g., agenda or discussion points."
+                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:ring focus:ring-indigo-200 focus:border-indigo-500 text-sm"
+                                        rows={4}
+                                    />
+                                    <InputError
+                                        message={sessionErrors.session_remarks}
+                                        className="mt-1"
+                                    />
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="flex justify-end items-center gap-4">
+                                    <Button
+                                        type="button"
+                                        onClick={() => resetSession()}
+                                        className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg shadow-sm"
+                                    >
+                                        Reset
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        className="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md"
+                                    >
+                                        {sessionData.session_id
+                                            ? "Update"
+                                            : "Add"}{" "}
+                                        Session
+                                    </Button>
+                                </div>
+                            </form>
+                        </SidebarModal>
+                        <DeleteConfirmationModal
+                            isOpen={isDeleteModalOpen}
+                            onClose={() => setIsDeleteModalOpen(false)}
+                            onConfirm={confirmDelete}
+                            residentId={sessionToDelete}
+                        />
                     </div>
                 </div>
             </div>

@@ -13,10 +13,12 @@ use App\Http\Requests\StoreSummonRequest;
 use App\Http\Requests\UpdateSummonRequest;
 use App\Models\SummonTake;
 use DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
-use PhpOffice\PhpWord\TemplateProcessor;
+
 
 class SummonController extends Controller
 {
@@ -285,7 +287,7 @@ class SummonController extends Controller
 
         // Fetch blotter report with complainants, recorder, and summons with their takes
         $blotter_details = BlotterReport::with([
-            'participants.resident:id,firstname,lastname,middlename,suffix,resident_picture_path,gender,birthdate,purok_number,contact_number,email',
+            'participants.resident:id,firstname,lastname,middlename,suffix,resident_picture_path,sex,birthdate,purok_number,contact_number,email',
             'recordedBy.resident:id,firstname,lastname,middlename,suffix',
             'summons.takes'
         ])
@@ -296,7 +298,7 @@ class SummonController extends Controller
         $residents = Resident::where('barangay_id', $brgy_id)
             ->select(
                 'id', 'firstname', 'lastname', 'middlename', 'suffix',
-                'resident_picture_path', 'gender', 'birthdate',
+                'resident_picture_path', 'sex', 'birthdate',
                 'purok_number', 'contact_number', 'email'
             )
             ->get();
@@ -406,7 +408,6 @@ class SummonController extends Controller
             ], 500);
         }
     }
-
     public function generateFileAction($id)
     {
         $user       = auth()->user()->resident;
@@ -514,4 +515,58 @@ class SummonController extends Controller
         }
     }
 
+    public function sessionDetails($id)
+    {
+        $details = SummonTake::findOrFail($id);
+
+        return response()->json([
+            'session' => $details
+        ]);
+    }
+
+    public function updateSession(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'session_number'  => ['nullable', 'integer', 'min:1'],
+                'hearing_date'    => ['required', 'date'],
+                'session_status'  => ['nullable', Rule::in(['scheduled','in_progress','completed','adjourned','cancelled','no_show'])],
+                'session_remarks' => ['required', 'string', 'max:1000'],
+                'session_id'      => ['required', 'integer', 'exists:summon_takes,id'],
+            ]);
+
+            $summon = SummonTake::findOrFail($id);
+
+            $summon->update([
+                'session_number'  => $validated['session_number'] ?? $summon->session_number,
+                'hearing_date'    => $validated['hearing_date'] ?? $summon->hearing_date,
+                'session_status'  => $validated['session_status'] ?? $summon->session_status,
+                'session_remarks' => $validated['session_remarks'] ?? $summon->session_remarks,
+            ]);
+
+            return redirect()
+                ->route('summon.index') // adjust to your route
+                ->with('success', 'Summon session updated successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            return back()->with('error', 'Summon session could not be updated: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteSession($id)
+    {
+        try {
+            $summon = SummonTake::findOrFail($id);
+            $summon->delete();
+
+            return redirect()
+                ->route('summon.index') // adjust to your route
+                ->with('success', 'Summon session deleted successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Summon session could not be deleted: ' . $e->getMessage());
+        }
+    }
 }

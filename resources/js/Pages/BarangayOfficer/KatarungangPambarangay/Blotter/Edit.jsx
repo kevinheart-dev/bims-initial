@@ -226,10 +226,10 @@ export default function Create({ residents, blotter_details }) {
                                                 label="Report Status"
                                                 name="report_status"
                                                 value={data.report_status || ""}
-                                                onChange={(value) =>
+                                                onChange={(e) =>
                                                     setData(
                                                         "report_status",
-                                                        value
+                                                        e.target.value
                                                     )
                                                 }
                                                 items={[
@@ -387,10 +387,10 @@ export default function Create({ residents, blotter_details }) {
                                         </Button>
                                         <Button
                                             type="submit"
-                                            className="w-40 bg-blue-600 hover:bg-blue-700 transition duration-150 shadow-md"
+                                            className="w-40 bg-green-600 hover:bg-green-700 transition duration-150 shadow-md"
                                         >
                                             <Save className="w-4 h-4 mr-2" />
-                                            Submit Report
+                                            Update Report
                                         </Button>
                                     </div>
                                 </form>

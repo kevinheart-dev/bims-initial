@@ -294,6 +294,9 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
     Route::get('blotter_report/generateform/{id}', [BlotterController::class, 'generateForm'])->name('blotter_report.generateForm');
     Route::get('summon/generateform/{id}', [SummonController::class, 'generateForm'])->name('summon.generateForm');
     Route::get('summon/fileaction/{id}', [SummonController::class, 'generateFileAction'])->name('summon.fileaction');
+    Route::get('summon/session/{id}', [SummonController::class, 'sessionDetails'])->name('summon.session.details');
+    Route::post('summon/session/update/{id}', [SummonController::class, 'updateSession'])->name('summon.update.details');
+    Route::delete('summon/session/delete/{id}', [SummonController::class, 'deleteSession'])->name('summon.delete.details');
     Route::resource('blotter_report', BlotterController::class);
     Route::resource('case_participant', CaseParticipantController::class);
     Route::resource('summon', SummonController::class);

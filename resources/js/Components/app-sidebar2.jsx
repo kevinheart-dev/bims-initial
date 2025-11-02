@@ -842,8 +842,14 @@ export function AppSidebar({ auth }) {
             });
 
             if (res.data.success) {
-                toast.success(`CRA for year ${nextYear} added successfully!`);
                 setCraList((prev) => [...prev, res.data.data]);
+
+                toast.success(`CRA for year ${nextYear} added successfully!`, {
+                    description:
+                        "The CRA record has been successfully added to the system.",
+                    duration: 3000,
+                    closeButton: true,
+                });
             }
         } catch (error) {
             console.error("Failed to add CRA:", error);
@@ -869,28 +875,23 @@ export function AppSidebar({ auth }) {
     };
 
     const confirmDelete = () => {
-        router.delete(route("cdrrmo_admin.destroy", recordToDelete));
+        router.delete(route("cdrrmo_admin.destroy", recordToDelete), {
+            onSuccess: () => {
+                fetchCRAList(); // ⬅️ Call your data fetcher again
+                toast.success("CRA Record deleted successfully!", {
+                    description: "The record has been removed.",
+                    duration: 3000,
+                    closeButton: true,
+                });
+            },
+        });
+
         setIsDeleteModalOpen(false);
     };
 
-    // useEffect(() => {
-    //     if (success) {
-    //         toast.success(success, {
-    //             description: "Operation successful!",
-    //             duration: 3000,
-    //             closeButton: true,
-    //         });
-
-    //         // ✅ Refresh data or reload the component
-    //         fetchCRAList(); // ⬅️ Call your data fetcher again
-
-    //         // ❌ Don't mutate props directly (React props are read-only)
-    //         // props.success = null;
-    //     }
-    // }, [success]);
     return (
         <Sidebar>
-            {/* <Toaster richColors /> */}
+            <Toaster richColors />
             {/* Header with blue branding */}
             <div className="bg-white px-4 py-[8px] flex items-center border-b border-gray-200">
                 <img
