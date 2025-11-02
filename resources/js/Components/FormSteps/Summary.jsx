@@ -227,7 +227,7 @@ const MemberDetails = React.memo(({ member }) => {
                                     </h6>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                         {renderDetail("Employment Status", residentEmploymentStatusText[occupation.employment_status])}
-                                        {occupation.employment_status !== "unemployed" && (
+                                        {occupation.employment_status !== "unemployed" && occupation.employment_status !== "not_applicable" && (
                                             <>
                                                 {renderDetail("Occupation", occupation.occupation)}
                                                 {renderDetail("Employment Type", employmentTypeText[occupation.employment_type])}
@@ -243,6 +243,7 @@ const MemberDetails = React.memo(({ member }) => {
                                                 {renderDetail("Main source of income", occupationIsMainSourceText[occupation.is_main_source])}
                                             </>
                                         )}
+
                                     </div>
                                 </div>
                             ))}
