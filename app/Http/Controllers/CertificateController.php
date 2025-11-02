@@ -6,6 +6,9 @@ use App\Models\BarangayOfficial;
 use App\Models\Certificate;
 use App\Models\Document;
 use App\Models\Resident;
+use CloudConvert\CloudConvert;
+use CloudConvert\Models\Job;
+use CloudConvert\Models\Task;
 use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -471,13 +474,59 @@ class CertificateController extends Controller
     public function print($id)
     {
         $certificate = Certificate::findOrFail($id);
+
         if (!$certificate->docx_path || !Storage::disk('public')->exists($certificate->docx_path)) {
-            return response()->json(['error' => 'DOCX file not found.'], 404);
+            return back()->with('error', 'DOCX file not found.');
         }
 
-        $publicUrl = Storage::disk('public')->url($certificate->docx_path);
-        $viewerUrl = "https://docs.google.com/gview?url={$publicUrl}&embedded=true";
-        return redirect($viewerUrl);
+        $cloudconvert = new CloudConvert([
+            'api_key' => config('cloudconvert.api_key'),
+            'sandbox' => false, // Use real mode
+        ]);
+
+        try {
+            // Create job
+            $job = (new Job())
+                ->addTask(new Task('import/upload', 'import-my-file'))
+                ->addTask((new Task('convert', 'convert-my-file'))
+                    ->set('input', 'import-my-file')
+                    ->set('output_format', 'pdf'))
+                ->addTask((new Task('export/url', 'export-my-file'))
+                    ->set('input', 'convert-my-file'));
+
+            $job = $cloudconvert->jobs()->create($job);
+
+            // Upload DOCX
+            $importTask = $job->getTasks()->whereName('import-my-file')[0];
+            $cloudconvert->tasks()->upload(
+                $importTask,
+                fopen(Storage::disk('public')->path($certificate->docx_path), 'r')
+            );
+
+            // Wait for the job to finish
+            $job = $cloudconvert->jobs()->wait($job);
+
+            // Get the export task
+            $exportTask = $job->getTasks()->whereName('export-my-file')[0];
+
+            // ✅ Use getter for status
+            if ($exportTask->getStatus() !== 'finished' || empty($exportTask->getResult()->files)) {
+                return back()->with('error', 'PDF conversion failed or no files returned.');
+            }
+
+            // Access the first file URL
+            $fileUrl = $exportTask->getResult()->files[0]->url;
+
+            // Save PDF to local storage
+            $pdfFileName = 'converted_' . time() . '.pdf';
+            //Storage::disk('public')->put('generated_pdfs/' . $pdfFileName, file_get_contents($fileUrl));
+
+            // Redirect to PDF
+            return redirect(asset('storage/generated_pdfs/' . $pdfFileName));
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Conversion error: ' . $e->getMessage());
+        }
     }
 
     public function download($id)

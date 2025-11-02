@@ -6,7 +6,10 @@ import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import DropdownInputField from "@/Components/DropdownInputField";
 import InputField from "@/Components/InputField";
 import { Switch } from "@/Components/ui/switch";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
+import SelectField from "@/Components/SelectField";
+import InputError from "@/Components/InputError";
+import InputLabel from "@/Components/InputLabel";
 
 export default function BasicInformation({ details, puroks, streets }) {
     const breadcrumbs = [{ label: "Basic Information", showOnMobile: true }];
@@ -26,7 +29,6 @@ export default function BasicInformation({ details, puroks, streets }) {
         sex: details.sex || "",
         civil_status: details.civil_status || "",
         registered_voter: !!details.registered_voter,
-        is_pwd: !!details.is_pwd,
         contact_number: details.contact_number || "",
         email: details.email || "",
         citizenship: details.citizenship || "",
@@ -35,554 +37,507 @@ export default function BasicInformation({ details, puroks, streets }) {
         residency_date: details.residency_date || "",
         purok_number: details.purok_number?.toString() || "",
         street_id: details.street_id?.toString() || "",
+        street_name: details.street?.street_name || "",
         ethnicity: details.ethnicity || "",
-        employment_status: details.employment_status || "",
-        is_household_head: !!details.is_household_head,
-        is_family_head: !!details.is_family_head,
-        is_deceased: !!details.is_deceased,
-        // Senior Citizen
-        senior_osca_id: details.seniorcitizen?.osca_id_number || "",
-        is_pensioner: details.seniorcitizen?.is_pensioner || "no",
-        pension_type: details.seniorcitizen?.pension_type || "",
-        living_alone: !!details.seniorcitizen?.living_alone,
-        // Social Welfare
-        is_4ps_beneficiary: !!details.socialwelfareprofile?.is_4ps_beneficiary,
-        is_solo_parent: !!details.socialwelfareprofile?.is_solo_parent,
-        solo_parent_id_number:
-            details.socialwelfareprofile?.solo_parent_id_number || "",
-        // Medical Information
-        weight_kg: details.medical_information?.weight_kg || "",
-        height_cm: details.medical_information?.height_cm || "",
-        bmi: details.medical_information?.bmi || "",
-        nutrition_status: details.medical_information?.nutrition_status || "",
-        blood_type: details.medical_information?.blood_type || "",
-        emergency_contact_name:
-            details.medical_information?.emergency_contact_name || "",
-        emergency_contact_number:
-            details.medical_information?.emergency_contact_number || "",
-        emergency_contact_relationship:
-            details.medical_information?.emergency_contact_relationship || "",
-        is_smoker: !!details.medical_information?.is_smoker,
-        is_alcohol_user: !!details.medical_information?.is_alcohol_user,
-        philhealth_id_number:
-            details.medical_information?.philhealth_id_number || "",
-        pwd_id_number: details.medical_information?.pwd_id_number || "",
+        resident_id: details.id,
+        _method: "PUT",
     });
 
-    useEffect(() => {
-        if (success)
-            toast.success(success, { description: "Operation successful!" });
-    }, [success]);
+    const existingImagePath = details?.resident_picture_path
+        ? "/storage/" + details.resident_picture_path
+        : null;
 
-    useEffect(() => {
-        if (error) toast.error(error, { description: "Operation failed!" });
-    }, [error]);
+    const purok_numbers = puroks.map((purok) => ({
+        label: "Purok " + purok,
+        value: purok.toString(),
+    }));
+
+    const streetList = streets.map((street) => ({
+        label: street.street_name,
+        value: street.id.toString(),
+    }));
 
     const submit = (e) => {
         e.preventDefault();
-        post(route("resident.update", data.resident_id), {
-            preserveScroll: true,
+        post(route("resident_account.update.info", data.resident_id), {
+            onError: (error) => {
+                console.log(error);
+            },
         });
     };
 
+    const handleStreetChange = (e) => {
+        const street_id = Number(e.target.value);
+        const street = streets.find((s) => s.id == street_id);
+        if (street) {
+            setData("street_id", street.id);
+            setData("street_name", street?.street_name || "");
+
+            setData("purok_id", street.purok.id);
+            setData("purok_number", street.purok.purok_number);
+        }
+    };
+
+    useEffect(() => {
+        if (success) {
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.success = null;
+    }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
+
     return (
         <AdminLayout>
+            <Toaster richColors />
             <Head title="Resident Basic Information" />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
-            <pre>{JSON.stringify(details, undefined, 2)}</pre>
-            <div className="p-6">
-                <div className="mx-auto max-w-7xl bg-white border border-gray-200 shadow-sm rounded-xl p-6 space-y-6">
-                    <form onSubmit={submit} className="space-y-8">
-                        {/* Personal Information */}
-                        <section>
-                            <h2 className="text-xl font-semibold mb-4">
-                                Personal Information
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <InputField
-                                    label="First Name"
-                                    value={data.firstname}
-                                    onChange={(e) =>
-                                        setData("firstname", e.target.value)
-                                    }
-                                    error={errors.firstname}
-                                />
-                                <InputField
-                                    label="Middle Name"
-                                    value={data.middlename}
-                                    onChange={(e) =>
-                                        setData("middlename", e.target.value)
-                                    }
-                                    error={errors.middlename}
-                                />
-                                <InputField
-                                    label="Last Name"
-                                    value={data.lastname}
-                                    onChange={(e) =>
-                                        setData("lastname", e.target.value)
-                                    }
-                                    error={errors.lastname}
-                                />
-                                <InputField
-                                    label="Maiden Name"
-                                    value={data.maiden_name}
-                                    onChange={(e) =>
-                                        setData("maiden_name", e.target.value)
-                                    }
-                                    error={errors.maiden_name}
-                                />
-                                <InputField
-                                    label="Suffix"
-                                    value={data.suffix}
-                                    onChange={(e) =>
-                                        setData("suffix", e.target.value)
-                                    }
-                                    error={errors.suffix}
-                                />
-                                <InputField
-                                    label="Birthdate"
-                                    type="date"
-                                    value={data.birthdate}
-                                    onChange={(e) =>
-                                        setData("birthdate", e.target.value)
-                                    }
-                                    error={errors.birthdate}
-                                />
-                                <InputField
-                                    label="Birthplace"
-                                    value={data.birthplace}
-                                    onChange={(e) =>
-                                        setData("birthplace", e.target.value)
-                                    }
-                                    error={errors.birthplace}
-                                />
-                                <DropdownInputField
-                                    label="Sex"
-                                    value={data.sex}
-                                    options={[
-                                        { value: "male", label: "Male" },
-                                        { value: "female", label: "Female" },
-                                    ]}
-                                    onChange={(val) => setData("sex", val)}
-                                    error={errors.sex}
-                                />
-                                <DropdownInputField
-                                    label="Civil Status"
-                                    value={data.civil_status}
-                                    options={[
-                                        { value: "single", label: "Single" },
-                                        { value: "married", label: "Married" },
-                                        { value: "widowed", label: "Widowed" },
-                                        {
-                                            value: "annulled",
-                                            label: "Annulled",
-                                        },
-                                    ]}
-                                    onChange={(val) =>
-                                        setData("civil_status", val)
-                                    }
-                                    error={errors.civil_status}
-                                />
-                                <div className="flex items-center gap-2 mt-2">
-                                    <span>Registered Voter:</span>
-                                    <Switch
-                                        checked={data.registered_voter}
-                                        onCheckedChange={(val) =>
-                                            setData("registered_voter", val)
-                                        }
-                                    />
+            <div className="p-2 md:p-4">
+                <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
+                    {/* <pre>{JSON.stringify(streets, undefined, 3)}</pre> */}
+                    <form onSubmit={submit} className="space-y-10">
+                        <div className="max-w-7xl mx-auto space-y-12">
+                            {/* Personal Information Card */}
+                            <div className="bg-white border rounded-2xl shadow-sm p-8 space-y-8">
+                                <div className="space-y-1 border-b pb-4">
+                                    <h2 className="text-xl font-semibold text-gray-800">
+                                        Personal Information
+                                    </h2>
+                                    <p className="text-sm text-gray-500">
+                                        Provide accurate resident information
+                                        for barangay records.
+                                    </p>
                                 </div>
-                                <div className="flex items-center gap-2 mt-2">
-                                    <span>Person With Disability (PWD):</span>
-                                    <Switch
-                                        checked={data.is_pwd}
-                                        onCheckedChange={(val) =>
-                                            setData("is_pwd", val)
-                                        }
-                                    />
-                                </div>
-                                <InputField
-                                    label="Contact Number"
-                                    value={data.contact_number}
-                                    onChange={(e) =>
-                                        setData(
-                                            "contact_number",
-                                            e.target.value
-                                        )
-                                    }
-                                    error={errors.contact_number}
-                                />
-                                <InputField
-                                    label="Email"
-                                    type="email"
-                                    value={data.email}
-                                    onChange={(e) =>
-                                        setData("email", e.target.value)
-                                    }
-                                    error={errors.email}
-                                />
-                                <InputField
-                                    label="Citizenship"
-                                    value={data.citizenship}
-                                    onChange={(e) =>
-                                        setData("citizenship", e.target.value)
-                                    }
-                                    error={errors.citizenship}
-                                />
-                                <InputField
-                                    label="Religion"
-                                    value={data.religion}
-                                    onChange={(e) =>
-                                        setData("religion", e.target.value)
-                                    }
-                                    error={errors.religion}
-                                />
-                                <DropdownInputField
-                                    label="Residency Type"
-                                    value={data.residency_type}
-                                    options={[
-                                        {
-                                            value: "permanent",
-                                            label: "Permanent",
-                                        },
-                                        {
-                                            value: "temporary",
-                                            label: "Temporary",
-                                        },
-                                    ]}
-                                    onChange={(val) =>
-                                        setData("residency_type", val)
-                                    }
-                                    error={errors.residency_type}
-                                />
-                                <InputField
-                                    label="Residency Date"
-                                    type="date"
-                                    value={data.residency_date}
-                                    onChange={(e) =>
-                                        setData(
-                                            "residency_date",
-                                            e.target.value
-                                        )
-                                    }
-                                    error={errors.residency_date}
-                                />
-                                <DropdownInputField
-                                    label="Purok"
-                                    value={data.purok_number}
-                                    options={puroks.map((p) => ({
-                                        value: p.purok_number.toString(),
-                                        label: `Purok ${p.purok_number}`,
-                                    }))}
-                                    onChange={(val) =>
-                                        setData("purok_number", val)
-                                    }
-                                    error={errors.purok_number}
-                                />
-                                <DropdownInputField
-                                    label="Street"
-                                    value={data.street_id}
-                                    options={streets.map((s) => ({
-                                        value: s.id.toString(),
-                                        label: s.street_name,
-                                    }))}
-                                    onChange={(val) =>
-                                        setData("street_id", val)
-                                    }
-                                    error={errors.street_id}
-                                />
-                            </div>
-                        </section>
 
-                        {/* Ethnicity & Employment */}
-                        <section>
-                            <h2 className="text-xl font-semibold mb-4">
-                                Ethnicity & Employment
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <InputField
-                                    label="Ethnicity"
-                                    value={data.ethnicity}
-                                    onChange={(e) =>
-                                        setData("ethnicity", e.target.value)
-                                    }
-                                    error={errors.ethnicity}
-                                />
-                                <DropdownInputField
-                                    label="Employment Status"
-                                    value={data.employment_status}
-                                    options={[
-                                        {
-                                            value: "employed",
-                                            label: "Employed",
-                                        },
-                                        {
-                                            value: "unemployed",
-                                            label: "Unemployed",
-                                        },
-                                        { value: "retired", label: "Retired" },
-                                    ]}
-                                    onChange={(val) =>
-                                        setData("employment_status", val)
-                                    }
-                                    error={errors.employment_status}
-                                />
-                            </div>
-                        </section>
+                                {/* ✅ Profile Photo Section */}
+                                <div className="w-full flex justify-center">
+                                    <div className="md:row-span-2 flex flex-col items-center space-y-3">
+                                        <InputLabel
+                                            htmlFor="resident_image"
+                                            value="Profile Photo"
+                                        />
+                                        <img
+                                            src={
+                                                data.resident_image instanceof
+                                                File
+                                                    ? URL.createObjectURL(
+                                                          data.resident_image
+                                                      )
+                                                    : existingImagePath ||
+                                                      "/images/default-avatar.jpg"
+                                            }
+                                            alt="Resident Image"
+                                            className="w-32 h-32 object-cover rounded-full border border-gray-200 shadow-sm"
+                                        />
+                                        <input
+                                            id="resident_image"
+                                            type="file"
+                                            name="resident_image"
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file)
+                                                    setData(
+                                                        "resident_image",
+                                                        file
+                                                    );
+                                            }}
+                                            className="block w-full text-sm text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                        />
+                                        <InputError
+                                            message={errors.resident_image}
+                                            className="mt-1"
+                                        />
+                                        <p className="text-xs text-gray-500 text-center mt-1">
+                                            Upload a clear profile photo (JPEG,
+                                            PNG). Max size 5MB.
+                                        </p>
+                                    </div>
+                                </div>
 
-                        {/* Household / Family */}
-                        <section>
-                            <h2 className="text-xl font-semibold mb-4">
-                                Household / Family
-                            </h2>
-                            <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-2">
-                                    <span>Household Head:</span>
-                                    <Switch
-                                        checked={data.is_household_head}
-                                        onCheckedChange={(val) =>
-                                            setData("is_household_head", val)
-                                        }
-                                    />
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span>Family Head:</span>
-                                    <Switch
-                                        checked={data.is_family_head}
-                                        onCheckedChange={(val) =>
-                                            setData("is_family_head", val)
-                                        }
-                                    />
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span>Deceased:</span>
-                                    <Switch
-                                        checked={data.is_deceased}
-                                        onCheckedChange={(val) =>
-                                            setData("is_deceased", val)
-                                        }
-                                    />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <div>
+                                        <InputField
+                                            label="First Name"
+                                            value={data.firstname}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "firstname",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.firstname}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Resident's legal first name
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <InputField
+                                            label="Middle Name"
+                                            value={data.middlename}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "middlename",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.middlename}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Leave blank if none
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <InputField
+                                            label="Last Name"
+                                            value={data.lastname}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "lastname",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                        <InputError message={errors.lastname} />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Resident's family name
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <InputField
+                                            label="Maiden Name"
+                                            value={data.maiden_name}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "maiden_name",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.maiden_name}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            For married women only
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <InputField
+                                            label="Suffix"
+                                            value={data.suffix}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "suffix",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                        <InputError message={errors.suffix} />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            e.g. Jr., Sr., III
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <InputField
+                                            type="date"
+                                            label="Birthdate"
+                                            value={data.birthdate}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "birthdate",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.birthdate}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Select date of birth
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <InputField
+                                            label="Birthplace"
+                                            value={data.birthplace}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "birthplace",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.birthplace}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            City / Province
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <DropdownInputField
+                                            label="Sex"
+                                            value={data.sex}
+                                            options={[
+                                                {
+                                                    value: "male",
+                                                    label: "Male",
+                                                },
+                                                {
+                                                    value: "female",
+                                                    label: "Female",
+                                                },
+                                            ]}
+                                            onChange={(v) => setData("sex", v)}
+                                        />
+                                        <InputError message={errors.sex} />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Biological sex
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <DropdownInputField
+                                            label="Civil Status"
+                                            value={data.civil_status}
+                                            options={[
+                                                {
+                                                    value: "single",
+                                                    label: "Single",
+                                                },
+                                                {
+                                                    value: "married",
+                                                    label: "Married",
+                                                },
+                                                {
+                                                    value: "widowed",
+                                                    label: "Widowed",
+                                                },
+                                                {
+                                                    value: "annulled",
+                                                    label: "Annulled",
+                                                },
+                                            ]}
+                                            onChange={(v) =>
+                                                setData("civil_status", v)
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.civil_status}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Current marital status
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <InputField
+                                            label="Contact Number"
+                                            value={data.contact_number}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "contact_number",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.contact_number}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Format: 09xxxxxxxxx
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <InputField
+                                            label="Email"
+                                            value={data.email}
+                                            onChange={(e) =>
+                                                setData("email", e.target.value)
+                                            }
+                                        />
+                                        <InputError message={errors.email} />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Optional
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <InputField
+                                            label="Citizenship"
+                                            value={data.citizenship}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "citizenship",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.citizenship}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            e.g. Filipino
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <InputField
+                                            label="Religion"
+                                            value={data.religion}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "religion",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                        <InputError message={errors.religion} />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Optional
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <InputField
+                                            label="Ethnicity"
+                                            value={data.ethnicity}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "ethnicity",
+                                                    e.target.value
+                                                )
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.ethnicity}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Optional
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <DropdownInputField
+                                            label="Residency Type"
+                                            value={data.residency_type}
+                                            options={[
+                                                {
+                                                    value: "permanent",
+                                                    label: "Permanent",
+                                                },
+                                                {
+                                                    value: "temporary",
+                                                    label: "Temporary",
+                                                },
+                                            ]}
+                                            onChange={(v) =>
+                                                setData("residency_type", v)
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.residency_type}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Permanent = living indefinitely
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <InputField
+                                            type="number"
+                                            label="Residency Year"
+                                            value={data.residency_date || ""}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "residency_date",
+                                                    e.target.value
+                                                )
+                                            }
+                                            min="1900"
+                                            max={new Date().getFullYear()}
+                                        />
+                                        <InputError
+                                            message={errors.residency_date}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Year resident moved in (e.g., 1970)
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <SelectField
+                                            label="Purok Number"
+                                            name="purok_number"
+                                            value={data.purok_number || ""}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "purok_number",
+                                                    e.target.value
+                                                )
+                                            }
+                                            items={purok_numbers}
+                                        />
+                                        <InputError
+                                            message={errors.purok_number}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Select the purok
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <DropdownInputField
+                                            label="Street Name"
+                                            name="street_id"
+                                            type="text"
+                                            value={data.street_name}
+                                            onChange={(e) =>
+                                                handleStreetChange(e)
+                                            }
+                                            placeholder="e.g., Rizal St., Mabini Avenue"
+                                            items={streetList}
+                                        />
+                                        <InputError
+                                            message={errors.street_id}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Resident's street
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </section>
 
-                        {/* Senior Citizen */}
-                        <section>
-                            <h2 className="text-xl font-semibold mb-4">
-                                Senior Citizen Information
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <InputField
-                                    label="OSCA ID"
-                                    value={data.senior_osca_id}
-                                    onChange={(e) =>
-                                        setData(
-                                            "senior_osca_id",
-                                            e.target.value
-                                        )
-                                    }
-                                    error={errors.senior_osca_id}
-                                />
-                                <DropdownInputField
-                                    label="Pensioner Status"
-                                    value={data.is_pensioner}
-                                    options={[
-                                        { value: "yes", label: "Yes" },
-                                        { value: "no", label: "No" },
-                                    ]}
-                                    onChange={(val) =>
-                                        setData("is_pensioner", val)
-                                    }
-                                    error={errors.is_pensioner}
-                                />
-                                <InputField
-                                    label="Pension Type"
-                                    value={data.pension_type}
-                                    onChange={(e) =>
-                                        setData("pension_type", e.target.value)
-                                    }
-                                    error={errors.pension_type}
-                                />
-                                <div className="flex items-center gap-2">
-                                    <span>Living Alone:</span>
-                                    <Switch
-                                        checked={data.living_alone}
-                                        onCheckedChange={(val) =>
-                                            setData("living_alone", val)
-                                        }
-                                    />
-                                </div>
+                            <div className="flex justify-end">
+                                <Button disabled={processing} className="px-6">
+                                    Save Changes
+                                </Button>
                             </div>
-                        </section>
-
-                        {/* Social Welfare */}
-                        <section>
-                            <h2 className="text-xl font-semibold mb-4">
-                                Social Welfare Information
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="flex items-center gap-2">
-                                    <span>4Ps Beneficiary:</span>
-                                    <Switch
-                                        checked={data.is_4ps_beneficiary}
-                                        onCheckedChange={(val) =>
-                                            setData("is_4ps_beneficiary", val)
-                                        }
-                                    />
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span>Solo Parent:</span>
-                                    <Switch
-                                        checked={data.is_solo_parent}
-                                        onCheckedChange={(val) =>
-                                            setData("is_solo_parent", val)
-                                        }
-                                    />
-                                </div>
-                                <InputField
-                                    label="Solo Parent ID Number"
-                                    value={data.solo_parent_id_number}
-                                    onChange={(e) =>
-                                        setData(
-                                            "solo_parent_id_number",
-                                            e.target.value
-                                        )
-                                    }
-                                    error={errors.solo_parent_id_number}
-                                />
-                            </div>
-                        </section>
-
-                        {/* Medical Information */}
-                        <section>
-                            <h2 className="text-xl font-semibold mb-4">
-                                Medical Information
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <InputField
-                                    label="Weight (kg)"
-                                    value={data.weight_kg}
-                                    onChange={(e) =>
-                                        setData("weight_kg", e.target.value)
-                                    }
-                                    error={errors.weight_kg}
-                                />
-                                <InputField
-                                    label="Height (cm)"
-                                    value={data.height_cm}
-                                    onChange={(e) =>
-                                        setData("height_cm", e.target.value)
-                                    }
-                                    error={errors.height_cm}
-                                />
-                                <InputField
-                                    label="BMI"
-                                    value={data.bmi}
-                                    onChange={(e) =>
-                                        setData("bmi", e.target.value)
-                                    }
-                                    error={errors.bmi}
-                                />
-                                <InputField
-                                    label="Nutrition Status"
-                                    value={data.nutrition_status}
-                                    onChange={(e) =>
-                                        setData(
-                                            "nutrition_status",
-                                            e.target.value
-                                        )
-                                    }
-                                    error={errors.nutrition_status}
-                                />
-                                <InputField
-                                    label="Blood Type"
-                                    value={data.blood_type}
-                                    onChange={(e) =>
-                                        setData("blood_type", e.target.value)
-                                    }
-                                    error={errors.blood_type}
-                                />
-                                <InputField
-                                    label="Emergency Contact Name"
-                                    value={data.emergency_contact_name}
-                                    onChange={(e) =>
-                                        setData(
-                                            "emergency_contact_name",
-                                            e.target.value
-                                        )
-                                    }
-                                    error={errors.emergency_contact_name}
-                                />
-                                <InputField
-                                    label="Emergency Contact Number"
-                                    value={data.emergency_contact_number}
-                                    onChange={(e) =>
-                                        setData(
-                                            "emergency_contact_number",
-                                            e.target.value
-                                        )
-                                    }
-                                    error={errors.emergency_contact_number}
-                                />
-                                <InputField
-                                    label="Emergency Contact Relationship"
-                                    value={data.emergency_contact_relationship}
-                                    onChange={(e) =>
-                                        setData(
-                                            "emergency_contact_relationship",
-                                            e.target.value
-                                        )
-                                    }
-                                    error={
-                                        errors.emergency_contact_relationship
-                                    }
-                                />
-                                <div className="flex items-center gap-2">
-                                    <span>Smoker:</span>
-                                    <Switch
-                                        checked={data.is_smoker}
-                                        onCheckedChange={(val) =>
-                                            setData("is_smoker", val)
-                                        }
-                                    />
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span>Alcohol User:</span>
-                                    <Switch
-                                        checked={data.is_alcohol_user}
-                                        onCheckedChange={(val) =>
-                                            setData("is_alcohol_user", val)
-                                        }
-                                    />
-                                </div>
-                                <InputField
-                                    label="PhilHealth ID"
-                                    value={data.philhealth_id_number}
-                                    onChange={(e) =>
-                                        setData(
-                                            "philhealth_id_number",
-                                            e.target.value
-                                        )
-                                    }
-                                    error={errors.philhealth_id_number}
-                                />
-                                <InputField
-                                    label="PWD ID"
-                                    value={data.pwd_id_number}
-                                    onChange={(e) =>
-                                        setData("pwd_id_number", e.target.value)
-                                    }
-                                    error={errors.pwd_id_number}
-                                />
-                            </div>
-                        </section>
-
-                        <div className="pt-4">
-                            <Button type="submit" disabled={processing}>
-                                {processing
-                                    ? "Saving..."
-                                    : "Update Information"}
-                            </Button>
                         </div>
                     </form>
                 </div>

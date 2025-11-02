@@ -14,7 +14,9 @@ use App\Models\Street;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Str;
 
 class ResidentAccountController extends Controller
 {
@@ -263,12 +265,6 @@ class ResidentAccountController extends Controller
         $residentId = auth()->user()->resident_id;
 
         $resident = Resident::with(
-            'educationalHistories',
-            'occupations',
-            'medicalInformation',
-            'seniorcitizen',
-            'socialwelfareprofile',
-            'disabilities',
             'barangay',
             'street',
             'street.purok'
@@ -276,12 +272,10 @@ class ResidentAccountController extends Controller
 
         $barangayId = $resident->barangay_id;
 
-        $puroks = Purok::where('barangay_id', $barangayId)
-            ->orderBy('purok_number')
-            ->get(['id', 'purok_number']);
-
-        $streets = Street::whereIn('purok_id', $puroks->pluck('id'))
-            ->orderBy('street_name')
+        $puroks = Purok::where('barangay_id', $barangayId)->orderBy('purok_number', 'asc')->pluck('purok_number');
+        $streets = Street::whereIn('purok_id', $puroks)
+            ->orderBy('street_name', 'asc')
+            ->with(['purok:id,purok_number'])
             ->get(['id', 'street_name', 'purok_id']);
 
         return Inertia::render("Resident/BasicInfo/Index", [
@@ -289,6 +283,104 @@ class ResidentAccountController extends Controller
             'puroks'  => $puroks,
             'streets' => $streets,
         ]);
+    }
+
+    public function updateInfo(Request $request)
+    {
+        try {
+            $resident = Resident::findOrFail($request->resident_id);
+
+            $validated = $request->validate([
+                'resident_image' => ['nullable', 'image', 'max:5120'], // max:5MB
+
+                'lastname' => ['required', 'string', 'max:55'],
+                'firstname' => ['required', 'string', 'max:55'],
+                'middlename' => ['nullable', 'string', 'max:55'],
+                'maiden_name' => ['nullable', 'string', 'max:100'],
+
+                'suffix' => ['nullable', Rule::in(['Jr.', 'Sr.', 'I', 'II', 'III', 'IV'])],
+
+                'birthdate' => ['required', 'date', 'before:today'],
+                'birthplace' => ['required', 'string', 'max:150'],
+
+                'civil_status' => ['required', Rule::in(['single', 'married', 'widowed', 'divorced', 'separated', 'annulled'])],
+                'sex' => ['required', Rule::in(['male', 'female'])],
+
+                'citizenship' => ['required', 'string', 'max:55'],
+                'religion' => ['required', 'string', 'max:55'],
+                'ethnicity' => ['nullable', 'string', 'max:55'],
+
+                'contact_number' => ['nullable', 'string', 'max:15'],
+
+                'email' => [
+                    'nullable',
+                    'email',
+                    'min:10',
+                    'max:55',
+                    Rule::unique('residents', 'email')->ignore($resident->id)
+                ],
+
+                'residency_type' => ['required', Rule::in(['permanent', 'temporary', 'immigrant'])],
+                'residency_date' => [
+                    'required',
+                    'digits:4',
+                    'integer',
+                    'min:1900',
+                    'max:' . now()->year,
+                ],
+
+                'purok_number' => ['required', 'integer'],
+                'street_id' => ['required', 'exists:streets,id'],
+            ]);
+
+            // ✅ Handle Image Upload
+            $image = $validated['resident_image'] ?? null;
+
+            if ($image instanceof \Illuminate\Http\UploadedFile) {
+                $folder = 'residents/' . $validated['lastname'] . $validated['firstname'] . Str::random(6);
+                $path = $image->store($folder, 'public');
+            } else {
+                $path = $resident->resident_picture_path; // keep old image
+            }
+
+            // ✅ Format data for update
+            $residentInformation = [
+                'resident_picture_path' => $path ?? $resident->resident_picture_path,
+                'firstname' => $validated['firstname'] ?? $resident->firstname,
+                'middlename' => $validated['middlename'] ?? $resident->middlename,
+                'lastname' => $validated['lastname'] ?? $resident->lastname,
+                'maiden_name' => $validated['maiden_name'] ?? $resident->maiden_name,
+                'suffix' => $validated['suffix'] ?? $resident->suffix,
+                'sex' => $validated['sex'] ?? $resident->sex,
+                'birthdate' => $validated['birthdate'] ?? $resident->birthdate,
+                'birthplace' => $validated['birthplace'] ?? $resident->birthplace,
+                'civil_status' => $validated['civil_status'] ?? $resident->civil_status,
+                'citizenship' => $validated['citizenship'] ?? $resident->citizenship,
+                'religion' => $validated['religion'] ?? $resident->religion,
+                'contact_number' => $validated['contact_number'] ?? $resident->contact_number,
+                'email' => $validated['email'] ?? $resident->email,
+                'residency_date' => $validated['residency_date'] ?? $resident->residency_date,
+                'residency_type' => $validated['residency_type'] ?? $resident->residency_type,
+                'purok_number' => $validated['purok_number'] ?? $resident->purok_number,
+                'street_id' => $validated['street_id'] ?? $resident->street_id,
+                'ethnicity' => $validated['ethnicity'] ?? $resident->ethnicity,
+                'verified' => $validated['verified'] ?? $resident->verified,
+            ];
+
+            $resident->update($residentInformation);
+
+            return back()->with('success', 'Resident information updated successfully!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->validator)->withInput();
+
+        } catch (\Exception $e) {
+            \Log::error('Resident update failed: '.$e->getMessage(), [
+                'resident_id' => $request->resident_id,
+            ]);
+
+            return back()->with('error', 'An unexpected error occurred. Please try again later.');
+        }
     }
 
 }
