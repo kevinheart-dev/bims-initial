@@ -419,6 +419,7 @@ function MedicalInfo() {
                                                                 "Mother",
                                                                 "Father",
                                                                 "Sibling",
+                                                                "Child",
                                                                 "Grandparent",
                                                                 "Relative",
                                                                 "Neighbor",
