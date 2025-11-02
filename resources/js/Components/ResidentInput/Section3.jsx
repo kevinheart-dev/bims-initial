@@ -56,9 +56,9 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                             { label: "Underemployed", value: "under_employed" },
                             { label: "Self-Employed", value: "self_employed" },
                             { label: "Student", value: "student" },
-                            { label: "Child", value: "child" },
                             { label: "Retired", value: "retired" },
                             { label: "Homemaker", value: "homemaker" },
+                            { label: "Not Applicable", value: "not_applicable" },
                         ]}
                         required
                     />
@@ -103,7 +103,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                 <InputError
                                     message={
                                         errors[
-                                            `occupations.${occIndex}.occupation`
+                                        `occupations.${occIndex}.occupation`
                                         ]
                                     }
                                     className="mt-1"
@@ -153,7 +153,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                 <InputError
                                     message={
                                         errors[
-                                            `occupations.${occIndex}.employment_type`
+                                        `occupations.${occIndex}.employment_type`
                                         ]
                                     }
                                     className="mt-1"
@@ -197,7 +197,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                 <InputError
                                     message={
                                         errors[
-                                            `occupations.${occIndex}.occupation_status`
+                                        `occupations.${occIndex}.occupation_status`
                                         ]
                                     }
                                     className="mt-1"
@@ -229,7 +229,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                 <InputError
                                     message={
                                         errors[
-                                            `occupations.${occIndex}.work_arrangement`
+                                        `occupations.${occIndex}.work_arrangement`
                                         ]
                                     }
                                     className="mt-1"
@@ -258,7 +258,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                 <InputError
                                     message={
                                         errors[
-                                            `occupations.${occIndex}.employer`
+                                        `occupations.${occIndex}.employer`
                                         ]
                                     }
                                     className="mt-1"
@@ -285,7 +285,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                 <InputError
                                     message={
                                         errors[
-                                            `occupations.${occIndex}.started_at`
+                                        `occupations.${occIndex}.started_at`
                                         ]
                                     }
                                     className="mt-1"
@@ -316,7 +316,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                 <InputError
                                     message={
                                         errors[
-                                            `occupations.${occIndex}.ended_at`
+                                        `occupations.${occIndex}.ended_at`
                                         ]
                                     }
                                     className="mt-1"
@@ -380,7 +380,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                 <InputError
                                     message={
                                         errors[
-                                            `occupations.${occIndex}.income_frequency`
+                                        `occupations.${occIndex}.income_frequency`
                                         ]
                                     }
                                     className="mt-1"
@@ -437,7 +437,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                 <InputError
                                     message={
                                         errors[
-                                            `occupations.${occIndex}.is_main_livelihood`
+                                        `occupations.${occIndex}.is_main_livelihood`
                                         ]
                                     }
                                     className="mt-1"

@@ -15,6 +15,7 @@ export const RESIDENT_EMPLOYMENT_STATUS_TEXT = {
     unemployed: "Unemployed",
     self_employed: "Self Employed",
     under_employed: "Under Employed",
+    not_applicable: "Not Applicable"
 };
 
 export const RESIDENT_GENDER_TEXT = {

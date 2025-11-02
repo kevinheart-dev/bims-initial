@@ -77,8 +77,6 @@ function EducationandOccupation({ occupationTypes }) {
 
 
         const occupation = { ...occupations[occupationIndex], [name]: formattedValue };
-
-        // 🔹 Monthly income conversion factors
         const conversionFactors = {
             daily: 30,
             weekly: 4.33,
@@ -481,8 +479,10 @@ function EducationandOccupation({ occupationTypes }) {
                                                                         { label: "Employed", value: "employed" },
                                                                         { label: "Unemployed", value: "unemployed" },
                                                                         { label: "Underemployed", value: "under_employed" },
+                                                                        { label: "Self-Employed", value: "self_employed" },
                                                                         { label: "Retired", value: "retired" },
                                                                         { label: "Student", value: "student" },
+                                                                        { label: "Not Applicable", value: "not_applicable" },
                                                                     ]}
                                                                 />
                                                                 {errors?.[`families.${fIndex}.members.${mIndex}.occupations.${occIndex}.employment_status`] && (
