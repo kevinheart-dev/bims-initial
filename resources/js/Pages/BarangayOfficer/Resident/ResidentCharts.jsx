@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import { Skeleton } from "@/Components/ui/skeleton";
 import {
     PieChart,
     Pie,
@@ -14,9 +13,6 @@ import {
     CartesianGrid,
     LabelList,
 } from "recharts";
-import { FileChartPie } from 'lucide-react';
-
-// --- Color constants and data processing logic ---
 
 const COLORS_GENDER = [
     "#3B82F6", // Blue - Male
@@ -32,7 +28,7 @@ const COLORS_WELFARE = [
 
 const COLORS_PUROK = ["#1E40AF"];
 const COLORS_VOTERS = ["#2563EB", "#60A5FA"];
-const COLORS_EMPLOYMENT = ["#06b6d4", "#f43f5e", "#a855f7", "#facc15", "#10b981"]
+const COLORS_EMPLOYMENT = ["#06b6d4", "#f43f5e", "#a855f7", "#facc15", "#10b981", "#9ca3af"]
 const COLORS_AGE = [
     "#1E3A8A", "#1D4ED8", "#2563EB", "#3B82F6", "#60A5FA", "#93C5FD", "#BFDBFE"
 ];
@@ -164,11 +160,13 @@ const ResidentCharts = ({ residents, isLoading, welfareFilters = [] }) => {
                 self_employed: "Self-Employed",
                 under_employed: "Under-Employed",
                 unemployed: "Unemployed",
+                not_applicable: "Not Applicable"
             };
             const key = mapping[status] || "Unemployed";
             acc[key] = (acc[key] || 0) + 1;
             return acc;
         }, {});
+
         return Object.entries(counts).map(([name, value]) => ({ name, value }));
     }, [residentArray]);
 

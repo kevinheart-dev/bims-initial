@@ -72,8 +72,18 @@ class UpdateResidentRequest extends FormRequest
             'educational_histories.*.school_name'        => ['nullable', 'string', 'max:155'],
             'educational_histories.*.school_type'        => ['nullable', Rule::in(['public', 'private'])],
             'educational_histories.*.education'      => ['nullable', Rule::in([
-                'no_education_yet','no_formal_education','prep_school','kindergarten','elementary',
-                'high_school','senior_high_school','college','als','tesda','vocational','post_graduate',
+                'no_education_yet',
+                'no_formal_education',
+                'prep_school',
+                'kindergarten',
+                'elementary',
+                'high_school',
+                'senior_high_school',
+                'college',
+                'als',
+                'tesda',
+                'vocational',
+                'post_graduate',
             ])],
             'educational_histories.*.education_status'   => ['nullable', Rule::in(['graduated', 'incomplete', 'enrolled', 'dropped_out'])],
             'educational_histories.*.year_started'       => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
@@ -84,7 +94,7 @@ class UpdateResidentRequest extends FormRequest
             'occupations' => ['nullable', 'array'],
             'employment_status' => [
                 'required_with:occupations.*.occupation',
-                Rule::in(['employed', 'unemployed', 'under_employed', 'retired', 'student']),
+                Rule::in(['employed', 'unemployed', 'under_employed', 'retired', 'student', 'not_applicable']),
             ],
             'occupations.*.occupation' => ['nullable', 'string', 'max:100'],
             'occupations.*.employment_type' => [
@@ -112,14 +122,25 @@ class UpdateResidentRequest extends FormRequest
             'height_cm' => ['required', 'numeric', 'min:0', 'max:500'],
             'bmi' => ['required', 'numeric'],
             'nutrition_status' => ['required', Rule::in([
-                'normal', 'underweight', 'severly_underweight', 'overweight', 'obese'
+                'normal',
+                'underweight',
+                'severly_underweight',
+                'overweight',
+                'obese'
             ])],
 
             'emergency_contact_number' => ['required', 'digits_between:7,15'],
             'emergency_contact_name' => ['required', 'string', 'max:255'],
             'emergency_contact_relationship' => ['required', 'string', 'max:100'],
             'blood_type' => ['nullable', Rule::in([
-                'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
+                'A+',
+                'A-',
+                'B+',
+                'B-',
+                'AB+',
+                'AB-',
+                'O+',
+                'O-'
             ])],
 
             'has_philhealth' => ['required', Rule::in([0, 1])],
@@ -150,26 +171,26 @@ class UpdateResidentRequest extends FormRequest
         $attributes = [];
 
         foreach ($this->input('occupations', []) as $index => $occupation) {
-            $attributes["occupations.$index.occupation"] = "Occupation #".($index + 1);
-            $attributes["occupations.$index.employer"] = "Employer Name #".($index + 1);
-            $attributes["occupations.$index.employment_type"] = "Employment Type #".($index + 1);
-            $attributes["occupations.$index.occupation_status"] = "Occupation Status #".($index + 1);
-            $attributes["occupations.$index.work_arrangement"] = "Work Arrangement #".($index + 1);
-            $attributes["occupations.$index.started_at"] = "Started At #".($index + 1);
-            $attributes["occupations.$index.ended_at"] = "Ended At #".($index + 1);
-            $attributes["occupations.$index.income"] = "Income #".($index + 1);
-            $attributes["occupations.$index.income_frequency"] = "Income Frequency #".($index + 1);
+            $attributes["occupations.$index.occupation"] = "Occupation #" . ($index + 1);
+            $attributes["occupations.$index.employer"] = "Employer Name #" . ($index + 1);
+            $attributes["occupations.$index.employment_type"] = "Employment Type #" . ($index + 1);
+            $attributes["occupations.$index.occupation_status"] = "Occupation Status #" . ($index + 1);
+            $attributes["occupations.$index.work_arrangement"] = "Work Arrangement #" . ($index + 1);
+            $attributes["occupations.$index.started_at"] = "Started At #" . ($index + 1);
+            $attributes["occupations.$index.ended_at"] = "Ended At #" . ($index + 1);
+            $attributes["occupations.$index.income"] = "Income #" . ($index + 1);
+            $attributes["occupations.$index.income_frequency"] = "Income Frequency #" . ($index + 1);
             // Add others as needed
         }
 
         foreach ($this->input('educational_histories', []) as $index => $occupation) {
-            $attributes["educational_histories.$index.school_name"] = "School Name #".($index + 1);
-            $attributes["educational_histories.$index.school_type"] = "School Type #".($index + 1);
-            $attributes["educational_histories.$index.education"] = "Education #".($index + 1);
-            $attributes["educational_histories.$index.education_status"] = "Education Status #".($index + 1);
-            $attributes["educational_histories.$index.year_started"] = "Year Started #".($index + 1);
-            $attributes["educational_histories.$index.year_ended"] = "Year Ended #".($index + 1);
-            $attributes["educational_histories.$index.program"] = "Program #".($index + 1);
+            $attributes["educational_histories.$index.school_name"] = "School Name #" . ($index + 1);
+            $attributes["educational_histories.$index.school_type"] = "School Type #" . ($index + 1);
+            $attributes["educational_histories.$index.education"] = "Education #" . ($index + 1);
+            $attributes["educational_histories.$index.education_status"] = "Education Status #" . ($index + 1);
+            $attributes["educational_histories.$index.year_started"] = "Year Started #" . ($index + 1);
+            $attributes["educational_histories.$index.year_ended"] = "Year Ended #" . ($index + 1);
+            $attributes["educational_histories.$index.program"] = "Program #" . ($index + 1);
             // Add others as needed
         }
 

@@ -145,8 +145,8 @@ class DatabaseSeeder extends Seeder
             'is_disabled' => false,
         ])->assignRole($cdrrmoRole);
 
-       // $barangays = Barangay::all();
-        $barangays = Barangay::take(1)->get();
+        $barangays = Barangay::all();
+        // $barangays = Barangay::take(1)->get();
         //  foreach ($barangays->take(2) as $barangay)
         foreach ($barangays as $barangay) {
             // Create 7 puroks per barangay
@@ -332,46 +332,46 @@ class DatabaseSeeder extends Seeder
                         'blotter_id' => $blotter->id,
                     ])->create();
 
-                $previousDate = null;
-                for ($i = 1; $i <= rand(1, 3); $i++) {
-                    $hearingDate = $i === 1
-                        ? fake()->dateTimeBetween('-2 months', '+1 month')
-                        : fake()->dateTimeBetween($previousDate, (clone $previousDate)->modify('+1 month'));
+                    $previousDate = null;
+                    for ($i = 1; $i <= rand(1, 3); $i++) {
+                        $hearingDate = $i === 1
+                            ? fake()->dateTimeBetween('-2 months', '+1 month')
+                            : fake()->dateTimeBetween($previousDate, (clone $previousDate)->modify('+1 month'));
 
-                    $status = $hearingDate > now()
-                        ? fake()->randomElement(['scheduled', 'cancelled'])
-                        : ($hearingDate->format('Y-m-d') === now()->format('Y-m-d')
-                            ? fake()->randomElement(['in_progress', 'adjourned', 'no_show'])
-                            : fake()->randomElement(['completed', 'adjourned', 'no_show']));
+                        $status = $hearingDate > now()
+                            ? fake()->randomElement(['scheduled', 'cancelled'])
+                            : ($hearingDate->format('Y-m-d') === now()->format('Y-m-d')
+                                ? fake()->randomElement(['in_progress', 'adjourned', 'no_show'])
+                                : fake()->randomElement(['completed', 'adjourned', 'no_show']));
 
-                    $remarksOptions = [
-                        'Initial summons issued',
-                        'Case still under mediation',
-                        'Escalated to higher authority',
-                        'Case resolved after mediation',
-                        'Dismissed due to lack of evidence',
-                    ];
+                        $remarksOptions = [
+                            'Initial summons issued',
+                            'Case still under mediation',
+                            'Escalated to higher authority',
+                            'Case resolved after mediation',
+                            'Dismissed due to lack of evidence',
+                        ];
 
-                    $remarks = $i > 1 ? fake()->randomElement($remarksOptions) : fake()->optional()->randomElement($remarksOptions);
+                        $remarks = $i > 1 ? fake()->randomElement($remarksOptions) : fake()->optional()->randomElement($remarksOptions);
 
-                    $take = SummonTake::factory()->create([
-                        'summon_id' => $summon->id,
-                        'session_number' => $i,
-                        'hearing_date' => $hearingDate->format('Y-m-d'),
-                        'session_status' => $status,
-                        'session_remarks' => $remarks,
-                    ]);
-
-                    foreach ($participants as $participant) {
-                        SummonParticipantAttendance::factory()->create([
-                            'take_id' => $take->id,
-                            'participant_id' => $participant->id,
+                        $take = SummonTake::factory()->create([
+                            'summon_id' => $summon->id,
+                            'session_number' => $i,
+                            'hearing_date' => $hearingDate->format('Y-m-d'),
+                            'session_status' => $status,
+                            'session_remarks' => $remarks,
                         ]);
-                    }
 
-                    $previousDate = $hearingDate;
-                }
-            });
+                        foreach ($participants as $participant) {
+                            SummonParticipantAttendance::factory()->create([
+                                'take_id' => $take->id,
+                                'participant_id' => $participant->id,
+                            ]);
+                        }
+
+                        $previousDate = $hearingDate;
+                    }
+                });
 
             $numWaters = rand(0, 4);
 
@@ -414,7 +414,6 @@ class DatabaseSeeder extends Seeder
                     ]);
                 }
             }
-
         }
         // Call lookup/fix seeders
         $this->call([
@@ -423,16 +422,16 @@ class DatabaseSeeder extends Seeder
             // FamilyRelationSeeder::class,
             BarangayInformationSeeder::class,
         ]);
-        // $this->call([
-        //     CRADataseeder::class,
-        // ]);
+        $this->call([
+            CRADataseeder::class,
+        ]);
         CommunityRiskAssessment::factory()->create([
             'year' => 2022
         ]);
-                CommunityRiskAssessment::factory()->create([
+        CommunityRiskAssessment::factory()->create([
             'year' => 2023
         ]);
-                CommunityRiskAssessment::factory()->create([
+        CommunityRiskAssessment::factory()->create([
             'year' => 2024
         ]);
         CommunityRiskAssessment::factory()->create([

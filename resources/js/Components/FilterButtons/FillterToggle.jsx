@@ -82,9 +82,9 @@ const FilterToggle = ({
     const formatOptionLabel = (option) =>
         option
             ? option
-                  .split("_")
-                  .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                  .join(" ")
+                .split("_")
+                .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                .join(" ")
             : "";
 
     return (
@@ -221,6 +221,9 @@ const FilterToggle = ({
                         </SelectItem>
                         <SelectItem value="under_employed">
                             Underemployed
+                        </SelectItem>
+                        <SelectItem value="not_applicable">
+                            Not Applicable
                         </SelectItem>
                     </SelectContent>
                 </Select>
@@ -661,88 +664,87 @@ const FilterToggle = ({
             {(isVisible("pwd") ||
                 isVisible("fourps") ||
                 isVisible("solo_parent")) && (
-                <div
-                    className="relative inline-block text-left w-56"
-                    ref={welfareRef}
-                >
-                    <button
-                        onClick={() => setOpenWelfare(!openWelfare)}
-                        className="inline-flex justify-between items-center w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50 focus:outline-none"
+                    <div
+                        className="relative inline-block text-left w-56"
+                        ref={welfareRef}
                     >
-                        Social Welfare
-                        <svg
-                            className={`ml-2 h-5 w-5 transition-transform duration-200 ${
-                                openWelfare ? "rotate-180" : ""
-                            }`}
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
+                        <button
+                            onClick={() => setOpenWelfare(!openWelfare)}
+                            className="inline-flex justify-between items-center w-full rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50 focus:outline-none"
                         >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 9l-7 7-7-7"
-                            />
-                        </svg>
-                    </button>
+                            Social Welfare
+                            <svg
+                                className={`ml-2 h-5 w-5 transition-transform duration-200 ${openWelfare ? "rotate-180" : ""
+                                    }`}
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 9l-7 7-7-7"
+                                />
+                            </svg>
+                        </button>
 
-                    {openWelfare && (
-                        <div className="absolute mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg z-50 max-h-60 overflow-auto">
-                            <div className="py-2 px-4 space-y-2">
-                                {isVisible("pwd") && (
-                                    <label className="flex items-center space-x-2 cursor-pointer">
-                                        <Checkbox
-                                            id="pwd-checkbox"
-                                            checked={queryParams.pwd === "1"}
-                                            onCheckedChange={(checked) =>
-                                                searchFieldName(
-                                                    "pwd",
-                                                    checked ? "1" : "0"
-                                                )
-                                            }
-                                        />
-                                        <span>PWD</span>
-                                    </label>
-                                )}
-                                {isVisible("fourps") && (
-                                    <label className="flex items-center space-x-2 cursor-pointer">
-                                        <Checkbox
-                                            id="fourps-checkbox"
-                                            checked={queryParams.fourps === "1"}
-                                            onCheckedChange={(checked) =>
-                                                searchFieldName(
-                                                    "fourps",
-                                                    checked ? "1" : "0"
-                                                )
-                                            }
-                                        />
-                                        <span>4ps Beneficiary</span>
-                                    </label>
-                                )}
-                                {isVisible("solo_parent") && (
-                                    <label className="flex items-center space-x-2 cursor-pointer">
-                                        <Checkbox
-                                            id="solo-parent-checkbox"
-                                            checked={
-                                                queryParams.solo_parent === "1"
-                                            }
-                                            onCheckedChange={(checked) =>
-                                                searchFieldName(
-                                                    "solo_parent",
-                                                    checked ? "1" : "0"
-                                                )
-                                            }
-                                        />
-                                        <span>Solo Parent</span>
-                                    </label>
-                                )}
+                        {openWelfare && (
+                            <div className="absolute mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg z-50 max-h-60 overflow-auto">
+                                <div className="py-2 px-4 space-y-2">
+                                    {isVisible("pwd") && (
+                                        <label className="flex items-center space-x-2 cursor-pointer">
+                                            <Checkbox
+                                                id="pwd-checkbox"
+                                                checked={queryParams.pwd === "1"}
+                                                onCheckedChange={(checked) =>
+                                                    searchFieldName(
+                                                        "pwd",
+                                                        checked ? "1" : "0"
+                                                    )
+                                                }
+                                            />
+                                            <span>PWD</span>
+                                        </label>
+                                    )}
+                                    {isVisible("fourps") && (
+                                        <label className="flex items-center space-x-2 cursor-pointer">
+                                            <Checkbox
+                                                id="fourps-checkbox"
+                                                checked={queryParams.fourps === "1"}
+                                                onCheckedChange={(checked) =>
+                                                    searchFieldName(
+                                                        "fourps",
+                                                        checked ? "1" : "0"
+                                                    )
+                                                }
+                                            />
+                                            <span>4ps Beneficiary</span>
+                                        </label>
+                                    )}
+                                    {isVisible("solo_parent") && (
+                                        <label className="flex items-center space-x-2 cursor-pointer">
+                                            <Checkbox
+                                                id="solo-parent-checkbox"
+                                                checked={
+                                                    queryParams.solo_parent === "1"
+                                                }
+                                                onCheckedChange={(checked) =>
+                                                    searchFieldName(
+                                                        "solo_parent",
+                                                        checked ? "1" : "0"
+                                                    )
+                                                }
+                                            />
+                                            <span>Solo Parent</span>
+                                        </label>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </div>
-            )}
+                        )}
+                    </div>
+                )}
             {/* VEHICLE */}
             {isVisible("v_type") && (
                 <Select
