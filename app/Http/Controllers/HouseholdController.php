@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barangay;
+use App\Models\BarangayOfficial;
 use App\Models\Family;
 use App\Models\FamilyRelation;
 use App\Models\Household;
@@ -20,6 +21,8 @@ use App\Models\Purok;
 use App\Models\Resident;
 use App\Models\Street;
 use App\Models\Vehicle;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use DB;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
@@ -839,5 +842,123 @@ class HouseholdController extends Controller
             'internetTypes' => $internetTypes,
             'bathTypes' => $bathTypes
         ]);
+    }
+    public function exportHouseholdRBI($id)
+    {
+        $household = Household::with([
+            'barangay',
+            'purok',
+            'street',
+            'householdResidents.resident.latestOccupation'
+        ])->findOrFail($id);
+
+        $household_members = $household->householdResidents->map(function ($m) {
+            $r = $m->resident;
+
+            $tags = [];
+            $age = $r->birthdate ? \Carbon\Carbon::parse($r->birthdate)->age : null;
+
+            // ✅ Employment Status
+            if ($r->latestOccupation) {
+                if (in_array($r->latestOccupation->employment_type, ['full_time','part_time','contractual','self_employed'])) {
+                    $tags[] = "Employed";
+                } elseif ($r->latestOccupation->employment_type == 'unemployed') {
+                    $tags[] = "Unemployed";
+                }
+                if (
+                    str_contains(strtolower($r->latestOccupation->occupation ?? ''), 'ofw')
+                    || ($r->latestOccupation->is_ofw ?? null) === true
+                ) {
+                    $tags[] = "OFW";
+                }
+            }
+
+            // ✅ PWD
+            if ($r->disabilities->isNotEmpty()) {
+                $tags[] = "PWD";
+            }
+
+            if ($r->socialwelfareprofile) {
+                $sw = $r->socialwelfareprofile;
+
+                // Solo Parent
+                if ($sw->is_solo_parent) {
+                    $tags[] = "Solo Parent";
+                }
+
+                // 4Ps Beneficiary
+                if ($sw->is_4ps_beneficiary) {
+                    $tags[] = "4Ps";
+                }
+            }
+            if ($r->latestEducation) {
+                $edu = $r->latestEducation;
+
+                // Out-of-School Youth (15-30) and Out-of-School Child (6-14)
+                if ($edu->education_status === 'dropped_out') {
+                    $tags[] = ($age >= 15 && $age <= 30) ? 'OSY' : (($age >= 6 && $age <= 14) ? 'OSC' : null);
+                }
+
+                // No education yet & school-age child
+                if ($edu->educational_attainment === 'no_education_yet' && ($age >= 6 && $age <= 14)) {
+                    $tags[] = 'OSC';
+                }
+            }
+
+            // ✅ Indigenous People (IP)
+            if (!empty($r->ethnicity) && preg_match('/tribe|indigenous|lumad|aeta|mangyan|ip/i', $r->ethnicity)) {
+                $tags[] = "IP";
+            }
+
+            return (object) [
+                'last_name' => $r->lastname,
+                'first_name' => $r->firstname,
+                'middle_name' => $r->middlename,
+                'suffix' => $r->suffix,
+                'place_of_birth' => $r->birthplace ?? '',
+                'date_of_birth' => $r->birthdate ? Carbon::parse($r->birthdate)->format('F j, Y') : '',
+                'age' => $age,
+                'sex' => $r->sex,
+                'civil_status' => $r->civil_status ?? '',
+                'citizenship' => $r->citizenship ?? 'Filipino',
+                'occupation' => $r->latestOccupation->occupation ?? '',
+                'special_category' => $tags ? implode(", ", $tags) : '',
+            ];
+        });
+
+
+        // **Household meta**
+        $region = "Region II"; // or fetch from config
+        $province = $household->barangay->province ?? "Isabela";
+        $city = $household->barangay->city ?? "City of Ilagan";
+        $barangay = $household->barangay->barangay_name;
+        $household_address = $household->house_number . ' ' . ($household->street->street_name ?? '') . ', Purok ' . ($household->purok->purok_number ?? '');
+
+        // Officers — replace with query if you store barangay officials
+        $head_of_household = $household_members->first()->first_name . ' ' . $household_members->first()->last_name;
+        $punong_barangay = BarangayOfficial::where('position', 'barangay_captain')
+            ->where('status', 'active')
+            ->first()?->resident->full_name ?? "_________________";
+
+        $barangay_secretary = BarangayOfficial::where('position', 'barangay_secretary')
+            ->where('status', 'active')
+            ->first()?->resident->full_name ?? "_________________";
+
+        $year = now()->year;
+
+        $pdf = Pdf::loadView('bims.household_rbi_form', compact(
+            'region',
+            'province',
+            'city',
+            'barangay',
+            'household_address',
+            'household_members',
+            'head_of_household',
+            'barangay_secretary',
+            'punong_barangay',
+            'year'
+        ))->setPaper('legal', 'landscape');
+
+        return $pdf->stream("Household-{$household->id}-RBI-FORM.pdf");
     }
 }

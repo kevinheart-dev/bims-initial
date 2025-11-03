@@ -99,9 +99,75 @@ class BarangayInstitutionController extends Controller
      */
     public function show(BarangayInstitution $barangayInstitution)
     {
-        $brgy_id = Auth()->user()->barangay_id;
-        // Load all members for this institution with their resident info
-        $members = $barangayInstitution->members()->with('resident:id,firstname,lastname,middlename,suffix,sex,gender,birthdate,purok_number,contact_number')->get();
+
+        $brgy_id = auth()->user()->barangay_id;
+
+        $query = $barangayInstitution->members()
+            ->with('resident:id,firstname,lastname,middlename,suffix,sex,gender,birthdate,purok_number,contact_number');
+
+        // Filter by Purok
+        if ($purok = request()->query('purok')) {
+            if ($purok !== 'All') {
+                $query->whereHas('resident', fn($q) => $q->where('purok_number', $purok));
+            }
+        }
+
+        // Filter by Sex
+        if ($sex = request()->query('sex')) {
+            if ($sex !== 'All') {
+                $query->whereHas('resident', fn($q) => $q->where('sex', $sex));
+            }
+        }
+
+        // Filter by Age Group
+        if ($age_group = request()->query('age_group')) {
+            $today = now();
+            $query->whereHas('resident', function($q) use ($age_group, $today) {
+                switch ($age_group) {
+                    case '0_6_months':
+                        $q->whereBetween('birthdate', [$today->copy()->subMonths(6), $today]);
+                        break;
+                    case '7mos_2yrs':
+                        $q->whereBetween('birthdate', [$today->copy()->subYears(2), $today->copy()->subMonths(7)]);
+                        break;
+                    case '3_5yrs':
+                        $q->whereBetween('birthdate', [$today->copy()->subYears(5), $today->copy()->subYears(3)]);
+                        break;
+                    case '6_12yrs':
+                        $q->whereBetween('birthdate', [$today->copy()->subYears(12), $today->copy()->subYears(6)]);
+                        break;
+                    case '13_17yrs':
+                        $q->whereBetween('birthdate', [$today->copy()->subYears(17), $today->copy()->subYears(13)]);
+                        break;
+                    case '18_59yrs':
+                        $q->whereBetween('birthdate', [$today->copy()->subYears(59), $today->copy()->subYears(18)]);
+                        break;
+                    case '60_above':
+                        $q->where('birthdate', '<=', $today->copy()->subYears(60));
+                        break;
+                }
+            });
+        }
+
+        if ($pwd = request()->query('pwd')) {
+            if ($pwd === '1') {
+                $query->whereHas('resident', fn($q) => $q->where('is_pwd', true));
+            }
+        }
+
+        if ($fourps = request()->query('fourps')) {
+            if ($fourps === '1') {
+                $query->whereHas('resident.socialwelfareprofile', fn($q) => $q->where('is_4ps_beneficiary', true));
+            }
+        }
+
+        if ($soloParent = request()->query('solo_parent')) {
+            if ($soloParent === '1') {
+                $query->whereHas('resident.socialwelfareprofile', fn($q) => $q->where('is_solo_parent', true));
+            }
+        }
+
+        $members = $query->get();
 
         $puroks = Purok::where('barangay_id', $brgy_id)
             ->orderBy('purok_number', 'asc')

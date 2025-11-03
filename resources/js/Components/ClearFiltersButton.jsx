@@ -4,7 +4,8 @@ import { router } from "@inertiajs/react";
 
 export default function ClearFilterButton({ routeName, routeParams = {} }) {
     const handleClear = () => {
-        const safeParams = routeParams && typeof routeParams === "object" ? routeParams : {};
+        const safeParams =
+            routeParams && typeof routeParams === "object" ? routeParams : {};
 
         router.visit(route(routeName, safeParams), {
             method: "get",
@@ -27,6 +28,5 @@ export default function ClearFilterButton({ routeName, routeParams = {} }) {
                 Reset Filters
             </div>
         </div>
-
     );
 }

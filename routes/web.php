@@ -230,6 +230,10 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
         ->name('report.pregnancy.pdf');
     Route::get('report/export-vaccination-pdf', [ReportGenerationController::class, 'exportVaccinationPdf'])
         ->name('report.vaccination.pdf');
+    Route::get('report/export-institution-members-pdf/{id}', [ReportGenerationController::class, 'exportMembersPdf'])
+        ->name('report.institution-members.pdf');
+    Route::get('report/export-monitoring-form-pdf', [ReportGenerationController::class, 'exportMonitoringReportPdf'])
+        ->name('report.monitoring-form.pdf');
 
     // pregnancy
     Route::get('pregnancy/details/{id}', [PregnancyRecordController::class, 'pregnancyDetails'])->name('pregnancy.details');
@@ -269,6 +273,8 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
     ->name('resident.export.pdf');
     Route::get('/export-resident-rbi/{id}', [ResidentController::class, 'exportResidentRBI'])
     ->name('resident.export.rbi');
+    Route::get('/export-household-rbi/{id}', [HouseholdController::class, 'exportHouseholdRBI'])
+    ->name('household.export.rbi');
 
     // residents
     Route::resource('resident', ResidentController::class);

@@ -13,6 +13,8 @@ import {
     Eye,
     Table,
     FileText,
+    FileUser,
+    UsersRound,
 } from "lucide-react";
 import * as CONSTANTS from "@/constants";
 import axios from "axios";
@@ -507,6 +509,13 @@ export default function Index({
                                         url="report/export-resident-pdf"
                                         queryParams={currentQueryParams}
                                         type="pdf"
+                                    />
+                                    <ExportButton
+                                        url="/report/export-monitoring-form-pdf"
+                                        queryParams={currentQueryParams}
+                                        type="pdf"
+                                        label={"Export Monitoring Form sa PDF"}
+                                        icon={<UsersRound />} // replace with any icon component
                                     />
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap justify-end">

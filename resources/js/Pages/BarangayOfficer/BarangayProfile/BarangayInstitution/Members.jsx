@@ -11,6 +11,7 @@ import {
     MoveRight,
     RotateCcw,
     ListPlus,
+    UsersRound,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -37,6 +38,7 @@ import {
     IoIosArrowForward,
     IoIosCloseCircleOutline,
 } from "react-icons/io";
+import ExportButton from "@/Components/ExportButton";
 
 export default function Members({
     members,
@@ -78,7 +80,10 @@ export default function Members({
         if (queryParams.page) {
             delete queryParams.page;
         }
-        router.get(route("institution_member.index", queryParams));
+        router.get(
+            route("barangay_institution.show", institution.id),
+            queryParams
+        );
     };
     const onKeyPressed = (field, e) => {
         if (e.key === "Enter") {
@@ -111,7 +116,16 @@ export default function Members({
     );
     const hasActiveFilter = Object.entries(queryParams || {}).some(
         ([key, value]) =>
-            ["purok", "sex", "age_group"].includes(key) && value && value !== ""
+            [
+                "purok",
+                "sex",
+                "age_group",
+                "pwd",
+                "fourps",
+                "solo_parent",
+            ].includes(key) &&
+            value &&
+            value !== ""
     );
 
     useEffect(() => {
@@ -537,8 +551,24 @@ export default function Members({
                 <div className="p-2 md:p-4">
                     <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
+                            <div className="mb-6">
+                                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl shadow-sm">
+                                    <div className="p-2 bg-green-100 rounded-full">
+                                        <UsersRound className="w-6 h-6 text-green-600" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+                                            {institution.name} Overview
+                                        </h1>
+                                        <p className="text-sm text-gray-500">
+                                            Review, filter, and manage members
+                                            of {institution.name} efficiently.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                             <div className="flex flex-wrap items-start justify-between gap-2 w-full mb-0">
-                                <div className="flex items-center gap-2 flex-wrap">
+                                <div className="flex items-start gap-2 flex-wrap">
                                     <DynamicTableControls
                                         allColumns={allColumns}
                                         visibleColumns={visibleColumns}
@@ -548,6 +578,12 @@ export default function Members({
                                         toggleShowFilters={() =>
                                             setShowFilters((prev) => !prev)
                                         }
+                                    />
+                                    <ExportButton
+                                        url={`/report/export-institution-members-pdf/${institution.id}`}
+                                        queryParams={queryParams}
+                                        label="Export Members as PDF"
+                                        type="pdf"
                                     />
                                 </div>
                                 <div className="flex items-center gap-2 flex-wrap justify-end">
@@ -605,11 +641,14 @@ export default function Members({
                                         "purok",
                                         "sex",
                                         "age_group",
+                                        "pwd",
+                                        "fourps",
+                                        "solo_parent",
                                     ]}
                                     puroks={puroks}
                                     showFilters={true}
-                                    clearRouteName="institution_member.index"
-                                    clearRouteParams={{}}
+                                    clearRouteName="barangay_institution.show"
+                                    clearRouteParams={{ id: institution.id }}
                                 />
                             )}
                             <DynamicTable

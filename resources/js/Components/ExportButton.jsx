@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 const ExportButton = ({
     url,
     queryParams = {},
-    type = "xlsx", // "xlsx" | "pdf"
+    type = "xlsx",
     label,
+    icon: customIcon, // add this prop
 }) => {
     const isPDF = type.toLowerCase() === "pdf";
 
@@ -24,7 +25,7 @@ const ExportButton = ({
         : "border border-green-500 text-green-600 bg-transparent hover:bg-green-600 hover:text-white active:bg-green-700";
 
     const buttonLabel = label || (isPDF ? "Export as PDF" : "Export as XLSX");
-    const icon = isPDF ? <FileText /> : <FileOutput />;
+    const icon = customIcon || (isPDF ? <FileText /> : <FileOutput />); // use custom icon if provided
 
     return (
         <div className="relative group z-50">

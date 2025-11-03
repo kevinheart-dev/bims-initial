@@ -18,6 +18,8 @@ import {
     Search,
     Share2,
     X,
+    File,
+    FileText,
 } from "lucide-react";
 import ActionMenu from "@/Components/ActionMenu"; // You forgot to import this before
 import useAppUrl from "@/hooks/useAppUrl";
@@ -283,6 +285,11 @@ export default function Index({
         ),
     };
 
+    const handleExportRBIA = (id) => {
+        const fullUrl = `/export-household-rbi/${id}`;
+        window.open(fullUrl, "_blank");
+    };
+
     useEffect(() => {
         if (success) {
             toast.success(success, {
@@ -532,27 +539,22 @@ export default function Index({
                                         </div>
                                     </div>
                                 </Link>
-
-                                {head && (
-                                    <Link
-                                        href={route(
-                                            "resident.familytree",
-                                            head.resident_id
-                                        )}
+                                <div className="relative group z-50">
+                                    <Button
+                                        variant="outline"
+                                        className="flex items-center gap-2 border-red-300 text-red-700 hover:bg-red-600 hover:text-white"
+                                        onClick={() =>
+                                            handleExportRBIA(
+                                                household_details.id
+                                            )
+                                        }
                                     >
-                                        <div className="relative group z-50">
-                                            <Button
-                                                variant="outline"
-                                                className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                            >
-                                                <Network className="w-4 h-4" />
-                                            </Button>
-                                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                                                Family Tree
-                                            </div>
-                                        </div>
-                                    </Link>
-                                )}
+                                        <FileText className="w-4 h-4" />
+                                    </Button>
+                                    <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-red-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                        Export RBI Form A
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
