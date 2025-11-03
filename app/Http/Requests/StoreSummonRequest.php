@@ -28,7 +28,7 @@ class StoreSummonRequest extends FormRequest
             'actions_taken'   => ['nullable', 'string', 'max:2000'],
             'recommendations' => ['nullable', 'string', 'max:2000'],
             'report_status'   => ['required', 'in:pending,on_going,resolved,elevated'],
-            'summon_status'   => ['required', 'in:on_going,closed'],
+            'summon_status'   => ['required', 'in:arbitration,medication,conciliation,issued_file_to_action,closed'],
             'summon_remarks'  => ['nullable', 'string', 'max:2000'],
 
             // Participants

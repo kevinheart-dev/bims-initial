@@ -528,7 +528,6 @@ class CertificateController extends Controller
             return back()->with('error', 'Conversion error: ' . $e->getMessage());
         }
     }
-
     public function download($id)
     {
         $certificate = Certificate::findOrFail($id);
@@ -545,7 +544,6 @@ class CertificateController extends Controller
             ['Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
         );
     }
-
 
     // RESIDENT ISSUANCE
     public function issue($id)
@@ -665,7 +663,6 @@ class CertificateController extends Controller
             ], 500);
         }
     }
-
     // Deny
     public function denyRequest($id){
         DB::beginTransaction();
@@ -693,7 +690,6 @@ class CertificateController extends Controller
             );
         }
     }
-
     public function destroy($id){
         DB::beginTransaction();
         $certificate = Certificate::findOrFail($id);

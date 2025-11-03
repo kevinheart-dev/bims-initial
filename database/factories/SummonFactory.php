@@ -25,7 +25,7 @@ class SummonFactory extends Factory
         $blotterId = BlotterReport::inRandomOrder()->first()?->id ?? 1;
 
         // Status is simpler now (case-level)
-        $status = $this->faker->randomElement(['on_going', 'closed']);
+        $status = $this->faker->randomElement(['arbitration', 'medication','conciliation', 'issued_file_to_action', 'closed']);
 
         return [
             'blotter_id' => $blotterId,

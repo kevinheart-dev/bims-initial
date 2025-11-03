@@ -314,10 +314,18 @@ class BlotterController extends Controller
 
     public function generateForm($id)
     {
-        $user         = auth()->user()->resident;
-        $barangayId   = $user->barangay_id;
-        $barangayName = $user->barangay->barangay_name;
-        $officer      = BarangayOfficial::where('resident_id', $user->id)->firstOrFail();
+
+        $barangay     = Auth()->user()->barangay;
+
+        $barangayId   = $barangay->id;
+        $barangayName = $barangay->barangay_name;
+        $userResidentId = auth()->user()->resident_id;
+
+        $officer = null;
+
+        if ($userResidentId) {
+            $officer = BarangayOfficial::where('resident_id', $userResidentId)->first();
+        }
 
         DB::beginTransaction();
 
@@ -330,11 +338,12 @@ class BlotterController extends Controller
                 'recordedBy.resident'
             ])->findOrFail($id);
 
+
             // Load the latest 'blotter' template
             $template = Document::where('barangay_id', $barangayId)
                 ->where('specific_purpose', 'blotter')
                 ->latest()
-                ->firstOrFail();
+                ->first();
 
             // Template not found
             if (!$template) {
@@ -415,7 +424,7 @@ class BlotterController extends Controller
                 'request_status' => 'issued',
                 'purpose'        => 'blotter',
                 'issued_at'      => now(),
-                'issued_by'      => $officer->id,
+                'issued_by'      => $officer->id ?? null,
                 'docx_path'      => $docxRelative,
                 'pdf_path'       => null,
                 'control_number' => $blotter->id . '-' . now()->format('YmdHis'),

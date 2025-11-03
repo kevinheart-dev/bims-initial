@@ -475,8 +475,20 @@ export default function Elevate({ residents, blotter_details }) {
                                                 }
                                                 items={[
                                                     {
-                                                        label: "On Going",
-                                                        value: "on_going",
+                                                        label: "Arbitration",
+                                                        value: "arbitration",
+                                                    },
+                                                    {
+                                                        label: "Medication",
+                                                        value: "medication",
+                                                    },
+                                                    {
+                                                        label: "Conciliation",
+                                                        value: "conciliation",
+                                                    },
+                                                    {
+                                                        label: "Issued Certificate to File Action",
+                                                        value: "issued_file_to_action",
                                                     },
                                                     {
                                                         label: "Closed",

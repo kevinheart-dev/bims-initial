@@ -2030,7 +2030,14 @@ const FilterToggle = ({
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="All">All</SelectItem>
-                        <SelectItem value="on_going">On Going</SelectItem>
+                        <SelectItem value="arbitration">Arbitration</SelectItem>
+                        <SelectItem value="medication">Medication</SelectItem>
+                        <SelectItem value="conciliation">
+                            Conciliation
+                        </SelectItem>
+                        <SelectItem value="issued_file_to_action">
+                            Issued File to Action
+                        </SelectItem>
                         <SelectItem value="closed">Closed</SelectItem>
                     </SelectContent>
                 </Select>

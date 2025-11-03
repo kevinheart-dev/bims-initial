@@ -15,7 +15,7 @@ export const RESIDENT_EMPLOYMENT_STATUS_TEXT = {
     unemployed: "Unemployed",
     self_employed: "Self Employed",
     under_employed: "Under Employed",
-    not_applicable: "Not Applicable"
+    not_applicable: "Not Applicable",
 };
 
 export const RESIDENT_GENDER_TEXT = {
@@ -547,13 +547,22 @@ export const TAKE_STATUS_TEXT = {
 
 // Summon overall status
 export const SUMMON_STATUS_CLASS = {
-    on_going:
+    arbitration:
+        "bg-yellow-100 px-2 py-1 rounded-lg text-yellow-800 text-xs font-medium",
+    medication:
         "bg-blue-100 px-2 py-1 rounded-lg text-blue-800 text-xs font-medium",
+    conciliation:
+        "bg-purple-100 px-2 py-1 rounded-lg text-purple-800 text-xs font-medium",
+    issued_file_to_action:
+        "bg-orange-100 px-2 py-1 rounded-lg text-orange-800 text-xs font-medium",
     closed: "bg-green-100 px-2 py-1 rounded-lg text-green-800 text-xs font-medium",
 };
 
 export const SUMMON_STATUS_TEXT = {
-    on_going: "On Going",
+    arbitration: "Arbitration",
+    medication: "Medication",
+    conciliation: "Conciliation",
+    issued_file_to_action: "Issued Certificate to File Action",
     closed: "Closed",
 };
 export const SESSION_STATUS_CLASS = {
