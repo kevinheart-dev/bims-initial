@@ -1,11 +1,8 @@
 import React from "react";
 import InputField from "../InputField";
 import InputError from "../InputError";
-import InputLabel from "../InputLabel";
 import DropdownInputField from "../DropdownInputField";
 import RadioGroup from "../RadioGroup";
-import SelectField from "../SelectField";
-import YearDropdown from "../YearDropdown";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 
 const Section4 = ({ data, setData, errors }) => {
