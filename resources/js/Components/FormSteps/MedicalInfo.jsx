@@ -244,7 +244,7 @@ function MedicalInfo() {
                                                             placeholder="Enter weight in kg"
                                                             type="number"
                                                             step="0.01"
-                                                            required
+
                                                         />
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.weight_kg`
@@ -278,7 +278,6 @@ function MedicalInfo() {
                                                             placeholder="Enter height in cm"
                                                             type="number"
                                                             step="0.01"
-                                                            required
                                                         />
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.height_cm`
@@ -303,7 +302,6 @@ function MedicalInfo() {
                                                             }
                                                             placeholder="Auto-calculated BMI"
                                                             disabled
-                                                            required
                                                         />
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.bmi`
@@ -329,7 +327,7 @@ function MedicalInfo() {
                                                             }
                                                             placeholder="Automatically determined"
                                                             disabled
-                                                            required
+
                                                         />
                                                     </div>
 
@@ -351,7 +349,7 @@ function MedicalInfo() {
                                                             }
                                                             placeholder="09XXXXXXXXX"
                                                             type="text"
-                                                            required
+
                                                         />
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.emergency_contact_number`
@@ -383,7 +381,7 @@ function MedicalInfo() {
                                                                 )
                                                             }
                                                             placeholder="Enter contact name"
-                                                            required
+
                                                         />
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.emergency_contact_name`
@@ -426,7 +424,7 @@ function MedicalInfo() {
                                                                 "Friend",
                                                                 "Guardian",
                                                             ]}
-                                                            required
+
                                                         />
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.emergency_contact_relationship`
@@ -508,7 +506,7 @@ function MedicalInfo() {
                                                                     e
                                                                 )
                                                             }
-                                                            required
+
                                                         />
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.has_philhealth`
@@ -582,7 +580,6 @@ function MedicalInfo() {
                                                                     e
                                                                 )
                                                             }
-                                                            required
                                                         />
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.is_alcohol_user`
@@ -623,7 +620,7 @@ function MedicalInfo() {
                                                                     e
                                                                 )
                                                             }
-                                                            required
+
                                                         />
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.is_smoker`
@@ -664,7 +661,7 @@ function MedicalInfo() {
                                                                     e
                                                                 )
                                                             }
-                                                            required
+
                                                         />
                                                         {errors?.[
                                                             `families.${fIndex}.members.${mIndex}.is_pwd`
