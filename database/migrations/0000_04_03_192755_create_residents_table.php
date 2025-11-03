@@ -22,7 +22,7 @@ return new class extends Migration
             $table->enum('sex', ['male', 'female']);
             $table->string('gender', 55);
             $table->date('birthdate')->nullable();
-            $table->string('birthplace', 150);
+            $table->string('birthplace', 150)->nullable();
             $table->enum('civil_status', ['single', 'married', 'widowed', 'separated', 'divorced', 'annulled']);
             $table->boolean('registered_voter');
             $table->enum('employment_status', ['employed', 'unemployed', 'self_employed', 'student', 'under_employed','child','retired','homemaker', 'not_applicable'])->nullable();
@@ -30,12 +30,12 @@ return new class extends Migration
             $table->string('religion', 55)->nullable();
             $table->string('contact_number', 15)->nullable();
             $table->string('email', 55)->nullable();
-            $table->integer('purok_number');
+            $table->integer('purok_number')->nullable();
             $table->foreignId('street_id')->nullable()->constrained('streets')->onDelete('cascade');
             $table->year('residency_date')->nullable();
             $table->enum('residency_type', ['permanent', 'temporary', 'immigrant'])->nullable();
             $table->text('resident_picture_path')->nullable();
-            $table->boolean('is_pwd')->default(false);
+            $table->boolean('is_pwd')->nullable()->default(false);
             $table->string('ethnicity', 55)->nullable();
             $table->boolean('is_deceased')->default(false)->nullable();
             $table->foreignId('household_id')->nullable()->constrained('households')->onDelete('set null');
