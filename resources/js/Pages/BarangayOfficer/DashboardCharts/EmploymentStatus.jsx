@@ -2,7 +2,7 @@ import Counter from "@/Components/Counter";
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
-const COLORS = ["#06b6d4", "#f43f5e", "#a855f7", "#facc15", "#10b981"];
+const COLORS = ["#06b6d4", "#f43f5e", "#a855f7", "#facc15", "#10b981", "#9ca3af"];
 
 const EmploymentStatus = ({ employmentStatusDistribution }) => {
     // Convert object into array for Recharts

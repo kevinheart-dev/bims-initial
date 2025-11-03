@@ -98,7 +98,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                         occupation.employment_status ===
                                         "unemployed"
                                     }
-                                    required
+
                                 />
                                 <InputError
                                     message={
@@ -148,7 +148,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                             value: "self_employed",
                                         },
                                     ]}
-                                    required
+                                    disabled={occupation.employment_status === "unemployed" || occupation.employment_status === "not_applicable"}
                                 />
                                 <InputError
                                     message={
@@ -192,7 +192,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                             value: "resigned",
                                         },
                                     ]}
-                                    required
+
                                 />
                                 <InputError
                                     message={
@@ -280,7 +280,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                             "started_at"
                                         )
                                     }
-                                    required
+
                                 />
                                 <InputError
                                     message={
@@ -341,7 +341,7 @@ const Section3 = ({ data, setData, errors, occupationTypes = null }) => {
                                         )
                                     }
                                     placeholder="Enter income"
-                                    required
+
                                 />
                                 <InputError
                                     message={
