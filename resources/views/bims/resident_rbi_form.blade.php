@@ -171,7 +171,7 @@
         /* cetification */
         .certification {
             margin-top: 20px;
-            font-size: 9px;
+            font-size: 11px;
             text-align: justify;
             line-height: 1.3;
         }
@@ -202,6 +202,103 @@
         }
 
         /* attested */
+        /* --- Attested by + Thumbmarks Section --- */
+        .attested-table {
+            width: 100%;
+            margin-top: 25px;
+            border-collapse: collapse;
+        }
+
+        .attested-row td {
+            vertical-align: top;
+        }
+
+        .attested-cell {
+            width: 50%;
+            padding-top: 20px;
+        }
+
+        .thumbmarks-cell {
+            width: 50%;
+            padding-top: 20px;
+        }
+
+        /* Left side: Attested by section */
+        .attested-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .attested-label {
+            font-size: 10px;
+            margin-bottom: 10px;
+            align-self: flex-start;
+            padding-left: 20px;
+        }
+
+        .attested-line {
+            border-bottom: 1.3px solid #000;
+            width: 200px;
+            margin: 0 auto;
+        }
+
+        .attested-name {
+            font-size: 10px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Right side: Thumbmarks */
+        .thumbmarks-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-start;
+            gap: 5px;
+            /* space between boxes */
+        }
+
+        .thumb {
+            text-align: center;
+        }
+
+        .thumb-box {
+            width: 80px;
+            height: 80px;
+            border: 1.3px solid #000;
+        }
+
+        .thumb-label {
+            font-size: 10px;
+            margin-top: 4px;
+        }
+
+        /* Household number section */
+        .household-section {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .household-label {
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .household-box {
+            display: inline-block;
+            border: 1.3px solid #000;
+            width: 200px;
+            height: 25px;
+            margin-left: 8px;
+        }
+
+        .household-note {
+            font-size: 9px;
+            font-style: italic;
+            margin-top: 4px;
+            margin-left: 2px;
+        }
     </style>
 </head>
 
@@ -331,49 +428,73 @@
             Data Privacy Act of 2012.
         </div>
 
-
-        <!-- Existing Assignatory Table -->
-        <table class="assignatory-table" style="margin-top: 20px; width: 100%;">
+        <table class="assignatory-table" style="width: 100%; margin-top: 30px; border-collapse: collapse;">
             <tr>
-                <td style="width: 48%; padding-right: 4%;"><span class="line left-line"></span></td>
-                <td style="width: 48%; padding-left: 4%;"><span class="line right-line"></span></td>
-            </tr>
-            <tr>
-                <td class="assignatory-label">Date Accomplished</td>
-                <td class="assignatory-label">Name/Signature of Person Accomplishing the Form</td>
-            </tr>
-
-            <!-- Attested by & Thumbmarks row -->
-            <tr>
-                <!-- Left Column: Attested by -->
-                <td style="padding-top: 25px; vertical-align: top;">
-                    <div style="font-size: 10px; margin-bottom: 5px; padding-left: 20px;">Attested by:</div>
-                    <!-- Attested by line -->
-                    <span class="line left-line" style="width: 200px; display: block; margin: 0 auto;"></span>
-                    <div style="font-size: 10px; font-weight: bold; text-align: center; margin-top: 5px;">
-                        Barangay Secretary
-                    </div>
+                <td style="width: 48%; padding-right: 4%;">
+                    <span class="line left-line"
+                        style="display: block; border-bottom: 1.3px solid #000; height: 9px;"></span>
                 </td>
-
-
-                <!-- Right Column: Thumbmarks -->
-                <td style="padding-top: 25px; vertical-align: top; width: 48%; padding-left: 4%;">
-                    <div style="display: flex; gap: 20px; justify-content: flex-start; align-items: flex-start;">
-                        <!-- Left Thumb Box -->
-                        <div style="display: flex; flex-direction: column; align-items: center;">
-                            <div style="width: 100px; height: 100px; border: 1.3px solid #000;"></div>
-                            <div class="label-under">(Left Thumb)</div>
-                        </div>
-                        <!-- Right Thumb Box -->
-                        <div style="display: flex; flex-direction: column; align-items: center;">
-                            <div style="width: 100px; height: 100px; border: 1.3px solid #000;"></div>
-                            <div class="label-under">(Right Thumb)</div>
-                        </div>
-                    </div>
+                <td style="width: 48%; padding-left: 4%;">
+                    <span class="line right-line"
+                        style="display: block; border-bottom: 1.3px solid #000; height: 9px;"></span>
                 </td>
             </tr>
 
+            <tr>
+                <td class="assignatory-label" style="font-size: 10px; text-align: center;">
+                    Date Accomplished
+                </td>
+                <td class="assignatory-label" style="font-size: 10px; text-align: center;">
+                    Name/Signature of Person Accomplishing the Form
+                </td>
+            </tr>
         </table>
+
+        <table style="width: 100%; margin-top: 45px; border-collapse: collapse;">
+            <tr>
+                <!-- Left: Attested by -->
+                <td style="width: 48%; padding-right: 4%; vertical-align: bottom; position: relative;">
+                    <div style="font-size: 11px; margin-bottom: 60px; text-align: left; padding-left: 30px;">
+                        Attested by:
+                    </div>
+                    <div style="border-bottom: 1.3px solid #000; width: 70%; height: 20px; margin: 0 auto;"></div>
+                    <div style="font-size: 10px; margin-top: 4px; text-align: center;">
+                        <b>Barangay Secretary</b>
+                    </div>
+                </td>
+
+                <!-- Right: Thumbmarks side by side -->
+                <td style="width: 48%; padding-left: 4%; text-align: center; vertical-align: bottom;">
+                    <table style="margin: 0 auto; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 0 15px; text-align: center;">
+                                <div style="width: 100px; height: 100px; border: 1.3px solid #000; margin: 0 auto;">
+                                </div>
+                                <div style="font-size: 10px; margin-top: 3px;">(Left Thumbmark)</div>
+                            </td>
+                            <td style="padding: 0 15px; text-align: center;">
+                                <div style="width: 100px; height: 100px; border: 1.3px solid #000; margin: 0 auto;">
+                                </div>
+                                <div style="font-size: 10px; margin-top: 3px;">(Right Thumbmark)</div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+
+
+
+        <!-- Household Number Section -->
+        <div style="margin-top: 45px; margin-bottom: 35px; text-align: left;">
+            <span style="font-size: 11px; font-weight: bold;">Household Number:</span>
+            <span
+                style="display: inline-block; border: 1.3px solid #000; width: 200px; height: 25px; margin-left: 8px;"></span>
+            <div style="font-size: 9px; font-style: italic; margin-top: 4px; margin-left: 2px;">
+                Note: The household number shall be filled up by the Barangay Secretary.
+            </div>
+        </div>
 
 
     </div>
