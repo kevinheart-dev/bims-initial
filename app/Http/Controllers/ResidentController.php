@@ -1830,6 +1830,33 @@ class ResidentController extends Controller
         return $pdf->stream("Resident-{$resident->lastname}.pdf");
     }
 
+    // export rbi
+    public function exportResidentRBI($id)
+    {
+        $resident = Resident::with([
+            'barangay',
+            'street',
+            'latestHousehold',   // ✅ don't chain .household
+            'latestOccupation',
+            'latestEducation',
+            'votingInformation',
+            'socialwelfareprofile',
+            'seniorcitizen',
+            'medicalInformation'
+        ])->findOrFail($id);
+
+        $barangayName = $resident->barangay->barangay_name ?? 'Barangay';
+        $barangayLogo = $resident->barangay->logo_path ?? null;
+        $year = now()->year;
+
+        //dd($resident);
+        $pdf = Pdf::loadView('bims.resident_rbi_form', compact(
+            'resident', 'barangayName', 'barangayLogo', 'year'
+        ))->setPaper('A4', 'portrait');
+
+        return $pdf->stream("Resident-{$resident->lastname}-RBI-FORM-B.pdf");
+    }
+
 }
 
 if (!function_exists('generateFamilyRelations')) {

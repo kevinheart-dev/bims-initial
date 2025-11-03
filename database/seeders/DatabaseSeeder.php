@@ -416,15 +416,15 @@ class DatabaseSeeder extends Seeder
             }
         }
         // Call lookup/fix seeders
-        // $this->call([
-        //     OccupationTypeSeeder::class,
-        //     FixHouseholdResidentSeeder::class,
-        //     // FamilyRelationSeeder::class,
-        //     BarangayInformationSeeder::class,
-        // ]);
         $this->call([
-            CRADataseeder::class,
+            OccupationTypeSeeder::class,
+            FixHouseholdResidentSeeder::class,
+            // FamilyRelationSeeder::class,
+            BarangayInformationSeeder::class,
         ]);
+        // $this->call([
+        //     CRADataseeder::class,
+        // ]);
         CommunityRiskAssessment::factory()->create([
             'year' => 2022
         ]);

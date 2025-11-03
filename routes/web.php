@@ -267,6 +267,8 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
     Route::get('/overview', [HouseholdController::class, 'householdOverview'])->name('household.overview');
     Route::get('/export-resident-pdf/{id}', [ResidentController::class, 'exportResidentInfo'])
     ->name('resident.export.pdf');
+    Route::get('/export-resident-rbi/{id}', [ResidentController::class, 'exportResidentRBI'])
+    ->name('resident.export.rbi');
 
     // residents
     Route::resource('resident', ResidentController::class);

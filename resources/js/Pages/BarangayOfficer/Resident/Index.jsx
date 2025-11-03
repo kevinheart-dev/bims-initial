@@ -263,6 +263,11 @@ export default function Index({
         const fullUrl = `/export-resident-pdf/${id}`;
         window.open(fullUrl, "_blank");
     };
+
+    const handleExportRBI = (id) => {
+        const fullUrl = `/export-resident-rbi/${id}`;
+        window.open(fullUrl, "_blank");
+    };
     // Memoize confirmDelete to ensure it's stable
     const confirmDelete = useMemo(
         () => () => {
@@ -400,6 +405,11 @@ export default function Index({
                             onClick: () => handleExportPdf(resident.id),
                         },
                         {
+                            label: "Export RBI Form B",
+                            icon: <FileText className="w-4 h-4 text-red-600" />,
+                            onClick: () => handleExportRBI(resident.id),
+                        },
+                        {
                             label: "Edit",
                             icon: (
                                 <SquarePen className="w-4 h-4 text-green-500" />
@@ -427,6 +437,7 @@ export default function Index({
             handleDeleteClick,
             handleEdit,
             handleExportPdf,
+            handleExportRBI,
         ]
     ); // Dependencies for columnRenderers
 
