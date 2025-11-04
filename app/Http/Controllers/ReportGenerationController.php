@@ -2928,97 +2928,97 @@ class ReportGenerationController extends Controller
         return $pdf->stream('Barangay_Institution_Members.pdf');
     }
 
-public function exportMonitoringReportPdf(Request $request)
-{
-    $brgy_id = auth()->user()->barangay_id;
+    public function exportMonitoringReportPdf(Request $request)
+    {
+        $brgy_id = auth()->user()->barangay_id;
 
-    $residents = Resident::with([
-        'socialwelfareprofile',
-        'latestEducation',
-        'latestOccupation',
-        'disabilities'
-    ])->where('barangay_id', $brgy_id)->get();
+        $residents = Resident::with([
+            'socialwelfareprofile',
+            'latestEducation',
+            'latestOccupation',
+            'disabilities'
+        ])->where('barangay_id', $brgy_id)->get();
 
-    // Helper to count male/female by condition
-    $countBySex = function($collection, $callback) {
-        $male = $collection->filter(fn($r) => $r->sex === 'male' && $callback($r))->count();
-        $female = $collection->filter(fn($r) => $r->sex === 'female' && $callback($r))->count();
-        return ['male' => $male, 'female' => $female, 'total' => $male + $female];
-    };
+        // Helper to count male/female by condition
+        $countBySex = function($collection, $callback) {
+            $male = $collection->filter(fn($r) => $r->sex === 'male' && $callback($r))->count();
+            $female = $collection->filter(fn($r) => $r->sex === 'female' && $callback($r))->count();
+            return ['male' => $male, 'female' => $female, 'total' => $male + $female];
+        };
 
-    // Population by Age Bracket
-    $ageBrackets = [
-        'Under 5 years old' => [0, 4],
-        '5-9 years old' => [5, 9],
-        '10-14 years old' => [10, 14],
-        '15-19 years old' => [15, 19],
-        '20-24 years old' => [20, 24],
-        '25-29 years old' => [25, 29],
-        '30-34 years old' => [30, 34],
-        '35-39 years old' => [35, 39],
-        '40-44 years old' => [40, 44],
-        '45-49 years old' => [45, 49],
-        '50-54 years old' => [50, 54],
-        '55-59 years old' => [55, 59],
-        '60-64 years old' => [60, 64],
-        '65-69 years old' => [65, 69],
-        '70-74 years old' => [70, 74],
-        '75-79 years old' => [75, 79],
-        '80 years old and over' => [80, 200],
-    ];
+        // Population by Age Bracket
+        $ageBrackets = [
+            'Under 5 years old' => [0, 4],
+            '5-9 years old' => [5, 9],
+            '10-14 years old' => [10, 14],
+            '15-19 years old' => [15, 19],
+            '20-24 years old' => [20, 24],
+            '25-29 years old' => [25, 29],
+            '30-34 years old' => [30, 34],
+            '35-39 years old' => [35, 39],
+            '40-44 years old' => [40, 44],
+            '45-49 years old' => [45, 49],
+            '50-54 years old' => [50, 54],
+            '55-59 years old' => [55, 59],
+            '60-64 years old' => [60, 64],
+            '65-69 years old' => [65, 69],
+            '70-74 years old' => [70, 74],
+            '75-79 years old' => [75, 79],
+            '80 years old and over' => [80, 200],
+        ];
 
-    $populationByAge = [];
-    foreach ($ageBrackets as $label => [$min, $max]) {
-        $populationByAge[$label] = $countBySex($residents, fn($r) => $r->age >= $min && $r->age <= $max);
+        $populationByAge = [];
+        foreach ($ageBrackets as $label => [$min, $max]) {
+            $populationByAge[$label] = $countBySex($residents, fn($r) => $r->age >= $min && $r->age <= $max);
+        }
+
+        // Population by Sector
+        $populationBySector = [
+            'Labor Force' => $countBySex($residents, fn($r) => in_array($r->employment_status, ['employed', 'self_employed', 'under_employed'])),
+            'Unemployed' => $countBySex($residents, fn($r) => $r->employment_status === 'unemployed'),
+            'Out of School Children (OSC)' => $countBySex($residents, fn($r) => $r->age >= 6 && $r->age <= 14 && (optional($r->latestEducation)->year_ended === null || optional($r->latestEducation)->year_ended < now()->year)),
+            'Out of School Youth (OSY)' => $countBySex($residents, fn($r) => $r->age >= 15 && $r->age <= 24 && (optional($r->latestEducation)->year_ended === null || optional($r->latestEducation)->year_ended < now()->year)),
+            'Person with Disabilities (PWDs)' => $countBySex($residents, fn($r) => $r->disabilities->isNotEmpty()),
+            'Solo Parents' => $countBySex($residents, fn($r) => optional($r->socialwelfareprofile)->is_solo_parent),
+            'Indigenous Peoples (IPs)' => $countBySex($residents, fn($r) => !empty($r->ethnicity) && preg_match('/tribe|indigenous|lumad|aeta|mangyan|ip/i', $r->ethnicity)),
+            'Civil Status: Single' => $countBySex($residents, fn($r) => $r->civil_status === 'single'),
+            'Civil Status: Married' => $countBySex($residents, fn($r) => $r->civil_status === 'married'),
+            'Citizenship: Filipino' => $countBySex($residents, fn($r) => $r->citizenship === 'Filipino'),
+            'Citizenship: Foreigner' => $countBySex($residents, fn($r) => $r->citizenship !== 'Filipino'),
+        ];
+
+        $barangay = auth()->user()->barangay()->first();
+        $region = "Region II"; // or fetch from config
+        $province = $barangay->province ?? "Isabela";
+        $city = $barangay->city ?? "City of Ilagan";
+
+        // Fetch current officials for signature
+        $barangay_secretary = BarangayOfficial::where('position', 'barangay_secretary')
+            ->where('status', 'active')
+            ->first()?->resident->full_name ?? 'Barangay Secretary';
+        $punong_barangay = BarangayOfficial::where('position', 'barangay_captain')
+            ->where('status', 'active')
+            ->first()?->resident->full_name ?? 'Punong Barangay';
+
+        $pdf = Pdf::loadView('bims.monitoring_report', [
+            'region' => $region,
+            'province' => $province,
+            'city' => $city,
+            'barangay' => $barangay->barangay_name ?? 'Barangay',
+            'barangayLogo' => $barangay->logo_path ?? null,
+            'populationByAge' => $populationByAge,
+            'populationBySector' => $populationBySector,
+            'semester' => $request->semester ?? null,
+            'year' => $request->year ?? now()->year,
+            'totalResidents' => $residents->count(),
+            'totalHouseholds' => $residents->pluck('household_id')->unique()->count(),
+            'totalFamilies' => $residents->pluck('family_id')->unique()->count(),
+            'barangay_secretary' => $barangay_secretary,
+            'punong_barangay' => $punong_barangay,
+            'date_accomplished' => now()->format('F d, Y'),
+        ])->setPaper('legal', 'landscape');
+
+        return $pdf->stream('Barangay_Monitoring_Report.pdf');
     }
-
-    // Population by Sector
-    $populationBySector = [
-        'Labor Force' => $countBySex($residents, fn($r) => in_array($r->employment_status, ['employed', 'self_employed', 'under_employed'])),
-        'Unemployed' => $countBySex($residents, fn($r) => $r->employment_status === 'unemployed'),
-        'Out of School Children (OSC)' => $countBySex($residents, fn($r) => $r->age >= 6 && $r->age <= 14 && (optional($r->latestEducation)->year_ended === null || optional($r->latestEducation)->year_ended < now()->year)),
-        'Out of School Youth (OSY)' => $countBySex($residents, fn($r) => $r->age >= 15 && $r->age <= 24 && (optional($r->latestEducation)->year_ended === null || optional($r->latestEducation)->year_ended < now()->year)),
-        'Person with Disabilities (PWDs)' => $countBySex($residents, fn($r) => $r->disabilities->isNotEmpty()),
-        'Solo Parents' => $countBySex($residents, fn($r) => optional($r->socialwelfareprofile)->is_solo_parent),
-        'Indigenous Peoples (IPs)' => $countBySex($residents, fn($r) => !empty($r->ethnicity) && preg_match('/tribe|indigenous|lumad|aeta|mangyan|ip/i', $r->ethnicity)),
-        'Civil Status: Single' => $countBySex($residents, fn($r) => $r->civil_status === 'single'),
-        'Civil Status: Married' => $countBySex($residents, fn($r) => $r->civil_status === 'married'),
-        'Citizenship: Filipino' => $countBySex($residents, fn($r) => $r->citizenship === 'Filipino'),
-        'Citizenship: Foreigner' => $countBySex($residents, fn($r) => $r->citizenship !== 'Filipino'),
-    ];
-
-    $barangay = auth()->user()->barangay()->first();
-    $region = "Region II"; // or fetch from config
-    $province = $barangay->province ?? "Isabela";
-    $city = $barangay->city ?? "City of Ilagan";
-
-    // Fetch current officials for signature
-    $barangay_secretary = BarangayOfficial::where('position', 'barangay_secretary')
-        ->where('status', 'active')
-        ->first()?->resident->full_name ?? 'Barangay Secretary';
-    $punong_barangay = BarangayOfficial::where('position', 'barangay_captain')
-        ->where('status', 'active')
-        ->first()?->resident->full_name ?? 'Punong Barangay';
-
-    $pdf = Pdf::loadView('bims.monitoring_report', [
-        'region' => $region,
-        'province' => $province,
-        'city' => $city,
-        'barangay' => $barangay->barangay_name ?? 'Barangay',
-        'barangayLogo' => $barangay->logo_path ?? null,
-        'populationByAge' => $populationByAge,
-        'populationBySector' => $populationBySector,
-        'semester' => $request->semester ?? null,
-        'year' => $request->year ?? now()->year,
-        'totalResidents' => $residents->count(),
-        'totalHouseholds' => $residents->pluck('household_id')->unique()->count(),
-        'totalFamilies' => $residents->pluck('family_id')->unique()->count(),
-        'barangay_secretary' => $barangay_secretary,
-        'punong_barangay' => $punong_barangay,
-        'date_accomplished' => now()->format('F d, Y'),
-    ])->setPaper('legal', 'landscape');
-
-    return $pdf->stream('Barangay_Monitoring_Report.pdf');
-}
 
 }

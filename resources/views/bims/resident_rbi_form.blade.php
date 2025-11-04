@@ -328,7 +328,7 @@
             <td>
                 <span class="line"
                     style="position: relative; display: inline-block; width: 95%; text-transform: uppercase;">
-                    BARANGAY {{ $barangayName ?? ($resident->barangay->name ?? 'N/A') }}
+                    {{ $barangayName ?? ($resident->barangay->name ?? 'N/A') }}
                 </span>
             </td>
 
@@ -430,31 +430,31 @@
                 <span class="education-label">HIGHEST EDUCATIONAL ATTAINMENT:</span>
 
                 <span class="checkbox-box">
-                    @if (optional($resident->latestEducation)->level == 'elementary')
+                    @if (optional($resident->latestEducation)->educational_attainment == 'elementary')
                         /
                     @endif
                 </span> ELEMENTARY
 
                 <span class="checkbox-box">
-                    @if (optional($resident->latestEducation)->level == 'high_school' || 'senior_high_school')
+                    @if (in_array(optional($resident->latestEducation)->educational_attainment, ['high_school','senior_high_school']))
                         /
                     @endif
                 </span> HIGH SCHOOL
 
                 <span class="checkbox-box">
-                    @if (optional($resident->latestEducation)->level == 'college')
+                    @if (optional($resident->latestEducation)->educational_attainment == 'college')
                         /
                     @endif
                 </span> COLLEGE
 
                 <span class="checkbox-box">
-                    @if (optional($resident->latestEducation)->level == 'post_graduate')
+                    @if (optional($resident->latestEducation)->educational_attainment == 'post_graduate')
                         /
                     @endif
                 </span> POST GRAD
 
                 <span class="checkbox-box">
-                    @if (optional($resident->latestEducation)->level == 'vocational')
+                    @if (optional($resident->latestEducation)->educational_attainment == 'vocational')
                         /
                     @endif
                 </span> VOCATIONAL
@@ -463,12 +463,13 @@
             <div class="education-sub" style="font-size: 12px; margin-top: 6px;">
                 Please specify:
                 <span class="small-box">
-                    @if (optional($resident->latestEducation)->status == 'graduate')
+                    @if (optional($resident->latestEducation)->education_status == 'graduated')
                         /
                     @endif
                 </span> Graduate
+
                 <span class="small-box">
-                    @if (optional($resident->latestEducation)->status == 'dropped_out' || 'incomplete' || 'enrolled')
+                    @if (in_array(optional($resident->latestEducation)->education_status, ['dropped_out','incomplete','enrolled']))
                         /
                     @endif
                 </span> Under Graduate

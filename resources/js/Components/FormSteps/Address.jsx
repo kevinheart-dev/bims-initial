@@ -105,7 +105,6 @@ const Address = ({ puroks, streets }) => {
                         onChange={handleChange}
                         placeholder="e.g., Rizal St., Mabini Avenue"
                         items={streetList}
-                        required
                     />
                     {errors.street && (
                         <p className="text-red-500 text-sm">{errors.street}</p>

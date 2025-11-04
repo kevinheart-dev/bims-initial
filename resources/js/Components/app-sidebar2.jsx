@@ -50,6 +50,7 @@ import {
     Waves,
     Mountain,
     UserSquare,
+    SignpostBig,
 } from "lucide-react";
 import {
     Sidebar,
@@ -328,6 +329,12 @@ export function AppSidebar({ auth }) {
                     url: "/land",
                     icon: Mountain,
                     roles: ["barangay_officer", "admin"],
+                },
+                {
+                    title: "Street List",
+                    url: "/street",
+                    icon: SignpostBig,
+                    roles: ["admin"],
                 },
             ],
         },

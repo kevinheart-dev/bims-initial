@@ -26,7 +26,7 @@ class StoreResidentHouseholdRequest extends FormRequest
             //Household Info
             'housenumber' => ['required', 'string', 'max:55'],
             'subdivision' => ['nullable', 'string', 'max:100'],
-            'street' => ['required', 'integer', 'min:1'],
+            'street' => ['nullable', 'integer', 'min:1'],
             'purok' => ['required', 'integer', 'min:1'],
             'household.household_count' => ['required', 'integer', 'min:1'],
             'household.household_type' => ['required', Rule::in(['nuclear', 'extended', 'single_parent', 'stepfamilies', 'grandparent', 'childless', 'cohabiting_partners', 'one_person_household', 'roommates'])],
@@ -39,13 +39,13 @@ class StoreResidentHouseholdRequest extends FormRequest
             'household.income_category' => ['required', 'string', 'max:155'],
 
             //Housing Structure
-            'ownership_type' => ['required', 'string', 'max:100'],
-            'housing_condition' => ['required', Rule::in(['good', 'needs_repair', 'dilapidated'])],
-            'house_structure' => ['required', Rule::in(['concrete', 'semi_concrete', 'wood', 'makeshift'])],
+            'ownership_type' => ['nullable', 'string', 'max:100'],
+            'housing_condition' => ['nullable', Rule::in(['good', 'needs_repair', 'dilapidated'])],
+            'house_structure' => ['nullable', Rule::in(['concrete', 'semi_concrete', 'wood', 'makeshift'])],
             'year_established' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
-            'number_of_rooms' => ['required', 'integer', 'min:1', 'max:100'],
-            'number_of_floors' => ['required', 'integer', 'min:1', 'max:10'],
-            'bath_and_wash_area' => ['required', 'string', 'max:100'],
+            'number_of_rooms' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'number_of_floors' => ['nullable', 'integer', 'min:1', 'max:10'],
+            'bath_and_wash_area' => ['nullable', 'string', 'max:100'],
             'type_of_internet' => ['nullable', 'string', 'max:100'],
 
             // Utilities

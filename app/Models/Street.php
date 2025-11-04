@@ -9,6 +9,11 @@ class Street extends Model
 {
     /** @use HasFactory<\Database\Factories\StreetFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'street_name',
+        'purok_id',
+    ];
     public $timestamps = true;
 
     public function households()

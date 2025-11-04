@@ -49,6 +49,7 @@ use App\Http\Controllers\ResidentMedicalConditionController;
 use App\Http\Controllers\ResidentMedicationController;
 use App\Http\Controllers\ResidentVaccinationController;
 use App\Http\Controllers\SeniorCitizenController;
+use App\Http\Controllers\StreetController;
 use App\Http\Controllers\SummonController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\UnauthenticatedIssuanceController;
@@ -158,6 +159,17 @@ Route::middleware(['auth', 'role:barangay_officer|cdrrmo_admin|super_admin|admin
     ->name('water.details');
     Route::get('land/details/{id}', [LandController::class, 'landDetails'])
     ->name('land.details');
+
+    Route::get('street', [StreetController::class, 'index'])
+    ->name('street.index');
+    Route::post('street/store', [StreetController::class, 'store'])
+    ->name('street.store');
+    Route::put('street/update/{street}', [StreetController::class, 'update'])
+    ->name('street.update');
+    Route::get('street/details/{id}', [StreetController::class, 'streetDetails'])
+    ->name('street.details');
+    Route::delete('street/destroy/{street}', [StreetController::class, 'destroy'])
+    ->name('street.destroy');
 
 
     // user
