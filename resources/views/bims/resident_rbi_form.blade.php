@@ -112,18 +112,23 @@
 
         /* Box input fields */
         .input-box {
-            display: block;
-            border: 1.3px solid #000;
-            width: 100%;
-            height: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #000;
+            width: 95%;
+            height: 22px;
+            font-size: 11px;
+            text-align: center;
             box-sizing: border-box;
         }
 
         .label-under {
-            font-size: 10px;
             text-align: center;
-            margin-top: 3px;
+            font-size: 9px;
+            padding-top: 2px;
         }
+
 
         /* Education section styles */
         .education-section {
@@ -131,22 +136,18 @@
             font-size: 10px;
         }
 
-        .education-row {
-            display: flex;
-            align-items: center;
-            white-space: nowrap;
-            /* prevents wrapping */
-            gap: 6px;
+        .checkbox-box,
+        .small-box {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 1.3px solid #000;
+            text-align: center;
+            line-height: 10px;
             font-size: 10px;
+            margin-right: 5px;
         }
 
-        .checkbox-box {
-            width: 11px;
-            height: 11px;
-            border: 1px solid #000;
-            display: inline-block;
-            margin: 0 4px;
-        }
 
         .education-sub {
             margin-top: 6px;
@@ -158,14 +159,6 @@
             gap: 10px;
             white-space: nowrap;
             /* keep inline */
-        }
-
-        .small-box {
-            width: 11px;
-            height: 11px;
-            border: 1px solid #000;
-            display: inline-block;
-            margin: 0 4px;
         }
 
         /* cetification */
@@ -238,7 +231,7 @@
         }
 
         .attested-line {
-            border-bottom: 1.3px solid #000;
+            border-bottom: 1.0px solid #000;
             width: 200px;
             margin: 0 auto;
         }
@@ -312,17 +305,36 @@
     <table class="info-table">
         <tr>
             <td class="label">Region:</td>
-            <td><span class="line"></span></td>
+            <td>
+                <span class="line" style="position: relative; display: inline-block; width: 95%;">
+                    <span style="position: absolute; top: -2px; left: 5px;">2</span>
+                </span>
+            </td>
             <td class="right label">City/Mun:</td>
-            <td><span class="line"></span></td>
+            <td>
+                <span class="line" style="position: relative; display: inline-block; width: 95%;">
+                    <span style="position: absolute; top: -2px; left: 5px;">CITY OF ILAGAN</span>
+                </span>
+            </td>
         </tr>
         <tr>
             <td class="label">Province:</td>
-            <td><span class="line"></span></td>
+            <td>
+                <span class="line" style="position: relative; display: inline-block; width: 95%;">
+                    <span style="position: absolute; top: -2px; left: 5px;">ISABELA</span>
+                </span>
+            </td>
             <td class="right label">Barangay:</td>
-            <td><span class="line"></span></td>
+            <td>
+                <span class="line"
+                    style="position: relative; display: inline-block; width: 95%; text-transform: uppercase;">
+                    BARANGAY {{ $barangayName ?? ($resident->barangay->name ?? 'N/A') }}
+                </span>
+            </td>
+
         </tr>
     </table>
+
 
     <!-- PERSONAL INFORMATION BOX -->
     <div class="border-box">
@@ -341,12 +353,13 @@
         </table>
 
         <!-- Name Fields -->
-        <table class="inner-table name-section">
+        <table class="inner-table name-section" style="width: 100%; border-collapse: collapse;">
             <tr>
-                <td><span class="input-box"></span></td>
-                <td style="width: 20%;"><span class="input-box"></span></td>
-                <td><span class="input-box"></span></td>
-                <td><span class="input-box"></span></td>
+                <td><span class="input-box">{{ ucwords(strtolower($resident->lastname ?? '')) }}</span></td>
+                <td style="width: 15%;"><span
+                        class="input-box">{{ ucwords(strtolower($resident->suffix ?? '')) }}</span></td>
+                <td><span class="input-box">{{ ucwords(strtolower($resident->firstname ?? '')) }}</span></td>
+                <td><span class="input-box">{{ ucwords(strtolower($resident->middlename ?? '')) }}</span></td>
             </tr>
             <tr>
                 <td class="label-under">(Last Name)</td>
@@ -359,11 +372,18 @@
         <!-- Birth Info -->
         <table class="inner-table birth-section">
             <tr>
-                <td style="width: 20%;"><span class="input-box"></span></td>
-                <td><span class="input-box"></span></td>
-                <td style="width: 10%;"><span class="input-box"></span></td>
-                <td style="width: 15%;"><span class="input-box"></span></td>
-                <td><span class="input-box"></span></td>
+                <td style="width: 20%;"><span
+                        class="input-box">{{ $resident->birthdate ? \Carbon\Carbon::parse($resident->birthdate)->format('F d, Y') : 'N/A' }}</span>
+                </td>
+                <td><span class="input-box">{{ $resident->birth_place ?? 'N/A' }}</span></td>
+                <td style="width: 10%;">
+                    <span class="input-box">{{ ucwords(strtolower($resident->sex ?? 'N/A')) }}</span>
+                </td>
+                <td style="width: 15%;">
+                    <span class="input-box">{{ ucwords(strtolower($resident->civil_status ?? 'N/A')) }}</span>
+                </td>
+
+                <td><span class="input-box">{{ $resident->religion ?? 'N/A' }}</span></td>
             </tr>
             <tr>
                 <td class="label-under">(Birth Date: mm/dd/yyyy)</td>
@@ -377,8 +397,12 @@
         <!-- Residence Address & Citizenship -->
         <table class="inner-table address-section">
             <tr>
-                <td style="width: 70%;"><span class="input-box"></span></td>
-                <td style="width: 30%;"><span class="input-box"></span></td>
+                <td style="width: 70%;"><span class="input-box">
+                        Purok
+                        {{ $resident->purok_number ?? ' ' }},{{ optional($resident->street)->street_name ?? 'N/A' }},
+                        {{ $barangayName ?? ($resident->barangay->name ?? 'N/A') }},
+                    </span></td>
+                <td style="width: 30%;"><span class="input-box">{{ $resident->citizenship ?? 'N/A' }}</span></td>
             </tr>
             <tr>
                 <td class="label-under">(Residence Address)</td>
@@ -389,9 +413,10 @@
         <!-- Profession, Contact, Email -->
         <table class="inner-table profession-section">
             <tr>
-                <td><span class="input-box"></span></td>
-                <td><span class="input-box"></span></td>
-                <td><span class="input-box"></span></td>
+                <td><span class="input-box">{{ optional($resident->latestOccupation)->occupation ?? 'N/A' }}</span>
+                </td>
+                <td><span class="input-box">{{ $resident->contact_number ?? 'N/A' }}</span></td>
+                <td><span class="input-box">{{ $resident->email ?? 'N/A' }}</span></td>
             </tr>
             <tr>
                 <td class="label-under">(Profession / Occupation)</td>
@@ -400,23 +425,57 @@
             </tr>
         </table>
 
-        <!-- Educational Attainment -->
         <div class="education-section">
-            <div class="education-row">
+            <div class="education-row" style="font-size: 10px;">
                 <span class="education-label">HIGHEST EDUCATIONAL ATTAINMENT:</span>
-                <span class="checkbox-box"></span> ELEMENTARY
-                <span class="checkbox-box"></span> HIGH SCHOOL
-                <span class="checkbox-box"></span> COLLEGE
-                <span class="checkbox-box"></span> POST GRAD
-                <span class="checkbox-box"></span> VOCATIONAL
+
+                <span class="checkbox-box">
+                    @if (optional($resident->latestEducation)->level == 'elementary')
+                        /
+                    @endif
+                </span> ELEMENTARY
+
+                <span class="checkbox-box">
+                    @if (optional($resident->latestEducation)->level == 'high_school' || 'senior_high_school')
+                        /
+                    @endif
+                </span> HIGH SCHOOL
+
+                <span class="checkbox-box">
+                    @if (optional($resident->latestEducation)->level == 'college')
+                        /
+                    @endif
+                </span> COLLEGE
+
+                <span class="checkbox-box">
+                    @if (optional($resident->latestEducation)->level == 'post_graduate')
+                        /
+                    @endif
+                </span> POST GRAD
+
+                <span class="checkbox-box">
+                    @if (optional($resident->latestEducation)->level == 'vocational')
+                        /
+                    @endif
+                </span> VOCATIONAL
             </div>
 
-            <div class="education-sub">
+            <div class="education-sub" style="font-size: 12px; margin-top: 6px;">
                 Please specify:
-                <span class="small-box"></span> Graduate
-                <span class="small-box"></span> Under Graduate
+                <span class="small-box">
+                    @if (optional($resident->latestEducation)->status == 'graduate')
+                        /
+                    @endif
+                </span> Graduate
+                <span class="small-box">
+                    @if (optional($resident->latestEducation)->status == 'dropped_out' || 'incomplete' || 'enrolled')
+                        /
+                    @endif
+                </span> Under Graduate
             </div>
         </div>
+
+
 
         <div class="certification">
             I hereby certify that the above information is true and correct to the best of my knowledge.
@@ -430,14 +489,25 @@
 
         <table class="assignatory-table" style="width: 100%; margin-top: 30px; border-collapse: collapse;">
             <tr>
-                <td style="width: 48%; padding-right: 4%;">
-                    <span class="line left-line"
-                        style="display: block; border-bottom: 1.3px solid #000; height: 9px;"></span>
-                </td>
-                <td style="width: 48%; padding-left: 4%;">
+                <td style="width: 48%; padding-left: 4%; text-align: center; vertical-align: bottom;">
                     <span class="line right-line"
-                        style="display: block; border-bottom: 1.3px solid #000; height: 9px;"></span>
+                        style="display: inline-block; border-bottom: 1.3px solid #000; height: 25px; width: 90%;
+        text-align: center; padding-bottom: 3px; line-height: 25px;">
+                        {{ optional(optional($resident->latestHousehold)->created_at)->format('m/d/Y') ?? 'N/A' }}
+                    </span>
                 </td>
+
+                <td style="width: 48%; padding-left: 4%; text-align: center; vertical-align: bottom;">
+                    <span class="line right-line"
+                        style="display: inline-block; border-bottom: 1.3px solid #000; height: 25px; width: 90%;
+               text-align: center; padding-bottom: 3px; line-height: 25px;">
+                        {{ ucwords(strtolower($resident->lastname)) }},
+                        {{ ucwords(strtolower($resident->firstname)) }}
+                        {{ ucwords(strtolower($resident->middlename)) }}
+                        {{ ucwords(strtolower($resident->suffix ?? '')) }}
+                    </span>
+                </td>
+
             </tr>
 
             <tr>
@@ -457,11 +527,16 @@
                     <div style="font-size: 11px; margin-bottom: 60px; text-align: left; padding-left: 30px;">
                         Attested by:
                     </div>
-                    <div style="border-bottom: 1.3px solid #000; width: 70%; height: 20px; margin: 0 auto;"></div>
+                    <div style="border-bottom: 1.3px solid #000; width: 70%; height: 20px; margin: 0 auto;">
+                        <span style="font-size: 11px; display: block; text-align: center;">
+                            {{ $barangaySecretary }}
+                        </span>
+                    </div>
                     <div style="font-size: 10px; margin-top: 4px; text-align: center;">
                         <b>Barangay Secretary</b>
                     </div>
                 </td>
+
 
                 <!-- Right: Thumbmarks side by side -->
                 <td style="width: 48%; padding-left: 4%; text-align: center; vertical-align: bottom;">
@@ -490,7 +565,17 @@
         <div style="margin-top: 45px; margin-bottom: 35px; text-align: left;">
             <span style="font-size: 11px; font-weight: bold;">Household Number:</span>
             <span
-                style="display: inline-block; border: 1.3px solid #000; width: 200px; height: 25px; margin-left: 8px;"></span>
+                style="display: inline-flex;
+           justify-content: center;
+           align-items: center;
+           border: 1.3px solid #000;
+           width: 200px;
+           height: 25px;
+           margin-left: 8px;
+           text-align: center;">
+                {{ optional($resident->latestHousehold)->house_number ?? 'N/A' }}
+            </span>
+
             <div style="font-size: 9px; font-style: italic; margin-top: 4px; margin-left: 2px;">
                 Note: The household number shall be filled up by the Barangay Secretary.
             </div>

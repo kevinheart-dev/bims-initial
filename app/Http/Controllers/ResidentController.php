@@ -16,6 +16,7 @@ use App\Models\Request;
 use App\Models\Resident;
 use App\Http\Requests\StoreResidentRequest;
 use App\Http\Requests\UpdateResidentRequest;
+use App\Models\BarangayOfficial;
 use App\Models\Street;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -59,11 +60,25 @@ class ResidentController extends Controller
 
         // ✅ Base query (select only relevant columns)
         $query = Resident::select([
-                'id', 'barangay_id', 'firstname', 'middlename', 'lastname', 'suffix',
-                'sex', 'purok_number', 'birthdate', 'civil_status', 'ethnicity', 'religion',
-                'contact_number', 'email', 'is_pwd', 'registered_voter', 'employment_status',
-                'resident_picture_path'
-            ])
+            'id',
+            'barangay_id',
+            'firstname',
+            'middlename',
+            'lastname',
+            'suffix',
+            'sex',
+            'purok_number',
+            'birthdate',
+            'civil_status',
+            'ethnicity',
+            'religion',
+            'contact_number',
+            'email',
+            'is_pwd',
+            'registered_voter',
+            'employment_status',
+            'resident_picture_path'
+        ])
             ->where('barangay_id', $brgy_id)
             ->where('is_deceased', false)
             ->with([
@@ -76,10 +91,10 @@ class ResidentController extends Controller
             $like = "%{$name}%";
             $query->where(function ($q) use ($like) {
                 $q->where('firstname', 'like', $like)
-                ->orWhere('lastname', 'like', $like)
-                ->orWhere('middlename', 'like', $like)
-                ->orWhere('suffix', 'like', $like)
-                ->orWhereRaw("CONCAT_WS(' ', firstname, middlename, lastname, suffix) LIKE ?", [$like]);
+                    ->orWhere('lastname', 'like', $like)
+                    ->orWhere('middlename', 'like', $like)
+                    ->orWhere('suffix', 'like', $like)
+                    ->orWhereRaw("CONCAT_WS(' ', firstname, middlename, lastname, suffix) LIKE ?", [$like]);
             });
         }
 
@@ -239,7 +254,6 @@ class ResidentController extends Controller
 
                 // ✅ Save path in DB
                 $data['resident_image'] = $storedPath;
-
             } else {
                 // If no image uploaded, set null (new record)
                 $data['resident_image'] = null;
@@ -406,7 +420,8 @@ class ResidentController extends Controller
                 // Recompute family’s total and average monthly income
                 $family = Family::with('members.occupations')->findOrFail($familyId);
                 $allIncomes = $family->members
-                    ->flatMap(fn($m) =>
+                    ->flatMap(
+                        fn($m) =>
                         $m->occupations->filter(
                             fn($occupation) => is_null($occupation->ended_at) || $occupation->ended_at >= now()
                         )
@@ -557,7 +572,6 @@ class ResidentController extends Controller
             // Redirect back with success message
             return redirect()->route('resident.index')
                 ->with('success', 'Resident ' . ucwords($resident->full_name) . ' created successfully!');
-
         } catch (\Exception $e) {
             // Handle any unexpected error
             DB::rollBack();
@@ -716,18 +730,18 @@ class ResidentController extends Controller
                                 'resident_picture_path' => $imagePath ?? null,
                                 'barangay_id' => $barangayId,
                                 'firstname' => $member['firstname'],
-                                'middlename' => $member['middlename']?? null,
+                                'middlename' => $member['middlename'] ?? null,
                                 'lastname' => $member['lastname'],
                                 'maiden_name' => $member['maiden_name'] ?? null,
                                 'suffix' => $member['suffix'] ?? null,
                                 'sex' => $member['sex'],
-                                'gender' => $member['gender']?? null,
-                                'birthdate' => $member['birthdate']?? null,
-                                'birthplace' => $member['birthplace']?? null,
-                                'civil_status' => $member['civil_status']?? null,
-                                'citizenship' => $member['citizenship']?? null,
+                                'gender' => $member['gender'] ?? null,
+                                'birthdate' => $member['birthdate'] ?? null,
+                                'birthplace' => $member['birthplace'] ?? null,
+                                'civil_status' => $member['civil_status'] ?? null,
+                                'citizenship' => $member['citizenship'] ?? null,
                                 'employment_status' => $empStatus ?? $latestStatus,
-                                'religion' => $member['religion']?? null,
+                                'religion' => $member['religion'] ?? null,
                                 'contact_number' => $member['contactNumber'] ?? null,
                                 'registered_voter' => $member['registered_voter'],
                                 'ethnicity' => $member['ethnicity'] ?? null,
@@ -978,7 +992,7 @@ class ResidentController extends Controller
         $barangays = Barangay::all()->pluck('barangay_name', 'id')->toArray();
         $resident = new ResidentResource($resident);
 
-                // Family heads
+        // Family heads
         $familyHeads = Resident::where('barangay_id', $brgy_id)
             ->whereNotNull('family_id')
             ->where('is_family_head', 1)
@@ -1824,7 +1838,10 @@ class ResidentController extends Controller
 
         //dd($resident);
         $pdf = Pdf::loadView('bims.resident_info_summary', compact(
-            'resident', 'barangayName', 'barangayLogo', 'year'
+            'resident',
+            'barangayName',
+            'barangayLogo',
+            'year'
         ))->setPaper('A4', 'portrait');
 
         return $pdf->stream("Resident-{$resident->lastname}.pdf");
@@ -1836,7 +1853,7 @@ class ResidentController extends Controller
         $resident = Resident::with([
             'barangay',
             'street',
-            'latestHousehold',   // ✅ don't chain .household
+            'latestHousehold',
             'latestOccupation',
             'latestEducation',
             'votingInformation',
@@ -1849,14 +1866,20 @@ class ResidentController extends Controller
         $barangayLogo = $resident->barangay->logo_path ?? null;
         $year = now()->year;
 
-        //dd($resident);
+        $barangaySecretary = BarangayOfficial::where('position', 'barangay_secretary')
+            ->where('status', 'active')
+            ->first()?->resident->full_name ?? 'Barangay Secretary';
+
         $pdf = Pdf::loadView('bims.resident_rbi_form', compact(
-            'resident', 'barangayName', 'barangayLogo', 'year'
+            'resident',
+            'barangayName',
+            'barangayLogo',
+            'year',
+            'barangaySecretary',
         ))->setPaper('A4', 'portrait');
 
         return $pdf->stream("Resident-{$resident->lastname}-RBI-FORM-B.pdf");
     }
-
 }
 
 if (!function_exists('generateFamilyRelations')) {
@@ -1871,7 +1894,7 @@ if (!function_exists('generateFamilyRelations')) {
     function generateFamilyRelations($members, $headId, $spouse = null)
     {
         // Helper: create bi-directional relation
-        $linkRelation = function($aId, $bId, $relationAB, $relationBA = null) {
+        $linkRelation = function ($aId, $bId, $relationAB, $relationBA = null) {
             FamilyRelation::firstOrCreate([
                 'resident_id' => $aId,
                 'related_to' => $bId,
@@ -2066,10 +2089,11 @@ if (!function_exists('generateFamilyRelationsForSingleResident')) {
             switch ($rel) {
                 case 'child':
                     // Link child to all parents in the same family/household
-                    $parents = $members->filter(fn($m) =>
+                    $parents = $members->filter(
+                        fn($m) =>
                         strtolower($m->relationship_to_head) === 'parent'
-                        && $m->family_id === $member->family_id  // ensure same family
-                        && $m->household_id === $member->household_id // optional if you want same household only
+                            && $m->family_id === $member->family_id  // ensure same family
+                            && $m->household_id === $member->household_id // optional if you want same household only
                     );
                     foreach ($parents as $parent) {
                         $linkRelation($residentId, $parent->resident_id, 'child', 'parent');
@@ -2137,4 +2161,3 @@ if (!function_exists('generateFamilyRelationsForSingleResident')) {
         }
     }
 }
-
