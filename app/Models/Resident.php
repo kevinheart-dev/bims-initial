@@ -239,7 +239,8 @@ class Resident extends Model
     }
     public function latestOccupation()
     {
-        return $this->hasOne(Occupation::class)->latestOfMany('started_at');
+        return $this->hasOne(Occupation::class)
+            ->orderByRaw('COALESCE(started_at, updated_at) DESC');
     }
     public function disabilities()
     {
@@ -276,7 +277,8 @@ class Resident extends Model
     }
     public function latestEducation()
     {
-        return $this->hasOne(EducationalHistory::class)->latestOfMany('year_ended');
+        return $this->hasOne(EducationalHistory::class)
+            ->orderByRaw('COALESCE(year_ended, created_at) DESC');
     }
     public function medicalInformation()
     {

@@ -112,7 +112,6 @@ class BarangaySeeder extends Seeder
             'Villa Imelda (Maplas)'
         ];
 
-
         foreach ($barangays as $name) {
             $emailName = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($name));
             $email = $emailName . '@example.com';

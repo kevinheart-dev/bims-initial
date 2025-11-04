@@ -370,29 +370,58 @@ export default function Index({
                     </span>
                 );
             },
-            ethnicity: (resident) => resident.ethnicity,
-            registered_voter: (resident) => (
-                <span
-                    className={`${
-                        CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[
-                            resident.registered_voter
-                        ]
-                    } whitespace-nowrap`}
-                >
-                    {
-                        CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[
-                            resident.registered_voter
-                        ]
-                    }
-                </span>
-            ),
-            contact_number: (resident) => (
-                <span className="whitespace-nowrap">
-                    {resident.contact_number}
-                </span>
-            ),
+            ethnicity: (resident) => {
+                const eth = resident.ethnicity;
+                return eth ? (
+                    <span className="text-sm text-gray-700">{eth}</span>
+                ) : (
+                    <span className="text-gray-400 text-[12px] italic">
+                        No ethnicity data
+                    </span>
+                );
+            },
+            registered_voter: (resident) => {
+                const voter = resident.registered_voter;
+
+                return voter !== null && voter !== undefined ? (
+                    <span
+                        className={`${CONSTANTS.RESIDENT_REGISTER_VOTER_CLASS[voter]} whitespace-nowrap`}
+                    >
+                        {CONSTANTS.RESIDENT_REGISTER_VOTER_TEXT[voter]}
+                    </span>
+                ) : (
+                    <span className="text-gray-400 text-[12px] italic">
+                        No voter data
+                    </span>
+                );
+            },
+            contact_number: (resident) => {
+                const contact = resident.contact_number;
+
+                return contact ? (
+                    <span className="whitespace-nowrap text-sm text-gray-700">
+                        {contact}
+                    </span>
+                ) : (
+                    <span className="text-gray-400 text-[12px] italic whitespace-nowrap">
+                        No contact number
+                    </span>
+                );
+            },
             purok_number: (resident) => resident.purok_number,
-            email: (resident) => resident.email,
+            email: (resident) => {
+                const email = resident.email;
+
+                return email ? (
+                    <span className="text-sm text-gray-700 whitespace-nowrap">
+                        {email}
+                    </span>
+                ) : (
+                    <span className="text-gray-400 text-[12px] italic whitespace-nowrap">
+                        No email provided
+                    </span>
+                );
+            },
             actions: (resident) => (
                 <ActionMenu
                     actions={[

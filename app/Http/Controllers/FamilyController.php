@@ -36,7 +36,7 @@ class FamilyController extends Controller
                 $q->where('barangay_id', $barangayId);
             }])
             ->with([
-                'latestHead:id,family_id,firstname,lastname,street_id,is_family_head',
+                'latestHead:id,family_id,firstname,lastname,street_id,is_family_head,purok_number',
                 'latestHead.householdResidents.household:id,purok_id,house_number',
                 'latestHead.street:id,purok_id,street_name',
                 'latestHead.street.purok:id,purok_number',

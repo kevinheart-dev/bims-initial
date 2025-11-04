@@ -13,6 +13,7 @@ import {
     Network,
     User,
     FileUser,
+    MapPin,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
@@ -113,11 +114,18 @@ export default function Index({ households, puroks, streets, queryParams }) {
 
     const [showFilters, setShowFilters] = useState(hasActiveFilter);
     const columnRenderers = {
-        id: (house) => house.household?.id,
+        id: (house) =>
+            house.household?.id ?? (
+                <span className="text-gray-400 italic">N/A</span>
+            ),
+
         name: (entry) => {
             const head = entry.resident;
             return head ? (
-                <Link href={route("resident.show", head.id)}>
+                <Link
+                    className="font-medium text-blue-600 hover:underline"
+                    href={route("resident.show", head.id)}
+                >
                     {head.firstname} {head.middlename ?? ""}{" "}
                     {head.lastname ?? ""} {head.suffix ?? ""}
                 </Link>
@@ -125,60 +133,110 @@ export default function Index({ households, puroks, streets, queryParams }) {
                 <span className="text-gray-400 italic">No household head</span>
             );
         },
-        house_number: (house) => (
-            <Link
-                href={route("household.show", house.household?.id)}
-                className="hover:text-blue-500 hover:underline"
-            >
-                {" "}
-                {house.household.house_number}
-            </Link>
-        ),
-        purok_number: (house) => house.household.purok.purok_number,
-        street_name: (house) => house.household.street.street_name,
-        ownership_type: (house) => (
-            <span>
-                {
-                    CONSTANTS.HOUSEHOLD_OWNERSHIP_TEXT[
-                        house.household.ownership_type
-                    ]
-                }
-            </span>
-        ),
-        housing_condition: (house) => (
-            <span
-                className={`px-2 py-1 text-sm rounded-lg ${
-                    CONSTANTS.HOUSING_CONDITION_COLOR[
-                        house.household.housing_condition
-                    ] ?? "bg-gray-100 text-gray-700"
-                }`}
-            >
-                {
-                    CONSTANTS.HOUSEHOLD_CONDITION_TEXT[
-                        house.household.housing_condition
-                    ]
-                }
-            </span>
-        ),
+
+        house_number: (house) =>
+            house.household?.house_number ? (
+                <Link
+                    href={route("household.show", house.household?.id)}
+                    className="text-gray-700 hover:text-blue-600 hover:underline font-medium"
+                >
+                    {house.household.house_number}
+                </Link>
+            ) : (
+                <span className="text-gray-400 italic">N/A</span>
+            ),
+
+        purok_number: (house) => {
+            const purok = house.household?.purok?.purok_number;
+            return purok ? (
+                <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+                    Purok {purok}
+                </span>
+            ) : (
+                <span className="bg-gray-100 text-gray-500 px-2 py-1 rounded-full text-xs font-medium">
+                    No Purok
+                </span>
+            );
+        },
+
+        street_name: (house) => {
+            const street = house.household?.street?.street_name;
+            return street ? (
+                <span className="text-gray-700 font-medium">{street}</span>
+            ) : (
+                <span className="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded-full font-medium flex items-center gap-1">
+                    <MapPin size={14} /> No street assigned
+                </span>
+            );
+        },
+
+        ownership_type: (house) => {
+            const type = house.household?.ownership_type;
+            const text = CONSTANTS.HOUSEHOLD_OWNERSHIP_TEXT[type];
+
+            return text ? (
+                <span className="text-gray-700 font-medium">{text}</span>
+            ) : (
+                <span className="text-gray-400 italic">Unknown</span>
+            );
+        },
+
+        housing_condition: (house) => {
+            const condition = house.household?.housing_condition;
+            const color =
+                CONSTANTS.HOUSING_CONDITION_COLOR[condition] ??
+                "bg-gray-100 text-gray-500";
+            const text =
+                CONSTANTS.HOUSEHOLD_CONDITION_TEXT[condition] ?? "Unknown";
+
+            return (
+                <span
+                    className={`px-2 py-1 text-xs font-medium rounded-lg ${color}`}
+                >
+                    {text}
+                </span>
+            );
+        },
+
         year_established: (house) =>
-            house.household.year_established ?? "Unknown",
-        house_structure: (house) => (
-            <span>
-                {
-                    CONSTANTS.HOUSEHOLD_STRUCTURE_TEXT[
-                        house.household.house_structure
-                    ]
-                }
-            </span>
-        ),
-        number_of_rooms: (house) => house.household.number_of_rooms ?? "N/A",
-        number_of_floors: (house) => house.household.number_of_floors ?? "N/A",
+            house.household?.year_established ? (
+                <span className="text-gray-700 font-medium">
+                    {house.household.year_established}
+                </span>
+            ) : (
+                <span className="text-gray-400 italic">Unknown</span>
+            ),
+
+        house_structure: (house) => {
+            const structure = house.household?.house_structure;
+            const text = CONSTANTS.HOUSEHOLD_STRUCTURE_TEXT[structure];
+
+            return text ? (
+                <span className="text-gray-700 font-medium">{text}</span>
+            ) : (
+                <span className="text-gray-400 italic">Unknown</span>
+            );
+        },
+
+        number_of_rooms: (house) =>
+            house.household?.number_of_rooms ?? (
+                <span className="text-gray-400 italic">N/A</span>
+            ),
+
+        number_of_floors: (house) =>
+            house.household?.number_of_floors ?? (
+                <span className="text-gray-400 italic">N/A</span>
+            ),
+
         number_of_occupants: (house) => (
-            <span className="flex items-center">
-                {house?.household?.residents_count?.[0]?.aggregate ?? 0}{" "}
-                <User className="ml-2 h-5 w-5" />
+            <span className="flex items-center gap-1 font-medium text-gray-700">
+                <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">
+                    {house?.household?.residents_count?.[0]?.aggregate ?? 0}
+                </span>
+                <User className="h-4 w-4" />
             </span>
         ),
+
         actions: (house) => (
             <ActionMenu
                 actions={[
@@ -188,7 +246,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
                         onClick: () =>
                             router.visit(
                                 route("household.show", house.household?.id)
-                            ), // Inertia
+                            ),
                     },
                     {
                         label: "Edit",

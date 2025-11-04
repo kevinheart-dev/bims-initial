@@ -212,8 +212,7 @@ export default function Index({ families, queryParams = null, puroks }) {
             return houseNumber ?? "Unknown";
         },
 
-        purok_number: (row) =>
-            row?.latest_head?.street?.purok?.purok_number ?? "Unknown",
+        purok_number: (row) => row?.latest_head?.purok_number ?? "Unknown",
 
         actions: (row) => (
             <ActionMenu

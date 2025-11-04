@@ -24,7 +24,7 @@ return new class extends Migration
             $table->date('birthdate')->nullable();
             $table->string('birthplace', 150)->nullable();
             $table->enum('civil_status', ['single', 'married', 'widowed', 'separated', 'divorced', 'annulled']);
-            $table->boolean('registered_voter');
+            $table->boolean('registered_voter')->nullable();
             $table->enum('employment_status', ['employed', 'unemployed', 'self_employed', 'student', 'under_employed','child','retired','homemaker', 'not_applicable'])->nullable();
             $table->string('citizenship', 55)->nullable();
             $table->string('religion', 55)->nullable();
