@@ -122,9 +122,12 @@ class CRAController extends Controller
                     'last_updated' => null,
                 ];
 
+            $craData = $this->brgyDataCollectionInternal($barangay_id);
+
             return Inertia::render("BarangayOfficer/CRA/Create", [
                 'progress' => $progressData,
                 'year' => $cra->year,
+                'craData' => $craData,
             ]);
         } catch (\Exception $e) {
             return Inertia::render("BarangayOfficer/CRA/Create", [
@@ -213,17 +216,18 @@ class CRAController extends Controller
                     if (!empty($h['houseType'] ?? null)) $filled++;
                 }
                 $score = count($d) > 0 ? $filled / count($d) : 0;
-                return ['score' => $score, 'info' => "$filled of ".count($d)." house types filled"];
+                return ['score' => $score, 'info' => "$filled of " . count($d) . " house types filled"];
             },
             'ownership' => function ($d) {
                 if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
                 $nonEmpty = count(array_filter($d, fn($v) => $v !== null && $v !== ''));
                 $score = count($d) > 0 ? $nonEmpty / count($d) : 0;
-                return ['score' => $score, 'info' => "$nonEmpty of ".count($d)." ownership entries filled"];
+                return ['score' => $score, 'info' => "$nonEmpty of " . count($d) . " ownership entries filled"];
             },
             'buildings' => function ($d) {
                 if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
-                $total = 0; $filled = 0;
+                $total = 0;
+                $filled = 0;
                 foreach ($d as $cat) {
                     $rows = $cat['rows'] ?? [];
                     $total += count($rows);
@@ -270,7 +274,7 @@ class CRAController extends Controller
                     if (!empty($inst['name'] ?? null) && !empty($inst['head'] ?? null)) $filled++;
                 }
                 $score = count($d) > 0 ? $filled / count($d) : 0;
-                return ['score' => $score, 'info' => "$filled of ".count($d)." institutions filled"];
+                return ['score' => $score, 'info' => "$filled of " . count($d) . " institutions filled"];
             },
             'human_resources' => function ($d) {
                 if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
@@ -322,10 +326,11 @@ class CRAController extends Controller
             'hazards' => function ($d) {
                 if (empty($d)) return ['score' => 0.0, 'info' => 'empty'];
                 $rows = collect($d);
-                $valid = $rows->filter(fn($r) =>
+                $valid = $rows->filter(
+                    fn($r) =>
                     !empty($r['probability'] ?? null) ||
-                    !empty($r['effect'] ?? null) ||
-                    !empty($r['management'] ?? null)
+                        !empty($r['effect'] ?? null) ||
+                        !empty($r['management'] ?? null)
                 )->count();
                 return ['score' => $rows->isEmpty() ? 0.0 : $valid / $rows->count(), 'info' => "$valid of {$rows->count()} hazards"];
             },
@@ -384,7 +389,7 @@ class CRAController extends Controller
                     $total = 0;
                     $filled = 0;
                     foreach ($disaster['rows'] ?? [] as $row) {
-                        foreach (['lowFamilies','lowIndividuals','mediumFamilies','mediumIndividuals','highFamilies','highIndividuals'] as $key) {
+                        foreach (['lowFamilies', 'lowIndividuals', 'mediumFamilies', 'mediumIndividuals', 'highFamilies', 'highIndividuals'] as $key) {
                             $total++;
                             // consider null as 0 (so it counts as filled)
                             $filled++;
@@ -419,9 +424,10 @@ class CRAController extends Controller
                 if (empty($d) || !is_array($d)) return ['score' => 0.0, 'info' => 'empty'];
 
                 $rows = collect($d);
-                $valid = $rows->filter(fn($r) =>
+                $valid = $rows->filter(
+                    fn($r) =>
                     !empty($r['name'] ?? null) &&
-                    (!empty($r['families'] ?? null) || !empty($r['individuals'] ?? null))
+                        (!empty($r['families'] ?? null) || !empty($r['individuals'] ?? null))
                 )->count();
 
                 $score = $rows->isEmpty() ? 0.0 : ($valid / $rows->count()) * 100;
@@ -563,10 +569,11 @@ class CRAController extends Controller
                 }
 
                 $rows = collect($d);
-                $valid = $rows->filter(fn($r) =>
+                $valid = $rows->filter(
+                    fn($r) =>
                     !empty($r['task'] ?? null) &&
-                    !empty($r['responsible'] ?? null) &&
-                    !empty($r['remarks'] ?? null)
+                        !empty($r['responsible'] ?? null) &&
+                        !empty($r['remarks'] ?? null)
                 )->count();
 
                 $score = $rows->isEmpty() ? 0.0 : $valid / $rows->count();
@@ -777,9 +784,8 @@ class CRAController extends Controller
 
             //dd("Saved Successfully 🚀 CRA Progress: { $progressReport[percentage]}%");
             return redirect()
-            ->route('cra.create', ['year' => $cra->year])
-            ->with('success', 'Community Risk Assessment (CRA) saved successfully!');
-
+                ->route('cra.create', ['year' => $cra->year])
+                ->with('success', 'Community Risk Assessment (CRA) saved successfully!');
         } catch (\Throwable $e) {
             DB::rollBack();
 
@@ -881,7 +887,7 @@ class CRAController extends Controller
     private function savePopulationGender($brgy_id, $data, $cra)
     {
         $rows = collect($data)
-            ->map(fn ($item) => [
+            ->map(fn($item) => [
                 'barangay_id' => $brgy_id,
                 'cra_id' => $cra->id,
                 'gender'      => $item['gender'],
@@ -897,7 +903,8 @@ class CRAController extends Controller
             );
         }
     }
-    private function savePopulationAgeGroup($brgy_id, $data, $cra) {
+    private function savePopulationAgeGroup($brgy_id, $data, $cra)
+    {
         $rows = [];
         foreach ($data as $item) {
             $rows[] = [
@@ -913,23 +920,24 @@ class CRAController extends Controller
             ];
         }
 
-    if (!empty($rows)) {
-        CRAPopulationAgeGroup::upsert(
-            $rows,
-            ['barangay_id', 'age_group', 'cra_id'], // unique keys
-            [
-                'male_without_disability',
-                'male_with_disability',
-                'female_without_disability',
-                'female_with_disability',
-                'lgbtq_without_disability',
-                'lgbtq_with_disability',
-                'updated_at', // optional: update timestamp
-            ]
-        );
+        if (!empty($rows)) {
+            CRAPopulationAgeGroup::upsert(
+                $rows,
+                ['barangay_id', 'age_group', 'cra_id'], // unique keys
+                [
+                    'male_without_disability',
+                    'male_with_disability',
+                    'female_without_disability',
+                    'female_with_disability',
+                    'lgbtq_without_disability',
+                    'lgbtq_with_disability',
+                    'updated_at', // optional: update timestamp
+                ]
+            );
+        }
     }
-    }
-    private function saveLivelihood($brgy_id, $data, $cra) {
+    private function saveLivelihood($brgy_id, $data, $cra)
+    {
         $rows = [];
 
         foreach ($data as $item) {
@@ -961,7 +969,8 @@ class CRAController extends Controller
             );
         }
     }
-    private function saveHouseholdServices($brgy_id, $data, $cra) {
+    private function saveHouseholdServices($brgy_id, $data, $cra)
+    {
         $insertData = [];
 
         foreach ($data as $infra) {
@@ -984,7 +993,8 @@ class CRAController extends Controller
             ['households_quantity']                      // fields to update
         );
     }
-    private function saveHouseBuild($brgy_id, $data, $cra) {
+    private function saveHouseBuild($brgy_id, $data, $cra)
+    {
         $insertData = [];
 
         foreach ($data as $house) {
@@ -1003,7 +1013,8 @@ class CRAController extends Controller
             ['one_floor', 'two_or_more_floors'] // fields to update
         );
     }
-    private function saveHouseOwnership($brgy_id, $data, $cra) {
+    private function saveHouseOwnership($brgy_id, $data, $cra)
+    {
         $insertData = [];
 
         foreach ($data as $type => $quantity) {
@@ -1021,7 +1032,8 @@ class CRAController extends Controller
             ['quantity'] // fields to update
         );
     }
-    private function saveInfrastructureBuildings($brgy_id, $data, $cra) {
+    private function saveInfrastructureBuildings($brgy_id, $data, $cra)
+    {
         $insertData = [];
 
         foreach ($data as $buildingCategory) {
@@ -1043,8 +1055,9 @@ class CRAController extends Controller
             ['barangay_id', 'category', 'infrastructure_name', 'cra_id'], // unique keys
             ['quantity'] // fields to update
         );
-     }
-    private function saveFacilities($brgy_id, $data, $cra) {
+    }
+    private function saveFacilities($brgy_id, $data, $cra)
+    {
         $primaryFacilities = [];
         $publicTransport   = [];
         $roadNetworks      = [];
@@ -1108,7 +1121,8 @@ class CRAController extends Controller
             );
         }
     }
-    private function saveInstitutions($brgy_id, $data, $cra) {
+    private function saveInstitutions($brgy_id, $data, $cra)
+    {
         $institutions = [];
 
         foreach ($data as $inst) {
@@ -1142,7 +1156,8 @@ class CRAController extends Controller
             );
         }
     }
-    private function saveHumanResources($brgy_id, $data, $cra) {
+    private function saveHumanResources($brgy_id, $data, $cra)
+    {
         $humanResources = [];
         foreach ($data as $group) {
             $category = $group['category'];
@@ -1316,7 +1331,8 @@ class CRAController extends Controller
             }
         }
     }
-    private function saveHazards($brgy_id, $data, $cra) {
+    private function saveHazards($brgy_id, $data, $cra)
+    {
         // --- Hazard + Risk + Vulnerability + Disasters ---
 
         // Cache hazards to avoid multiple DB hits
@@ -1445,79 +1461,92 @@ class CRAController extends Controller
             }
         }
     }
-    private function saveExposure($brgy_id, $data, $cra) {
+    private function saveExposure($brgy_id, $data, $cra)
+    {
         foreach ($data as $exposure) {
-        // Find or create hazard by riskType
-        $hazard = CRAHazard::updateOrCreate(
-            ['hazard_name' => $exposure['riskType']],
-            []
-        );
+            // Find or create hazard by riskType
+            $hazard = CRAHazard::updateOrCreate(
+                ['hazard_name' => $exposure['riskType']],
+                []
+            );
 
-        $upsertData = [];
-        foreach ($exposure['purokData'] as $row) {
-            $upsertData[] = [
-                'hazard_id'        => $hazard->id,
-                'barangay_id'      => $brgy_id,
-                'cra_id' => $cra->id,
-                'purok_number'     => $row['purok'],
+            $upsertData = [];
+            foreach ($exposure['purokData'] as $row) {
+                $upsertData[] = [
+                    'hazard_id'        => $hazard->id,
+                    'barangay_id'      => $brgy_id,
+                    'cra_id' => $cra->id,
+                    'purok_number'     => $row['purok'],
 
-                // Families & totals
-                'total_families'   => $row['families'] ?? 0,
-                'total_individuals'=> ($row['individualsM'] ?? 0) + ($row['individualsF'] ?? 0) + ($row['lgbtq'] ?? 0),
+                    // Families & totals
+                    'total_families'   => $row['families'] ?? 0,
+                    'total_individuals' => ($row['individualsM'] ?? 0) + ($row['individualsF'] ?? 0) + ($row['lgbtq'] ?? 0),
 
-                // Gender
-                'individuals_male'   => $row['individualsM'] ?? 0,
-                'individuals_female' => $row['individualsF'] ?? 0,
-                'individuals_lgbtq'  => $row['lgbtq'] ?? 0,
+                    // Gender
+                    'individuals_male'   => $row['individualsM'] ?? 0,
+                    'individuals_female' => $row['individualsF'] ?? 0,
+                    'individuals_lgbtq'  => $row['lgbtq'] ?? 0,
 
-                // Age groups
-                'age_0_6_male'     => $row['age0_6M'] ?? 0,
-                'age_0_6_female'   => $row['age0_6F'] ?? 0,
-                'age_7m_2y_male'   => $row['age7m_2yM'] ?? 0,
-                'age_7m_2y_female' => $row['age7m_2yF'] ?? 0,
-                'age_3_5_male'     => $row['age3_5M'] ?? 0,
-                'age_3_5_female'   => $row['age3_5F'] ?? 0,
-                'age_6_12_male'    => $row['age6_12M'] ?? 0,
-                'age_6_12_female'  => $row['age6_12F'] ?? 0,
-                'age_13_17_male'   => $row['age13_17M'] ?? 0,
-                'age_13_17_female' => $row['age13_17F'] ?? 0,
-                'age_18_59_male'   => $row['age18_59M'] ?? 0,
-                'age_18_59_female' => $row['age18_59F'] ?? 0,
-                'age_60_up_male'   => $row['age60upM'] ?? 0,
-                'age_60_up_female' => $row['age60upF'] ?? 0,
+                    // Age groups
+                    'age_0_6_male'     => $row['age0_6M'] ?? 0,
+                    'age_0_6_female'   => $row['age0_6F'] ?? 0,
+                    'age_7m_2y_male'   => $row['age7m_2yM'] ?? 0,
+                    'age_7m_2y_female' => $row['age7m_2yF'] ?? 0,
+                    'age_3_5_male'     => $row['age3_5M'] ?? 0,
+                    'age_3_5_female'   => $row['age3_5F'] ?? 0,
+                    'age_6_12_male'    => $row['age6_12M'] ?? 0,
+                    'age_6_12_female'  => $row['age6_12F'] ?? 0,
+                    'age_13_17_male'   => $row['age13_17M'] ?? 0,
+                    'age_13_17_female' => $row['age13_17F'] ?? 0,
+                    'age_18_59_male'   => $row['age18_59M'] ?? 0,
+                    'age_18_59_female' => $row['age18_59F'] ?? 0,
+                    'age_60_up_male'   => $row['age60upM'] ?? 0,
+                    'age_60_up_female' => $row['age60upF'] ?? 0,
 
-                // Special categories
-                'pwd_male'         => $row['pwdM'] ?? 0,
-                'pwd_female'       => $row['pwdF'] ?? 0,
-                'diseases_male'    => $row['diseasesM'] ?? 0,
-                'diseases_female'  => $row['diseasesF'] ?? 0,
-                'pregnant_women'   => $row['pregnantWomen'] ?? 0,
-            ];
+                    // Special categories
+                    'pwd_male'         => $row['pwdM'] ?? 0,
+                    'pwd_female'       => $row['pwdF'] ?? 0,
+                    'diseases_male'    => $row['diseasesM'] ?? 0,
+                    'diseases_female'  => $row['diseasesF'] ?? 0,
+                    'pregnant_women'   => $row['pregnantWomen'] ?? 0,
+                ];
+            }
+
+            // Bulk upsert per hazard
+            CRAPopulationExposure::upsert(
+                $upsertData,
+                ['hazard_id', 'barangay_id', 'purok_number', 'cra_id'], // unique key
+                [
+                    'total_families',
+                    'total_individuals',
+                    'individuals_male',
+                    'individuals_female',
+                    'individuals_lgbtq',
+                    'age_0_6_male',
+                    'age_0_6_female',
+                    'age_7m_2y_male',
+                    'age_7m_2y_female',
+                    'age_3_5_male',
+                    'age_3_5_female',
+                    'age_6_12_male',
+                    'age_6_12_female',
+                    'age_13_17_male',
+                    'age_13_17_female',
+                    'age_18_59_male',
+                    'age_18_59_female',
+                    'age_60_up_male',
+                    'age_60_up_female',
+                    'pwd_male',
+                    'pwd_female',
+                    'diseases_male',
+                    'diseases_female',
+                    'pregnant_women'
+                ]
+            );
         }
-
-        // Bulk upsert per hazard
-        CRAPopulationExposure::upsert(
-            $upsertData,
-            ['hazard_id', 'barangay_id', 'purok_number', 'cra_id'], // unique key
-            [
-                'total_families', 'total_individuals',
-                'individuals_male', 'individuals_female', 'individuals_lgbtq',
-                'age_0_6_male', 'age_0_6_female',
-                'age_7m_2y_male', 'age_7m_2y_female',
-                'age_3_5_male', 'age_3_5_female',
-                'age_6_12_male', 'age_6_12_female',
-                'age_13_17_male', 'age_13_17_female',
-                'age_18_59_male', 'age_18_59_female',
-                'age_60_up_male', 'age_60_up_female',
-                'pwd_male', 'pwd_female',
-                'diseases_male', 'diseases_female',
-                'pregnant_women'
-            ]
-        );
     }
-
-    }
-    private function savePWDStat($brgy_id, $data, $cra) {
+    private function savePWDStat($brgy_id, $data, $cra)
+    {
         $upsertData = [];
 
         foreach ($data as $row) {
@@ -1564,13 +1593,24 @@ class CRAController extends Controller
             $upsertData,
             ['barangay_id', 'disability_type', 'cra_id'], // unique per barangay + disability type
             [
-                'age_0_6_male','age_0_6_female',
-                'age_7m_2y_male','age_7m_2y_female',
-                'age_3_5_male','age_3_5_female',
-                'age_6_12_male','age_6_12_female','age_6_12_lgbtq',
-                'age_13_17_male','age_13_17_female','age_13_17_lgbtq',
-                'age_18_59_male','age_18_59_female','age_18_59_lgbtq',
-                'age_60up_male','age_60up_female','age_60up_lgbtq',
+                'age_0_6_male',
+                'age_0_6_female',
+                'age_7m_2y_male',
+                'age_7m_2y_female',
+                'age_3_5_male',
+                'age_3_5_female',
+                'age_6_12_male',
+                'age_6_12_female',
+                'age_6_12_lgbtq',
+                'age_13_17_male',
+                'age_13_17_female',
+                'age_13_17_lgbtq',
+                'age_18_59_male',
+                'age_18_59_female',
+                'age_18_59_lgbtq',
+                'age_60up_male',
+                'age_60up_female',
+                'age_60up_lgbtq',
             ]
         );
     }
@@ -1605,7 +1645,8 @@ class CRAController extends Controller
             );
         }
     }
-    private function saveIllnesses($brgy_id, $data, $cra) {
+    private function saveIllnesses($brgy_id, $data, $cra)
+    {
         $records = [];
 
         foreach ($data as $illness) {
@@ -1628,7 +1669,8 @@ class CRAController extends Controller
             );
         }
     }
-    private function saveEvacuationCenters($brgy_id, $data, $cra) {
+    private function saveEvacuationCenters($brgy_id, $data, $cra)
+    {
         // --- Evacuation Centers ---
         foreach ($data as $center) {
             CRAEvacuationCenter::updateOrCreate(
@@ -1652,7 +1694,8 @@ class CRAController extends Controller
             );
         }
     }
-    private function saveEvacuationInventories($brgy_id, $data, $cra) {
+    private function saveEvacuationInventories($brgy_id, $data, $cra)
+    {
         // --- Evacuation Inventory ---
         $inventoryRecords = [];
 
@@ -1704,9 +1747,9 @@ class CRAController extends Controller
                 'updated_at'
             ]
         );
-
     }
-    private function saveAffectedAreas($brgy_id, $data, $cra) {
+    private function saveAffectedAreas($brgy_id, $data, $cra)
+    {
         // --- Affected Places ---
         foreach ($data as $area) {
             // 1. Ensure hazard exists
@@ -1728,7 +1771,7 @@ class CRAController extends Controller
                     'total_families'     => $row['totalFamilies'] ?? 0,
                     'total_individuals'  => $row['totalIndividuals'] ?? 0,
                     'at_risk_families'   => $row['atRiskFamilies'] ?? 0,
-                    'at_risk_individuals'=> $row['atRiskIndividuals'] ?? 0,
+                    'at_risk_individuals' => $row['atRiskIndividuals'] ?? 0,
                     'safe_evacuation_area' => $row['safeEvacuationArea'] ?? "",
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -1751,7 +1794,8 @@ class CRAController extends Controller
         }
     }
 
-    private function saveLivelihoodEvacuation($brgy_id, $data, $cra) {
+    private function saveLivelihoodEvacuation($brgy_id, $data, $cra)
+    {
         // --- Evacuation Livelihood ---
         $livelihoodRecords = [];
 
@@ -1781,7 +1825,8 @@ class CRAController extends Controller
             );
         }
     }
-    private function saveFoodInventory($brgy_id, $data, $cra) {
+    private function saveFoodInventory($brgy_id, $data, $cra)
+    {
         // food inventory
         foreach ($data as $row) {
             CRAPrepositionedInventory::updateOrCreate(
@@ -1796,8 +1841,9 @@ class CRAController extends Controller
                 ]
             );
         }
-     }
-    private function saveReliefGoods($brgy_id, $data, $cra) {
+    }
+    private function saveReliefGoods($brgy_id, $data, $cra)
+    {
         // --- Relief Goods Distribution ---
         $reliefRecords = [];
 
@@ -1837,7 +1883,8 @@ class CRAController extends Controller
             );
         }
     }
-    private function saveDistributionProcess($brgy_id, $data, $cra) {
+    private function saveDistributionProcess($brgy_id, $data, $cra)
+    {
         // --- Relief Distribution Process ---
         $processRecords = [];
 
@@ -1861,7 +1908,7 @@ class CRAController extends Controller
                 ['distribution_process', 'origin_of_goods', 'remarks', 'updated_at']
             );
         }
-     }
+    }
     private function saveTrainings($brgy_id, $data, $cra)
     {
         // BDRRMC Trainings
@@ -1909,7 +1956,8 @@ class CRAController extends Controller
         );
     }
 
-    private function saveEquipmentInventory($brgy_id, $data, $cra) {
+    private function saveEquipmentInventory($brgy_id, $data, $cra)
+    {
         // Equipment Inventory
         $equipment = collect($data ?? [])->map(function ($row) use ($brgy_id, $cra) {
             return [
@@ -1931,7 +1979,8 @@ class CRAController extends Controller
             ['availability', 'quantity', 'location', 'remarks', 'updated_at']
         );
     }
-    private function saveEvacuationPlans($brgy_id, $data, $cra) {
+    private function saveEvacuationPlans($brgy_id, $data, $cra)
+    {
         // Evacuation Plan
         foreach ($data as $index => $row) {
             CRAEvacuationPlan::updateOrCreate(
@@ -1942,7 +1991,7 @@ class CRAController extends Controller
                 ],
                 [
                     'things_to_do'      => $row['task'] ?? null,
-                    'responsible_person'=> $row['responsible'] ?? null,
+                    'responsible_person' => $row['responsible'] ?? null,
                     'remarks'           => $row['remarks'] ?? null,
                 ]
             );
@@ -1952,7 +2001,11 @@ class CRAController extends Controller
     public function brgyDataCollection()
     {
         $brgy_id = auth()->user()->barangay_id;
+        return response()->json($this->brgyDataCollectionInternal($brgy_id));
+    }
 
+    private function brgyDataCollectionInternal($brgy_id)
+    {
         $barangay = Barangay::with([
             'generalPopulation',
             'bdrrmcDirectories',
@@ -1993,11 +2046,12 @@ class CRAController extends Controller
             'prepositionedInventories',
         ])->findOrFail($brgy_id);
 
-        return response()->json($barangay->dataCollection()); // ✅ reuse model formatter
+        return $barangay->dataCollection();
     }
 
 
-    public function dashboard(){
+    public function dashboard()
+    {
         return Inertia::render("BarangayOfficer/CRA/Dashboard");
     }
 }

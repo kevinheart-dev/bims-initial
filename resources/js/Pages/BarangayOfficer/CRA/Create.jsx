@@ -20,7 +20,9 @@ export default function Index({ progress }) {
 
     const [currentStep, setCurrentStep] = useState(1);
     const { props } = usePage();
-    const { success, error } = props;
+    // const { success, error } = props;
+    const { success, error, craData: craDataFromServer } = props;
+
 
     // ✅ Get year from URL
     const searchParams = new URLSearchParams(window.location.search);
@@ -56,14 +58,21 @@ export default function Index({ progress }) {
         }
     });
 
-    // ✅ Save per year draft to localStorage
+    useEffect(() => {
+        if (craDataFromServer) {
+            setCraData(craDataFromServer);
+            console.log("✅ CRA Data refreshed from backend:", craDataFromServer);
+        }
+    }, [craDataFromServer]);
+
+
+
     useEffect(() => {
         if (year) {
             localStorage.setItem(`craDataDraft_${year}`, JSON.stringify(craData));
         }
     }, [craData, year]);
 
-    // ✅ When switching year, load or reset data
     useEffect(() => {
         if (year) {
             const saved = localStorage.getItem(`craDataDraft_${year}`);
@@ -163,12 +172,23 @@ export default function Index({ progress }) {
         window.open(url, "_blank");
     };
 
+    // useEffect(() => {
+    //     if (success) {
+    //         window.location.reload(); // <-- call the function
+    //     }
+    //     props.success = null;
+    // }, [success]);
+
     useEffect(() => {
         if (success) {
-            window.location.reload(); // <-- call the function
+            toast.success(success, {
+                description: "Your CRA has been successfully submitted!",
+                duration: 3000,
+                closeButton: true,
+            });
         }
-        props.success = null;
     }, [success]);
+
 
     useEffect(() => {
         if (error) {
