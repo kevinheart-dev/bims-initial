@@ -372,6 +372,7 @@ function ExposureTable({
                                 <td key={field} className="border p-0.5">
                                     <input
                                         type="number"
+                                        min="0"
                                         className="border p-0.5 w-full text-[0.6rem] text-center"
                                         value={row[field] ?? ""}
                                         onChange={(e) =>
@@ -382,7 +383,6 @@ function ExposureTable({
                                                 e.target.value
                                             )
                                         }
-                                        min="0"
                                     />
                                 </td>
                             ))}
@@ -429,18 +429,16 @@ function ExposureTable({
 const ExposureDatabase = () => {
     const { craData, setCraData } = useContext(StepperContext);
 
-    // use craData.exposure instead of exposureTables
     const [tables, setTables] = useState(
         craData.exposure || [
             { riskType: "", purokData: [createEmptyPurokRow("1")] },
         ]
     );
 
-    // Sync local state with StepperContext
     useEffect(() => {
         setCraData((prev) => ({
             ...prev,
-            exposure: tables, // ✅ renamed to exposure
+            exposure: tables,
         }));
     }, [tables, setCraData]);
 
