@@ -6,7 +6,7 @@ import { Plus, Minus } from "lucide-react";
 import PwdTable from "./PwdTable";
 import DisasterPerPurok from "./DisasterPerPurok";
 import IllinessesTable from "./IllinessesTable";
-import { toTitleCase } from '@/utils/stringFormat';
+import { toTitleCase } from "@/utils/stringFormat";
 
 // Helper function
 const createEmptyPurokRow = (purokNum = "") => {
@@ -99,7 +99,9 @@ function ExposureTable({
                     type="text"
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm"
                     value={riskType}
-                    onChange={(e) => updateRiskType(tableId, toTitleCase(e.target.value))}
+                    onChange={(e) =>
+                        updateRiskType(tableId, toTitleCase(e.target.value))
+                    }
                     placeholder="Select or type hazard"
                 />
                 <datalist id={`hazardOptions-${tableId}`}>
@@ -111,7 +113,7 @@ function ExposureTable({
                         "Drought",
                         "Earthquake",
                         "Vehicular Incident",
-                        "Pandemic / Emerging and Re-emerging Diseases"
+                        "Pandemic / Emerging and Re-emerging Diseases",
                     ].map((hazard, i) => (
                         <option key={i} value={hazard} />
                     ))}
@@ -420,7 +422,6 @@ function ExposureTable({
             >
                 <span className="text-sm font-bold">+</span> Add Purok
             </button>
-
         </div>
     );
 }
@@ -456,16 +457,16 @@ const ExposureDatabase = () => {
             prev.map((t, idx) =>
                 idx === tableIdx
                     ? {
-                        ...t,
-                        purokData: t.purokData.map((row, rIdx) =>
-                            rIdx === purokIdx
-                                ? {
-                                    ...row,
-                                    [field]: val === "" ? "" : Number(val),
-                                }
-                                : row
-                        ),
-                    }
+                          ...t,
+                          purokData: t.purokData.map((row, rIdx) =>
+                              rIdx === purokIdx
+                                  ? {
+                                        ...row,
+                                        [field]: val === "" ? "" : Number(val),
+                                    }
+                                  : row
+                          ),
+                      }
                     : t
             )
         );
@@ -476,12 +477,14 @@ const ExposureDatabase = () => {
             prev.map((t, idx) =>
                 idx === tableIdx
                     ? {
-                        ...t,
-                        purokData: [
-                            ...t.purokData,
-                            createEmptyPurokRow((t.purokData.length + 1).toString()),
-                        ],
-                    }
+                          ...t,
+                          purokData: [
+                              ...t.purokData,
+                              createEmptyPurokRow(
+                                  (t.purokData.length + 1).toString()
+                              ),
+                          ],
+                      }
                     : t
             )
         );
@@ -492,23 +495,43 @@ const ExposureDatabase = () => {
             prev.map((t, idx) =>
                 idx === tableIdx
                     ? {
-                        ...t,
-                        purokData: t.purokData.filter(
-                            (_, rIdx) => rIdx !== purokIdx
-                        ),
-                    }
+                          ...t,
+                          purokData: t.purokData.filter(
+                              (_, rIdx) => rIdx !== purokIdx
+                          ),
+                      }
                     : t
             )
         );
     };
 
     const addTable = () => {
-        setTables((prev) => [
-            ...prev,
-            { riskType: "", purokData: [createEmptyPurokRow("1")] },
-        ]);
-    };
+        setTables((prev) => {
+            if (prev.length === 0) {
+                return [
+                    {
+                        riskType: "",
+                        purokData: [createEmptyPurokRow("1")],
+                    },
+                ];
+            }
 
+            const lastTable = prev[prev.length - 1];
+
+            // Deep clone the last table's purok data
+            const clonedPurokData = lastTable.purokData.map((row) => ({
+                ...row,
+            }));
+
+            return [
+                ...prev,
+                {
+                    riskType: lastTable.riskType || "",
+                    purokData: clonedPurokData,
+                },
+            ];
+        });
+    };
     const removeTable = (tableIdx) => {
         setTables((prev) => prev.filter((_, idx) => idx !== tableIdx));
     };
@@ -522,11 +545,9 @@ const ExposureDatabase = () => {
                 {JSON.stringify(craData, null, 2)}
             </pre> */}
 
-
             <div className="mb-4 border-2 border-purple-300 rounded-xl p-5 bg-purple-50 shadow-sm">
                 {tables.map((table, idx) => (
                     <React.Fragment key={idx}>
-
                         <ExposureTable
                             tableId={idx}
                             riskType={table.riskType}
@@ -538,7 +559,6 @@ const ExposureDatabase = () => {
                             removeTable={removeTable}
                             tableIndex={idx}
                         />
-
                     </React.Fragment>
                 ))}
             </div>
@@ -549,10 +569,10 @@ const ExposureDatabase = () => {
                     onClick={addTable}
                     className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium border border-green-500 text-green-600 rounded-md hover:bg-green-500 hover:text-white transition-colors duration-200 shadow-sm"
                 >
-                    <span className="text-sm font-bold">+</span> Add New Risk Table
+                    <span className="text-sm font-bold">+</span> Add New Risk
+                    Table
                 </button>
             </div>
-
 
             <p className="text-md font-bold">
                 3.2 Deatailed Number of Persons with Disabilities

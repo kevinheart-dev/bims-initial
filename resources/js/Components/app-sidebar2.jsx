@@ -81,6 +81,7 @@ export function AppSidebar({ auth }) {
     const fetchedRef = useRef(false);
     const defaultLogo = "/images/city-of-ilagan.png";
     const [craList, setCraList] = useState([]);
+    const [availableCra, setAvailableCra] = useState([]);
     const [craProgress, setCraProgress] = useState({});
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [recordToDelete, setRecordToDelete] = useState(null);
@@ -89,18 +90,6 @@ export function AppSidebar({ auth }) {
 
     const [pendingCount, setPendingCount] = useState(0);
     const pendingCountCacheKey = "pending-certificate-count";
-
-    const fetchCRAList = async () => {
-        try {
-            const res = await axios.get(`${APP_URL}/getCRA`);
-            const list = res.data?.data || []; // ✅ Access res.data.data
-            setCraList(list);
-        } catch (err) {
-            console.error("Failed to fetch CRA list:", err);
-        }
-    };
-
-    console.log(craList);
 
     const fetchPendingCertificateCount = async () => {
         try {
@@ -136,6 +125,16 @@ export function AppSidebar({ auth }) {
         fetchPendingCertificateCount();
     }, []);
 
+    const fetchCRAList = async () => {
+        try {
+            const res = await axios.get(`${APP_URL}/getCRA`);
+            const list = res.data?.data || []; // ✅ Access res.data.data
+            setCraList(list);
+        } catch (err) {
+            console.error("Failed to fetch CRA list:", err);
+        }
+    };
+
     useEffect(() => {
         if (
             !["cdrrmo_admin", "barangay_officer", "admin"].some((role) =>
@@ -145,6 +144,28 @@ export function AppSidebar({ auth }) {
             return;
 
         fetchCRAList();
+    }, []);
+
+    const fetchCRAAvailableList = async () => {
+        try {
+            const res = await axios.get(`${APP_URL}/getCRAList`);
+            const list = res.data?.data || []; // ✅ Access res.data.data
+            setAvailableCra(list);
+            console.log(list);
+        } catch (err) {
+            console.error("Failed to fetch CRA list:", err);
+        }
+    };
+
+    useEffect(() => {
+        if (
+            !["cdrrmo_admin", "barangay_officer", "admin"].some((role) =>
+                userRoles.includes(role)
+            )
+        )
+            return;
+
+        fetchCRAAvailableList();
     }, []);
 
     const userRoles = user.roles.map((r) => r.name);
@@ -190,7 +211,7 @@ export function AppSidebar({ auth }) {
                 const isDifferent =
                     !cachedDataWithoutTimestamp ||
                     JSON.stringify(cachedDataWithoutTimestamp) !==
-                    JSON.stringify(apiData);
+                        JSON.stringify(apiData);
 
                 if (isDifferent) {
                     // Update state
@@ -721,23 +742,9 @@ export function AppSidebar({ auth }) {
             icon: Cloudy,
             roles: ["barangay_officer", "admin"],
             url: "#",
-            submenu:
-                craList && craList.length > 0
-                    ? craList
-                        .filter(
-                            (cra) =>
-                                cra.barangay_id === barangay?.id ||
-                                cra.barangay_id === null
-                        )
-                        .map((cra) => ({
-                            title: `Submit CRA ${cra.year}`,
-                            url: `/cra/create?year=${cra.year}`,
-                            icon: FileInput,
-                            roles: ["barangay_officer", "admin"],
-                            year: cra.year,
-                            progress: cra.percentage ?? 0,
-                        }))
-                    : [
+            submenu: (() => {
+                if (!availableCra) {
+                    return [
                         {
                             title: "Loading years...",
                             url: "#",
@@ -745,7 +752,35 @@ export function AppSidebar({ auth }) {
                             roles: ["barangay_officer", "admin"],
                             progress: 0,
                         },
-                    ],
+                    ];
+                }
+
+                const filtered = availableCra.filter(
+                    (cra) =>
+                        !cra.barangay_id || cra.barangay_id === barangay?.id
+                );
+
+                if (filtered.length === 0) {
+                    return [
+                        {
+                            title: "No CRA Available",
+                            url: "#",
+                            icon: FileInput,
+                            roles: ["barangay_officer", "admin"],
+                            progress: 0,
+                        },
+                    ];
+                }
+
+                return filtered.map((cra) => ({
+                    title: `Submit CRA ${cra.year}`,
+                    url: `/cra/create?year=${cra.year}`,
+                    icon: FileInput,
+                    roles: ["barangay_officer", "admin"],
+                    year: cra.year,
+                    progress: cra.percentage ?? 0,
+                }));
+            })(),
         },
         {
             title: "CRA Settings",
@@ -959,7 +994,8 @@ export function AppSidebar({ auth }) {
                                         >
                                             <a
                                                 href={item.url || "#"}
-                                                className={`flex items-center justify-between w-full my-1 px-2 py-2 rounded-lg transition-all duration-200 ${isActive(item.url) ||
+                                                className={`flex items-center justify-between w-full my-1 px-2 py-2 rounded-lg transition-all duration-200 ${
+                                                    isActive(item.url) ||
                                                     (item.submenu &&
                                                         item.submenu.some(
                                                             (sub) =>
@@ -967,9 +1003,9 @@ export function AppSidebar({ auth }) {
                                                                     sub.url
                                                                 )
                                                         ))
-                                                    ? "text-gray-900 font-semibold"
-                                                    : "text-gray-700 hover:text-gray-900"
-                                                    }`}
+                                                        ? "text-gray-900 font-semibold"
+                                                        : "text-gray-700 hover:text-gray-900"
+                                                }`}
                                             >
                                                 <div className="flex items-center">
                                                     <item.icon className="mr-2 h-5 w-5" />
@@ -1000,21 +1036,23 @@ export function AppSidebar({ auth }) {
                                     {/* Submenu */}
                                     {item.submenu?.length > 0 && (
                                         <SidebarGroupContent
-                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${openIndex === index
-                                                ? "max-h-[1000px] opacity-100"
-                                                : "max-h-0 opacity-0"
-                                                }`}
+                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                                openIndex === index
+                                                    ? "max-h-[1000px] opacity-100"
+                                                    : "max-h-0 opacity-0"
+                                            }`}
                                         >
                                             {item.submenu?.length > 0 && (
                                                 <SidebarGroupContent
-                                                    className={`overflow-hidden transition-all duration-300 ease-in-out ${openIndex === index
-                                                        ? "max-h-[1000px] opacity-100"
-                                                        : "max-h-0 opacity-0"
-                                                        }`}
+                                                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                                        openIndex === index
+                                                            ? "max-h-[1000px] opacity-100"
+                                                            : "max-h-0 opacity-0"
+                                                    }`}
                                                 >
                                                     {/* Check if this is CRA Settings */}
                                                     {item.title ===
-                                                        "CRA Settings" ? (
+                                                    "CRA Settings" ? (
                                                         <div className="px-4 py-3">
                                                             <label
                                                                 htmlFor="cra-year"
@@ -1043,12 +1081,8 @@ export function AppSidebar({ auth }) {
                                                                     Year --
                                                                 </option>
 
-                                                                <option value="2024">
-                                                                    2024
-                                                                </option>
-
                                                                 {craList &&
-                                                                    craList.length >
+                                                                craList.length >
                                                                     0 ? (
                                                                     [
                                                                         ...new Set(
@@ -1110,7 +1144,7 @@ export function AppSidebar({ auth }) {
                                                                     Years
                                                                 </h3>
                                                                 {craList &&
-                                                                    craList.length >
+                                                                craList.length >
                                                                     0 ? (
                                                                     [
                                                                         ...new Set(
@@ -1159,7 +1193,7 @@ export function AppSidebar({ auth }) {
                                                             </div>
                                                         </div>
                                                     ) : item.title ===
-                                                        "Community Risk Assessment" ? (
+                                                      "Community Risk Assessment" ? (
                                                         <div className="px-4 py-2">
                                                             {item.submenu
                                                                 .filter((sub) =>
@@ -1172,67 +1206,74 @@ export function AppSidebar({ auth }) {
                                                                             )
                                                                     )
                                                                 )
-                                                                .map((sub, index) => {
-                                                                    const percentage =
-                                                                        sub.progress ??
-                                                                        0;
+                                                                .map(
+                                                                    (
+                                                                        sub,
+                                                                        index
+                                                                    ) => {
+                                                                        const percentage =
+                                                                            sub.progress ??
+                                                                            0;
 
-                                                                    return (
-                                                                        <div
-                                                                            key={`${sub.year}-${sub.title}-${index}`}
-                                                                            className="mb-3"
-                                                                        >
-                                                                            <SidebarMenuItem>
-                                                                                <SidebarMenuButton
-                                                                                    asChild
-                                                                                >
-                                                                                    <a
-                                                                                        href={
-                                                                                            sub.url
-                                                                                        }
-                                                                                        className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${isActive(
-                                                                                            sub.url
-                                                                                        )
-                                                                                            ? "bg-gray-200 text-gray-900 font-semibold"
-                                                                                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                                                                                            }`}
+                                                                        return (
+                                                                            <div
+                                                                                key={`${sub.year}-${sub.title}-${index}`}
+                                                                                className="mb-3"
+                                                                            >
+                                                                                <SidebarMenuItem>
+                                                                                    <SidebarMenuButton
+                                                                                        asChild
                                                                                     >
-                                                                                        <sub.icon className="mr-2 h-4 w-4" />
-                                                                                        <span>
-                                                                                            {
-                                                                                                sub.title
+                                                                                        <a
+                                                                                            href={
+                                                                                                sub.url
                                                                                             }
-                                                                                        </span>
-                                                                                    </a>
-                                                                                </SidebarMenuButton>
-                                                                            </SidebarMenuItem>
-
-                                                                            {/* Progress bar */}
-                                                                            <div className="ml-10 mr-2">
-                                                                                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                                                                                    <div
-                                                                                        className={`h-2 rounded-full transition-all duration-500 ${percentage >=
-                                                                                            100
-                                                                                            ? "bg-green-500"
-                                                                                            : "bg-blue-500"
+                                                                                            className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${
+                                                                                                isActive(
+                                                                                                    sub.url
+                                                                                                )
+                                                                                                    ? "bg-gray-200 text-gray-900 font-semibold"
+                                                                                                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                                                                                             }`}
-                                                                                        style={{
-                                                                                            width: `${percentage}%`,
-                                                                                        }}
-                                                                                    ></div>
-                                                                                </div>
-                                                                                <p className="text-xs text-gray-500 mt-1 text-right">
-                                                                                    {
-                                                                                        percentage
-                                                                                    }
+                                                                                        >
+                                                                                            <sub.icon className="mr-2 h-4 w-4" />
+                                                                                            <span>
+                                                                                                {
+                                                                                                    sub.title
+                                                                                                }
+                                                                                            </span>
+                                                                                        </a>
+                                                                                    </SidebarMenuButton>
+                                                                                </SidebarMenuItem>
 
-                                                                                    %
-                                                                                    Complete
-                                                                                </p>
+                                                                                {/* Progress bar */}
+                                                                                <div className="ml-10 mr-2">
+                                                                                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                                                                        <div
+                                                                                            className={`h-2 rounded-full transition-all duration-500 ${
+                                                                                                percentage >=
+                                                                                                100
+                                                                                                    ? "bg-green-500"
+                                                                                                    : "bg-blue-500"
+                                                                                            }`}
+                                                                                            style={{
+                                                                                                width: `${percentage}%`,
+                                                                                            }}
+                                                                                        ></div>
+                                                                                    </div>
+                                                                                    <p className="text-xs text-gray-500 mt-1 text-right">
+                                                                                        {
+                                                                                            percentage
+                                                                                        }
+
+                                                                                        %
+                                                                                        Complete
+                                                                                    </p>
+                                                                                </div>
                                                                             </div>
-                                                                        </div>
-                                                                    );
-                                                                })}
+                                                                        );
+                                                                    }
+                                                                )}
                                                         </div>
                                                     ) : (
                                                         // 🔸 Default submenu rendering
@@ -1258,12 +1299,13 @@ export function AppSidebar({ auth }) {
                                                                             href={
                                                                                 sub.url
                                                                             }
-                                                                            className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${isActive(
-                                                                                sub.url
-                                                                            )
-                                                                                ? "bg-gray-200 text-gray-900 font-semibold"
-                                                                                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                                                                                }`}
+                                                                            className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${
+                                                                                isActive(
+                                                                                    sub.url
+                                                                                )
+                                                                                    ? "bg-gray-200 text-gray-900 font-semibold"
+                                                                                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                                                            }`}
                                                                         >
                                                                             <sub.icon className="mr-2 h-4 w-4" />
                                                                             <span>

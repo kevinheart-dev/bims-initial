@@ -37,7 +37,7 @@ class CRADataController extends Controller
 
             foreach ($cras as $cra) {
                 // 🔹 Get all progress entries for this CRA
-                $progressEntries = \App\Models\CRAProgress::where('cra_id', $cra->id)->get();
+                $progressEntries = CRAProgress::where('cra_id', $cra->id)->get();
 
                 if ($progressEntries->isNotEmpty()) {
                     foreach ($progressEntries as $progress) {
@@ -71,6 +71,39 @@ class CRADataController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error fetching CRA list: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getCRAList(Request $request)
+    {
+        try {
+            $barangayId = auth()->user()->barangay_id;
+
+            $cras = CommunityRiskAssessment::select('id', 'year')
+                ->with(['progress' => function ($query) use ($barangayId) {
+                    $query->where('barangay_id', $barangayId)
+                        ->select('cra_id', 'barangay_id', 'percentage'); // include barangay_id here
+                }])
+                ->orderBy('year', 'asc')
+                ->get()
+                ->map(function ($cra) {
+                    return [
+                        'id' => $cra->id,
+                        'year' => $cra->year,
+                        'percentage' => $cra->progress->first()->percentage ?? 0,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => $cras,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching CRA list: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -1271,14 +1304,14 @@ class CRADataController extends Controller
                         ];
                     });
 
-                    $total = $group->sum(fn($r) => $numericValue($r->value));
+                    // $total = $group->sum(fn($r) => $numericValue($r->value));
 
-                    $damages->push([
-                        'damage_type' => 'Total Damage Value',
-                        'category' => null,
-                        'value' => $total,
-                        'source' => null,
-                    ]);
+                    // $damages->push([
+                    //     'damage_type' => 'Total Damage Value',
+                    //     'category' => null,
+                    //     'value' => $total,
+                    //     'source' => null,
+                    // ]);
 
                     return [
                         'disaster_name' => $disasterName,
@@ -1316,18 +1349,18 @@ class CRADataController extends Controller
                                 ];
                             });
 
-                            $total = $rows->sum(fn($r) => $numericValue($r->value));
+                            // $total = $rows->sum(fn($r) => $numericValue($r->value));
 
-                            $damages->push([
-                                'damage_type' => 'Total Damage Value',
-                                'category' => null,
-                                'description' => null,
-                                'value' => $total,
-                                'source' => null,
-                                'disaster_id' => $rows->first()->disaster_id,
-                                'disaster_name' => $disasterName,
-                                'year' => $rows->first()->disaster->year,
-                            ]);
+                            // $damages->push([
+                            //     'damage_type' => 'Total Damage Value',
+                            //     'category' => null,
+                            //     'description' => null,
+                            //     'value' => $total,
+                            //     'source' => null,
+                            //     'disaster_id' => $rows->first()->disaster_id,
+                            //     'disaster_name' => $disasterName,
+                            //     'year' => $rows->first()->disaster->year,
+                            // ]);
 
                             return [
                                 'disaster_name' => $disasterName,
@@ -1336,13 +1369,12 @@ class CRADataController extends Controller
                         })
                         ->values();
 
-                    $total = $group->sum(fn($r) => $numericValue($r->value));
+                    // $total = $group->sum(fn($r) => $numericValue($r->value));
 
                     return [
                         'number' => null,
                         'barangay_name' => $barangayName,
                         'disasters' => $disasters,
-                        'total' => $total,
                     ];
                 })
                 ->sortByDesc('total')

@@ -22,7 +22,7 @@ return new class extends Migration
                 ->onDelete('cascade');
 
             $table->string('description', 255)->nullable();
-            $table->integer('value')->default(0);
+            $table->string('value', 255);
             $table->string('source', 150)->nullable();
             $table->timestamps();
 

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('female_with_disability')->default(0);
             $table->integer('lgbtq_without_disability')->default(0);
             $table->integer('lgbtq_with_disability')->default(0);
-             $table->timestamps();
+            $table->timestamps();
             $table->unique(['barangay_id', 'livelihood_type', 'cra_id'], 'cra_livelihood_unique');
             $table->foreign('barangay_id')->references('id')->on('barangays')->onDelete('cascade');
         });

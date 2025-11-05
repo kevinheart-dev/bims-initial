@@ -788,13 +788,15 @@ class CRAController extends Controller
                 ->with('success', 'Community Risk Assessment (CRA) saved successfully!');
         } catch (\Throwable $e) {
             DB::rollBack();
-            dd('CRAController error: ' . $e->getMessage());
+
             // Log the error
             \Log::error('CRAController error: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
+            dd('CRAController error: ' . $e->getMessage());
 
             // Optional: return a JSON response or redirect with an error message
             return back()->withErrors([
@@ -1793,7 +1795,6 @@ class CRAController extends Controller
             );
         }
     }
-
     private function saveLivelihoodEvacuation($brgy_id, $data, $cra)
     {
         // --- Evacuation Livelihood ---
@@ -2003,7 +2004,6 @@ class CRAController extends Controller
         $brgy_id = auth()->user()->barangay_id;
         return response()->json($this->brgyDataCollectionInternal($brgy_id));
     }
-
     private function brgyDataCollectionInternal($brgy_id)
     {
         $barangay = Barangay::with([

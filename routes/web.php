@@ -73,6 +73,7 @@ Route::get('/request-certificate-documents/{id}', [UnauthenticatedIssuanceContro
 Route::get('/request-certificate-placeholders/{id}', [DocumentController::class, 'fetchPlaceholders'])->name('request.placeholders');
 Route::post('/request-certificate/store', [UnauthenticatedIssuanceController::class, 'store'])->name('request.storerequest');
 Route::get('/getCRA', [CRADataController::class, 'getCRA'])->name('getcra');
+Route::get('/getCRAList', [CRADataController::class, 'getCRAList'])->name('getcralist');
 Route::get('/craProgress', [CRAController::class, 'craProgress'])->name('craProgress');
 Route::patch('/user/{user}/toggle-account', [UserController::class, 'toggleAccount'])->name('user.toggle');
 

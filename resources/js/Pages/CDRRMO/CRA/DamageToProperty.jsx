@@ -41,17 +41,31 @@ export default function DamageToProperty({
     const toNumber = (v) => {
         if (!v) return 0;
 
-        // Convert to string
-        const str = String(v);
+        let str = String(v).trim();
 
-        // Replace all non-digit/dot characters with spaces (this will handle ; , () etc.)
-        const cleanStr = str.replace(/[^0-9.]+/g, " ");
+        // Handle accounting negative (e.g., "(200,000)")
+        const isNegative = /^\(.*\)$/.test(str);
+        if (isNegative) {
+            str = str.replace(/[()]/g, "");
+        }
 
-        // Match all numbers (integers or decimals)
-        const matches = cleanStr.match(/\d+(\.\d+)?/g);
+        // Remove currency symbols + spaces (₱, PHP, P, etc)
+        str = str.replace(/(?:php|₱|p)/gi, "");
 
-        // Sum them
-        return matches ? matches.reduce((sum, n) => sum + parseFloat(n), 0) : 0;
+        // Remove commas
+        str = str.replace(/,/g, "");
+
+        // If contains 'k' or 'K' convert (200k -> 200000)
+        if (/k$/i.test(str)) {
+            return parseFloat(str) * 1000 * (isNegative ? -1 : 1);
+        }
+
+        // Keep only numbers and decimal
+        const matches = str.match(/\d+(\.\d+)?/g);
+        if (!matches) return 0;
+
+        const total = matches.reduce((sum, num) => sum + parseFloat(num), 0);
+        return isNegative ? -total : total;
     };
 
     const allColumns = [
