@@ -168,7 +168,8 @@ export default function Dashboard({
     ];
 
     // Generate hazard cards
-    const hazardCards = hazards.map((hazard) => ({
+    const hazardCards = hazards.map((hazard, index) => ({
+        index: index,
         title: `${hazard} Disaster Risk Summary`,
         icon: <Flame className="w-6 h-6 text-orange-500" />,
         routeName: `cdrrmo_admin/cra/population-exposure-summary/pdf?hazard=${encodeURIComponent(
@@ -369,7 +370,7 @@ export default function Dashboard({
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                                         {hazardCards.map((item) => (
                                             <div
-                                                key={item.title}
+                                                key={`${item.index}-${item.title}`}
                                                 className="flex flex-col justify-between p-5 rounded-xl shadow-md hover:shadow-xl transition bg-white border border-gray-200 hover:scale-[1.02]"
                                             >
                                                 <div className="flex items-center space-x-4 mb-3">

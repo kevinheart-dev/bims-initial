@@ -58,7 +58,7 @@ class CRAStoreRequest extends FormRequest
             'infrastructure.*.category'        => ['nullable', 'string'],
             'infrastructure.*.rows'            => ['nullable', 'array', 'min:1'],
             'infrastructure.*.rows.*.type'     => ['nullable', 'string'],
-            'infrastructure.*.rows.*.households'=> ['nullable', 'integer', 'min:0'],
+            'infrastructure.*.rows.*.households' => ['nullable', 'integer', 'min:0'],
 
             // House Build
             'houses'                         => ['nullable', 'array', 'min:1'],
@@ -75,7 +75,7 @@ class CRAStoreRequest extends FormRequest
             'buildings.*.category'      => ['nullable', 'string'],
             'buildings.*.rows'          => ['nullable', 'array', 'min:1'],
             'buildings.*.rows.*.type'   => ['nullable', 'string'],
-            'buildings.*.rows.*.households'=> ['nullable', 'integer', 'min:0'],
+            'buildings.*.rows.*.households' => ['nullable', 'integer', 'min:0'],
 
             // Facilities
             'facilities'                         => ['nullable', 'array', 'min:1'],
@@ -159,13 +159,13 @@ class CRAStoreRequest extends FormRequest
             'calamities.*.lifelines.3.category' => ['nullable', 'string'],
             'calamities.*.lifelines.4.category' => ['nullable', 'string'],
 
-            'calamities.*.lifelines.*.descriptions'                => ['nullable', 'array', 'min:1'],
+            'calamities.*.lifelines.*.descriptions'                => ['nullable', 'array'],
             'calamities.*.lifelines.*.descriptions.*.description'  => ['nullable', 'string'],
             'calamities.*.lifelines.*.descriptions.*.value'        => ['nullable', 'string'], // descriptive text allowed
             'calamities.*.lifelines.*.descriptions.*.source'       => ['nullable', 'string'],
 
             // Hazards
-            'hazards'                           => ['nullable', 'array', 'min:1'],
+            'hazards'                           => ['nullable', 'array'],
             'hazards.*.hazard'                  => ['nullable', 'string'],
             'hazards.*.probability'             => ['nullable', 'integer', 'min:0'],
             'hazards.*.effect'                  => ['nullable', 'integer', 'min:0'],
@@ -173,7 +173,7 @@ class CRAStoreRequest extends FormRequest
             'hazards.*.basis'                   => ['nullable', 'string'],
 
             // Risks
-            'risks'                             => ['nullable', 'array', 'min:1'],
+            'risks'                             => ['nullable', 'array'],
             'risks.*.hazard'                    => ['nullable', 'string'],
             'risks.*.people'                     => ['nullable', 'integer', 'min:0'],
             'risks.*.properties'                 => ['nullable', 'string'],
@@ -182,7 +182,7 @@ class CRAStoreRequest extends FormRequest
             'risks.*.livelihood'                 => ['nullable', 'string'],
 
             // Vulnerabilities
-            'vulnerabilities'                    => ['nullable', 'array', 'min:1'],
+            'vulnerabilities'                    => ['nullable', 'array'],
             'vulnerabilities.*.hazard'           => ['nullable', 'string'],
             'vulnerabilities.*.people'           => ['nullable', 'integer', 'min:0'],
             'vulnerabilities.*.properties'       => ['nullable', 'string'],
@@ -191,23 +191,23 @@ class CRAStoreRequest extends FormRequest
             'vulnerabilities.*.livelihood'       => ['nullable', 'string'],
 
             // Disaster per Purok
-            'disaster_per_purok'                  => ['nullable', 'array', 'min:1'],
+            'disaster_per_purok'                  => ['nullable', 'array'],
             'disaster_per_purok.*.type'           => ['nullable', 'string'],
-            'disaster_per_purok.*.rows'           => ['nullable', 'array', 'min:1'],
+            'disaster_per_purok.*.rows'           => ['nullable', 'array'],
             'disaster_per_purok.*.rows.*.purok'   => ['nullable', 'integer'],
-            'disaster_per_purok.*.rows.*.lowFamilies'    => ['nullable', 'integer', 'min:0'],
-            'disaster_per_purok.*.rows.*.lowIndividuals' => ['nullable', 'integer', 'min:0'],
-            'disaster_per_purok.*.rows.*.mediumFamilies' => ['nullable', 'integer', 'min:0'],
-            'disaster_per_purok.*.rows.*.mediumIndividuals'=> ['nullable', 'integer', 'min:0'],
-            'disaster_per_purok.*.rows.*.highFamilies'   => ['nullable', 'integer', 'min:0'],
-            'disaster_per_purok.*.rows.*.highIndividuals'=> ['nullable', 'integer', 'min:0'],
+            'disaster_per_purok.*.rows.*.lowFamilies'    => ['nullable', 'integer'],
+            'disaster_per_purok.*.rows.*.lowIndividuals' => ['nullable', 'integer'],
+            'disaster_per_purok.*.rows.*.mediumFamilies' => ['nullable', 'integer'],
+            'disaster_per_purok.*.rows.*.mediumIndividuals' => ['nullable', 'integer'],
+            'disaster_per_purok.*.rows.*.highFamilies'   => ['nullable', 'integer'],
+            'disaster_per_purok.*.rows.*.highIndividuals' => ['nullable', 'integer'],
 
             // Disaster Inventory
-            'disaster_inventory'                               => ['nullable', 'array', 'min:1'],
+            'disaster_inventory'                               => ['nullable', 'array'],
             'disaster_inventory.*.hazard'                      => ['nullable', 'string'],
-            'disaster_inventory.*.categories'                  => ['nullable', 'array', 'min:1'],
+            'disaster_inventory.*.categories'                  => ['nullable', 'array'],
             'disaster_inventory.*.categories.*.type'           => ['nullable', 'string'],
-            'disaster_inventory.*.categories.*.rows'           => ['nullable', 'array', 'min:1'],
+            'disaster_inventory.*.categories.*.rows'           => ['nullable', 'array'],
             'disaster_inventory.*.categories.*.rows.*.item'    => ['nullable', 'string'],
 
             // ✅ totals come as string but numeric → allow both
@@ -216,16 +216,16 @@ class CRAStoreRequest extends FormRequest
             // ✅ percents include "%" → treat as string
             'disaster_inventory.*.categories.*.rows.*.percent' => ['nullable', 'string'],
 
-            'disaster_inventory.*.categories.*.rows.*.location'=> ['nullable', 'string'],
+            'disaster_inventory.*.categories.*.rows.*.location' => ['nullable', 'string'],
 
             // Population Exposure
-            'exposure'                            => ['nullable', 'array', 'min:1'],
+            'exposure'                            => ['nullable', 'array'],
             'exposure.*.riskType'                 => ['nullable', 'string'],
-            'exposure.*.purokData'                => ['nullable', 'array', 'min:1'],
+            'exposure.*.purokData'                => ['nullable', 'array'],
             'exposure.*.purokData.*.purok'       => ['nullable', 'integer'],
             'exposure.*.purokData.*.families'    => ['nullable', 'integer', 'min:0'],
-            'exposure.*.purokData.*.individualsM'=> ['nullable', 'integer', 'min:0'],
-            'exposure.*.purokData.*.individualsF'=> ['nullable', 'integer', 'min:0'],
+            'exposure.*.purokData.*.individualsM' => ['nullable', 'integer', 'min:0'],
+            'exposure.*.purokData.*.individualsF' => ['nullable', 'integer', 'min:0'],
             'exposure.*.purokData.*.lgbtq'       => ['nullable', 'integer', 'min:0'],
             'exposure.*.purokData.*.age0_6M'     => ['nullable', 'integer', 'min:0'],
             'exposure.*.purokData.*.age0_6F'     => ['nullable', 'integer', 'min:0'],
@@ -245,10 +245,10 @@ class CRAStoreRequest extends FormRequest
             'exposure.*.purokData.*.pwdF'        => ['nullable', 'integer', 'min:0'],
             'exposure.*.purokData.*.diseasesM'   => ['nullable', 'integer', 'min:0'],
             'exposure.*.purokData.*.diseasesF'   => ['nullable', 'integer', 'min:0'],
-            'exposure.*.purokData.*.pregnantWomen'=> ['nullable', 'integer', 'min:0'],
+            'exposure.*.purokData.*.pregnantWomen' => ['nullable', 'integer', 'min:0'],
 
             // PWD Statistics
-            'pwd'                              => ['nullable', 'array', 'min:1'],
+            'pwd'                              => ['nullable', 'array'],
             'pwd.*.type'                        => ['nullable', 'string'],
             'pwd.*.age0_6M'                     => ['nullable', 'integer', 'min:0'],
             'pwd.*.age0_6F'                     => ['nullable', 'integer', 'min:0'],
@@ -272,7 +272,7 @@ class CRAStoreRequest extends FormRequest
             // Family at Risk
 
             'disaster_per_purok.*.purok'             => ['nullable', 'numeric', 'min:0'],
-            'disaster_per_purok.*.rowsValue'         => ['nullable', 'array', 'min:1'],
+            'disaster_per_purok.*.rowsValue'         => ['nullable', 'array'],
             'disaster_per_purok.*.rowsValue.*.value' => ['nullable', 'string'],
             'disaster_per_purok.*.rowsValue.*.count' => ['nullable', 'numeric', 'min:0'],
 
@@ -283,7 +283,7 @@ class CRAStoreRequest extends FormRequest
             'illnesses.*.adults'               => ['nullable', 'integer', 'min:0'],
 
             // Evacuation Centers
-            'evacuation_list'                    => ['nullable', 'array', 'min:1'],
+            'evacuation_list'                    => ['nullable', 'array'],
             'evacuation_list.*.name'             => ['nullable', 'string'],
             'evacuation_list.*.families'         => ['nullable', 'numeric', 'min:0'],
             'evacuation_list.*.individuals'      => ['nullable', 'numeric', 'min:0'],
@@ -295,7 +295,7 @@ class CRAStoreRequest extends FormRequest
             'evacuation_list.*.mouNo'            => ['nullable', 'boolean'],
 
             // Evacuation Inventory
-            'evacuation_center_inventory'                      => ['nullable', 'array', 'min:1'],
+            'evacuation_center_inventory'                      => ['nullable', 'array'],
             'evacuation_center_inventory.*.totalFamilies'     => ['nullable', 'integer', 'min:0'],
             'evacuation_center_inventory.*.totalIndividuals'  => ['nullable', 'integer', 'min:0'],
             'evacuation_center_inventory.*.populationAtRiskFamilies'     => ['nullable', 'integer', 'min:0'],
@@ -311,10 +311,10 @@ class CRAStoreRequest extends FormRequest
             'evacuation_center_inventory.*.remarks'                    => ['nullable', 'string'],
 
             // Affected Areas / Places
-            'affected_areas'                  => ['nullable', 'array', 'min:1'],
+            'affected_areas'                  => ['nullable', 'array'],
             'affected_areas.*.name'           => ['nullable', 'string'],
-            'affected_areas.*.rows'           => ['nullable', 'array', 'min:1'],
-            'affected_areas.*.rows.*.purok'  => ['nullable', 'integer', 'min:1'],
+            'affected_areas.*.rows'           => ['nullable', 'array'],
+            'affected_areas.*.rows.*.purok'  => ['nullable', 'integer', 'min:0'],
             'affected_areas.*.rows.*.riskLevel'             => ['nullable', 'string', 'in:Low,Medium,High'],
             'affected_areas.*.rows.*.totalFamilies'        => ['nullable', 'integer', 'min:0'],
             'affected_areas.*.rows.*.totalIndividuals'     => ['nullable', 'integer', 'min:0'],
@@ -323,20 +323,20 @@ class CRAStoreRequest extends FormRequest
             'affected_areas.*.rows.*.safeEvacuationArea'   => ['nullable', 'string'],
 
             // Livelihoods at Evacuation Sites
-            'livelihood_evacuation'                 => ['nullable', 'array', 'min:1'],
+            'livelihood_evacuation'                 => ['nullable', 'array'],
             'livelihood_evacuation.*.type'          => ['nullable', 'string'],
             'livelihood_evacuation.*.evacuation'    => ['nullable', 'string'],
             'livelihood_evacuation.*.origin'        => ['nullable', 'string'],
             'livelihood_evacuation.*.items'         => ['nullable', 'string'],
 
             // Food Inventory / Prepositioned Items
-            'food_inventory'                         => ['nullable', 'array', 'min:1'],
+            'food_inventory'                         => ['nullable', 'array'],
             'food_inventory.*.item'                  => ['nullable', 'string'],
             'food_inventory.*.quantity'              => ['nullable', 'string'],
             'food_inventory.*.remarks'               => ['nullable', 'string'],
 
             // Relief Goods Distribution
-            'relief_goods'                              => ['nullable', 'array', 'min:1'],
+            'relief_goods'                              => ['nullable', 'array'],
             'relief_goods.*.evacuationCenter'          => ['nullable', 'string'],
             'relief_goods.*.address'                    => ['nullable', 'string'],
             'relief_goods.*.typeOfGoods'               => ['nullable', 'string'], // multiline string
@@ -345,13 +345,13 @@ class CRAStoreRequest extends FormRequest
             'relief_goods.*.beneficiaries'            => ['nullable', 'string'],
 
             // Relief Distribution Process
-            'distribution_process'                      => ['nullable', 'array', 'min:1'],
+            'distribution_process'                      => ['nullable', 'array'],
             'distribution_process.*.process'           => ['nullable', 'string'],
             'distribution_process.*.origin'            => ['nullable', 'string'],
             'distribution_process.*.remarks'           => ['nullable', 'string'],
 
             // BDRRMC Trainings
-            'trainings_inventory' => ['nullable', 'array', 'min:1'],
+            'trainings_inventory' => ['nullable', 'array'],
             'trainings_inventory.*.title' => ['nullable', 'string', 'max:255'],
             'trainings_inventory.*.applies' => ['nullable', 'in:yes,no'],
             'trainings_inventory.*.duration' => ['nullable', 'string', 'max:255'],
@@ -361,13 +361,13 @@ class CRAStoreRequest extends FormRequest
             'trainings_inventory.*.names' => ['nullable', 'string'],
 
             // BDRRMC Directory
-            'bdrrmc_directory' => ['nullable', 'array', 'min:1'],
+            'bdrrmc_directory' => ['nullable', 'array'],
             'bdrrmc_directory.*.designation' => ['nullable', 'string', 'max:255'],
             'bdrrmc_directory.*.name' => ['nullable', 'string', 'max:255'],
             'bdrrmc_directory.*.contact' => ['nullable', 'string', 'max:50'],
 
             // Equipment Inventory
-            'equipment_inventory' => ['nullable', 'array', 'min:1'],
+            'equipment_inventory' => ['nullable', 'array'],
             'equipment_inventory.*.item' => ['nullable', 'string', 'max:255'],
             'equipment_inventory.*.status' => ['nullable', 'in:yes,no,checked,cross'],
             'equipment_inventory.*.quantity' => ['nullable', 'string'],
@@ -375,7 +375,7 @@ class CRAStoreRequest extends FormRequest
             'equipment_inventory.*.remarks' => ['nullable', 'string'],
 
             // Evacuation Plans
-            'evacuation_plan' => ['nullable', 'array', 'min:1'],
+            'evacuation_plan' => ['nullable', 'array'],
             'evacuation_plan.*.task' => ['nullable', 'string'],
             'evacuation_plan.*.responsible' => ['nullable', 'string', 'max:255'],
             'evacuation_plan.*.remarks' => ['nullable', 'string'],
@@ -424,7 +424,7 @@ class CRAStoreRequest extends FormRequest
             'infrastructure'                 => 'household services',
             'infrastructure.*.category'      => 'service category',
             'infrastructure.*.rows.*.type'   => 'service type',
-            'infrastructure.*.rows.*.households'=> 'household count',
+            'infrastructure.*.rows.*.households' => 'household count',
 
             // ===========================
             // Houses
@@ -456,7 +456,7 @@ class CRAStoreRequest extends FormRequest
             'facilities.*.rows.*.type'         => 'facility type',
             'facilities.*.rows.*.quantity'     => 'facility quantity',
             'facilities.*.rows.*.length'       => 'facility length',
-            'facilities.*.rows.*.maintained_by'=> 'maintained by',
+            'facilities.*.rows.*.maintained_by' => 'maintained by',
 
             // ===========================
             // Institutions
@@ -479,7 +479,7 @@ class CRAStoreRequest extends FormRequest
             'human_resources.*.rows.*.type'    => 'HR type',
             'human_resources.*.rows.*.male_no_dis'  => 'male without disability',
             'human_resources.*.rows.*.male_dis'     => 'male with disability',
-            'human_resources.*.rows.*.female_no_dis'=> 'female without disability',
+            'human_resources.*.rows.*.female_no_dis' => 'female without disability',
             'human_resources.*.rows.*.female_dis'   => 'female with disability',
             'human_resources.*.rows.*.lgbtq_no_dis' => 'LGBTQ without disability',
             'human_resources.*.rows.*.lgbtq_dis'    => 'LGBTQ with disability',
@@ -506,18 +506,18 @@ class CRAStoreRequest extends FormRequest
 
             // Structure damages
             'calamities.*.structures.*.type'               => 'structure type',
-            'calamities.*.structures.*.descriptions.*.label'=> 'structure description',
-            'calamities.*.structures.*.descriptions.*.value'=> 'structure value',
+            'calamities.*.structures.*.descriptions.*.label' => 'structure description',
+            'calamities.*.structures.*.descriptions.*.value' => 'structure value',
 
             // Agriculture damages
             'calamities.*.agriculture.*.type'              => 'agriculture type',
-            'calamities.*.agriculture.*.descriptions.*.label'=> 'agriculture description',
-            'calamities.*.agriculture.*.descriptions.*.value'=> 'agriculture value',
+            'calamities.*.agriculture.*.descriptions.*.label' => 'agriculture description',
+            'calamities.*.agriculture.*.descriptions.*.value' => 'agriculture value',
 
             // Lifelines
             'calamities.*.lifelines.*.category'            => 'lifeline category',
-            'calamities.*.lifelines.*.descriptions.*.label'=> 'lifeline description',
-            'calamities.*.lifelines.*.descriptions.*.value'=> 'lifeline value',
+            'calamities.*.lifelines.*.descriptions.*.label' => 'lifeline description',
+            'calamities.*.lifelines.*.descriptions.*.value' => 'lifeline value',
 
             // ===========================
             // Hazards, Risks, Vulnerabilities
@@ -534,7 +534,7 @@ class CRAStoreRequest extends FormRequest
             'trainings_inventory.*.duration'    => 'training duration',
             'trainings_inventory.*.agency'      => 'training agency',
             'trainings_inventory.*.dates'       => 'training dates',
-            'trainings_inventory.*.participants'=> 'training participants',
+            'trainings_inventory.*.participants' => 'training participants',
             'trainings_inventory.*.names'       => 'participant names',
 
             // ===========================
@@ -585,8 +585,8 @@ class CRAStoreRequest extends FormRequest
             'disaster_inventory.*.categories.*.category'     => 'disaster inventory category',
             'disaster_inventory.*.categories.*.rows.*.item'  => 'disaster inventory item',
             'disaster_inventory.*.categories.*.rows.*.total' => 'disaster inventory total',
-            'disaster_inventory.*.categories.*.rows.*.percent'=> 'disaster inventory percent',
-            'disaster_inventory.*.categories.*.rows.*.location'=> 'disaster inventory location',
+            'disaster_inventory.*.categories.*.rows.*.percent' => 'disaster inventory percent',
+            'disaster_inventory.*.categories.*.rows.*.location' => 'disaster inventory location',
 
             // ===========================
             // Disaster Per Purok

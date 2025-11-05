@@ -4,13 +4,41 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\{
-    Barangay, Purok, Street, Resident, User, BarangayOfficialTerm, BarangayOfficial,
-    Household, Livestock, HouseholdToilet, HouseholdElectricitySource, HouseholdWasteManagement,
-    HouseholdWaterSource, Family, Occupation, EducationalHistory, ResidentVoterInformation,
-    SocialWelfareProfile, SeniorCitizen, MedicalInformation, Disability, ResidentMedicalCondition,
-    ResidentMedication, ResidentVaccination, Allergy, PregnancyRecords, ChildHealthMonitoringRecord,
-    Deceased, BlotterReport, CaseParticipant, Summon, SummonTake, SummonParticipantAttendance,
-    BodiesOfWater, BodiesOfLand
+    Barangay,
+    Purok,
+    Street,
+    Resident,
+    User,
+    BarangayOfficialTerm,
+    BarangayOfficial,
+    Household,
+    Livestock,
+    HouseholdToilet,
+    HouseholdElectricitySource,
+    HouseholdWasteManagement,
+    HouseholdWaterSource,
+    Family,
+    Occupation,
+    EducationalHistory,
+    ResidentVoterInformation,
+    SocialWelfareProfile,
+    SeniorCitizen,
+    MedicalInformation,
+    Disability,
+    ResidentMedicalCondition,
+    ResidentMedication,
+    ResidentVaccination,
+    Allergy,
+    PregnancyRecords,
+    ChildHealthMonitoringRecord,
+    Deceased,
+    BlotterReport,
+    CaseParticipant,
+    Summon,
+    SummonTake,
+    SummonParticipantAttendance,
+    BodiesOfWater,
+    BodiesOfLand
 };
 use Illuminate\Support\Facades\Hash;
 
@@ -69,7 +97,7 @@ class BarangayDataSeeder extends Seeder
         ];
 
         // Seed ONLY one barangay for testing
-        $barangays = Barangay::take(1)->get();
+        $barangays = Barangay::take(5)->get();
         //$barangays = Barangay::all();
         foreach ($barangays as $barangay) {
             /**
@@ -80,7 +108,7 @@ class BarangayDataSeeder extends Seeder
                 'resident_id' => $resident->id,
                 'barangay_id' => $barangay->id,
                 'username' => $barangay->barangay_name . ' Barangay Officer',
-                'email' => 'barangayofficer'.$barangay->id.'@example.com',
+                'email' => 'barangayofficer' . $barangay->id . '@example.com',
                 'password' => Hash::make('admin123'),
                 'email_verified_at' => now(),
                 'role' => $barangayOfficerRole,
@@ -164,7 +192,8 @@ class BarangayDataSeeder extends Seeder
             Resident::where('barangay_id', $barangay->id)
                 ->orderBy('household_id')
                 ->chunkById(100, function ($group) {
-                    $group->groupBy('household_id')->each(fn($g) =>
+                    $group->groupBy('household_id')->each(
+                        fn($g) =>
                         $g->first()->update(['is_household_head' => 1, 'is_family_head' => 1])
                     );
                 });
@@ -176,8 +205,8 @@ class BarangayDataSeeder extends Seeder
                 $user = User::factory()->create([
                     'barangay_id' => $barangay->id,
                     'resident_id' => $res->id,
-                    'username' => 'Sample Resident '.$i,
-                    'email' => 'user'.$barangay->id.'_'.($i + 1).'@example.com',
+                    'username' => 'Sample Resident ' . $i,
+                    'email' => 'user' . $barangay->id . '_' . ($i + 1) . '@example.com',
                     'password' => Hash::make('user123'),
                     'email_verified_at' => now(),
                     'role' => $residentRole,
@@ -204,11 +233,14 @@ class BarangayDataSeeder extends Seeder
 
                         $status = $date > now()
                             ? fake()->randomElement(['scheduled', 'cancelled'])
-                            : fake()->randomElement(['completed','adjourned','no_show']);
+                            : fake()->randomElement(['completed', 'adjourned', 'no_show']);
 
                         $remarks = fake()->optional()->randomElement([
-                            'Initial summons issued', 'Case still under mediation',
-                            'Escalated to higher authority', 'Case resolved', 'Dismissed'
+                            'Initial summons issued',
+                            'Case still under mediation',
+                            'Escalated to higher authority',
+                            'Case resolved',
+                            'Dismissed'
                         ]);
 
                         $take = SummonTake::factory()->create([
@@ -243,12 +275,17 @@ class BarangayDataSeeder extends Seeder
 
         if ($numWaters === 0) {
             BodiesOfWater::create([
-                'barangay_id' => $barangay->id, 'type' => 'None', 'exists' => false, 'name' => 'N/A',
+                'barangay_id' => $barangay->id,
+                'type' => 'None',
+                'exists' => false,
+                'name' => 'N/A',
             ]);
         } else {
             foreach (collect($waterTypes)->random($numWaters) as $type) {
                 BodiesOfWater::create([
-                    'barangay_id' => $barangay->id, 'type' => $type, 'exists' => true,
+                    'barangay_id' => $barangay->id,
+                    'type' => $type,
+                    'exists' => true,
                     'name' => fake()->randomElement($waterNames[$type]),
                 ]);
             }
@@ -258,12 +295,17 @@ class BarangayDataSeeder extends Seeder
 
         if ($numLands === 0) {
             BodiesOfLand::create([
-                'barangay_id' => $barangay->id, 'type' => 'None', 'exists' => false, 'name' => 'N/A',
+                'barangay_id' => $barangay->id,
+                'type' => 'None',
+                'exists' => false,
+                'name' => 'N/A',
             ]);
         } else {
             foreach (collect($landTypes)->random($numLands) as $type) {
                 BodiesOfLand::create([
-                    'barangay_id' => $barangay->id, 'type' => $type, 'exists' => true,
+                    'barangay_id' => $barangay->id,
+                    'type' => $type,
+                    'exists' => true,
                     'name' => fake()->randomElement($landNames[$type]),
                 ]);
             }

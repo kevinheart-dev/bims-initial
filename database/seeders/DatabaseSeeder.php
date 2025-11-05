@@ -102,8 +102,8 @@ class DatabaseSeeder extends Seeder
             'is_disabled' => false,
         ])->assignRole($cdrrmoRole);
 
-        //$barangays = Barangay::all();
-        $barangays = Barangay::take(1)->get();
+        $barangays = Barangay::all();
+        //$barangays = Barangay::take(5)->get();
 
         //  foreach ($barangays->take(2) as $barangay)
 
@@ -139,12 +139,12 @@ class DatabaseSeeder extends Seeder
 
         // Call lookup/fix seeders
         $this->call([
-            //BarangayDataSeeder::class,
-            ExcelDataSeeder::class,
+            BarangayDataSeeder::class,
+            // ExcelDataSeeder::class,
             OccupationTypeSeeder::class,
-            //FixHouseholdResidentSeeder::class,
+            FixHouseholdResidentSeeder::class,
             // FamilyRelationSeeder::class,
-            //BarangayInformationSeeder::class,
+            BarangayInformationSeeder::class,
         ]);
         // $this->call([
         //     CRADataseeder::class,
@@ -155,11 +155,11 @@ class DatabaseSeeder extends Seeder
         // CommunityRiskAssessment::factory()->create([
         //     'year' => 2023
         // ]);
-        // CommunityRiskAssessment::factory()->create([
-        //     'year' => 2024
-        // ]);
-        // CommunityRiskAssessment::factory()->create([
-        //     'year' => 2025
-        // ]);
+        CommunityRiskAssessment::factory()->create([
+            'year' => 2024
+        ]);
+        CommunityRiskAssessment::factory()->create([
+            'year' => 2025
+        ]);
     }
 }
