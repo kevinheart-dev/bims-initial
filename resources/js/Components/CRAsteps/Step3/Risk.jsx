@@ -37,20 +37,26 @@ function MatrixTable({
                     {data.map((r, idx) => (
                         <tr key={idx}>
                             <td className="border px-2 py-1">
-                                <input
-                                    list={`hazardOptions-${idx}`}
-                                    type="text"
-                                    className="w-full border p-1"
+                                <select
+                                    className="border p-1 text-sm w-48"
                                     value={r.hazard === "None" ? "" : r.hazard}
                                     onChange={(e) =>
-                                        updateField(idx, "hazard", toTitleCase(e.target.value))
+                                        updateField(
+                                            idx,
+                                            "hazard",
+                                            toTitleCase(e.target.value)
+                                        )
                                     }
                                     onBlur={(e) =>
-                                        handleBlur(idx, "hazard", e.target.value)
+                                        handleBlur(
+                                            idx,
+                                            "hazard",
+                                            e.target.value
+                                        )
                                     }
-                                    placeholder="Select or type hazard"
-                                />
-                                <datalist id={`hazardOptions-${idx}`}>
+                                >
+                                    <option value="">Select hazard</option>
+
                                     {[
                                         "Typhoon",
                                         "Flood",
@@ -59,13 +65,31 @@ function MatrixTable({
                                         "Drought",
                                         "Earthquake",
                                         "Vehicular Incident",
-                                        "Pandemic / Emerging and Re-emerging Diseases"
+                                        "Pandemic / Emerging and Re-emerging Diseases",
                                     ].map((hazard, i) => (
-                                        <option key={i} value={hazard} />
+                                        <option key={i} value={hazard}>
+                                            {hazard}
+                                        </option>
                                     ))}
-                                </datalist>
-                            </td>
 
+                                    {/* Optional: If hazard was manually typed before */}
+                                    {r.hazard &&
+                                        ![
+                                            "Typhoon",
+                                            "Flood",
+                                            "Rain-induced Landslide",
+                                            "Fire",
+                                            "Drought",
+                                            "Earthquake",
+                                            "Vehicular Incident",
+                                            "Pandemic / Emerging and Re-emerging Diseases",
+                                        ].includes(r.hazard) && (
+                                            <option value={r.hazard}>
+                                                {r.hazard}
+                                            </option>
+                                        )}
+                                </select>
+                            </td>
 
                             <td className="border px-2 py-1">
                                 <input

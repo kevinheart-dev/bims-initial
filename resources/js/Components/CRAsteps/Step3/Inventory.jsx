@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useCallback } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import toast from "react-hot-toast";
-import { toTitleCase } from '@/utils/stringFormat';
+import { toTitleCase } from "@/utils/stringFormat";
+import SelectField from "@/Components/SelectField";
 
 const ITEM_TEMPLATE = {
     item: "",
@@ -91,7 +92,10 @@ const Inventory = () => {
     const updateCategory = (hIdx, cIdx, updater) =>
         updateHazard(hIdx, (hazard) => {
             const categories = [...hazard.categories];
-            categories[cIdx] = { ...categories[cIdx], ...updater(categories[cIdx]) };
+            categories[cIdx] = {
+                ...categories[cIdx],
+                ...updater(categories[cIdx]),
+            };
             return { categories };
         });
 
@@ -120,11 +124,12 @@ const Inventory = () => {
         toast.success("New hazard added!");
     };
 
-
     const removeHazard = (hIdx) => {
         setCraData((prev) => ({
             ...prev,
-            disaster_inventory: prev.disaster_inventory.filter((_, i) => i !== hIdx),
+            disaster_inventory: prev.disaster_inventory.filter(
+                (_, i) => i !== hIdx
+            ),
         }));
         toast.error("Hazard removed!");
     };
@@ -169,30 +174,54 @@ const Inventory = () => {
                 >
                     {/* Hazard Header */}
                     <div className="flex justify-between items-center mb-4">
-                        <input
-                            list={`hazardList-${hIdx}`}
-                            type="text"
+                        <SelectField
+                            label="" // no label inside table
                             value={hazard.hazard || ""}
                             onChange={(e) =>
-                                updateHazard(hIdx, () => ({ hazard: toTitleCase(e.target.value) }))
+                                updateHazard(hIdx, () => ({
+                                    hazard: toTitleCase(e.target.value),
+                                }))
                             }
-                            className="text-lg font-semibold text-purple-700 bg-transparent border-b border-purple-300 focus:outline-none px-1"
-                            placeholder="Enter Hazard"
+                            items={[
+                                { value: "Typhoon", label: "Typhoon" },
+                                { value: "Flood", label: "Flood" },
+                                {
+                                    value: "Rain-induced Landslide",
+                                    label: "Rain-induced Landslide",
+                                },
+                                { value: "Fire", label: "Fire" },
+                                { value: "Drought", label: "Drought" },
+                                { value: "Earthquake", label: "Earthquake" },
+                                {
+                                    value: "Vehicular Incident",
+                                    label: "Vehicular Incident",
+                                },
+                                {
+                                    value: "Pandemic / Emerging and Re-emerging Diseases",
+                                    label: "Pandemic / Emerging and Re-emerging Diseases",
+                                },
+                                // keep old user-entered hazard if not in list
+                                ...(hazard.hazard &&
+                                ![
+                                    "Typhoon",
+                                    "Flood",
+                                    "Rain-induced Landslide",
+                                    "Fire",
+                                    "Drought",
+                                    "Earthquake",
+                                    "Vehicular Incident",
+                                    "Pandemic / Emerging and Re-emerging Diseases",
+                                ].includes(hazard.hazard)
+                                    ? [
+                                          {
+                                              value: hazard.hazard,
+                                              label: hazard.hazard,
+                                          },
+                                      ]
+                                    : []),
+                            ]}
+                            placeholder="Select hazard"
                         />
-                        <datalist id={`hazardList-${hIdx}`}>
-                            {[
-                                "Typhoon",
-                                "Flood",
-                                "Rain-induced Landslide",
-                                "Fire",
-                                "Drought",
-                                "Earthquake",
-                                "Vehicular Incident",
-                                "Pandemic / Emerging and Re-emerging Diseases"
-                            ].map((hazard, i) => (
-                                <option key={i} value={hazard} />
-                            ))}
-                        </datalist>
 
                         <div>
                             <button
@@ -216,7 +245,9 @@ const Inventory = () => {
                                     type="text"
                                     value={category.type}
                                     onChange={(e) =>
-                                        updateCategory(hIdx, cIdx, () => ({ type: toTitleCase(e.target.value) }))
+                                        updateCategory(hIdx, cIdx, () => ({
+                                            type: toTitleCase(e.target.value),
+                                        }))
                                     }
                                     className="font-medium text-gray-700 bg-transparent border-b border-gray-300 focus:outline-none px-1"
                                     placeholder="Enter Category"
@@ -234,13 +265,20 @@ const Inventory = () => {
                                 <table className="border border-collapse w-full text-sm">
                                     <thead>
                                         <tr className="bg-gray-100">
-                                            <th className="border px-2 py-1">Item</th>
-                                            <th className="border px-2 py-1">Total</th>
                                             <th className="border px-2 py-1">
-                                                Percentage or no. at Risk <br /> (or will be affected)
+                                                Item
+                                            </th>
+                                            <th className="border px-2 py-1">
+                                                Total
+                                            </th>
+                                            <th className="border px-2 py-1">
+                                                Percentage or no. at Risk <br />{" "}
+                                                (or will be affected)
                                             </th>
 
-                                            <th className="border px-2 py-1">Location</th>
+                                            <th className="border px-2 py-1">
+                                                Location
+                                            </th>
                                             <th className="border px-2 py-1" />
                                         </tr>
                                     </thead>
@@ -252,28 +290,64 @@ const Inventory = () => {
                                                         type="text"
                                                         value={row.item}
                                                         onChange={(e) =>
-                                                            updateCell(hIdx, cIdx, rIdx, "item", toTitleCase(e.target.value))
+                                                            updateCell(
+                                                                hIdx,
+                                                                cIdx,
+                                                                rIdx,
+                                                                "item",
+                                                                toTitleCase(
+                                                                    e.target
+                                                                        .value
+                                                                )
+                                                            )
                                                         }
                                                         className="border w-full px-2 py-1 text-xs text-center rounded"
                                                         placeholder="Enter Item"
                                                     />
                                                 </td>
-                                                {["total", "percent", "location"].map((field, i) => (
-                                                    <td key={i} className="border px-2 py-1">
+                                                {[
+                                                    "total",
+                                                    "percent",
+                                                    "location",
+                                                ].map((field, i) => (
+                                                    <td
+                                                        key={i}
+                                                        className="border px-2 py-1"
+                                                    >
                                                         <input
                                                             type="text"
                                                             value={row[field]}
                                                             onChange={(e) => {
-                                                                let val = e.target.value;
-                                                                if (field === "percent") {
+                                                                let val =
+                                                                    e.target
+                                                                        .value;
+                                                                if (
+                                                                    field ===
+                                                                    "percent"
+                                                                ) {
                                                                     // Prevent multiple % symbols
-                                                                    val = val.replace(/%/g, "");
-                                                                    if (val !== "") {
-                                                                        val = val + "%";
+                                                                    val =
+                                                                        val.replace(
+                                                                            /%/g,
+                                                                            ""
+                                                                        );
+                                                                    if (
+                                                                        val !==
+                                                                        ""
+                                                                    ) {
+                                                                        val =
+                                                                            val +
+                                                                            "%";
                                                                     }
                                                                 }
 
-                                                                updateCell(hIdx, cIdx, rIdx, field, val);
+                                                                updateCell(
+                                                                    hIdx,
+                                                                    cIdx,
+                                                                    rIdx,
+                                                                    field,
+                                                                    val
+                                                                );
                                                             }}
                                                             className="border w-full px-2 py-1 text-xs text-center rounded"
                                                         />
@@ -282,7 +356,13 @@ const Inventory = () => {
                                                 <td className="border px-2 py-1 text-center">
                                                     <button
                                                         className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 hover:bg-red-300 hover:text-white"
-                                                        onClick={() => removeRow(hIdx, cIdx, rIdx)}
+                                                        onClick={() =>
+                                                            removeRow(
+                                                                hIdx,
+                                                                cIdx,
+                                                                rIdx
+                                                            )
+                                                        }
                                                     >
                                                         ✕
                                                     </button>
@@ -298,9 +378,9 @@ const Inventory = () => {
                                 onClick={() => addRow(hIdx, cIdx)}
                                 className="inline-flex items-center gap-1 mt-3 px-4 py-1.4 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
                             >
-                                <span className="text-sm font-bold">+</span> Add Item
+                                <span className="text-sm font-bold">+</span> Add
+                                Item
                             </button>
-
                         </div>
                     ))}
 
@@ -309,9 +389,9 @@ const Inventory = () => {
                         onClick={() => addCategory(hIdx)}
                         className="inline-flex items-center gap-1 mt-3 px-3 py-1.5 text-xs font-medium border border-green-500 text-green-600 rounded-md hover:bg-green-500 hover:text-white transition-colors duration-200 shadow-sm"
                     >
-                        <span className="text-sm font-bold">+</span> Add Category
+                        <span className="text-sm font-bold">+</span> Add
+                        Category
                     </button>
-
                 </div>
             ))}
 
@@ -322,7 +402,6 @@ const Inventory = () => {
             >
                 <span className="text-sm font-bold">+</span> Add Hazard
             </button>
-
         </div>
     );
 };

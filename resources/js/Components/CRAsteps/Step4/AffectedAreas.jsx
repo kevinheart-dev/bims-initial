@@ -66,15 +66,29 @@ const DisasterTable = ({ disaster, updateDisaster, removeDisaster }) => {
         <div className="mb-8">
             {/* Disaster Name */}
             <div className="flex items-center justify-between mb-4">
-                <input
-                    type="text"
+                <select
                     value={disaster.name}
                     onChange={(e) =>
                         updateDisaster({ ...disaster, name: e.target.value })
                     }
                     className="text-md font-bold bg-transparent border-none focus:outline-none w-full"
-                    placeholder="Enter new Disaster"
-                />
+                >
+                    <option value="">Select Disaster</option>
+                    <option value="Typhoon">Typhoon</option>
+                    <option value="Flood">Flood</option>
+                    <option value="Rain-induced Landslide">
+                        Rain-induced Landslide
+                    </option>
+                    <option value="Earthquake">Earthquake</option>
+                    <option value="Fire">Fire</option>
+                    <option value="Drought">Drought</option>
+                    <option value="Pandemic / Emerging and Re-emerging Diseases">
+                        Pandemic / Emerging and Re-emerging Diseases
+                    </option>
+                    <option value="Vehicular Incident">
+                        Vehicular Incident
+                    </option>
+                </select>
                 <button
                     onClick={removeDisaster}
                     className="w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors duration-200"

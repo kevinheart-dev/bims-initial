@@ -7,6 +7,7 @@ import PwdTable from "./PwdTable";
 import DisasterPerPurok from "./DisasterPerPurok";
 import IllinessesTable from "./IllinessesTable";
 import { toTitleCase } from "@/utils/stringFormat";
+import SelectField from "@/Components/SelectField";
 
 // Helper function
 const createEmptyPurokRow = (purokNum = "") => {
@@ -94,30 +95,47 @@ function ExposureTable({
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     Kind of Risk:
                 </label>
-                <input
-                    list={`hazardOptions-${tableId}`}
-                    type="text"
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm"
+                <SelectField
+                    label="" // no label inside table
                     value={riskType}
                     onChange={(e) =>
                         updateRiskType(tableId, toTitleCase(e.target.value))
                     }
-                    placeholder="Select or type hazard"
+                    items={[
+                        { value: "Typhoon", label: "Typhoon" },
+                        { value: "Flood", label: "Flood" },
+                        {
+                            value: "Rain-induced Landslide",
+                            label: "Rain-induced Landslide",
+                        },
+                        { value: "Fire", label: "Fire" },
+                        { value: "Drought", label: "Drought" },
+                        { value: "Earthquake", label: "Earthquake" },
+                        {
+                            value: "Vehicular Incident",
+                            label: "Vehicular Incident",
+                        },
+                        {
+                            value: "Pandemic / Emerging and Re-emerging Diseases",
+                            label: "Pandemic / Emerging and Re-emerging Diseases",
+                        },
+                        // Allow custom typed hazard to still show if previously typed
+                        ...(riskType &&
+                        ![
+                            "Typhoon",
+                            "Flood",
+                            "Rain-induced Landslide",
+                            "Fire",
+                            "Drought",
+                            "Earthquake",
+                            "Vehicular Incident",
+                            "Pandemic / Emerging and Re-emerging Diseases",
+                        ].includes(riskType)
+                            ? [{ value: riskType, label: riskType }]
+                            : []),
+                    ]}
+                    placeholder="Select hazard"
                 />
-                <datalist id={`hazardOptions-${tableId}`}>
-                    {[
-                        "Typhoon",
-                        "Flood",
-                        "Rain-induced Landslide",
-                        "Fire",
-                        "Drought",
-                        "Earthquake",
-                        "Vehicular Incident",
-                        "Pandemic / Emerging and Re-emerging Diseases",
-                    ].map((hazard, i) => (
-                        <option key={i} value={hazard} />
-                    ))}
-                </datalist>
             </div>
 
             <h3 className="text-sm font-semibold mb-2 text-gray-800">
@@ -354,7 +372,8 @@ function ExposureTable({
                         <tr key={idx}>
                             <td className="border p-0.5">
                                 <input
-                                    type="text"
+                                    type="number"
+                                    min="0"
                                     className="border p-0.5 w-full text-[0.6rem] text-center"
                                     value={row.purok}
                                     onChange={(e) =>

@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useCallback } from "react";
 import { StepperContext } from "@/context/StepperContext"; // Adjust path as needed
 import toast from "react-hot-toast"; // Ensure you have react-hot-toast installed
-import { toTitleCase } from '@/utils/stringFormat'; // Adjust path as needed
+import { toTitleCase } from "@/utils/stringFormat"; // Adjust path as needed
+import SelectField from "@/Components/SelectField";
 
 // Default purok row template
 const PUROK_TEMPLATE = {
@@ -43,10 +44,14 @@ const EffectDisaster = () => {
         // If disasterData is explicitly empty (e.g., after a full reset),
         // re-initialize it with the default hazard and 7 puroks.
         if (disasterData.length === 0) {
-            console.log("EffectDisaster useEffect: Initializing disaster_per_purok due to emptiness.");
+            console.log(
+                "EffectDisaster useEffect: Initializing disaster_per_purok due to emptiness."
+            );
             setCraData((prev) => ({
                 ...prev,
-                disaster_per_purok: [{ type: "Typhoon", rows: getDefaultPuroks() }],
+                disaster_per_purok: [
+                    { type: "Typhoon", rows: getDefaultPuroks() },
+                ],
             }));
         }
     }, [disasterData.length, setCraData]); // Depend only on length for efficiency
@@ -56,15 +61,21 @@ const EffectDisaster = () => {
         (hIdx, updater) => {
             setCraData((prev) => {
                 const updatedDisasters = [...(prev.disaster_per_purok || [])];
-                const currentHazard = updatedDisasters[hIdx] || { type: "", rows: [] };
+                const currentHazard = updatedDisasters[hIdx] || {
+                    type: "",
+                    rows: [],
+                };
 
                 // Apply the updater function to the current hazard and merge results
                 updatedDisasters[hIdx] = {
                     ...currentHazard, // Preserve existing properties
-                    ...updater(currentHazard) // Overlay with updates from the updater function
+                    ...updater(currentHazard), // Overlay with updates from the updater function
                 };
 
-                console.log(`updateHazard: updated hazard at index ${hIdx}`, updatedDisasters[hIdx]);
+                console.log(
+                    `updateHazard: updated hazard at index ${hIdx}`,
+                    updatedDisasters[hIdx]
+                );
                 return { ...prev, disaster_per_purok: updatedDisasters };
             });
         },
@@ -119,37 +130,79 @@ const EffectDisaster = () => {
         }));
 
     // Log the entire craData.disaster_per_purok on every render for comprehensive debugging
-    console.log("Render: craData.disaster_per_purok:", craData.disaster_per_purok);
+    console.log(
+        "Render: craData.disaster_per_purok:",
+        craData.disaster_per_purok
+    );
 
     return (
         <div>
             <p className="text-md font-bold mb-4">
-                4.1 Number of Families and Individuals at Risk of Hazards per Purok
-                based on the following categories:
+                4.1 Number of Families and Individuals at Risk of Hazards per
+                Purok based on the following categories:
             </p>
             <div className="mb-10 border-2 border-purple-300 rounded-xl p-5 bg-purple-50 shadow-sm">
                 {/* Map through each hazard category (e.g., Typhoon, Flood) */}
                 {disasterData.map((hazard, hIdx) => (
-                    <div key={hIdx} className="mb-8 border rounded p-4 bg-white shadow-sm">
+                    <div
+                        key={hIdx}
+                        className="mb-8 border rounded p-4 bg-white shadow-sm"
+                    >
                         {/* Hazard type input and remove button */}
                         <div className="flex justify-between items-center mb-3">
-                            <input
-                                list={`hazardOptions-${hIdx}`}
-                                type="text"
-                                placeholder="Select or type hazard"
-                                // Ensure hazard.type has a fallback for controlled component
+                            <SelectField
+                                label="" // no label inside table cell
                                 value={hazard.type || ""}
-                                onChange={(e) => updateHazardType(hIdx, toTitleCase(e.target.value))}
-                                className="border px-3 py-2 rounded w-1/2 text-sm"
+                                onChange={(e) =>
+                                    updateHazardType(
+                                        hIdx,
+                                        toTitleCase(e.target.value)
+                                    )
+                                }
+                                items={[
+                                    { value: "Typhoon", label: "Typhoon" },
+                                    { value: "Flood", label: "Flood" },
+                                    {
+                                        value: "Rain-induced Landslide",
+                                        label: "Rain-induced Landslide",
+                                    },
+                                    { value: "Fire", label: "Fire" },
+                                    { value: "Drought", label: "Drought" },
+                                    {
+                                        value: "Earthquake",
+                                        label: "Earthquake",
+                                    },
+                                    {
+                                        value: "Vehicular Incident",
+                                        label: "Vehicular Incident",
+                                    },
+                                    {
+                                        value: "Pandemic / Emerging and Re-emerging Diseases",
+                                        label: "Pandemic / Emerging and Re-emerging Diseases",
+                                    },
+                                    // Optional: show previously typed value if not in list
+                                    ...(hazard.type &&
+                                    ![
+                                        "Typhoon",
+                                        "Flood",
+                                        "Rain-induced Landslide",
+                                        "Fire",
+                                        "Drought",
+                                        "Earthquake",
+                                        "Vehicular Incident",
+                                        "Pandemic / Emerging and Re-emerging Diseases",
+                                    ].includes(hazard.type)
+                                        ? [
+                                              {
+                                                  value: hazard.type,
+                                                  label: hazard.type,
+                                              },
+                                          ]
+                                        : []),
+                                ]}
+                                placeholder="Select hazard"
+                                required={false}
                             />
-                            <datalist id={`hazardOptions-${hIdx}`}>
-                                {[
-                                    "Typhoon", "Flood", "Rain-induced Landslide", "Fire", "Drought",
-                                    "Earthquake", "Vehicular Incident", "Pandemic / Emerging and Re-emerging Diseases"
-                                ].map((optionHazard, i) => (
-                                    <option key={i} value={optionHazard} />
-                                ))}
-                            </datalist>
 
                             <button
                                 onClick={() => removeHazard(hIdx)}
@@ -165,10 +218,17 @@ const EffectDisaster = () => {
                             <table className="border border-collapse w-full text-xs">
                                 <thead>
                                     <tr className="bg-gray-100">
-                                        <th rowSpan="2" className="border px-2 py-1">
+                                        <th
+                                            rowSpan="2"
+                                            className="border px-2 py-1"
+                                        >
                                             Areas affected (Purok)
                                         </th>
-                                        {["Low Risk", "Medium Risk", "High Risk"].map((group) => (
+                                        {[
+                                            "Low Risk",
+                                            "Medium Risk",
+                                            "High Risk",
+                                        ].map((group) => (
                                             <th
                                                 key={group}
                                                 colSpan="2"
@@ -177,11 +237,18 @@ const EffectDisaster = () => {
                                                 {group}
                                             </th>
                                         ))}
-                                        <th rowSpan="2" className="border px-2 py-1 text-center" /> {/* Action column header */}
+                                        <th
+                                            rowSpan="2"
+                                            className="border px-2 py-1 text-center"
+                                        />{" "}
+                                        {/* Action column header */}
                                     </tr>
                                     <tr className="bg-gray-100">
                                         {RISK_FIELDS.map(({ label }, idx) => (
-                                            <th key={idx} className="border px-2 py-1">
+                                            <th
+                                                key={idx}
+                                                className="border px-2 py-1"
+                                            >
                                                 {label}
                                             </th>
                                         ))}
@@ -193,21 +260,35 @@ const EffectDisaster = () => {
                                         <tr key={rIdx}>
                                             <td className="border px-2 py-1 text-center">
                                                 <input
-                                                    type="text"
+                                                    type="number"
+                                                    min={0}
                                                     value={row.purok || ""}
                                                     onChange={(e) =>
-                                                        updateCell(hIdx, rIdx, "purok", e.target.value)
+                                                        updateCell(
+                                                            hIdx,
+                                                            rIdx,
+                                                            "purok",
+                                                            e.target.value
+                                                        )
                                                     }
                                                     className="border w-full px-2 py-1 text-center text-xs"
                                                 />
                                             </td>
                                             {RISK_FIELDS.map(({ key }, i) => (
-                                                <td key={i} className="border px-2 py-1 text-center">
+                                                <td
+                                                    key={i}
+                                                    className="border px-2 py-1 text-center"
+                                                >
                                                     <input
                                                         type="number"
                                                         value={row[key] || ""}
                                                         onChange={(e) =>
-                                                            updateCell(hIdx, rIdx, key, e.target.value)
+                                                            updateCell(
+                                                                hIdx,
+                                                                rIdx,
+                                                                key,
+                                                                e.target.value
+                                                            )
                                                         }
                                                         className="border w-full px-2 py-1 text-center text-xs"
                                                     />
@@ -216,7 +297,9 @@ const EffectDisaster = () => {
                                             <td className="border px-2 py-1 text-center">
                                                 <button
                                                     className="w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-red-200"
-                                                    onClick={() => removePurok(hIdx, rIdx)}
+                                                    onClick={() =>
+                                                        removePurok(hIdx, rIdx)
+                                                    }
                                                     title="Remove Purok Row"
                                                 >
                                                     ✕
@@ -233,9 +316,9 @@ const EffectDisaster = () => {
                             onClick={() => addPurok(hIdx)}
                             className="inline-flex items-center gap-1 mt-2 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm"
                         >
-                            <span className="text-sm font-bold">+</span> Add Purok
+                            <span className="text-sm font-bold">+</span> Add
+                            Purok
                         </button>
-
                     </div>
                 ))}
             </div>
@@ -247,7 +330,6 @@ const EffectDisaster = () => {
             >
                 <span className="text-sm font-bold">+</span> Add Hazard Category
             </button>
-
         </div>
     );
 };

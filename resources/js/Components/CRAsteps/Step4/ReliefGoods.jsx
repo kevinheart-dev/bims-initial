@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import toast from "react-hot-toast";
-import { toTitleCase } from '@/utils/stringFormat';
+import { toTitleCase } from "@/utils/stringFormat";
 
 const ROW_TEMPLATE = {
     evacuationCenter: "",
@@ -70,12 +70,20 @@ const ReliefGoods = () => {
                 <table className="border border-collapse w-full text-xs text-center">
                     <thead>
                         <tr className="bg-gray-100">
-                            <th className="border px-2 py-1">Name of Evacuation Center</th>
-                            <th className="border px-2 py-1">Type of Relief Goods</th>
+                            <th className="border px-2 py-1">
+                                Name of Evacuation Center
+                            </th>
+                            <th className="border px-2 py-1">
+                                Type of Relief Goods
+                            </th>
                             <th className="border px-2 py-1">Quantity</th>
                             <th className="border px-2 py-1">Unit</th>
-                            <th className="border px-2 py-1">Name of Beneficiaries</th>
-                            <th className="border px-2 py-1">Beneficiaries’ Address</th>
+                            <th className="border px-2 py-1">
+                                Name of Beneficiaries
+                            </th>
+                            <th className="border px-2 py-1">
+                                Beneficiaries’ Address
+                            </th>
                             <th className="border px-2 py-1 w-[40px] text-center"></th>
                         </tr>
                     </thead>
@@ -101,13 +109,24 @@ const ReliefGoods = () => {
                                         "beneficiaries",
                                         "address",
                                     ].map((field) => (
-                                        <td key={field} className="border px-2 py-1">
+                                        <td
+                                            key={field}
+                                            className="border px-2 py-1"
+                                        >
                                             <textarea
                                                 rows={1}
                                                 value={row[field]}
-                                                placeholder={placeholders[field]}
+                                                placeholder={
+                                                    placeholders[field]
+                                                }
                                                 onChange={(e) => {
-                                                    updateCell(idx, field, toTitleCase(e.target.value));
+                                                    updateCell(
+                                                        idx,
+                                                        field,
+                                                        toTitleCase(
+                                                            e.target.value
+                                                        )
+                                                    );
                                                     autoResize(e.target);
                                                 }}
                                                 ref={(el) => autoResize(el)}
@@ -126,7 +145,6 @@ const ReliefGoods = () => {
                                 </tr>
                             );
                         })}
-
                     </tbody>
                 </table>
             </div>
@@ -137,7 +155,6 @@ const ReliefGoods = () => {
             >
                 <span className="text-sm font-bold">+</span> Add Row
             </button>
-
         </div>
     );
 };

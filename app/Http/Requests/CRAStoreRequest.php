@@ -285,8 +285,8 @@ class CRAStoreRequest extends FormRequest
             // Evacuation Centers
             'evacuation_list'                    => ['nullable', 'array'],
             'evacuation_list.*.name'             => ['nullable', 'string'],
-            'evacuation_list.*.families'         => ['nullable', 'numeric', 'min:0'],
-            'evacuation_list.*.individuals'      => ['nullable', 'numeric', 'min:0'],
+            'evacuation_list.*.families'         => ['nullable', 'numeric'],
+            'evacuation_list.*.individuals'      => ['nullable', 'numeric'],
             'evacuation_list.*.ownerGovt'        => ['nullable', 'boolean'],
             'evacuation_list.*.ownerPrivate'     => ['nullable', 'boolean'],
             'evacuation_list.*.inspectedYes'     => ['nullable', 'boolean'],

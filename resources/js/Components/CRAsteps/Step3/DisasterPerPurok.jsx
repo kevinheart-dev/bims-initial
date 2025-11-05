@@ -83,7 +83,10 @@ const DisasterPerPurok = () => {
     };
 
     // Compute totals
-    const totals = (craData.disaster_per_purok?.[0]?.rowsValue || DEFAULT_ROWS).map( // Use DEFAULT_ROWS here as a fallback
+    const totals = (
+        craData.disaster_per_purok?.[0]?.rowsValue || DEFAULT_ROWS
+    ).map(
+        // Use DEFAULT_ROWS here as a fallback
         (_, idx) =>
             craData.disaster_per_purok.reduce(
                 (sum, p) => sum + Number(p.rowsValue?.[idx]?.count || 0),
@@ -112,49 +115,60 @@ const DisasterPerPurok = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {(craData.disaster_per_purok || []).map((purok, pIdx) => ( // Ensure it's an array for map
-                            <tr key={pIdx} className="hover:bg-gray-50">
-                                <td className="border p-1">
-                                    <input
-                                        type="text"
-                                        value={purok.purok}
-                                        onChange={(e) =>
-                                            updatePurok(
-                                                pIdx,
-                                                "purok",
-                                                e.target.value
-                                            )
-                                        }
-                                        className="w-full text-center text-xs p-1 border rounded"
-                                    />
-                                </td>
-                                {(purok.rowsValue || []).map((row, rIdx) => (
-                                    <td key={rIdx} className="border p-1">
+                        {(craData.disaster_per_purok || []).map(
+                            (
+                                purok,
+                                pIdx // Ensure it's an array for map
+                            ) => (
+                                <tr key={pIdx} className="hover:bg-gray-50">
+                                    <td className="border p-1">
                                         <input
-                                            type="text"
-                                            value={row.count || ""}
+                                            type="number"
+                                            min={0}
+                                            value={purok.purok}
                                             onChange={(e) =>
                                                 updatePurok(
                                                     pIdx,
-                                                    "count",
-                                                    e.target.value,
-                                                    rIdx
+                                                    "purok",
+                                                    e.target.value
                                                 )
                                             }
                                             className="w-full text-center text-xs p-1 border rounded"
                                         />
                                     </td>
-                                ))}
-                                <td className="p-0.5 text-center !border-0">
-                                    <button
-                                        className="w-4 h-4 flex items-center justify-center rounded-full bg-gray-100 text-gray-300 hover:bg-gray-200 mx-auto"
-                                        onClick={() => removePurok(pIdx)}
-                                    >
-                                        ✕
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                                    {(purok.rowsValue || []).map(
+                                        (row, rIdx) => (
+                                            <td
+                                                key={rIdx}
+                                                className="border p-1"
+                                            >
+                                                <input
+                                                    type="text"
+                                                    value={row.count || ""}
+                                                    onChange={(e) =>
+                                                        updatePurok(
+                                                            pIdx,
+                                                            "count",
+                                                            e.target.value,
+                                                            rIdx
+                                                        )
+                                                    }
+                                                    className="w-full text-center text-xs p-1 border rounded"
+                                                />
+                                            </td>
+                                        )
+                                    )}
+                                    <td className="p-0.5 text-center !border-0">
+                                        <button
+                                            className="w-4 h-4 flex items-center justify-center rounded-full bg-gray-100 text-gray-300 hover:bg-gray-200 mx-auto"
+                                            onClick={() => removePurok(pIdx)}
+                                        >
+                                            ✕
+                                        </button>
+                                    </td>
+                                </tr>
+                            )
+                        )}
                         <tr className="bg-gray-200 font-bold">
                             <td className="border p-1 text-center">Total</td>
                             {/* Use DEFAULT_ROWS to determine the number of total columns if craData.disaster_per_purok is empty */}

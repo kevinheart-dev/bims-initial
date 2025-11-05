@@ -25,7 +25,9 @@ const EvacuationCenterInventory = () => {
     useEffect(() => {
         if (!craData.evacuation_center_inventory) {
             // Generate 7 default rows
-            const defaultRows = Array.from({ length: 7 }, () => ({ ...ROW_TEMPLATE }));
+            const defaultRows = Array.from({ length: 7 }, () => ({
+                ...ROW_TEMPLATE,
+            }));
             setCraData({
                 ...craData,
                 evacuation_center_inventory: defaultRows,
@@ -77,16 +79,43 @@ const EvacuationCenterInventory = () => {
                 <table className="border border-collapse w-full text-xs text-center">
                     <thead>
                         <tr className="bg-gray-100">
-                            <th rowSpan={2} className="border px-2 py-1">Purok</th>
-                            <th colSpan={2} className="border px-2 py-1">Total Population</th>
-                            <th colSpan={2} className="border px-2 py-1">Number of Population at Risk</th>
-                            <th rowSpan={2} className="border px-2 py-1">Name of Evacuation Center (Plan A) Government-owned</th>
-                            <th colSpan={2} className="border px-2 py-1">Number of Persons who can be accommodated</th>
-                            <th colSpan={2} className="border px-2 py-1">Number of Persons who cannot be accommodated</th>
-                            <th rowSpan={2} className="border px-2 py-1">Name of Evacuation Center (Plan B) Privately-owned</th>
-                            <th colSpan={2} className="border px-2 py-1">Number of Persons who cannot be accommodated at Plan A & B</th>
-                            <th rowSpan={2} className="border px-2 py-1 w-[110px]">Remarks</th>
-                            <th rowSpan={2} className="border px-2 py-1 w-[40px]"></th>
+                            <th rowSpan={2} className="border px-2 py-1">
+                                Purok
+                            </th>
+                            <th colSpan={2} className="border px-2 py-1">
+                                Total Population
+                            </th>
+                            <th colSpan={2} className="border px-2 py-1">
+                                Number of Population at Risk
+                            </th>
+                            <th rowSpan={2} className="border px-2 py-1">
+                                Name of Evacuation Center (Plan A)
+                                Government-owned
+                            </th>
+                            <th colSpan={2} className="border px-2 py-1">
+                                Number of Persons who can be accommodated
+                            </th>
+                            <th colSpan={2} className="border px-2 py-1">
+                                Number of Persons who cannot be accommodated
+                            </th>
+                            <th rowSpan={2} className="border px-2 py-1">
+                                Name of Evacuation Center (Plan B)
+                                Privately-owned
+                            </th>
+                            <th colSpan={2} className="border px-2 py-1">
+                                Number of Persons who cannot be accommodated at
+                                Plan A & B
+                            </th>
+                            <th
+                                rowSpan={2}
+                                className="border px-2 py-1 w-[110px]"
+                            >
+                                Remarks
+                            </th>
+                            <th
+                                rowSpan={2}
+                                className="border px-2 py-1 w-[40px]"
+                            ></th>
                         </tr>
                         <tr className="bg-gray-100">
                             <th className="border px-2 py-1">Families</th>
@@ -120,13 +149,24 @@ const EvacuationCenterInventory = () => {
                                     "personsCannotBeAccommodatedPlanABIndividuals",
                                     "remarks",
                                 ].map((field, fIdx) => (
-                                    <td key={field} className="border px-2 py-1">
+                                    <td
+                                        key={field}
+                                        className="border px-2 py-1"
+                                    >
                                         <textarea
-                                            ref={(el) => (textareaRefs.current[idx * 13 + fIdx] = el)}
+                                            ref={(el) =>
+                                                (textareaRefs.current[
+                                                    idx * 13 + fIdx
+                                                ] = el)
+                                            }
                                             rows={1}
                                             value={row[field]}
                                             onChange={(e) => {
-                                                updateCell(idx, field, e.target.value);
+                                                updateCell(
+                                                    idx,
+                                                    field,
+                                                    e.target.value
+                                                );
                                                 autoResize(e);
                                             }}
                                             className="border w-full px-2 py-1 text-center resize-none overflow-hidden text-xs"

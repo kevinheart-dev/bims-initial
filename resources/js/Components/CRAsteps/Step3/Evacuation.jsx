@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import { Plus, Check, Square } from "lucide-react";
-import { toTitleCase } from '@/utils/stringFormat';
+import { toTitleCase } from "@/utils/stringFormat";
 const Evacuation = () => {
     const { craData, setCraData } = useContext(StepperContext);
 
@@ -54,7 +54,11 @@ const Evacuation = () => {
             onClick={onClick}
             className="w-full flex items-center justify-center hover:bg-gray-100 p-1 rounded text-center"
         >
-            {value ? <Check className="w-4 h-4 text-green-600" /> : <Square className="w-4 h-4 text-gray-400" />}
+            {value ? (
+                <Check className="w-4 h-4 text-green-600" />
+            ) : (
+                <Square className="w-4 h-4 text-gray-400" />
+            )}
         </button>
     );
 
@@ -69,10 +73,18 @@ const Evacuation = () => {
                         <th className="border px-2 py-1">
                             Name of Evacuation Center / Isolation Facility
                         </th>
-                        <th className="border px-2 py-1" colSpan={2}>Capacity</th>
-                        <th className="border px-2 py-1" colSpan={2}>Owner</th>
-                        <th className="border px-2 py-1" colSpan={2}>Inspected by an Engineer</th>
-                        <th className="border px-2 py-1" colSpan={2}>Presence of Memorandum of Understanding</th>
+                        <th className="border px-2 py-1" colSpan={2}>
+                            Capacity
+                        </th>
+                        <th className="border px-2 py-1" colSpan={2}>
+                            Owner
+                        </th>
+                        <th className="border px-2 py-1" colSpan={2}>
+                            Inspected by an Engineer
+                        </th>
+                        <th className="border px-2 py-1" colSpan={2}>
+                            Presence of Memorandum of Understanding
+                        </th>
                         <th className="border px-2 py-1"></th>
                     </tr>
                     <tr>
@@ -95,25 +107,45 @@ const Evacuation = () => {
                                 <input
                                     type="text"
                                     value={row.name}
-                                    onChange={(e) => handleChange(idx, "name", toTitleCase(e.target.value))}
+                                    onChange={(e) =>
+                                        handleChange(
+                                            idx,
+                                            "name",
+                                            toTitleCase(e.target.value)
+                                        )
+                                    }
                                     className="w-full border px-1 py-0.5 text-sm text-center"
                                     placeholder="Enter Facility"
                                 />
                             </td>
                             <td className="border px-2 py-1">
                                 <input
-                                    type="text"
+                                    type="number"
+                                    min={0}
                                     value={row.families}
-                                    onChange={(e) => handleChange(idx, "families", e.target.value)}
+                                    onChange={(e) =>
+                                        handleChange(
+                                            idx,
+                                            "families",
+                                            e.target.value
+                                        )
+                                    }
                                     className="w-full border px-1 py-0.5 text-sm text-center"
                                     placeholder="Families"
                                 />
                             </td>
                             <td className="border px-2 py-1">
                                 <input
-                                    type="text"
+                                    type="number"
+                                    min={0}
                                     value={row.individuals}
-                                    onChange={(e) => handleChange(idx, "individuals", e.target.value)}
+                                    onChange={(e) =>
+                                        handleChange(
+                                            idx,
+                                            "individuals",
+                                            e.target.value
+                                        )
+                                    }
                                     className="w-full border px-1 py-0.5 text-sm text-center"
                                     placeholder="Individuals"
                                 />
@@ -121,34 +153,52 @@ const Evacuation = () => {
                             {/* Owner group */}
                             <td className="border">
                                 {renderCheck(row.ownerGovt, () =>
-                                    toggleExclusive(idx, "ownerGovt", ["ownerGovt", "ownerPrivate"])
+                                    toggleExclusive(idx, "ownerGovt", [
+                                        "ownerGovt",
+                                        "ownerPrivate",
+                                    ])
                                 )}
                             </td>
                             <td className="border">
                                 {renderCheck(row.ownerPrivate, () =>
-                                    toggleExclusive(idx, "ownerPrivate", ["ownerGovt", "ownerPrivate"])
+                                    toggleExclusive(idx, "ownerPrivate", [
+                                        "ownerGovt",
+                                        "ownerPrivate",
+                                    ])
                                 )}
                             </td>
                             {/* Inspected group */}
                             <td className="border">
                                 {renderCheck(row.inspectedYes, () =>
-                                    toggleExclusive(idx, "inspectedYes", ["inspectedYes", "inspectedNo"])
+                                    toggleExclusive(idx, "inspectedYes", [
+                                        "inspectedYes",
+                                        "inspectedNo",
+                                    ])
                                 )}
                             </td>
                             <td className="border">
                                 {renderCheck(row.inspectedNo, () =>
-                                    toggleExclusive(idx, "inspectedNo", ["inspectedYes", "inspectedNo"])
+                                    toggleExclusive(idx, "inspectedNo", [
+                                        "inspectedYes",
+                                        "inspectedNo",
+                                    ])
                                 )}
                             </td>
                             {/* MOU group */}
                             <td className="border">
                                 {renderCheck(row.mouYes, () =>
-                                    toggleExclusive(idx, "mouYes", ["mouYes", "mouNo"])
+                                    toggleExclusive(idx, "mouYes", [
+                                        "mouYes",
+                                        "mouNo",
+                                    ])
                                 )}
                             </td>
                             <td className="border">
                                 {renderCheck(row.mouNo, () =>
-                                    toggleExclusive(idx, "mouNo", ["mouYes", "mouNo"])
+                                    toggleExclusive(idx, "mouNo", [
+                                        "mouYes",
+                                        "mouNo",
+                                    ])
                                 )}
                             </td>
                             <td className="px-2 py-1 text-center !border-0">
@@ -170,7 +220,6 @@ const Evacuation = () => {
             >
                 <span className="text-sm font-bold">+</span> Add Row
             </button>
-
         </div>
     );
 };

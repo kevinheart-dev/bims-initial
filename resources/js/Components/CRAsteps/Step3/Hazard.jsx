@@ -7,7 +7,7 @@ import ExposureDatabase from "./ExposureDatabase";
 import EffectDisaster from "./EffectDisaster";
 import Inventory from "./Inventory";
 import Evacuation from "./Evacuation";
-import { toTitleCase } from '@/utils/stringFormat';
+import { toTitleCase } from "@/utils/stringFormat";
 const computeAverage = (h) => {
     if (h.probability === "" || h.effect === "" || h.management === "")
         return "";
@@ -74,30 +74,33 @@ function HazardTable({ hazards, updateField, addHazard, removeHazard }) {
                     {hazardsWithRank.map((h) => (
                         <tr key={h.index}>
                             <td className="border px-2 py-1">
-                                <input
-                                    list={`hazardOptions-${h.index}`}
-                                    type="text"
-                                    className="w-full border p-1"
+                                <select
+                                    className="border border-gray-300 rounded-md p-2 text-sm w-48 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
                                     value={h.hazard}
                                     onChange={(e) =>
-                                        updateField(h.index, "hazard", toTitleCase(e.target.value))
+                                        updateField(
+                                            h.index,
+                                            "hazard",
+                                            e.target.value
+                                        )
                                     }
-                                    placeholder="Select or type hazard"
-                                />
-                                <datalist id={`hazardOptions-${h.index}`}>
+                                >
+                                    <option value="">Select Hazard</option>
                                     {[
                                         "Typhoon",
                                         "Flood",
-                                        "Landslide",
+                                        "Rain-induced Landslide",
                                         "Fire",
                                         "Drought",
                                         "Earthquake",
                                         "Vehicular Incident",
-                                        "Pandemic / Emerging and Re-emerging Diseases"
+                                        "Pandemic / Emerging and Re-emerging Diseases",
                                     ].map((hazard, idx) => (
-                                        <option key={idx} value={hazard} />
+                                        <option key={idx} value={hazard}>
+                                            {hazard}
+                                        </option>
                                     ))}
-                                </datalist>
+                                </select>
                             </td>
 
                             {["probability", "effect", "management"].map(
@@ -203,8 +206,8 @@ const Hazard = () => {
         const updated = [...craData.hazards];
         updated[idx][field] =
             field === "probability" ||
-                field === "effect" ||
-                field === "management"
+            field === "effect" ||
+            field === "management"
                 ? val === ""
                     ? ""
                     : Number(val)
