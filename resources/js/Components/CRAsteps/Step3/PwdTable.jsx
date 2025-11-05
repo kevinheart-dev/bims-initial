@@ -186,6 +186,7 @@ export default function PwdTable() {
                 Persons with Disability (PWD) by Age Group
             </h3>
 
+            {/* This div is the key for horizontal scrolling */}
             <div className="overflow-x-auto">
                 <table className="w-full border table-auto text-sm">
                     <TableHeader />
@@ -211,7 +212,6 @@ export default function PwdTable() {
             >
                 <span className="text-sm font-bold">+</span> Add Disability
             </button>
-
         </div>
     );
 }

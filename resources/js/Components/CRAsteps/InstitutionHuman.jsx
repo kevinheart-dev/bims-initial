@@ -2,7 +2,7 @@ import { useContext, useEffect } from "react";
 import { StepperContext } from "@/context/StepperContext";
 import toast from "react-hot-toast";
 import Accordion from "../Accordion";
-import { toTitleCase } from '@/utils/stringFormat';
+import { toTitleCase, toUpperCase } from '@/utils/stringFormat';
 
 const createRow = (type) => ({
     type,
@@ -110,13 +110,14 @@ function HumanResourcesTable({ category, catIdx, updateCategoryName, updateRow, 
                                     type="text"
                                     className="w-full border p-1"
                                     value={row.type}
-                                    onChange={(e) => updateRow(catIdx, rowIdx, "type", e.target.value)}
+                                    onChange={(e) => updateRow(catIdx, rowIdx, "type", toTitleCase(e.target.value))}
                                 />
                             </td>
                             {fields.map((field) => (
                                 <td key={field} className="border px-2 py-1">
                                     <input
                                         type="number"
+                                        mim="0"
                                         className="w-full border p-1 text-center"
                                         value={row[field] ?? ""}
                                         onChange={(e) => updateRow(catIdx, rowIdx, field, e.target.value)}
@@ -146,13 +147,16 @@ function HumanResourcesTable({ category, catIdx, updateCategoryName, updateRow, 
                     </tr>
                 </tfoot>
             </table>
-            <div className="p-2 m-auto">
+            <div className="flex items-start justify-between p-2 mt-2">
                 <button
                     onClick={() => addRow(catIdx)}
                     className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm mt-3"
                 >
                     <span className="text-sm font-bold">+</span> Add new row
                 </button>
+                <p className="text-xs text-gray-600 italic mt-3">
+                    <strong>Note:</strong> Add a new row if needed.
+                </p>
             </div>
         </div>
     );
@@ -186,13 +190,14 @@ function InstitutionsTable({ institutions, instIdx, updateField, removeInstituti
                                     type="text"
                                     className="w-full border p-1"
                                     value={inst.name}
-                                    onChange={(e) => updateField(instIdx, idx, "name", e.target.value)}
+                                    onChange={(e) => updateField(instIdx, idx, "name", toUpperCase(e.target.value))}
                                 />
                             </td>
                             {["male", "female", "lgbtq"].map((field) => (
                                 <td key={field} className="border px-2 py-1">
                                     <input
                                         type="number"
+                                        min="0"
                                         className="w-full border p-1 text-center"
                                         value={inst[field]}
                                         onChange={(e) => updateField(instIdx, idx, field, e.target.value)}
@@ -204,7 +209,7 @@ function InstitutionsTable({ institutions, instIdx, updateField, removeInstituti
                                     type="text"
                                     className="w-full border p-1"
                                     value={inst.head}
-                                    onChange={(e) => updateField(instIdx, idx, "head", e.target.value)}
+                                    onChange={(e) => updateField(instIdx, idx, "head", toUpperCase(e.target.value))}
                                 />
                             </td>
                             <td className="border px-2 py-1">
@@ -230,7 +235,7 @@ function InstitutionsTable({ institutions, instIdx, updateField, removeInstituti
                                     type="text"
                                     className="w-full border p-1"
                                     value={inst.programs}
-                                    onChange={(e) => updateField(instIdx, idx, "programs", e.target.value)}
+                                    onChange={(e) => updateField(instIdx, idx, "programs", toUpperCase(e.target.value))}
                                 />
                             </td>
                             <td className="px-2 py-1 text-center !border-0">
@@ -241,19 +246,26 @@ function InstitutionsTable({ institutions, instIdx, updateField, removeInstituti
                                     ✕
                                 </button>
                             </td>
+
                         </tr>
                     ))}
                 </tbody>
             </table>
-            <div className="p-2 mt-auto">
+            <div className="flex items-center justify-between p-2 mt-2">
                 <button
                     onClick={() => addInstitution(instIdx)}
                     className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium border border-blue-500 text-blue-600 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200 shadow-sm mt-3"
                 >
                     <span className="text-sm font-bold">+</span> Add new row
                 </button>
+                <p className="text-xs text-gray-600 italic mt-2">
+                    <strong>Note:</strong> Add a new row if needed.
+                </p>
             </div>
+
         </div>
+
+
     );
 }
 
@@ -352,6 +364,9 @@ const InstitutionHuman = () => {
 
 
             <Accordion title="G. Inventory of Human Resources">
+                <p className="text-sm text-gray-600 italic mb-2">
+                    <strong>Note:</strong> Leave a cell blank if the value is zero.
+                </p>
                 <div className="mb-10 border-2 border-purple-300 rounded-xl p-5 bg-purple-50 shadow-sm">
                     {(craData.human_resources || []).map((cat, i) => (
                         <HumanResourcesTable

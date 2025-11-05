@@ -27,7 +27,7 @@ const DEFAULT_ROWS = [
 const DisasterPerPurok = () => {
     const { craData, setCraData } = useContext(StepperContext);
 
-    // Initialize disaster_per_purok
+    // Initialize disaster_per_purok with 7 default puroks, each containing DEFAULT_ROWS
     useEffect(() => {
         if (
             !craData.disaster_per_purok ||
@@ -64,7 +64,7 @@ const DisasterPerPurok = () => {
 
     const addPurok = () => {
         const newPurok = {
-            purok: "",
+            purok: `${craData.disaster_per_purok.length + 1}`, // New purok name
             rowsValue: DEFAULT_ROWS.map((row) => ({ ...row })),
         };
         setCraData((prev) => ({
@@ -83,7 +83,7 @@ const DisasterPerPurok = () => {
     };
 
     // Compute totals
-    const totals = (craData.disaster_per_purok?.[0]?.rowsValue || []).map(
+    const totals = (craData.disaster_per_purok?.[0]?.rowsValue || DEFAULT_ROWS).map( // Use DEFAULT_ROWS here as a fallback
         (_, idx) =>
             craData.disaster_per_purok.reduce(
                 (sum, p) => sum + Number(p.rowsValue?.[idx]?.count || 0),
@@ -99,9 +99,8 @@ const DisasterPerPurok = () => {
                     <thead>
                         <tr className="bg-gray-100">
                             <th className="border p-1 text-center">Purok</th>
-                            {(
-                                craData.disaster_per_purok?.[0]?.rowsValue || []
-                            ).map((row, idx) => (
+                            {/* Use DEFAULT_ROWS directly for headers to ensure they always show up */}
+                            {DEFAULT_ROWS.map((row, idx) => (
                                 <th
                                     key={idx}
                                     className="border p-1 text-center"
@@ -113,7 +112,7 @@ const DisasterPerPurok = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {craData.disaster_per_purok?.map((purok, pIdx) => (
+                        {(craData.disaster_per_purok || []).map((purok, pIdx) => ( // Ensure it's an array for map
                             <tr key={pIdx} className="hover:bg-gray-50">
                                 <td className="border p-1">
                                     <input
@@ -158,6 +157,7 @@ const DisasterPerPurok = () => {
                         ))}
                         <tr className="bg-gray-200 font-bold">
                             <td className="border p-1 text-center">Total</td>
+                            {/* Use DEFAULT_ROWS to determine the number of total columns if craData.disaster_per_purok is empty */}
                             {totals.map((total, idx) => (
                                 <td
                                     key={idx}
@@ -177,8 +177,6 @@ const DisasterPerPurok = () => {
             >
                 <span className="text-sm font-bold">+</span> Add Purok
             </button>
-
-
         </div>
     );
 };
