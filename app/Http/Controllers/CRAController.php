@@ -788,7 +788,7 @@ class CRAController extends Controller
                 ->with('success', 'Community Risk Assessment (CRA) saved successfully!');
         } catch (\Throwable $e) {
             DB::rollBack();
-
+            dd('CRAController error: ' . $e->getMessage());
             // Log the error
             \Log::error('CRAController error: ' . $e->getMessage(), [
                 'file' => $e->getFile(),

@@ -58,14 +58,12 @@ export default function Index({ progress }) {
         }
     });
 
-    useEffect(() => {
-        if (craDataFromServer) {
-            setCraData(craDataFromServer);
-            console.log("✅ CRA Data refreshed from backend:", craDataFromServer);
-        }
-    }, [craDataFromServer]);
-
-
+    // useEffect(() => {
+    //     if (craDataFromServer && Object.keys(craDataFromServer).length > 0) {
+    //         setCraData(craDataFromServer);
+    //         console.log("✅ CRA Data refreshed from backend:", craDataFromServer);
+    //     }
+    // }, [craDataFromServer]);
 
     useEffect(() => {
         if (year) {
@@ -129,13 +127,20 @@ export default function Index({ progress }) {
                 // ✅ Submit to backend
                 router.post(route("cra.store"), craData, {
                     onSuccess: () => {
-                        // ✅ Remove local draft after successful submission
-                        localStorage.removeItem(`craDataDraft_${year}`);
+                        // // ✅ Remove local draft after successful submission
+                        // localStorage.removeItem(`craDataDraft_${year}`);
                         toast.success("CRA submitted successfully!");
                     },
                     onError: (errors) => {
                         setErrors(errors);
                         console.error("Validation Errors:", errors);
+
+                        // ✅ Rehydrate data from local storage in case Inertia wiped it
+                        const saved = localStorage.getItem(`craDataDraft_${year}`);
+                        if (saved) {
+                            setCraData(JSON.parse(saved));
+                        }
+
                         const allErrors = Object.values(errors).join("<br />");
                         toast.error("Validation Errors", {
                             description: (
