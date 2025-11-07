@@ -101,6 +101,7 @@ export default function CRAProgressList({ selectedBarangayId }) {
             </div>
 
             <div ref={scrollRef} className="max-h-[370px] overflow-y-auto pr-1">
+
                 <ul className="text-sm text-gray-700 divide-y divide-gray-100">
                     {data.map((item, index) => {
                         const progress = item.cra_progress ?? 0;
@@ -156,6 +157,13 @@ export default function CRAProgressList({ selectedBarangayId }) {
                     })}
                 </ul>
             </div>
+            <p className="text-sm font-semibold pt-2">
+                <span className="text-green-600">
+                    {data.filter(b => b.cra_progress > 0).length}
+                </span>
+                /
+                <span className="text-gray-600">{data.length}</span> barangays have submitted their CRA
+            </p>
         </div>
     );
 }

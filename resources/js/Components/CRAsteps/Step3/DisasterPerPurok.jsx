@@ -28,30 +28,10 @@ const DisasterPerPurok = () => {
     const { craData, setCraData } = useContext(StepperContext);
 
     // // Initialize disaster_per_purok with 7 default puroks, each containing DEFAULT_ROWS
-    // useEffect(() => {
-    //     if (
-    //         !craData.disaster_per_purok ||
-    //         craData.disaster_per_purok.length === 0
-    //     ) {
-    //         const defaultPuroks = Array.from({ length: 7 }, (_, i) => ({
-    //             purok: `${i + 1}`,
-    //             rowsValue: DEFAULT_ROWS.map((row) => ({ ...row })),
-    //         }));
-    //         setCraData((prev) => ({
-    //             ...prev,
-    //             disaster_per_purok: defaultPuroks,
-    //         }));
-    //     }
-    // }, [craData, setCraData]);
-
-    const hasInitialized = useRef(false); // Add this ref
-
-    // Initialize disaster_per_purok with 7 default puroks, each containing DEFAULT_ROWS
     useEffect(() => {
-        // Only run this initialization once, or if craData is truly empty
         if (
-            !hasInitialized.current && // Check if we've already run initialization
-            (!craData.disaster_per_purok || craData.disaster_per_purok.length === 0)
+            !craData.disaster_per_purok ||
+            craData.disaster_per_purok.length === 0
         ) {
             const defaultPuroks = Array.from({ length: 7 }, (_, i) => ({
                 purok: `${i + 1}`,
@@ -61,9 +41,29 @@ const DisasterPerPurok = () => {
                 ...prev,
                 disaster_per_purok: defaultPuroks,
             }));
-            hasInitialized.current = true; // Mark as initialized
         }
     }, [craData, setCraData]);
+
+    // const hasInitialized = useRef(false); // Add this ref
+
+    // // Initialize disaster_per_purok with 7 default puroks, each containing DEFAULT_ROWS
+    // useEffect(() => {
+    //     // Only run this initialization once, or if craData is truly empty
+    //     if (
+    //         !hasInitialized.current && // Check if we've already run initialization
+    //         (!craData.disaster_per_purok || craData.disaster_per_purok.length === 0)
+    //     ) {
+    //         const defaultPuroks = Array.from({ length: 7 }, (_, i) => ({
+    //             purok: `${i + 1}`,
+    //             rowsValue: DEFAULT_ROWS.map((row) => ({ ...row })),
+    //         }));
+    //         setCraData((prev) => ({
+    //             ...prev,
+    //             disaster_per_purok: defaultPuroks,
+    //         }));
+    //         hasInitialized.current = true; // Mark as initialized
+    //     }
+    // }, [craData, setCraData]);
 
     const updatePurok = (purokIdx, key, value, rowIdx = null) => {
         const updated = craData.disaster_per_purok.map((p, i) => {
