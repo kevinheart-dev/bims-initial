@@ -12,6 +12,7 @@ import Calamities from "@/Components/CRAsteps/Step2/Calamities";
 import InventoryEvacuation from "@/Components/CRAsteps/Step4/InventoryEvacuation";
 import DisasterReadiness from "@/Components/CRAsteps/Step5/DisasterReadiness";
 import { Progress } from "@/Components/ui/progress";
+import { defaultLivelihoods, defaultInfra, defaultBuildings, defaultFacilities } from "@/Components/CRAsteps/defaults";
 
 export default function Index({ progress }) {
     const breadcrumbs = [
@@ -29,7 +30,82 @@ export default function Index({ progress }) {
     const yearFromUrl = searchParams.get("year") || "default";
     const [year, setYear] = useState(yearFromUrl);
 
-    // ✅ Initialize craData with year-specific localStorage key
+    // const [craData, setCraData] = useState(() => {
+    //     try {
+    //         const saved = localStorage.getItem(`craDataDraft_${yearFromUrl}`);
+
+    //         if (saved) {
+    //             const parsed = JSON.parse(saved);
+
+    //             // ✅ Ensure defaults always exist even in old saved data
+    //             return {
+    //                 population: parsed.population ?? [],
+    //                 livelihood: parsed.livelihood?.length
+    //                     ? parsed.livelihood
+    //                     : (defaultLivelihoods ?? []).map(type => ({
+    //                         type,
+    //                         male_no_dis: "",
+    //                         male_dis: "",
+    //                         female_no_dis: "",
+    //                         female_dis: "",
+    //                         lgbtq_no_dis: "",
+    //                         lgbtq_dis: "",
+    //                     })),
+    //                 infrastructure: parsed.infrastructure ?? (defaultInfra ?? []),
+    //                 institutions: parsed.institutions ?? [],
+    //                 hazards: parsed.hazards ?? [],
+    //                 evacuation: parsed.evacuation ?? [],
+    //                 buildings: parsed.buildings ?? JSON.parse(JSON.stringify(defaultBuildings)),
+    //                 facilities: parsed.facilities ?? JSON.parse(JSON.stringify(defaultFacilities)),
+    //                 year: parsed.year ?? yearFromUrl,
+    //             };
+    //         }
+    //         return {
+    //             population: [],
+    //             livelihood: (defaultLivelihoods ?? []).map(type => ({
+    //                 type,
+    //                 male_no_dis: "",
+    //                 male_dis: "",
+    //                 female_no_dis: "",
+    //                 female_dis: "",
+    //                 lgbtq_no_dis: "",
+    //                 lgbtq_dis: "",
+    //             })),
+
+    //             infrastructure: defaultInfra ?? [],
+    //             institutions: [],
+    //             hazards: [],
+    //             evacuation: [],
+    //             buildings: JSON.parse(JSON.stringify(defaultBuildings)),
+    //             facilities: JSON.parse(JSON.stringify(defaultFacilities)),
+    //             year: yearFromUrl,
+    //         };
+    //     } catch (err) {
+    //         console.error("Error loading draft:", err);
+    //         return {
+    //             population: [],
+    //             livelihood: (defaultLivelihoods ?? []).map(type => ({
+    //                 type,
+    //                 male_no_dis: "",
+    //                 male_dis: "",
+    //                 female_no_dis: "",
+    //                 female_dis: "",
+    //                 lgbtq_no_dis: "",
+    //                 lgbtq_dis: "",
+    //             })),
+
+    //             infrastructure: defaultInfra ?? [],
+    //             institutions: [],
+    //             hazards: [],
+    //             evacuation: [],
+    //             buildings: JSON.parse(JSON.stringify(defaultBuildings)),
+    //             facilities: JSON.parse(JSON.stringify(defaultFacilities)),
+    //             year: yearFromUrl,
+    //         };
+    //     }
+    // });
+
+
     const [craData, setCraData] = useState(() => {
         try {
             const saved = localStorage.getItem(`craDataDraft_${yearFromUrl}`);
@@ -37,33 +113,46 @@ export default function Index({ progress }) {
                 ? JSON.parse(saved)
                 : {
                     population: [],
-                    livelihood: [],
-                    infrastructure: [],
+                    livelihood: (defaultLivelihoods ?? []).map(type => ({
+                        type,
+                        male_no_dis: "",
+                        male_dis: "",
+                        female_no_dis: "",
+                        female_dis: "",
+                        lgbtq_no_dis: "",
+                        lgbtq_dis: "",
+                    })),
+                    infrastructure: defaultInfra ?? [],
                     institutions: [],
                     hazards: [],
                     evacuation: [],
+                    buildings: JSON.parse(JSON.stringify(defaultBuildings)),
+                    facilities: JSON.parse(JSON.stringify(defaultFacilities)),
                     year: yearFromUrl,
                 };
         } catch (err) {
             console.error("Error loading draft:", err);
             return {
                 population: [],
-                livelihood: [],
-                infrastructure: [],
+                livelihood: (defaultLivelihoods ?? []).map(type => ({
+                    type,
+                    male_no_dis: "",
+                    male_dis: "",
+                    female_no_dis: "",
+                    female_dis: "",
+                    lgbtq_no_dis: "",
+                    lgbtq_dis: "",
+                })),
+                infrastructure: defaultInfra ?? [],
                 institutions: [],
                 hazards: [],
                 evacuation: [],
+                buildings: JSON.parse(JSON.stringify(defaultBuildings)),
+                facilities: JSON.parse(JSON.stringify(defaultFacilities)),
                 year: yearFromUrl,
             };
         }
     });
-
-    // useEffect(() => {
-    //     if (craDataFromServer && Object.keys(craDataFromServer).length > 0) {
-    //         setCraData(craDataFromServer);
-    //         console.log("✅ CRA Data refreshed from backend:", craDataFromServer);
-    //     }
-    // }, [craDataFromServer]);
 
     useEffect(() => {
         if (year) {
@@ -72,23 +161,40 @@ export default function Index({ progress }) {
     }, [craData, year]);
 
     useEffect(() => {
-        if (year) {
+        if (!year) return;
+
+        try {
             const saved = localStorage.getItem(`craDataDraft_${year}`);
+
             if (saved) {
                 setCraData(JSON.parse(saved));
             } else {
+                // ✅ Use the same structure as your initial defaults to prevent missing fields
                 setCraData({
-                    population: [],
-                    livelihood: [],
-                    infrastructure: [],
+                    population: parsed.population ?? [],
+                    livelihood: (defaultLivelihoods ?? []).map((type) => ({
+                        type,
+                        male_no_dis: "",
+                        male_dis: "",
+                        female_no_dis: "",
+                        female_dis: "",
+                        lgbtq_no_dis: "",
+                        lgbtq_dis: "",
+                    })),
+                    infrastructure: defaultInfra ?? [],
                     institutions: [],
                     hazards: [],
                     evacuation: [],
+                    buildings: JSON.parse(JSON.stringify(defaultBuildings)),
+                    facilities: JSON.parse(JSON.stringify(defaultFacilities)),
                     year,
                 });
             }
+        } catch (error) {
+            console.error("Error reloading draft:", error);
         }
     }, [year]);
+
 
     const [finalData, setFinalData] = useState([]);
     const [errors, setErrors] = useState({});
