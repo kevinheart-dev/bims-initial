@@ -121,16 +121,16 @@ function ExposureTable({
                         },
                         // Allow custom typed hazard to still show if previously typed
                         ...(riskType &&
-                        ![
-                            "Typhoon",
-                            "Flood",
-                            "Rain-induced Landslide",
-                            "Fire",
-                            "Drought",
-                            "Earthquake",
-                            "Vehicular Incident",
-                            "Pandemic / Emerging and Re-emerging Diseases",
-                        ].includes(riskType)
+                            ![
+                                "Typhoon",
+                                "Flood",
+                                "Rain-induced Landslide",
+                                "Fire",
+                                "Drought",
+                                "Earthquake",
+                                "Vehicular Incident",
+                                "Pandemic / Emerging and Re-emerging Diseases",
+                            ].includes(riskType)
                             ? [{ value: riskType, label: riskType }]
                             : []),
                     ]}
@@ -474,16 +474,16 @@ const ExposureDatabase = () => {
             prev.map((t, idx) =>
                 idx === tableIdx
                     ? {
-                          ...t,
-                          purokData: t.purokData.map((row, rIdx) =>
-                              rIdx === purokIdx
-                                  ? {
-                                        ...row,
-                                        [field]: val === "" ? "" : Number(val),
-                                    }
-                                  : row
-                          ),
-                      }
+                        ...t,
+                        purokData: t.purokData.map((row, rIdx) =>
+                            rIdx === purokIdx
+                                ? {
+                                    ...row,
+                                    [field]: val === "" ? "" : Number(val),
+                                }
+                                : row
+                        ),
+                    }
                     : t
             )
         );
@@ -494,14 +494,14 @@ const ExposureDatabase = () => {
             prev.map((t, idx) =>
                 idx === tableIdx
                     ? {
-                          ...t,
-                          purokData: [
-                              ...t.purokData,
-                              createEmptyPurokRow(
-                                  (t.purokData.length + 1).toString()
-                              ),
-                          ],
-                      }
+                        ...t,
+                        purokData: [
+                            ...t.purokData,
+                            createEmptyPurokRow(
+                                (t.purokData.length + 1).toString()
+                            ),
+                        ],
+                    }
                     : t
             )
         );
@@ -512,11 +512,11 @@ const ExposureDatabase = () => {
             prev.map((t, idx) =>
                 idx === tableIdx
                     ? {
-                          ...t,
-                          purokData: t.purokData.filter(
-                              (_, rIdx) => rIdx !== purokIdx
-                          ),
-                      }
+                        ...t,
+                        purokData: t.purokData.filter(
+                            (_, rIdx) => rIdx !== purokIdx
+                        ),
+                    }
                     : t
             )
         );

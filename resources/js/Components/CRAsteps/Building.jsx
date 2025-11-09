@@ -4,89 +4,90 @@ import toast from "react-hot-toast";
 import Accordion from "../Accordion";
 import React from "react";
 import { toTitleCase } from "@/utils/stringFormat";
+import { defaultFacilities, defaultBuildings } from "./defaults";
 
 // ------------------------------------------------------
 // Default Building Data
-const defaultBuildings = [
-    {
-        category: "Health and Medical Facilities",
-        rows: [
-            { type: "Evacuation Center", households: "" },
-            { type: "Flood Control", households: "" },
-            { type: "Rain Water Harvester (Communal)", households: "" },
-            { type: "Barangay Disaster Operation Center", households: "" },
-            { type: "Public Comfort Room/Toilet", households: "" },
-            { type: "Community Garden", households: "" },
-            { type: "Barangay Health Center", households: "" },
-            { type: "Hospital", households: "" },
-            { type: "Maternity Clinic", households: "" },
-            { type: "Barangay Drug Store", households: "" },
-            { type: "City/Municipal Public Drug Store", households: "" },
-            { type: "Private Drug Store", households: "" },
-            { type: "Quarantine/Isolation Facility", households: "" },
-        ],
-    },
-    {
-        category: "Education Facilities",
-        rows: [
-            { type: "Child Development Center", households: "" },
-            { type: "Preschool", households: "" },
-            { type: "Elementary", households: "" },
-            { type: "Secondary", households: "" },
-            { type: "Vocational", households: "" },
-            { type: "College/University", households: "" },
-            { type: "Islamic School", households: "" },
-        ],
-    },
-    {
-        category: "Agricultural Facilities",
-        rows: [
-            { type: "Rice Mill", households: "" },
-            { type: "Corn Mill", households: "" },
-            { type: "Feed Mill", households: "" },
-            { type: "Agriculture Produce Market", households: "" },
-        ],
-    },
-];
+// const defaultBuildings = [
+//     {
+//         category: "Health and Medical Facilities",
+//         rows: [
+//             { type: "Evacuation Center", households: "" },
+//             { type: "Flood Control", households: "" },
+//             { type: "Rain Water Harvester (Communal)", households: "" },
+//             { type: "Barangay Disaster Operation Center", households: "" },
+//             { type: "Public Comfort Room/Toilet", households: "" },
+//             { type: "Community Garden", households: "" },
+//             { type: "Barangay Health Center", households: "" },
+//             { type: "Hospital", households: "" },
+//             { type: "Maternity Clinic", households: "" },
+//             { type: "Barangay Drug Store", households: "" },
+//             { type: "City/Municipal Public Drug Store", households: "" },
+//             { type: "Private Drug Store", households: "" },
+//             { type: "Quarantine/Isolation Facility", households: "" },
+//         ],
+//     },
+//     {
+//         category: "Education Facilities",
+//         rows: [
+//             { type: "Child Development Center", households: "" },
+//             { type: "Preschool", households: "" },
+//             { type: "Elementary", households: "" },
+//             { type: "Secondary", households: "" },
+//             { type: "Vocational", households: "" },
+//             { type: "College/University", households: "" },
+//             { type: "Islamic School", households: "" },
+//         ],
+//     },
+//     {
+//         category: "Agricultural Facilities",
+//         rows: [
+//             { type: "Rice Mill", households: "" },
+//             { type: "Corn Mill", households: "" },
+//             { type: "Feed Mill", households: "" },
+//             { type: "Agriculture Produce Market", households: "" },
+//         ],
+//     },
+// ];
 
-const defaultFacilities = [
-    {
-        category: "Facilities and Services",
-        rows: [
-            { type: "Multi-Purposes Hall", quantity: "" },
-            { type: "Barangay Women and Chidren Protection Desk", quantity: "" },
-            { type: "Barangay Tanonds and Barangay Peacekeeping Action Teams Post", quantity: "" },
-            { type: "Bureau of Jail Management and Penology", quantity: "" },
-            { type: "Philippine National Police Outpost", quantity: "" },
-            { type: "Bank", quantity: "" },
-            { type: "Post Office", quantity: "" },
-            { type: "Market", quantity: "" },
-        ],
-    },
-    {
-        category: "Public Transportation",
-        rows: [
-            { type: "Bus", quantity: "" },
-            { type: "Taxi", quantity: "" },
-            { type: "Van/FX", quantity: "" },
-            { type: "Jeepney", quantity: "" },
-            { type: "Tricyle", quantity: "" },
-            { type: "Pedicab", quantity: "" },
-            { type: "Boat", quantity: "" },
-        ],
-    },
-    {
-        category: "Road Types",
-        rows: [
-            { type: "Concrete", length: "", maintained_by: "" },
-            { type: "Asphalt", length: "", maintained_by: "" },
-            { type: "Gravel", length: "", maintained_by: "" },
-            { type: "Natural Earth Surface", length: "", maintained_by: "" },
+// const defaultFacilities = [
+//     {
+//         category: "Facilities and Services",
+//         rows: [
+//             { type: "Multi-Purposes Hall", quantity: "" },
+//             { type: "Barangay Women and Chidren Protection Desk", quantity: "" },
+//             { type: "Barangay Tanonds and Barangay Peacekeeping Action Teams Post", quantity: "" },
+//             { type: "Bureau of Jail Management and Penology", quantity: "" },
+//             { type: "Philippine National Police Outpost", quantity: "" },
+//             { type: "Bank", quantity: "" },
+//             { type: "Post Office", quantity: "" },
+//             { type: "Market", quantity: "" },
+//         ],
+//     },
+//     {
+//         category: "Public Transportation",
+//         rows: [
+//             { type: "Bus", quantity: "" },
+//             { type: "Taxi", quantity: "" },
+//             { type: "Van/FX", quantity: "" },
+//             { type: "Jeepney", quantity: "" },
+//             { type: "Tricyle", quantity: "" },
+//             { type: "Pedicab", quantity: "" },
+//             { type: "Boat", quantity: "" },
+//         ],
+//     },
+//     {
+//         category: "Road Types",
+//         rows: [
+//             { type: "Concrete", length: "", maintained_by: "" },
+//             { type: "Asphalt", length: "", maintained_by: "" },
+//             { type: "Gravel", length: "", maintained_by: "" },
+//             { type: "Natural Earth Surface", length: "", maintained_by: "" },
 
-        ],
-    },
+//         ],
+//     },
 
-];
+// ];
 
 // ------------------------------------------------------
 // Building Table Component
@@ -276,18 +277,29 @@ const FacilitiesServicesTable = React.memo(function FacilitiesServicesTable({ ca
     );
 });
 
-
 // ------------------------------------------------------
 // Main Component
 export default function Buildings() {
     const { craData, setCraData } = useContext(StepperContext);
 
-    // Initialize with defaultBuildings using useCallback for memoization
     useEffect(() => {
-        if (!craData.buildings || craData.buildings.length === 0) {
-            setCraData((prev) => ({ ...prev, buildings: JSON.parse(JSON.stringify(defaultBuildings)) }));
-        }
-    }, [craData.buildings, setCraData]);
+        setCraData((prev) => {
+            const updated = { ...prev };
+
+            // 🔹 Always ensure these sections exist with defaults
+            if (!updated.buildings || updated.buildings.length === 0) {
+                updated.buildings = JSON.parse(JSON.stringify(defaultBuildings));
+            }
+
+            if (!updated.facilities || updated.facilities.length === 0) {
+                updated.facilities = JSON.parse(JSON.stringify(defaultFacilities));
+            }
+
+            return updated;
+        });
+    }, [setCraData]);
+
+
 
     // Initialize with defaultFacilities using useCallback for memoization
     useEffect(() => {
