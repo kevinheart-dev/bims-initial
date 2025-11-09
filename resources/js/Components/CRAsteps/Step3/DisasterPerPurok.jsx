@@ -1,5 +1,4 @@
 import React, { useEffect, useContext, useRef } from "react";
-import { Plus } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { StepperContext } from "@/context/StepperContext";
 
@@ -27,11 +26,12 @@ const DEFAULT_ROWS = [
 const DisasterPerPurok = () => {
     const { craData, setCraData } = useContext(StepperContext);
 
-    // // Initialize disaster_per_purok with 7 default puroks, each containing DEFAULT_ROWS
+    const hasInitialized = useRef(false);
+
     useEffect(() => {
         if (
-            !craData.disaster_per_purok ||
-            craData.disaster_per_purok.length === 0
+            !hasInitialized.current &&
+            (!craData.disaster_per_purok || craData.disaster_per_purok.length === 0)
         ) {
             const defaultPuroks = Array.from({ length: 7 }, (_, i) => ({
                 purok: `${i + 1}`,
@@ -41,8 +41,10 @@ const DisasterPerPurok = () => {
                 ...prev,
                 disaster_per_purok: defaultPuroks,
             }));
+            hasInitialized.current = true;
         }
     }, [craData, setCraData]);
+
 
     // const hasInitialized = useRef(false); // Add this ref
 
@@ -103,16 +105,14 @@ const DisasterPerPurok = () => {
         toast.error("Purok removed!");
     };
 
-    // Compute totals
+
     const totals = (
         craData.disaster_per_purok?.[0]?.rowsValue || DEFAULT_ROWS
-    ).map(
-        // Use DEFAULT_ROWS here as a fallback
-        (_, idx) =>
-            craData.disaster_per_purok.reduce(
-                (sum, p) => sum + Number(p.rowsValue?.[idx]?.count || 0),
-                0
-            )
+    ).map((_, idx) =>
+        (craData.disaster_per_purok ?? []).reduce(
+            (sum, p) => sum + Number(p.rowsValue?.[idx]?.count || 0),
+            0
+        )
     );
 
     return (

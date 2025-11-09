@@ -4,70 +4,71 @@ import toast from "react-hot-toast";
 import Accordion from "../Accordion";
 import React from "react";
 import { toTitleCase } from "@/utils/stringFormat";
+import { defaultLivelihoods, defaultInfra } from "./defaults";
 
 // ------------------------------------------------------
 // Constants
-const defaultLivelihoods = [
-    "Farming", "Fishing", "Poultry and Livestock", "Carpentry",
-    "Professional", "Government Employee", "Private Employee",
-    "Brgy. Official or Staff", "Businessman/woman",
-    "Formal/Licensed Driver", "Non-Licensed Driver", "Porter",
-    "Masseuse", "House Helper", "Electrician", "Laborer",
-    "Miner", "Lender", "Call Center Agent", "Medical Transcriptionist",
-    "Virtual Assistant",
-];
+// const defaultLivelihoods = [
+//     "Farming", "Fishing", "Poultry and Livestock", "Carpentry",
+//     "Professional", "Government Employee", "Private Employee",
+//     "Brgy. Official or Staff", "Businessman/woman",
+//     "Formal/Licensed Driver", "Non-Licensed Driver", "Porter",
+//     "Masseuse", "House Helper", "Electrician", "Laborer",
+//     "Miner", "Lender", "Call Center Agent", "Medical Transcriptionist",
+//     "Virtual Assistant",
+// ];
 
-const defaultInfra = [
-    {
-        category: "Electricity Source",
-        rows: [
-            { type: "Distribution Company (ISELCO-II)", households: "" },
-            { type: "Generator", households: "" },
-            { type: "Solar (renewable energy source)", households: "" },
-            { type: "Battery", households: "" },
-            { type: "None", households: "" },
-        ],
-    },
-    {
-        category: "Bath and Wash Area",
-        rows: [
-            { type: "With own Sink and Bath", households: "" },
-            { type: "Shared or Communal", households: "" },
-            { type: "Separate Bathroom", households: "" },
-        ],
-    },
-    {
-        category: "Water Source",
-        rows: [
-            { type: "Level II Water System", households: "" },
-            { type: "Level III Water System", households: "" },
-            { type: "Deep Well (Level I)", households: "" },
-            { type: "Artesian Well (Level I)", households: "" },
-            { type: "Shallow Well (Level I)", households: "" },
-            { type: "Commercial Water Refill Source", households: "" },
-        ],
-    },
-    {
-        category: "Waste Management",
-        rows: [
-            { type: "Open Dump Site", households: "" },
-            { type: "Sanitary Landfill", households: "" },
-            { type: "Compost Pits", households: "" },
-            { type: "Material Recovery Facility (MRF)", households: "" },
-            { type: "Garbage is collected", households: "" },
-        ],
-    },
-    {
-        category: "Toilet",
-        rows: [
-            { type: "Water Sealed", households: "" },
-            { type: "Compost Pit Toilet", households: "" },
-            { type: "Shared or Communal Toilet/Public Toilet", households: "" },
-            { type: "No Latrine", households: "" },
-            { type: "Flash Toilet", households: "" },
-        ],
-    },
-];
+// const defaultInfra = [
+//     {
+//         category: "Electricity Source",
+//         rows: [
+//             { type: "Distribution Company (ISELCO-II)", households: "" },
+//             { type: "Generator", households: "" },
+//             { type: "Solar (renewable energy source)", households: "" },
+//             { type: "Battery", households: "" },
+//             { type: "None", households: "" },
+//         ],
+//     },
+//     {
+//         category: "Bath and Wash Area",
+//         rows: [
+//             { type: "With own Sink and Bath", households: "" },
+//             { type: "Shared or Communal", households: "" },
+//             { type: "Separate Bathroom", households: "" },
+//         ],
+//     },
+//     {
+//         category: "Water Source",
+//         rows: [
+//             { type: "Level II Water System", households: "" },
+//             { type: "Level III Water System", households: "" },
+//             { type: "Deep Well (Level I)", households: "" },
+//             { type: "Artesian Well (Level I)", households: "" },
+//             { type: "Shallow Well (Level I)", households: "" },
+//             { type: "Commercial Water Refill Source", households: "" },
+//         ],
+//     },
+//     {
+//         category: "Waste Management",
+//         rows: [
+//             { type: "Open Dump Site", households: "" },
+//             { type: "Sanitary Landfill", households: "" },
+//             { type: "Compost Pits", households: "" },
+//             { type: "Material Recovery Facility (MRF)", households: "" },
+//             { type: "Garbage is collected", households: "" },
+//         ],
+//     },
+//     {
+//         category: "Toilet",
+//         rows: [
+//             { type: "Water Sealed", households: "" },
+//             { type: "Compost Pit Toilet", households: "" },
+//             { type: "Shared or Communal Toilet/Public Toilet", households: "" },
+//             { type: "No Latrine", households: "" },
+//             { type: "Flash Toilet", households: "" },
+//         ],
+//     },
+// ];
 
 // ------------------------------------------------------
 // Utility helpers
@@ -94,59 +95,55 @@ const LivelihoodTable = React.memo(function LivelihoodTable({ data, defaultLivel
                         <th rowSpan="3" className="border px-2 py-1 w-[250px]">Type of Livelihood</th>
                         <th colSpan="6" className="border px-2 py-1 text-center">NUMBER</th>
                         <th rowSpan="3" className="border px-2 py-1">Total</th>
-                        <th rowSpan="3" className="border px-2 py-1 !border-0 w-10"></th> {/* Added for remove button */}
+                        <th rowSpan="3" className="border px-2 py-1 !border-0 w-10"></th>
                     </tr>
                     <tr>
                         <th colSpan="2" className="border px-2 py-1 text-center">Male</th>
                         <th colSpan="2" className="border px-2 py-1 text-center">Female</th>
                         <th colSpan="2" className="border px-2 py-1 text-center">LGBTQ+</th>
                     </tr>
-                    <tr>
-                        {[
+                    <tr>{ /* Adjusted this line for no whitespace */
+                        [
                             "Without Disability", "With Disability",
                             "Without Disability", "With Disability",
                             "Without Disability", "With Disability"
                         ].map((label, i) => (
                             <th key={i} className="border px-2 py-1">{label}</th>
-                        ))}
-                    </tr>
+                        ))
+                    }</tr>
                 </thead>
-                <tbody>
-                    {data.map((row, idx) => {
+                <tbody>{ /* Adjusted this line for no whitespace */
+                    data.map((row, idx) => {
                         const isDefault = defaultLivelihoodTypes.includes(row.type);
                         return (
-                            <tr key={idx}>
-                                <td className="border px-2 py-1">
-                                    {isDefault ? (
-                                        <span className="block w-full p-1 bg-gray-50 text-gray-700">
-                                            {row.type}
-                                        </span>
-                                    ) : (
-                                        <input
-                                            type="text"
-                                            className="w-full border p-1"
-                                            value={row.type}
-                                            placeholder="Enter livelihood type"
-                                            onChange={(e) => updateType(idx, toTitleCase(e.target.value))}
-                                        />
-                                    )}
+                            <tr key={idx}><td className="border px-2 py-1">
+                                {isDefault ? (
+                                    <span className="block w-full p-1 bg-gray-50 text-gray-700">
+                                        {row.type}
+                                    </span>
+                                ) : (
+                                    <input
+                                        type="text"
+                                        className="w-full border p-1"
+                                        value={row.type}
+                                        placeholder="Enter livelihood type"
+                                        onChange={(e) => updateType(idx, toTitleCase(e.target.value))}
+                                    />
+                                )}
+                            </td>{fields.map((field) => (
+                                <td key={field} className="border px-2 py-1">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        className="w-full border p-1 text-center"
+                                        value={row[field] ?? ""}
+                                        onChange={(e) => updateRow(idx, field, e.target.value)}
+                                    />
                                 </td>
-                                {fields.map((field) => (
-                                    <td key={field} className="border px-2 py-1">
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            className="w-full border p-1 text-center"
-                                            value={row[field] ?? ""}
-                                            onChange={(e) => updateRow(idx, field, e.target.value)}
-                                        />
-                                    </td>
-                                ))}
-                                <td className="border px-2 py-1 font-semibold text-center bg-gray-50">
+                            ))}<td className="border px-2 py-1 font-semibold text-center bg-gray-50">
                                     {sumRow(row) || ""}
-                                </td>
-                                <td className="px-2 py-1 text-center !border-0">
-                                    {!isDefault && ( // Only show remove button for non-default rows
+                                </td><td className="px-2 py-1 text-center !border-0">
+                                    {!isDefault && (
                                         <button
                                             className="w-6 h-6 flex items-center justify-center rounded-full bg-red-100 text-red-600 hover:bg-red-200"
                                             onClick={() => removeRow(idx)}
@@ -155,24 +152,17 @@ const LivelihoodTable = React.memo(function LivelihoodTable({ data, defaultLivel
                                             ✕
                                         </button>
                                     )}
-                                </td>
-                            </tr>
+                                </td></tr>
                         );
-                    })}
-                </tbody>
+                    })
+                }</tbody>
                 <tfoot>
-                    <tr className="bg-gray-100 font-semibold">
-                        <td className="border px-2 py-1 text-center">Total</td>
-                        {fields.map((f) => (
-                            <td key={f} className="border px-2 py-1 text-center">{sumColumn(data, f)}</td>
-                        ))}
-                        <td className="border px-2 py-1 text-center">{sumGrand(data)}</td>
-                        <td className="!border-0"></td> {/* Empty cell for the remove button column */}
-                    </tr>
+                    <tr className="bg-gray-100 font-semibold"><td className="border px-2 py-1 text-center">Total</td>{fields.map((f) => (
+                        <td key={f} className="border px-2 py-1 text-center">{sumColumn(data, f)}</td>
+                    ))}<td className="border px-2 py-1 text-center">{sumGrand(data)}</td><td className="!border-0"></td></tr>
                 </tfoot>
             </table>
 
-            {/* Button + Note aligned */}
             <div className="flex items-start justify-between mt-3">
                 <button
                     onClick={addRow}
@@ -202,36 +192,35 @@ const InfraTable = React.memo(function InfraTable({ category, catIdx, defaultCat
                         <tr>
                             <th className="border px-2 py-1 w-[300px]">Type</th>
                             <th className="border px-2 py-1 text-center">Households</th>
-                            <th className="px-2 py-1 text-center !border-0 w-10"></th> {/* Added for remove button */}
+                            <th className="px-2 py-1 text-center !border-0 w-10"></th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {category.rows.map((row, rowIdx) => {
+
+                    <tbody>{ /* Adjusted this line for no whitespace */
+                        category.rows.map((row, rowIdx) => {
                             const isDefault = defaultTypesForCategory.includes(row.type);
                             return (
-                                <tr key={rowIdx}>
-                                    <td className="border px-2 py-1">
-                                        {isDefault ? (
-                                            <span className="block w-full p-1 bg-gray-50 text-gray-700">
-                                                {row.type}
-                                            </span>
-                                        ) : (
-                                            <input
-                                                type="text"
-                                                className="w-full border p-1" // Keep this styling for input
-                                                value={row.type}
-                                                placeholder="Enter type"
-                                                onChange={(e) => {
-                                                    if (!isDefault) {
-                                                        updateRow(catIdx, rowIdx, "type", toTitleCase(e.target.value));
-                                                    } else {
-                                                        toast.error("Default infrastructure types cannot be edited.");
-                                                    }
-                                                }}
-                                            />
-                                        )}
-                                    </td>
-                                    <td className="border px-2 py-1 text-center">
+                                <tr key={rowIdx}><td className="border px-2 py-1">
+                                    {isDefault ? (
+                                        <span className="block w-full p-1 bg-gray-50 text-gray-700">
+                                            {row.type}
+                                        </span>
+                                    ) : (
+                                        <input
+                                            type="text"
+                                            className="w-full border p-1"
+                                            value={row.type}
+                                            placeholder="Enter type"
+                                            onChange={(e) => {
+                                                if (!isDefault) {
+                                                    updateRow(catIdx, rowIdx, "type", toTitleCase(e.target.value));
+                                                } else {
+                                                    toast.error("Default infrastructure types cannot be edited.");
+                                                }
+                                            }}
+                                        />
+                                    )}
+                                </td><td className="border px-2 py-1 text-center">
                                         <input
                                             type="number"
                                             min="0"
@@ -239,9 +228,8 @@ const InfraTable = React.memo(function InfraTable({ category, catIdx, defaultCat
                                             value={row.households ?? ""}
                                             onChange={(e) => updateRow(catIdx, rowIdx, "households", e.target.value)}
                                         />
-                                    </td>
-                                    <td className="px-2 py-1 text-center !border-0">
-                                        {!isDefault && ( // Only show remove button for non-default rows
+                                    </td><td className="px-2 py-1 text-center !border-0">
+                                        {!isDefault && (
                                             <button
                                                 className="w-6 h-6 flex items-center justify-center rounded-full bg-red-100 text-red-600 hover:bg-red-200"
                                                 onClick={() => removeRow(catIdx, rowIdx)}
@@ -250,15 +238,13 @@ const InfraTable = React.memo(function InfraTable({ category, catIdx, defaultCat
                                                 ✕
                                             </button>
                                         )}
-                                    </td>
-                                </tr>
+                                    </td></tr>
                             );
-                        })}
-                    </tbody>
+                        })
+                    }</tbody>
                 </table>
             </div>
 
-            {/* Button + Note aligned */}
             <div className="flex items-start justify-between p-2 mt-2">
                 <button
                     onClick={() => addRow(catIdx)}
@@ -280,17 +266,34 @@ export default function Livelihood() {
     const { craData, setCraData } = useContext(StepperContext);
 
     useEffect(() => {
-        setCraData((prev) => ({
-            ...prev,
-            livelihood: prev.livelihood?.length
-                ? prev.livelihood
-                : defaultLivelihoods.map((type) => ({
-                    type,
-                    male_no_dis: "", male_dis: "", female_no_dis: "", female_dis: "", lgbtq_no_dis: "", lgbtq_dis: "",
-                })),
-            infrastructure: prev.infrastructure?.length ? prev.infrastructure : defaultInfra,
-        }));
+        // Run once on mount to initialize defaults if needed
+        setCraData(prev => {
+            if (
+                prev.livelihood?.length &&
+                prev.infrastructure?.length
+            ) {
+                return prev;
+            }
+            return {
+                ...prev,
+                livelihood: prev.livelihood?.length
+                    ? prev.livelihood
+                    : defaultLivelihoods.map((type) => ({
+                        type,
+                        male_no_dis: "",
+                        male_dis: "",
+                        female_no_dis: "",
+                        female_dis: "",
+                        lgbtq_no_dis: "",
+                        lgbtq_dis: "",
+                    })),
+                infrastructure: prev.infrastructure?.length
+                    ? prev.infrastructure
+                    : defaultInfra,
+            };
+        });
     }, [setCraData]);
+
 
     const updateRow = useCallback((i, field, val) => {
         setCraData((prev) => {
@@ -349,10 +352,8 @@ export default function Livelihood() {
                     ? {
                         ...cat,
                         rows: cat.rows.map((row, j) => {
-                            if (j !== rowIdx) return row; // Only update the target row
+                            if (j !== rowIdx) return row;
 
-                            // For 'households' field, always update.
-                            // The 'type' field's editability is handled in the InfraTable component's onChange.
                             return {
                                 ...row,
                                 [field]: field === "households" ? (value === "" ? "" : Number(value)) : value
@@ -381,13 +382,12 @@ export default function Livelihood() {
             const categoryToUpdate = prev.infrastructure[catIdx];
             const rowToRemove = categoryToUpdate.rows[rowIdx];
 
-            // Get the default rows for this specific category
             const defaultRowsForCategory = defaultInfra[catIdx].rows;
             const isDefault = defaultRowsForCategory.some(defaultRow => defaultRow.type === rowToRemove.type);
 
             if (isDefault) {
                 toast.error("Default infrastructure rows cannot be removed.");
-                return prev; // Return previous state if it's a default row
+                return prev;
             }
 
             toast.error("Row removed!");
@@ -422,7 +422,7 @@ export default function Livelihood() {
                                 key={idx}
                                 category={cat}
                                 catIdx={idx}
-                                defaultCategoryRows={defaultInfra[idx].rows} // Pass default rows for this category
+                                defaultCategoryRows={defaultInfra[idx].rows}
                                 updateRow={updateInfraRow}
                                 removeRow={removeInfraRow}
                                 addRow={addInfraRow}
@@ -435,7 +435,7 @@ export default function Livelihood() {
                                 key={idx + 3}
                                 category={cat}
                                 catIdx={idx + 3}
-                                defaultCategoryRows={defaultInfra[idx + 3].rows} // Pass default rows for this category
+                                defaultCategoryRows={defaultInfra[idx + 3].rows}
                                 updateRow={updateInfraRow}
                                 removeRow={removeInfraRow}
                                 addRow={addInfraRow}
