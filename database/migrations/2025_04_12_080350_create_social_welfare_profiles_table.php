@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
             $table->boolean('is_4ps_beneficiary')->nullable()->default(false);
             $table->boolean('is_solo_parent')->nullable()->default(false);
+            $table->boolean('is_out_of_school_youth')->nullable()->default(false);
+            $table->boolean('is_out_of_school_children')->nullable()->default(false);
             $table->string('solo_parent_id_number', 100)->nullable();
             $table->string('philsys_card_no', 100)->nullable();
             $table->timestamps();

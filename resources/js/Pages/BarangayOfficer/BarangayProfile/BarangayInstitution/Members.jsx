@@ -161,14 +161,25 @@ export default function Members({
 
         name: (row) => {
             const res = row.resident;
+            const isHead = row.is_head === 1;
+
             return (
-                <span className="font-medium text-gray-800">
-                    {res.firstname} {res.middlename ?? ""} {res.lastname}{" "}
-                    <span className="text-gray-500">{res.suffix ?? ""}</span>
-                </span>
+                <div className="flex items-center gap-2">
+                    <span className="font-medium text-gray-800">
+                        {res.firstname} {res.middlename ?? ""} {res.lastname}{" "}
+                        <span className="text-gray-500">
+                            {res.suffix ?? ""}
+                        </span>
+                    </span>
+
+                    {isHead && (
+                        <span className="px-2 py-0.5 text-[10px] font-semibold rounded-full bg-blue-100 text-blue-800">
+                            Head
+                        </span>
+                    )}
+                </div>
             );
         },
-
         sex: (row) => {
             const sexKey = row.resident?.sex;
             const label =

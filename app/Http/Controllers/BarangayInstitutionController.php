@@ -23,7 +23,7 @@ class BarangayInstitutionController extends Controller
         // Base query
         $query = BarangayInstitution::query()
             ->where('barangay_id', $brgy_id)
-            ->with(['head.resident:id,firstname,lastname,middlename,suffix']) // eager load head and its resident
+            ->with(['head.resident:id,firstname,lastname,middlename,suffix,contact_number']) // eager load head and its resident
             ->distinct();
 
         // Optional filters

@@ -64,8 +64,6 @@ const InstitutionIndex = ({ institutions, institutionNames, queryParams }) => {
         { key: "description", label: "Description" },
         { key: "year_established", label: "Year Established" },
         { key: "status", label: "Status" },
-        { key: "created_at", label: "Created At" },
-        { key: "updated_at", label: "Updated At" },
         { key: "actions", label: "Actions" },
     ];
 
@@ -132,13 +130,26 @@ const InstitutionIndex = ({ institutions, institutionNames, queryParams }) => {
                 {INSTITUTION_TYPE_TEXT[row.type] || "—"}
             </span>
         ),
+
         head: (row) => {
             const res = row?.head?.resident;
-            return res
-                ? `${res.firstname} ${res.middlename ?? ""} ${res.lastname} ${
-                      res.suffix ?? ""
-                  }`
-                : "No assigned head";
+            if (!res) return "No assigned head";
+
+            const fullName = `${res.firstname} ${res.middlename ?? ""} ${
+                res.lastname
+            } ${res.suffix ?? ""}`.trim();
+            const contact = res.contact_number
+                ? res.contact_number
+                : "No contact";
+
+            return (
+                <div className="flex flex-col text-sm text-gray-700">
+                    <span className="font-medium text-gray-900">
+                        {fullName}
+                    </span>
+                    <span className="text-gray-500">{contact}</span>
+                </div>
+            );
         },
 
         description: (row) => (
@@ -169,34 +180,6 @@ const InstitutionIndex = ({ institutions, institutionNames, queryParams }) => {
                 </span>
             );
         },
-
-        created_at: (row) => (
-            <span className="text-sm text-gray-500">
-                {row.created_at
-                    ? new Date(row.created_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                      })
-                    : "—"}
-            </span>
-        ),
-
-        updated_at: (row) => (
-            <span className="text-sm text-gray-500">
-                {row.updated_at
-                    ? new Date(row.updated_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                      })
-                    : "—"}
-            </span>
-        ),
 
         actions: (row) => (
             <ActionMenu
@@ -387,6 +370,7 @@ const InstitutionIndex = ({ institutions, institutionNames, queryParams }) => {
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <Toaster richColors />
             <div className="pt-4 mb-10">
+                {/* <pre>{JSON.stringify(institutions, undefined, 2)}</pre> */}
                 <div className="mx-auto max-w-8xl px-2 sm:px-4 lg:px-6">
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                         <div className="mb-6">
