@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use App\Models\Purok;
@@ -60,9 +61,24 @@ class ExcelDataSeeder extends Seeder
                 $email = null;
             }
 
-            // ✅ Fix Purok
+            // --- Fix Purok ---
             $purokNumber = isset($row[15]) ? trim($row[15]) : null;
+            $originalValue = $row[15] ?? null; // for logging
+
             $purokNumber = preg_replace('/[^0-9]/', '', $purokNumber);
+
+            $fallbackUsed = false;
+            if ($purokNumber === '' || $purokNumber === null) {
+                $purokNumber = 0;
+                $fallbackUsed = true;
+            }
+
+            // --- LOGGING ---
+            Log::info("Row {$i} Purok Check", [
+                'original_value' => $originalValue,
+                'cleaned_numeric' => $purokNumber,
+                'fallback_used' => $fallbackUsed,
+            ]);
 
             $houseNumberFromFile = $row[18];
 
@@ -84,6 +100,9 @@ class ExcelDataSeeder extends Seeder
             $isOSC           = !empty($row[27]) && $row[27] == 1 ? 1 : 0;
             $isIP            = !empty($row[28]) && $row[28] == 1 ? 1 : 0;
             $philsys        = trim($row[29]) ?? null;
+
+
+
 
             /** ✅ Get or Create Purok */
             $purok = Purok::firstOrCreate([
@@ -158,16 +177,18 @@ class ExcelDataSeeder extends Seeder
                     'updated_at'             => now(),
                 ]);
             }
-            if (!empty($philsys)) {
+            if (!empty($philsys) || $isSoloParent || $isOSY || $isOSC) {
                 DB::table('social_welfare_profiles')->insert([
-                    'barangay_id'           => $barangayId,
-                    'resident_id'           => $residentId,
-                    'philsys_card_no'       => $philsys ?: null,
-                    'created_at'            => now(),
-                    'updated_at'            => now(),
+                    'barangay_id'                 => $barangayId,
+                    'resident_id'                 => $residentId,
+                    'is_solo_parent'              => $isSoloParent,
+                    'is_out_of_school_youth'      => $isOSY,
+                    'is_out_of_school_children'   => $isOSC,
+                    'philsys_card_no'             => $philsys ?: null,
+                    'created_at'                  => now(),
+                    'updated_at'                  => now(),
                 ]);
             }
-
         }
     }
 }
