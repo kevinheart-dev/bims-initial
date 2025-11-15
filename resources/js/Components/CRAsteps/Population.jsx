@@ -47,7 +47,7 @@ export default function Population() {
 
     // Initialize CRA data
     useEffect(() => {
-        console.log("CRA Data:", craData);
+        // console.log("CRA Data:", craData);
 
         if (!craData.population || craData.population.length === 0) {
             setCraData((prev) => ({
