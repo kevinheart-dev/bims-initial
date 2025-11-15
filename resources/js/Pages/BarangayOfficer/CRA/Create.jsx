@@ -169,7 +169,6 @@ export default function Index({ progress }) {
             if (saved) {
                 setCraData(JSON.parse(saved));
             } else {
-                // ✅ Use the same structure as your initial defaults to prevent missing fields
                 setCraData({
                     population: parsed.population ?? [],
                     livelihood: (defaultLivelihoods ?? []).map((type) => ({
