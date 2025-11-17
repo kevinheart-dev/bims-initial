@@ -27,6 +27,8 @@ import FilterToggle from "@/Components/FilterButtons/FillterToggle";
 import DynamicTableControls from "@/Components/FilterButtons/DynamicTableControls";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import ExportButton from "@/Components/ExportButton";
+import SidebarModal from "@/Components/SidebarModal";
+import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
 
 export default function Index({ households, puroks, streets, queryParams }) {
     const breadcrumbs = [
@@ -70,7 +72,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
 
     const allColumns = [
         { key: "id", label: "ID" },
-        { key: "name", label: "Name of Household Head" },
+        { key: "name", label: "Household Head" },
         { key: "house_number", label: "House Number" },
         { key: "purok_number", label: "Purok" },
         { key: "street_name", label: "Street" },
@@ -83,6 +85,26 @@ export default function Index({ households, puroks, streets, queryParams }) {
         { key: "number_of_occupants", label: "Number of Occupants" },
         { key: "actions", label: "Actions" },
     ];
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedResident, setSelectedResident] = useState(null);
+
+    // Use useCallback for event handlers to prevent unnecessary re-renders of child components
+    const handleView = async (residentId) => {
+        try {
+            // Using template literals for route if APP_URL is needed, or just route() helper
+            const response = await axios.get(
+                route("resident.showresident", residentId) // Assuming you have a route 'resident.showresident'
+            );
+            setSelectedResident(response.data.resident);
+        } catch (error) {
+            console.error("Error fetching resident details:", error);
+            toast.error("Failed to load resident details.", {
+                description: error.message,
+            });
+        }
+        setIsModalOpen(true);
+    };
 
     const [visibleColumns, setVisibleColumns] = useState(
         allColumns.map((col) => col.key)
@@ -122,13 +144,13 @@ export default function Index({ households, puroks, streets, queryParams }) {
         name: (entry) => {
             const head = entry.resident;
             return head ? (
-                <Link
-                    className="font-medium text-blue-600 hover:underline"
-                    href={route("resident.show", head.id)}
+                <span
+                    className="font-medium text-blue-600 hover:underline cursor-pointer"
+                    onClick={() => handleView(head.id)}
                 >
                     {head.firstname} {head.middlename ?? ""}{" "}
                     {head.lastname ?? ""} {head.suffix ?? ""}
-                </Link>
+                </span>
             ) : (
                 <span className="text-gray-400 italic">No household head</span>
             );
@@ -441,6 +463,17 @@ export default function Index({ households, puroks, streets, queryParams }) {
                             onConfirm={confirmDelete}
                             residentId={houseToDelete}
                         />
+                        <SidebarModal
+                            isOpen={isModalOpen}
+                            onClose={() => setIsModalOpen(false)}
+                            title="Resident Details"
+                        >
+                            {selectedResident && (
+                                <PersonDetailContent
+                                    person={selectedResident}
+                                />
+                            )}
+                        </SidebarModal>
                     </div>
                 </div>
             </div>

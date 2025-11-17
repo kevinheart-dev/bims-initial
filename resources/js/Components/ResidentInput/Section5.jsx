@@ -10,6 +10,8 @@ import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import useAppUrl from "@/hooks/useAppUrl";
 import axios from "axios";
 import { useEffect } from "react";
+import { useState } from "react";
+import { Switch } from "@/components/ui/switch"; // adjust path
 const Section5 = ({
     data,
     setData,
@@ -21,6 +23,7 @@ const Section5 = ({
     head = false,
 }) => {
     const APP_URL = useAppUrl();
+    const [showNewHouseToggle, setShowNewHouseToggle] = useState(false);
 
     const purok_numbers = puroks.map((purok) => ({
         label: "Purok " + purok,
@@ -216,7 +219,6 @@ const Section5 = ({
                                         )
                                     }
                                     placeholder="Select relationship"
-                                    required
                                     items={[
                                         // {
                                         //     label: "Self/Head",
@@ -357,6 +359,53 @@ const Section5 = ({
                                 </p>
                                 <InputError
                                     message={errors.purok_number}
+                                    className="mt-1"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    {/* Toggle for New House Number */}
+                    <div className="flex items-center space-x-2 mt-6">
+                        <Switch
+                            checked={showNewHouseToggle}
+                            onCheckedChange={setShowNewHouseToggle}
+                        />
+                        <span className="text-sm text-gray-700">
+                            {showNewHouseToggle
+                                ? "Hide New House Number"
+                                : "Add New House Number (Not Found)"}
+                        </span>
+                    </div>
+
+                    {/* Collapsible New House Number Section */}
+                    <div
+                        className={`transition-all duration-300 overflow-hidden ${
+                            showNewHouseToggle
+                                ? "max-h-96 opacity-100 mt-4"
+                                : "max-h-0 opacity-0"
+                        }`}
+                    >
+                        <div className="bg-gray-50 p-6 rounded-lg space-y-6">
+                            <div className="flex flex-col mt-2">
+                                <InputField
+                                    type="text"
+                                    label="New House Number (Not Found in Records)"
+                                    name="new_housenumber"
+                                    value={data.new_housenumber || ""}
+                                    onChange={(e) =>
+                                        setData(
+                                            "new_housenumber",
+                                            e.target.value
+                                        )
+                                    }
+                                    placeholder="Enter new house or lot number"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    This household number is not yet in the
+                                    database. You may add it.
+                                </p>
+                                <InputError
+                                    message={errors.new_housenumber}
                                     className="mt-1"
                                 />
                             </div>

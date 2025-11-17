@@ -243,11 +243,12 @@ export default function Index({
         relationship_to_head: (member) =>
             CONSTANTS.RELATIONSHIP_TO_HEAD_TEXT[
                 member.household_residents?.[0]?.relationship_to_head
-            ] || "",
+            ] || <span className="text-gray-400 italic">Not specified</span>,
+
         household_position: (member) =>
             CONSTANTS.HOUSEHOLD_POSITION_TEXT[
                 member.household_residents?.[0]?.household_position
-            ] || "",
+            ] || <span className="text-gray-400 italic">Not specified</span>,
         employment_status: (member) =>
             CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
                 member?.employment_status
@@ -262,7 +263,12 @@ export default function Index({
 
             return <span className={className}>{label}</span>;
         },
-        is_pwd: (member) => CONSTANTS.MEDICAL_PWD_TEXT[member?.is_pwd],
+        is_pwd: (member) =>
+            member?.is_pwd in CONSTANTS.MEDICAL_PWD_TEXT ? (
+                CONSTANTS.MEDICAL_PWD_TEXT[member.is_pwd]
+            ) : (
+                <span className="text-gray-400 italic">Not specified</span>
+            ),
         actions: (member) => (
             <ActionMenu
                 actions={[

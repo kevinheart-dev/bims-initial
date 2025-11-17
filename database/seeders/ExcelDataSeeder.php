@@ -162,6 +162,7 @@ class ExcelDataSeeder extends Seeder
                     'resident_id' => $residentId,
                     'occupation'  => $occupation,
                     'is_ofw'      => $isOFW,
+                    'is_main_livelihood' => 1,
                     'created_at'  => now(),
                     'updated_at'  => now(),
                 ]);
@@ -181,10 +182,12 @@ class ExcelDataSeeder extends Seeder
                 DB::table('social_welfare_profiles')->insert([
                     'barangay_id'                 => $barangayId,
                     'resident_id'                 => $residentId,
-                    'is_solo_parent'              => $isSoloParent,
-                    'is_out_of_school_youth'      => $isOSY,
-                    'is_out_of_school_children'   => $isOSC,
-                    'philsys_card_no'             => $philsys ?: null,
+                    'is_4ps_beneficiary'          => $is4Ps ?? false,
+                    'is_solo_parent'              => $isSoloParent ?? false,
+                    'is_out_of_school_youth'      => $isOSY ?? false,
+                    'is_out_of_school_children'   => $isOSC ?? false,
+                    'solo_parent_id_number'       => $soloParentIdNumber ?? null,
+                    'philsys_card_no'             => $philsys ?? null,
                     'created_at'                  => now(),
                     'updated_at'                  => now(),
                 ]);

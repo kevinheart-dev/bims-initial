@@ -17,6 +17,7 @@ use App\Models\Resident;
 use App\Http\Requests\StoreResidentRequest;
 use App\Http\Requests\UpdateResidentRequest;
 use App\Models\BarangayOfficial;
+use App\Models\SocialWelfareProfile;
 use App\Models\Street;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -231,7 +232,7 @@ class ResidentController extends Controller
         try {
             // Validate all request inputs using the form request rules
             $data = $request->validated();
-
+            //dd($data);
             /**
              * @var $image \Illuminate\Http\UploadedFile|null
              */
@@ -259,11 +260,41 @@ class ResidentController extends Controller
                 $data['resident_image'] = null;
             }
 
+            $purok = Purok::firstOrCreate([
+                'barangay_id' => $barangayId,
+                'purok_number' => $data['purok_number'],
+            ]);
+
+
             // Get the selected household and corresponding family ID
-            $householdId = $data['housenumber'] ?? null;
-            $familyId = Family::where('household_id', $householdId)
-                ->where('barangay_id', $barangayId)
-                ->value('id');
+            // Determine which house number to use
+            $houseNumberToUse = $data['housenumber'] ?? $data['new_housenumber'] ?? null;
+
+            if (!$houseNumberToUse) {
+                throw new \Exception("House number is required."); // Optional: validation
+            }
+
+            /** ✅ Get or Create Household */
+            $household = Household::firstOrCreate([
+                'barangay_id' => $barangayId,
+                'purok_id'    => $purok->id,
+                'house_number'=> $houseNumberToUse,
+            ]);
+
+            $householdId = $household->id ?? null;
+
+            $family = Family::firstOrCreate(
+                [
+                    'household_id' => $householdId,
+                    'barangay_id'  => $barangayId,
+                ],
+                [
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+
+            $familyId = $family->id;
 
             // ==============================
             // 🔹 MAIN RESIDENT INFORMATION
@@ -285,12 +316,13 @@ class ResidentController extends Controller
                 'employment_status' => $data['employment_status'] ?? 'unemployed',
                 'religion' => $data['religion'] ?? null,
                 'contact_number' => $data['contactNumber'] ?? null,
-                'registered_voter' => $data['registered_voter'],
-                'is_household_head' => 0, // Default to non-head; may be updated later
+                'registered_voter' => $data['registered_voter'] ?? 0,
+                'is_household_head' => $data['new_housenumber'] ? 1 : 0,
+                'is_family_head' => $data['new_housenumber'] ? 1 : 0,
                 'household_id' => $householdId,
                 'ethnicity' => $data['ethnicity'] ?? null,
                 'email' => $data['email'] ?? null,
-                'residency_date' => $data['residency_date'] ?? now(),
+                'residency_date' => $data['residency_date'] ?? now()->year,
                 'residency_type' => $data['residency_type'] ?? 'permanent',
                 'purok_number' => $data['purok_number'],
                 'street_id' => $data['street_id'] ?? null,
@@ -316,6 +348,7 @@ class ResidentController extends Controller
                 'is_4ps_beneficiary' => $data['is_4ps_beneficiary'] ?? false,
                 'is_solo_parent' => $data['is_solo_parent'] ?? false,
                 'solo_parent_id_number' => $data['solo_parent_id_number'] ?? null,
+                'philsys_card_no' =>  $data['philsys_card_number'] ?? null,
             ];
 
             // ==============================
@@ -574,6 +607,7 @@ class ResidentController extends Controller
                 ->with('success', 'Resident ' . ucwords($resident->full_name) . ' created successfully!');
         } catch (\Exception $e) {
             // Handle any unexpected error
+            dd('Resident could not be created: ' . $e->getMessage());
             DB::rollBack();
             return back()->with('error', 'Resident could not be created: ' . $e->getMessage());
         }
@@ -643,7 +677,7 @@ class ResidentController extends Controller
 
                 // --- PETS SECTION ---
                 // Create pet records if household has pets
-                if ($data['has_pets']) {
+                if (!empty($data['has_pets'])) {
                     foreach ($data['pets'] ?? [] as $pet) {
                         $household->pets()->create([
                             'pet_type' => $pet["pet_type"] ?? null,
@@ -654,7 +688,7 @@ class ResidentController extends Controller
 
                 // --- LIVESTOCK SECTION ---
                 // Create livestock records if household has any
-                if ($data['has_livestock']) {
+                if(!empty($data['has_livestock'])) {
                     foreach ($data['livestocks'] ?? [] as $livestock) {
                         $household->livestocks()->create([
                             'livestock_type' => $livestock["livestock_type"] ?? null,
@@ -665,7 +699,7 @@ class ResidentController extends Controller
                 }
 
                 // --- INTERNET ACCESSIBILITY ---
-                if ($data['type_of_internet']) {
+                if(!empty($data['type_of_internet'])){
                     $household->internetAccessibility()->create([
                         'type_of_internet' => $data["type_of_internet"] ?? null,
                     ]);
@@ -746,7 +780,7 @@ class ResidentController extends Controller
                                 'registered_voter' => $member['registered_voter'],
                                 'ethnicity' => $member['ethnicity'] ?? null,
                                 'email' => $member['email'] ?? null,
-                                'residency_date' => $member['residency_date'] ?? now(),
+                                'residency_date' => $member['residency_date'] ?? now()->year,
                                 'residency_type' => $member['residency_type'] ?? 'permanent',
                                 'purok_number' => $data['purok'],
                                 'street_id' => $data['street'] ?? null,
@@ -770,6 +804,7 @@ class ResidentController extends Controller
                                 'is_4ps_beneficiary' => $member['is_4ps_beneficiary'] ?? false,
                                 'is_solo_parent' => $member['is_solo_parent'] ?? false,
                                 'solo_parent_id_number' => $member['solo_parent_id_number'] ?? null,
+                                'philsys_card_no' =>  $data['philsys_card_number'] ?? null,
                             ];
 
                             // --- DETERMINE HOUSEHOLD POSITION ---
@@ -841,7 +876,7 @@ class ResidentController extends Controller
                             $resident->medicalInformation()->create($residentMedicalInformation);
 
                             // --- ADD DISABILITIES IF PWD ---
-                            if ($member["is_pwd"] == '1') {
+                            if (is_array($member) && ($member['is_pwd'] ?? 0) == '1') {
                                 foreach ($member['disabilities'] ?? [] as $disability) {
                                     $resident->disabilities()->create([
                                         'disability_type' => $disability['disability_type'] ?? null,
@@ -856,13 +891,13 @@ class ResidentController extends Controller
                             $resident->householdResidents()->create($householdResident);
 
                             // --- ADD VEHICLE OWNERSHIP ---
-                            if (isset($member['has_vehicle'])) {
+                            if (!empty($member['has_vehicle'])) {
                                 foreach ($member['vehicles'] ?? [] as $vehicle) {
                                     $resident->vehicles()->create([
-                                        'vehicle_type' => $vehicle['vehicle_type'],
-                                        'vehicle_class' => $vehicle['vehicle_class'],
-                                        'usage_status' => $vehicle['usage_status'],
-                                        'is_registered' => $vehicle['is_registered'],
+                                        'vehicle_type'   => $vehicle['vehicle_type'] ?? null,
+                                        'vehicle_class'  => $vehicle['vehicle_class'] ?? null,
+                                        'usage_status'   => $vehicle['usage_status'] ?? null,
+                                        'is_registered'  => $vehicle['is_registered'] ?? 0,
                                     ]);
                                 }
                             }
@@ -914,15 +949,15 @@ class ResidentController extends Controller
 
             DB::commit();
             // --- SUCCESS RESPONSE ---
+            //dd('yes');
             return redirect()->route('resident.index')->with('success', 'Residents Household created successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
+            //dd('Residents Household could not be created: ' . $e->getMessage());
             // Handle and return any error that occurred
             return back()->with('error', 'Residents Household could not be created: ' . $e->getMessage());
         }
     }
-
-
 
     /**
      * Display the specified resource.
@@ -1187,7 +1222,6 @@ class ResidentController extends Controller
 
     public function update(UpdateResidentRequest $request, Resident $resident)
     {
-
         try {
             DB::beginTransaction();
             $data = $request->validated();
@@ -1206,10 +1240,55 @@ class ResidentController extends Controller
                 $data['resident_image'] = $resident->resident_picture_path;
             }
 
-            $householdId = $data['housenumber'] ?? null;
-            $familyId =  Family::where('household_id', $householdId)
-                ->where('barangay_id', $barangayId)
-                ->value('id');
+            $purok = Purok::firstOrCreate([
+                'barangay_id' => $barangayId,
+                'purok_number' => $data['purok_number'],
+            ]);
+
+
+            // Determine house number
+            $existingHouseNumber = $data['housenumber'] ?? null;
+            $newHouseNumber      = $data['newhousenumber'] ?? null;
+
+            // No house number at all
+            if (!$existingHouseNumber && !$newHouseNumber) {
+                throw new \Exception("House number is required.");
+            }
+
+            if ($existingHouseNumber) {
+                // 🔍 Find existing household ONLY
+                $household = Household::where('barangay_id', $barangayId)
+                    ->where('purok_id', $purok->id)
+                    ->where('house_number', $existingHouseNumber)
+                    ->first();
+
+                if (!$household) {
+                    throw new \Exception("Selected household number does not exist.");
+                }
+            } else {
+                // 🆕 Create new household (because housenumber is null)
+                $household = Household::firstOrCreate([
+                    'barangay_id' => $barangayId,
+                    'purok_id'    => $purok->id,
+                    'house_number'=> $newHouseNumber,
+                ]);
+            }
+
+            $householdId = $household->id;
+
+            // Create or get family
+            $family = Family::firstOrCreate(
+                [
+                    'household_id' => $householdId,
+                    'barangay_id'  => $barangayId,
+                ],
+                [
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+
+            $familyId = $family->id;
 
             $residentInformation = [
                 'resident_picture_path' => $data['resident_image'] ?? null,
@@ -1230,10 +1309,12 @@ class ResidentController extends Controller
                 'contact_number' => $data['contactNumber'] ?? null,
                 'registered_voter' => $data['registered_voter'],
                 'email' => $data['email'] ?? null,
-                'residency_date' => $data['residency_date'] ?? now(),
+                'residency_date' => $data['residency_date'] ?? now()->year,
                 'residency_type' => $data['residency_type'] ?? 'permanent',
                 'purok_number' => $data['purok_number'],
                 'street_id' => $data['street_id'] ?? null,
+                'is_household_head' => $data['new_housenumber'] ? 1 : $resident->is_household_head,
+                'is_family_head' => $data['new_housenumber'] ? 1 : $resident->is_family_head,
                 'is_pwd' => $data['is_pwd'] ?? null,
                 'ethnicity' => $data['ethnicity'] ?? null,
                 'family_id' => $familyId,
@@ -1246,6 +1327,7 @@ class ResidentController extends Controller
                 'is_4ps_beneficiary' => $data['is_4ps_beneficiary'] ?? false,
                 'is_solo_parent' => $data['is_solo_parent'] ?? false,
                 'solo_parent_id_number' => $data['solo_parent_id_number'] ?? null,
+                'philsys_card_no' =>  $data['philsys_card_number'] ?? null,
             ];
 
             $residentVotingInformation = [
@@ -1277,16 +1359,17 @@ class ResidentController extends Controller
 
             // === Update Voting Information ===
             $resident->votingInformation()->updateOrCreate(
-                ['resident_id' => $resident->id],
+                [],
                 $residentVotingInformation
             );
 
 
             // === Update Social Welfare Profile ===
-            $resident->socialWelfareProfile()->updateOrCreate(
-                ['resident_id' => $resident->id],
+            SocialWelfareProfile::updateOrCreate(
+                ['resident_id' => $resident->id],  // the unique key
                 $residentSocialWelfareProfile
             );
+
 
 
             // === Update Medical Information ===

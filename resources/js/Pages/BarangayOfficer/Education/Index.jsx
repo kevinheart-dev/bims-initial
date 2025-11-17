@@ -168,18 +168,26 @@ export default function Index({
     };
 
     const columnRenderers = {
-        id: (row) => row.id,
+        id: (row) => row.id ?? "—",
 
         name: (row) => {
             const r = row?.resident;
-            if (!r) return "Unknown";
-            return `${r.firstname ?? ""} ${r.middlename ?? ""} ${
+            if (!r)
+                return <span className="text-gray-400 italic">Unknown</span>;
+            const fullName = `${r.firstname ?? ""} ${r.middlename ?? ""} ${
                 r.lastname ?? ""
             } ${r.suffix ?? ""}`.trim();
+            return (
+                fullName || (
+                    <span className="text-gray-400 italic">Not specified</span>
+                )
+            );
         },
 
         educational_attainment: (row) =>
-            EDUCATION_LEVEL_TEXT[row.educational_attainment] || "—",
+            EDUCATION_LEVEL_TEXT[row.educational_attainment] ?? (
+                <span className="text-gray-400 italic">Not specified</span>
+            ),
 
         education_status: (row) => {
             const status = row.education_status;
@@ -203,28 +211,47 @@ export default function Index({
             );
         },
 
-        school_name: (row) => row.school_name ?? "—",
+        school_name: (row) =>
+            row.school_name ?? (
+                <span className="text-gray-400 italic">Not specified</span>
+            ),
 
-        school_type: (row) => (
-            <span
-                className={`px-2 py-1 text-xs rounded ${
-                    row.school_type === "private"
-                        ? "bg-purple-100 text-purple-800"
-                        : "bg-green-100 text-green-800"
-                }`}
-            >
-                {EDUCATION_SCHOOL_TYPE[row.school_type] ?? "—"}
-            </span>
-        ),
+        school_type: (row) => {
+            const type = row.school_type;
+            const label = EDUCATION_SCHOOL_TYPE[type] ?? "Not specified";
+            const badgeClass =
+                type === "private"
+                    ? "bg-purple-100 text-purple-800"
+                    : type === "public"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-gray-100 text-gray-600";
 
-        year_started: (row) => row.year_started ?? "—",
+            return (
+                <span className={`px-2 py-1 text-xs rounded ${badgeClass}`}>
+                    {label}
+                </span>
+            );
+        },
 
-        year_ended: (row) => row.year_ended ?? "—",
+        year_started: (row) =>
+            row.year_started ?? (
+                <span className="text-gray-400 italic">Not specified</span>
+            ),
+
+        year_ended: (row) =>
+            row.year_ended ?? (
+                <span className="text-gray-400 italic">Not specified</span>
+            ),
 
         program: (row) =>
-            row.program ?? <span className="text-gray-400 italic">N/A</span>,
+            row.program ?? (
+                <span className="text-gray-400 italic">Not specified</span>
+            ),
 
-        purok_number: (row) => row?.resident?.purok_number ?? "—",
+        purok_number: (row) =>
+            row?.resident?.purok_number ?? (
+                <span className="text-gray-400 italic">Not specified</span>
+            ),
 
         actions: (row) => (
             <ActionMenu

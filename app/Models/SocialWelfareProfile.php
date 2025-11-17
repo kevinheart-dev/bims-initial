@@ -18,6 +18,7 @@ class SocialWelfareProfile extends Model
         'is_solo_parent',
         'solo_parent_id_number',
         'orphan_status',
+        'philsys_card_no',
         'created_at',
         'updated_at',
     ];

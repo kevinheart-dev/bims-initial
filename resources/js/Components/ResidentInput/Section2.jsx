@@ -124,7 +124,6 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                 <SelectField
                                     label="Educational Status"
                                     name="education_status"
-                                    required
                                     items={[
                                         {
                                             label: "Currently Enrolled",
@@ -215,7 +214,6 @@ const Section2 = ({ data, setData, errors, handleArrayValues }) => {
                                 <RadioGroup
                                     label="School Type"
                                     name="school_type"
-                                    required
                                     options={[
                                         { label: "Public", value: "public" },
                                         { label: "Private", value: "private" },

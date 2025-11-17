@@ -16,11 +16,16 @@ const Section1 = ({
     errors,
     showMaidenMiddleName,
     barangays = [],
+    puroks = [],
     existingImagePath = null,
 }) => {
     const addVehicle = () => {
         setData("vehicles", [...(data.vehicles || []), {}]);
     };
+    const purok_numbers = puroks.map((purok) => ({
+        label: "Purok " + purok,
+        value: purok.toString(),
+    }));
 
     const removeVehicle = (vehicleIndex) => {
         const updated = [...(data.vehicles || [])];
@@ -59,7 +64,7 @@ const Section1 = ({
                             data.resident_image instanceof File
                                 ? URL.createObjectURL(data.resident_image)
                                 : existingImagePath ||
-                                "/images/default-avatar.jpg"
+                                  "/images/default-avatar.jpg"
                         }
                         alt="Resident Image"
                         className="w-32 h-32 object-cover rounded-full border border-gray-200 shadow-sm"
@@ -88,8 +93,9 @@ const Section1 = ({
                 <div className="md:col-span-5 space-y-4">
                     {/* Names */}
                     <div
-                        className={`grid gap-3 grid-cols-1 sm:grid-cols-2 md:${showMaidenMiddleName ? "grid-cols-4" : "grid-cols-3"
-                            }`}
+                        className={`grid gap-3 grid-cols-1 sm:grid-cols-2 md:${
+                            showMaidenMiddleName ? "grid-cols-4" : "grid-cols-3"
+                        }`}
                     >
                         <div>
                             <InputField
@@ -98,7 +104,10 @@ const Section1 = ({
                                 value={data.lastname || ""}
                                 placeholder="Enter last name"
                                 onChange={(e) =>
-                                    setData("lastname", toTitleCase(e.target.value))
+                                    setData(
+                                        "lastname",
+                                        toTitleCase(e.target.value)
+                                    )
                                 }
                                 required
                             />
@@ -114,7 +123,10 @@ const Section1 = ({
                                 value={data.firstname || ""}
                                 placeholder="Enter first name"
                                 onChange={(e) =>
-                                    setData("firstname", toTitleCase(e.target.value))
+                                    setData(
+                                        "firstname",
+                                        toTitleCase(e.target.value)
+                                    )
                                 }
                                 required
                             />
@@ -130,7 +142,10 @@ const Section1 = ({
                                 value={data.middlename || ""}
                                 placeholder="Enter middle name"
                                 onChange={(e) =>
-                                    setData("middlename", toTitleCase(e.target.value))
+                                    setData(
+                                        "middlename",
+                                        toTitleCase(e.target.value)
+                                    )
                                 }
                             />
                             <InputError
@@ -298,11 +313,14 @@ const Section1 = ({
                         <InputField
                             label="Birth Place"
                             name="birthplace"
-                            value={data.birthplace || ""}
+                            value={data.birthplace || "City of Ilagan"}
                             placeholder="Enter birth place"
                             required
                             onChange={(e) =>
-                                setData("birthplace", toTitleCase(e.target.value))
+                                setData(
+                                    "birthplace",
+                                    toTitleCase(e.target.value)
+                                )
                             }
                         />
                         <InputError
@@ -355,9 +373,11 @@ const Section1 = ({
                                 "Indigenous People",
                             ]}
                             placeholder="Select ethnicity"
-                            required
                             onChange={(e) =>
-                                setData("ethnicity", toTitleCase(e.target.value))
+                                setData(
+                                    "ethnicity",
+                                    toTitleCase(e.target.value)
+                                )
                             }
                         />
                         <InputError
@@ -374,12 +394,15 @@ const Section1 = ({
                         <DropdownInputField
                             label="Citizenship"
                             name="citizenship"
-                            value={data.citizenship || ""}
+                            value={data.citizenship || "Filipino"}
                             items={["Filipino", "Chinese", "American"]}
                             placeholder="Select citizenship"
                             required
                             onChange={(e) =>
-                                setData("citizenship", toTitleCase(e.target.value))
+                                setData(
+                                    "citizenship",
+                                    toTitleCase(e.target.value)
+                                )
                             }
                         />
                         <InputError
@@ -464,7 +487,6 @@ const Section1 = ({
                                 label="Residency Type"
                                 name="residency_type"
                                 value={data.residency_type || ""}
-                                required
                                 items={[
                                     { label: "Permanent", value: "permanent" },
                                     { label: "Temporary", value: "temporary" },
@@ -485,25 +507,52 @@ const Section1 = ({
                             </p>
                         </div>
 
-                        <div>
-                            <YearDropdown
-                                label="Residency Date"
-                                name="residency_date"
-                                value={data.residency_date || ""}
-                                required
-                                placeholder="Select residency date"
-                                onChange={(e) =>
-                                    setData("residency_date", e.target.value)
-                                }
-                            />
-                            <InputError
-                                message={errors.residency_date}
-                                className="mt-1"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">
-                                Specify the year the resident started living in
-                                the area.
-                            </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Purok Select */}
+                            <div>
+                                <SelectField
+                                    label="Purok Number"
+                                    name="purok_number"
+                                    value={data.purok_number || ""}
+                                    onChange={(e) =>
+                                        setData("purok_number", e.target.value)
+                                    }
+                                    placeholder="Select Purok"
+                                    items={purok_numbers}
+                                />
+                                <InputError
+                                    message={errors.purok_number}
+                                    className="mt-1"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Select the assigned Purok number for the
+                                    resident.
+                                </p>
+                            </div>
+
+                            {/* Residency Date */}
+                            <div>
+                                <YearDropdown
+                                    label="Residency Date"
+                                    name="residency_date"
+                                    value={data.residency_date || ""}
+                                    placeholder="Select residency date"
+                                    onChange={(e) =>
+                                        setData(
+                                            "residency_date",
+                                            e.target.value
+                                        )
+                                    }
+                                />
+                                <InputError
+                                    message={errors.residency_date}
+                                    className="mt-1"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Specify the year the resident started living
+                                    in the area.
+                                </p>
+                            </div>
                         </div>
 
                         {/* Optional Household/Family Head Radios (commented out) */}
@@ -563,10 +612,11 @@ const Section1 = ({
 
                 {/* Primary Program Fields */}
                 <div
-                    className={`grid grid-cols-1 sm:grid-cols-2 ${data.is_solo_parent == 1
-                        ? "md:grid-cols-4"
-                        : "md:grid-cols-3"
-                        } gap-4`}
+                    className={`grid grid-cols-1 sm:grid-cols-2 ${
+                        data.is_solo_parent == 1
+                            ? "md:grid-cols-4"
+                            : "md:grid-cols-3"
+                    } gap-4`}
                 >
                     {/* 4Ps Beneficiary */}
                     <div>
@@ -581,7 +631,6 @@ const Section1 = ({
                             onChange={(e) =>
                                 setData("is_4ps_beneficiary", e.target.value)
                             }
-                            required
                         />
                         <InputError
                             message={errors.is_4ps_beneficiary}
@@ -606,7 +655,6 @@ const Section1 = ({
                             onChange={(e) =>
                                 setData("is_solo_parent", e.target.value)
                             }
-                            required
                         />
                         <InputError
                             message={errors.is_solo_parent}
@@ -656,7 +704,6 @@ const Section1 = ({
                             onChange={(e) =>
                                 setData("registered_voter", e.target.value)
                             }
-                            required
                         />
                         <InputError
                             message={errors.registered_voter}
@@ -664,6 +711,27 @@ const Section1 = ({
                         />
                         <p className="text-xs text-gray-500 mt-1">
                             Specify if the resident is a registered voter.
+                        </p>
+                    </div>
+                    {/* PhilSys Card Number */}
+                    <div>
+                        <InputField
+                            label="PhilSys Card Number (PCN)"
+                            name="philsys_card_number"
+                            value={data.philsys_card_number || ""}
+                            maxLength={16}
+                            onChange={(e) =>
+                                setData("philsys_card_number", e.target.value)
+                            }
+                            placeholder="Enter 16-digit PCN"
+                        />
+                        <InputError
+                            message={errors.philsys_card_number}
+                            className="mt-1"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                            Enter the 16-digit PhilSys Card Number (PCN) found
+                            on the National ID.
                         </p>
                     </div>
                 </div>
@@ -891,13 +959,12 @@ const Section1 = ({
                     <RadioGroup
                         label="Owns Vehicle(s)?"
                         name="has_vehicle"
-                        selectedValue={data.has_vehicle}
+                        selectedValue={data.has_vehicle ?? 0}
                         options={[
                             { label: "Yes", value: 1 },
                             { label: "No", value: 0 },
                         ]}
                         onChange={(e) => setData("has_vehicle", e.target.value)}
-                        required
                     />
                     <InputError message={errors.has_vehicle} className="mt-1" />
                 </div>
@@ -938,7 +1005,7 @@ const Section1 = ({
                                         <InputError
                                             message={
                                                 errors[
-                                                `vehicles.${vecIndex}.vehicle_type`
+                                                    `vehicles.${vecIndex}.vehicle_type`
                                                 ]
                                             }
                                             className="mt-1"
@@ -977,7 +1044,7 @@ const Section1 = ({
                                         <InputError
                                             message={
                                                 errors[
-                                                `vehicles.${vecIndex}.vehicle_class`
+                                                    `vehicles.${vecIndex}.vehicle_class`
                                                 ]
                                             }
                                             className="mt-1"
@@ -1021,7 +1088,7 @@ const Section1 = ({
                                         <InputError
                                             message={
                                                 errors[
-                                                `vehicles.${vecIndex}.usage_status`
+                                                    `vehicles.${vecIndex}.usage_status`
                                                 ]
                                             }
                                             className="mt-1"
@@ -1056,7 +1123,7 @@ const Section1 = ({
                                         <InputError
                                             message={
                                                 errors[
-                                                `vehicles.${vecIndex}.is_registered`
+                                                    `vehicles.${vecIndex}.is_registered`
                                                 ]
                                             }
                                             className="mt-1"

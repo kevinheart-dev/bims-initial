@@ -335,7 +335,10 @@
         </tr>
     </table>
 
-
+    @php
+        $pcn = $resident->socialwelfareprofile->philsys_card_no ?? '';
+        $pcn_formatted = rtrim(chunk_split($pcn, 4, '-'), '-');
+    @endphp
     <!-- PERSONAL INFORMATION BOX -->
     <div class="border-box">
         <div class="section-title">PERSONAL INFORMATION</div>
@@ -343,12 +346,12 @@
         <!-- PhilSys Card No. -->
         <table class="inner-table">
             <tr>
-                <td style="width: 20%;"><span class="input-box"></span></td>
-                <td colspan="3"></td>
+                <td style="width: 30%;"><span class="input-box">{{ $pcn_formatted }}</span></td>
+                <td colspan="4"></td>
             </tr>
             <tr>
                 <td class="label-under" style="width: 20%;">(PhilSys Card No.)</td>
-                <td colspan="3"></td>
+                <td colspan="4"></td>
             </tr>
         </table>
 
@@ -375,7 +378,7 @@
                 <td style="width: 20%;"><span
                         class="input-box">{{ $resident->birthdate ? \Carbon\Carbon::parse($resident->birthdate)->format('F d, Y') : 'N/A' }}</span>
                 </td>
-                <td><span class="input-box">{{ $resident->birth_place ?? 'N/A' }}</span></td>
+                <td><span class="input-box">{{ $resident->birthplace ?? 'N/A' }}</span></td>
                 <td style="width: 10%;">
                     <span class="input-box">{{ ucwords(strtolower($resident->sex ?? 'N/A')) }}</span>
                 </td>

@@ -299,7 +299,7 @@ class HouseholdController extends Controller
         ];
 
         $query = HouseholdResident::with([
-            'resident:id,household_id,firstname,middlename,lastname,maiden_name,suffix,sex,employment_status,is_deceased,is_household_head,is_family_head,family_id',
+            'resident:id,household_id,firstname,middlename,lastname,maiden_name,suffix,sex,employment_status,is_deceased,is_household_head,is_family_head,family_id,is_pwd',
             'household:id,barangay_id,purok_id,street_id,house_number'
         ])
         ->where('household_id', $household->id);

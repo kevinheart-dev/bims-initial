@@ -170,7 +170,6 @@
 //     );
 // }
 
-
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, usePage, router } from "@inertiajs/react";
@@ -190,7 +189,11 @@ import useAppUrl from "@/hooks/useAppUrl";
 export default function Index({ puroks, streets, barangays, occupationTypes }) {
     const breadcrumbs = [
         { label: "Residents Information", showOnMobile: false },
-        { label: "Residents Table", href: route("resident.index"), showOnMobile: false },
+        {
+            label: "Residents Table",
+            href: route("resident.index"),
+            showOnMobile: false,
+        },
         { label: "Add Household", showOnMobile: true },
     ];
 
@@ -214,13 +217,13 @@ export default function Index({ puroks, streets, barangays, occupationTypes }) {
     ];
 
     // 🔹 Restore form data and step from localStorage
-    useEffect(() => {
-        const savedData = localStorage.getItem("householdFormData");
-        const savedStep = localStorage.getItem("currentStep");
+    // useEffect(() => {
+    //     const savedData = localStorage.getItem("householdFormData");
+    //     const savedStep = localStorage.getItem("currentStep");
 
-        if (savedData) setUserData(JSON.parse(savedData));
-        if (savedStep) setCurrentStep(Number(savedStep));
-    }, []);
+    //     if (savedData) setUserData(JSON.parse(savedData));
+    //     if (savedStep) setCurrentStep(Number(savedStep));
+    // }, []);
 
     // 🔹 Save form data and current step automatically
     useEffect(() => {
@@ -238,7 +241,9 @@ export default function Index({ puroks, streets, barangays, occupationTypes }) {
             case 2:
                 return <HouseholdPersonalInfo barangays={barangays} />;
             case 3:
-                return <EducationandOccupation occupationTypes={occupationTypes} />;
+                return (
+                    <EducationandOccupation occupationTypes={occupationTypes} />
+                );
             case 4:
                 return <MedicalInfo />;
             case 5:
@@ -257,10 +262,13 @@ export default function Index({ puroks, streets, barangays, occupationTypes }) {
             if (currentStep === steps.length) {
                 router.post(route("resident.storehousehold"), userData, {
                     onSuccess: () => {
-                        toast.success("Household data submitted successfully!", {
-                            duration: 3000,
-                            closeButton: true,
-                        });
+                        toast.success(
+                            "Household data submitted successfully!",
+                            {
+                                duration: 3000,
+                                closeButton: true,
+                            }
+                        );
 
                         // ✅ Clear form and localStorage
                         localStorage.removeItem("householdFormData");
@@ -270,7 +278,9 @@ export default function Index({ puroks, streets, barangays, occupationTypes }) {
                             toilets: [{ toilet_type: "" }],
                             electricity_types: [{ electricity_type: "" }],
                             water_source_types: [{ water_source_type: "" }],
-                            waste_management_types: [{ waste_management_type: "" }],
+                            waste_management_types: [
+                                { waste_management_type: "" },
+                            ],
                         });
 
                         setCurrentStep(1);

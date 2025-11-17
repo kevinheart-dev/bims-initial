@@ -23,7 +23,7 @@ return new class extends Migration
                 '40001_70000',
                 '70001_120000',
                 'above_120001'
-            ]);
+            ])->nullable();
             $table->enum('income_category', [
                 'survival',
                 'poor',
@@ -32,9 +32,9 @@ return new class extends Migration
                 'middle_income',
                 'upper_middle_income',
                 'above_high_income'
-            ]);
+            ])->nullable();
             $table->string('family_name', 55)->nullable();
-            $table->string('family_type', 55);
+            $table->string('family_type', 55)->nullable();
             $table->timestamps();
         });
     }

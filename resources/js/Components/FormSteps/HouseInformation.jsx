@@ -110,7 +110,6 @@ function HouseInformation() {
                             },
                             { label: "Inherited", value: "inherited" },
                         ]}
-                        required
                     />
                     {errors.ownership_type && (
                         <p className="text-red-500 text-xs">
@@ -130,7 +129,6 @@ function HouseInformation() {
                             { label: "Needs Repair", value: "needs_repair" },
                             { label: "Dilapidated", value: "dilapidated" },
                         ]}
-                        required
                     />
                     {errors.housing_condition && (
                         <p className="text-red-500 text-xs">
@@ -151,7 +149,6 @@ function HouseInformation() {
                             { label: "Wood", value: "wood" },
                             { label: "Makeshift", value: "makeshift" },
                         ]}
-                        required
                     />
                     {errors.house_structure && (
                         <p className="text-red-500 text-xs">
@@ -166,7 +163,6 @@ function HouseInformation() {
                         value={userData.year_established}
                         onChange={handleChange}
                         placeholder="Select year"
-                        required
                     />
                     {errors.year_established && (
                         <p className="text-red-500 text-xs">
@@ -182,7 +178,6 @@ function HouseInformation() {
                         value={userData.number_of_rooms || ""}
                         onChange={handleChange}
                         placeholder="Enter number of rooms"
-                        required
                     />
                     {errors.number_of_rooms && (
                         <p className="text-red-500 text-xs">
@@ -198,7 +193,6 @@ function HouseInformation() {
                         value={userData.number_of_floors || ""}
                         onChange={handleChange}
                         placeholder="Enter number of floors"
-                        required
                     />
                     {errors.number_of_rooms && (
                         <p className="text-red-500 text-xs">
@@ -232,7 +226,6 @@ function HouseInformation() {
                             },
                             { label: "None", value: "none" },
                         ]}
-                        required
                     />
                     {errors.bath_and_wash_area && (
                         <p className="text-red-500 text-xs">
@@ -255,7 +248,6 @@ function HouseInformation() {
                             },
                             { label: "None", value: "none" },
                         ]}
-                        required
                     />
                     {errors.type_of_internet && (
                         <p className="text-red-500 text-xs">
@@ -307,7 +299,6 @@ function HouseInformation() {
                                                 value: "no_latrine",
                                             },
                                         ]}
-                                        required
                                     />
                                     {errors?.[`toilets.${idx}.toilet_type`] && (
                                         <p className="text-red-500 text-xs">
@@ -396,7 +387,6 @@ function HouseInformation() {
                                                     value: "none",
                                                 },
                                             ]}
-                                            required
                                         />
                                         {errors?.[
                                             `electricity_types.${idx}.electricity_type`
@@ -500,7 +490,6 @@ function HouseInformation() {
                                                     value: "none",
                                                 },
                                             ]}
-                                            required
                                         />
                                         {errors?.[
                                             `water_source_types.${idx}.water_source_type`
@@ -601,7 +590,6 @@ function HouseInformation() {
                                                     value: "none",
                                                 },
                                             ]}
-                                            required
                                         />
                                         {errors?.[
                                             `waste_management_types.${idx}.waste_management_type`
@@ -674,7 +662,6 @@ function HouseInformation() {
                                 ]}
                                 selectedValue={userData.has_livestock || ""}
                                 onChange={handleChange}
-                                required
                             />
                             {errors.has_livestock && (
                                 <p className="text-red-500 text-xs">
@@ -860,7 +847,6 @@ function HouseInformation() {
                                 ]}
                                 selectedValue={userData.has_pets || ""}
                                 onChange={handleChange}
-                                required
                             />
                             {errors.has_pets && (
                                 <p className="text-red-500 text-xs">

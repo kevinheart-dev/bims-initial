@@ -50,25 +50,25 @@ class StoreResidentHouseholdRequest extends FormRequest
 
             // Utilities
             'toilets' => ['nullable', 'array'],
-            'toilets.*.toilet_type' => ['required', 'string', 'max:100'],
+            'toilets.*.toilet_type' => ['nullable', 'string', 'max:100'],
 
             'electricity_types' => ['nullable', 'array'],
-            'electricity_types.*.electricity_type' => ['required', 'string', 'max:100'],
+            'electricity_types.*.electricity_type' => ['nullable', 'string', 'max:100'],
 
             'water_source_types' => ['nullable', 'array'],
-            'water_source_types.*.water_source_type' => ['required', 'string', 'max:100'],
+            'water_source_types.*.water_source_type' => ['nullable', 'string', 'max:100'],
 
             'waste_management_types' => ['nullable', 'array'],
-            'waste_management_types.*.waste_management_type' => ['required', 'string', 'max:100'],
+            'waste_management_types.*.waste_management_type' => ['nullable', 'string', 'max:100'],
 
             // Pets
-            'has_pets' => ['required', Rule::in([0, 1])],
+            'has_pets' => ['nullable', Rule::in([0, 1])],
             'pets' => ['nullable', 'array'],
-            'pets.*.pet_type' => ['required', 'string', 'max:100'],
-            'pets.*.is_vaccinated' => ['required', Rule::in([0, 1])],
+            'pets.*.pet_type' => ['nullable', 'string', 'max:100'],
+            'pets.*.is_vaccinated' => ['nullable', Rule::in([0, 1])],
 
             // Livestock
-            'has_livestock' => ['required', Rule::in([0, 1])],
+            'has_livestock' => ['nullable', Rule::in([0, 1])],
             'livestocks' => ['nullable', 'array'],
             'livestocks.*.livestock_type' => ['required_with:livestocks', 'string', 'max:100'],
             'livestocks.*.quantity' => ['required_with:livestocks', 'integer', 'min:1', 'max:999'],
@@ -93,7 +93,7 @@ class StoreResidentHouseholdRequest extends FormRequest
             'household.families.*.members.*.gender' => ['required', 'string', 'max:55'],
             'household.families.*.members.*.maiden_middle_name' => ['nullable', 'string', 'max:100'],
             'household.families.*.members.*.citizenship' => ['required', 'string', 'max:55'],
-            'household.families.*.members.*.religion' => ['required', 'string', 'max:55'],
+            'household.families.*.members.*.religion' => ['nullable', 'string', 'max:55'],
             'household.families.*.members.*.ethnicity' => ['nullable', 'string', 'max:55'],
             'household.families.*.members.*.contactNumber' => ['nullable', 'string', 'max:15'],
             'household.families.*.members.*.email' => ['nullable','email','min:10','max:55','unique:residents,email'],
@@ -105,7 +105,7 @@ class StoreResidentHouseholdRequest extends FormRequest
             'household.families.*.members.*.residency_type' => ['nullable', Rule::in(['permanent', 'temporary', 'immigrant'])],
             'household.families.*.members.*.residency_date' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
             'household.families.*.members.*.relation_to_household_head' => ['nullable', Rule::in(['self', 'spouse', 'child', 'sibling', 'parent', 'parent_in_law','grandparent', 'spouse-sibling', 'spouse-of-sibling-of-spouse','niblings', 'sibling-of-spouse'])],
-            'household.families.*.members.*.registered_voter' => ['required', Rule::in([0, 1])],
+            'household.families.*.members.*.registered_voter' => ['nullable', Rule::in([0, 1])],
             'household.families.*.members.*.registered_barangay' => ['required_if:members.*.registered_voter,1'],
             'household.families.*.members.*.voter_id_number' => ['nullable', 'string', 'max:55'],
             'household.families.*.members.*.voting_status' => ['nullable', Rule::in(['active', 'inactive', 'disqualified', 'medical', 'overseas', 'detained', 'deceased'])],
@@ -114,7 +114,8 @@ class StoreResidentHouseholdRequest extends FormRequest
             'household.families.*.members.*.is_4ps_benificiary' => ['nullable', Rule::in([0, 1])],
             'household.families.*.members.*.is_solo_parent' => ['nullable', Rule::in([0, 1])],
             'household.families.*.members.*.solo_parent_id_number' => ['nullable', 'string', 'max:55'],
-            'household.families.*.members.*.has_vehicle' => ['required', Rule::in([0, 1])],
+            'household.families.*.members.*.philsys_card_number' => ['nullable', 'max:16'],
+            'household.families.*.members.*.has_vehicle' => ['nullable', Rule::in([0, 1])],
             'household.families.*.members.*.vehicles.*.vehicle_type' => ['required', 'string', 'max:55'],
             'household.families.*.members.*.vehicles.*.vehicle_class' => ['required', 'string', 'max:55'],
             'household.families.*.members.*.vehicles.*.usage_status' => ['required', 'string', 'max:55'],
@@ -122,7 +123,7 @@ class StoreResidentHouseholdRequest extends FormRequest
 
             // educaiton
             'household.families.*.members.*.educations' => ['nullable', 'array'],
-            'household.families.*.members.*.educations.*.education' => ['required', Rule::in(['no_education_yet','no_formal_education','prep_school','kindergarten','elementary',
+            'household.families.*.members.*.educations.*.education' => ['nullable', Rule::in(['no_education_yet','no_formal_education','prep_school','kindergarten','elementary',
                 'high_school','senior_high_school','college','als','tesda','vocational','post_graduate',])],
             'household.families.*.members.*.educations.*.educational_status' => ['nullable', Rule::in(['graduated', 'incomplete', 'enrolled', 'dropped_out'])],
             'household.families.*.members.*.educations.*.school_name' => ['nullable', 'string', 'max:150'],
@@ -133,7 +134,7 @@ class StoreResidentHouseholdRequest extends FormRequest
 
             // occupations
             'household.families.*.members.*.occupations' => ['nullable', 'array'],
-            'household.families.*.members.*.occupations.*.employment_status' => ['required', Rule::in(['employed', 'unemployed', 'self_employed', 'student', 'under_employed','child','retired','homemaker', 'not_applicable'])],
+            'household.families.*.members.*.occupations.*.employment_status' => ['nullable', Rule::in(['employed', 'unemployed', 'self_employed', 'student', 'under_employed','child','retired','homemaker', 'not_applicable'])],
             'household.families.*.members.*.occupations.*.occupation' => ['nullable', 'string', 'max:100'],
             'household.families.*.members.*.occupations.*.employment_type' => ['nullable', Rule::in(['full_time', 'part_time', 'seasonal', 'contractual', 'self_employed'])],
             'household.families.*.members.*.occupations.*.occupation_status' => ['nullable', Rule::in(['active', 'inactive', 'ended', 'retired','terminated', 'resigned'])],

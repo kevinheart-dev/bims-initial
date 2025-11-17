@@ -150,7 +150,7 @@ export default function Index({
     }, [visibleColumns]);
 
     const columnRenderers = {
-        id: (row) => row.id,
+        id: (row) => row.id ?? "—",
 
         name: (row) => {
             const { firstname, middlename, lastname, suffix } =
@@ -158,27 +158,35 @@ export default function Index({
             const fullName = `${firstname ?? ""} ${middlename ?? ""} ${
                 lastname ?? ""
             } ${suffix ?? ""}`.trim();
-            return fullName || "—";
+            return (
+                fullName || (
+                    <span className="text-gray-400 italic">Not specified</span>
+                )
+            );
         },
 
         occupation: (row) => (
-            <span className="text-xs font-medium">{row.occupation || "—"}</span>
+            <span className="text-xs text-gray-800">
+                {row.occupation ?? (
+                    <span className="text-gray-400 italic">Not specified</span>
+                )}
+            </span>
         ),
 
         employment_type: (row) => (
             <span className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-md text-xs font-medium capitalize">
-                {EMPLOYMENT_TYPE_TEXT[row.employment_type] || "—"}
+                {EMPLOYMENT_TYPE_TEXT[row.employment_type] ?? "Not specified"}
             </span>
         ),
 
         work_arrangement: (row) => (
             <span className="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-md text-xs font-medium capitalize">
-                {WORK_ARRANGEMENT_TEXT[row.work_arrangement] || "—"}
+                {WORK_ARRANGEMENT_TEXT[row.work_arrangement] ?? "Not specified"}
             </span>
         ),
 
         occupation_status: (row) => {
-            const value = row.occupation_status ?? "—";
+            const value = row.occupation_status ?? null;
             const statusColor =
                 value === "active"
                     ? "bg-green-100 text-green-800"
@@ -188,26 +196,34 @@ export default function Index({
                     ? "bg-gray-100 text-gray-700"
                     : value === "ended"
                     ? "bg-yellow-100 text-yellow-800"
-                    : "bg-gray-100 text-gray-700";
+                    : "bg-gray-100 text-gray-600";
 
             return (
                 <span
                     className={`${statusColor} px-2 py-0.5 rounded-md text-xs font-medium capitalize`}
                 >
-                    {OCCUPATION_STATUS_TEXT[value] ||
-                        value.replaceAll("_", " ")}
+                    {value
+                        ? OCCUPATION_STATUS_TEXT[value] ||
+                          value.replaceAll("_", " ")
+                        : "Not specified"}
                 </span>
             );
         },
 
         started_at: (row) => (
             <span className="text-xs text-gray-700">
-                {row.started_at ?? "—"}
+                {row.started_at ?? (
+                    <span className="text-gray-400 italic">Not specified</span>
+                )}
             </span>
         ),
 
         ended_at: (row) => (
-            <span className="text-xs text-gray-700">{row.ended_at ?? "—"}</span>
+            <span className="text-xs text-gray-700">
+                {row.ended_at ?? (
+                    <span className="text-gray-400 italic">Not specified</span>
+                )}
+            </span>
         ),
 
         is_ofw: (row) => (
@@ -221,6 +237,7 @@ export default function Index({
                 {row.is_ofw ? "Yes" : "No"}
             </span>
         ),
+
         is_main: (row) => (
             <span
                 className={`px-2 py-0.5 rounded-md text-xs font-medium ${
@@ -235,7 +252,9 @@ export default function Index({
 
         purok_number: (row) => (
             <span className="text-xs text-gray-800">
-                {row.resident?.purok_number ?? "—"}
+                {row.resident?.purok_number ?? (
+                    <span className="text-gray-400 italic">Not specified</span>
+                )}
             </span>
         ),
 
@@ -245,7 +264,7 @@ export default function Index({
                     {
                         label: "View",
                         icon: <Eye className="w-4 h-4 text-indigo-600" />,
-                        onClick: () => handleView(row.resident.id),
+                        onClick: () => handleView(row.resident?.id),
                     },
                     {
                         label: "Edit",

@@ -40,16 +40,17 @@ class StoreResidentRequest extends FormRequest
             'ethnicity' => ['nullable', 'string', 'max:55'],
             'contactNumber' => ['nullable', 'string', 'max:15'],
             'email' => ['nullable','email','min:10','max:55','unique:residents,email'],
-            'residency_type' => ['required', Rule::in(['permanent', 'temporary', 'immigrant'])],
-            'residency_date' => ['required', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
+            'residency_type' => ['nullable', Rule::in(['permanent', 'temporary', 'immigrant'])],
+            'residency_date' => ['nullable', 'digits:4', 'integer', 'min:1900', 'max:' . now()->year],
             'is_household_head' => ['required', Rule::in([0, 1])],
             'is_family_head' => ['required', Rule::in([0, 1])],
             'is_4ps_beneficiary' => ['nullable', Rule::in([0, 1])],
             'is_solo_parent' => ['nullable', Rule::in([0, 1])],
             'solo_parent_id_number' => ['nullable', 'string', 'max:55'],
             'purok_number' => ['required', 'integer'],
-            'purok_id' => ['required', 'exists:puroks,id'],
-            'registered_voter' => ['required', Rule::in([0, 1])],
+            'philsys_card_number' => ['nullable', 'max:16'],
+            'purok_id' => ['nullable', 'exists:puroks,id'],
+            'registered_voter' => ['nullable', Rule::in([0, 1])],
             'registered_barangay' => ['nullable', 'exists:barangays,id'],
             'voting_status' => ['nullable', Rule::in(['active', 'inactive', 'disqualified', 'medical', 'overseas', 'detained', 'deceased'])],
             'voter_id_number' => ['nullable', 'string', 'max:55'],
@@ -60,7 +61,7 @@ class StoreResidentRequest extends FormRequest
             'verified' => ['required', Rule::in([0, 1])],
 
             // SECTION 1.1: Vehicle Information
-            'has_vehicle' => ['required', Rule::in([1, 0])],
+            'has_vehicle' => ['nullable', Rule::in([1, 0])],
             'vehicles' => ['nullable', 'array'],
             'vehicles.*.vehicle_type' => ['required', 'string', 'max:55'],
             'vehicles.*.vehicle_class' => ['required', 'string', 'max:55'],
@@ -137,6 +138,7 @@ class StoreResidentRequest extends FormRequest
 
             // SECTION 5: Housing Information
             'housenumber' => ['nullable', 'integer', 'min:1', 'max:9999'],
+            'new_housenumber' => ['nullable', 'integer', 'min:1', 'max:9999'],
             'street_id' => ['nullable', 'exists:streets,id'],
             'subdivision' => ['nullable', 'string', 'max:100'],
             'relationship_to_head' => ['nullable', 'string', 'max:100'],

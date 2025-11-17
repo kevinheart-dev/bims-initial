@@ -3,6 +3,8 @@ import EditPersonalInformation from "@/Components/ResidentInput/EditPersonalInfo
 import PersonalInformation from "@/Components/ResidentInput/PersonalInformation";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, router, usePage } from "@inertiajs/react";
+import { useEffect } from "react";
+import { Toaster, toast } from "sonner";
 
 export default function Index({
     auth,
@@ -23,10 +25,34 @@ export default function Index({
         { label: "Edit Resident", showOnMobile: true },
     ];
     const props = usePage().props;
+    const success = props?.success ?? null;
     const error = props?.error ?? null;
+
+    useEffect(() => {
+        if (success) {
+            toast.success(success, {
+                description: "Operation successful!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.success = null;
+    }, [success]);
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, {
+                description: "Operation failed!",
+                duration: 3000,
+                closeButton: true,
+            });
+        }
+        props.error = null;
+    }, [error]);
     return (
         <AdminLayout>
             <Head title="Resident Dashboard" />
+            <Toaster richColors />
             <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
             <div>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">

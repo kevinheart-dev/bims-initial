@@ -33,12 +33,12 @@ const PersonalInformation = ({
         suffix: "",
         birthdate: "",
         age: 0,
-        birthplace: "",
+        birthplace: "City of Ilagan",
         civil_status: "",
         gender: "",
         sex: "",
         maiden_middle_name: "",
-        citizenship: "",
+        citizenship: "Filipino",
         religion: "",
         ethnicity: "",
         contactNumber: "",
@@ -90,6 +90,8 @@ const PersonalInformation = ({
         relationship_to_head: "",
         household_position: "",
         name_of_head: "",
+        new_housenumber: "",
+        philsys_card_number: "",
     });
 
     const onSubmit = (e) => {
@@ -180,6 +182,7 @@ const PersonalInformation = ({
                     errors={errors}
                     showMaidenMiddleName={showMaidenMiddleName}
                     barangays={barangays}
+                    puroks={puroks}
                 />
 
                 {/* Section 2 */}

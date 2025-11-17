@@ -326,7 +326,7 @@ export default function Index({
             ),
             name: (resident) => (
                 <Link
-                    href={route("resident.show", resident.id)}
+                    href={route("resident.edit", resident.id)}
                     className="hover:text-blue-500 hover:underline"
                 >
                     {resident.firstname} {resident.middlename ?? ""}{" "}

@@ -104,6 +104,8 @@ const EditPersonalInformation = ({
             resident?.social_welfare_profile?.is_4ps_beneficiary != null
                 ? resident.social_welfare_profile.is_4ps_beneficiary.toString()
                 : null,
+        philsys_card_number:
+            resident?.social_welfare_profile?.philsys_card_no || "",
         is_solo_parent:
             resident?.social_welfare_profile?.is_solo_parent != null
                 ? resident.social_welfare_profile.is_solo_parent.toString()
@@ -196,6 +198,7 @@ const EditPersonalInformation = ({
                 ? resident.senior_citizen.osca_id_number.toString()
                 : null,
         pension_type: resident?.senior_citizen?.pension_type || "",
+        new_housenumber: "",
         _method: "PUT",
     };
 
@@ -324,6 +327,7 @@ const EditPersonalInformation = ({
                     errors={errors}
                     showMaidenMiddleName={showMaidenMiddleName}
                     barangays={barangays}
+                    puroks={puroks}
                     existingImagePath={existingImagePath}
                 />
 
