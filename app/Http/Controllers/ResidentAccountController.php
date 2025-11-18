@@ -323,17 +323,17 @@ class ResidentAccountController extends Controller
                     Rule::unique('residents', 'email')->ignore($resident->id)
                 ],
 
-                'residency_type' => ['required', Rule::in(['permanent', 'temporary', 'immigrant'])],
+                'residency_type' => ['nullable', Rule::in(['permanent', 'temporary', 'immigrant'])],
                 'residency_date' => [
-                    'required',
+                    'nullable',
                     'digits:4',
                     'integer',
                     'min:1900',
                     'max:' . now()->year,
                 ],
 
-                'purok_number' => ['required', 'integer'],
-                'street_id' => ['required', 'exists:streets,id'],
+                'purok_number' => ['nullable', 'integer'],
+                'street_id' => ['nullable', 'exists:streets,id'],
             ]);
 
             // ✅ Handle Image Upload
