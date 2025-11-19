@@ -409,12 +409,23 @@ class CertificateController extends Controller
         $day = now()->day;
         $dayWithSuffix = $day . $this->getDaySuffix($day);
 
+        // Compute age safely
+        $age = $resident->birthdate
+            ? \Carbon\Carbon::parse($resident->birthdate)->age
+            : null;
+
+        $birthdateFormatted = $resident->birthdate
+            ? \Carbon\Carbon::parse($resident->birthdate)->format('F j, Y')
+            : null;
+
         $systemValues = collect([
             'fullname'     => $fullName,
             'day'          => $dayWithSuffix,
             'month'        => now()->format('F'),
             'year'         => now()->format('Y'),
             'civil_status' => $resident->civil_status,
+            'age'          => $age,
+            'birthdate' => $birthdateFormatted,
             'gender'       => $resident->gender,
             'purpose'      => $data['purpose'],
             'ctrl_no'      => $ctrlNo,

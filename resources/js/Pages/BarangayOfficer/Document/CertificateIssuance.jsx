@@ -55,6 +55,8 @@ export default function Index({
         "day",
         "month",
         "year",
+        "age",
+        "birthdate",
         "ctrl_no",
         "civil_status",
         "civil_status_2",
