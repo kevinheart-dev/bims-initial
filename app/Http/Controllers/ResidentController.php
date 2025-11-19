@@ -1879,6 +1879,7 @@ class ResidentController extends Controller
             return [
                 'id' => $resident->id,
                 'gender' => $resident->gender,
+                'sex' => $resident->sex,
                 'purok_number' => $resident->purok_number,
                 'birthdate' => $resident->birthdate,
                 'age' => $resident->age,

@@ -387,8 +387,23 @@ class CertificateController extends Controller
 
     protected function prepareValues(Resident $resident, array $data): \Illuminate\Support\Collection
     {
-        $fullName = trim("{$resident->firstname} {$resident->middlename} {$resident->lastname} {$resident->suffix}");
-        $ctrlNo   = 'CSA-' . now()->format('YmdHis');
+        // Format firstname and lastname to Title Case
+        $first = Str::title($resident->firstname);
+        $last  = Str::title($resident->lastname);
+
+        // Middlename → only initial if exists
+        $middleInitial = '';
+        if (!empty($resident->middlename)) {
+            $middleInitial = strtoupper(substr(trim($resident->middlename), 0, 1)) . '.';
+        }
+
+        // Suffix (if any)
+        $suffix = $resident->suffix ? ' ' . Str::title($resident->suffix) : '';
+
+        // Build full name properly
+        $fullName = trim("$first $middleInitial $last$suffix");
+
+        $ctrlNo = 'CSA-' . now()->format('YmdHis');
 
         // Format day with suffix
         $day = now()->day;
@@ -410,7 +425,6 @@ class CertificateController extends Controller
             collect($data)->except(['document_id', 'resident_id', 'purpose', 'resident_id_2', 'purpose_2'])
         );
     }
-
     protected function prepareSecondResidentValues(Resident $resident2, array $data): \Illuminate\Support\Collection
     {
         $fullName2 = trim("{$resident2->firstname} {$resident2->middlename} {$resident2->lastname} {$resident2->suffix}");
