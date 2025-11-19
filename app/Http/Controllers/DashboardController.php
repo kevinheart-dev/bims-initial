@@ -89,18 +89,18 @@ class DashboardController extends Controller
                 ->whereRaw("TIMESTAMPDIFF(YEAR, birthdate, CURDATE()) BETWEEN ? AND ?", [$min, $max])
                 ->count();
         }
-
         $pwdDistribution = [
-            'PWD' => Resident::where('barangay_id', $brgy_id)
-                ->where('is_deceased', false)
-                ->whereHas('disabilities')
+            1 => Resident::where('barangay_id', $brgy_id)
+                ->where('is_deceased', 0)
+                ->where('is_pwd', 1)
                 ->count(),
-            'nonPWD' => Resident::where('barangay_id', $brgy_id)
-                ->where('is_deceased', false)
-                ->whereDoesntHave('disabilities')
+
+
+            0 => Resident::where('barangay_id', $brgy_id)
+                ->where('is_deceased', 0)
+                ->where('is_pwd', 0)
                 ->count(),
         ];
-
         $employmentStatusDistribution = Resident::where('barangay_id', $brgy_id)
             ->where('is_deceased', false)
             ->selectRaw('employment_status, COUNT(*) as count')
@@ -108,13 +108,13 @@ class DashboardController extends Controller
             ->pluck('count', 'employment_status');
 
         $voterDistribution = [
-            'Registered Voters' => Resident::where('barangay_id', $brgy_id)
-                ->where('is_deceased', false)
+            1 => Resident::where('barangay_id', $brgy_id)
+                ->where('is_deceased', 0)
                 ->where('registered_voter', 1)
                 ->count(),
 
-            'Unregistered Voters' => Resident::where('barangay_id', $brgy_id)
-                ->where('is_deceased', false)
+            0 => Resident::where('barangay_id', $brgy_id)
+                ->where('is_deceased', 0)
                 ->where('registered_voter', 0)
                 ->count(),
         ];
@@ -185,30 +185,41 @@ class DashboardController extends Controller
             ->orderByDesc('total')
             ->pluck('total', 'ethnicity');
 
-        $fourPsDistribution = DB::table('social_welfare_profiles as swp')
+
+
+        $soloParents = DB::table('social_welfare_profiles as swp')
             ->join('residents as r', 'swp.resident_id', '=', 'r.id')
             ->where('r.barangay_id', $brgy_id)
             ->where('r.is_deceased', false)
-            ->select('swp.is_4ps_beneficiary', DB::raw('COUNT(*) as total'))
-            ->groupBy('swp.is_4ps_beneficiary')
-            ->pluck('total', 'swp.is_4ps_beneficiary');
+            ->where('swp.is_solo_parent', true)
+            ->count();
 
-        $fourPsDistribution = [
-            1 => $fourPsDistribution[1] ?? 0,
-            0 => $fourPsDistribution[0] ?? 0,
-        ];
+        $totalResidents = DB::table('residents')
+            ->where('barangay_id', $brgy_id)
+            ->where('is_deceased', false)
+            ->count();
 
-        $soloParentDistribution = DB::table('social_welfare_profiles as swp')
-            ->join('residents as r', 'swp.resident_id', '=', 'r.id')
-            ->where('r.barangay_id', $brgy_id)
-            ->where('r.is_deceased', false)
-            ->select('swp.is_solo_parent', DB::raw('COUNT(*) as total'))
-            ->groupBy('swp.is_solo_parent')
-            ->pluck('total', 'swp.is_solo_parent');
+        $soloParentCount = $soloParents;
+        $nonSoloParentCount = $totalResidents - $soloParents;
 
         $soloParentDistribution = [
-            1 => $soloParentDistribution[1] ?? 0,
-            0 => $soloParentDistribution[0] ?? 0,
+            1 => $soloParentCount,
+            0 => $nonSoloParentCount,
+        ];
+
+        $fourPsBeneficiaries = DB::table('social_welfare_profiles as swp')
+            ->join('residents as r', 'swp.resident_id', '=', 'r.id')
+            ->where('r.barangay_id', $brgy_id)
+            ->where('r.is_deceased', false)
+            ->where('swp.is_4ps_beneficiary', true)
+            ->count();
+
+
+        $nonFourPsBeneficiaries = $totalResidents - $fourPsBeneficiaries;
+
+        $fourPsDistribution = [
+            1 => $fourPsBeneficiaries,
+            0 => $nonFourPsBeneficiaries,
         ];
 
         return Inertia::render('BarangayOfficer/Dashboard', [
