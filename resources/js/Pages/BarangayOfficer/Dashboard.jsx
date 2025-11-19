@@ -68,7 +68,7 @@ export default function Dashboard({
     ];
     const [view, setView] = useState("sex");
 
-    console.log(voterDistribution);
+    // console.log(voterDistribution);
 
     return (
         <AdminLayout>
