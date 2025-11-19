@@ -70,7 +70,7 @@ const getAgeGroup = (age) => {
 const ResidentCharts = ({ residents, isLoading, welfareFilters = [] }) => {
 
     const residentArray = useMemo(() => Array.isArray(residents) ? residents : residents?.data || [], [residents]);
-    console.log({ residentArray })
+    // console.log({ residentArray })
     const { sexData, totalSex } = useMemo(() => {
         const counts = residentArray.reduce((acc, r) => {
             let s = (r.sex || "Unknown").toLowerCase().trim();
