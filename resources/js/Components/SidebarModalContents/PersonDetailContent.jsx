@@ -547,6 +547,15 @@ export default function PersonDetailContent({ person, deceased = false }) {
                                         ? "Yes"
                                         : "No"}
                                 </span>
+                                <span className="font-medium text-left">
+                                    PhilSys Card Number:
+                                </span>
+                                <span className="text-left">
+                                    {person.socialwelfareprofile.philsys_card_no
+                                        ? person.socialwelfareprofile
+                                              .philsys_card_no
+                                        : "-----"}
+                                </span>
 
                                 {person.socialwelfareprofile.is_solo_parent ===
                                     1 && (

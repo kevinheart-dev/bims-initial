@@ -87,6 +87,7 @@ class ResidentController extends Controller
                 'socialwelfareprofile:id,resident_id,is_solo_parent,is_4ps_beneficiary',
             ]);
 
+
         // ✅ Search by name (optimized raw)
         if ($name = trim(request('name'))) {
             $like = "%{$name}%";
@@ -108,6 +109,7 @@ class ResidentController extends Controller
             'cstatus' => 'civil_status',
             'voter_status' => 'registered_voter',
             'ethnic' => 'ethnicity',
+            'pwd' => 'is_pwd',
         ];
 
         foreach ($filters as $param => $column) {
@@ -139,11 +141,13 @@ class ResidentController extends Controller
         }
 
         // ✅ Social welfare filters (use single whereHas call)
-        if (request('fourps') === '1' || request('solo_parent') === '1' || request('pwd') === '1') {
-            $query->whereHas('socialwelfareprofile', function ($q) {
-                if (request('fourps') === '1') $q->where('is_4ps_beneficiary', 1);
-                if (request('solo_parent') === '1') $q->where('is_solo_parent', 1);
-                if (request('pwd') === '1') $q->where('is_pwd', 1);
+        $fourps = filter_var(request('fourps'), FILTER_VALIDATE_BOOLEAN);
+        $soloParent = filter_var(request('solo_parent'), FILTER_VALIDATE_BOOLEAN);
+
+        if ($fourps || $soloParent) {
+            $query->whereHas('socialwelfareprofile', function ($q) use ($fourps, $soloParent) {
+                if ($fourps) $q->where('is_4ps_beneficiary', 1);
+                if ($soloParent) $q->where('is_solo_parent', 1);
             });
         }
 
@@ -1259,7 +1263,7 @@ class ResidentController extends Controller
                 // 🔍 Find existing household ONLY
                 $household = Household::where('barangay_id', $barangayId)
                     ->where('purok_id', $purok->id)
-                    ->where('house_number', $existingHouseNumber)
+                    ->where('id', $existingHouseNumber)
                     ->first();
 
                 if (!$household) {
@@ -1495,11 +1499,11 @@ class ResidentController extends Controller
                 ]);
             }
             DB::commit();
-
             return redirect()->route('resident.index')
                 ->with('success', 'Resident ' . ucwords($resident->full_name) . ' updated successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
+            //dd('Resident could not be updated: ' . $e->getMessage());
             return back()->with('error', 'Resident could not be updated: ' . $e->getMessage());
         }
     }
@@ -1802,6 +1806,9 @@ class ResidentController extends Controller
         if (request()->filled('cstatus') && request('cstatus') !== 'All') {
             $query->where('civil_status', request('cstatus'));
         }
+        if (request()->filled('pwd') && request('pwd') !== 'All') {
+            $query->where('is_pwd', request('pwd'));
+        }
 
         // ✅ age filter
         if (request()->filled('age_group') && request('age_group') !== 'All') {
@@ -1854,8 +1861,7 @@ class ResidentController extends Controller
         if (
             request('indigent') === '1' ||
             request('fourps') === '1' ||
-            request('solo_parent') === '1' ||
-            request('pwd') === '1'
+            request('solo_parent') === '1'
         ) {
             $query->whereHas('socialwelfareprofile', function ($q) {
                 if (request('indigent') === '1') {
@@ -1866,9 +1872,6 @@ class ResidentController extends Controller
                 }
                 if (request('solo_parent') === '1') {
                     $q->where('is_solo_parent', 1);
-                }
-                if (request('pwd') === '1') {
-                    $q->where('is_pwd', 1);
                 }
             });
         }

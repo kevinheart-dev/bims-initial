@@ -25,81 +25,81 @@ class BarangayInformationSeeder extends Seeder
     public function run(): void
     {
         //BarangayOfficialTerm::factory(4)->create();
-        $positionsLimits = [
-            'barangay_captain' => 1,
-            'barangay_treasurer' => 1,
-            'barangay_kagawad' => 7, // less than 8
-            'sk_chairman' => 1,
-            'sk_kagawad' => 7, // less than 8
-            'health_worker' => 4, // less than 5
-            'tanod' => 4,        // less than 5
-        ];
+        // $positionsLimits = [
+        //     'barangay_captain' => 1,
+        //     'barangay_treasurer' => 1,
+        //     'barangay_kagawad' => 7, // less than 8
+        //     'sk_chairman' => 1,
+        //     'sk_kagawad' => 7, // less than 8
+        //     'health_worker' => 4, // less than 5
+        //     'tanod' => 4,        // less than 5
+        // ];
 
-        foreach ($positionsLimits as $position => $limit) {
-            BarangayOfficial::factory()
-                ->count($limit)
-                ->state(function () use ($position) {
-                    $term = BarangayOfficialTerm::inRandomOrder()->first()
-                        ?? BarangayOfficialTerm::factory()->create();
+        // foreach ($positionsLimits as $position => $limit) {
+        //     BarangayOfficial::factory()
+        //         ->count($limit)
+        //         ->state(function () use ($position) {
+        //             $term = BarangayOfficialTerm::inRandomOrder()->first()
+        //                 ?? BarangayOfficialTerm::factory()->create();
 
-                    return [
-                        'position' => $position,
-                        'status' => 'active',
-                        'term_id' => $term->id,
-                    ];
-                })
-                ->create();
-        }
+        //             return [
+        //                 'position' => $position,
+        //                 'status' => 'active',
+        //                 'term_id' => $term->id,
+        //             ];
+        //         })
+        //         ->create();
+        // }
 
-        // Get all puroks grouped by barangay for quick lookup
-        $puroksByBarangay = Purok::all()->groupBy('barangay_id');
+        // // Get all puroks grouped by barangay for quick lookup
+        // $puroksByBarangay = Purok::all()->groupBy('barangay_id');
 
-        // Get barangay kagawad officials grouped by barangay
-        $barangayKagawadsByBarangay = BarangayOfficial::where('position', 'barangay_kagawad')
-            ->with('resident')
-            ->get()
-            ->groupBy(fn($official) => $official->resident->barangay_id ?? null);
+        // // Get barangay kagawad officials grouped by barangay
+        // $barangayKagawadsByBarangay = BarangayOfficial::where('position', 'barangay_kagawad')
+        //     ->with('resident')
+        //     ->get()
+        //     ->groupBy(fn($official) => $official->resident->barangay_id ?? null);
 
-        // Get sk kagawad officials grouped by barangay
-        $skKagawadsByBarangay = BarangayOfficial::where('position', 'sk_kagawad')
-            ->with('resident')
-            ->get()
-            ->groupBy(fn($official) => $official->resident->barangay_id ?? null);
+        // // Get sk kagawad officials grouped by barangay
+        // $skKagawadsByBarangay = BarangayOfficial::where('position', 'sk_kagawad')
+        //     ->with('resident')
+        //     ->get()
+        //     ->groupBy(fn($official) => $official->resident->barangay_id ?? null);
 
-        // Helper function to assign designations to kagawads with unique puroks per barangay
-        function assignDesignations($kagawadsByBarangay, $puroksByBarangay) {
-            foreach ($kagawadsByBarangay as $barangayId => $kagawads) {
-                $puroks = $puroksByBarangay[$barangayId] ?? collect();
-                $puroks = $puroks->shuffle();
+        // // Helper function to assign designations to kagawads with unique puroks per barangay
+        // function assignDesignations($kagawadsByBarangay, $puroksByBarangay) {
+        //     foreach ($kagawadsByBarangay as $barangayId => $kagawads) {
+        //         $puroks = $puroksByBarangay[$barangayId] ?? collect();
+        //         $puroks = $puroks->shuffle();
 
-                $usedPurokIds = collect();
+        //         $usedPurokIds = collect();
 
-                foreach ($kagawads as $kagawad) {
-                    // Find a purok not used yet
-                    $purok = $puroks->first(fn($p) => !$usedPurokIds->contains($p->id));
+        //         foreach ($kagawads as $kagawad) {
+        //             // Find a purok not used yet
+        //             $purok = $puroks->first(fn($p) => !$usedPurokIds->contains($p->id));
 
-                    if (!$purok) {
-                        // No more puroks available for this barangay
-                        break;
-                    }
+        //             if (!$purok) {
+        //                 // No more puroks available for this barangay
+        //                 break;
+        //             }
 
-                    Designation::create([
-                        'official_id' => $kagawad->id,
-                        'purok_id' => $purok->id,
-                        'started_at' => now()->subYears(rand(1, 5))->year,
-                        'ended_at' => null,
-                    ]);
+        //             Designation::create([
+        //                 'official_id' => $kagawad->id,
+        //                 'purok_id' => $purok->id,
+        //                 'started_at' => now()->subYears(rand(1, 5))->year,
+        //                 'ended_at' => null,
+        //             ]);
 
-                    $usedPurokIds->push($purok->id);
-                }
-            }
-        }
+        //             $usedPurokIds->push($purok->id);
+        //         }
+        //     }
+        // }
 
-        // Assign barangay kagawad designations
-        assignDesignations($barangayKagawadsByBarangay, $puroksByBarangay);
+        // // Assign barangay kagawad designations
+        // assignDesignations($barangayKagawadsByBarangay, $puroksByBarangay);
 
-        // Assign sk kagawad designations
-        assignDesignations($skKagawadsByBarangay, $puroksByBarangay);
+        // // Assign sk kagawad designations
+        // assignDesignations($skKagawadsByBarangay, $puroksByBarangay);
 
         BarangayInstitution::factory(4)->create();
         $institutions = BarangayInstitution::all();
