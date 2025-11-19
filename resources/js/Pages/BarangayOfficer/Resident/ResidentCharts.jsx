@@ -14,10 +14,9 @@ import {
     LabelList,
 } from "recharts";
 
-const COLORS_GENDER = [
-    "#3B82F6", // Blue - Male
-    "#F472B6", // Pink - Female
-    "#10B981",
+const COLORS_SEX = [
+    "#3B82F6",
+    "#F472B6",
 ];
 
 const COLORS_WELFARE = [
@@ -58,7 +57,7 @@ const getAge = (birthdate) => {
     const birthDateObj = new Date(birthdate);
     if (isNaN(birthDateObj.getTime())) return null;
     const now = new Date();
-    return (now - birthDateObj) / 31557600000; // Milliseconds in a year
+    return (now - birthDateObj) / 31557600000;
 };
 
 const getAgeGroup = (age) => {
@@ -70,25 +69,26 @@ const getAgeGroup = (age) => {
 // Add welfareFilters prop here
 const ResidentCharts = ({ residents, isLoading, welfareFilters = [] }) => {
 
-    // 1. Memoize residentArray first
     const residentArray = useMemo(() => Array.isArray(residents) ? residents : residents?.data || [], [residents]);
-
-    // 2. Memoize all derived data calculations. These MUST be called regardless of isLoading or residentArray.length.
-    const { genderData, totalGender } = useMemo(() => {
+    console.log({ residentArray })
+    const { sexData, totalSex } = useMemo(() => {
         const counts = residentArray.reduce((acc, r) => {
-            let g = (r.gender || "Unknown").toLowerCase().trim();
-            g = (g === "male" || g === "m") ? "Male" : (g === "female" || g === "f") ? "Female" : "LGBTQ";
-            acc[g] = (acc[g] || 0) + 1;
+            let s = (r.sex || "Unknown").toLowerCase().trim();
+            if (s === "male" || s === "m") {
+                acc.Male = (acc.Male || 0) + 1;
+            } else if (s === "female" || s === "f") {
+                acc.Female = (acc.Female || 0) + 1;
+            }
             return acc;
-        }, { Male: 0, Female: 0, LGBTQ: 0 });
+        }, { Male: 0, Female: 0 });
+
         const data = Object.entries(counts).map(([name, value]) => ({ name, value }));
         const total = data.reduce((sum, item) => sum + item.value, 0);
-        return { genderData: data, totalGender: total };
+        return { sexData: data, totalSex: total };
     }, [residentArray]);
 
     const { welfareData, totalWelfare } = useMemo(() => {
         const counts = residentArray.reduce((acc, r) => {
-            // Count independently
             if (r.is_pwd) acc.PWD++;
             if (r.is4ps) acc.FourPs++;
             if (r.isSoloParent) acc.SoloParent++;
@@ -98,7 +98,6 @@ const ResidentCharts = ({ residents, isLoading, welfareFilters = [] }) => {
         let data = [];
         const allWelfareCategories = ["PWD", "FourPs", "SoloParent"];
 
-        // Determine which categories to display
         const categoriesToDisplay = welfareFilters.length > 0 ? welfareFilters : allWelfareCategories;
 
         if (categoriesToDisplay.includes("PWD")) {
@@ -110,10 +109,6 @@ const ResidentCharts = ({ residents, isLoading, welfareFilters = [] }) => {
         if (categoriesToDisplay.includes("SoloParent")) {
             data.push({ name: "SoloParent", value: counts.SoloParent });
         }
-
-        // Filter out categories with 0 values only if they are not explicitly selected
-        // Or if all are shown by default and a category has 0 value
-        // Also, ensure categories with 0 value are displayed if they are part of `categoriesToDisplay`
         data = data.filter(item => item.value > 0 || categoriesToDisplay.includes(item.name));
 
         const total = data.reduce((sum, item) => sum + item.value, 0);
@@ -292,31 +287,31 @@ const ResidentCharts = ({ residents, isLoading, welfareFilters = [] }) => {
                 </div>
                 {/* --- RIGHT COLUMN --- */}
                 <div className="lg:col-span-2 flex flex-col gap-2">
-                    {/* GENDER & WELFARE */}
+                    {/* SEX & WELFARE */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {/* GENDER */}
+                        {/* SEX */}
                         <div className="bg-white shadow-lg rounded-2xl p-4 h-44">
-                            <h2 className="text-lg font-semibold text-gray-700">Gender</h2>
+                            <h2 className="text-lg font-semibold text-gray-700">Sex</h2> {/* Changed to Sex */}
                             <div className="flex items-center h-full">
                                 <div className="w-2/5 h-full">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <PieChart>
-                                            <Pie data={genderData} cx="50%" cy="50%" outerRadius={40} innerRadius={30} dataKey="value" cornerRadius={5}>
-                                                {genderData.map((entry, index) => (
-                                                    <Cell key={`gender-cell-${entry.name}`} fill={COLORS_GENDER[index % COLORS_GENDER.length]} stroke="#FFFFFF" strokeWidth={2} />
+                                            <Pie data={sexData} cx="50%" cy="50%" outerRadius={40} innerRadius={30} dataKey="value" cornerRadius={5}>
+                                                {sexData.map((entry, index) => (
+                                                    <Cell key={`sex-cell-${entry.name}`} fill={COLORS_SEX[index % COLORS_SEX.length]} stroke="#FFFFFF" strokeWidth={2} />
                                                 ))}
                                             </Pie>
                                             <Tooltip formatter={(value, name) => [`${value}`, name]} contentStyle={{ fontSize: "12px", borderRadius: "8px" }} />
-                                            <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-gray-800">{totalGender}</text>
+                                            <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold fill-gray-800">{totalSex}</text>
                                         </PieChart>
                                     </ResponsiveContainer>
                                 </div>
                                 <div className="w-3/5 flex flex-col justify-center gap-2 pl-4">
-                                    {genderData.map((entry, index) => (
-                                        <div key={`gender-legend-${entry.name}`} className="flex items-center text-sm w-full">
-                                            <span className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: COLORS_GENDER[index % COLORS_GENDER.length] }}></span>
+                                    {sexData.map((entry, index) => (
+                                        <div key={`sex-legend-${entry.name}`} className="flex items-center text-sm w-full">
+                                            <span className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: COLORS_SEX[index % COLORS_SEX.length] }}></span>
                                             <span className="font-medium text-gray-700">{entry.name}</span>
-                                            <span className="ml-auto text-gray-500">{`${totalGender > 0 ? ((entry.value / totalGender) * 100).toFixed(0) : 0}%`}</span>
+                                            <span className="ml-auto text-gray-500">{`${totalSex > 0 ? ((entry.value / totalSex) * 100).toFixed(0) : 0}%`}</span>
                                         </div>
                                     ))}
                                 </div>
