@@ -30,10 +30,12 @@ class UpdateBarangayOfficialRequest extends FormRequest
             // Designations for certain positions
             'designations' => ['required_if:position,barangay_kagawad,sk_kagawad', 'array'],
             'designations.*.designation' => ['required_if:position,barangay_kagawad,sk_kagawad', 'exists:puroks,id'],
-            'designations.*.term_start'  => ['nullable','digits:4','integer','min:1900','max:'.now()->year],
-            'designations.*.term_end'    => ['nullable','digits:4','integer','min:1900','max:'.now()->year],
+            'designations.*.term_start'  => ['nullable','digits:4','integer','min:1900'],
+            'designations.*.term_end'    => ['nullable','digits:4','integer','min:1900'],
 
-            'term'             => ['required','exists:barangay_official_terms,id'],
+            'term'             => ['nullable','exists:barangay_official_terms,id'],
+            'new_term_start'    => ['nullable', 'digits:4', 'integer', 'min:1900'],
+            'new_term_end'      => ['nullable', 'digits:4', 'integer', 'min:1900'],
             'appointment_type' => ['required', Rule::in(['elected','appointed','succession'])],
 
             // If appointed

@@ -25,7 +25,27 @@ class BarangayOfficialController extends Controller
 
         // Fetch officials with relationships
         $officials = BarangayOfficial::with([
-            'resident.barangay',
+            'resident' => function ($q) {
+                $q->select(
+                    'id',
+                    'firstname',
+                    'middlename',
+                    'lastname',
+                    'suffix',
+                    'sex',
+                    'birthdate',
+                    'contact_number',
+                    'barangay_id'
+                );
+            },
+            'resident.barangay' => function ($q) {
+                $q->select(
+                    'id',
+                    'barangay_name',
+                    'city',
+                    'province'
+                );
+            },
             'resident.street.purok',
             'term',
             'activeDesignations',
@@ -91,10 +111,27 @@ class BarangayOfficialController extends Controller
     public function store(StoreBarangayOfficialRequest $request)
     {
         try {
-            //dd($request->all());
             $data = $request->validated();
             DB::beginTransaction();
-            //dd($data);
+
+            $userBrgyId = auth()->user()->barangay_id;
+
+            // ✅ Create new term if 'term' is null or empty
+            if (empty($data['term'])) {
+                if (empty($data['new_term_start']) || empty($data['new_term_end'])) {
+                    throw new \Exception('Start year and End year are required to create a new term.');
+                }
+
+                $term = BarangayOfficialTerm::create([
+                    'barangay_id' => $userBrgyId,
+                    'term_start'  => $data['new_term_start'],
+                    'term_end'    => $data['new_term_end'],
+                    'status'      => 'active',
+                ]);
+
+                $data['term'] = $term->id; // use the newly created term ID
+            }
+
             // Store Barangay Official
             $official = BarangayOfficial::create([
                 'resident_id'       => $data['resident_id'],
@@ -102,19 +139,19 @@ class BarangayOfficialController extends Controller
                 'position'          => $data['position'],
                 'status'            => $data['status'] ?? 'active',
                 'appointment_type'  => $data['appointment_type']  ?? null,
-                'appointted_by'      => $data['appointted_by'] ?? null,
+                'appointted_by'     => $data['appointted_by'] ?? null,
                 'appointment_reason'=> $data['appointment_reason']  ?? null,
                 'remarks'           => $data['remarks']  ?? null,
             ]);
 
-            // Store designation(s) only for kagawad positions
+            // Store designations for kagawad positions
             if (in_array($data['position'], ['barangay_kagawad', 'sk_kagawad']) && !empty($data['designations'])) {
                 foreach ($data['designations'] as $designation) {
-                    $purok_id = Purok::where('barangay_id', auth()->user()->resident->barangay_id)
+                    $purok_id = Purok::where('barangay_id', $userBrgyId)
                         ->where('purok_number', $designation['designation'])
-                        ->value('id'); // get the actual ID
+                        ->value('id');
 
-                    if ($purok_id) { // only create if a valid Purok exists
+                    if ($purok_id) {
                         Designation::create([
                             'official_id' => $official->id,
                             'purok_id'    => $purok_id,
@@ -124,10 +161,12 @@ class BarangayOfficialController extends Controller
                     }
                 }
             }
+
             DB::commit();
+
             return redirect()
                 ->route('barangay_official.index')
-                ->with('success','Barangay Official successfully added.');
+                ->with('success', 'Barangay Official successfully added.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Barangay Official could not be added: ' . $e->getMessage());
@@ -157,6 +196,23 @@ class BarangayOfficialController extends Controller
     {
         try {
             $data = $request->validated();
+            $userBrgyId = auth()->user()->barangay_id;
+
+            // ✅ Create new term if 'term' is null or empty
+            if (empty($data['term'])) {
+                if (empty($data['new_term_start']) || empty($data['new_term_end'])) {
+                    throw new \Exception('Start year and End year are required to create a new term.');
+                }
+
+                $term = BarangayOfficialTerm::create([
+                    'barangay_id' => $userBrgyId,
+                    'term_start'  => $data['new_term_start'],
+                    'term_end'    => $data['new_term_end'],
+                    'status'      => 'active',
+                ]);
+
+                $data['term'] = $term->id; // use newly created term
+            }
 
             // Clear appointed fields if not appointed
             if ($data['appointment_type'] !== 'appointed') {
@@ -171,7 +227,7 @@ class BarangayOfficialController extends Controller
                 'appointment_type'   => $data['appointment_type'],
                 'appointed_by'       => $data['appointed_by'] ?? null,
                 'appointment_reason' => $data['appointment_reason'] ?? null,
-                'term_id'            => $data['term'] ?? null,
+                'term_id'            => $data['term'],
                 'remarks'            => $data['remarks'] ?? null,
             ]);
 
@@ -182,8 +238,8 @@ class BarangayOfficialController extends Controller
                 foreach ($data['designations'] as $des) {
                     $barangayOfficial->designation()->create([
                         'purok_id'   => $des['designation'],
-                        'started_at' => $des['term_start'],
-                        'ended_at'   => $des['term_end'],
+                        'started_at' => $des['term_start'] ?? now()->year,
+                        'ended_at'   => $des['term_end'] ?? null,
                     ]);
                 }
             }
@@ -196,6 +252,7 @@ class BarangayOfficialController extends Controller
             return back()->with('error','Failed to update Barangay Official: ' . $e->getMessage());
         }
     }
+
 
     /**
      * Remove the specified resource from storage.

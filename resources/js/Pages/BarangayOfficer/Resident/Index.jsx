@@ -21,6 +21,7 @@ import axios from "axios";
 import useAppUrl from "@/hooks/useAppUrl";
 import { useQuery } from "@tanstack/react-query";
 import ExportButton from "@/Components/ExportButton";
+import { toTitleCase } from "@/utils/stringFormat";
 
 // Lazy load heavy components
 const AdminLayout = lazy(() => import("@/Layouts/AdminLayout"));
@@ -316,11 +317,13 @@ export default function Index({
             ),
             name: (resident) => (
                 <div className="text-sm break-words whitespace-normal leading-snug">
-                    {`${resident.firstname} ${
-                        resident.middlename ? resident.middlename + " " : ""
-                    }${resident.lastname ?? ""} ${
-                        resident.suffix ? resident.suffix : ""
-                    }`}
+                    {toTitleCase(
+                        `${resident.firstname} ${
+                            resident.middlename ? resident.middlename + " " : ""
+                        }${resident.lastname ?? ""} ${
+                            resident.suffix ? resident.suffix : ""
+                        }`
+                    )}
                 </div>
             ),
             sex: (resident) => {

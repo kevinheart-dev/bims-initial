@@ -23,7 +23,11 @@ import { Toaster, toast } from "sonner";
 import InputError from "@/Components/InputError";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import { useQuery } from "@tanstack/react-query";
-import { Home } from "lucide-react";
+import { Home, SquarePen, TableIcon, Trash2 } from "lucide-react";
+import DynamicTable from "@/Components/DynamicTable";
+import ActionMenu from "@/Components/ActionMenu";
+import { Switch } from "@/components/ui/switch"; // adjust path
+import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 
 const BarangayOfficials = ({
     officials,
@@ -44,6 +48,9 @@ const BarangayOfficials = ({
     const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Edit modal
     const [selectedResident, setSelectedResident] = useState(null);
     const [selectedOfficial, setSelectedOfficial] = useState(null); // for edit
+    const [showNewTermToggle, setShowNewTermToggle] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
+    const [officialToDelete, setOfficialToDelete] = useState(null); //delete
 
     const props = usePage().props;
     const success = props?.success ?? null;
@@ -57,6 +64,8 @@ const BarangayOfficials = ({
             position: "",
             designations: [],
             term: "",
+            new_term_start: "",
+            new_term_end: "",
             contact_number: "",
             email: "",
             appointment_type: "",
@@ -70,7 +79,6 @@ const BarangayOfficials = ({
         setData(e.target.name, e.target.value);
     };
     const handleResidentChange = useResidentChangeHandler(residents, setData);
-
     const handleView = async (residentId) => {
         try {
             const response = await axios.get(
@@ -81,6 +89,27 @@ const BarangayOfficials = ({
         } catch (error) {
             console.error("Error fetching resident details:", error);
         }
+    };
+    const handleDeleteClick = (id) => {
+        setOfficialToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+    const confirmDelete = () => {
+        router.delete(route("barangay_official.destroy", officialToDelete), {
+            onError: (errors) => {
+                console.error("Validation Errors:", errors);
+
+                const allErrors = Object.values(errors).join("<br />");
+                toast.error("Validation Error", {
+                    description: (
+                        <span dangerouslySetInnerHTML={{ __html: allErrors }} />
+                    ),
+                    duration: 3000,
+                    closeButton: true,
+                });
+            },
+        });
+        setIsDeleteModalOpen(false);
     };
 
     const handleArrayValues = (e, index, column, array) => {
@@ -271,6 +300,122 @@ const BarangayOfficials = ({
         return acc;
     }, {});
 
+    // tables
+
+    const allColumns = [
+        { key: "id", label: "ID" },
+        { key: "name", label: "Name" },
+        { key: "position", label: "Position" },
+        { key: "sex", label: "Sex" },
+        { key: "status", label: "Status" },
+        { key: "term", label: "Term" },
+        { key: "designation", label: "Designation" },
+        { key: "actions", label: "Actions" },
+    ];
+
+    const defaultVisibleCols = allColumns.map((col) => col.key);
+    const [visibleColumns, setVisibleColumns] = useState(() => {
+        const saved = localStorage.getItem("official_visible_columns");
+        return saved ? JSON.parse(saved) : defaultVisibleCols;
+    });
+
+    useEffect(() => {
+        localStorage.setItem(
+            "official_visible_columns",
+            JSON.stringify(visibleColumns)
+        );
+    }, [visibleColumns]);
+
+    const columnRenderers = {
+        id: (row) => (
+            <span className="text-gray-700 font-medium">{row.id}</span>
+        ),
+
+        name: (row) => {
+            const r = row.resident;
+            const fullname = `${r.firstname} ${r.middlename ?? ""} ${
+                r.lastname
+            }${r.suffix ? ", " + r.suffix : ""}`;
+
+            return (
+                <span className="font-semibold text-gray-900 capitalize">
+                    {fullname}
+                </span>
+            );
+        },
+
+        position: (row) => (
+            <span className="px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold capitalize">
+                {row.position.replace(/_/g, " ")}
+            </span>
+        ),
+
+        sex: (row) => (
+            <span
+                className={
+                    "px-2 py-1 rounded-md text-xs font-semibold capitalize " +
+                    (row.resident.sex === "male"
+                        ? "bg-indigo-50 text-indigo-700"
+                        : "bg-pink-50 text-pink-700")
+                }
+            >
+                {row.resident.sex}
+            </span>
+        ),
+
+        status: (row) => (
+            <span
+                className={
+                    "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide " +
+                    (row.status === "active"
+                        ? "bg-green-100 text-green-800 border border-green-300"
+                        : "bg-gray-200 text-gray-700 border border-gray-300")
+                }
+            >
+                {row.status}
+            </span>
+        ),
+
+        term: (row) => (
+            <span className="text-sm text-gray-700 font-medium">
+                {row.term?.term_start && row.term?.term_end
+                    ? `${row.term.term_start} - ${row.term.term_end}`
+                    : "—"}
+            </span>
+        ),
+
+        designation: (row) => {
+            if (!row.active_designations?.length)
+                return <span className="text-gray-500">—</span>;
+
+            const purok = row.active_designations[0].purok;
+
+            return (
+                <span className="px-2 py-1 rounded-md bg-purple-50 text-purple-700 text-xs font-semibold">
+                    {purok ? `Purok ${purok.purok_number}` : "—"}
+                </span>
+            );
+        },
+
+        actions: (row) => (
+            <ActionMenu
+                actions={[
+                    {
+                        label: "Edit",
+                        icon: <SquarePen className="w-4 h-4 text-green-600" />,
+                        onClick: () => handleEdit(row.id),
+                    },
+                    {
+                        label: "Delete",
+                        icon: <Trash2 className="w-4 h-4 text-red-600" />,
+                        onClick: () => handleDeleteClick(row.id),
+                    },
+                ]}
+                className="flex justify-center"
+            />
+        ),
+    };
+
     useEffect(() => {
         if (success) {
             handleModalClose();
@@ -319,77 +464,182 @@ const BarangayOfficials = ({
                             </div>
                         </div>
                         <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
-                            <div className="space-y-8 p-4">
+                            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
                                 {Object.keys(groupedOfficials).map(
-                                    (position) => (
-                                        <div key={position}>
-                                            {/* Position Header */}
-                                            <h2 className="text-lg sm:text-xl font-bold text-gray-700 mb-4 border-b pb-2">
-                                                {position}
-                                            </h2>
+                                    (position) => {
+                                        const officials =
+                                            groupedOfficials[position];
+                                        // Check if there is exactly one official
+                                        const isSingle = officials.length === 1;
 
-                                            {/* Officials Grid */}
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                                                {groupedOfficials[position].map(
-                                                    (official) => (
-                                                        <OfficialCard
-                                                            key={official.id}
-                                                            id={
-                                                                official
-                                                                    .resident.id
-                                                            }
-                                                            name={`${official.resident.firstname} ${official.resident.lastname}`}
-                                                            position={position}
-                                                            purok={
-                                                                official
-                                                                    .active_designations[0]
-                                                                    ?.purok
-                                                                    ?.purok_number ||
-                                                                "N/A"
-                                                            }
-                                                            term={`${
-                                                                official.term
-                                                                    ?.term_start ||
-                                                                "0000"
-                                                            } – ${
-                                                                official.term
-                                                                    ?.term_end ||
-                                                                "0000"
-                                                            }`}
-                                                            phone={
-                                                                official
-                                                                    .resident
-                                                                    .contact_number
-                                                            }
-                                                            email={
-                                                                official
-                                                                    .resident
-                                                                    .email
-                                                            }
-                                                            image={
-                                                                official
-                                                                    .resident
-                                                                    .resident_picture_path
-                                                            }
-                                                            onView={() =>
-                                                                handleView(
-                                                                    official
-                                                                        .resident
-                                                                        .id
-                                                                )
-                                                            }
-                                                            onEdit={() =>
-                                                                handleEdit(
-                                                                    official.id
-                                                                )
-                                                            }
-                                                        />
-                                                    )
+                                        return (
+                                            <div
+                                                key={position}
+                                                className="animate-in fade-in slide-in-from-bottom-6 duration-700"
+                                            >
+                                                {/* 1. SYMMETRICAL HEADER */}
+                                                <div className="flex flex-col items-center justify-center mb-10 text-center">
+                                                    <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-800 tracking-tight mb-2 uppercase relative inline-block">
+                                                        {position}
+                                                    </h2>
+
+                                                    {/* Symmetrical Accent Line */}
+                                                    <div className="w-24 h-1 bg-indigo-600 rounded-full mb-4"></div>
+
+                                                    <span className="px-4 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-full border border-indigo-100 uppercase tracking-wider shadow-sm">
+                                                        {officials.length}{" "}
+                                                        {officials.length === 1
+                                                            ? "Official"
+                                                            : "Officials"}
+                                                    </span>
+                                                </div>
+
+                                                {/* 2. CONDITIONAL LAYOUT */}
+                                                {officials.length > 0 ? (
+                                                    <div
+                                                        className={
+                                                            isSingle
+                                                                ? // If ONLY 1: Use Flexbox to perfectly center it
+                                                                  "flex justify-center w-full"
+                                                                : // If > 1: Use Grid to arrange in columns
+                                                                  "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 justify-items-center"
+                                                        }
+                                                    >
+                                                        {officials.map(
+                                                            (official) => (
+                                                                <div
+                                                                    className="w-full max-w-[320px]"
+                                                                    key={
+                                                                        official.id
+                                                                    }
+                                                                >
+                                                                    <OfficialCard
+                                                                        id={
+                                                                            official.id
+                                                                        }
+                                                                        onView={() =>
+                                                                            handleView(
+                                                                                official
+                                                                                    .resident
+                                                                                    .id
+                                                                            )
+                                                                        }
+                                                                        onEdit={() =>
+                                                                            handleEdit(
+                                                                                official.id
+                                                                            )
+                                                                        }
+                                                                        onDelete={() =>
+                                                                            handleDeleteClick(
+                                                                                official.id
+                                                                            )
+                                                                        }
+                                                                        name={`${official.resident.firstname} ${official.resident.lastname}`}
+                                                                        position={
+                                                                            position
+                                                                        }
+                                                                        purok={
+                                                                            official
+                                                                                .active_designations[0]
+                                                                                ?.purok
+                                                                                ?.purok_number ||
+                                                                            "N/A"
+                                                                        }
+                                                                        term={`${
+                                                                            official
+                                                                                .term
+                                                                                ?.term_start ||
+                                                                            "0000"
+                                                                        } – ${
+                                                                            official
+                                                                                .term
+                                                                                ?.term_end ||
+                                                                            "0000"
+                                                                        }`}
+                                                                        phone={
+                                                                            official
+                                                                                .resident
+                                                                                .contact_number
+                                                                        }
+                                                                        email={
+                                                                            official
+                                                                                .resident
+                                                                                .email
+                                                                        }
+                                                                        image={
+                                                                            official
+                                                                                .resident
+                                                                                .resident_picture_path
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                            )
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    // Centered Empty State
+                                                    <div className="max-w-lg mx-auto p-10 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-300">
+                                                        <p className="text-gray-400 font-medium italic">
+                                                            No officials found
+                                                            for this position.
+                                                        </p>
+                                                    </div>
                                                 )}
                                             </div>
-                                        </div>
-                                    )
+                                        );
+                                    }
                                 )}
+                            </div>
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                                {/* Header Section */}
+                                <div className="px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50/50">
+                                    {/* Title Area */}
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+                                            <TableIcon className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-gray-800">
+                                                Barangay Officials Directory
+                                            </h3>
+                                            <p className="text-xs text-gray-500 font-medium">
+                                                Complete list of current active
+                                                officials
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Optional: Action/Filter Placeholder (Visual balance) */}
+                                    <div className="hidden sm:flex items-center gap-2">
+                                        <span className="px-3 py-1 text-xs font-medium text-gray-500 bg-white border border-gray-200 rounded-md shadow-sm">
+                                            Total: {officials?.length || 0}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Table Wrapper */}
+                                <div className="p-0 overflow-x-auto">
+                                    {/*
+               Added a wrapper div with min-width to prevent
+               the table from squishing on small screens
+            */}
+                                    <div className="min-w-full inline-block align-middle">
+                                        <div className="border-b border-gray-200">
+                                            <DynamicTable
+                                                passedData={officials}
+                                                allColumns={allColumns}
+                                                columnRenderers={
+                                                    columnRenderers
+                                                }
+                                                visibleColumns={visibleColumns}
+                                                showTotal={true}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Optional Footer Area (if needed for pagination later) */}
+                                <div className="bg-gray-50 px-6 py-3 border-t border-gray-100"></div>
                             </div>
                         </div>
                     </div>
@@ -576,7 +826,8 @@ const BarangayOfficials = ({
                             </div>
 
                             {/* Term Start / Term End */}
-                            <div className={`grid  grid-cols-2 gap-4`}>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {/* Official Term */}
                                 <div>
                                     <label
                                         className="block text-sm font-medium mb-1"
@@ -587,7 +838,7 @@ const BarangayOfficials = ({
                                     <SelectField
                                         id="term"
                                         name="term"
-                                        placeholder="Select term of offcial"
+                                        placeholder="Select term of official"
                                         value={data.term || ""}
                                         onChange={handleChange}
                                         items={active_terms}
@@ -597,6 +848,8 @@ const BarangayOfficials = ({
                                         className="mt-2"
                                     />
                                 </div>
+
+                                {/* Appointment Type */}
                                 <div>
                                     <label
                                         className="block text-sm font-medium mb-1"
@@ -628,6 +881,89 @@ const BarangayOfficials = ({
                                         message={errors.appointment_type}
                                         className="mt-2"
                                     />
+                                </div>
+
+                                {/* Toggle for New Term — span both columns */}
+                                <div className="flex items-center space-x-2 mt-4 col-span-2">
+                                    <Switch
+                                        checked={showNewTermToggle}
+                                        onCheckedChange={setShowNewTermToggle}
+                                    />
+                                    <span className="text-sm text-gray-700">
+                                        {showNewTermToggle
+                                            ? "Hide New Term"
+                                            : "Add New Term (Not Found)"}
+                                    </span>
+                                </div>
+
+                                {/* Collapsible New Term Section — span both columns */}
+                                <div
+                                    className={`transition-all duration-300 overflow-hidden col-span-2 ${
+                                        showNewTermToggle
+                                            ? "max-h-96 opacity-100 mt-4"
+                                            : "max-h-0 opacity-0"
+                                    }`}
+                                >
+                                    <div className="bg-gray-50 p-6 rounded-lg space-y-6">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {/* Start Year */}
+                                            <div className="flex flex-col">
+                                                <InputField
+                                                    type="number"
+                                                    label="Start Year"
+                                                    name="new_term_start"
+                                                    value={
+                                                        data.new_term_start ||
+                                                        ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            "new_term_start",
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    placeholder="e.g., 2024"
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors.new_term_start
+                                                    }
+                                                    className="mt-1"
+                                                />
+                                            </div>
+
+                                            {/* End Year */}
+                                            <div className="flex flex-col">
+                                                <InputField
+                                                    type="number"
+                                                    label="End Year"
+                                                    name="new_term_end"
+                                                    value={
+                                                        data.new_term_end || ""
+                                                    }
+                                                    onChange={(e) =>
+                                                        setData(
+                                                            "new_term_end",
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    placeholder="e.g., 2027"
+                                                />
+                                                <InputError
+                                                    message={
+                                                        errors.new_term_end
+                                                    }
+                                                    className="mt-1"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <p className="text-xs text-gray-500">
+                                            Enter the years to create a new
+                                            barangay term. This will be saved
+                                            and selectable after submission.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
@@ -841,6 +1177,12 @@ const BarangayOfficials = ({
                 >
                     {selectedOfficial && <EditOfficialForm />}
                 </Modal>
+                <DeleteConfirmationModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={confirmDelete}
+                    residentId={officialToDelete}
+                />
             </div>
         </AdminLayout>
     );
