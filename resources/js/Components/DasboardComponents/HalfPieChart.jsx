@@ -10,13 +10,8 @@ function HalfPieChart({
     gradientId,
     gradientColor,
 }) {
-    const keys = Object.keys(distribution);
-    const filledKey = keys[0] ?? null;
-    const remainingKey = keys[1] ?? null;
-
-    const filled = filledKey ? distribution[filledKey] : 0;
-    const remaining = remainingKey ? distribution[remainingKey] : 0;
-
+    const filled = distribution[1] ?? 0;
+    const remaining = distribution[0] ?? 0;
     const total = filled + remaining;
     const percentage = total > 0 ? (filled / total) * 100 : 0;
 
@@ -25,12 +20,11 @@ function HalfPieChart({
         { name: "Remaining", value: 100 - percentage },
     ];
 
-    // Determine the gradient fill URL for the filled slice
     const gradientFill = gradientId ? `url(#${gradientId})` : fillColor;
 
     return (
         <div className="flex items-center justify-between p-4 w-full h-[250px] md:h-[160px]">
-            {/* Left Side */}
+
             <div className="flex flex-col justify-center">
                 <h3 className="text-gray-600 font-medium text-sm">{title}</h3>
                 <p className="text-3xl font-bold text-gray-900 mt-1">
@@ -41,17 +35,13 @@ function HalfPieChart({
                 </p>
             </div>
 
-            {/* Right Side */}
             <div className="flex-1 h-full flex items-center justify-center relative">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                        {/* 1. Define the gradient inside the PieChart using <defs> */}
                         {gradientId && gradientColor && (
                             <defs>
                                 <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
-                                    {/* Stop 1: White at 0% of the gradient (start of the pie arc) */}
                                     <stop offset="0%" stopColor="#ffffff" stopOpacity={1} />
-                                    {/* Stop 2: The end color at 100% of the gradient (end of the pie arc) */}
                                     <stop offset="100%" stopColor={gradientColor} stopOpacity={1} />
                                 </linearGradient>
                             </defs>
@@ -70,7 +60,6 @@ function HalfPieChart({
                             {data.map((entry, index) => (
                                 <Cell
                                     key={`cell-${index}`}
-                                    // 2. Use the gradientFill for the first (filled) slice
                                     fill={index === 0 ? gradientFill : "#e5e7eb"}
                                 />
                             ))}
@@ -78,7 +67,6 @@ function HalfPieChart({
                     </PieChart>
                 </ResponsiveContainer>
 
-                {/* Percentage inside chart */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <p className="text-xl font-bold text-gray-800 translate-y-7">
                         {percentage.toFixed(1)}%

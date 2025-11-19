@@ -10,7 +10,6 @@ import PopulationPerPurok from "./DashboardCharts/PopulationPerPurok";
 import PwdHalfPie from "./DashboardCharts/PwdDistribution";
 import EmploymentStatus from "./DashboardCharts/EmploymentStatus";
 import CivilStatus from "./DashboardCharts/CivilStatus";
-import VotersDistribution from "./DashboardCharts/VotersDistribution";
 import AgeCard from "@/Components/DasboardComponents/AgeCard";
 import FamilyIncomeBarChart from "./DashboardCharts/FamilyIncome";
 import EducationStackedBarChart from "./DashboardCharts/EducationHistory";
@@ -69,7 +68,7 @@ export default function Dashboard({
     ];
     const [view, setView] = useState("sex");
 
-    console.log(populationPerPurok);
+    console.log(voterDistribution);
 
     return (
         <AdminLayout>

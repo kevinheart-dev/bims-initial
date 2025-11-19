@@ -316,11 +316,9 @@ export default function Index({
             ),
             name: (resident) => (
                 <div className="text-sm break-words whitespace-normal leading-snug">
-                    {`${resident.firstname} ${
-                        resident.middlename ? resident.middlename + " " : ""
-                    }${resident.lastname ?? ""} ${
-                        resident.suffix ? resident.suffix : ""
-                    }`}
+                    {`${resident.firstname} ${resident.middlename ? resident.middlename + " " : ""
+                        }${resident.lastname ?? ""} ${resident.suffix ? resident.suffix : ""
+                        }`}
                 </div>
             ),
             sex: (resident) => {
@@ -356,7 +354,7 @@ export default function Index({
                 CONSTANTS.RESIDENT_CIVIL_STATUS_TEXT[resident.civil_status],
             employment_status: (resident) =>
                 CONSTANTS.RESIDENT_EMPLOYMENT_STATUS_TEXT[
-                    resident.employment_status
+                resident.employment_status
                 ],
             occupation: (resident) => {
                 const occ = resident.occupation;
