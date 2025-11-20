@@ -435,8 +435,14 @@ Route::middleware(['auth', 'role:resident'])->prefix('account')->group(function 
     Route::post('/certificate-request', [ResidentAccountController::class, 'requestCertificate'])
         ->name('resident.certificate.store');
     Route::delete('/certificate/cancel/{id}', [ResidentAccountController::class, 'destroy'])->name('resident_account.certificate.destroy');
-    Route::get('/user/basic-information', [ResidentAccountController::class, 'basicInformation'])->name('resident_account.basic.info');
-    Route::put('/user/update-information', [ResidentAccountController::class, 'updateInfo'])->name('resident_account.update.info');
+});
+
+Route::middleware(['auth', 'role:resident|barangay_officer'])->group(function () {
+    Route::get('/account/user/basic-information', [ResidentAccountController::class, 'basicInformation'])
+        ->name('resident_account.basic.info');
+
+    Route::put('/account/user/update-information', [ResidentAccountController::class, 'updateInfo'])
+        ->name('resident_account.update.info');
 });
 
 // Routes accessible to both resident and admin users (verified users)

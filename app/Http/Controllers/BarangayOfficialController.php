@@ -24,6 +24,9 @@ class BarangayOfficialController extends Controller
         $brgy_id = auth()->user()->barangay_id;
 
         // Fetch officials with relationships
+        $termFilter = request()->query('term'); // 👈 get filter from query params
+
+        // Fetch officials with relationships + filtering
         $officials = BarangayOfficial::with([
             'resident' => function ($q) {
                 $q->select(
@@ -52,6 +55,12 @@ class BarangayOfficialController extends Controller
             'activeDesignations.purok'
         ])
         ->whereHas('resident', fn($q) => $q->where('barangay_id', $brgy_id))
+
+        // ⭐ APPLY FILTER ONLY IF TERM PARAM EXISTS
+        ->when($termFilter, function ($q) use ($termFilter) {
+            $q->where('term_id', $termFilter);
+        })
+
         ->get();
 
         $priorityOrder = [
@@ -85,12 +94,18 @@ class BarangayOfficialController extends Controller
             ->where('status', 'active')
             ->get();
 
+
+        $terms = BarangayOfficialTerm::query()
+            ->where('barangay_id', $brgy_id)
+            ->get();
+
         // Return Inertia page
         return Inertia::render('BarangayOfficer/BarangayProfile/BarangayOfficials/BarangayOfficials', [
             'officials'   => $officials,
             'residents'   => $residents,
             'puroks'      => $puroks,
             'activeterms' => $activeterms,
+            'terms'       => $terms,
             'queryParams' => request()->query() ?: null,
         ]);
     }

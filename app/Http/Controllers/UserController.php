@@ -103,8 +103,15 @@ class UserController extends Controller
                 'status' => 'inactive',
                 'is_disabled' => false,
             ]);
-            $residentRole = Role::firstOrCreate(['name' => 'resident']);
-            $user->assignRole($residentRole);
+
+            if($data['role'] === 'barangay_officer'){
+                $barangayOfficerRole = Role::firstOrCreate(['name' => 'barangay_officer']);
+                $user->assignRole($barangayOfficerRole);
+            }else{
+                $residentRole = Role::firstOrCreate(['name' => 'resident']);
+                $user->assignRole($residentRole);
+            }
+
 
             return redirect()
                 ->route('user.index')

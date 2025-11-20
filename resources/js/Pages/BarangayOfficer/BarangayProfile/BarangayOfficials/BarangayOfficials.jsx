@@ -34,6 +34,7 @@ const BarangayOfficials = ({
     residents,
     puroks,
     activeterms,
+    terms,
     queryParams,
 }) => {
     const breadcrumbs = [
@@ -51,10 +52,37 @@ const BarangayOfficials = ({
     const [showNewTermToggle, setShowNewTermToggle] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //delete
     const [officialToDelete, setOfficialToDelete] = useState(null); //delete
+    const [selectedTerm, setSelectedTerm] = useState(queryParams["term"] ?? "");
 
     const props = usePage().props;
     const success = props?.success ?? null;
     const error = props?.error ?? null;
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        searchFieldName("name", query);
+    };
+
+    const searchFieldName = (field, value) => {
+        if (value && value.trim() !== "") {
+            queryParams[field] = value;
+        } else {
+            delete queryParams[field];
+        }
+
+        if (queryParams.page) {
+            delete queryParams.page;
+        }
+        router.get(route("barangay_official.index", queryParams));
+    };
+
+    const onKeyPressed = (field, e) => {
+        if (e.key === "Enter") {
+            searchFieldName(field, e.target.value);
+        } else {
+            return;
+        }
+    };
 
     const { data, setData, post, errors, processing, reset, clearErrors } =
         useForm({
@@ -223,6 +251,11 @@ const BarangayOfficials = ({
     }));
 
     const active_terms = activeterms.map((term) => ({
+        label: `${term.term_start} - ${term.term_end}`,
+        value: term.id.toString(),
+    }));
+
+    const termList = terms.map((term) => ({
         label: `${term.term_start} - ${term.term_end}`,
         value: term.id.toString(),
     }));
@@ -448,18 +481,41 @@ const BarangayOfficials = ({
                     <div className="bg-white border border-gray-200 shadow-sm rounded-xl sm:rounded-lg p-4 m-0">
                         {/* Header */}
                         <div className="mb-6">
-                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl shadow-sm">
-                                <div className="p-2 bg-indigo-100 rounded-full">
-                                    <Home className="w-6 h-6 text-indigo-600" />
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                                {/* LEFT: Title & Subtitle */}
+                                <div className="flex items-center gap-3 mb-4 md:mb-0">
+                                    <div className="p-2 bg-indigo-100 rounded-full">
+                                        <Home className="w-6 h-6 text-indigo-600" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
+                                            Barangay Officials Overview
+                                        </h1>
+                                        <p className="text-sm text-gray-500">
+                                            Review, filter, and manage current
+                                            and past barangay officials
+                                            efficiently.
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-                                        Barangay Officials Overview
-                                    </h1>
-                                    <p className="text-sm text-gray-500">
-                                        Review, filter, and manage current and
-                                        past barangay officials efficiently.
-                                    </p>
+
+                                {/* RIGHT: Term Filter Dropdown */}
+                                <div className="flex items-center space-x-2 w-full md:w-[280px]">
+                                    <SelectField
+                                        id="term_filter"
+                                        name="term_filter"
+                                        placeholder="Filter by Terms"
+                                        value={selectedTerm}
+                                        onChange={(e) => {
+                                            searchFieldName(
+                                                "term",
+                                                e.target.value
+                                            );
+                                            setSelectedTerm(e.target.value);
+                                        }}
+                                        className="w-full"
+                                        items={termList}
+                                    />
                                 </div>
                             </div>
                         </div>
