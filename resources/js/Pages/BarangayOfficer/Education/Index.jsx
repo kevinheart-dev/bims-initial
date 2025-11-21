@@ -44,6 +44,7 @@ import SelectField from "@/Components/SelectField";
 import YearDropdown from "@/Components/YearDropdown";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import ExportButton from "@/Components/ExportButton";
+import { toTitleCase } from "@/utils/stringFormat";
 
 export default function Index({
     educations,
@@ -174,9 +175,11 @@ export default function Index({
             const r = row?.resident;
             if (!r)
                 return <span className="text-gray-400 italic">Unknown</span>;
-            const fullName = `${r.firstname ?? ""} ${r.middlename ?? ""} ${
-                r.lastname ?? ""
-            } ${r.suffix ?? ""}`.trim();
+            const fullName = toTitleCase(
+                `${r.firstname ?? ""} ${r.middlename ?? ""} ${
+                    r.lastname ?? ""
+                } ${r.suffix ?? ""}`
+            ).trim();
             return (
                 fullName || (
                     <span className="text-gray-400 italic">Not specified</span>

@@ -47,6 +47,7 @@ import YearDropdown from "@/Components/YearDropdown";
 import { IoIosAddCircleOutline, IoIosCloseCircleOutline } from "react-icons/io";
 import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import ExportButton from "@/Components/ExportButton";
+import { toTitleCase } from "@/utils/stringFormat";
 
 export default function Index({
     occupations,
@@ -155,9 +156,11 @@ export default function Index({
         name: (row) => {
             const { firstname, middlename, lastname, suffix } =
                 row.resident ?? {};
-            const fullName = `${firstname ?? ""} ${middlename ?? ""} ${
-                lastname ?? ""
-            } ${suffix ?? ""}`.trim();
+            const fullName = toTitleCase(
+                `${firstname ?? ""} ${middlename ?? ""} ${lastname ?? ""} ${
+                    suffix ?? ""
+                }`
+            ).trim();
             return (
                 fullName || (
                     <span className="text-gray-400 italic">Not specified</span>

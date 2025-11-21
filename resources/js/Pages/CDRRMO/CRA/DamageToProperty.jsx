@@ -20,6 +20,10 @@ export default function DamageToProperty({
     const isBarangayDataNull = !damagePropertyData.length;
     const isOverallDataNull = !overallDamagePropertyData.length;
 
+    const isDataNull =
+        (isBarangayView && isBarangayDataNull) ||
+        (!isBarangayView && isOverallDataNull);
+
     const handleBarangayChange = (e) => {
         const barangayId = e.target.value;
         router.get(
@@ -147,22 +151,41 @@ export default function DamageToProperty({
                         handleBarangayChange={handleBarangayChange}
                         barangays={barangays}
                     />
-                    {!isBarangayView ? (
-                        isOverallDataNull ? (
-                            <div className="w-full px-2 sm:px-4 lg:px-6">
-                                <NoDataPlaceholder tip="No overall property damage data available for the selected year." />
-                            </div>
-                        ) : (
-                            overallDamagePropertyData.map((disaster) =>
-                                renderTable(
-                                    `${disaster.disaster_name} (Overall)`,
-                                    disaster.damages
-                                )
-                            )
-                        )
-                    ) : isBarangayDataNull ? (
+                    {!selectedBarangay ? (
+                        <div className="flex flex-col items-center justify-center mt-15 bg-gradient-to-br from-gray-50 to-gray-100 p-12 rounded-3xl shadow-xl border border-gray-200 hover:border-gray-300 transition-all duration-300">
+                            <img
+                                src="/images/chart_error.png"
+                                alt="No data"
+                                className="w-48 h-48 mb-6 animate-bounce"
+                            />
+                            <h2 className="text-3xl font-extrabold text-gray-800 mb-3 text-center">
+                                No Data Available
+                            </h2>
+                            <p className="text-gray-700 text-center mb-3 max-w-xl text-base leading-relaxed">
+                                To view disaster population impact data, please{" "}
+                                <span className="font-bold text-blue-600">
+                                    select a barangay
+                                </span>{" "}
+                                from the dropdown above. Only barangays with
+                                recorded disaster impact data for the chosen
+                                year will display results.
+                            </p>
+                            <p className="text-gray-600 text-center mb-6 max-w-xl text-sm italic leading-relaxed">
+                                Ensure the data for the selected barangay has
+                                been properly recorded in the system. Once
+                                selected, the dashboard will display accurate
+                                statistics and affected population information.
+                            </p>
+                            <button
+                                onClick={() => router.reload()}
+                                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition transform hover:scale-105 hover:shadow-lg"
+                            >
+                                Refresh Page
+                            </button>
+                        </div>
+                    ) : isDataNull ? (
                         <div className="w-full px-2 sm:px-4 lg:px-6">
-                            <NoDataPlaceholder tip="No property damage data available for the selected barangay." />
+                            <NoDataPlaceholder tip="Use the year selector above to navigate to a year with available data." />
                         </div>
                     ) : (
                         damagePropertyData.flatMap((barangay) =>

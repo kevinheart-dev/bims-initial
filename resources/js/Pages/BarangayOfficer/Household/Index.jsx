@@ -29,6 +29,7 @@ import DeleteConfirmationModal from "@/Components/DeleteConfirmationModal";
 import ExportButton from "@/Components/ExportButton";
 import SidebarModal from "@/Components/SidebarModal";
 import PersonDetailContent from "@/Components/SidebarModalContents/PersonDetailContent";
+import { toTitleCase } from "@/utils/stringFormat";
 
 export default function Index({ households, puroks, streets, queryParams }) {
     const breadcrumbs = [
@@ -148,8 +149,12 @@ export default function Index({ households, puroks, streets, queryParams }) {
                     className="font-medium text-blue-600 hover:underline cursor-pointer"
                     onClick={() => handleView(head.id)}
                 >
-                    {head.firstname} {head.middlename ?? ""}{" "}
-                    {head.lastname ?? ""} {head.suffix ?? ""}
+                    {toTitleCase(
+                        `${head.firstname} ${head.middlename ?? ""} ${
+                            head.lastname ?? ""
+                        }`
+                    )}{" "}
+                    {head.suffix ?? ""}
                 </span>
             ) : (
                 <span className="text-gray-400 italic">No household head</span>

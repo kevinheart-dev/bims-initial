@@ -22,8 +22,8 @@ export default function DisasterAgriDamage({
     const isBarangayView = !!selectedBarangay;
     const isBarangayDataNull =
         !disasterAgriData || disasterAgriData.length === 0;
-    const isOverallDataNull =
-        !overallDisasterAgriData || overallDisasterAgriData.length === 0;
+
+    const isDataNull = !disasterAgriData || disasterAgriData.length === 0;
 
     const handleBarangayChange = (e) => {
         const barangayId = e.target.value;
@@ -47,85 +47,42 @@ export default function DisasterAgriDamage({
                         barangays={barangays}
                     />
 
-                    {/* === CASE 1: OVERALL SUMMARY (no barangay selected) === */}
-                    {!isBarangayView ? (
-                        isOverallDataNull ? (
-                            <div className="w-full px-2 sm:px-4 lg:px-6">
-                                <NoDataPlaceholder tip="No overall agricultural damage data available for the selected year." />
-                            </div>
-                        ) : (
-                            overallDisasterAgriData.map((disaster, dIndex) => {
-                                const allColumns = [
-                                    {
-                                        key: "description",
-                                        label: "Description",
-                                    },
-                                    { key: "value", label: "Value" },
-                                    { key: "source", label: "Source" },
-                                ];
-
-                                const columnRenderers = {
-                                    description: (row) => (
-                                        <span
-                                            className={`${
-                                                row.description ===
-                                                "Total Damage Value"
-                                                    ? "font-bold text-gray-900"
-                                                    : "text-gray-700"
-                                            }`}
-                                        >
-                                            {row.description}
-                                        </span>
-                                    ),
-                                    value: (row) => (
-                                        <span
-                                            className={`${
-                                                row.description ===
-                                                "Total Damage Value"
-                                                    ? "font-bold text-green-700"
-                                                    : "text-green-600"
-                                            }`}
-                                        >
-                                            {row.value}
-                                        </span>
-                                    ),
-                                    source: (row) => (
-                                        <span className="text-gray-700">
-                                            {row.source || "—"}
-                                        </span>
-                                    ),
-                                };
-
-                                const totalValue = disaster.effects.find(
-                                    (e) =>
-                                        e.description === "Total Damage Value"
-                                )?.value;
-
-                                return (
-                                    <TableSection
-                                        key={dIndex}
-                                        icon={<Wheat />}
-                                        color="green"
-                                        title={`${disaster.disaster_name} (Overall Agricultural Damages)`}
-                                        description={`Total damage value across all barangays: ${totalValue}`}
-                                        tableProps={{
-                                            component: DynamicTable,
-                                            passedData: disaster.effects,
-                                            allColumns,
-                                            columnRenderers,
-                                            visibleColumns: allColumns.map(
-                                                (c) => c.key
-                                            ),
-                                            showTotal: true,
-                                            tableHeight: "400px",
-                                        }}
-                                    />
-                                );
-                            })
-                        )
-                    ) : // === CASE 2: BARANGAY VIEW ===
-                    isBarangayDataNull ? (
-                        <NoDataPlaceholder tip="No agricultural damage data available for the selected barangay." />
+                    {!selectedBarangay ? (
+                        <div className="flex flex-col items-center justify-center mt-15 bg-gradient-to-br from-gray-50 to-gray-100 p-12 rounded-3xl shadow-xl border border-gray-200 hover:border-gray-300 transition-all duration-300">
+                            <img
+                                src="/images/chart_error.png"
+                                alt="No data"
+                                className="w-48 h-48 mb-6 animate-bounce"
+                            />
+                            <h2 className="text-3xl font-extrabold text-gray-800 mb-3 text-center">
+                                No Data Available
+                            </h2>
+                            <p className="text-gray-700 text-center mb-3 max-w-xl text-base leading-relaxed">
+                                To view disaster population impact data, please{" "}
+                                <span className="font-bold text-blue-600">
+                                    select a barangay
+                                </span>{" "}
+                                from the dropdown above. Only barangays with
+                                recorded disaster impact data for the chosen
+                                year will display results.
+                            </p>
+                            <p className="text-gray-600 text-center mb-6 max-w-xl text-sm italic leading-relaxed">
+                                Ensure the data for the selected barangay has
+                                been properly recorded in the system. Once
+                                selected, the dashboard will display accurate
+                                statistics and affected population information.
+                            </p>
+                            <button
+                                onClick={() => router.reload()}
+                                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition transform hover:scale-105 hover:shadow-lg"
+                            >
+                                Refresh Page
+                            </button>
+                        </div>
+                    ) : isDataNull ? (
+                        <div className="w-full px-2 sm:px-4 lg:px-6">
+                            <NoDataPlaceholder tip="Use the year selector above to navigate to a year with available data." />
+                        </div>
                     ) : (
                         disasterAgriData.map((barangay, bIndex) => {
                             const disastersGrouped = barangay.disasters.reduce(
@@ -171,23 +128,7 @@ export default function DisasterAgriDamage({
                                         damageRows[0].disaster_name;
                                     const disasterYear = damageRows[0].year;
 
-                                    const totalValue = damageRows.reduce(
-                                        (sum, r) => sum + r.value,
-                                        0
-                                    );
-                                    const totalRow = {
-                                        disaster_id: null,
-                                        disaster_name: null,
-                                        year: null,
-                                        description: "Total Damage Value",
-                                        value: totalValue,
-                                        source: "",
-                                    };
-
-                                    const rowsWithTotal = [
-                                        ...damageRows,
-                                        totalRow,
-                                    ];
+                                    const totalValue = null;
 
                                     return (
                                         <TableSection
@@ -198,7 +139,7 @@ export default function DisasterAgriDamage({
                                             description={`Total damage value: ${totalValue}`}
                                             tableProps={{
                                                 component: DynamicTable,
-                                                passedData: rowsWithTotal,
+                                                passedData: damageRows,
                                                 allColumns,
                                                 columnRenderers,
                                                 visibleColumns: allColumns.map(

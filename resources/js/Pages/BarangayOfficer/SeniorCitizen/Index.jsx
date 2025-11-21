@@ -31,6 +31,7 @@ import debounce from "lodash.debounce";
 import * as CONSTANTS from "@/constants";
 import ActionMenu from "@/Components/ActionMenu";
 import ExportButton from "@/Components/ExportButton";
+import { toTitleCase } from "@/utils/stringFormat";
 
 // Lazy load heavy form (optional)
 const SeniorForm = React.lazy(() => import("./SeniorForm"));
@@ -329,8 +330,11 @@ export default function Index({
                     href={route("resident.edit", resident.id)}
                     className="hover:text-blue-500 hover:underline"
                 >
-                    {resident.firstname} {resident.middlename ?? ""}{" "}
-                    {resident.lastname ?? ""}
+                    {toTitleCase(
+                        `${resident.firstname} ${resident.middlename ?? ""} ${
+                            resident.lastname ?? ""
+                        }`
+                    )}
                     {resident.suffix ? `, ${resident.suffix}` : ""}
                 </Link>
             ),
