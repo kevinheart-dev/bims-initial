@@ -122,12 +122,13 @@ class CRAController extends Controller
                     'last_updated' => null,
                 ];
 
-            $craData = $this->brgyDataCollectionInternal($barangay_id);
+            //$craData = $this->brgyDataCollectionInternal($barangay_id);
 
             return Inertia::render("BarangayOfficer/CRA/Create", [
                 'progress' => $progressData,
-                'year' => $cra->year,
-                'craData' => $craData,
+                'barangay_id' => $barangay_id,
+                // 'year' => $cra->year,
+                // 'craData' => $craData,
             ]);
         } catch (\Exception $e) {
             return Inertia::render("BarangayOfficer/CRA/Create", [

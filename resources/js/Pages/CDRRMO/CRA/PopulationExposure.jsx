@@ -520,52 +520,146 @@ export default function PopulationExposure({
                                             // Column renderers to show Male/Female stacked
                                             const columnRenderers = {
                                                 purok_number: (row) => (
-                                                    <span className="font-semibold">
+                                                    <span
+                                                        className={
+                                                            row.isTotal
+                                                                ? "font-bold bg-blue-600 text-white px-2 py-1 rounded"
+                                                                : "font-semibold"
+                                                        }
+                                                    >
                                                         {row.purok_number}
                                                     </span>
                                                 ),
+
                                                 total_families: (row) => (
-                                                    <span>
+                                                    <span
+                                                        className={
+                                                            row.isTotal
+                                                                ? "font-bold text-blue-700"
+                                                                : ""
+                                                        }
+                                                    >
                                                         {row.total_families}
                                                     </span>
                                                 ),
+
                                                 total_individuals: (row) => (
-                                                    <span>
+                                                    <span
+                                                        className={
+                                                            row.isTotal
+                                                                ? "font-bold text-blue-700"
+                                                                : ""
+                                                        }
+                                                    >
                                                         {row.total_individuals}
                                                     </span>
                                                 ),
+
                                                 male: (row) => (
-                                                    <span>{row.male}</span>
+                                                    <span
+                                                        className={
+                                                            row.isTotal
+                                                                ? "font-bold text-blue-700"
+                                                                : ""
+                                                        }
+                                                    >
+                                                        {row.male}
+                                                    </span>
                                                 ),
+
                                                 female: (row) => (
-                                                    <span>{row.female}</span>
+                                                    <span
+                                                        className={
+                                                            row.isTotal
+                                                                ? "font-bold text-blue-700"
+                                                                : ""
+                                                        }
+                                                    >
+                                                        {row.female}
+                                                    </span>
                                                 ),
+
                                                 lgbtq: (row) => (
-                                                    <span>{row.lgbtq}</span>
+                                                    <span
+                                                        className={
+                                                            row.isTotal
+                                                                ? "font-bold text-blue-700"
+                                                                : ""
+                                                        }
+                                                    >
+                                                        {row.lgbtq}
+                                                    </span>
                                                 ),
+
                                                 pwd_male: (row) => (
-                                                    <span>{row.pwd_male}</span>
+                                                    <span
+                                                        className={
+                                                            row.isTotal
+                                                                ? "font-bold text-blue-700"
+                                                                : ""
+                                                        }
+                                                    >
+                                                        {row.pwd_male}
+                                                    </span>
                                                 ),
+
                                                 pwd_female: (row) => (
-                                                    <span>
+                                                    <span
+                                                        className={
+                                                            row.isTotal
+                                                                ? "font-bold text-blue-700"
+                                                                : ""
+                                                        }
+                                                    >
                                                         {row.pwd_female}
                                                     </span>
                                                 ),
+
                                                 diseases_male: (row) => (
-                                                    <span>
+                                                    <span
+                                                        className={
+                                                            row.isTotal
+                                                                ? "font-bold text-blue-700"
+                                                                : ""
+                                                        }
+                                                    >
                                                         {row.diseases_male}
                                                     </span>
                                                 ),
+
                                                 diseases_female: (row) => (
-                                                    <span>
+                                                    <span
+                                                        className={
+                                                            row.isTotal
+                                                                ? "font-bold text-blue-700"
+                                                                : ""
+                                                        }
+                                                    >
                                                         {row.diseases_female}
                                                     </span>
                                                 ),
+
                                                 pregnant: (row) => (
-                                                    <span>{row.pregnant}</span>
+                                                    <span
+                                                        className={
+                                                            row.isTotal
+                                                                ? "font-bold text-blue-700"
+                                                                : ""
+                                                        }
+                                                    >
+                                                        {row.pregnant}
+                                                    </span>
                                                 ),
+
+                                                // Age group cells
                                                 age_0_6: (row) => (
-                                                    <div>
+                                                    <div
+                                                        className={
+                                                            row.isTotal
+                                                                ? "bg-blue-50 p-2 rounded font-semibold"
+                                                                : ""
+                                                        }
+                                                    >
                                                         <div>
                                                             Male:{" "}
                                                             {row.age_0_6.male}
@@ -574,7 +668,7 @@ export default function PopulationExposure({
                                                             Female:{" "}
                                                             {row.age_0_6.female}
                                                         </div>
-                                                        <div className="font-semibold mt-1 text-blue-600">
+                                                        <div className="font-bold mt-1 text-blue-700">
                                                             Total:{" "}
                                                             {row.age_0_6.male +
                                                                 row.age_0_6
@@ -582,8 +676,15 @@ export default function PopulationExposure({
                                                         </div>
                                                     </div>
                                                 ),
+
                                                 age_7m_2y: (row) => (
-                                                    <div>
+                                                    <div
+                                                        className={
+                                                            row.isTotal
+                                                                ? "bg-blue-50 p-2 rounded font-semibold"
+                                                                : ""
+                                                        }
+                                                    >
                                                         <div>
                                                             Male:{" "}
                                                             {row.age_7m_2y.male}
@@ -595,7 +696,7 @@ export default function PopulationExposure({
                                                                     .female
                                                             }
                                                         </div>
-                                                        <div className="font-semibold mt-1 text-blue-600">
+                                                        <div className="font-bold mt-1 text-blue-700">
                                                             Total:{" "}
                                                             {row.age_7m_2y
                                                                 .male +
@@ -604,8 +705,15 @@ export default function PopulationExposure({
                                                         </div>
                                                     </div>
                                                 ),
+
                                                 age_3_5: (row) => (
-                                                    <div>
+                                                    <div
+                                                        className={
+                                                            row.isTotal
+                                                                ? "bg-blue-50 p-2 rounded font-semibold"
+                                                                : ""
+                                                        }
+                                                    >
                                                         <div>
                                                             Male:{" "}
                                                             {row.age_3_5.male}
@@ -614,7 +722,7 @@ export default function PopulationExposure({
                                                             Female:{" "}
                                                             {row.age_3_5.female}
                                                         </div>
-                                                        <div className="font-semibold mt-1 text-blue-600">
+                                                        <div className="font-bold mt-1 text-blue-700">
                                                             Total:{" "}
                                                             {row.age_3_5.male +
                                                                 row.age_3_5
@@ -622,8 +730,15 @@ export default function PopulationExposure({
                                                         </div>
                                                     </div>
                                                 ),
+
                                                 age_6_12: (row) => (
-                                                    <div>
+                                                    <div
+                                                        className={
+                                                            row.isTotal
+                                                                ? "bg-blue-50 p-2 rounded font-semibold"
+                                                                : ""
+                                                        }
+                                                    >
                                                         <div>
                                                             Male:{" "}
                                                             {row.age_6_12.male}
@@ -635,7 +750,7 @@ export default function PopulationExposure({
                                                                     .female
                                                             }
                                                         </div>
-                                                        <div className="font-semibold mt-1 text-blue-600">
+                                                        <div className="font-bold mt-1 text-blue-700">
                                                             Total:{" "}
                                                             {row.age_6_12.male +
                                                                 row.age_6_12
@@ -643,8 +758,15 @@ export default function PopulationExposure({
                                                         </div>
                                                     </div>
                                                 ),
+
                                                 age_13_17: (row) => (
-                                                    <div>
+                                                    <div
+                                                        className={
+                                                            row.isTotal
+                                                                ? "bg-blue-50 p-2 rounded font-semibold"
+                                                                : ""
+                                                        }
+                                                    >
                                                         <div>
                                                             Male:{" "}
                                                             {row.age_13_17.male}
@@ -656,7 +778,7 @@ export default function PopulationExposure({
                                                                     .female
                                                             }
                                                         </div>
-                                                        <div className="font-semibold mt-1 text-blue-600">
+                                                        <div className="font-bold mt-1 text-blue-700">
                                                             Total:{" "}
                                                             {row.age_13_17
                                                                 .male +
@@ -665,8 +787,15 @@ export default function PopulationExposure({
                                                         </div>
                                                     </div>
                                                 ),
+
                                                 age_18_59: (row) => (
-                                                    <div>
+                                                    <div
+                                                        className={
+                                                            row.isTotal
+                                                                ? "bg-blue-50 p-2 rounded font-semibold"
+                                                                : ""
+                                                        }
+                                                    >
                                                         <div>
                                                             Male:{" "}
                                                             {row.age_18_59.male}
@@ -678,7 +807,7 @@ export default function PopulationExposure({
                                                                     .female
                                                             }
                                                         </div>
-                                                        <div className="font-semibold mt-1 text-blue-600">
+                                                        <div className="font-bold mt-1 text-blue-700">
                                                             Total:{" "}
                                                             {row.age_18_59
                                                                 .male +
@@ -687,8 +816,15 @@ export default function PopulationExposure({
                                                         </div>
                                                     </div>
                                                 ),
+
                                                 age_60_up: (row) => (
-                                                    <div>
+                                                    <div
+                                                        className={
+                                                            row.isTotal
+                                                                ? "bg-blue-50 p-2 rounded font-semibold"
+                                                                : ""
+                                                        }
+                                                    >
                                                         <div>
                                                             Male:{" "}
                                                             {row.age_60_up.male}
@@ -700,7 +836,7 @@ export default function PopulationExposure({
                                                                     .female
                                                             }
                                                         </div>
-                                                        <div className="font-semibold mt-1 text-blue-600">
+                                                        <div className="font-bold mt-1 text-blue-700">
                                                             Total:{" "}
                                                             {row.age_60_up
                                                                 .male +
@@ -711,6 +847,168 @@ export default function PopulationExposure({
                                                 ),
                                             };
 
+                                            const totalsRow = {
+                                                isTotal: true, // <-- add this
+                                                purok_number: "TOTAL",
+                                                total_families:
+                                                    tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.total_families,
+                                                        0
+                                                    ),
+                                                total_individuals:
+                                                    tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.total_individuals,
+                                                        0
+                                                    ),
+                                                male: tableRows.reduce(
+                                                    (sum, r) => sum + r.male,
+                                                    0
+                                                ),
+                                                female: tableRows.reduce(
+                                                    (sum, r) => sum + r.female,
+                                                    0
+                                                ),
+                                                lgbtq: tableRows.reduce(
+                                                    (sum, r) => sum + r.lgbtq,
+                                                    0
+                                                ),
+                                                pwd_male: tableRows.reduce(
+                                                    (sum, r) =>
+                                                        sum + r.pwd_male,
+                                                    0
+                                                ),
+                                                pwd_female: tableRows.reduce(
+                                                    (sum, r) =>
+                                                        sum + r.pwd_female,
+                                                    0
+                                                ),
+                                                diseases_male: tableRows.reduce(
+                                                    (sum, r) =>
+                                                        sum + r.diseases_male,
+                                                    0
+                                                ),
+                                                diseases_female:
+                                                    tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.diseases_female,
+                                                        0
+                                                    ),
+                                                pregnant: tableRows.reduce(
+                                                    (sum, r) =>
+                                                        sum + r.pregnant,
+                                                    0
+                                                ),
+
+                                                age_0_6: {
+                                                    male: tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.age_0_6.male,
+                                                        0
+                                                    ),
+                                                    female: tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.age_0_6.female,
+                                                        0
+                                                    ),
+                                                },
+                                                age_7m_2y: {
+                                                    male: tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.age_7m_2y.male,
+                                                        0
+                                                    ),
+                                                    female: tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.age_7m_2y.female,
+                                                        0
+                                                    ),
+                                                },
+                                                age_3_5: {
+                                                    male: tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.age_3_5.male,
+                                                        0
+                                                    ),
+                                                    female: tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.age_3_5.female,
+                                                        0
+                                                    ),
+                                                },
+                                                age_6_12: {
+                                                    male: tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.age_6_12.male,
+                                                        0
+                                                    ),
+                                                    female: tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.age_6_12.female,
+                                                        0
+                                                    ),
+                                                },
+                                                age_13_17: {
+                                                    male: tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.age_13_17.male,
+                                                        0
+                                                    ),
+                                                    female: tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.age_13_17.female,
+                                                        0
+                                                    ),
+                                                },
+                                                age_18_59: {
+                                                    male: tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.age_18_59.male,
+                                                        0
+                                                    ),
+                                                    female: tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.age_18_59.female,
+                                                        0
+                                                    ),
+                                                },
+                                                age_60_up: {
+                                                    male: tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.age_60_up.male,
+                                                        0
+                                                    ),
+                                                    female: tableRows.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            r.age_60_up.female,
+                                                        0
+                                                    ),
+                                                },
+                                            };
+
+                                            const finalRows = [
+                                                ...tableRows,
+                                                totalsRow,
+                                            ];
+
                                             return (
                                                 <TableSection
                                                     key={`hazard-${hazardIndex}`}
@@ -720,7 +1018,7 @@ export default function PopulationExposure({
                                                     description={`Population exposure per purok for ${hazard.hazard_name}`}
                                                     tableProps={{
                                                         component: DynamicTable,
-                                                        passedData: tableRows,
+                                                        passedData: finalRows,
                                                         allColumns,
                                                         columnRenderers,
                                                         visibleColumns:

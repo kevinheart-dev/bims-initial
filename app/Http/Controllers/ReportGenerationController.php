@@ -146,6 +146,7 @@ class ReportGenerationController extends Controller
         $year = $request->input('year') ?? session('cra_year');
         $hazardName = $request->input('hazard');
 
+
         $cra = CommunityRiskAssessment::where('year', $year)->first();
 
         if (!$cra) {
@@ -198,7 +199,6 @@ class ReportGenerationController extends Controller
                 'lgbtq' => $row->lgbtq,
             ];
         }
-
         $pdf = Pdf::loadView('pdf.population_exposure_summary', [
             'year' => $cra->year,
             'hazardName' => $hazardName,

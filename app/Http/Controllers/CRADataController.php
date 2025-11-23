@@ -2181,7 +2181,10 @@ class CRADataController extends Controller
             $hazardWiseData = DB::table('c_r_a_population_exposures as e')
             ->join('barangays as b', 'b.id', '=', 'e.barangay_id')
             ->join('c_r_a_hazards as h', 'h.id', '=', 'e.hazard_id')
-            ->leftJoin('puroks as p', 'p.purok_number', '=', 'e.purok_number')
+            ->leftJoin('puroks as p', function ($join) {
+                $join->on('p.purok_number', '=', 'e.purok_number')
+                    ->on('p.barangay_id', '=', 'e.barangay_id');
+            })
             ->select(
                 'h.hazard_name',
                 'b.barangay_name',

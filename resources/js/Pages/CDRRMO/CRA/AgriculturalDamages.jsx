@@ -136,7 +136,7 @@ export default function DisasterAgriDamage({
                                             icon={<Sprout />}
                                             color="emerald"
                                             title={`${disasterName} in ${barangay.barangay_name} (${disasterYear})`}
-                                            description={`Total damage value: ${totalValue}`}
+                                            description={`Damage details for this barangay`}
                                             tableProps={{
                                                 component: DynamicTable,
                                                 passedData: damageRows,

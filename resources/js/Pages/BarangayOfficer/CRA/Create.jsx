@@ -12,9 +12,14 @@ import Calamities from "@/Components/CRAsteps/Step2/Calamities";
 import InventoryEvacuation from "@/Components/CRAsteps/Step4/InventoryEvacuation";
 import DisasterReadiness from "@/Components/CRAsteps/Step5/DisasterReadiness";
 import { Progress } from "@/Components/ui/progress";
-import { defaultLivelihoods, defaultInfra, defaultBuildings, defaultFacilities } from "@/Components/CRAsteps/defaults";
+import {
+    defaultLivelihoods,
+    defaultInfra,
+    defaultBuildings,
+    defaultFacilities,
+} from "@/Components/CRAsteps/defaults";
 
-export default function Index({ progress }) {
+export default function Index({ progress, barangay_id }) {
     const breadcrumbs = [
         { label: "Community Risk Assessment (CRA)", showOnMobile: false },
     ];
@@ -23,7 +28,6 @@ export default function Index({ progress }) {
     const { props } = usePage();
     // const { success, error } = props;
     const { success, error, craData: craDataFromServer } = props;
-
 
     // ✅ Get year from URL
     const searchParams = new URLSearchParams(window.location.search);
@@ -105,36 +109,35 @@ export default function Index({ progress }) {
     //     }
     // });
 
-
     const [craData, setCraData] = useState(() => {
         try {
             const saved = localStorage.getItem(`craDataDraft_${yearFromUrl}`);
             return saved
                 ? JSON.parse(saved)
                 : {
-                    population: [],
-                    livelihood: (defaultLivelihoods ?? []).map(type => ({
-                        type,
-                        male_no_dis: "",
-                        male_dis: "",
-                        female_no_dis: "",
-                        female_dis: "",
-                        lgbtq_no_dis: "",
-                        lgbtq_dis: "",
-                    })),
-                    infrastructure: defaultInfra ?? [],
-                    institutions: [],
-                    hazards: [],
-                    evacuation: [],
-                    buildings: JSON.parse(JSON.stringify(defaultBuildings)),
-                    facilities: JSON.parse(JSON.stringify(defaultFacilities)),
-                    year: yearFromUrl,
-                };
+                      population: [],
+                      livelihood: (defaultLivelihoods ?? []).map((type) => ({
+                          type,
+                          male_no_dis: "",
+                          male_dis: "",
+                          female_no_dis: "",
+                          female_dis: "",
+                          lgbtq_no_dis: "",
+                          lgbtq_dis: "",
+                      })),
+                      infrastructure: defaultInfra ?? [],
+                      institutions: [],
+                      hazards: [],
+                      evacuation: [],
+                      buildings: JSON.parse(JSON.stringify(defaultBuildings)),
+                      facilities: JSON.parse(JSON.stringify(defaultFacilities)),
+                      year: yearFromUrl,
+                  };
         } catch (err) {
             console.error("Error loading draft:", err);
             return {
                 population: [],
-                livelihood: (defaultLivelihoods ?? []).map(type => ({
+                livelihood: (defaultLivelihoods ?? []).map((type) => ({
                     type,
                     male_no_dis: "",
                     male_dis: "",
@@ -156,7 +159,10 @@ export default function Index({ progress }) {
 
     useEffect(() => {
         if (year) {
-            localStorage.setItem(`craDataDraft_${year}`, JSON.stringify(craData));
+            localStorage.setItem(
+                `craDataDraft_${year}`,
+                JSON.stringify(craData)
+            );
         }
     }, [craData, year]);
 
@@ -193,7 +199,6 @@ export default function Index({ progress }) {
             console.error("Error reloading draft:", error);
         }
     }, [year]);
-
 
     const [finalData, setFinalData] = useState([]);
     const [errors, setErrors] = useState({});
@@ -241,7 +246,9 @@ export default function Index({ progress }) {
                         console.error("Validation Errors:", errors);
 
                         // ✅ Rehydrate data from local storage in case Inertia wiped it
-                        const saved = localStorage.getItem(`craDataDraft_${year}`);
+                        const saved = localStorage.getItem(
+                            `craDataDraft_${year}`
+                        );
                         if (saved) {
                             setCraData(JSON.parse(saved));
                         }
@@ -298,7 +305,6 @@ export default function Index({ progress }) {
             });
         }
     }, [success]);
-
 
     useEffect(() => {
         if (error) {
@@ -358,7 +364,9 @@ export default function Index({ progress }) {
                             <div className="flex justify-between items-center gap-2 mt-2">
                                 <div className="mt-1 text-[10px] text-gray-600">
                                     <p>
-                                        <span className="font-medium">Status:</span>{" "}
+                                        <span className="font-medium">
+                                            Status:
+                                        </span>{" "}
                                         {progress?.status ?? "Not started"}
                                     </p>
                                     {progress?.submitted_at && (
