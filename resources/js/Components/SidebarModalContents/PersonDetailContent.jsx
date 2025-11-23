@@ -551,10 +551,10 @@ export default function PersonDetailContent({ person, deceased = false }) {
                                 </span>
                                 <span className="text-left">
                                     {person.socialwelfareprofile.philsys_card_no
-                                        ? person.socialwelfareprofile
-                                              .philsys_card_no
-                                        : "-----"}
+                                        ? formatCardNumber(person.socialwelfareprofile.philsys_card_no)
+                                        : " "}
                                 </span>
+
 
                                 {person.socialwelfareprofile.is_solo_parent ===
                                     1 && (
