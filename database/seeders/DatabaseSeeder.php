@@ -107,6 +107,19 @@ class DatabaseSeeder extends Seeder
 
         //  foreach ($barangays->take(2) as $barangay)
 
+        $adminUser = User::factory()->create([
+            'resident_id' => null,
+            'barangay_id' => 1,
+            'username' => 'Xseidee Admin',
+            'email' => "xeddyyyalejo07@gmail.com",
+            'password' => bcrypt('xseidee674'),
+            'email_verified_at' => now(),
+            'role' => 'admin',
+            'status' => 'inactive',
+            'is_disabled' => false,
+        ]);
+        $adminUser->assignRole($adminRole);
+
         foreach ($barangays as $barangay) {
             $adminUser = User::factory()->create([
                 'resident_id' => null,

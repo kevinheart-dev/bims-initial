@@ -51,6 +51,7 @@ import {
     Mountain,
     UserSquare,
     SignpostBig,
+    TableOfContents,
 } from "lucide-react";
 import {
     Sidebar,
@@ -820,6 +821,56 @@ export function AppSidebar({ auth }) {
             icon: LayoutList,
             roles: ["super_admin"],
         },
+        {
+            title: "Population Summary",
+            url: "/super_admin/statistics/population-summary",
+            icon: Users,
+            roles: ["super_admin"],
+        },
+        {
+            title: "Employment Summary",
+            url: "/super_admin/statistics/employment-summary",
+            icon: Users,
+            roles: ["super_admin"],
+        },
+        // {
+        //     title: "Statistics of Barangays",
+        //     url: "#",
+        //     icon: TableOfContents,
+        //     roles: ["super_admin"],
+        //     submenu: [
+        //         {
+        //             title: "Population Summary",
+        //             url: "/super_admin/statistics/population-summary",
+        //             icon: Users,
+        //             roles: ["super_admin"],
+        //         },
+        //         {
+        //             title: "Household Summary",
+        //             url: "#",
+        //             icon: Users,
+        //             roles: ["super_admin"],
+        //         },
+        //         {
+        //             title: "Senior Citizen Summary",
+        //             url: "#",
+        //             icon: Users,
+        //             roles: ["super_admin"],
+        //         },
+        //         {
+        //             title: "Occupation Summary",
+        //             url: "#",
+        //             icon: Users,
+        //             roles: ["super_admin"],
+        //         },
+        //         {
+        //             title: "Education Summary",
+        //             url: "#",
+        //             icon: Users,
+        //             roles: ["super_admin"],
+        //         },
+        //     ],
+        // },
     ];
 
     const normalize = (u) => {

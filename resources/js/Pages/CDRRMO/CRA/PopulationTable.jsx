@@ -75,6 +75,7 @@ export default function Dashboard({
         { key: "total", label: "Total Population" },
     ];
     const [viscol2] = useState(allcol2.map((col) => col.key));
+
     const colrender2 = {
         id: (row) => (
             <span className="text-xs font-semibold text-gray-500">

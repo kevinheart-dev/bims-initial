@@ -52,6 +52,7 @@ use App\Http\Controllers\SeniorCitizenController;
 use App\Http\Controllers\StreetController;
 use App\Http\Controllers\SummonController;
 use App\Http\Controllers\SuperAdminController;
+use App\Http\Controllers\SuperAdminDataController;
 use App\Http\Controllers\UnauthenticatedIssuanceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
@@ -425,6 +426,18 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('super_admin')->group(fu
     Route::get('/details/{id}', [SuperAdminController::class, 'accountDetails'])->name('super_admin.account.details');
     Route::get('/barangay_details/{id}', [BarangayController::class, 'barangayDetails'])->name('barangay.details');
     Route::resource('barangay', BarangayController::class);
+
+    // reports
+    Route::get('/statistics/population-summary', [SuperAdminDataController::class, 'populationSummary'])->name('super_admin.statistics.population_summary');
+    Route::get('/statistics/employment-summary', [SuperAdminDataController::class, 'employmentSummary'])->name('super_admin.statistics.employment_summary');
+
+
+    // exports
+    Route::get('/statistics/population-summary-export', [SuperAdminDataController::class, 'exportPopulationSummaryByAgeGroup'])->name('super_admin.export.population_summary');
+    Route::get('/statistics/purok-population-summary-export', [SuperAdminDataController::class, 'exportPopulationSummaryByPurok'])->name('super_admin.export.purok_population_summary');
+    Route::get('/statistics/sex-population-summary-export', [SuperAdminDataController::class, 'exportPopulationSummaryBySex'])->name('super_admin.export.sex_population_summary');
+    Route::get('/statistics/employment-summary-export', [SuperAdminDataController::class, 'exportEmploymentSummary'])->name('super_admin.export.employment_summary');
+
 });
 // Resident-only routes
 Route::middleware(['auth', 'role:resident'])->prefix('account')->group(function () {

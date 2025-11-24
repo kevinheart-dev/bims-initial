@@ -12,7 +12,10 @@ const FamilyIncomeTable = ({ familyIncomeData }) => {
     }
     console.log(familyIncomeData);
     // Compute total population for percentages
-    const totalPopulation = familyIncomeData.reduce((sum, item) => sum + item.total, 0);
+    const totalPopulation = familyIncomeData.reduce(
+        (sum, item) => sum + item.total,
+        0
+    );
 
     return (
         <div
@@ -46,7 +49,10 @@ const FamilyIncomeTable = ({ familyIncomeData }) => {
                         {familyIncomeData.map((item, index) => {
                             const percentage =
                                 totalPopulation > 0
-                                    ? ((item.total / totalPopulation) * 100).toFixed(2)
+                                    ? (
+                                          (item.total / totalPopulation) *
+                                          100
+                                      ).toFixed(2)
                                     : 0;
                             return (
                                 <tr
@@ -57,7 +63,10 @@ const FamilyIncomeTable = ({ familyIncomeData }) => {
                                         {item.income_category}
                                     </td>
                                     <td className="px-4 py-2 text-gray-700 break-words max-w-[160px]">
-                                        {item.income_bracket.replace(/_/g, " – ")}
+                                        {(item.income_bracket ?? "").replace(
+                                            /_/g,
+                                            " – "
+                                        )}
                                     </td>
                                     <td className="px-4 py-2 text-right text-gray-700">
                                         {item.total.toLocaleString()}
@@ -76,7 +85,9 @@ const FamilyIncomeTable = ({ familyIncomeData }) => {
                             <td className="px-4 py-2 text-right text-[#093a7b]">
                                 {totalPopulation.toLocaleString()}
                             </td>
-                            <td className="px-4 py-2 text-right text-[#093a7b]">100%</td>
+                            <td className="px-4 py-2 text-right text-[#093a7b]">
+                                100%
+                            </td>
                         </tr>
                     </tbody>
                 </table>
