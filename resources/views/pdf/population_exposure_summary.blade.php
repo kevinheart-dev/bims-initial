@@ -136,5 +136,25 @@
             </tr>
         </tbody>
     </table>
+    <br><br>
+
+    <p style="font-size:10px; text-align:justify; line-height:1.4;">
+        <strong>(This is a Community-Based Assessment submitted by the 91 Barangays and consolidated by the City Disaster Risk Reduction and Management Office (CDRRMO) during the QAS BDRRM Planning 2022.)</strong>
+    </p>
+
+    <p style="font-size:12px; text-align:justify; line-height:1.4;"><strong>SUMMARY OF FINDINGS:</strong></p>
+
+    <p style="font-size:11px; text-align:justify; line-height:1.4;">
+        1. The table above presents the population distribution per barangay in the City of Ilagan, broken down by Purok, showing the number of families and individuals who may be affected or have been affected by &nbsp;&nbsp; <strong>{{ $hazardName }}</strong>. This information supports the community’s risk assessment, preparedness planning, and response prioritization.
+    </p>
+
+    <p style="font-size:11px; text-align:justify; line-height:1.4;">
+        2. Across the 91 barangays of the City of Ilagan, a total of &nbsp;<strong>{{ number_format($grandTotalFamilies) }}</strong> families or &nbsp;<strong>{{ number_format($grandTotalIndividuals) }}</strong> individuals were reported as potentially exposed to &nbsp; <strong>{{ $hazardName }}</strong>. This represents a significant portion of the city's population and highlights the extent of vulnerability in the affected communities.
+    </p>
+
+    <p style="font-size:11px; text-align:justify; line-height:1.4;">
+        3. Barangays assessed to be highly at risk include those within the Poblacion Cluster, barangays with direct access to neighboring areas, those located along provincial and national roads, and barangays with concentrated business establishments and government offices. These areas experience higher population density and mobility, increasing their likelihood of being significantly impacted by &nbsp; <strong>{{ $hazardName }}</strong>.
+    </p>
+
 </body>
 </html>
