@@ -137,7 +137,7 @@ class ExcelDataSeeder extends Seeder
                 'email'             => $email,
                 'purok_number'      => $purokNumber,
                 'is_pwd'            => $isPWD,
-                'is_deceased'       => 0,
+                'is_deceased'       => $isDeceased,
                 'household_id'      => $household->id,
                 'is_household_head' => $isHead,
                 'is_family_head'    => $isFamilyHead,
