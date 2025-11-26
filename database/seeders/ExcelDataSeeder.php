@@ -192,6 +192,14 @@ class ExcelDataSeeder extends Seeder
                     'updated_at'                  => now(),
                 ]);
             }
+
+            if ($isDeceased  === 1) {
+                DB::table('deceaseds')->insert([
+                    'resident_id'            => $residentId,
+                    'created_at'             => now(),
+                    'updated_at'             => now(),
+                ]);
+            }
         }
     }
 }

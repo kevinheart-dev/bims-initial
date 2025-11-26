@@ -487,16 +487,18 @@ export default function BarangayInfrastucture({
                                             <Search />
                                         </Button>
                                     </form>
-
-                                    {/* Add button */}
-                                    <Button
-                                        variant="outline"
-                                        className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
-                                        onClick={handleAddInfrastructure}
-                                    >
-                                        <ListPlus className="w-4 h-4" />
-                                        Add Infrastructure
-                                    </Button>
+                                    <div className="relative group z-50">
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white"
+                                            onClick={handleAddInfrastructure}
+                                        >
+                                            <ListPlus className="w-4 h-4" />
+                                        </Button>
+                                        <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-3 py-1.5 rounded-md bg-blue-700 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                            Add an Infrastructure
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             {showFilters && (

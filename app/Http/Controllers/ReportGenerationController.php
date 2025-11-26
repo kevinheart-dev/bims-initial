@@ -2983,8 +2983,8 @@ class ReportGenerationController extends Controller
             'Indigenous Peoples (IPs)' => $countBySex($residents, fn($r) => !empty($r->ethnicity) && preg_match('/tribe|indigenous|lumad|aeta|mangyan|ip/i', $r->ethnicity)),
             'Civil Status: Single' => $countBySex($residents, fn($r) => $r->civil_status === 'single'),
             'Civil Status: Married' => $countBySex($residents, fn($r) => $r->civil_status === 'married'),
-            'Citizenship: Filipino' => $countBySex($residents, fn($r) => $r->citizenship === 'Filipino'),
-            'Citizenship: Foreigner' => $countBySex($residents, fn($r) => $r->citizenship !== 'Filipino'),
+            'Citizenship: Filipino' => $countBySex($residents, fn($r) => $r->citizenship === 'filipino'),
+            'Citizenship: Foreigner' => $countBySex($residents, fn($r) => $r->citizenship !== 'filipino'),
         ];
 
         $barangay = auth()->user()->barangay()->first();

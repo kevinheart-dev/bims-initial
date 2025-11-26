@@ -434,6 +434,7 @@ export default function Service({
                                     queryParams={queryParams}
                                     label="Export Households Services as PDF"
                                     type="pdf"
+                                    totalRecords={households.total} // disables if total > 500
                                 />
                             </div>
 

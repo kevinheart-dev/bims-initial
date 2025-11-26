@@ -459,7 +459,7 @@ Route::middleware(['auth', 'role:resident|barangay_officer'])->group(function ()
 });
 
 // Routes accessible to both resident and admin users (verified users)
-Route::middleware(['auth', 'role:resident|barangay_officer|super_admin|admin'])->group(function () {
+Route::middleware(['auth', 'role:resident|barangay_officer|super_admin|admin|cdrrmo_admin'])->group(function () {
     // Profile management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

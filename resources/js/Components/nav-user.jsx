@@ -50,7 +50,11 @@ export function NavUser({ user, auth }) {
                         >
                             <Avatar className="h-8 w-8 rounded-lg">
                                 <AvatarImage
-                                    src={user.avatar}
+                                    src={
+                                        user.role === "cdrrmo_admin"
+                                            ? "/images/cdrrmo.png"
+                                            : user.avatar
+                                    }
                                     alt={user.name}
                                 />
                                 <AvatarFallback className="rounded-lg">
@@ -59,7 +63,7 @@ export function NavUser({ user, auth }) {
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-semibold">
-                                    {user.name}
+                                    {user.username}
                                 </span>
                                 <span className="truncate text-xs">
                                     {user.email}
@@ -78,7 +82,11 @@ export function NavUser({ user, auth }) {
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                                 <Avatar className="h-8 w-8 rounded-lg">
                                     <AvatarImage
-                                        src={user.avatar}
+                                        src={
+                                            user.role === "cdrrmo_admin"
+                                                ? "/images/cdrrmo.png"
+                                                : user.avatar
+                                        }
                                         alt={user.name}
                                     />
                                     <AvatarFallback className="rounded-lg">
@@ -87,7 +95,7 @@ export function NavUser({ user, auth }) {
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
                                     <span className="truncate font-semibold">
-                                        {user.name}
+                                        {user.username}
                                     </span>
                                     <span className="truncate text-xs">
                                         {user.email}

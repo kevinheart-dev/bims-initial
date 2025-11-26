@@ -72,7 +72,6 @@ class AuthenticatedSessionController extends Controller
         if ($user->isBarangayOfficer()) {
             return redirect()->intended(route('barangay_officer.dashboard', [], false));
         }
-
         if ($user->isResident()) {
             return redirect()->intended(route('resident_account.certificates', [], false));
         }

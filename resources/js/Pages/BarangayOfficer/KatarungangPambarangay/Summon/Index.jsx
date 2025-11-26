@@ -388,6 +388,7 @@ export default function Index({ summons, queryParams, incident_types }) {
                                     queryParams={queryParams}
                                     label="Export Summon Summary as PDF"
                                     type="pdf"
+                                    totalRecords={summons.total}
                                 />
                             </div>
 

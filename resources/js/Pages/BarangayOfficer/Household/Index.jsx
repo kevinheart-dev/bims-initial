@@ -373,6 +373,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
                                     queryParams={queryParams}
                                     label="Export Households as PDF"
                                     type="pdf"
+                                    totalRecords={households.total}
                                 />
                                 <ExportButton
                                     url="report/export-householdmembers-excel"
@@ -385,6 +386,7 @@ export default function Index({ households, puroks, streets, queryParams }) {
                                     queryParams={queryParams}
                                     label="Export Households as PDF"
                                     type="pdf"
+                                    totalRecords={households.total} // disables if total > 500
                                 />
                             </div>
 

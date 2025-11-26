@@ -517,6 +517,7 @@ export default function Index({
                                     url="report/export-seniorcitizen-pdf"
                                     queryParams={queryParams}
                                     type="pdf"
+                                    totalRecords={initialSeniors.total} // disables if total > 500
                                 />
                             </div>
                             <div className="flex items-center gap-2 flex-wrap justify-end">

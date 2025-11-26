@@ -497,6 +497,7 @@ export default function Index({
             replace: true,
         });
     };
+    console.log("Rendering Resident Index with residents:", residents);
 
     return (
         <AdminLayout>
@@ -541,6 +542,7 @@ export default function Index({
                                         url="report/export-resident-pdf"
                                         queryParams={currentQueryParams}
                                         type="pdf"
+                                        totalRecords={residents.total} // dynamically disable if over 500
                                     />
                                     <ExportButton
                                         url="/report/export-monitoring-form-pdf"

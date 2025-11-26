@@ -347,6 +347,7 @@ export default function Index({ blotters, queryParams, incident_types }) {
                                     queryParams={queryParams}
                                     label="Export Blotter Reports as PDF"
                                     type="pdf"
+                                    totalRecords={blotters.total}
                                 />
                             </div>
 

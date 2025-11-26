@@ -147,7 +147,7 @@ class ResidentsExport implements FromCollection, WithHeadings, ShouldAutoSize, W
         return [
             'ID', 'Firstname', 'Middlename', 'Lastname', 'Suffix', 'Sex', 'Purok',
             'Birthdate', 'Age', 'Civil Status', 'Ethnicity', 'Religion',
-            'Contact Number', 'Email', 'Registered Voter', 'Employment Status',
+            'Contact Number', 'Email', 'Registered Voter', 'Employment Status','PWD','Solo Parent',
             '4Ps Beneficiary', 'Occupation',
         ];
     }

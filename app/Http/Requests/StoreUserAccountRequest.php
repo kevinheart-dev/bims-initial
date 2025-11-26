@@ -25,7 +25,7 @@ class StoreUserAccountRequest extends FormRequest
     {
         return [
             'resident_id' => ['required', 'exists:residents,id', 'unique:users,resident_id'],
-            'username' => ['required', 'string', 'max:50', 'unique:users,username'],
+            'username' => ['required', 'string', 'max:50'],
             'role' => ['required', 'string', Rule::in(['resident', 'barangay_officer'])],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => [

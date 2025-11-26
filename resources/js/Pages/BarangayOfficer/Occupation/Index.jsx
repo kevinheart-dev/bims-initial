@@ -507,6 +507,7 @@ export default function Index({
                                     queryParams={queryParams}
                                     label="Export Education Histories as PDF"
                                     type="pdf"
+                                    totalRecords={occupations.total}
                                 />
                             </div>
                             <div className="flex items-center gap-2 flex-wrap justify-end">

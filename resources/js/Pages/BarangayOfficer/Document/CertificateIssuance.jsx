@@ -490,13 +490,13 @@ export default function Index({
                         icon: <FileText className="w-4 h-4 text-green-600" />,
                         onClick: () => handleCertificateDownload(row.id),
                     },
-                    {
-                        label: "Print",
-                        icon: (
-                            <PrinterIcon className="w-4 h-4 text-indigo-600" />
-                        ),
-                        onClick: () => handleCertificatePrint(row.id),
-                    },
+                    // {
+                    //     label: "Print",
+                    //     icon: (
+                    //         <PrinterIcon className="w-4 h-4 text-indigo-600" />
+                    //     ),
+                    //     onClick: () => handleCertificatePrint(row.id),
+                    // },
                 ]}
             />
         ),

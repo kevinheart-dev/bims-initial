@@ -511,6 +511,7 @@ export default function Index({ families, queryParams = null, puroks }) {
                                     queryParams={queryParams}
                                     label="Export Family as PDF"
                                     type="pdf"
+                                    totalRecords={families.total} // disables if total > 500
                                 />
                                 <ExportButton
                                     url="report/export-familymembers-excel"
@@ -522,6 +523,7 @@ export default function Index({ families, queryParams = null, puroks }) {
                                     queryParams={queryParams}
                                     label="Export Family Members as PDF"
                                     type="pdf"
+                                    totalRecords={families.total} // disables if total > 500
                                 />
                             </div>
                             {/* Search, and other buttons */}

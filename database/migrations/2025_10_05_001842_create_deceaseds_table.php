@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('resident_id')->constrained('residents')->onDelete('cascade');
 
             // Death-related details
-            $table->date('date_of_death');
+            $table->date('date_of_death')->nullable();
             $table->string('cause_of_death')->nullable();
             $table->string('place_of_death')->nullable();
             $table->string('burial_place')->nullable();
