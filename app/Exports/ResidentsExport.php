@@ -119,7 +119,6 @@ class ResidentsExport implements FromCollection, WithHeadings, ShouldAutoSize, W
         $this->totalRecords = $residents->count();
 
         return $residents->map(fn($r) => [
-            'ID' => $r->id,
             'Firstname' => $r->firstname,
             'Middlename' => $r->middlename,
             'Lastname' => $r->lastname,
@@ -129,15 +128,11 @@ class ResidentsExport implements FromCollection, WithHeadings, ShouldAutoSize, W
             'Birthdate' => $r->birthdate,
             'Age' => $r->age,
             'Civil Status' => $r->civil_status,
-            'Ethnicity' => $r->ethnicity,
             'Religion' => $r->religion,
             'Contact Number' => $r->contact_number,
-            'Email' => $r->email,
             'Registered Voter' => $r->registered_voter ? 'Yes' : 'No',
-            'Employment Status' => $r->employment_status,
             'PWD' => $r->is_pwd ? 'Yes' : 'No',
-            'Solo Parent' => $r->socialwelfareprofile?->is_solo_parent ? 'Yes' : 'No',
-            '4Ps Beneficiary' => $r->socialwelfareprofile?->is_4ps_beneficiary ? 'Yes' : 'No',
+            'Employment Status' => $r->employment_status,
             'Occupation' => $r->occupations->first()?->occupation,
         ]);
     }
@@ -145,10 +140,9 @@ class ResidentsExport implements FromCollection, WithHeadings, ShouldAutoSize, W
     public function headings(): array
     {
         return [
-            'ID', 'Firstname', 'Middlename', 'Lastname', 'Suffix', 'Sex', 'Purok',
-            'Birthdate', 'Age', 'Civil Status', 'Ethnicity', 'Religion',
-            'Contact Number', 'Email', 'Registered Voter', 'Employment Status','PWD','Solo Parent',
-            '4Ps Beneficiary', 'Occupation',
+            'Firstname', 'Middlename', 'Lastname', 'Suffix', 'Sex', 'Purok',
+            'Birthdate', 'Age', 'Civil Status', 'Religion',
+            'Contact Number', 'Registered Voter', 'PWD', 'Employment Status','Occupation',
         ];
     }
 
@@ -203,21 +197,27 @@ class ResidentsExport implements FromCollection, WithHeadings, ShouldAutoSize, W
                 $logoLeft->setDescription('Barangay Logo');
                 $logoLeft->setPath($barangayLogo);
                 $logoLeft->setHeight(80);
-                $logoLeft->setCoordinates('A1');
-                $logoLeft->setOffsetX(100);
-                $logoLeft->setOffsetY(5);
+                $logoLeft->setCoordinates('A1');  // first column
+                $logoLeft->setOffsetX(0);         // align left edge
+                $logoLeft->setOffsetY(5);         // slight padding from top
                 $logoLeft->setWorksheet($sheet);
 
                 // === Right Logo (City) ===
-                $targetColumn = Coordinate::stringFromColumnIndex($lastColumnIndex);
+                $targetColumn = Coordinate::stringFromColumnIndex($lastColumnIndex + 1); // last column
                 $logoRight = new Drawing();
                 $logoRight->setName('City Logo');
                 $logoRight->setDescription('City Logo');
                 $logoRight->setPath($cityLogo);
                 $logoRight->setHeight(80);
-                $logoRight->setCoordinates($targetColumn . '1'); // put it just past the last column
-                $logoRight->setOffsetX(200);
-                $logoRight->setOffsetY(5);
+                $logoRight->setCoordinates($targetColumn . '1'); // last column
+                $logoRight->setOffsetX(0);                        // reset X offset
+                $logoRight->setOffsetY(5);                        // slight padding from top
+
+                // Move logo to appear on the **right edge of last column**
+                $sheetColumnWidth = $sheet->getColumnDimension($targetColumn)->getWidth();
+                // Multiply approximate factor to convert column width to pixels (~7 pixels per width unit)
+                $logoRight->setOffsetX($sheetColumnWidth * 7 - $logoRight->getWidth());
+
                 $logoRight->setWorksheet($sheet);
 
                 // === Titles ===
