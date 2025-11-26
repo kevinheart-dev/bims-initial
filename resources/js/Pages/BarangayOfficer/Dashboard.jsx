@@ -15,6 +15,8 @@ import FamilyIncomeBarChart from "./DashboardCharts/FamilyIncome";
 import EducationStackedBarChart from "./DashboardCharts/EducationHistory";
 import EthnicityBarChart from "./DashboardCharts/EthnicityDistribution";
 import HalfPieChart from "@/Components/DasboardComponents/HalfPieChart";
+import Index from "./Reports/Index";
+
 const iconMap = {
     users: (
         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-100">
@@ -278,6 +280,9 @@ export default function Dashboard({
                     </div>
                 </div>
             </div>
+
+            {/* reports */}
+            <Index />
         </AdminLayout>
     );
 }
