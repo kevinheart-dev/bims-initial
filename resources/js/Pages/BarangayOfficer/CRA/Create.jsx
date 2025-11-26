@@ -109,30 +109,81 @@ export default function Index({ progress, barangay_id }) {
     //     }
     // });
 
+    // const [craData, setCraData] = useState(() => {
+    //     try {
+    //         const saved = localStorage.getItem(`craDataDraft_${yearFromUrl}`);
+    //         return saved
+    //             ? JSON.parse(saved)
+    //             : {
+    //                   population: [],
+    //                   livelihood: (defaultLivelihoods ?? []).map((type) => ({
+    //                       type,
+    //                       male_no_dis: "",
+    //                       male_dis: "",
+    //                       female_no_dis: "",
+    //                       female_dis: "",
+    //                       lgbtq_no_dis: "",
+    //                       lgbtq_dis: "",
+    //                   })),
+    //                   infrastructure: defaultInfra ?? [],
+    //                   institutions: [],
+    //                   hazards: [],
+    //                   evacuation: [],
+    //                   buildings: JSON.parse(JSON.stringify(defaultBuildings)),
+    //                   facilities: JSON.parse(JSON.stringify(defaultFacilities)),
+    //                   year: yearFromUrl,
+    //               };
+    //     } catch (err) {
+    //         console.error("Error loading draft:", err);
+    //         return {
+    //             population: [],
+    //             livelihood: (defaultLivelihoods ?? []).map((type) => ({
+    //                 type,
+    //                 male_no_dis: "",
+    //                 male_dis: "",
+    //                 female_no_dis: "",
+    //                 female_dis: "",
+    //                 lgbtq_no_dis: "",
+    //                 lgbtq_dis: "",
+    //             })),
+    //             infrastructure: defaultInfra ?? [],
+    //             institutions: [],
+    //             hazards: [],
+    //             evacuation: [],
+    //             buildings: JSON.parse(JSON.stringify(defaultBuildings)),
+    //             facilities: JSON.parse(JSON.stringify(defaultFacilities)),
+    //             year: yearFromUrl,
+    //         };
+    //     }
+    // });
+
+    const storageKey = `craDataDraft_${barangay_id}_${yearFromUrl}`;
+
     const [craData, setCraData] = useState(() => {
         try {
-            const saved = localStorage.getItem(`craDataDraft_${yearFromUrl}`);
+            // UPDATED: Use storageKey with barangay_id
+            const saved = localStorage.getItem(storageKey);
             return saved
                 ? JSON.parse(saved)
                 : {
-                      population: [],
-                      livelihood: (defaultLivelihoods ?? []).map((type) => ({
-                          type,
-                          male_no_dis: "",
-                          male_dis: "",
-                          female_no_dis: "",
-                          female_dis: "",
-                          lgbtq_no_dis: "",
-                          lgbtq_dis: "",
-                      })),
-                      infrastructure: defaultInfra ?? [],
-                      institutions: [],
-                      hazards: [],
-                      evacuation: [],
-                      buildings: JSON.parse(JSON.stringify(defaultBuildings)),
-                      facilities: JSON.parse(JSON.stringify(defaultFacilities)),
-                      year: yearFromUrl,
-                  };
+                    population: [],
+                    livelihood: (defaultLivelihoods ?? []).map((type) => ({
+                        type,
+                        male_no_dis: "",
+                        male_dis: "",
+                        female_no_dis: "",
+                        female_dis: "",
+                        lgbtq_no_dis: "",
+                        lgbtq_dis: "",
+                    })),
+                    infrastructure: defaultInfra ?? [],
+                    institutions: [],
+                    hazards: [],
+                    evacuation: [],
+                    buildings: JSON.parse(JSON.stringify(defaultBuildings)),
+                    facilities: JSON.parse(JSON.stringify(defaultFacilities)),
+                    year: yearFromUrl,
+                };
         } catch (err) {
             console.error("Error loading draft:", err);
             return {
@@ -157,26 +208,71 @@ export default function Index({ progress, barangay_id }) {
         }
     });
 
+    // useEffect(() => {
+    //     if (year) {
+    //         localStorage.setItem(
+    //             `craDataDraft_${year}`,
+    //             JSON.stringify(craData)
+    //         );
+    //     }
+    // }, [craData, year]);
+
     useEffect(() => {
-        if (year) {
+        if (year && barangay_id) {
+            // UPDATED: Save with barangay_id in the key
             localStorage.setItem(
-                `craDataDraft_${year}`,
+                `craDataDraft_${barangay_id}_${year}`,
                 JSON.stringify(craData)
             );
         }
-    }, [craData, year]);
+    }, [craData, year, barangay_id]); // Added barangay_id dependency
+
+    // useEffect(() => {
+    //     if (!year) return;
+
+    //     try {
+    //         const saved = localStorage.getItem(`craDataDraft_${year}`);
+
+    //         if (saved) {
+    //             setCraData(JSON.parse(saved));
+    //         } else {
+    //             setCraData({
+    //                 population: parsed.population ?? [],
+    //                 livelihood: (defaultLivelihoods ?? []).map((type) => ({
+    //                     type,
+    //                     male_no_dis: "",
+    //                     male_dis: "",
+    //                     female_no_dis: "",
+    //                     female_dis: "",
+    //                     lgbtq_no_dis: "",
+    //                     lgbtq_dis: "",
+    //                 })),
+    //                 infrastructure: defaultInfra ?? [],
+    //                 institutions: [],
+    //                 hazards: [],
+    //                 evacuation: [],
+    //                 buildings: JSON.parse(JSON.stringify(defaultBuildings)),
+    //                 facilities: JSON.parse(JSON.stringify(defaultFacilities)),
+    //                 year,
+    //             });
+    //         }
+    //     } catch (error) {
+    //         console.error("Error reloading draft:", error);
+    //     }
+    // }, [year]);
 
     useEffect(() => {
-        if (!year) return;
+        if (!year || !barangay_id) return;
 
         try {
-            const saved = localStorage.getItem(`craDataDraft_${year}`);
+            // UPDATED: Load with barangay_id in the key
+            const saved = localStorage.getItem(`craDataDraft_${barangay_id}_${year}`);
 
             if (saved) {
                 setCraData(JSON.parse(saved));
             } else {
                 setCraData({
-                    population: parsed.population ?? [],
+                    population: [],
                     livelihood: (defaultLivelihoods ?? []).map((type) => ({
                         type,
                         male_no_dis: "",
@@ -198,7 +294,8 @@ export default function Index({ progress, barangay_id }) {
         } catch (error) {
             console.error("Error reloading draft:", error);
         }
-    }, [year]);
+    }, [year, barangay_id]);
+
 
     const [finalData, setFinalData] = useState([]);
     const [errors, setErrors] = useState({});
@@ -229,42 +326,80 @@ export default function Index({ progress, barangay_id }) {
     };
 
     // ✅ Step navigation and submission
+    // const handleClick = (direction) => {
+    //     let newStep = currentStep;
+
+    //     if (direction === "next") {
+    //         if (currentStep === steps.length) {
+    //             // ✅ Submit to backend
+    //             router.post(route("cra.store"), craData, {
+    //                 onSuccess: () => {
+    //                     // // ✅ Remove local draft after successful submission
+    //                     // localStorage.removeItem(`craDataDraft_${year}`);
+    //                     toast.success("CRA submitted successfully!");
+    //                 },
+    //                 onError: (errors) => {
+    //                     setErrors(errors);
+    //                     console.error("Validation Errors:", errors);
+
+    //                     // ✅ Rehydrate data from local storage in case Inertia wiped it
+    //                     const saved = localStorage.getItem(
+    //                         `craDataDraft_${year}`
+    //                     );
+    //                     if (saved) {
+    //                         setCraData(JSON.parse(saved));
+    //                     }
+
+    //                     const allErrors = Object.values(errors).join("<br />");
+    //                     toast.error("Validation Errors", {
+    //                         description: (
+    //                             <div
+    //                                 dangerouslySetInnerHTML={{
+    //                                     __html: allErrors,
+    //                                 }}
+    //                             />
+    //                         ),
+    //                         duration: 5000,
+    //                         closeButton: true,
+    //                     });
+    //                 },
+    //             });
+    //             return;
+    //         }
+    //         newStep++;
+    //     } else {
+    //         newStep--;
+    //     }
+
+    //     if (newStep > 0 && newStep <= steps.length) {
+    //         setCurrentStep(newStep);
+    //     }
+    // };
+
     const handleClick = (direction) => {
         let newStep = currentStep;
 
         if (direction === "next") {
             if (currentStep === steps.length) {
-                // ✅ Submit to backend
-                router.post(route("cra.store"), craData, {
+                router.post(route("cra.store"), { ...craData, barangay_id }, {
                     onSuccess: () => {
-                        // // ✅ Remove local draft after successful submission
-                        // localStorage.removeItem(`craDataDraft_${year}`);
+                        // Remove specific draft
+                        localStorage.removeItem(`craDataDraft_${barangay_id}_${year}`);
                         toast.success("CRA submitted successfully!");
                     },
                     onError: (errors) => {
                         setErrors(errors);
                         console.error("Validation Errors:", errors);
 
-                        // ✅ Rehydrate data from local storage in case Inertia wiped it
+                        // ✅ Rehydrate data from local storage (UPDATED KEY)
                         const saved = localStorage.getItem(
-                            `craDataDraft_${year}`
+                            `craDataDraft_${barangay_id}_${year}`
                         );
                         if (saved) {
                             setCraData(JSON.parse(saved));
                         }
 
-                        const allErrors = Object.values(errors).join("<br />");
-                        toast.error("Validation Errors", {
-                            description: (
-                                <div
-                                    dangerouslySetInnerHTML={{
-                                        __html: allErrors,
-                                    }}
-                                />
-                            ),
-                            duration: 5000,
-                            closeButton: true,
-                        });
+                        // ... rest of error handling
                     },
                 });
                 return;
@@ -278,7 +413,6 @@ export default function Index({ progress, barangay_id }) {
             setCurrentStep(newStep);
         }
     };
-
     // ✅ Handle print CRA PDF
     const handlePrint = () => {
         if (!year) {
@@ -288,13 +422,6 @@ export default function Index({ progress, barangay_id }) {
         const url = route("cra.pdf", { id: year });
         window.open(url, "_blank");
     };
-
-    // useEffect(() => {
-    //     if (success) {
-    //         window.location.reload(); // <-- call the function
-    //     }
-    //     props.success = null;
-    // }, [success]);
 
     useEffect(() => {
         if (success) {

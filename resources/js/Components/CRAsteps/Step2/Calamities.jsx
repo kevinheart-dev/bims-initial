@@ -250,7 +250,7 @@ const CalamityTable = ({ calamities, updateCell }) => {
                                 <React.Fragment key={calIdx}>
                                     <td className="border text-center px-2 py-1">
                                         <input
-                                            type="text"
+                                            type="number"
                                             className="w-full border text-center"
                                             value={popRow.value}
                                             onChange={(e) =>
@@ -308,7 +308,7 @@ const CalamityTable = ({ calamities, updateCell }) => {
                                 <React.Fragment key={calIdx}>
                                     <td className="border text-center px-2 py-1">
                                         <input
-                                            type="text"
+                                            type="number"
                                             className="w-full border text-center"
                                             value={impactRow.value}
                                             onChange={(e) =>
