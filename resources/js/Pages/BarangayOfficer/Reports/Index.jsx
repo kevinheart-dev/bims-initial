@@ -2,183 +2,152 @@ import React from "react";
 import AdminLayout from "@/Layouts/AdminLayout";
 import BreadCrumbsHeader from "@/Components/BreadcrumbsHeader";
 import { Head } from "@inertiajs/react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, Clock } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { FileSpreadsheet, FileText, BarChart3, Download } from "lucide-react";
 
 const Index = () => {
     const breadcrumbs = [{ label: "Reports", showOnMobile: false }];
 
     const reports = [
         {
-            id: "resident",
-            title: "Residents Report",
-            description:
-                "A detailed report listing all registered residents in the barangay, including personal details, household associations, and demographic information.",
-            lastGenerated: "Not yet generated",
+            title: "RBI form C",
+            baseDesc: "summary of population by age bracket and sector.",
+            pdfUrl: "/report/export-monitoring-form-pdf",
+        },
+        {
+            title: "Residents",
+            baseDesc: "resident records.",
             url: "report/export-residents-excel",
             pdfUrl: "report/export-resident-pdf",
         },
         {
-            id: "seniorcitizen",
-            title: "Senior Citizens Report",
-            description:
-                "A summary of all senior citizens within the community, including age, household connections, and eligibility for assistance programs.",
-            lastGenerated: "Not yet generated",
+            title: "Senior Citizens",
+            baseDesc: "senior citizen registry.",
             url: "report/export-seniorcitizen-excel",
             pdfUrl: "report/export-seniorcitizen-pdf",
         },
         {
-            id: "family",
-            title: "Family Report",
-            description:
-                "An overview of families, highlighting their composition, relationships, and address information within the barangay records.",
-            lastGenerated: "Not yet generated",
+            title: "Families",
+            baseDesc: "family composition records.",
             url: "report/export-family-excel",
             pdfUrl: "report/export-family-pdf",
         },
         {
-            id: "household",
-            title: "Household Report",
-            description:
-                "A complete listing of households, their members, and classification details for record-keeping and barangay statistics.",
-            lastGenerated: "Not yet generated",
+            title: "Households",
+            baseDesc: "household listings.",
             url: "report/export-household-excel",
             pdfUrl: "report/export-household-pdf",
         },
         {
-            id: "vehicles",
-            title: "Vehicles Report",
-            description:
-                "An organized list of vehicles registered by residents, including ownership details, type, and classification.",
-            lastGenerated: "Not yet generated",
+            title: "Vehicles",
+            baseDesc: "vehicle registrations.",
             url: "report/export-vehicles-excel",
             pdfUrl: "report/export-vehicle-pdf",
         },
         {
-            id: "occupation",
-            title: "Occupation Reports",
-            description:
-                "A comprehensive report of residents' occupations, employment status, and related livelihood information within the barangay.",
-            lastGenerated: "Not yet generated",
+            title: "Occupations",
+            baseDesc: "employment data.",
             url: "report/export-occupations-excel",
             pdfUrl: "report/export-occupations-pdf",
         },
         {
-            id: "education",
-            title: "Education Reports",
-            description:
-                "A record of residents' educational attainment, school enrollment, and academic progress within the barangay.",
-            lastGenerated: "Not yet generated",
+            title: "Education",
+            baseDesc: "student statistics.",
             url: "report/export-education-excel",
             pdfUrl: "report/export-education-pdf",
         },
         {
-            id: "blotter",
-            title: "Blotter Reports",
-            description:
-                "Incident and blotter records filed within the barangay, including case details, parties involved, and resolution status.",
-            lastGenerated: "Not yet generated",
+            title: "Blotter",
+            baseDesc: "incident cases.",
             url: "report/export-blotter-reports-excel",
             pdfUrl: "report/export-blotter-reports-pdf",
         },
         {
-            id: "summon",
-            title: "Summon Reports",
-            description:
-                "A detailed listing of summons issued by the barangay, including parties involved, hearing schedules, and case status.",
-            lastGenerated: "Not yet generated",
+            title: "Summons",
+            baseDesc: "summon schedules.",
             url: "report/export-summon-excel",
             pdfUrl: "report/export-summon-pdf",
         },
         {
-            id: "medical",
-            title: "Medical Information Report",
-            description:
-                "Comprehensive health-related records of residents, including medical conditions, disabilities, allergies, vaccinations, and medications.",
-            lastGenerated: "Not yet generated",
+            title: "Medical",
+            baseDesc: "health records.",
             url: "report/export-medical-excel",
             pdfUrl: "report/export-medical-pdf",
         },
+
     ];
 
     return (
-        <AdminLayout>
-            <Head title="Reports" />
-            <BreadCrumbsHeader breadcrumbs={breadcrumbs} />
 
-            <div className="mx-auto max-w-8xl px-4 sm:px-2 md:px-4 lg:px-6 py-6">
-                <div className="mb-6">
-                    <div className="flex items-center gap-3 p-3 bg-green-100 rounded-xl shadow-sm">
-                        <div className="p-2 bg-green-200 rounded-full">
-                            <FileSpreadsheet className="w-6 h-6 text-green-600" />
-                        </div>
-                        <div>
-                            <h1 className="text-xl md:text-2xl font-semibold text-gray-900">
-                                Reports
-                            </h1>
-                            <p className="text-sm text-gray-500">
-                                Generate and download detailed records of
-                                residents, households, families, vehicles, and
-                                blotter cases. Use the tools below to{" "}
-                                <span className="font-medium">export</span> data
-                                for documentation and analytics.
-                            </p>
-                        </div>
-                    </div>
+        <div className="mx-auto max-w-1250 px-6 py-6">
+            <div className="mb-8 rounded-xl bg-white p-6 shadow-sm border border-gray-100 flex items-start gap-4">
+                <div className="p-3 bg-gray-100 rounded-full shrink-0">
+                    <BarChart3 className="w-6 h-6 text-gray-700" />
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {reports.map((report) => (
-                        <Card
-                            key={report.id}
-                            className="flex flex-col h-full border rounded-xl shadow-sm hover:shadow-lg transition-all duration-300"
-                        >
-                            <CardHeader className="bg-green-50 border-b px-4 py-3 rounded-t-xl">
-                                <CardTitle className="flex items-center gap-2 text-base font-semibold text-gray-900">
-                                    <FileSpreadsheet className="h-5 w-5 text-green-600" />
-                                    {report.title}
-                                </CardTitle>
-                            </CardHeader>
-
-                            <CardContent className="flex flex-col flex-1 px-4 py-3">
-                                <p className="text-gray-700 text-sm mb-4 line-clamp-3">
-                                    {report.description}
-                                </p>
-
-                                <div className="flex items-center gap-2 text-xs text-gray-500 mb-4">
-                                    <Clock className="h-4 w-4" />
-                                    <span>
-                                        Last generated: {report.lastGenerated}
-                                    </span>
-                                </div>
-
-                                <div className="mt-auto flex flex-col gap-2">
-                                    <a
-                                        href={report.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        <Button className="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md shadow-sm transition">
-                                            Download Excel
-                                        </Button>
-                                    </a>
-                                    <a
-                                        href={report.pdfUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm transition">
-                                            Download PDF
-                                        </Button>
-                                    </a>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">
+                        System Reports
+                    </h1>
+                    <p className="text-gray-500 text-sm mt-1">
+                        Select a file card below to download the specific report format.
+                    </p>
                 </div>
             </div>
-        </AdminLayout>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {reports.map((report, index) => (
+                    <React.Fragment key={index}>
+                        <a
+                            href={report.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block group"
+                        >
+                            <Card className="h-full p-4 border border-gray-200 hover:border-green-400 hover:shadow-md transition-all duration-300 group-hover:-translate-y-1">
+                                <div className="flex items-start justify-between mb-3">
+                                    <div className="p-2 bg-green-50 rounded-lg text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                                        <FileSpreadsheet className="w-5 h-5" />
+                                    </div>
+                                    <Download className="w-4 h-4 text-gray-300 group-hover:text-green-500" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-gray-900 group-hover:text-green-700">
+                                        {report.title} Excel
+                                    </h3>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Editable spreadsheet for {report.baseDesc}
+                                    </p>
+                                </div>
+                            </Card>
+                        </a>
+                        <a
+                            href={report.pdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block group"
+                        >
+                            <Card className="h-full p-4 border border-gray-200 hover:border-red-400 hover:shadow-md transition-all duration-300 group-hover:-translate-y-1">
+                                <div className="flex items-start justify-between mb-3">
+                                    <div className="p-2 bg-red-50 rounded-lg text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                                        <FileText className="w-5 h-5" />
+                                    </div>
+                                    <Download className="w-4 h-4 text-gray-300 group-hover:text-red-500" />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-gray-900 group-hover:text-red-700">
+                                        {report.title} PDF
+                                    </h3>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Printable document for {report.baseDesc}
+                                    </p>
+                                </div>
+                            </Card>
+                        </a>
+                    </React.Fragment>
+                ))}
+            </div>
+        </div>
+
     );
 };
 

@@ -212,7 +212,7 @@ export function AppSidebar({ auth }) {
                 const isDifferent =
                     !cachedDataWithoutTimestamp ||
                     JSON.stringify(cachedDataWithoutTimestamp) !==
-                        JSON.stringify(apiData);
+                    JSON.stringify(apiData);
 
                 if (isDifferent) {
                     // Update state
@@ -510,12 +510,12 @@ export function AppSidebar({ auth }) {
                 },
             ],
         },
-        {
-            title: "Reports",
-            url: "/report",
-            icon: Flag,
-            roles: ["barangay_officer", "admin"],
-        },
+        // {
+        //     title: "Reports",
+        //     url: "/report",
+        //     icon: Flag,
+        //     roles: ["barangay_officer", "admin"],
+        // },
         {
             title: "Demographic Summary",
             icon: FileStack,
@@ -1045,18 +1045,17 @@ export function AppSidebar({ auth }) {
                                         >
                                             <a
                                                 href={item.url || "#"}
-                                                className={`flex items-center justify-between w-full my-1 px-2 py-2 rounded-lg transition-all duration-200 ${
-                                                    isActive(item.url) ||
-                                                    (item.submenu &&
-                                                        item.submenu.some(
-                                                            (sub) =>
-                                                                isActive(
-                                                                    sub.url
-                                                                )
-                                                        ))
+                                                className={`flex items-center justify-between w-full my-1 px-2 py-2 rounded-lg transition-all duration-200 ${isActive(item.url) ||
+                                                        (item.submenu &&
+                                                            item.submenu.some(
+                                                                (sub) =>
+                                                                    isActive(
+                                                                        sub.url
+                                                                    )
+                                                            ))
                                                         ? "text-gray-900 font-semibold"
                                                         : "text-gray-700 hover:text-gray-900"
-                                                }`}
+                                                    }`}
                                             >
                                                 <div className="flex items-center">
                                                     <item.icon className="mr-2 h-5 w-5" />
@@ -1087,23 +1086,21 @@ export function AppSidebar({ auth }) {
                                     {/* Submenu */}
                                     {item.submenu?.length > 0 && (
                                         <SidebarGroupContent
-                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                                                openIndex === index
+                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${openIndex === index
                                                     ? "max-h-[1000px] opacity-100"
                                                     : "max-h-0 opacity-0"
-                                            }`}
+                                                }`}
                                         >
                                             {item.submenu?.length > 0 && (
                                                 <SidebarGroupContent
-                                                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                                                        openIndex === index
+                                                    className={`overflow-hidden transition-all duration-300 ease-in-out ${openIndex === index
                                                             ? "max-h-[1000px] opacity-100"
                                                             : "max-h-0 opacity-0"
-                                                    }`}
+                                                        }`}
                                                 >
                                                     {/* Check if this is CRA Settings */}
                                                     {item.title ===
-                                                    "CRA Settings" ? (
+                                                        "CRA Settings" ? (
                                                         <div className="px-4 py-3">
                                                             <label
                                                                 htmlFor="cra-year"
@@ -1133,7 +1130,7 @@ export function AppSidebar({ auth }) {
                                                                 </option>
 
                                                                 {craList &&
-                                                                craList.length >
+                                                                    craList.length >
                                                                     0 ? (
                                                                     [
                                                                         ...new Set(
@@ -1195,7 +1192,7 @@ export function AppSidebar({ auth }) {
                                                                     Years
                                                                 </h3>
                                                                 {craList &&
-                                                                craList.length >
+                                                                    craList.length >
                                                                     0 ? (
                                                                     [
                                                                         ...new Set(
@@ -1244,7 +1241,7 @@ export function AppSidebar({ auth }) {
                                                             </div>
                                                         </div>
                                                     ) : item.title ===
-                                                      "Community Risk Assessment" ? (
+                                                        "Community Risk Assessment" ? (
                                                         <div className="px-4 py-2">
                                                             {item.submenu
                                                                 .filter((sub) =>
@@ -1279,13 +1276,12 @@ export function AppSidebar({ auth }) {
                                                                                             href={
                                                                                                 sub.url
                                                                                             }
-                                                                                            className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${
-                                                                                                isActive(
-                                                                                                    sub.url
-                                                                                                )
+                                                                                            className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${isActive(
+                                                                                                sub.url
+                                                                                            )
                                                                                                     ? "bg-gray-200 text-gray-900 font-semibold"
                                                                                                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                                                                                            }`}
+                                                                                                }`}
                                                                                         >
                                                                                             <sub.icon className="mr-2 h-4 w-4" />
                                                                                             <span>
@@ -1301,12 +1297,11 @@ export function AppSidebar({ auth }) {
                                                                                 <div className="ml-10 mr-2">
                                                                                     <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                                                                                         <div
-                                                                                            className={`h-2 rounded-full transition-all duration-500 ${
-                                                                                                percentage >=
-                                                                                                100
+                                                                                            className={`h-2 rounded-full transition-all duration-500 ${percentage >=
+                                                                                                    100
                                                                                                     ? "bg-green-500"
                                                                                                     : "bg-blue-500"
-                                                                                            }`}
+                                                                                                }`}
                                                                                             style={{
                                                                                                 width: `${percentage}%`,
                                                                                             }}
@@ -1350,13 +1345,12 @@ export function AppSidebar({ auth }) {
                                                                             href={
                                                                                 sub.url
                                                                             }
-                                                                            className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${
-                                                                                isActive(
-                                                                                    sub.url
-                                                                                )
+                                                                            className={`flex items-center pl-8 pr-2 py-2 my-1 rounded-md transition-all duration-200 ${isActive(
+                                                                                sub.url
+                                                                            )
                                                                                     ? "bg-gray-200 text-gray-900 font-semibold"
                                                                                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                                                                            }`}
+                                                                                }`}
                                                                         >
                                                                             <sub.icon className="mr-2 h-4 w-4" />
                                                                             <span>
